@@ -1369,6 +1369,17 @@ pub fn build() -> TokenStream {
     let mut type_from_raw_id_arms = TokenStream::new();
     let mut type_from_name = TokenStream::new();
 
+    // Runtime-registered items are numbered from here up.
+    let item_count = LitInt::new(
+        &items
+            .values()
+            .map(|item| item.id + 1)
+            .max()
+            .unwrap_or(0)
+            .to_string(),
+        Span::call_site(),
+    );
+
     let mut constants = TokenStream::new();
     let mut bedrock_constants = TokenStream::new();
     let mut mapping_constants = TokenStream::new();
@@ -1625,22 +1636,28 @@ pub fn build() -> TokenStream {
                 TextComponent::translate(name, &[])
             }
 
+            #[doc = r" The number of items generated at build time. Ids below this are always"]
+            #[doc = r" resolved without consulting the runtime registry."]
+            pub const BASE_COUNT: u16 = #item_count;
+
             #[doc = "Try to parse an item from a resource location string."]
             #[must_use]
             pub fn from_registry_key(name: &str) -> Option<&'static Self> {
-                let name = name.strip_prefix("minecraft:").unwrap_or(name);
-                match name {
+                let key = name.strip_prefix("minecraft:").unwrap_or(name);
+                match key {
                     #type_from_name
-                    _ => None
+                    // Runtime-registered items are always namespaced, so the unstripped
+                    // name is the one to look up.
+                    _ => crate::dynamic::item_from_name(name)
                 }
             }
 
             #[doc = "Try to parse an item from a raw id."]
             #[must_use]
-            pub const fn from_id(id: u16) -> Option<&'static Self> {
+            pub fn from_id(id: u16) -> Option<&'static Self> {
                 match id {
                     #type_from_raw_id_arms
-                    _ => None
+                    _ => crate::dynamic::item_from_id(id)
                 }
             }
         }
