@@ -38,19 +38,48 @@ impl pumpkin::plugin::registry::Host for PluginHostState {
             return Ok(Err(unknown_template("block", &definition.template)));
         };
 
-        let states: Vec<BlockState> = template
-            .states
+        // The properties decide how many states there are, because that count has to match
+        // the client's. Only a block that declares none falls back to the template's own.
+        let state_count = definition
+            .properties
             .iter()
-            .map(|state| copy_state(state, definition.luminance))
-            .collect();
+            .try_fold(1usize, |total, property| {
+                total.checked_mul(property.values.len().max(1))
+            })
+            .filter(|count| *count > 0)
+            .unwrap_or(1);
 
-        // The template's default state sits at a known offset in its own list, and the copy
-        // preserves the order, so the same offset selects the copy's default.
-        let default_state_index = template
-            .states
-            .iter()
-            .position(|state| state.id == template.default_state.id)
-            .unwrap_or(0);
+        let states: Vec<BlockState> = if definition.properties.is_empty() {
+            template
+                .states
+                .iter()
+                .map(|state| copy_state(state, definition.luminance))
+                .collect()
+        } else {
+            // Cycle the template's states so a block with more states than its template
+            // still gets a full set rather than running out.
+            (0..state_count)
+                .map(|index| {
+                    let source = template
+                        .states
+                        .get(index % template.states.len())
+                        .unwrap_or(template.default_state);
+                    copy_state(source, definition.luminance)
+                })
+                .collect()
+        };
+
+        let default_state_index = if definition.properties.is_empty() {
+            // The template's default sits at a known offset in its own list, and the copy
+            // preserves the order, so the same offset selects the copy's default.
+            template
+                .states
+                .iter()
+                .position(|state| state.id == template.default_state.id)
+                .unwrap_or(0)
+        } else {
+            (definition.default_state as usize).min(states.len().saturating_sub(1))
+        };
 
         let block = Block {
             hardness: definition.hardness.unwrap_or(template.hardness),

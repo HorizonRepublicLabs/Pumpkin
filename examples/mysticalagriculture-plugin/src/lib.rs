@@ -72,13 +72,22 @@ impl Plugin for MysticalAgriculturePlugin {
         }
         tracing::info!("declared {} network channels", CHANNELS.len());
 
-        for (name, template) in content::BLOCKS {
-            registry::register_block(&BlockDefinition::new(
-                format!("{MOD_ID}:{name}"),
-                template,
-            ))?;
+        let mut states = 0usize;
+        for block in content::BLOCKS {
+            let mut definition =
+                BlockDefinition::new(format!("{MOD_ID}:{}", block.name), block.template);
+            let mut count = 1usize;
+            for property in block.properties {
+                definition = definition.property(property.name, property.values.iter().copied());
+                count *= property.values.len();
+            }
+            states += count;
+            registry::register_block(&definition)?;
         }
-        tracing::info!("registered {} blocks", content::BLOCKS.len());
+        tracing::info!(
+            "registered {} blocks with {states} states",
+            content::BLOCKS.len()
+        );
 
         for (name, template) in content::ITEMS {
             registry::register_item(&registry::item(format!("{MOD_ID}:{name}"), template))?;

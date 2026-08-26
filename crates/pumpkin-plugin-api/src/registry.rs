@@ -27,8 +27,8 @@ pub use crate::wit::pumpkin::plugin::registry::{
 };
 
 use crate::wit::pumpkin::plugin::registry::{
-    self, BlockDefinition as WitBlockDefinition, EntityTypeDefinition as WitEntityTypeDefinition,
-    ItemDefinition as WitItemDefinition,
+    self, BlockDefinition as WitBlockDefinition, BlockProperty,
+    EntityTypeDefinition as WitEntityTypeDefinition, ItemDefinition as WitItemDefinition,
 };
 
 /// A block to add to the server's registry.
@@ -48,6 +48,8 @@ impl BlockDefinition {
             hardness: None,
             blast_resistance: None,
             luminance: None,
+            properties: Vec::new(),
+            default_state: 0,
         })
     }
 
@@ -69,6 +71,33 @@ impl BlockDefinition {
     #[must_use]
     pub fn luminance(mut self, luminance: u8) -> Self {
         self.0.luminance = Some(luminance);
+        self
+    }
+
+    /// Adds a property the block's states vary over.
+    ///
+    /// The number of states is the product of the value counts, and it has to match the
+    /// client's or the two ends disagree about which state is which. Minecraft sorts a
+    /// block's properties by name and treats them as digits with the first varying
+    /// slowest, so add them in name order to line up.
+    #[must_use]
+    pub fn property<I, V>(mut self, name: impl Into<String>, values: I) -> Self
+    where
+        I: IntoIterator<Item = V>,
+        V: Into<String>,
+    {
+        self.0.properties.push(BlockProperty {
+            name: name.into(),
+            values: values.into_iter().map(Into::into).collect(),
+        });
+        self
+    }
+
+    /// Sets which state the block is placed in, as an index into the state list its
+    /// properties describe.
+    #[must_use]
+    pub fn default_state(mut self, index: u32) -> Self {
+        self.0.default_state = index;
         self
     }
 }
