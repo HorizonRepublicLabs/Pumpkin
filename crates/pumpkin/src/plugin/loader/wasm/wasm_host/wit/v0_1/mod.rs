@@ -45,6 +45,8 @@ pub mod permission;
 pub mod player;
 #[allow(clippy::unused_async_trait_impl)]
 pub mod recipe;
+#[allow(clippy::unused_async_trait_impl)]
+pub mod registry;
 pub mod scheduler;
 #[allow(clippy::unused_async_trait_impl)]
 pub mod scoreboard;

@@ -399,8 +399,10 @@ impl PumpkinServer {
             }
         };
 
-        // Plugins get their registration window while they load; from here on, block ids
-        // are fixed and every lookup can read the tables without synchronising.
+        // Plugins get their registration window while they load; from here on ids are fixed
+        // and every lookup can read the tables without synchronising. That window does not
+        // reopen, so a hot-reloaded plugin cannot register content — renumbering a registry
+        // under a running world and its connected clients is not something we can undo.
         pumpkin_data::dynamic::freeze();
 
         if self.server.advanced_config.plugins.hot_reload {
