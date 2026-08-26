@@ -2,7 +2,18 @@
 use super::*;
 
 impl PendingConnection {
-    pub async fn handle_known_packs(&mut self, _packet: SKnownPacks<'_>, _server: &Server) {
+    pub async fn handle_known_packs(&mut self, _packet: SKnownPacks<'_>, server: &Server) {
+        // Last chance to queue mod-loader work: after this the sequence starts running and
+        // the stage that would carry it has passed.
+        self.try_queue_mod_loader_tasks(server);
+
+        // The registry send is a step in the configuration sequence rather than something
+        // done here directly: mod loaders need to run their own id sync before it.
+        self.progress_config_tasks().await;
+    }
+
+    /// Sends the registries and tags every client needs.
+    pub(in crate::net::java) async fn send_registry_data(&mut self) {
         let version = self.version.load();
         if version.supports_configuration_state() {
             self.send_packet_now(&CFeatureFlags::new(&["minecraft:vanilla".to_string()]))
@@ -22,6 +33,5 @@ impl PendingConnection {
             }
         }
         self.send_packet_now(&CUpdateTags::new(&tags)).await;
-        self.send_packet_now(&CFinishConfig).await;
     }
 }

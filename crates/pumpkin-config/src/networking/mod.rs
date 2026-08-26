@@ -17,6 +17,8 @@ pub mod compression;
 pub mod java;
 /// LAN broadcast discovery configuration.
 pub mod lan_broadcast;
+/// `NeoForge` client compatibility configuration.
+pub mod neoforge;
 /// Reverse proxy and BungeeCord/Velocity configuration.
 pub mod proxy;
 /// GS4 Query protocol configuration.

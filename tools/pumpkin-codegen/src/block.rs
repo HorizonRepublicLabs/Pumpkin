@@ -504,7 +504,7 @@ pub struct BlockStateId(pub u16);
 impl ToTokens for BlockStateId {
     fn to_tokens(&self, tokens: &mut TokenStream) {
         let inner = self.0;
-        tokens.extend(quote! { BlockStateId::new(#inner).unwrap() });
+        tokens.extend(quote! { BlockStateId::new_base(#inner).unwrap() });
     }
 }
 
@@ -643,7 +643,7 @@ pub struct BlockId(pub u16);
 impl ToTokens for BlockId {
     fn to_tokens(&self, tokens: &mut TokenStream) {
         let inner = self.0;
-        tokens.extend(quote! { BlockId::new(#inner).unwrap() });
+        tokens.extend(quote! { BlockId::new_base(#inner).unwrap() });
     }
 }
 
@@ -1226,34 +1226,43 @@ pub fn build() -> TokenStream {
             /// If you need access to the block use `BlockState::from_id_with_block` instead.
             #[inline]
             #[must_use]
-            pub const fn from_id(id: BlockStateId) -> &'static Self {
-                // Safety: We always check this condition when creating a BlockStateId.
-                // the u16 field is private and immutable. BlockStateId::STATE_COUNT is a const u16.
-                // If the condition held once, it will always hold.
-                unsafe { std::hint::assert_unchecked(id.as_u16() < BlockStateId::STATE_COUNT) }
-                // This hint guarantees that bound checks can be optimized away in release builds.
-                // Due to debug_assertions forcing -Zub_checks=yes (rust-lang/rust#123499)
-                // bound checks-panics are replaced with ub-checks on profile.dev
-                // https://doc.rust-lang.org/nightly/unstable-book/compiler-flags/ub-checks.html
-
-                mappings::STATE_FROM_STATE_ID[id.as_u16() as usize]
+            pub fn from_id(id: BlockStateId) -> &'static Self {
+                let raw = id.as_u16();
+                if raw < BlockStateId::BASE_COUNT {
+                    // Safety: the u16 field is private and immutable, and the branch above
+                    // repeats the check made when the id was created. If the condition held
+                    // once, it will always hold.
+                    // This hint guarantees that bound checks can be optimized away in release
+                    // builds. Due to debug_assertions forcing -Zub_checks=yes
+                    // (rust-lang/rust#123499) bound check-panics are replaced with ub-checks on
+                    // profile.dev
+                    // https://doc.rust-lang.org/nightly/unstable-book/compiler-flags/ub-checks.html
+                    unsafe { std::hint::assert_unchecked(raw < BlockStateId::BASE_COUNT) }
+                    return mappings::STATE_FROM_STATE_ID[raw as usize];
+                }
+                // Above the generated range the state can only come from the runtime registry.
+                crate::dynamic::state_from_id(id)
+                    .unwrap_or(mappings::STATE_FROM_STATE_ID[BlockStateId::AIR.as_u16() as usize])
             }
 
             #[doc = r" Get a block state from a state id and the corresponding block."]
             #[inline]
             #[must_use]
-            pub const fn from_id_with_block(id: BlockStateId) -> (&'static Block, &'static Self) {
+            pub fn from_id_with_block(id: BlockStateId) -> (&'static Block, &'static Self) {
                 let block = Block::from_state_id(id);
                 let state = Self::from_id(id);
                 (block, state)
             }
 
             #[must_use]
-            pub const fn to_be_network_id(id: BlockStateId) -> u16 {
-                // Safety: We always check this condition when creating a BlockStateId.
-                // the u16 field is private and immutable. BlockStateId::STATE_COUNT is a const u16.
-                // If the condition held once, it will always hold.
-                unsafe { std::hint::assert_unchecked(id.as_u16() < BlockStateId::STATE_COUNT) }
+            pub fn to_be_network_id(id: BlockStateId) -> u16 {
+                let raw = id.as_u16();
+                // Bedrock has no mapping for runtime-registered states.
+                if raw >= BlockStateId::BASE_COUNT {
+                    return Self::STATE_ID_TO_BEDROCK[BlockStateId::AIR.as_u16() as usize];
+                }
+                // Safety: the branch above repeats the check made when the id was created.
+                unsafe { std::hint::assert_unchecked(raw < BlockStateId::BASE_COUNT) }
                 // This hint guarantees that bound checks can be optimized away in release builds.
                 // Due to debug_assertions forcing -Zub_checks=yes (rust-lang/rust#123499)
                 // bound checks-panics are replaced with ub-checks on profile.dev
@@ -1305,36 +1314,41 @@ pub fn build() -> TokenStream {
             #[inline]
             #[must_use]
             pub fn from_registry_key(name: &str) -> Option<&'static Self> {
-                mappings::BLOCK_FROM_NAME_MAP.get(name)
+                mappings::BLOCK_FROM_NAME_MAP
+                    .get(name)
+                    .or_else(|| crate::dynamic::block_from_name(name))
             }
 
             #[doc = r" Try to get a block from a namespace prefixed name."]
             #[must_use]
             pub fn from_name(name: &str) -> Option<&'static Self> {
                 let key = name.strip_prefix("minecraft:").unwrap_or(name);
-                mappings::BLOCK_FROM_NAME_MAP.get(key)
+                mappings::BLOCK_FROM_NAME_MAP
+                    .get(key)
+                    .or_else(|| crate::dynamic::block_from_name(name))
             }
 
             /// Get a [`Block`] from a [`BlockId`]
             #[inline]
             #[must_use]
-            pub const fn from_id(id: BlockId) -> &'static Self {
-                // Safety: We always check this condition when creating a BlockId.
-                // the u16 field is private and immutable. BlockId::BLOCK_COUNT is a const u16.
-                // If the condition held once, it will always hold.
-                unsafe { std::hint::assert_unchecked(id.as_u16() < BlockId::BLOCK_COUNT) }
-                // This hint guarantees that bound checks can be optimized away in release builds.
-                // Due to debug_assertions forcing -Zub_checks=yes (rust-lang/rust#123499)
-                // bound checks-panics are replaced with ub-checks on profile.dev
-                // https://doc.rust-lang.org/nightly/unstable-book/compiler-flags/ub-checks.html
-
-                mappings::TYPE_FROM_RAW_ID[id.as_u16() as usize]
+            pub fn from_id(id: BlockId) -> &'static Self {
+                let raw = id.as_u16();
+                if raw < BlockId::BASE_COUNT {
+                    // Safety: the u16 field is private and immutable, and the branch above
+                    // repeats the check made when the id was created. If the condition held
+                    // once, it will always hold. The hint lets release builds drop the bound
+                    // check; see rust-lang/rust#123499 for the debug-profile caveat.
+                    unsafe { std::hint::assert_unchecked(raw < BlockId::BASE_COUNT) }
+                    return mappings::TYPE_FROM_RAW_ID[raw as usize];
+                }
+                // Above the generated range the block can only come from the runtime registry.
+                crate::dynamic::block_from_id(id).unwrap_or(&Self::AIR)
             }
 
             /// Get a [`Block`] from a state id
             #[inline]
             #[must_use]
-            pub const fn from_state_id(id: BlockStateId) -> &'static Self {
+            pub fn from_state_id(id: BlockStateId) -> &'static Self {
                 Self::from_id(BlockId::from_state_id(id))
             }
 
@@ -1375,17 +1389,15 @@ pub fn build() -> TokenStream {
             /// Get a [`BlockId`] from a [`BlockStateId`]
             #[inline]
             #[must_use]
-            pub const fn from_state_id(id: BlockStateId) -> BlockId {
-                // Safety: We always check this condition when creating a BlockStateId.
-                // the u16 field is private and immutable. BlockStateId::STATE_COUNT is a const u16.
-                // If the condition held once, it will always hold.
-                unsafe { std::hint::assert_unchecked(id.as_u16() < BlockStateId::STATE_COUNT) }
-                // This hint guarantees that bound checks can be optimized away in release builds.
-                // Due to debug_assertions forcing -Zub_checks=yes (rust-lang/rust#123499)
-                // bound checks-panics are replaced with ub-checks on profile.dev
-                // https://doc.rust-lang.org/nightly/unstable-book/compiler-flags/ub-checks.html
-
-                mappings::BLOCK_ID_FROM_STATE_ID[id.as_u16() as usize]
+            pub fn from_state_id(id: BlockStateId) -> BlockId {
+                let raw = id.as_u16();
+                if raw < BlockStateId::BASE_COUNT {
+                    // Safety: the branch above repeats the check made when the id was created.
+                    unsafe { std::hint::assert_unchecked(raw < BlockStateId::BASE_COUNT) }
+                    return mappings::BLOCK_ID_FROM_STATE_ID[raw as usize];
+                }
+                // Above the generated range the state can only come from the runtime registry.
+                crate::dynamic::block_id_from_state_id(id).unwrap_or(BlockId::AIR)
             }
         }
 

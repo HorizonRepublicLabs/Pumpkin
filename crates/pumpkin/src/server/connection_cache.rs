@@ -6,6 +6,7 @@ use pumpkin_data::packet::{CURRENT_MC_VERSION, LOWEST_SUPPORTED_MC_VERSION};
 use pumpkin_protocol::{
     Players, Sample, StatusResponse, Version,
     java::client::{config::CPluginMessage, status::CStatusResponse},
+    ser::NetworkWriteExt,
 };
 use pumpkin_util::text::TextComponent;
 use std::{fs, path::Path};
@@ -42,41 +43,44 @@ pub struct CachedStatus {
 
 pub struct CachedBranding {
     /// Cached server brand buffer so we don't have to rebuild them every time a player joins
-    cached_server_brand: &'static [u8],
+    cached_server_brand: Box<[u8]>,
 }
 
 impl Default for CachedBranding {
     fn default() -> Self {
-        Self::new()
+        Self::new(Self::DEFAULT_BRAND)
     }
 }
 
 impl CachedBranding {
-    const BRAND: &'static str = "Pumpkin";
-    const BRAND_BYTES: &'static [u8] = &{
-        let brand = Self::BRAND.as_bytes();
-        let len = brand.len();
-        assert!(len < 128, "Brand length must fit in 1-byte VarInt");
-        let mut bytes = [0u8; 1 + Self::BRAND.len()];
-        bytes[0] = len as u8;
-        let mut i = 0;
-        while i < len {
-            bytes[i + 1] = brand[i];
-            i += 1;
-        }
-        bytes
-    };
+    pub const DEFAULT_BRAND: &'static str = "Pumpkin";
 
+    /// Builds the cached `minecraft:brand` payload for the configured brand.
+    ///
+    /// Falls back to [`Self::DEFAULT_BRAND`] if the brand is empty or cannot be encoded.
     #[must_use]
-    pub const fn new() -> Self {
+    pub fn new(brand: &str) -> Self {
+        let brand = if brand.is_empty() {
+            Self::DEFAULT_BRAND
+        } else {
+            brand
+        };
+
         Self {
-            cached_server_brand: Self::BRAND_BYTES,
+            cached_server_brand: Self::encode_brand(brand)
+                .unwrap_or_else(|| Self::encode_brand(Self::DEFAULT_BRAND).unwrap_or_default()),
         }
     }
 
+    fn encode_brand(brand: &str) -> Option<Box<[u8]>> {
+        let mut buf = Vec::with_capacity(brand.len() + 3);
+        buf.write_string(brand).ok()?;
+        Some(buf.into_boxed_slice())
+    }
+
     #[must_use]
-    pub const fn get_branding(&self) -> CPluginMessage<'_> {
-        CPluginMessage::new("minecraft:brand", self.cached_server_brand)
+    pub fn get_branding(&self) -> CPluginMessage<'_> {
+        CPluginMessage::new("minecraft:brand", &self.cached_server_brand)
     }
 }
 

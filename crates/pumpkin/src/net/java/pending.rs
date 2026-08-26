@@ -1,4 +1,4 @@
-use std::{net::SocketAddr, num::NonZero, sync::Arc};
+use std::{collections::HashSet, net::SocketAddr, num::NonZero, sync::Arc};
 
 use bytes::Bytes;
 use crossbeam::atomic::AtomicCell;
@@ -7,7 +7,7 @@ use pumpkin_data::packet::CURRENT_MC_VERSION;
 use pumpkin_protocol::{
     ClientPacket, ConnectionState, PacketDecodeError, RawPacket, ServerPacket,
     java::{
-        client::config::CConfigDisconnect,
+        client::config::{CConfigDisconnect, CFinishConfig, CPluginMessage},
         client::login::CLoginDisconnect,
         client::play::CPlayDisconnect,
         packet_decoder::TCPNetworkDecoder,
@@ -36,6 +36,10 @@ use crate::{
     net::{
         EncryptionError, GameProfile, PacketHandlerResult, PacketRateLimiter, PlayerConfig,
         can_not_join,
+        java::config::task::{
+            ConfigStage, ConfigStep, ConfigTask, ConfigTaskQueue, parse_channel_list,
+        },
+        java::neoforge::{self, NeoForgeSettings},
     },
     server::Server,
 };
@@ -43,6 +47,8 @@ use crate::{
 use super::JavaClient;
 
 const BRAND_CHANNEL_PREFIX: &str = "minecraft:brand";
+const REGISTER_CHANNEL: &str = "minecraft:register";
+const UNREGISTER_CHANNEL: &str = "minecraft:unregister";
 
 /// How long a connection may stay silent before login finishes.
 ///
@@ -68,6 +74,12 @@ pub struct PendingConnection {
     pub brand: Option<String>,
     pub packet_limiter: PacketRateLimiter,
     pub verify_token: Option<[u8; 4]>,
+    /// Custom payload channels the client has announced it can receive.
+    pub client_channels: HashSet<String>,
+    /// Server-driven work that must finish before configuration ends.
+    pub config_tasks: ConfigTaskQueue,
+    /// Whether mod-loader configuration tasks have already been queued for this connection.
+    neoforge_queued: bool,
 }
 
 impl PendingConnection {
@@ -93,6 +105,9 @@ impl PendingConnection {
             brand: None,
             packet_limiter,
             verify_token: None,
+            client_channels: HashSet::new(),
+            config_tasks: ConfigTaskQueue::new(),
+            neoforge_queued: false,
         }
     }
 
@@ -400,7 +415,7 @@ impl PendingConnection {
                 Ok(None)
             }
             id if id == SPluginMessage::to_id(version) => {
-                self.handle_plugin_message(SPluginMessage::read(&mut payload, &version)?)
+                self.handle_plugin_message(server, SPluginMessage::read(&mut payload, &version)?)
                     .await;
                 Ok(None)
             }
@@ -486,7 +501,11 @@ impl PendingConnection {
         }
     }
 
-    pub async fn handle_plugin_message(&mut self, plugin_message: SPluginMessage<'_>) {
+    pub async fn handle_plugin_message(
+        &mut self,
+        server: &Server,
+        plugin_message: SPluginMessage<'_>,
+    ) {
         debug!("Handling plugin message");
         if plugin_message.channel.starts_with(BRAND_CHANNEL_PREFIX) {
             debug!("Got a client brand");
@@ -494,7 +513,102 @@ impl PendingConnection {
                 Ok(brand) => self.brand = Some(brand.to_string()),
                 Err(e) => self.kick(TextComponent::text(e.to_string())).await,
             }
+            return;
         }
+
+        match plugin_message.channel {
+            REGISTER_CHANNEL => {
+                let channels = parse_channel_list(plugin_message.data);
+                debug!(
+                    "Client registered {} channel(s): {:?}",
+                    channels.len(),
+                    channels
+                );
+                self.client_channels.extend(channels);
+                self.try_queue_mod_loader_tasks(server);
+            }
+            UNREGISTER_CHANNEL => {
+                for channel in parse_channel_list(plugin_message.data) {
+                    self.client_channels.remove(&channel);
+                }
+            }
+            channel => {
+                if let Some(id) = self.config_tasks.acknowledge(channel) {
+                    debug!("Configuration task {id} acknowledged on {channel}");
+                    self.progress_config_tasks().await;
+                } else {
+                    // Unknown channels are ignored, matching vanilla behaviour. Mod loaders such
+                    // as NeoForge rely on this: a server that announces no modded channels of its
+                    // own is treated as vanilla, and the client disables the mod-side networking
+                    // it would otherwise expect.
+                    debug!(
+                        "Ignoring plugin message on unhandled channel {} ({} bytes)",
+                        channel,
+                        plugin_message.data.len()
+                    );
+                }
+            }
+        }
+    }
+
+    /// Whether the client has announced it can receive payloads on `channel`.
+    #[must_use]
+    pub fn supports_channel(&self, channel: &str) -> bool {
+        self.client_channels.contains(channel)
+    }
+
+    /// Gives mod loaders a chance to queue configuration work.
+    ///
+    /// The client's channel list is the only thing that says what it can handle, and it
+    /// arrives as one or more payloads with no ordering guarantee against the rest of
+    /// configuration. So this runs on every channel registration and again before the
+    /// sequence starts, and latches only once work has actually been queued — latching on
+    /// the first attempt would lock out a client whose channels arrive a packet later.
+    pub(super) fn try_queue_mod_loader_tasks(&mut self, server: &Server) {
+        if self.neoforge_queued || !self.config_tasks.is_pending() {
+            return;
+        }
+
+        let config = &server.advanced_config.networking.java.neoforge;
+        self.neoforge_queued = neoforge::queue_config_tasks(
+            self,
+            &NeoForgeSettings {
+                enabled: config.enabled,
+                sync_registries: config.sync_registries,
+            },
+        );
+    }
+
+    /// Walks the configuration sequence until it needs something from the client.
+    ///
+    /// Sends queued tasks, the built-in registry data and `CFinishConfig` in the order
+    /// [`ConfigTaskQueue`] dictates, stopping as soon as a task is waiting on an answer.
+    /// Resumed by [`Self::handle_plugin_message`] when that answer arrives.
+    pub async fn progress_config_tasks(&mut self) {
+        loop {
+            match self.config_tasks.next_step() {
+                ConfigStep::Send { id, payload } => {
+                    if let Some(payload) = payload {
+                        self.send_packet_now(&CPluginMessage::new(&payload.channel, &payload.data))
+                            .await;
+                    }
+                    if let Some(channel) = self.config_tasks.awaited_channel() {
+                        debug!("Configuration task {id} is waiting for an answer on {channel}");
+                    }
+                }
+                ConfigStep::SendRegistries => self.send_registry_data().await,
+                ConfigStep::Finish => {
+                    debug!("Configuration finished");
+                    self.send_packet_now(&CFinishConfig).await;
+                }
+                ConfigStep::Wait => return,
+            }
+        }
+    }
+
+    /// Queues configuration-phase work for a stage.
+    pub fn queue_config_task(&mut self, stage: ConfigStage, task: ConfigTask) {
+        self.config_tasks.push(stage, task);
     }
 
     pub async fn handle_resource_pack_response(

@@ -219,12 +219,12 @@ impl BlockState {
     }
 
     #[must_use]
-    pub const fn rotate(&self, rotation: crate::block_rotation::Rotation) -> &'static Self {
+    pub fn rotate(&self, rotation: crate::block_rotation::Rotation) -> &'static Self {
         Block::from_state_id(self.id).rotate(self.id, rotation)
     }
 
     #[must_use]
-    pub const fn mirror(&self, mirror: crate::block_rotation::Mirror) -> &'static Self {
+    pub fn mirror(&self, mirror: crate::block_rotation::Mirror) -> &'static Self {
         Block::from_state_id(self.id).mirror(self.id, mirror)
     }
 }
@@ -233,15 +233,41 @@ impl BlockStateId {
     // depends on generated impl:
     // pub(crate) const STATE_COUNT: u16;
 
-    /// The total count of all registered block states.
-    pub const COUNT: u16 = Self::STATE_COUNT;
+    /// The number of block states generated at build time. Ids below this are always valid
+    /// and resolve without consulting the runtime registry.
+    pub const BASE_COUNT: u16 = Self::STATE_COUNT;
 
-    // SAFETY: There must never be a BlockStateId where self.0 >= BlockStateId::STATE_COUNT
+    // SAFETY: There must never be a BlockStateId where self.0 >= crate::dynamic::state_count()
+
+    /// The total count of all block states, generated and registered.
+    #[inline]
+    #[must_use]
+    pub fn count() -> u16 {
+        crate::dynamic::state_count()
+    }
+
+    /// Builds an id known at compile time to name a generated state.
+    #[inline]
+    #[must_use]
+    pub const fn new_base(inner: u16) -> Option<Self> {
+        if inner < Self::BASE_COUNT {
+            return Some(Self(inner));
+        }
+        None
+    }
+
+    /// Builds an id from a raw value without checking it.
+    ///
+    /// Only the runtime registry may call this, and only with an id it has just assigned.
+    #[inline]
+    pub(crate) const fn from_raw(inner: u16) -> Self {
+        Self(inner)
+    }
 
     #[inline]
     #[must_use]
-    pub const fn new(inner: u16) -> Option<Self> {
-        if inner < Self::STATE_COUNT {
+    pub fn new(inner: u16) -> Option<Self> {
+        if inner < Self::count() {
             return Some(Self(inner));
         }
         None
@@ -249,8 +275,8 @@ impl BlockStateId {
 
     #[inline]
     #[must_use]
-    pub const fn new_or_air(inner: u16) -> Self {
-        if inner < Self::STATE_COUNT {
+    pub fn new_or_air(inner: u16) -> Self {
+        if inner < Self::count() {
             return Self(inner);
         }
         Self::AIR
@@ -264,31 +290,31 @@ impl BlockStateId {
 
     #[inline]
     #[must_use]
-    pub const fn to_state(self) -> &'static BlockState {
+    pub fn to_state(self) -> &'static BlockState {
         BlockState::from_id(self)
     }
 
     #[inline]
     #[must_use]
-    pub const fn to_block_id(self) -> BlockId {
+    pub fn to_block_id(self) -> BlockId {
         BlockId::from_state_id(self)
     }
 
     #[inline]
     #[must_use]
-    pub const fn to_block(self) -> &'static Block {
+    pub fn to_block(self) -> &'static Block {
         Block::from_state_id(self)
     }
 
     #[inline]
     #[must_use]
-    pub const fn rotate(self, rotation: crate::block_rotation::Rotation) -> &'static BlockState {
+    pub fn rotate(self, rotation: crate::block_rotation::Rotation) -> &'static BlockState {
         Block::from_state_id(self).rotate(self, rotation)
     }
 
     #[inline]
     #[must_use]
-    pub const fn mirror(self, mirror: crate::block_rotation::Mirror) -> &'static BlockState {
+    pub fn mirror(self, mirror: crate::block_rotation::Mirror) -> &'static BlockState {
         Block::from_state_id(self).mirror(self, mirror)
     }
 }

@@ -56,6 +56,7 @@ use tracing::{debug, error, warn};
 pub mod config;
 pub mod handshake;
 pub mod login;
+pub mod neoforge;
 pub mod pending;
 pub mod play;
 pub mod recipe_helper;

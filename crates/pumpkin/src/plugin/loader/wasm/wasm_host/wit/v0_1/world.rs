@@ -431,8 +431,8 @@ impl pumpkin::plugin::world::Host for PluginHostState {
     }
 
     async fn get_all_blocks(&mut self) -> wasmtime::Result<Vec<WitBlock>> {
-        let mut blocks = Vec::with_capacity(BlockId::COUNT as usize);
-        for raw_id in 0..BlockId::COUNT {
+        let mut blocks = Vec::with_capacity(BlockId::count() as usize);
+        for raw_id in 0..BlockId::count() {
             if let Some(id) = BlockId::new(raw_id) {
                 blocks.push(to_wit_block(pumpkin_data::Block::from_id(id)));
             }
@@ -441,8 +441,8 @@ impl pumpkin::plugin::world::Host for PluginHostState {
     }
 
     async fn get_all_block_names(&mut self) -> wasmtime::Result<Vec<String>> {
-        let mut names = Vec::with_capacity(BlockId::COUNT as usize);
-        for raw_id in 0..BlockId::COUNT {
+        let mut names = Vec::with_capacity(BlockId::count() as usize);
+        for raw_id in 0..BlockId::count() {
             if let Some(id) = BlockId::new(raw_id) {
                 names.push(pumpkin_data::Block::from_id(id).name.to_string());
             }
@@ -451,11 +451,11 @@ impl pumpkin::plugin::world::Host for PluginHostState {
     }
 
     async fn get_block_count(&mut self) -> wasmtime::Result<u32> {
-        Ok(BlockId::COUNT as u32)
+        Ok(BlockId::count() as u32)
     }
 
     async fn get_block_state_count(&mut self) -> wasmtime::Result<u32> {
-        Ok(BlockStateId::COUNT as u32)
+        Ok(BlockStateId::count() as u32)
     }
 
     async fn get_states_for_block(

@@ -1,3 +1,4 @@
+use crate::networking::neoforge::NeoForgeConfig;
 use crate::{AuthenticationConfig, CompressionConfig, PacketLimiterConfig};
 use serde::{Deserialize, Serialize};
 use std::net::SocketAddr;
@@ -32,10 +33,15 @@ pub struct JavaConfig {
     pub compression: CompressionConfig,
     /// Message of the Day; the server's description displayed on the status screen.
     pub motd: String,
+    /// The server brand reported to clients over the `minecraft:brand` channel.
+    /// Mod loaders and client-side tooling use this to identify the server software.
+    pub brand: String,
     /// Authentication settings for client connections.
     pub authentication: AuthenticationConfig,
     /// Packet rate limiting settings.
     pub packet_limiter: PacketLimiterConfig,
+    /// `NeoForge` client compatibility settings.
+    pub neoforge: NeoForgeConfig,
 }
 
 impl Default for JavaConfig {
@@ -56,8 +62,10 @@ impl Default for JavaConfig {
             keep_alive_time: 15,
             compression: CompressionConfig::default(),
             motd: "A blazingly fast Pumpkin server!".to_string(),
+            brand: "Pumpkin".to_string(),
             authentication: AuthenticationConfig::default(),
             packet_limiter: PacketLimiterConfig::default(),
+            neoforge: NeoForgeConfig::default(),
         }
     }
 }

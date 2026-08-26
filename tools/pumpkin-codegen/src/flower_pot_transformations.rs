@@ -27,7 +27,11 @@ pub fn build() -> TokenStream {
                 #(#match_arms)*
                 _ => 0,
             };
-            BlockId::new_or_air(raw_id)
+            // Every id here comes from generated data, so the base range always covers it.
+            match BlockId::new_base(raw_id) {
+                Some(id) => id,
+                None => BlockId::AIR,
+            }
         }
     }
 }

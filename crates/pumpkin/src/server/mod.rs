@@ -271,6 +271,8 @@ impl Server {
             );
         }
 
+        let branding = CachedBranding::new(&advanced_config.networking.java.brand);
+
         let server = Self {
             basic_config,
             advanced_config,
@@ -291,7 +293,7 @@ impl Server {
             bedrock_oidc_keys: Arc::new(OnceCell::new()),
             bedrock_private_key: OnceCell::new(),
             listing,
-            branding: CachedBranding::new(),
+            branding,
             bossbars: Mutex::new(CustomBossbars::new()),
             map_manager: MapManager::new(),
             defaultgamemode,
@@ -1037,7 +1039,8 @@ impl Server {
         id
     }
 
-    pub const fn get_branding(&self) -> CPluginMessage<'_> {
+    #[must_use]
+    pub fn get_branding(&self) -> CPluginMessage<'_> {
         self.branding.get_branding()
     }
 

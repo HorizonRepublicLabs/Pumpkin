@@ -33,3 +33,4 @@ pub mod keep_alive;
 pub mod known_packs;
 pub mod plugin_message;
 pub mod resource_pack;
+pub mod task;

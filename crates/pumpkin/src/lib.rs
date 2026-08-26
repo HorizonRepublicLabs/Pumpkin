@@ -387,6 +387,7 @@ impl PumpkinServer {
     pub async fn init_plugins(&self) -> std::time::Duration {
         if !self.server.advanced_config.plugins.enabled {
             info!("Plugin system is disabled in configuration.");
+            pumpkin_data::dynamic::freeze();
             return std::time::Duration::ZERO;
         }
 
@@ -397,6 +398,10 @@ impl PumpkinServer {
                 std::time::Duration::ZERO
             }
         };
+
+        // Plugins get their registration window while they load; from here on, block ids
+        // are fixed and every lookup can read the tables without synchronising.
+        pumpkin_data::dynamic::freeze();
 
         if self.server.advanced_config.plugins.hot_reload {
             if let Err(err) = self.server.plugin_manager.start_watcher(&self.server).await {

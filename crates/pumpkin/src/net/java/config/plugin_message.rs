@@ -10,6 +10,16 @@ impl JavaClient {
                 Ok(brand) => self.brand.store(Arc::new(Some(brand.to_string()))),
                 Err(e) => self.kick(TextComponent::text(e.to_string())).await,
             }
+        } else {
+            // Unknown channels are ignored, matching vanilla behaviour. Mod loaders such as
+            // NeoForge rely on this: a server that announces no modded channels of its own is
+            // treated as vanilla, and the client disables the mod-side networking it would
+            // otherwise expect.
+            debug!(
+                "Ignoring plugin message on unhandled channel {} ({} bytes)",
+                plugin_message.channel,
+                plugin_message.data.len()
+            );
         }
     }
 }

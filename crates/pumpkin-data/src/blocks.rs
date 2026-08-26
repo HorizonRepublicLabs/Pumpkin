@@ -208,7 +208,7 @@ impl Block {
     }
 
     #[must_use]
-    pub const fn mirror(
+    pub fn mirror(
         &self,
         id: BlockStateId,
         _mirror: crate::block_rotation::Mirror,
@@ -217,7 +217,7 @@ impl Block {
     }
 
     #[must_use]
-    pub const fn rotate(
+    pub fn rotate(
         &self,
         id: BlockStateId,
         _rotation: crate::block_rotation::Rotation,
@@ -252,15 +252,41 @@ impl BlockId {
     // depends on generated impl:
     // pub(crate) const BLOCK_COUNT: u16;
 
-    /// The total count of all registered blocks.
-    pub const COUNT: u16 = Self::BLOCK_COUNT;
+    /// The number of blocks generated at build time. Ids below this are always valid and
+    /// resolve without consulting the runtime registry.
+    pub const BASE_COUNT: u16 = Self::BLOCK_COUNT;
 
-    // SAFETY: There must never be a BlockId where self.0 >= BlockId::BLOCK_COUNT
+    // SAFETY: There must never be a BlockId where self.0 >= crate::dynamic::block_count()
+
+    /// The total count of all blocks, generated and registered.
+    #[inline]
+    #[must_use]
+    pub fn count() -> u16 {
+        crate::dynamic::block_count()
+    }
+
+    /// Builds an id known at compile time to name a generated block.
+    #[inline]
+    #[must_use]
+    pub const fn new_base(inner: u16) -> Option<Self> {
+        if inner < Self::BASE_COUNT {
+            return Some(Self(inner));
+        }
+        None
+    }
+
+    /// Builds an id from a raw value without checking it.
+    ///
+    /// Only the runtime registry may call this, and only with an id it has just assigned.
+    #[inline]
+    pub(crate) const fn from_raw(inner: u16) -> Self {
+        Self(inner)
+    }
 
     #[inline]
     #[must_use]
-    pub const fn new(inner: u16) -> Option<Self> {
-        if inner < Self::BLOCK_COUNT {
+    pub fn new(inner: u16) -> Option<Self> {
+        if inner < Self::count() {
             return Some(Self(inner));
         }
         None
@@ -268,8 +294,8 @@ impl BlockId {
 
     #[inline]
     #[must_use]
-    pub const fn new_or_air(inner: u16) -> Self {
-        if inner < Self::BLOCK_COUNT {
+    pub fn new_or_air(inner: u16) -> Self {
+        if inner < Self::count() {
             return Self(inner);
         }
         Self::AIR
@@ -277,7 +303,7 @@ impl BlockId {
 
     #[inline]
     #[must_use]
-    pub const fn to_block(self) -> &'static Block {
+    pub fn to_block(self) -> &'static Block {
         Block::from_id(self)
     }
 
@@ -339,7 +365,7 @@ mod tests {
         let mut xz = 0;
         let mut xyz = 0;
 
-        for raw_id in 0..BlockId::BLOCK_COUNT {
+        for raw_id in 0..BlockId::BASE_COUNT {
             match Block::from_id(BlockId::new(raw_id).unwrap())
                 .shape_offset()
                 .map(|offset| offset.offset_type)
