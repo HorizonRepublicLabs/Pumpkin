@@ -396,6 +396,11 @@ pub fn build() -> TokenStream {
     let mut constants = TokenStream::new();
     let mut id_matches = Vec::new();
     let mut type_from_name = TokenStream::new();
+    // Runtime-registered fluids are numbered from here up.
+    let fluid_count = proc_macro2::Literal::u16_unsuffixed(
+        u16::try_from(fluids.len()).expect("fluid ids fit in a u16"),
+    );
+
     let mut type_from_raw_id_arms = TokenStream::new();
     let mut fluid_from_state_id = TokenStream::new();
 
@@ -762,17 +767,21 @@ pub fn build() -> TokenStream {
         impl Fluid {
             #constants
 
+            #[doc = r" The number of fluids generated at build time. Ids below this are always"]
+            #[doc = r" resolved without consulting the runtime registry."]
+            pub const BASE_COUNT: u16 = #fluid_count;
+
             pub fn from_registry_key(name: &str) -> Option<&'static Self> {
                 match name {
                     #type_from_name
-                    _ => None
+                    _ => crate::dynamic::fluid_from_name(name)
                 }
             }
 
-            pub const fn from_id(id: u16) -> Option<&'static Self> {
+            pub fn from_id(id: u16) -> Option<&'static Self> {
                 match id {
                     #type_from_raw_id_arms
-                    _ => None
+                    _ => crate::dynamic::fluid_from_id(id)
                 }
             }
 

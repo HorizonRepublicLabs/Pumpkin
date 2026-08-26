@@ -10,8 +10,8 @@
 //!
 //! Registration is a startup-only activity with two phases:
 //!
-//! 1. **Open.** [`register_block`], [`register_item`] and [`register_entity_type`] append
-//!    entries and hand back the id each was assigned.
+//! 1. **Open.** The `register_*` functions append entries and hand back the id each was
+//!    assigned.
 //! 2. **Frozen.** [`freeze`] publishes every registry at once. Lookups see the new content
 //!    from this point on, and further registration fails.
 //!
@@ -26,17 +26,27 @@
 //! # Feature gates
 //!
 //! Each registry is gated on the `pumpkin-data` feature that provides its type — `block`,
-//! `item`, `entity_type` — because crates in this workspace enable them independently.
+//! `item`, `entity_type`, `fluid` — because crates in this workspace enable them
+//! independently.
 
 use std::sync::OnceLock;
 
 #[cfg(feature = "block")]
+mod block_entity_types;
+#[cfg(feature = "block")]
 mod blocks;
 #[cfg(feature = "entity_type")]
 mod entity_types;
+#[cfg(feature = "fluid")]
+mod fluids;
 #[cfg(feature = "item")]
 mod items;
 
+#[cfg(feature = "block")]
+pub use block_entity_types::{
+    base_block_entity_type_count, block_entity_type_count, block_entity_type_id,
+    block_entity_type_name, is_block_entity_type, register_block_entity_type,
+};
 #[cfg(feature = "block")]
 pub use blocks::{
     BlockRegistration, base_block_count, base_state_count, block_count, block_from_id,
@@ -46,6 +56,11 @@ pub use blocks::{
 pub use entity_types::{
     EntityTypeRegistration, base_entity_type_count, entity_type_count, entity_type_from_id,
     entity_type_from_name, register_entity_type, registered_entity_types,
+};
+#[cfg(feature = "fluid")]
+pub use fluids::{
+    FluidRegistration, base_fluid_count, fluid_count, fluid_from_id, fluid_from_name,
+    register_fluid,
 };
 #[cfg(feature = "item")]
 pub use items::{
@@ -101,9 +116,13 @@ pub fn is_frozen() -> bool {
 /// Calling this more than once is harmless; only the first call publishes.
 pub fn freeze() {
     #[cfg(feature = "block")]
+    block_entity_types::publish();
+    #[cfg(feature = "block")]
     blocks::publish();
     #[cfg(feature = "entity_type")]
     entity_types::publish();
+    #[cfg(feature = "fluid")]
+    fluids::publish();
     #[cfg(feature = "item")]
     items::publish();
 
@@ -125,10 +144,18 @@ fn validate_name(name: &str) -> Result<(), RegistryError> {
     }
 }
 
-#[cfg(all(test, feature = "block", feature = "item", feature = "entity_type"))]
+#[cfg(all(
+    test,
+    feature = "block",
+    feature = "item",
+    feature = "entity_type",
+    feature = "fluid"
+))]
 mod tests {
     use super::*;
-    use crate::{Block, BlockId, BlockState, BlockStateId, entity::EntityType, item::Item};
+    use crate::{
+        Block, BlockId, BlockState, BlockStateId, entity::EntityType, fluid::Fluid, item::Item,
+    };
 
     fn sample_state() -> BlockState {
         let template = Block::STONE.default_state;
@@ -241,6 +268,41 @@ mod tests {
             "registrations are invisible until the registry is frozen"
         );
 
+        let fluid_id = register_fluid(FluidRegistration {
+            name: "examplemod:quicksilver".to_string(),
+            fluid: Fluid::WATER.clone(),
+            states: Fluid::WATER.states.to_vec(),
+            default_state_index: 0,
+        })
+        .expect("registration succeeds");
+        assert_eq!(
+            fluid_id,
+            Fluid::BASE_COUNT,
+            "ids continue after generated data"
+        );
+        assert_eq!(
+            register_fluid(FluidRegistration {
+                name: "examplemod:stateless".to_string(),
+                fluid: Fluid::WATER.clone(),
+                states: Vec::new(),
+                default_state_index: 0,
+            }),
+            Err(RegistryError::InvalidStates(
+                "examplemod:stateless".to_string()
+            )),
+            "a fluid must have at least one state"
+        );
+
+        let base_block_entities = base_block_entity_type_count();
+        let block_entity_id = register_block_entity_type("examplemod:ruby_furnace".to_string())
+            .expect("registration succeeds");
+        assert_eq!(block_entity_id, base_block_entities);
+        assert_eq!(
+            register_block_entity_type("furnace".to_string()),
+            Err(RegistryError::InvalidName("furnace".to_string())),
+            "generated names are unnamespaced, so they can never collide"
+        );
+
         freeze();
 
         let block = Block::from_name("examplemod:ruby_block").expect("registered block resolves");
@@ -315,6 +377,35 @@ mod tests {
             Some("allay")
         );
 
+        let fluid = Fluid::from_id(fluid_id).expect("registered fluid resolves");
+        assert_eq!(fluid.name, "examplemod:quicksilver");
+        assert_eq!(
+            Fluid::from_registry_key("examplemod:quicksilver").map(|found| found.id),
+            Some(fluid_id)
+        );
+        assert_eq!(fluid_count(), Fluid::BASE_COUNT + 1);
+        assert_eq!(
+            Fluid::from_registry_key("water").map(|found| found.id),
+            Some(Fluid::WATER.id),
+            "generated fluids resolve exactly as before"
+        );
+
+        assert_eq!(
+            block_entity_type_name(block_entity_id),
+            Some("examplemod:ruby_furnace")
+        );
+        assert_eq!(
+            block_entity_type_id("examplemod:ruby_furnace"),
+            Some(block_entity_id)
+        );
+        assert!(is_block_entity_type("examplemod:ruby_furnace"));
+        assert_eq!(
+            block_entity_type_id("furnace"),
+            Some(0),
+            "generated block entity types keep their ids"
+        );
+        assert_eq!(block_entity_type_count(), base_block_entities + 1);
+
         assert!(is_frozen());
         assert_eq!(
             register_block(sample("examplemod:too_late", 1)),
@@ -332,6 +423,10 @@ mod tests {
                 name: "examplemod:too_late".to_string(),
                 entity_type: EntityType::ALLAY.clone(),
             }),
+            Err(RegistryError::Frozen)
+        );
+        assert_eq!(
+            register_block_entity_type("examplemod:too_late".to_string()),
             Err(RegistryError::Frozen)
         );
     }

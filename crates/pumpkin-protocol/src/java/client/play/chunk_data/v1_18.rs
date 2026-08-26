@@ -224,10 +224,7 @@ pub fn write_chunk_data(
 
         let id = nbt.get_string("id").map_or(0, |id_str| {
             let name = id_str.split(':').next_back().unwrap_or(id_str);
-            pumpkin_data::block_properties::BLOCK_ENTITY_TYPES
-                .iter()
-                .position(|&n| n == name)
-                .unwrap_or(0)
+            usize::from(pumpkin_data::dynamic::block_entity_type_id(name).unwrap_or(0))
         });
         let remapped_id =
             pumpkin_data::block_entity_type_id_remap::remap_block_entity_type_id_for_version(

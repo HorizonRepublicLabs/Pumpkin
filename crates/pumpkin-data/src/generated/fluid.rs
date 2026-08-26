@@ -617,6 +617,9 @@ impl Fluid {
         flow_distance: 4u32,
         can_convert_to_source: false,
     };
+    #[doc = r" The number of fluids generated at build time. Ids below this are always"]
+    #[doc = r" resolved without consulting the runtime registry."]
+    pub const BASE_COUNT: u16 = 5;
     pub fn from_registry_key(name: &str) -> Option<&'static Self> {
         match name {
             "empty" => Some(&Self::EMPTY),
@@ -624,17 +627,17 @@ impl Fluid {
             "water" => Some(&Self::WATER),
             "flowing_lava" => Some(&Self::FLOWING_LAVA),
             "lava" => Some(&Self::LAVA),
-            _ => None,
+            _ => crate::dynamic::fluid_from_name(name),
         }
     }
-    pub const fn from_id(id: u16) -> Option<&'static Self> {
+    pub fn from_id(id: u16) -> Option<&'static Self> {
         match id {
             0 => Some(&Self::EMPTY),
             1 => Some(&Self::FLOWING_WATER),
             2 => Some(&Self::WATER),
             3 => Some(&Self::FLOWING_LAVA),
             4 => Some(&Self::LAVA),
-            _ => None,
+            _ => crate::dynamic::fluid_from_id(id),
         }
     }
     #[allow(unreachable_patterns, clippy::match_overlapping_arm)]

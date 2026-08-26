@@ -1,7 +1,7 @@
 use std::pin::Pin;
 use std::{any::Any, sync::Arc};
 
-use pumpkin_data::{Block, block_properties::BLOCK_ENTITY_TYPES};
+use pumpkin_data::Block;
 use pumpkin_nbt::compound::NbtCompound;
 use pumpkin_util::math::position::BlockPos;
 
@@ -116,10 +116,7 @@ pub trait BlockEntity: Any + Send + Sync {
             .split(':')
             .next_back()
             .unwrap_or("");
-        pumpkin_data::block_properties::BLOCK_ENTITY_TYPES
-            .iter()
-            .position(|block_entity_name| *block_entity_name == name)
-            .unwrap_or(0) as u32
+        u32::from(pumpkin_data::dynamic::block_entity_type_id(name).unwrap_or(0))
     }
 
     /// Obtain NBT data for sending to the client in `ChunkData`
@@ -329,7 +326,7 @@ pub fn block_entity_from_nbt(nbt: &NbtCompound) -> Option<Arc<dyn BlockEntity>> 
 
 #[must_use]
 pub fn has_block_block_entity(block: &Block) -> bool {
-    BLOCK_ENTITY_TYPES.contains(&block.name)
+    pumpkin_data::dynamic::is_block_entity_type(block.name)
 }
 
 #[must_use]
@@ -342,8 +339,8 @@ pub fn create_block_entity(
     if block_entity_type_id == u16::MAX {
         return None;
     }
-    let name = BLOCK_ENTITY_TYPES.get(block_entity_type_id as usize)?;
-    match *name {
+    let name = pumpkin_data::dynamic::block_entity_type_name(block_entity_type_id)?;
+    match name {
         "furnace" => Some(Arc::new(furnace::FurnaceBlockEntity::new(position))),
         "chest" => Some(Arc::new(chest::ChestBlockEntity::new(position))),
         "trapped_chest" => Some(Arc::new(trapped_chest::TrappedChestBlockEntity::new(
