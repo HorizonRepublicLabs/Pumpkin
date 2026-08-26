@@ -27,3 +27,34 @@ pub enum WindowType {
     CartographyTable,
     Stonecutter,
 }
+#[doc = r" Every generated menu type, indexed by its registry id."]
+#[doc = r""]
+#[doc = r" Runtime-registered menu types continue from the end of this list; use"]
+#[doc = r" `pumpkin_data::dynamic::menu_type_name` to resolve either kind."]
+pub const MENU_TYPES: &[&str] = &[
+    "generic_9x1",
+    "generic_9x2",
+    "generic_9x3",
+    "generic_9x4",
+    "generic_9x5",
+    "generic_9x6",
+    "generic_3x3",
+    "crafter_3x3",
+    "anvil",
+    "beacon",
+    "blast_furnace",
+    "brewing_stand",
+    "crafting",
+    "enchantment",
+    "furnace",
+    "grindstone",
+    "hopper",
+    "lectern",
+    "loom",
+    "merchant",
+    "shulker_box",
+    "smithing",
+    "smoker",
+    "cartography_table",
+    "stonecutter",
+];

@@ -102,6 +102,21 @@ impl pumpkin::plugin::registry::Host for PluginHostState {
         .map_err(|err| err.to_string()))
     }
 
+    async fn register_menu_type(&mut self, id: String) -> wasmtime::Result<Result<u32, String>> {
+        Ok(pumpkin_data::dynamic::register_menu_type(id)
+            .map(u32::from)
+            .map_err(|err| err.to_string()))
+    }
+
+    async fn register_block_entity_type(
+        &mut self,
+        id: String,
+    ) -> wasmtime::Result<Result<u32, String>> {
+        Ok(pumpkin_data::dynamic::register_block_entity_type(id)
+            .map(u32::from)
+            .map_err(|err| err.to_string()))
+    }
+
     async fn declare_network_channel(
         &mut self,
         channel: WitNetworkChannel,

@@ -26,7 +26,7 @@
 //! # Feature gates
 //!
 //! Each registry is gated on the `pumpkin-data` feature that provides its type — `block`,
-//! `item`, `entity_type`, `fluid` — because crates in this workspace enable them
+//! `item`, `entity_type`, `fluid`, `screen` — because crates in this workspace enable them
 //! independently.
 
 use std::sync::OnceLock;
@@ -41,6 +41,8 @@ mod entity_types;
 mod fluids;
 #[cfg(feature = "item")]
 mod items;
+#[cfg(feature = "screen")]
+mod menu_types;
 
 #[cfg(feature = "block")]
 pub use block_entity_types::{
@@ -65,6 +67,10 @@ pub use fluids::{
 #[cfg(feature = "item")]
 pub use items::{
     ItemRegistration, base_item_count, item_count, item_from_id, item_from_name, register_item,
+};
+#[cfg(feature = "screen")]
+pub use menu_types::{
+    base_menu_type_count, menu_type_count, menu_type_id, menu_type_name, register_menu_type,
 };
 
 /// Set once [`freeze`] has run. Registration checks this; lookups check their own tables.
@@ -125,6 +131,8 @@ pub fn freeze() {
     fluids::publish();
     #[cfg(feature = "item")]
     items::publish();
+    #[cfg(feature = "screen")]
+    menu_types::publish();
 
     // Set last: registration reads this, and must keep failing only after the tables are
     // in place rather than during the window where they are half-published.
@@ -149,7 +157,8 @@ fn validate_name(name: &str) -> Result<(), RegistryError> {
     feature = "block",
     feature = "item",
     feature = "entity_type",
-    feature = "fluid"
+    feature = "fluid",
+    feature = "screen"
 ))]
 mod tests {
     use super::*;
@@ -293,6 +302,11 @@ mod tests {
             "a fluid must have at least one state"
         );
 
+        let base_menus = base_menu_type_count();
+        let menu_id = register_menu_type("examplemod:reprocessor".to_string())
+            .expect("registration succeeds");
+        assert_eq!(menu_id, base_menus);
+
         let base_block_entities = base_block_entity_type_count();
         let block_entity_id = register_block_entity_type("examplemod:ruby_furnace".to_string())
             .expect("registration succeeds");
@@ -405,6 +419,15 @@ mod tests {
             "generated block entity types keep their ids"
         );
         assert_eq!(block_entity_type_count(), base_block_entities + 1);
+
+        assert_eq!(menu_type_name(menu_id), Some("examplemod:reprocessor"));
+        assert_eq!(menu_type_id("examplemod:reprocessor"), Some(menu_id));
+        assert_eq!(
+            menu_type_id("generic_9x3"),
+            Some(2),
+            "generated menu types keep their ids"
+        );
+        assert_eq!(menu_type_count(), base_menus + 1);
 
         assert!(is_frozen());
         assert_eq!(

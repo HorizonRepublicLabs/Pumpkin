@@ -31,12 +31,13 @@ use super::channels::{ChannelProtocol, ModdedChannel};
 pub const BUILTIN_CHANNEL_VERSION: &str = "1";
 
 /// The registries Pumpkin can describe completely, in the order they are sent.
-pub const SYNCED_REGISTRIES: [&str; 5] = [
+pub const SYNCED_REGISTRIES: [&str; 6] = [
     "minecraft:block",
     "minecraft:item",
     "minecraft:entity_type",
     "minecraft:fluid",
     "minecraft:block_entity_type",
+    "minecraft:menu",
 ];
 
 /// Encodes `neoforge:network`: which channels this connection may carry, per phase.
@@ -108,6 +109,9 @@ pub fn registry_snapshot(registry: &str) -> Option<Result<Bytes, WritingError>> 
             .collect(),
         "minecraft:block_entity_type" => (0..dynamic::block_entity_type_count())
             .filter_map(|id| dynamic::block_entity_type_name(id).map(|name| (id, namespaced(name))))
+            .collect(),
+        "minecraft:menu" => (0..dynamic::menu_type_count())
+            .filter_map(|id| dynamic::menu_type_name(id).map(|name| (id, namespaced(name))))
             .collect(),
         _ => return None,
     };
@@ -254,7 +258,7 @@ mod tests {
     /// every name has to be a resolvable identifier.
     #[test]
     fn every_synced_registry_encodes_completely() {
-        let expected: [(&str, u16); 5] = [
+        let expected: [(&str, u16); 6] = [
             ("minecraft:block", BlockId::count()),
             ("minecraft:item", dynamic::item_count()),
             ("minecraft:entity_type", dynamic::entity_type_count()),
@@ -263,6 +267,7 @@ mod tests {
                 "minecraft:block_entity_type",
                 dynamic::block_entity_type_count(),
             ),
+            ("minecraft:menu", dynamic::menu_type_count()),
         ];
 
         for (registry, count) in expected {
@@ -304,7 +309,7 @@ mod tests {
 
     #[test]
     fn an_unknown_registry_is_not_described_rather_than_described_partially() {
-        assert!(registry_snapshot("minecraft:menu").is_none());
+        assert!(registry_snapshot("minecraft:recipe_type").is_none());
     }
 
     #[test]

@@ -828,3 +828,32 @@ pub const ITEMS: [(&str, &str); 605] = [
     ("zombie_essence", "diamond"),
     ("zombie_seeds", "wheat_seeds"),
 ];
+
+/// Every menu type the mod registers, from `ModMenuTypes`.
+pub const MENU_TYPES: [&str; 8] = [
+    "enchanter",
+    "furnace",
+    "harvester",
+    "ore_infuser",
+    "reprocessor",
+    "soul_extractor",
+    "soulium_spawner",
+    "tinkering_table",
+];
+
+/// Every block entity type the mod registers, from `ModTileEntities`.
+pub const BLOCK_ENTITY_TYPES: [&str; 13] = [
+    "awakening_altar",
+    "awakening_pedestal",
+    "enchanter",
+    "essence_vessel",
+    "furnace",
+    "harvester",
+    "infusion_altar",
+    "infusion_pedestal",
+    "ore_infuser",
+    "seed_reprocessor",
+    "soul_extractor",
+    "soulium_spawner",
+    "tinkering_table",
+];

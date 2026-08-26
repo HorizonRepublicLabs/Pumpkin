@@ -398,7 +398,13 @@ pub mod block_rotation;
 pub mod block_state;
 #[cfg(feature = "block")]
 mod blocks;
-#[cfg(any(feature = "block", feature = "item"))]
+#[cfg(any(
+    feature = "block",
+    feature = "item",
+    feature = "entity_type",
+    feature = "fluid",
+    feature = "screen"
+))]
 pub mod dynamic;
 
 #[cfg(feature = "block")]

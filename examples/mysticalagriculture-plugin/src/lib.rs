@@ -85,6 +85,19 @@ impl Plugin for MysticalAgriculturePlugin {
         }
         tracing::info!("registered {} items", content::ITEMS.len());
 
+        for name in content::MENU_TYPES {
+            registry::register_menu_type(&format!("{MOD_ID}:{name}"))?;
+        }
+        tracing::info!("registered {} menu types", content::MENU_TYPES.len());
+
+        for name in content::BLOCK_ENTITY_TYPES {
+            registry::register_block_entity_type(&format!("{MOD_ID}:{name}"))?;
+        }
+        tracing::info!(
+            "registered {} block entity types",
+            content::BLOCK_ENTITY_TYPES.len()
+        );
+
         Ok(())
     }
 

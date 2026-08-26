@@ -22,8 +22,8 @@
 //! ```
 
 pub use crate::wit::pumpkin::plugin::registry::{
-    ChannelProtocol, NetworkChannel, declare_network_channel, is_frozen, register_entity_type,
-    register_item,
+    ChannelProtocol, NetworkChannel, declare_network_channel, is_frozen,
+    register_block_entity_type, register_entity_type, register_item, register_menu_type,
 };
 
 use crate::wit::pumpkin::plugin::registry::{
