@@ -62,9 +62,14 @@ impl ArgumentType for ResourceArgument {
     ) -> Pin<Box<dyn Future<Output = Suggestions> + Send>> {
         if self.0 == ENTITY_TYPE_REGISTRY {
             Box::pin(async move {
-                let entity_types = EntityType::ALL
-                    .iter()
-                    .map(|entity_type| format!("minecraft:{}", entity_type.resource_name));
+                // Registered entity types carry their own namespace; generated ones do not.
+                let entity_types = EntityType::all().into_iter().map(|entity_type| {
+                    if entity_type.resource_name.contains(':') {
+                        entity_type.resource_name.to_string()
+                    } else {
+                        format!("minecraft:{}", entity_type.resource_name)
+                    }
+                });
                 suggestions_builder
                     .filter_and_suggest_iter(entity_types)
                     .build()

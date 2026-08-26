@@ -3,15 +3,15 @@
 //! Vanilla content is generated at build time into fixed tables, and that stays true: ids
 //! below the generated count resolve exactly as before, by indexing a `static` array or
 //! falling through a generated `match`. This module owns everything above that range, so
-//! content that only exists at runtime — a mod loader's blocks and items, a plugin's — can
-//! be given real ids without the generated tables knowing about it.
+//! content that only exists at runtime — a mod loader's content, a plugin's — can be given
+//! real ids without the generated tables knowing about it.
 //!
 //! # Lifecycle
 //!
 //! Registration is a startup-only activity with two phases:
 //!
-//! 1. **Open.** [`register_block`] and [`register_item`] append entries and hand back the
-//!    id each was assigned.
+//! 1. **Open.** [`register_block`], [`register_item`] and [`register_entity_type`] append
+//!    entries and hand back the id each was assigned.
 //! 2. **Frozen.** [`freeze`] publishes every registry at once. Lookups see the new content
 //!    from this point on, and further registration fails.
 //!
@@ -20,18 +20,20 @@
 //! [`OnceLock`](std::sync::OnceLock), and the generated range never touches that lock.
 //!
 //! Entries are leaked deliberately. Their `&'static` lifetime is what lets runtime content
-//! flow through the same `&'static Block` and `&'static Item` API as generated content, and
+//! flow through the same `&'static` API as generated content, and
 //! a registry that only grows during startup and lives until exit has nothing to reclaim.
 //!
 //! # Feature gates
 //!
-//! Blocks and items are gated separately, matching `pumpkin-data`'s own `block` and `item`
-//! features — crates in this workspace enable one without the other.
+//! Each registry is gated on the `pumpkin-data` feature that provides its type — `block`,
+//! `item`, `entity_type` — because crates in this workspace enable them independently.
 
 use std::sync::OnceLock;
 
 #[cfg(feature = "block")]
 mod blocks;
+#[cfg(feature = "entity_type")]
+mod entity_types;
 #[cfg(feature = "item")]
 mod items;
 
@@ -39,6 +41,11 @@ mod items;
 pub use blocks::{
     BlockRegistration, base_block_count, base_state_count, block_count, block_from_id,
     block_from_name, block_id_from_state_id, register_block, state_count, state_from_id,
+};
+#[cfg(feature = "entity_type")]
+pub use entity_types::{
+    EntityTypeRegistration, base_entity_type_count, entity_type_count, entity_type_from_id,
+    entity_type_from_name, register_entity_type, registered_entity_types,
 };
 #[cfg(feature = "item")]
 pub use items::{
@@ -95,6 +102,8 @@ pub fn is_frozen() -> bool {
 pub fn freeze() {
     #[cfg(feature = "block")]
     blocks::publish();
+    #[cfg(feature = "entity_type")]
+    entity_types::publish();
     #[cfg(feature = "item")]
     items::publish();
 
@@ -116,10 +125,10 @@ fn validate_name(name: &str) -> Result<(), RegistryError> {
     }
 }
 
-#[cfg(all(test, feature = "block", feature = "item"))]
+#[cfg(all(test, feature = "block", feature = "item", feature = "entity_type"))]
 mod tests {
     use super::*;
-    use crate::{Block, BlockId, BlockState, BlockStateId, item::Item};
+    use crate::{Block, BlockId, BlockState, BlockStateId, entity::EntityType, item::Item};
 
     fn sample_state() -> BlockState {
         let template = Block::STONE.default_state;
@@ -217,6 +226,21 @@ mod tests {
             "registrations are invisible until the registry is frozen"
         );
 
+        let entity_id = register_entity_type(EntityTypeRegistration {
+            name: "examplemod:ruby_golem".to_string(),
+            entity_type: EntityType::ALLAY.clone(),
+        })
+        .expect("registration succeeds");
+        assert_eq!(
+            entity_id,
+            EntityType::BASE_COUNT,
+            "ids continue after generated data"
+        );
+        assert!(
+            EntityType::from_raw(entity_id).is_none(),
+            "registrations are invisible until the registry is frozen"
+        );
+
         freeze();
 
         let block = Block::from_name("examplemod:ruby_block").expect("registered block resolves");
@@ -268,6 +292,29 @@ mod tests {
             Some("diamond")
         );
 
+        let entity = EntityType::from_raw(entity_id).expect("registered entity type resolves");
+        assert_eq!(entity.resource_name, "examplemod:ruby_golem");
+        assert_eq!(
+            EntityType::from_name("examplemod:ruby_golem").map(|found| found.id),
+            Some(entity_id)
+        );
+        assert_eq!(entity_type_count(), EntityType::BASE_COUNT + 1);
+        assert_eq!(
+            EntityType::all().len(),
+            EntityType::ALL.len() + 1,
+            "all() covers generated and registered types"
+        );
+
+        // Generated entity types resolve exactly as before.
+        assert_eq!(
+            EntityType::from_name("allay").map(|found| found.id),
+            Some(EntityType::ALLAY.id)
+        );
+        assert_eq!(
+            EntityType::from_raw(EntityType::ALLAY.id).map(|found| found.resource_name),
+            Some("allay")
+        );
+
         assert!(is_frozen());
         assert_eq!(
             register_block(sample("examplemod:too_late", 1)),
@@ -277,6 +324,13 @@ mod tests {
             register_item(ItemRegistration {
                 name: "examplemod:too_late".to_string(),
                 item: Item::DIAMOND.clone(),
+            }),
+            Err(RegistryError::Frozen)
+        );
+        assert_eq!(
+            register_entity_type(EntityTypeRegistration {
+                name: "examplemod:too_late".to_string(),
+                entity_type: EntityType::ALLAY.clone(),
             }),
             Err(RegistryError::Frozen)
         );

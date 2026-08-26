@@ -217,6 +217,17 @@ pub fn build() -> TokenStream {
     let mut consts = TokenStream::new();
     let mut type_from_raw_id_arms = TokenStream::new();
     let mut type_from_name = TokenStream::new();
+
+    // Runtime-registered entity types are numbered from here up.
+    let entity_type_count = LitInt::new(
+        &json
+            .values()
+            .map(|entity| entity.id + 1)
+            .max()
+            .unwrap_or(0)
+            .to_string(),
+        proc_macro2::Span::call_site(),
+    );
     let mut all_variants = TokenStream::new();
 
     for (name, entity) in &json {
@@ -409,19 +420,35 @@ pub fn build() -> TokenStream {
 
             pub const ALL: &'static [&'static Self] = &[#all_variants];
 
-            pub const fn from_raw(id: u16) -> Option<&'static Self> {
+            #[doc = r" The number of entity types generated at build time. Ids below this are"]
+            #[doc = r" always resolved without consulting the runtime registry."]
+            pub const BASE_COUNT: u16 = #entity_type_count;
+
+            pub fn from_raw(id: u16) -> Option<&'static Self> {
                 match id {
                     #type_from_raw_id_arms
-                    _ => None
+                    _ => crate::dynamic::entity_type_from_id(id)
                 }
             }
 
             pub fn from_name(name: &str) -> Option<&'static Self> {
-                let name = name.strip_prefix("minecraft:").unwrap_or(name);
-                match name {
+                let key = name.strip_prefix("minecraft:").unwrap_or(name);
+                match key {
                     #type_from_name
-                    _ => None
+                    // Runtime-registered entity types are always namespaced, so the
+                    // unstripped name is the one to look up.
+                    _ => crate::dynamic::entity_type_from_name(name)
                 }
+            }
+
+            #[doc = r" Every entity type, generated then runtime-registered."]
+            #[must_use]
+            pub fn all() -> Vec<&'static Self> {
+                let registered = crate::dynamic::registered_entity_types();
+                let mut all = Vec::with_capacity(Self::ALL.len() + registered.len());
+                all.extend_from_slice(Self::ALL);
+                all.extend_from_slice(registered);
+                all
             }
         }
 

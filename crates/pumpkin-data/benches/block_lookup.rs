@@ -13,11 +13,12 @@
 use std::hint::black_box;
 
 use criterion::{Criterion, criterion_group, criterion_main};
-use pumpkin_data::{Block, BlockId, BlockState, BlockStateId, item::Item};
+use pumpkin_data::{Block, BlockId, BlockState, BlockStateId, entity::EntityType, item::Item};
 
 const BLOCK_COUNT: u16 = 1196;
 const STATE_COUNT: u16 = 32366;
 const ITEM_COUNT: u16 = 1537;
+const ENTITY_TYPE_COUNT: u16 = 158;
 
 #[inline(never)]
 fn sum_blocks(ids: &[BlockId]) -> u64 {
@@ -55,6 +56,15 @@ fn sum_items(ids: &[u16]) -> u64 {
     acc
 }
 
+#[inline(never)]
+fn sum_entity_types(ids: &[u16]) -> u64 {
+    let mut acc = 0u64;
+    for id in ids {
+        acc += EntityType::from_raw(black_box(*id)).map_or(0, |ty| u64::from(ty.id));
+    }
+    acc
+}
+
 fn benches(c: &mut Criterion) {
     let block_ids: Vec<BlockId> = (0..BLOCK_COUNT).filter_map(BlockId::new).collect();
     let state_ids: Vec<BlockStateId> = (0..STATE_COUNT).filter_map(BlockStateId::new).collect();
@@ -72,6 +82,11 @@ fn benches(c: &mut Criterion) {
     let item_ids: Vec<u16> = (0..ITEM_COUNT).collect();
     c.bench_function("Item::from_id", |b| {
         b.iter(|| black_box(sum_items(black_box(&item_ids))))
+    });
+
+    let entity_ids: Vec<u16> = (0..ENTITY_TYPE_COUNT).collect();
+    c.bench_function("EntityType::from_raw", |b| {
+        b.iter(|| black_box(sum_entity_types(black_box(&entity_ids))))
     });
 }
 

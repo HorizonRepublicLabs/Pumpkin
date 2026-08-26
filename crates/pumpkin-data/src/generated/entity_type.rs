@@ -11142,7 +11142,10 @@ impl EntityType {
         &Self::ZOMBIE_VILLAGER,
         &Self::ZOMBIFIED_PIGLIN,
     ];
-    pub const fn from_raw(id: u16) -> Option<&'static Self> {
+    #[doc = r" The number of entity types generated at build time. Ids below this are"]
+    #[doc = r" always resolved without consulting the runtime registry."]
+    pub const BASE_COUNT: u16 = 158;
+    pub fn from_raw(id: u16) -> Option<&'static Self> {
         match id {
             0 => Some(&Self::ACACIA_BOAT),
             1 => Some(&Self::ACACIA_CHEST_BOAT),
@@ -11302,12 +11305,12 @@ impl EntityType {
             153 => Some(&Self::ZOMBIE_NAUTILUS),
             154 => Some(&Self::ZOMBIE_VILLAGER),
             155 => Some(&Self::ZOMBIFIED_PIGLIN),
-            _ => None,
+            _ => crate::dynamic::entity_type_from_id(id),
         }
     }
     pub fn from_name(name: &str) -> Option<&'static Self> {
-        let name = name.strip_prefix("minecraft:").unwrap_or(name);
-        match name {
+        let key = name.strip_prefix("minecraft:").unwrap_or(name);
+        match key {
             "acacia_boat" => Some(&Self::ACACIA_BOAT),
             "acacia_chest_boat" => Some(&Self::ACACIA_CHEST_BOAT),
             "allay" => Some(&Self::ALLAY),
@@ -11466,8 +11469,17 @@ impl EntityType {
             "zombie_nautilus" => Some(&Self::ZOMBIE_NAUTILUS),
             "zombie_villager" => Some(&Self::ZOMBIE_VILLAGER),
             "zombified_piglin" => Some(&Self::ZOMBIFIED_PIGLIN),
-            _ => None,
+            _ => crate::dynamic::entity_type_from_name(name),
         }
+    }
+    #[doc = r" Every entity type, generated then runtime-registered."]
+    #[must_use]
+    pub fn all() -> Vec<&'static Self> {
+        let registered = crate::dynamic::registered_entity_types();
+        let mut all = Vec::with_capacity(Self::ALL.len() + registered.len());
+        all.extend_from_slice(Self::ALL);
+        all.extend_from_slice(registered);
+        all
     }
 }
 impl IDSetContent for EntityType {
