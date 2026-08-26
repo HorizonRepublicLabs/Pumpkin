@@ -91,6 +91,8 @@ pub mod forms;
 pub mod permissions;
 /// Custom recipe registration and builder utilities.
 pub mod recipe;
+/// Registration of custom blocks, items and entity types.
+pub mod registry;
 /// Scheduler utilities.
 pub mod scheduler;
 /// Scoreboard team management and builder utilities.

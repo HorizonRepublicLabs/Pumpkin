@@ -510,7 +510,13 @@ impl PendingConnection {
         if plugin_message.channel.starts_with(BRAND_CHANNEL_PREFIX) {
             debug!("Got a client brand");
             match core::str::from_utf8(plugin_message.data) {
-                Ok(brand) => self.brand = Some(brand.to_string()),
+                Ok(brand) => {
+                    self.brand = Some(brand.to_string());
+                    // The brand is the earliest reliable sign of a mod loader, and for a
+                    // client carrying required mod payloads it is the only one: it gives up
+                    // before advertising channels.
+                    self.try_queue_mod_loader_tasks(server);
+                }
                 Err(e) => self.kick(TextComponent::text(e.to_string())).await,
             }
             return;

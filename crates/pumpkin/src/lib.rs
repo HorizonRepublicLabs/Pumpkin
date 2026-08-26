@@ -388,6 +388,7 @@ impl PumpkinServer {
         if !self.server.advanced_config.plugins.enabled {
             info!("Plugin system is disabled in configuration.");
             pumpkin_data::dynamic::freeze();
+            crate::net::java::neoforge::channels::freeze();
             return std::time::Duration::ZERO;
         }
 
@@ -404,6 +405,7 @@ impl PumpkinServer {
         // reopen, so a hot-reloaded plugin cannot register content — renumbering a registry
         // under a running world and its connected clients is not something we can undo.
         pumpkin_data::dynamic::freeze();
+        crate::net::java::neoforge::channels::freeze();
 
         if self.server.advanced_config.plugins.hot_reload {
             if let Err(err) = self.server.plugin_manager.start_watcher(&self.server).await {

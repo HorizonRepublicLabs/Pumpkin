@@ -1,0 +1,20 @@
+# Its own workspace on purpose: this builds for wasm32-wasip2, and pulling it into the
+# server's workspace would make every ordinary `cargo build` need that target.
+[workspace]
+
+[package]
+name = "registry-plugin"
+version = "0.1.0"
+edition = "2024"
+license = "MIT OR Apache-2.0"
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+pumpkin-plugin-api = { path = "../../crates/pumpkin-plugin-api" }
+tracing = "0.1"
+
+[profile.release]
+opt-level = "s"
+strip = true

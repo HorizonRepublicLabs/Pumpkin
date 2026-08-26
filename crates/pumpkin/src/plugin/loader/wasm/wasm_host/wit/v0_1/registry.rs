@@ -22,7 +22,12 @@ use pumpkin_data::{
 
 use crate::plugin::loader::wasm::wasm_host::{state::PluginHostState, wit::v0_1::pumpkin};
 
-use pumpkin::plugin::registry::{BlockDefinition, EntityTypeDefinition, ItemDefinition};
+use pumpkin::plugin::registry::{
+    BlockDefinition, ChannelProtocol as WitChannelProtocol, EntityTypeDefinition, ItemDefinition,
+    NetworkChannel as WitNetworkChannel,
+};
+
+use crate::net::java::neoforge::channels::{self, ChannelProtocol, ModdedChannel};
 
 impl pumpkin::plugin::registry::Host for PluginHostState {
     async fn register_block(
@@ -94,6 +99,22 @@ impl pumpkin::plugin::registry::Host for PluginHostState {
             entity_type: template.clone(),
         })
         .map(u32::from)
+        .map_err(|err| err.to_string()))
+    }
+
+    async fn declare_network_channel(
+        &mut self,
+        channel: WitNetworkChannel,
+    ) -> wasmtime::Result<Result<(), String>> {
+        Ok(channels::declare(ModdedChannel {
+            id: channel.id,
+            protocol: match channel.protocol {
+                WitChannelProtocol::Play => ChannelProtocol::Play,
+                WitChannelProtocol::Configuration => ChannelProtocol::Configuration,
+            },
+            version: channel.version,
+            serverbound: channel.serverbound,
+        })
         .map_err(|err| err.to_string()))
     }
 
