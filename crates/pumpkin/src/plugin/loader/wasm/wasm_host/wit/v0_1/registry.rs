@@ -61,25 +61,32 @@ impl pumpkin::plugin::registry::Host for PluginHostState {
             None => None,
         };
 
-        let states: Vec<BlockState> = if definition.properties.is_empty() {
-            template
-                .states
-                .iter()
-                .map(|state| copy_state(state, definition.luminance, block_entity_type))
-                .collect()
+        // Each state is paired with the one it was copied from, because whether it is
+        // randomly ticked comes from there: the generated bitset covers generated ids only,
+        // so a block standing in for a crop has to be told it ticks like one.
+        let sources: Vec<&BlockState> = if definition.properties.is_empty() {
+            template.states.iter().collect()
         } else {
             // Cycle the template's states so a block with more states than its template
             // still gets a full set rather than running out.
             (0..state_count)
                 .map(|index| {
-                    let source = template
+                    template
                         .states
                         .get(index % template.states.len())
-                        .unwrap_or(template.default_state);
-                    copy_state(source, definition.luminance, block_entity_type)
+                        .unwrap_or(template.default_state)
                 })
                 .collect()
         };
+
+        let states: Vec<BlockState> = sources
+            .iter()
+            .map(|state| copy_state(state, definition.luminance, block_entity_type))
+            .collect();
+        let state_random_ticks: Vec<bool> = sources
+            .iter()
+            .map(|state| pumpkin_data::block_properties::has_random_ticks(state.id))
+            .collect();
 
         let default_state_index = if definition.properties.is_empty() {
             // The template's default sits at a known offset in its own list, and the copy
@@ -129,6 +136,7 @@ impl pumpkin::plugin::registry::Host for PluginHostState {
             name: definition.id,
             block,
             states,
+            state_random_ticks,
             default_state_index,
             item_id,
             properties,

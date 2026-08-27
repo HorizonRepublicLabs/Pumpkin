@@ -54,7 +54,7 @@ pub use block_entity_types::{
 pub use blocks::{
     BlockRegistration, base_block_count, base_state_count, block_count, block_from_id,
     block_from_item_id, block_from_name, block_id_from_state_id, block_properties, block_state_for,
-    register_block, state_count, state_from_id,
+    register_block, state_count, state_from_id, state_has_random_ticks,
 };
 #[cfg(feature = "entity_type")]
 pub use entity_types::{
@@ -192,6 +192,7 @@ mod tests {
             name: name.to_string(),
             block: Block::STONE.clone(),
             states: (0..state_count).map(|_| sample_state()).collect(),
+            state_random_ticks: vec![false; state_count],
             default_state_index: 0,
             item_id: None,
             properties: Vec::new(),
@@ -253,6 +254,7 @@ mod tests {
             states: (0..facing.len() * lit.len())
                 .map(|_| sample_state())
                 .collect(),
+            state_random_ticks: vec![false; facing.len() * lit.len()],
             default_state_index: 0,
             item_id: None,
             properties: vec![

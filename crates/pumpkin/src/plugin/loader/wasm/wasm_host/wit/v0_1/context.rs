@@ -1110,7 +1110,8 @@ fn register_block_event(
     use crate::plugin::block::{
         block_break::BlockBreakEvent, block_burn::BlockBurnEvent,
         block_can_build::BlockCanBuildEvent, block_grow::BlockGrowEvent,
-        block_place::BlockPlaceEvent, block_redstone::BlockRedstoneEvent,
+        block_place::BlockPlaceEvent, block_random_tick::BlockRandomTickEvent,
+        block_redstone::BlockRedstoneEvent,
     };
 
     match event_type {
@@ -1131,6 +1132,9 @@ fn register_block_event(
         }
         EventType::BlockPlaceEvent => {
             register_typed_event::<BlockPlaceEvent>(resource, handler, priority, blocking);
+        }
+        EventType::BlockRandomTickEvent => {
+            register_typed_event::<BlockRandomTickEvent>(resource, handler, priority, blocking);
         }
         EventType::BlockDamageEvent => {
             register_typed_event::<crate::plugin::api::events::block::block_damage::BlockDamageEvent>(
@@ -1660,6 +1664,7 @@ impl pumpkin::plugin::context::HostContext for PluginHostState {
             | EventType::BlockCanBuildEvent
             | EventType::BlockGrowEvent
             | EventType::BlockPlaceEvent
+            | EventType::BlockRandomTickEvent
             | EventType::BlockDamageEvent
             | EventType::BlockIgniteEvent
             | EventType::BlockFromToEvent

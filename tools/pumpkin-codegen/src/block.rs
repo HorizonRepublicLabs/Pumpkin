@@ -1209,6 +1209,12 @@ pub fn build() -> TokenStream {
         #[inline(always)]
         #[must_use]
         pub fn has_random_ticks(id: BlockStateId) -> bool {
+            // The bitset covers the generated states only. A registered one takes it from
+            // the template it was copied from, so a block standing in for a crop is
+            // ticked like the crop is.
+            if id.as_u16() >= BlockStateId::BASE_COUNT {
+                return crate::dynamic::state_has_random_ticks(id);
+            }
             #mod_ident::#contains_ident(id.as_u16())
         }
 

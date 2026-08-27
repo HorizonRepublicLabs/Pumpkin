@@ -158,6 +158,9 @@ pub fn cleanup_event(event: &Event, state: &mut PluginHostState) {
         Event::BlockGrowEvent(data) => {
             cleanup_world(state, &data.target_world);
         }
+        Event::BlockRandomTickEvent(data) => {
+            cleanup_world(state, &data.target_world);
+        }
         Event::BlockPlaceEvent(data) => {
             cleanup_player(state, &data.player);
         }
