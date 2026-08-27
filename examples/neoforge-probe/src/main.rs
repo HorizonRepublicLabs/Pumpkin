@@ -131,6 +131,7 @@ fn main() -> std::io::Result<()> {
 
     sock.set_read_timeout(Some(std::time::Duration::from_secs(8)))?;
     let mut seen = Vec::new();
+    let enter_play = args.iter().any(|a| a == "--play");
     while let Ok((id, body)) = read_packet(&mut sock) {
         match id {
             1 => {
@@ -168,7 +169,27 @@ fn main() -> std::io::Result<()> {
                 println!("DISCONNECTED in config: {}", read_string(&body, &mut c));
                 break;
             }
-            3 => { println!("finish configuration"); break; }
+            3 => {
+                println!("finish configuration");
+                if enter_play {
+                    // Ack it and stay in play for a while, so entity spawns land here.
+                    send(&mut sock, 3, &[])?;
+                    println!("--- entering play ---");
+                    sock.set_read_timeout(Some(std::time::Duration::from_secs(20)))?;
+                    let mut spawns = 0;
+                    while let Ok((pid, pbody)) = read_packet(&mut sock) {
+                        if pid == 1 {
+                            spawns += 1;
+                            let hex: String =
+                                pbody.iter().map(|b| format!("{b:02x}")).collect();
+                            println!("ADD_ENTITY body_len={} hex={hex}", pbody.len());
+                            if spawns >= 5 { break; }
+                        }
+                    }
+                    println!("--- play done, {spawns} add_entity seen ---");
+                }
+                break;
+            }
             14 => {
                 // Known packs. A real modded client decides whether the server is modded
                 // before answering this, so `--no-known-packs` reproduces that: the modded

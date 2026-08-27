@@ -5275,12 +5275,14 @@ impl Player {
                 extra,
                 &java.version.load(),
             );
-            self.try_send_client_packet(
-                &pumpkin_protocol::java::client::config::CPluginMessage::new(
-                    crate::net::java::neoforge::OPEN_SCREEN_CHANNEL,
-                    &payload,
-                ),
-            );
+            // Play numbers its packets separately from configuration, and the id a custom
+            // payload has there belongs to `add_entity` here. Sending the configuration
+            // packet to a playing client is not a loud failure: the client decodes it as an
+            // entity spawn and drops the connection over the bytes left over.
+            self.try_send_client_packet(&CCustomPayload::new(
+                crate::net::java::neoforge::OPEN_SCREEN_CHANNEL,
+                &payload,
+            ));
 
             drop(screen_handler_temp);
             self.on_screen_handler_opened(&screen_handler);

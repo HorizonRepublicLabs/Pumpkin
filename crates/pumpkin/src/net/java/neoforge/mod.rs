@@ -335,3 +335,43 @@ pub fn advanced_open_screen(
         .inspect_err(|err| warn!("Failed to encode the NeoForge open screen payload: {err}"))
         .unwrap_or_default()
 }
+
+#[cfg(test)]
+mod open_screen_tests {
+    use super::OPEN_SCREEN_CHANNEL;
+    use pumpkin_protocol::java::client::play::CCustomPayload;
+    use pumpkin_protocol::packet::MultiVersionJavaPacket;
+    use pumpkin_util::version::JavaMinecraftVersion;
+
+    /// The screen a mod opens travels on a play-state custom payload, never the
+    /// configuration one.
+    ///
+    /// The two states number their packets separately, and in play the id configuration
+    /// gives a custom payload is `add_entity`. A client sent the wrong one does not reject
+    /// it as unknown — it decodes the channel and screen data as an entity spawn and closes
+    /// the connection over the leftover bytes, which reads as a protocol bug anywhere but
+    /// here. This pins the id so the mistake cannot come back quietly.
+    #[test]
+    fn open_screen_uses_the_play_state_payload_id() {
+        for version in [
+            JavaMinecraftVersion::V_26_2,
+            JavaMinecraftVersion::V_26_1,
+            JavaMinecraftVersion::V_1_21_9,
+        ] {
+            let sent = <CCustomPayload as MultiVersionJavaPacket>::to_id(version);
+            let add_entity = pumpkin_data::packet::clientbound::play::ADD_ENTITY.to_id(version);
+            let config_payload =
+                pumpkin_data::packet::clientbound::config::CUSTOM_PAYLOAD.to_id(version);
+
+            assert_ne!(
+                sent, add_entity,
+                "{version}: the screen payload would be read as an entity spawn"
+            );
+            assert_eq!(
+                config_payload, add_entity,
+                "{version}: the trap this guards against has moved; update the test"
+            );
+        }
+        assert!(!OPEN_SCREEN_CHANNEL.is_empty());
+    }
+}
