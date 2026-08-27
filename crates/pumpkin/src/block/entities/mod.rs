@@ -33,6 +33,7 @@ pub mod lectern;
 pub mod map;
 pub mod mob_spawner;
 pub mod piston;
+pub mod plugin;
 pub mod shulker_box;
 pub mod sign;
 pub mod smoker;
@@ -320,6 +321,11 @@ pub fn block_entity_from_nbt(nbt: &NbtCompound) -> Option<Arc<dyn BlockEntity>> 
         potent_sulfur::PotentSulfurBlockEntity::ID => Some(Arc::new(
             potent_sulfur::PotentSulfurBlockEntity::from_nbt(nbt, pos),
         )),
+        // A type a plugin registered has no code of its own, so it gets the generic one:
+        // somewhere for its contents to live that survives being saved and loaded.
+        registered if pumpkin_data::dynamic::block_entity_type_id(registered).is_some() => {
+            Some(Arc::new(plugin::PluginBlockEntity::from_nbt(nbt, pos)))
+        }
         _ => None,
     }
 }
@@ -439,7 +445,9 @@ pub fn create_block_entity(
             position,
         ))),
         "map" => Some(Arc::new(map::MapBlockEntity::new(position, 0))),
-        _ => None,
+        // Same for a freshly placed block of a registered type.
+        registered => plugin::PluginBlockEntity::new(registered, position)
+            .map(|entity| Arc::new(entity) as Arc<dyn BlockEntity>),
     }
 }
 
