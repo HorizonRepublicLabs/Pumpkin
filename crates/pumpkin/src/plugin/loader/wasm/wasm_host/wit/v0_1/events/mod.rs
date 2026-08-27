@@ -24,6 +24,7 @@ use crate::{
 };
 
 pub mod block;
+pub mod cancelled;
 pub mod cleanup;
 pub mod dialog;
 pub mod enchantment;
@@ -247,6 +248,18 @@ impl<E: Payload + ToFromWasmEvent> EventHandler<E> for WasmPluginEventHandler {
                         .await;
                     match result {
                         Ok(returned_event) => {
+                            // Nothing a handler returns is read back unless it was
+                            // registered blocking, so a plugin that cancels here is asking
+                            // for something that will not happen. Silence made that look
+                            // like the server ignoring the cancellation for its own
+                            // reasons, rather than the handler being registered wrongly.
+                            if cancelled::event_cancelled(&returned_event) == Some(true)
+                                && cancelled::event_cancelled(&wasm_event) != Some(true)
+                            {
+                                tracing::warn!(
+                                    "A non-blocking event handler cancelled an event; register it as blocking or the cancellation is dropped"
+                                );
+                            }
                             cleanup_event(&returned_event, store.data_mut());
                             cleanup_event(&wasm_event, store.data_mut());
                         }
