@@ -11,14 +11,12 @@
 //! saved and loaded with its chunk like any other.
 
 use std::any::Any;
-use std::sync::Arc;
+use std::sync::{Arc, RwLock, atomic::AtomicBool, atomic::Ordering};
 
-use async_trait::async_trait;
 use pumpkin_data::item_stack::ItemStack;
 use pumpkin_nbt::compound::NbtCompound;
 use pumpkin_util::math::position::BlockPos;
-use pumpkin_world::inventory::{Clearable, Inventory, InventoryFuture, split_stack_slice};
-use tokio::sync::Mutex;
+use pumpkin_world::inventory::{Clearable, Inventory, split_stack_slice};
 
 use super::BlockEntity;
 
@@ -32,10 +30,10 @@ pub struct PluginBlockEntity {
     /// The registered type's namespaced name, which is what it is saved under.
     pub id: &'static str,
     pub position: BlockPos,
-    pub items: Mutex<Vec<ItemStack>>,
+    pub items: RwLock<Vec<ItemStack>>,
     /// Anything else the plugin wants to keep, saved alongside the items.
-    pub data: Mutex<NbtCompound>,
-    dirty: std::sync::atomic::AtomicBool,
+    pub data: RwLock<NbtCompound>,
+    dirty: AtomicBool,
 }
 
 impl PluginBlockEntity {
@@ -49,9 +47,9 @@ impl PluginBlockEntity {
         Some(Self {
             id,
             position,
-            items: Mutex::new(vec![ItemStack::EMPTY.clone(); SLOTS]),
-            data: Mutex::new(NbtCompound::new()),
-            dirty: std::sync::atomic::AtomicBool::new(false),
+            items: RwLock::new(vec![ItemStack::EMPTY.clone(); SLOTS]),
+            data: RwLock::new(NbtCompound::new()),
+            dirty: AtomicBool::new(false),
         })
     }
 }
@@ -62,7 +60,6 @@ fn registered_name(id: &str) -> Option<&'static str> {
     pumpkin_data::dynamic::block_entity_type_name(numeric)
 }
 
-#[async_trait]
 impl BlockEntity for PluginBlockEntity {
     fn resource_location(&self) -> &'static str {
         self.id
@@ -85,36 +82,30 @@ impl BlockEntity for PluginBlockEntity {
         Self {
             id,
             position,
-            items: Mutex::new(items),
-            data: Mutex::new(nbt.clone()),
-            dirty: std::sync::atomic::AtomicBool::new(false),
+            items: RwLock::new(items),
+            data: RwLock::new(nbt.clone()),
+            dirty: AtomicBool::new(false),
         }
     }
 
-    fn write_nbt<'a>(
-        &'a self,
-        nbt: &'a mut NbtCompound,
-    ) -> std::pin::Pin<Box<dyn Future<Output = ()> + Send + 'a>> {
-        Box::pin(async move {
-            self.write_inventory_nbt(nbt, true).await;
+    fn write_nbt(&self, nbt: &mut NbtCompound) {
+        self.write_inventory_nbt(nbt, true);
 
-            // Whatever the plugin kept, minus the keys the container itself owns.
-            let data = self.data.lock().await;
-            for (key, value) in data.child_tags.clone() {
-                if !matches!(&*key, "id" | "x" | "y" | "z" | "Items") {
-                    nbt.put(&key, value);
-                }
+        // Whatever the plugin kept, minus the keys the container itself owns.
+        let data = read(&self.data);
+        for (key, value) in data.child_tags.clone() {
+            if !matches!(&*key, "id" | "x" | "y" | "z" | "Items") {
+                nbt.put(&key, value);
             }
-        })
+        }
     }
 
     fn is_dirty(&self) -> bool {
-        self.dirty.load(std::sync::atomic::Ordering::Relaxed)
+        self.dirty.load(Ordering::Relaxed)
     }
 
     fn clear_dirty(&self) {
-        self.dirty
-            .store(false, std::sync::atomic::Ordering::Relaxed);
+        self.dirty.store(false, Ordering::Relaxed);
     }
 
     fn get_inventory(self: Arc<Self>) -> Option<Arc<dyn Inventory>> {
@@ -131,48 +122,36 @@ impl Inventory for PluginBlockEntity {
         SLOTS
     }
 
-    fn is_empty(&self) -> InventoryFuture<'_, bool> {
-        Box::pin(async move {
-            let items = self.items.lock().await;
-            items.iter().all(ItemStack::is_empty)
-        })
+    fn is_empty(&self) -> bool {
+        read(&self.items).iter().all(ItemStack::is_empty)
     }
 
-    fn get_stack(&self, slot: usize) -> InventoryFuture<'_, ItemStack> {
-        Box::pin(async move {
-            let items = self.items.lock().await;
-            items.get(slot).cloned().unwrap_or(ItemStack::EMPTY.clone())
-        })
+    fn get_stack(&self, slot: usize) -> ItemStack {
+        read(&self.items)
+            .get(slot)
+            .cloned()
+            .unwrap_or(ItemStack::EMPTY.clone())
     }
 
-    fn remove_stack_specific(&self, slot: usize, amount: u8) -> InventoryFuture<'_, ItemStack> {
-        Box::pin(async move {
-            let mut items = self.items.lock().await;
-            split_stack_slice(&mut items, slot, amount)
-        })
+    fn remove_stack_specific(&self, slot: usize, amount: u8) -> ItemStack {
+        split_stack_slice(&mut write(&self.items), slot, amount)
     }
 
-    fn remove_stack(&self, slot: usize) -> InventoryFuture<'_, ItemStack> {
-        Box::pin(async move {
-            let mut items = self.items.lock().await;
-            items.get_mut(slot).map_or_else(
-                || ItemStack::EMPTY.clone(),
-                |stack| std::mem::replace(stack, ItemStack::EMPTY.clone()),
-            )
-        })
+    fn remove_stack(&self, slot: usize) -> ItemStack {
+        write(&self.items).get_mut(slot).map_or_else(
+            || ItemStack::EMPTY.clone(),
+            |stack| std::mem::replace(stack, ItemStack::EMPTY.clone()),
+        )
     }
 
-    fn set_stack(&self, slot: usize, stack: ItemStack) -> InventoryFuture<'_, ()> {
-        Box::pin(async move {
-            let mut items = self.items.lock().await;
-            if let Some(existing) = items.get_mut(slot) {
-                *existing = stack;
-            }
-        })
+    fn set_stack(&self, slot: usize, stack: ItemStack) {
+        if let Some(existing) = write(&self.items).get_mut(slot) {
+            *existing = stack;
+        }
     }
 
     fn mark_dirty(&self) {
-        self.dirty.store(true, std::sync::atomic::Ordering::Relaxed);
+        self.dirty.store(true, Ordering::Relaxed);
     }
 
     fn as_any(&self) -> &dyn Any {
@@ -181,12 +160,21 @@ impl Inventory for PluginBlockEntity {
 }
 
 impl Clearable for PluginBlockEntity {
-    fn clear(&self) -> InventoryFuture<'_, ()> {
-        Box::pin(async move {
-            let mut items = self.items.lock().await;
-            for stack in items.iter_mut() {
-                *stack = ItemStack::EMPTY.clone();
-            }
-        })
+    fn clear(&self) {
+        for stack in write(&self.items).iter_mut() {
+            *stack = ItemStack::EMPTY.clone();
+        }
     }
+}
+
+/// A poisoned lock here means another thread panicked mid-update, not that the contents are
+/// unusable, so reads and writes carry on with what is there.
+fn read<T>(lock: &RwLock<T>) -> std::sync::RwLockReadGuard<'_, T> {
+    lock.read()
+        .unwrap_or_else(std::sync::PoisonError::into_inner)
+}
+
+fn write<T>(lock: &RwLock<T>) -> std::sync::RwLockWriteGuard<'_, T> {
+    lock.write()
+        .unwrap_or_else(std::sync::PoisonError::into_inner)
 }

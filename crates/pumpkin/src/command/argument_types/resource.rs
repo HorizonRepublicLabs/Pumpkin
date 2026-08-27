@@ -12,7 +12,6 @@ use pumpkin_util::identifier::Identifier;
 use pumpkin_util::text::TextComponent;
 use std::any::Any;
 use std::iter::Iterator;
-use std::pin::Pin;
 
 pub static ENTITY_TYPE_REGISTRY: &Identifier = &Identifier::vanilla_static("entity_type");
 static ERROR_UNKNOWN_RESOURCE: CommandErrorType<2> = CommandErrorType::new(
@@ -59,23 +58,21 @@ impl ArgumentType for ResourceArgument {
         &self,
         _context: &CommandContext,
         suggestions_builder: SuggestionsBuilder,
-    ) -> Pin<Box<dyn Future<Output = Suggestions> + Send>> {
+    ) -> Suggestions {
         if self.0 == ENTITY_TYPE_REGISTRY {
-            Box::pin(async move {
-                // Registered entity types carry their own namespace; generated ones do not.
-                let entity_types = EntityType::all().into_iter().map(|entity_type| {
-                    if entity_type.resource_name.contains(':') {
-                        entity_type.resource_name.to_string()
-                    } else {
-                        format!("minecraft:{}", entity_type.resource_name)
-                    }
-                });
-                suggestions_builder
-                    .filter_and_suggest_iter(entity_types)
-                    .build()
-            })
+            // Registered entity types carry their own namespace; generated ones do not.
+            let entity_types = EntityType::all().into_iter().map(|entity_type| {
+                if entity_type.resource_name.contains(':') {
+                    entity_type.resource_name.to_string()
+                } else {
+                    format!("minecraft:{}", entity_type.resource_name)
+                }
+            });
+            suggestions_builder
+                .filter_and_suggest_iter(entity_types)
+                .build()
         } else {
-            Box::pin(async move { Suggestions::empty() })
+            Suggestions::empty()
         }
     }
 
