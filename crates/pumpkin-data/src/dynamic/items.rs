@@ -35,6 +35,27 @@ struct Staging {
     names: HashMap<String, ()>,
 }
 
+/// Finds an item registered during this startup, published or not.
+///
+/// Registration happens in one pass, and things registered in it refer to each other — a
+/// block names the item that places it. Waiting for [`super::freeze`] would make that
+/// impossible, so this sees staged entries too.
+#[must_use]
+pub fn registering_item_id(name: &str) -> Option<u16> {
+    if let Some(item) = item_from_name(name) {
+        return Some(item.id);
+    }
+
+    STAGING
+        .lock()
+        .unwrap_or_else(std::sync::PoisonError::into_inner)
+        .as_ref()?
+        .items
+        .iter()
+        .find(|item| item.registry_key == name)
+        .map(|item| item.id)
+}
+
 static STAGING: Mutex<Option<Staging>> = Mutex::new(None);
 static FROZEN: OnceLock<FrozenItems> = OnceLock::new();
 

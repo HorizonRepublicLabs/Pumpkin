@@ -89,11 +89,37 @@ impl pumpkin::plugin::registry::Host for PluginHostState {
             ..template.clone()
         };
 
+        // Resolving by name means the plugin registers the item first and simply names it,
+        // rather than having to thread ids around.
+        let item_id = match definition.item {
+            Some(ref name) => {
+                // Generated items resolve by name; one registered moments ago is still
+                // staged, so the registry is asked rather than the published tables.
+                let id = Item::from_registry_key(name)
+                    .map(|item| item.id)
+                    .or_else(|| pumpkin_data::dynamic::registering_item_id(name));
+
+                match id {
+                    Some(id) => Some(id),
+                    None => return Ok(Err(unknown_template("item", name))),
+                }
+            }
+            None => None,
+        };
+
+        let properties = definition
+            .properties
+            .iter()
+            .map(|property| (property.name.clone(), property.values.clone()))
+            .collect();
+
         Ok(register_block(BlockRegistration {
             name: definition.id,
             block,
             states,
             default_state_index,
+            item_id,
+            properties,
         })
         .map(|id| u32::from(id.as_u16()))
         .map_err(|err| err.to_string()))

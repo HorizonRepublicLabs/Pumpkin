@@ -50,6 +50,7 @@ impl BlockDefinition {
             luminance: None,
             properties: Vec::new(),
             default_state: 0,
+            item: None,
         })
     }
 
@@ -98,6 +99,16 @@ impl BlockDefinition {
     #[must_use]
     pub fn default_state(mut self, index: u32) -> Self {
         self.0.default_state = index;
+        self
+    }
+
+    /// Names the item that places this block. Register the item first.
+    ///
+    /// Without it nothing can place the block: the item a template carried belongs to the
+    /// template, so it is not inherited.
+    #[must_use]
+    pub fn placed_by(mut self, item: impl Into<String>) -> Self {
+        self.0.item = Some(item.into());
         self
     }
 }

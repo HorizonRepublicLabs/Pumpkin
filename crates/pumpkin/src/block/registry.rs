@@ -1012,7 +1012,8 @@ impl BlockRegistry {
                 })
                 .await;
         }
-        block.default_state.id
+
+        placement_state(block, player)
     }
 
     pub async fn player_placed(
@@ -1419,4 +1420,35 @@ impl BlockRegistry {
             |pumpkin_block| pumpkin_block.rotate(block, state_id, rotation),
         )
     }
+}
+
+/// The state a block with no registered behaviour takes when placed.
+///
+/// Generated blocks all have behaviour of their own, so in practice this is about
+/// runtime-registered ones. They have no code to consult, only the properties they were
+/// registered with, and the one that matters for placement is `facing`: a machine placed
+/// without it faces north regardless of where the player stood, which reads as the block
+/// being back to front.
+///
+/// Everything else keeps its default.
+fn placement_state(block: &Block, player: &Player) -> BlockStateId {
+    use pumpkin_data::block_properties::EnumVariants;
+
+    let Some(properties) = pumpkin_data::dynamic::block_properties(block.id) else {
+        return block.default_state.id;
+    };
+
+    if !properties.iter().any(|(name, _)| name == "facing") {
+        return block.default_state.id;
+    }
+
+    // Vanilla machines face the player, which is the opposite of the way they are looking.
+    let facing = player
+        .living_entity
+        .entity
+        .get_horizontal_facing()
+        .opposite();
+
+    pumpkin_data::dynamic::block_state_for(block.id, &[("facing", facing.to_value())])
+        .unwrap_or(block.default_state.id)
 }

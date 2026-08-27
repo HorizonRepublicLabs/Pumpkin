@@ -111,6 +111,20 @@ pub fn network_query(channels: &[ModdedChannel]) -> Result<Bytes, WritingError> 
     Ok(Bytes::from(buf))
 }
 
+/// Encodes `neoforge:config_file`: a config file's name and its contents.
+///
+/// `NeoForge` reads some of its own settings from the server rather than the client, and
+/// the client crashes on its first entity tick if they never arrive — `Level.guardEntityTick`
+/// asks the config whether to swallow entity errors, and a config that was never loaded
+/// throws instead of answering.
+pub fn config_file(name: &str, contents: &[u8]) -> Result<Bytes, WritingError> {
+    let mut buf = Vec::new();
+    buf.write_string(name)?;
+    write_len(&mut buf, contents.len())?;
+    buf.extend_from_slice(contents);
+    Ok(Bytes::from(buf))
+}
+
 /// Encodes `minecraft:register`: NUL-separated channel names, the vanilla format.
 #[must_use]
 pub fn channel_registration(channels: &[&str]) -> Bytes {

@@ -45,6 +45,8 @@ use crate::net::java::{
 
 pub use channels::{ChannelError, ChannelProtocol, ModdedChannel};
 
+/// Carries a config file the client needs a server-side copy of.
+pub const CONFIG_FILE_CHANNEL: &str = "neoforge:config_file";
 /// Carries the channel list each side offers, server first, client in reply.
 pub const NETWORK_QUERY_CHANNEL: &str = "neoforge:register";
 /// Announces which registries are about to be synchronised.
@@ -59,11 +61,21 @@ pub const MODDED_NETWORK_CHANNEL: &str = "neoforge:network";
 pub const MINECRAFT_REGISTER_CHANNEL: &str = "minecraft:register";
 
 /// `NeoForge`'s own configuration channels, which every `NeoForge` client has built in.
-const SYNC_CHANNELS: [&str; 3] = [
+const SYNC_CHANNELS: [&str; 4] = [
     SYNC_START_CHANNEL,
     FROZEN_REGISTRY_CHANNEL,
     SYNC_COMPLETED_CHANNEL,
+    CONFIG_FILE_CHANNEL,
 ];
+
+/// `NeoForge` reads these settings from the server, not the client.
+///
+/// Its own defaults, with LAN advertising off since that is a client-side courtesy a
+/// dedicated server has no use for. Without this the client crashes on its first entity
+/// tick: `Level.guardEntityTick` asks the config whether to swallow entity errors, and a
+/// config that was never loaded throws instead of answering.
+const SERVER_CONFIG_NAME: &str = "neoforge-server.toml";
+const SERVER_CONFIG: &str = include_str!("server_config.toml");
 
 /// The subset of the `NeoForge` configuration this module needs.
 pub struct NeoForgeSettings {
@@ -108,6 +120,15 @@ pub fn queue_config_tasks(connection: &mut PendingConnection, config: &NeoForgeS
             "neoforge:register_channels",
             MINECRAFT_REGISTER_CHANNEL,
             payloads.register.clone(),
+        ),
+    );
+
+    connection.queue_config_task(
+        ConfigStage::BeforeRegistries,
+        ConfigTask::fire_and_forget(
+            "neoforge:server_config",
+            CONFIG_FILE_CHANNEL,
+            payloads.server_config.clone(),
         ),
     );
 
@@ -190,6 +211,7 @@ struct NegotiationPayloads {
     query: Bytes,
     setup: Bytes,
     register: Bytes,
+    server_config: Bytes,
     channel_count: usize,
 }
 
@@ -249,9 +271,14 @@ fn negotiation_payloads() -> Option<&'static NegotiationPayloads> {
                 .map(|channel| channel.id.as_str())
                 .collect();
 
+            let server_config = payloads::config_file(SERVER_CONFIG_NAME, SERVER_CONFIG.as_bytes())
+                .inspect_err(|err| warn!("Failed to encode the NeoForge config: {err}"))
+                .ok()?;
+
             Some(NegotiationPayloads {
                 query,
                 setup,
+                server_config,
                 register: payloads::channel_registration(&listening),
                 channel_count: all.len(),
             })

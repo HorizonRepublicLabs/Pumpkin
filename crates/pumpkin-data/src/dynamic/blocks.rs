@@ -24,6 +24,15 @@ pub struct BlockRegistration {
     pub states: Vec<BlockState>,
     /// Index into `states` for the state used when the block is placed plainly.
     pub default_state_index: usize,
+    /// The properties this block's states vary over, in the order they index states:
+    /// sorted by name, first varying slowest, each value list in Minecraft's own order.
+    pub properties: Vec<(String, Vec<String>)>,
+    /// The item that places this block, if it has one.
+    ///
+    /// Not every block does — a crop is placed by its seeds, and some have no item at all.
+    /// A block that inherited its template's item would be placed by the template's item,
+    /// so this is set explicitly rather than copied.
+    pub item_id: Option<u16>,
 }
 
 /// The published registry. Written once by [`freeze`], read everywhere after.
@@ -35,6 +44,10 @@ struct FrozenBlocks {
     /// The owning block of each dynamic state, parallel to `states`.
     state_owners: Vec<BlockId>,
     by_name: HashMap<&'static str, &'static Block>,
+    /// The block each linked item places.
+    by_item: HashMap<u16, &'static Block>,
+    /// The properties of each block, for picking a state by meaning.
+    properties: HashMap<BlockId, &'static [(String, Vec<String>)]>,
 }
 
 /// Entries accepted but not yet published.
@@ -43,6 +56,7 @@ struct Staging {
     states: Vec<&'static BlockState>,
     state_owners: Vec<BlockId>,
     names: HashMap<String, ()>,
+    properties: Vec<(BlockId, &'static [(String, Vec<String>)])>,
 }
 
 static STAGING: Mutex<Option<Staging>> = Mutex::new(None);
@@ -90,6 +104,8 @@ pub fn register_block(registration: BlockRegistration) -> Result<BlockId, Regist
         block,
         mut states,
         default_state_index,
+        item_id,
+        properties,
     } = registration;
 
     validate_name(&name)?;
@@ -105,6 +121,7 @@ pub fn register_block(registration: BlockRegistration) -> Result<BlockId, Regist
         states: Vec::new(),
         state_owners: Vec::new(),
         names: HashMap::new(),
+        properties: Vec::new(),
     });
 
     if staging.names.contains_key(&name) || Block::from_name(&name).is_some() {
@@ -140,8 +157,14 @@ pub fn register_block(registration: BlockRegistration) -> Result<BlockId, Regist
         name,
         default_state,
         states,
+        item_id: item_id.unwrap_or(0),
         ..block
     }));
+
+    // Leaked with the block, and read whenever something needs to pick a state by meaning
+    // rather than by index.
+    let properties: &'static [(String, Vec<String>)] = Box::leak(properties.into_boxed_slice());
+    staging.properties.push((block_id, properties));
 
     staging.blocks.push(block);
     staging.states.extend(states.iter());
@@ -165,6 +188,7 @@ pub(super) fn publish() {
         states: Vec::new(),
         state_owners: Vec::new(),
         names: HashMap::new(),
+        properties: Vec::new(),
     });
 
     let by_name = staged
@@ -173,12 +197,22 @@ pub(super) fn publish() {
         .map(|block| (block.name, *block))
         .collect();
 
+    // Zero means the block has no item, so it is not something anything can place.
+    let by_item = staged
+        .blocks
+        .iter()
+        .filter(|block| block.item_id != 0)
+        .map(|block| (block.item_id, *block))
+        .collect();
+
     // Ignores the result: a second freeze leaves the first publication in place.
     let _ = FROZEN.set(FrozenBlocks {
+        properties: staged.properties.into_iter().collect(),
         blocks: staged.blocks,
         states: staged.states,
         state_owners: staged.state_owners,
         by_name,
+        by_item,
     });
 }
 
@@ -213,6 +247,43 @@ pub fn state_from_id(id: BlockStateId) -> Option<&'static BlockState> {
 pub fn block_id_from_state_id(id: BlockStateId) -> Option<BlockId> {
     let index = usize::from(id.as_u16()).checked_sub(usize::from(BlockStateId::BASE_COUNT))?;
     FROZEN.get()?.state_owners.get(index).copied()
+}
+
+/// The properties a registered block's states vary over.
+#[must_use]
+pub fn block_properties(id: BlockId) -> Option<&'static [(String, Vec<String>)]> {
+    FROZEN.get()?.properties.get(&id).copied()
+}
+
+/// The state a registered block takes when its properties have the given values.
+///
+/// Properties are digits of a mixed-radix number, the first varying slowest, which is how
+/// Minecraft numbers states. Anything not named keeps its first value, and an unknown
+/// property or value is ignored rather than shifting everything after it.
+#[must_use]
+pub fn block_state_for(id: BlockId, values: &[(&str, &str)]) -> Option<BlockStateId> {
+    let block = block_from_id(id)?;
+    let properties = block_properties(id)?;
+
+    let mut offset = 0usize;
+    for (name, options) in properties {
+        offset *= options.len();
+        if let Some((_, wanted)) = values.iter().find(|(key, _)| key == name)
+            && let Some(index) = options.iter().position(|value| value == wanted)
+        {
+            offset += index;
+        }
+    }
+
+    block.states.get(offset).map(|state| state.id)
+}
+
+/// Finds the registered block an item places.
+#[cold]
+#[inline(never)]
+#[must_use]
+pub fn block_from_item_id(id: u16) -> Option<&'static Block> {
+    FROZEN.get()?.by_item.get(&id).copied()
 }
 
 /// Finds a registered block by its namespaced name.

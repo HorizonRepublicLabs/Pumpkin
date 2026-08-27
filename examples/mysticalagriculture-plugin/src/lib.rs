@@ -21,11 +21,16 @@
 //!   for that reason.
 
 mod content;
+mod machines;
 
 use pumpkin_plugin_api::{
-    Context, Plugin, PluginMetadata, register_plugin,
+    Context, Plugin, PluginMetadata,
+    events::EventPriority,
+    register_plugin,
     registry::{self, BlockDefinition, ChannelProtocol},
 };
+
+use machines::Machines;
 
 /// The mod's payload channels, from `NetworkHandler.onRegisterPayloadsHandlers`.
 ///
@@ -62,7 +67,7 @@ impl Plugin for MysticalAgriculturePlugin {
         }
     }
 
-    fn on_load(&mut self, _context: Context) -> Result<(), String> {
+    fn on_load(&mut self, context: Context) -> Result<(), String> {
         if registry::is_frozen() {
             return Err("registration has closed; this plugin needs a server restart".into());
         }
@@ -70,9 +75,23 @@ impl Plugin for MysticalAgriculturePlugin {
         for (id, serverbound) in CHANNELS {
             registry::channel(id, ChannelProtocol::Play, CHANNEL_VERSION, serverbound)?;
         }
-        tracing::info!("declared {} network channels", CHANNELS.len());
+        // NeoForge's own channel, needed to open a modded screen.
+        registry::channel(
+            machines::OPEN_SCREEN_CHANNEL,
+            ChannelProtocol::Play,
+            machines::NEOFORGE_CHANNEL_VERSION,
+            false,
+        )?;
+        tracing::info!("declared {} network channels", CHANNELS.len() + 1);
+
+        // Items first: a block names the item that places it, so the item has to exist.
+        for (name, template) in content::ITEMS {
+            registry::register_item(&registry::item(format!("{MOD_ID}:{name}"), template))?;
+        }
+        tracing::info!("registered {} items", content::ITEMS.len());
 
         let mut states = 0usize;
+        let mut placeable = 0usize;
         for block in content::BLOCKS {
             let mut definition =
                 BlockDefinition::new(format!("{MOD_ID}:{}", block.name), block.template);
@@ -82,20 +101,25 @@ impl Plugin for MysticalAgriculturePlugin {
                 count *= property.values.len();
             }
             states += count;
+
+            // A block whose name is also an item's is placed by it. Crops are not: their
+            // item is the seeds, which the mod names separately.
+            if content::ITEMS.iter().any(|(item, _)| *item == block.name) {
+                definition = definition.placed_by(format!("{MOD_ID}:{}", block.name));
+                placeable += 1;
+            }
+
             registry::register_block(&definition)?;
         }
         tracing::info!(
-            "registered {} blocks with {states} states",
+            "registered {} blocks with {states} states, {placeable} placeable",
             content::BLOCKS.len()
         );
 
-        for (name, template) in content::ITEMS {
-            registry::register_item(&registry::item(format!("{MOD_ID}:{name}"), template))?;
-        }
-        tracing::info!("registered {} items", content::ITEMS.len());
-
+        let mut menu_ids = Vec::new();
         for name in content::MENU_TYPES {
-            registry::register_menu_type(&format!("{MOD_ID}:{name}"))?;
+            let id = registry::register_menu_type(&format!("{MOD_ID}:{name}"))?;
+            menu_ids.push((name, id));
         }
         tracing::info!("registered {} menu types", content::MENU_TYPES.len());
 
@@ -106,6 +130,15 @@ impl Plugin for MysticalAgriculturePlugin {
             "registered {} block entity types",
             content::BLOCK_ENTITY_TYPES.len()
         );
+
+        // The machines' server half. Their screens live in the mod's client jar; this
+        // decides when they open and, in time, what they show.
+        let machines = Machines::new(&menu_ids);
+        if !machines.is_empty() {
+            let count = machines.len();
+            context.register_event_handler(machines, EventPriority::Normal, false)?;
+            tracing::info!("{count} machines ready to open");
+        }
 
         Ok(())
     }

@@ -52,7 +52,8 @@ pub use block_entity_types::{
 #[cfg(feature = "block")]
 pub use blocks::{
     BlockRegistration, base_block_count, base_state_count, block_count, block_from_id,
-    block_from_name, block_id_from_state_id, register_block, state_count, state_from_id,
+    block_from_item_id, block_from_name, block_id_from_state_id, block_properties, block_state_for,
+    register_block, state_count, state_from_id,
 };
 #[cfg(feature = "entity_type")]
 pub use entity_types::{
@@ -67,6 +68,7 @@ pub use fluids::{
 #[cfg(feature = "item")]
 pub use items::{
     ItemRegistration, base_item_count, item_count, item_from_id, item_from_name, register_item,
+    registering_item_id,
 };
 #[cfg(feature = "screen")]
 pub use menu_types::{
@@ -190,6 +192,8 @@ mod tests {
             block: Block::STONE.clone(),
             states: (0..state_count).map(|_| sample_state()).collect(),
             default_state_index: 0,
+            item_id: None,
+            properties: Vec::new(),
         }
     }
 
@@ -240,6 +244,29 @@ mod tests {
             "registrations are invisible until the registry is frozen"
         );
 
+        let facing = ["north", "south", "west", "east"];
+        let lit = ["false", "true"];
+        let machine_id = register_block(BlockRegistration {
+            name: "examplemod:machine".to_string(),
+            block: Block::STONE.clone(),
+            states: (0..facing.len() * lit.len())
+                .map(|_| sample_state())
+                .collect(),
+            default_state_index: 0,
+            item_id: None,
+            properties: vec![
+                (
+                    "facing".to_string(),
+                    facing.iter().map(|v| (*v).to_string()).collect(),
+                ),
+                (
+                    "lit".to_string(),
+                    lit.iter().map(|v| (*v).to_string()).collect(),
+                ),
+            ],
+        })
+        .expect("registration succeeds");
+
         let item_id = register_item(ItemRegistration {
             name: "examplemod:ruby".to_string(),
             item: Item::DIAMOND.clone(),
@@ -260,6 +287,11 @@ mod tests {
         assert!(
             Item::from_id(item_id).is_none(),
             "registrations are invisible until the registry is frozen"
+        );
+        assert_eq!(
+            registering_item_id("examplemod:ruby"),
+            Some(item_id),
+            "but registration itself sees them, so entries can refer to each other"
         );
 
         let entity_id = register_entity_type(EntityTypeRegistration {
@@ -336,11 +368,16 @@ mod tests {
             assert_eq!(Block::from_state_id(state_id).id, id);
         }
         assert_eq!(block.default_state.id, block.states[0].id);
+        assert!(
+            block_properties(id).is_some_and(<[_]>::is_empty),
+            "a block registered without properties has none"
+        );
 
-        assert_eq!(BlockId::count(), base_blocks + 1);
-        assert_eq!(BlockStateId::count(), base_states + 2);
-        assert!(BlockId::new(base_blocks).is_some());
-        assert!(BlockId::new(base_blocks + 1).is_none());
+        // Two blocks were registered: the two-state one above and an eight-state machine.
+        assert_eq!(BlockId::count(), base_blocks + 2);
+        assert_eq!(BlockStateId::count(), base_states + 2 + 8);
+        assert!(BlockId::new(base_blocks + 1).is_some());
+        assert!(BlockId::new(base_blocks + 2).is_none());
 
         // Generated content resolves exactly as before.
         assert_eq!(
@@ -428,6 +465,27 @@ mod tests {
             "generated menu types keep their ids"
         );
         assert_eq!(menu_type_count(), base_menus + 1);
+
+        // Properties are digits of a mixed-radix number, the first varying slowest.
+        let machine = Block::from_id(machine_id);
+        let state_of = |values: &[(&str, &str)]| {
+            block_state_for(machine_id, values).expect("the block has states")
+        };
+        assert_eq!(state_of(&[("facing", "north")]), machine.states[0].id);
+        assert_eq!(
+            state_of(&[("facing", "north"), ("lit", "true")]),
+            machine.states[1].id
+        );
+        assert_eq!(state_of(&[("facing", "south")]), machine.states[2].id);
+        assert_eq!(
+            state_of(&[("facing", "east"), ("lit", "true")]),
+            machine.states[7].id
+        );
+        assert_eq!(
+            state_of(&[("nonsense", "value")]),
+            machine.states[0].id,
+            "an unknown property leaves every digit at its default"
+        );
 
         assert!(is_frozen());
         assert_eq!(

@@ -2,18 +2,19 @@
 //!
 //! `blockstates/` and `items/` in `assets/mysticalagriculture` are the closest thing to a
 //! registry dump, and the snapshot has to reproduce the registries exactly: it replaces
-//! the client's, so one missing or extra name breaks the join. The generator excludes a
-//! short list of model templates that live alongside the real entries, which the client
-//! named when it rejected an earlier snapshot.
+//! the client's, so one missing or extra name breaks the join. A short list of model
+//! templates that live alongside the real entries is excluded; the client named them when
+//! it rejected an earlier snapshot.
 //!
-//! Block properties come from the same blockstate files, sorted by name because that is
-//! the order Minecraft assigns state ids in.
+//! Property values are put back into Minecraft's own order rather than the alphabetical
+//! order the JSON keys carry, because the state index is a mixed-radix number over those
+//! orders and the client computes its own from the real enums.
 
 /// A property a block's states vary over.
 pub struct Property {
     /// Property name, as the mod declares it.
     pub name: &'static str,
-    /// Every value it can take, in order.
+    /// Every value it can take, in Minecraft's order.
     pub values: &'static [&'static str],
 }
 
@@ -99,7 +100,7 @@ pub const BLOCKS: [BlockEntry; 210] = [
     BlockEntry { name: "gold_crop", template: "wheat", properties: &[Property { name: "age", values: &["0", "1", "2", "3", "4", "5", "6", "7"] }, ] },
     BlockEntry { name: "grains_of_infinity_crop", template: "wheat", properties: &[Property { name: "age", values: &["0", "1", "2", "3", "4", "5", "6", "7"] }, ] },
     BlockEntry { name: "graphite_crop", template: "wheat", properties: &[Property { name: "age", values: &["0", "1", "2", "3", "4", "5", "6", "7"] }, ] },
-    BlockEntry { name: "harvester", template: "stone", properties: &[Property { name: "facing", values: &["east", "north", "south", "west"] }, Property { name: "running", values: &["false", "true"] }, ] },
+    BlockEntry { name: "harvester", template: "stone", properties: &[Property { name: "facing", values: &["north", "south", "west", "east"] }, Property { name: "running", values: &["false", "true"] }, ] },
     BlockEntry { name: "hepatizon_crop", template: "wheat", properties: &[Property { name: "age", values: &["0", "1", "2", "3", "4", "5", "6", "7"] }, ] },
     BlockEntry { name: "honey_crop", template: "wheat", properties: &[Property { name: "age", values: &["0", "1", "2", "3", "4", "5", "6", "7"] }, ] },
     BlockEntry { name: "hop_graphite_crop", template: "wheat", properties: &[Property { name: "age", values: &["0", "1", "2", "3", "4", "5", "6", "7"] }, ] },
@@ -140,7 +141,7 @@ pub const BLOCKS: [BlockEntry; 210] = [
     BlockEntry { name: "nickel_crop", template: "wheat", properties: &[Property { name: "age", values: &["0", "1", "2", "3", "4", "5", "6", "7"] }, ] },
     BlockEntry { name: "niotic_crystal_crop", template: "wheat", properties: &[Property { name: "age", values: &["0", "1", "2", "3", "4", "5", "6", "7"] }, ] },
     BlockEntry { name: "obsidian_crop", template: "wheat", properties: &[Property { name: "age", values: &["0", "1", "2", "3", "4", "5", "6", "7"] }, ] },
-    BlockEntry { name: "ore_infuser", template: "stone", properties: &[Property { name: "facing", values: &["east", "north", "south", "west"] }, Property { name: "running", values: &["false", "true"] }, ] },
+    BlockEntry { name: "ore_infuser", template: "stone", properties: &[Property { name: "facing", values: &["north", "south", "west", "east"] }, Property { name: "running", values: &["false", "true"] }, ] },
     BlockEntry { name: "osmium_crop", template: "wheat", properties: &[Property { name: "age", values: &["0", "1", "2", "3", "4", "5", "6", "7"] }, ] },
     BlockEntry { name: "peridot_crop", template: "wheat", properties: &[Property { name: "age", values: &["0", "1", "2", "3", "4", "5", "6", "7"] }, ] },
     BlockEntry { name: "phantom_crop", template: "wheat", properties: &[Property { name: "age", values: &["0", "1", "2", "3", "4", "5", "6", "7"] }, ] },
@@ -172,7 +173,7 @@ pub const BLOCKS: [BlockEntry; 210] = [
     BlockEntry { name: "saltpeter_crop", template: "wheat", properties: &[Property { name: "age", values: &["0", "1", "2", "3", "4", "5", "6", "7"] }, ] },
     BlockEntry { name: "sapphire_crop", template: "wheat", properties: &[Property { name: "age", values: &["0", "1", "2", "3", "4", "5", "6", "7"] }, ] },
     BlockEntry { name: "sculk_crop", template: "wheat", properties: &[Property { name: "age", values: &["0", "1", "2", "3", "4", "5", "6", "7"] }, ] },
-    BlockEntry { name: "seed_reprocessor", template: "stone", properties: &[Property { name: "facing", values: &["east", "north", "south", "west"] }, Property { name: "running", values: &["false", "true"] }, ] },
+    BlockEntry { name: "seed_reprocessor", template: "stone", properties: &[Property { name: "facing", values: &["north", "south", "west", "east"] }, Property { name: "running", values: &["false", "true"] }, ] },
     BlockEntry { name: "sheep_crop", template: "wheat", properties: &[Property { name: "age", values: &["0", "1", "2", "3", "4", "5", "6", "7"] }, ] },
     BlockEntry { name: "signalum_crop", template: "wheat", properties: &[Property { name: "age", values: &["0", "1", "2", "3", "4", "5", "6", "7"] }, ] },
     BlockEntry { name: "silicon_crop", template: "wheat", properties: &[Property { name: "age", values: &["0", "1", "2", "3", "4", "5", "6", "7"] }, ] },
@@ -181,7 +182,7 @@ pub const BLOCKS: [BlockEntry; 210] = [
     BlockEntry { name: "sky_stone_crop", template: "wheat", properties: &[Property { name: "age", values: &["0", "1", "2", "3", "4", "5", "6", "7"] }, ] },
     BlockEntry { name: "slime_crop", template: "wheat", properties: &[Property { name: "age", values: &["0", "1", "2", "3", "4", "5", "6", "7"] }, ] },
     BlockEntry { name: "slimesteel_crop", template: "wheat", properties: &[Property { name: "age", values: &["0", "1", "2", "3", "4", "5", "6", "7"] }, ] },
-    BlockEntry { name: "soul_extractor", template: "stone", properties: &[Property { name: "facing", values: &["east", "north", "south", "west"] }, Property { name: "running", values: &["false", "true"] }, ] },
+    BlockEntry { name: "soul_extractor", template: "stone", properties: &[Property { name: "facing", values: &["north", "south", "west", "east"] }, Property { name: "running", values: &["false", "true"] }, ] },
     BlockEntry { name: "soul_glass", template: "glass", properties: &[] },
     BlockEntry { name: "soularium_crop", template: "wheat", properties: &[Property { name: "age", values: &["0", "1", "2", "3", "4", "5", "6", "7"] }, ] },
     BlockEntry { name: "soulium_block", template: "stone", properties: &[] },
@@ -189,22 +190,22 @@ pub const BLOCKS: [BlockEntry; 210] = [
     BlockEntry { name: "soulium_gemstone_block", template: "stone", properties: &[] },
     BlockEntry { name: "soulium_ingot_block", template: "stone", properties: &[] },
     BlockEntry { name: "soulium_ore", template: "stone", properties: &[] },
-    BlockEntry { name: "soulium_spawner", template: "stone", properties: &[Property { name: "facing", values: &["east", "north", "south", "west"] }, Property { name: "running", values: &["false", "true"] }, ] },
+    BlockEntry { name: "soulium_spawner", template: "stone", properties: &[Property { name: "facing", values: &["north", "south", "west", "east"] }, Property { name: "running", values: &["false", "true"] }, ] },
     BlockEntry { name: "soulstone", template: "stone", properties: &[] },
     BlockEntry { name: "soulstone_bricks", template: "stone", properties: &[] },
-    BlockEntry { name: "soulstone_bricks_slab", template: "stone", properties: &[Property { name: "type", values: &["bottom", "top", "double"] }, ] },
-    BlockEntry { name: "soulstone_bricks_stairs", template: "stone", properties: &[Property { name: "facing", values: &["east", "west", "south", "north"] }, Property { name: "half", values: &["bottom", "top"] }, Property { name: "shape", values: &["straight", "outer_right", "outer_left", "inner_right", "inner_left"] }, ] },
+    BlockEntry { name: "soulstone_bricks_slab", template: "stone", properties: &[Property { name: "type", values: &["top", "bottom", "double"] }, ] },
+    BlockEntry { name: "soulstone_bricks_stairs", template: "stone", properties: &[Property { name: "facing", values: &["north", "south", "west", "east"] }, Property { name: "half", values: &["top", "bottom"] }, Property { name: "shape", values: &["straight", "inner_left", "inner_right", "outer_left", "outer_right"] }, ] },
     BlockEntry { name: "soulstone_bricks_wall", template: "stone", properties: &[] },
     BlockEntry { name: "soulstone_chiseled_bricks", template: "stone", properties: &[] },
     BlockEntry { name: "soulstone_cobble", template: "stone", properties: &[] },
-    BlockEntry { name: "soulstone_cobble_slab", template: "stone", properties: &[Property { name: "type", values: &["bottom", "top", "double"] }, ] },
-    BlockEntry { name: "soulstone_cobble_stairs", template: "stone", properties: &[Property { name: "facing", values: &["east", "west", "south", "north"] }, Property { name: "half", values: &["bottom", "top"] }, Property { name: "shape", values: &["straight", "outer_right", "outer_left", "inner_right", "inner_left"] }, ] },
+    BlockEntry { name: "soulstone_cobble_slab", template: "stone", properties: &[Property { name: "type", values: &["top", "bottom", "double"] }, ] },
+    BlockEntry { name: "soulstone_cobble_stairs", template: "stone", properties: &[Property { name: "facing", values: &["north", "south", "west", "east"] }, Property { name: "half", values: &["top", "bottom"] }, Property { name: "shape", values: &["straight", "inner_left", "inner_right", "outer_left", "outer_right"] }, ] },
     BlockEntry { name: "soulstone_cobble_wall", template: "stone", properties: &[] },
     BlockEntry { name: "soulstone_cracked_bricks", template: "stone", properties: &[] },
-    BlockEntry { name: "soulstone_slab", template: "stone", properties: &[Property { name: "type", values: &["bottom", "top", "double"] }, ] },
+    BlockEntry { name: "soulstone_slab", template: "stone", properties: &[Property { name: "type", values: &["top", "bottom", "double"] }, ] },
     BlockEntry { name: "soulstone_smooth", template: "stone", properties: &[] },
-    BlockEntry { name: "soulstone_smooth_slab", template: "stone", properties: &[Property { name: "type", values: &["bottom", "top", "double"] }, ] },
-    BlockEntry { name: "soulstone_stairs", template: "stone", properties: &[Property { name: "facing", values: &["east", "west", "south", "north"] }, Property { name: "half", values: &["bottom", "top"] }, Property { name: "shape", values: &["straight", "outer_right", "outer_left", "inner_right", "inner_left"] }, ] },
+    BlockEntry { name: "soulstone_smooth_slab", template: "stone", properties: &[Property { name: "type", values: &["top", "bottom", "double"] }, ] },
+    BlockEntry { name: "soulstone_stairs", template: "stone", properties: &[Property { name: "facing", values: &["north", "south", "west", "east"] }, Property { name: "half", values: &["top", "bottom"] }, Property { name: "shape", values: &["straight", "inner_left", "inner_right", "outer_left", "outer_right"] }, ] },
     BlockEntry { name: "spider_crop", template: "wheat", properties: &[Property { name: "age", values: &["0", "1", "2", "3", "4", "5", "6", "7"] }, ] },
     BlockEntry { name: "spirited_crystal_crop", template: "wheat", properties: &[Property { name: "age", values: &["0", "1", "2", "3", "4", "5", "6", "7"] }, ] },
     BlockEntry { name: "squid_crop", template: "wheat", properties: &[Property { name: "age", values: &["0", "1", "2", "3", "4", "5", "6", "7"] }, ] },
