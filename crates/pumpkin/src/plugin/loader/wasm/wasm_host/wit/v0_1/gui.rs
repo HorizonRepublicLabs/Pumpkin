@@ -109,6 +109,7 @@ impl gui::HostGui for PluginHostState {
 
         let gui = Arc::new(Mutex::new(PluginGui {
             modded_menu: None,
+            properties: Arc::new(crate::plugin::api::gui::PluginProperties::default()),
             window_type,
             title,
             inventory: Arc::new(PluginInventory::new(size)),
@@ -139,6 +140,7 @@ impl gui::HostGui for PluginHostState {
         // draw by registry id — but the handler still wants one, so it gets a neutral value.
         let gui = Arc::new(Mutex::new(PluginGui {
             modded_menu: Some((menu_id, screen.extra_data)),
+            properties: Arc::new(crate::plugin::api::gui::PluginProperties::default()),
             window_type: pumpkin_data::screen::WindowType::Generic9x3,
             title,
             inventory: Arc::new(PluginInventory::new(screen.slots as usize)),
@@ -163,6 +165,26 @@ impl gui::HostGui for PluginHostState {
             slots[slot as usize] = item_stack;
         }
         Ok(())
+    }
+
+    async fn set_property(
+        &mut self,
+        res: Resource<Gui>,
+        index: u32,
+        value: i32,
+    ) -> wasmtime::Result<()> {
+        let gui = self.get_gui_res(&res)?.provider.lock().await;
+        gui.properties.set(index as usize, value);
+        Ok(())
+    }
+
+    async fn get_property(
+        &mut self,
+        res: Resource<Gui>,
+        index: u32,
+    ) -> wasmtime::Result<Option<i32>> {
+        let gui = self.get_gui_res(&res)?.provider.lock().await;
+        Ok(gui.properties.get(index as usize))
     }
 
     async fn get_item(

@@ -5,9 +5,11 @@ use tokio::sync::RwLock;
 use pumpkin_data::{item_stack::ItemStack, screen::WindowType};
 use pumpkin_inventory::screen_handler::{
     InventoryPlayer, ItemStackFuture, ScreenHandler, ScreenHandlerBehaviour, ScreenHandlerFuture,
+    ScreenProperty,
 };
 use pumpkin_inventory::slot::NormalSlot;
 use pumpkin_util::text::TextComponent;
+use pumpkin_world::block::entities::PropertyDelegate;
 use pumpkin_world::inventory::{Clearable, Inventory, InventoryFuture};
 
 pub struct PluginGui {
@@ -19,6 +21,65 @@ pub struct PluginGui {
     pub inventory: Arc<PluginInventory>,
     pub allow_grab_items: bool,
     pub allow_put_items: bool,
+    /// The window's data values — progress bars and the like. Their meaning belongs to
+    /// whatever draws the screen; the server only carries them.
+    pub properties: Arc<PluginProperties>,
+}
+
+/// The data values behind a plugin's window.
+///
+/// Shared with the screen handler, which reads them every tick and sends whatever changed,
+/// so writing one here is enough to move a progress bar on the client.
+#[derive(Default)]
+pub struct PluginProperties {
+    values: std::sync::RwLock<Vec<i32>>,
+}
+
+impl PluginProperties {
+    /// Sets one value, growing the list to fit an index nothing has reached yet.
+    pub fn set(&self, index: usize, value: i32) {
+        let mut values = self
+            .values
+            .write()
+            .unwrap_or_else(std::sync::PoisonError::into_inner);
+        if values.len() <= index {
+            values.resize(index + 1, 0);
+        }
+        values[index] = value;
+    }
+
+    /// Reads one value back, or nothing if it was never set.
+    #[must_use]
+    pub fn get(&self, index: usize) -> Option<i32> {
+        self.values
+            .read()
+            .unwrap_or_else(std::sync::PoisonError::into_inner)
+            .get(index)
+            .copied()
+    }
+}
+
+impl PropertyDelegate for PluginProperties {
+    fn get_property(&self, index: i32) -> i32 {
+        usize::try_from(index)
+            .ok()
+            .and_then(|index| self.get(index))
+            .unwrap_or(0)
+    }
+
+    fn set_property(&self, index: i32, value: i32) {
+        if let Ok(index) = usize::try_from(index) {
+            self.set(index, value);
+        }
+    }
+
+    fn get_properties_size(&self) -> i32 {
+        let values = self
+            .values
+            .read()
+            .unwrap_or_else(std::sync::PoisonError::into_inner);
+        i32::try_from(values.len()).unwrap_or(i32::MAX)
+    }
 }
 
 pub struct PluginInventory {
@@ -121,6 +182,7 @@ impl PluginScreenHandler {
         window_type: WindowType,
         modded_menu: Option<(u16, Vec<u8>)>,
         inventory: &Arc<PluginInventory>,
+        properties: &Arc<PluginProperties>,
         allow_grab_items: bool,
         allow_put_items: bool,
     ) -> Self {
@@ -137,6 +199,15 @@ impl PluginScreenHandler {
 
         for i in 0..inventory.size() {
             handler.add_slot(Arc::new(NormalSlot::new(inventory.clone(), i)));
+        }
+
+        // Tracked from the start, so a value the plugin sets later is noticed and sent.
+        let count = properties.get_properties_size();
+        for index in 0..count {
+            handler.add_property(ScreenProperty::new(
+                properties.clone(),
+                u8::try_from(index).unwrap_or(u8::MAX),
+            ));
         }
 
         handler

@@ -2210,6 +2210,7 @@ impl pumpkin::plugin::player::HostPlayer for PluginHostState {
             gui.window_type,
             gui.modded_menu.clone(),
             &gui.inventory,
+            &gui.properties,
             gui.allow_grab_items,
             gui.allow_put_items,
         )));
