@@ -1,3 +1,4 @@
+pub mod block_behaviour;
 pub mod context;
 pub mod events;
 pub mod gui;

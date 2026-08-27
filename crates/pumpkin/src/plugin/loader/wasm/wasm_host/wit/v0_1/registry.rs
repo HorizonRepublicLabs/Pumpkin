@@ -132,7 +132,12 @@ impl pumpkin::plugin::registry::Host for PluginHostState {
             .map(|property| (property.name.clone(), property.values.clone()))
             .collect();
 
-        Ok(register_block(BlockRegistration {
+        let drops = match resolve_drops(&definition.drops) {
+            Ok(drops) => drops,
+            Err(name) => return Ok(Err(unknown_template("item", &name))),
+        };
+
+        let registered = register_block(BlockRegistration {
             name: definition.id,
             block,
             states,
@@ -140,9 +145,27 @@ impl pumpkin::plugin::registry::Host for PluginHostState {
             default_state_index,
             item_id,
             properties,
-        })
-        .map(|id| u32::from(id.as_u16()))
-        .map_err(|err| err.to_string()))
+        });
+
+        // Every hook the server has asks the registry for behaviour by block id, and a
+        // registered block that answers nothing there has none at all.
+        if let Ok(block_id) = registered
+            && let Some(server) = self.server.as_ref()
+        {
+            // A drop names states by where they sit in the block's own list, so the id the
+            // list starts at is what turns one back into the other.
+            let first_state = pumpkin_data::dynamic::block_from_id(block_id)
+                .and_then(|block| block.states.first())
+                .map_or(0, |state| state.id.as_u16());
+            let behaviour: &'static dyn crate::block::BlockBehaviour = Box::leak(Box::new(
+                crate::plugin::api::block_behaviour::PluginBlockBehaviour::new(first_state, drops),
+            ));
+            server.block_registry.set_plugin_block(block_id, behaviour);
+        }
+
+        Ok(registered
+            .map(|id| u32::from(id.as_u16()))
+            .map_err(|err| err.to_string()))
     }
 
     async fn register_item(
@@ -234,6 +257,36 @@ fn copy_state(
         opacity: template.opacity,
         block_entity_type: block_entity_type.unwrap_or(template.block_entity_type),
     }
+}
+
+/// Turns the drops a registration declared into ones the server can act on.
+///
+/// Resolved while the plugin is loading rather than when a block breaks, so a drop naming
+/// an item that was never registered is reported where the mistake is.
+///
+/// # Errors
+///
+/// Returns the name of the first item that could not be resolved.
+fn resolve_drops(
+    declared: &[pumpkin::plugin::registry::BlockDrop],
+) -> Result<Vec<crate::plugin::api::block_behaviour::BlockDrop>, String> {
+    declared
+        .iter()
+        .map(|drop| {
+            // Generated items resolve by name; one registered moments ago is still staged.
+            Item::from_registry_key(&drop.item)
+                .map(|item| item.id)
+                .or_else(|| pumpkin_data::dynamic::registering_item_id(&drop.item))
+                .map(|item_id| crate::plugin::api::block_behaviour::BlockDrop {
+                    item_id,
+                    min: drop.min,
+                    max: drop.max,
+                    from_state: drop.from_state.unwrap_or(0),
+                    to_state: drop.to_state.unwrap_or(u32::MAX),
+                })
+                .ok_or_else(|| drop.item.clone())
+        })
+        .collect()
 }
 
 fn unknown_template(kind: &str, name: &str) -> String {

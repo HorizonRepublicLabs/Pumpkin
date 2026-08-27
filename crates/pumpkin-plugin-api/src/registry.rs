@@ -27,7 +27,7 @@ pub use crate::wit::pumpkin::plugin::registry::{
 };
 
 use crate::wit::pumpkin::plugin::registry::{
-    self, BlockDefinition as WitBlockDefinition, BlockProperty,
+    self, BlockDefinition as WitBlockDefinition, BlockDrop, BlockProperty,
     EntityTypeDefinition as WitEntityTypeDefinition, ItemDefinition as WitItemDefinition,
 };
 
@@ -52,6 +52,7 @@ impl BlockDefinition {
             default_state: 0,
             item: None,
             block_entity: None,
+            drops: Vec::new(),
         })
     }
 
@@ -110,6 +111,31 @@ impl BlockDefinition {
     #[must_use]
     pub fn placed_by(mut self, item: impl Into<String>) -> Self {
         self.0.item = Some(item.into());
+        self
+    }
+
+    /// Adds something the block yields when broken.
+    ///
+    /// A block with no drops yields nothing: the template's belong to the template, and a
+    /// registered block that inherited them would drop the wrong item. Register the item
+    /// first. `from_state` and `to_state` index the block's own states, so a crop can drop
+    /// its essence only when grown and its seed at any age.
+    #[must_use]
+    pub fn drops(
+        mut self,
+        item: impl Into<String>,
+        min: u8,
+        max: u8,
+        from_state: Option<u32>,
+        to_state: Option<u32>,
+    ) -> Self {
+        self.0.drops.push(BlockDrop {
+            item: item.into(),
+            min,
+            max,
+            from_state,
+            to_state,
+        });
         self
     }
 

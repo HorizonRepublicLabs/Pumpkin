@@ -178,6 +178,7 @@ use pumpkin_util::math::position::BlockPos;
 use pumpkin_world::world::{BlockAccessor, BlockFlags};
 use rustc_hash::FxHashMap;
 use std::sync::Arc;
+use std::sync::RwLock;
 
 use super::BlockIsReplacing;
 use super::blocks::plant::crop::gourds::attached_stem::AttachedStemBlock;
@@ -457,6 +458,13 @@ impl BlockActionResult {
 pub struct BlockRegistry {
     blocks: FxHashMap<BlockId, Arc<dyn BlockBehaviour>>,
     fluids: FxHashMap<u16, Arc<dyn FluidBehaviour>>,
+    /// Behaviour for blocks registered at runtime, indexed by `id - base_block_count()`.
+    ///
+    /// Kept apart from `blocks` because the registry is shared before plugins load, and
+    /// because every hook in this file asks for behaviour by block id: a registered block
+    /// that answers nothing here has no behaviour at all, which is what left one placed
+    /// with no block entity and never randomly ticked.
+    plugin_blocks: RwLock<Vec<Option<&'static dyn BlockBehaviour>>>,
 }
 
 #[derive(Debug)]
@@ -1253,8 +1261,49 @@ impl BlockRegistry {
     }
 
     #[must_use]
-    pub fn get_pumpkin_block(&self, block: BlockId) -> Option<&Arc<dyn BlockBehaviour>> {
-        self.blocks.get(&block)
+    pub fn get_pumpkin_block(&self, block: BlockId) -> Option<&dyn BlockBehaviour> {
+        if let Some(behaviour) = self.blocks.get(&block) {
+            return Some(behaviour.as_ref());
+        }
+        self.plugin_block(block)
+    }
+
+    /// Behaviour for a block registered at runtime.
+    ///
+    /// The entry outlives the registry, so it is read out from behind the lock rather than
+    /// borrowed through it.
+    // Only reachable for runtime-registered content, so keep it out of the hot path's
+    // instruction stream and let the generated-range branch fall through.
+    #[cold]
+    #[inline(never)]
+    fn plugin_block(&self, block: BlockId) -> Option<&dyn BlockBehaviour> {
+        let index = usize::from(block.as_u16())
+            .checked_sub(usize::from(pumpkin_data::dynamic::base_block_count()))?;
+        let behaviours = self
+            .plugin_blocks
+            .read()
+            .unwrap_or_else(std::sync::PoisonError::into_inner);
+        behaviours.get(index).copied().flatten()
+    }
+
+    /// Gives a block registered at runtime its behaviour.
+    ///
+    /// Leaked on purpose, like the rest of a registration: the behaviour is read from every
+    /// hook in this file and outlives any one caller.
+    pub fn set_plugin_block(&self, block: BlockId, behaviour: &'static dyn BlockBehaviour) {
+        let Some(index) = usize::from(block.as_u16())
+            .checked_sub(usize::from(pumpkin_data::dynamic::base_block_count()))
+        else {
+            return;
+        };
+        let mut behaviours = self
+            .plugin_blocks
+            .write()
+            .unwrap_or_else(std::sync::PoisonError::into_inner);
+        if behaviours.len() <= index {
+            behaviours.resize(index + 1, None);
+        }
+        behaviours[index] = Some(behaviour);
     }
 
     #[must_use]
