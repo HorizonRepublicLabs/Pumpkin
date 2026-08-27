@@ -7,6 +7,9 @@ impl PendingConnection {
         // the stage that would carry it has passed.
         self.try_queue_mod_loader_tasks(server);
 
+        // Vanilla ties the registry send to this exchange, so it is only now unblocked.
+        self.config_tasks.allow_registries();
+
         // The registry send is a step in the configuration sequence rather than something
         // done here directly: mod loaders need to run their own id sync before it.
         self.progress_config_tasks().await;

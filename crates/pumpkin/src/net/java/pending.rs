@@ -514,8 +514,10 @@ impl PendingConnection {
                     self.brand = Some(brand.to_string());
                     // The brand is the earliest reliable sign of a mod loader, and for a
                     // client carrying required mod payloads it is the only one: it gives up
-                    // before advertising channels.
+                    // before advertising channels — and before the known-packs exchange
+                    // that would otherwise flush the queue, so send what was queued now.
                     self.try_queue_mod_loader_tasks(server);
+                    self.progress_config_tasks().await;
                 }
                 Err(e) => self.kick(TextComponent::text(e.to_string())).await,
             }

@@ -74,7 +74,13 @@ fn read_string(buf: &[u8], cur: &mut usize) -> String {
 }
 
 fn main() -> std::io::Result<()> {
-    let addr = std::env::args().nth(1).unwrap_or("127.0.0.1:25566".into());
+    let args: Vec<String> = std::env::args().skip(1).collect();
+    let skip_known_packs = args.iter().any(|a| a == "--no-known-packs");
+    let addr = args
+        .iter()
+        .find(|a| !a.starts_with("--"))
+        .cloned()
+        .unwrap_or_else(|| "127.0.0.1:25566".into());
     let mut sock = TcpStream::connect(&addr)?;
 
     // Handshake: protocol 776 (26.2), next state 2 = login.
@@ -164,11 +170,17 @@ fn main() -> std::io::Result<()> {
             }
             3 => { println!("finish configuration"); break; }
             14 => {
-                // Known packs: answering is what lets the server drain its config queue.
-                println!("known packs -> replying");
-                let mut b = Vec::new();
-                varint(0, &mut b);
-                send(&mut sock, 7, &b)?;
+                // Known packs. A real modded client decides whether the server is modded
+                // before answering this, so `--no-known-packs` reproduces that: the modded
+                // declaration has to arrive without it.
+                if skip_known_packs {
+                    println!("known packs -> ignoring");
+                } else {
+                    println!("known packs -> replying");
+                    let mut b = Vec::new();
+                    varint(0, &mut b);
+                    send(&mut sock, 7, &b)?;
+                }
             }
             other => println!("(packet {other}, {} bytes)", body.len()),
         }

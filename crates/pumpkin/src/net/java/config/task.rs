@@ -129,6 +129,8 @@ pub struct ConfigTaskQueue {
     after: VecDeque<ConfigTask>,
     cursor: Cursor,
     waiting: Option<Waiting>,
+    /// Whether the registry send may proceed. See [`Self::allow_registries`].
+    registries_allowed: bool,
 }
 
 impl Default for ConfigTaskQueue {
@@ -138,6 +140,7 @@ impl Default for ConfigTaskQueue {
             after: VecDeque::new(),
             cursor: Cursor::BeforeRegistries,
             waiting: None,
+            registries_allowed: false,
         }
     }
 }
@@ -171,6 +174,16 @@ impl ConfigTaskQueue {
         self.waiting.as_ref().map(|task| task.ack_channel.as_str())
     }
 
+    /// Lets the sequence move past the early stage into the registry send.
+    ///
+    /// Held back because the two halves are driven by different things: early tasks go out
+    /// as soon as they are queued, since a mod loader decides whether the server is modded
+    /// long before configuration ends, while registries wait for the client to answer the
+    /// known-packs exchange as vanilla requires.
+    pub const fn allow_registries(&mut self) {
+        self.registries_allowed = true;
+    }
+
     /// Advances the sequence and reports what the connection should do.
     ///
     /// Call repeatedly until it returns [`ConfigStep::Wait`].
@@ -184,6 +197,11 @@ impl ConfigTaskQueue {
                 Cursor::BeforeRegistries => {
                     if let Some(task) = self.before.pop_front() {
                         return self.start(task);
+                    }
+                    if !self.registries_allowed {
+                        // Early tasks are flushed as they are queued; the registry send
+                        // still waits for the client's known packs.
+                        return ConfigStep::Wait;
                     }
                     self.cursor = Cursor::Registries;
                 }
@@ -304,13 +322,34 @@ mod tests {
     #[test]
     fn empty_queue_sends_registries_then_finishes() {
         let mut queue = ConfigTaskQueue::new();
+        queue.allow_registries();
         assert_eq!(drain(&mut queue), vec!["registries", "finish"]);
         assert!(!queue.is_pending());
+    }
+
+    /// Early tasks go out as soon as they are queued. The registry send does not, because
+    /// vanilla ties it to the known-packs exchange — and a mod loader gives up long before
+    /// that, so waiting to flush the two together loses the connection.
+    #[test]
+    fn early_tasks_flush_before_registries_are_allowed() {
+        let mut queue = ConfigTaskQueue::new();
+        queue.push(ConfigStage::BeforeRegistries, task("declare"));
+
+        assert_eq!(
+            drain(&mut queue),
+            vec!["send declare on test:declare"],
+            "the early task goes out, the registries wait"
+        );
+        assert!(queue.is_pending());
+
+        queue.allow_registries();
+        assert_eq!(drain(&mut queue), vec!["registries", "finish"]);
     }
 
     #[test]
     fn finish_is_reported_only_once() {
         let mut queue = ConfigTaskQueue::new();
+        queue.allow_registries();
         drain(&mut queue);
         assert!(
             drain(&mut queue).is_empty(),
@@ -321,6 +360,7 @@ mod tests {
     #[test]
     fn stages_run_on_the_correct_side_of_the_registry_send() {
         let mut queue = ConfigTaskQueue::new();
+        queue.allow_registries();
         queue.push(ConfigStage::AfterRegistries, task("late"));
         queue.push(ConfigStage::BeforeRegistries, task("early"));
 
@@ -338,6 +378,7 @@ mod tests {
     #[test]
     fn a_waiting_task_blocks_the_registry_send_until_acknowledged() {
         let mut queue = ConfigTaskQueue::new();
+        queue.allow_registries();
         queue.push(
             ConfigStage::BeforeRegistries,
             ConfigTask::awaiting_ack(
