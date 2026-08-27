@@ -162,7 +162,9 @@ impl TaskScheduler {
             let handler_id = task.handler_id;
             let server_clone = server.clone();
 
-            tokio::spawn(async move {
+            // The ticker is a plain thread, so there is no ambient runtime to spawn onto;
+            // the server carries the handle for exactly this.
+            server.runtime.spawn(async move {
                 let mut store = plugin.store.lock().await;
                 match plugin.plugin_instance {
                     crate::plugin::loader::wasm::wasm_host::PluginInstance::V0_1(ref instance) => {
