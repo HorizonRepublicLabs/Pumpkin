@@ -1,12 +1,13 @@
 //! Generated from the mod's own built assets — do not edit by hand.
 //!
-//! `blockstates/` and `items/` in `assets/mysticalagriculture` enumerate the two
-//! registries exactly, which is what the registry snapshot has to reproduce: it
-//! replaces the client's registry, so a missing or extra name breaks the join.
+//! `blockstates/` and `items/` in `assets/mysticalagriculture` are the closest thing to a
+//! registry dump, and the snapshot has to reproduce the registries exactly: it replaces
+//! the client's, so one missing or extra name breaks the join. The generator excludes a
+//! short list of model templates that live alongside the real entries, which the client
+//! named when it rejected an earlier snapshot.
 //!
-//! Block properties come from the same blockstate files, sorted by name because that
-//! is the order Minecraft assigns state ids in. Their product is the state count, and
-//! it has to match the client's or the two ends disagree about which state is which.
+//! Block properties come from the same blockstate files, sorted by name because that is
+//! the order Minecraft assigns state ids in.
 
 /// A property a block's states vary over.
 pub struct Property {
@@ -27,7 +28,7 @@ pub struct BlockEntry {
 }
 
 /// Every block the mod registers.
-pub const BLOCKS: [BlockEntry; 212] = [
+pub const BLOCKS: [BlockEntry; 210] = [
     BlockEntry { name: "air_crop", template: "wheat", properties: &[Property { name: "age", values: &["0", "1", "2", "3", "4", "5", "6", "7"] }, ] },
     BlockEntry { name: "aluminum_crop", template: "wheat", properties: &[Property { name: "age", values: &["0", "1", "2", "3", "4", "5", "6", "7"] }, ] },
     BlockEntry { name: "amethyst_bronze_crop", template: "wheat", properties: &[Property { name: "age", values: &["0", "1", "2", "3", "4", "5", "6", "7"] }, ] },
@@ -132,8 +133,6 @@ pub const BLOCKS: [BlockEntry; 212] = [
     BlockEntry { name: "marble_crop", template: "wheat", properties: &[Property { name: "age", values: &["0", "1", "2", "3", "4", "5", "6", "7"] }, ] },
     BlockEntry { name: "menril_crop", template: "wheat", properties: &[Property { name: "age", values: &["0", "1", "2", "3", "4", "5", "6", "7"] }, ] },
     BlockEntry { name: "mystical_flower_crop", template: "wheat", properties: &[Property { name: "age", values: &["0", "1", "2", "3", "4", "5", "6", "7"] }, ] },
-    BlockEntry { name: "mystical_mob_crop", template: "wheat", properties: &[Property { name: "age", values: &["0", "1", "2", "3", "4", "5", "6", "7"] }, ] },
-    BlockEntry { name: "mystical_resource_crop", template: "wheat", properties: &[Property { name: "age", values: &["0", "1", "2", "3", "4", "5", "6", "7"] }, ] },
     BlockEntry { name: "nature_crop", template: "wheat", properties: &[Property { name: "age", values: &["0", "1", "2", "3", "4", "5", "6", "7"] }, ] },
     BlockEntry { name: "nether_crop", template: "wheat", properties: &[Property { name: "age", values: &["0", "1", "2", "3", "4", "5", "6", "7"] }, ] },
     BlockEntry { name: "nether_quartz_crop", template: "wheat", properties: &[Property { name: "age", values: &["0", "1", "2", "3", "4", "5", "6", "7"] }, ] },
@@ -243,7 +242,7 @@ pub const BLOCKS: [BlockEntry; 212] = [
 ];
 
 /// Every item the mod registers, with the vanilla item each is modelled on.
-pub const ITEMS: [(&str, &str); 605] = [
+pub const ITEMS: [(&str, &str); 593] = [
     ("absorption_i_augment", "diamond"),
     ("absorption_ii_augment", "diamond"),
     ("absorption_iii_augment", "diamond"),
@@ -267,7 +266,6 @@ pub const ITEMS: [(&str, &str); 605] = [
     ("attack_aoe_i_augment", "diamond"),
     ("attack_aoe_ii_augment", "diamond"),
     ("attack_aoe_iii_augment", "diamond"),
-    ("augment", "diamond"),
     ("awakened_supremium_axe", "diamond_axe"),
     ("awakened_supremium_block", "diamond"),
     ("awakened_supremium_boots", "diamond_boots"),
@@ -391,15 +389,6 @@ pub const ITEMS: [(&str, &str); 605] = [
     ("energetic_alloy_seeds", "wheat_seeds"),
     ("energized_steel_essence", "diamond"),
     ("energized_steel_seeds", "wheat_seeds"),
-    ("essence_diamond", "diamond"),
-    ("essence_dust", "diamond"),
-    ("essence_flame", "diamond"),
-    ("essence_gem", "diamond"),
-    ("essence_ingot", "diamond"),
-    ("essence_quartz", "diamond"),
-    ("essence_rock", "diamond"),
-    ("essence_rod", "diamond"),
-    ("essence_tall_gem", "diamond"),
     ("essence_vessel", "diamond"),
     ("experience_capsule", "diamond"),
     ("experience_droplet", "diamond"),
@@ -436,7 +425,6 @@ pub const ITEMS: [(&str, &str); 605] = [
     ("grains_of_infinity_seeds", "wheat_seeds"),
     ("graphite_essence", "diamond"),
     ("graphite_seeds", "wheat_seeds"),
-    ("guide_book", "diamond"),
     ("harvester", "diamond"),
     ("haste_i_augment", "diamond"),
     ("haste_ii_augment", "diamond"),
@@ -563,7 +551,6 @@ pub const ITEMS: [(&str, &str); 605] = [
     ("mystical_flower_agglomeratio", "diamond"),
     ("mystical_flower_essence", "diamond"),
     ("mystical_flower_seeds", "wheat_seeds"),
-    ("mystical_seeds", "wheat_seeds"),
     ("nature_agglomeratio", "diamond"),
     ("nature_essence", "diamond"),
     ("nature_seeds", "wheat_seeds"),

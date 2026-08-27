@@ -4,8 +4,8 @@ use pumpkin_protocol::{
     ConnectionState, KnownPack, Label, Link, LinkType,
     java::client::{
         config::{
-            CConfigAddResourcePack, CConfigServerLinks, CFeatureFlags, CKnownPacks, CRegistryData,
-            CUpdateTags,
+            CConfigAddResourcePack, CConfigServerLinks, CFeatureFlags, CKnownPacks, CPluginMessage,
+            CRegistryData, CUpdateTags,
         },
         login::{CLoginSuccess, CSetCompression},
     },

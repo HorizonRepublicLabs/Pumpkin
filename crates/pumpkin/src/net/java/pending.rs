@@ -80,6 +80,13 @@ pub struct PendingConnection {
     pub config_tasks: ConfigTaskQueue,
     /// Whether mod-loader configuration tasks have already been queued for this connection.
     neoforge_queued: bool,
+    /// Whether the client answered the `NeoForge` channel query, which only a client
+    /// running that mod loader does.
+    pub answered_network_query: bool,
+    /// Whether the known-packs exchange is waiting for the client to identify itself.
+    pub known_packs_deferred: bool,
+    /// Whether it has since been sent, so it is not sent twice.
+    pub known_packs_sent: bool,
 }
 
 impl PendingConnection {
@@ -108,6 +115,9 @@ impl PendingConnection {
             client_channels: HashSet::new(),
             config_tasks: ConfigTaskQueue::new(),
             neoforge_queued: false,
+            answered_network_query: false,
+            known_packs_deferred: false,
+            known_packs_sent: false,
         }
     }
 
@@ -499,6 +509,10 @@ impl PendingConnection {
             self.kick(TextComponent::text("Invalid hand or chat type"))
                 .await;
         }
+
+        // A client that sends its settings before its brand still needs the known-packs
+        // exchange, so this is the backstop for the one held back at login.
+        self.flush_deferred_known_packs().await;
     }
 
     pub async fn handle_plugin_message(
@@ -518,6 +532,7 @@ impl PendingConnection {
                     // that would otherwise flush the queue, so send what was queued now.
                     self.try_queue_mod_loader_tasks(server);
                     self.progress_config_tasks().await;
+                    self.flush_deferred_known_packs().await;
                 }
                 Err(e) => self.kick(TextComponent::text(e.to_string())).await,
             }
@@ -525,6 +540,15 @@ impl PendingConnection {
         }
 
         match plugin_message.channel {
+            neoforge::NETWORK_QUERY_CHANNEL => {
+                // Only a NeoForge client answers this, so it settles what the brand only
+                // hints at — and it arrives before the client decides about the server.
+                debug!("Client answered the NeoForge network query");
+                self.answered_network_query = true;
+                self.try_queue_mod_loader_tasks(server);
+                self.progress_config_tasks().await;
+                self.flush_deferred_known_packs().await;
+            }
             REGISTER_CHANNEL => {
                 let channels = parse_channel_list(plugin_message.data);
                 debug!(

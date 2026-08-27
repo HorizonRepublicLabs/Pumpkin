@@ -45,6 +45,8 @@ use crate::net::java::{
 
 pub use channels::{ChannelError, ChannelProtocol, ModdedChannel};
 
+/// Carries the channel list each side offers, server first, client in reply.
+pub const NETWORK_QUERY_CHANNEL: &str = "neoforge:register";
 /// Announces which registries are about to be synchronised.
 pub const SYNC_START_CHANNEL: &str = "neoforge:frozen_registry_sync_start";
 /// Carries one registry snapshot.
@@ -175,18 +177,33 @@ fn queue_registry_sync(connection: &mut PendingConnection, config: &NeoForgeSett
 /// client with required mod payloads would give up. The channel list is checked too, for
 /// clients that send it first.
 fn is_neoforge_client(connection: &PendingConnection) -> bool {
-    connection
-        .brand
-        .as_deref()
-        .is_some_and(|brand| brand.contains("neoforge"))
+    connection.answered_network_query
+        || connection
+            .brand
+            .as_deref()
+            .is_some_and(|brand| brand.contains("neoforge"))
         || connection.supports_channel(SYNC_START_CHANNEL)
 }
 
 /// The `neoforge:network` and `minecraft:register` payloads, built once.
 struct NegotiationPayloads {
+    query: Bytes,
     setup: Bytes,
     register: Bytes,
     channel_count: usize,
+}
+
+/// The channel list to offer a client, sent before anything else in configuration.
+///
+/// Every client gets this, because there is no way to tell a `NeoForge` client from a
+/// vanilla one before it answers — and a vanilla client harmlessly ignores a channel it
+/// does not know.
+#[must_use]
+pub fn network_query(config: &NeoForgeSettings) -> Option<Bytes> {
+    if !config.enabled {
+        return None;
+    }
+    negotiation_payloads().map(|payloads| payloads.query.clone())
 }
 
 /// The registry sync payloads, built once.
@@ -217,6 +234,10 @@ fn negotiation_payloads() -> Option<&'static NegotiationPayloads> {
                 .collect();
             all.extend(channels::declared().iter().cloned());
 
+            let query = payloads::network_query(&all)
+                .inspect_err(|err| warn!("Failed to encode the NeoForge network query: {err}"))
+                .ok()?;
+
             let setup = payloads::modded_network_setup(&all)
                 .inspect_err(|err| warn!("Failed to encode the NeoForge payload setup: {err}"))
                 .ok()?;
@@ -229,6 +250,7 @@ fn negotiation_payloads() -> Option<&'static NegotiationPayloads> {
                 .collect();
 
             Some(NegotiationPayloads {
+                query,
                 setup,
                 register: payloads::channel_registration(&listening),
                 channel_count: all.len(),

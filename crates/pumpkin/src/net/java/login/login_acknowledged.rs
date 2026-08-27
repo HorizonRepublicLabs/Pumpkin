@@ -15,6 +15,8 @@ impl PendingConnection {
             return Some(PacketHandlerResult::Stop);
         }
         self.connection_state.store(ConnectionState::Config);
+
+        self.offer_network_query(server).await;
         self.send_packet_now(&server.get_branding()).await;
 
         if server.advanced_config.server_links.enabled
@@ -97,7 +99,12 @@ impl PendingConnection {
 
             self.send_packet_now(&resource_pack).await;
         } else if self.version.load() >= JavaMinecraftVersion::V_1_20_5 {
-            self.send_known_packs().await;
+            // Deliberately not sent yet. A mod loader decides whether the server is modded
+            // from what arrives early in configuration, and treats the vanilla known-packs
+            // exchange as proof that it is not. Sending it before the modded declaration
+            // loses the connection, so it waits for the client's brand — see
+            // `PendingConnection::flush_deferred_known_packs`.
+            self.known_packs_deferred = true;
         } else {
             self.handle_known_packs(
                 SKnownPacks {
@@ -111,7 +118,35 @@ impl PendingConnection {
         None
     }
 
+    /// Offers the mod loader's channel list before configuration proper begins.
+    ///
+    /// A `NeoForge` client waits for this to decide whether the server speaks its protocol,
+    /// and gives up if the vanilla configuration starts without it. A vanilla client
+    /// ignores a channel it does not know, so it costs nothing to send to everyone.
+    async fn offer_network_query(&mut self, server: &Server) {
+        use crate::net::java::neoforge::{self, NeoForgeSettings};
+
+        let config = &server.advanced_config.networking.java.neoforge;
+        let settings = NeoForgeSettings {
+            enabled: config.enabled,
+            sync_registries: config.sync_registries,
+        };
+
+        if let Some(query) = neoforge::network_query(&settings) {
+            self.send_packet_now(&CPluginMessage::new(
+                neoforge::NETWORK_QUERY_CHANNEL,
+                &query,
+            ))
+            .await;
+        }
+    }
+
     pub async fn send_known_packs(&mut self) {
+        if self.known_packs_sent {
+            return;
+        }
+        self.known_packs_sent = true;
+
         let version_str = self.version.load().to_string();
         self.send_packet_now(&CKnownPacks::new(&[KnownPack {
             namespace: "minecraft",
@@ -119,5 +154,16 @@ impl PendingConnection {
             version: &version_str,
         }]))
         .await;
+    }
+
+    /// Sends the known-packs exchange that [`Self::handle_login_acknowledged`] held back.
+    ///
+    /// Called once the client has said enough about itself for a mod loader to have been
+    /// answered — its brand, or failing that its settings. Both arrive early in
+    /// configuration, and every client sends at least one.
+    pub async fn flush_deferred_known_packs(&mut self) {
+        if self.known_packs_deferred {
+            self.send_known_packs().await;
+        }
     }
 }

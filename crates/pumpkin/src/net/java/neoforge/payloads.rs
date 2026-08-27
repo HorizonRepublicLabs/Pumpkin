@@ -71,6 +71,46 @@ pub fn modded_network_setup(channels: &[ModdedChannel]) -> Result<Bytes, Writing
     Ok(Bytes::from(buf))
 }
 
+/// Encodes `neoforge:register`: the server's own channels, offered for negotiation.
+///
+/// This is the opening move. A `NeoForge` client answers it with its own channel list on
+/// the same channel, and only then is the connection modded as far as it is concerned —
+/// which is why it is sent to every client rather than waiting to learn what one is. A
+/// vanilla client ignores a channel it does not know.
+///
+/// Each entry is the channel id, its version, an optional packet flow and whether it is
+/// optional. The flow is left empty, meaning the channel is usable in both directions.
+pub fn network_query(channels: &[ModdedChannel]) -> Result<Bytes, WritingError> {
+    let mut phases: Vec<(ChannelProtocol, Vec<&ModdedChannel>)> = Vec::new();
+    for channel in channels {
+        match phases
+            .iter_mut()
+            .find(|(phase, _)| *phase == channel.protocol)
+        {
+            Some((_, group)) => group.push(channel),
+            None => phases.push((channel.protocol, vec![channel])),
+        }
+    }
+
+    let mut buf = Vec::new();
+    write_len(&mut buf, phases.len())?;
+
+    for (protocol, group) in phases {
+        buf.write_var_int(&VarInt(protocol.ordinal()))?;
+        write_len(&mut buf, group.len())?;
+        for channel in group {
+            buf.write_string(&channel.id)?;
+            buf.write_string(&channel.version)?;
+            // No packet flow: the channel is not restricted to one direction.
+            buf.write_bool(false)?;
+            // Not optional: these are the channels the connection is built around.
+            buf.write_bool(false)?;
+        }
+    }
+
+    Ok(Bytes::from(buf))
+}
+
 /// Encodes `minecraft:register`: NUL-separated channel names, the vanilla format.
 #[must_use]
 pub fn channel_registration(channels: &[&str]) -> Bytes {
