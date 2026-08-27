@@ -108,6 +108,7 @@ impl gui::HostGui for PluginHostState {
         };
 
         let gui = Arc::new(Mutex::new(PluginGui {
+            modded_menu: None,
             window_type,
             title,
             inventory: Arc::new(PluginInventory::new(size)),
@@ -116,6 +117,36 @@ impl gui::HostGui for PluginHostState {
         }));
 
         self.add_gui(gui)
+    }
+
+    async fn modded(
+        &mut self,
+        screen: crate::plugin::loader::wasm::wasm_host::wit::v0_1::pumpkin::plugin::gui::ModdedScreen,
+        title: Resource<
+            crate::plugin::loader::wasm::wasm_host::wit::v0_1::pumpkin::plugin::text::TextComponent,
+        >,
+    ) -> wasmtime::Result<Result<Resource<Gui>, String>> {
+        let title = self.get_text_provider(&title)?;
+
+        let Some(menu_id) = pumpkin_data::dynamic::menu_type_id(&screen.menu_type) else {
+            return Ok(Err(format!(
+                "unknown menu type {}; register it first",
+                screen.menu_type
+            )));
+        };
+
+        // The window type is unused for a modded screen — the client is told which screen to
+        // draw by registry id — but the handler still wants one, so it gets a neutral value.
+        let gui = Arc::new(Mutex::new(PluginGui {
+            modded_menu: Some((menu_id, screen.extra_data)),
+            window_type: pumpkin_data::screen::WindowType::Generic9x3,
+            title,
+            inventory: Arc::new(PluginInventory::new(screen.slots as usize)),
+            allow_grab_items: true,
+            allow_put_items: true,
+        }));
+
+        Ok(Ok(self.add_gui(gui)?))
     }
 
     async fn set_item(

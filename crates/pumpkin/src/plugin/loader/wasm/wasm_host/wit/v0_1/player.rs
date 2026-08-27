@@ -2208,6 +2208,7 @@ impl pumpkin::plugin::player::HostPlayer for PluginHostState {
         let screen_handler = Arc::new(Mutex::new(PluginScreenHandler::new(
             sync_id,
             gui.window_type,
+            gui.modded_menu.clone(),
             &gui.inventory,
             gui.allow_grab_items,
             gui.allow_put_items,

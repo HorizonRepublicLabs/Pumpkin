@@ -12,6 +12,9 @@ use pumpkin_world::inventory::{Clearable, Inventory, InventoryFuture};
 
 pub struct PluginGui {
     pub window_type: WindowType,
+    /// A registered menu id and the bytes its constructor reads, when the screen is one a
+    /// mod draws rather than one of vanilla's. `window_type` is then only a placeholder.
+    pub modded_menu: Option<(u16, Vec<u8>)>,
     pub title: TextComponent,
     pub inventory: Arc<PluginInventory>,
     pub allow_grab_items: bool,
@@ -116,11 +119,13 @@ impl PluginScreenHandler {
     pub fn new(
         sync_id: u8,
         window_type: WindowType,
+        modded_menu: Option<(u16, Vec<u8>)>,
         inventory: &Arc<PluginInventory>,
         allow_grab_items: bool,
         allow_put_items: bool,
     ) -> Self {
         let mut behaviour = ScreenHandlerBehaviour::new(sync_id, Some(window_type));
+        behaviour.modded_menu = modded_menu;
         behaviour.allow_grab_items = allow_grab_items;
         behaviour.allow_put_items = allow_put_items;
         behaviour.container_slots = inventory.size();

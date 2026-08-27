@@ -5047,6 +5047,35 @@ impl Player {
 
         let screen_handler_temp = screen_handler.lock().await;
         let sync_id = screen_handler_temp.sync_id();
+
+        // A mod's screen is opened by its registry id and carries whatever its own menu
+        // constructor reads, which vanilla's packet has nowhere to put. Only a Java client
+        // can have the mod, so Bedrock gets nothing.
+        if let Some((menu_id, extra)) = screen_handler_temp.modded_menu() {
+            let ClientPlatform::Java(java) = self.client.as_ref() else {
+                return;
+            };
+            let payload = crate::net::java::neoforge::advanced_open_screen(
+                sync_id,
+                menu_id,
+                &title,
+                extra,
+                &java.version.load(),
+            );
+            java.send_packet(
+                &pumpkin_protocol::java::client::config::CPluginMessage::new(
+                    crate::net::java::neoforge::OPEN_SCREEN_CHANNEL,
+                    &payload,
+                ),
+            )
+            .await;
+
+            drop(screen_handler_temp);
+            self.on_screen_handler_opened(screen_handler.clone()).await;
+            *self.current_screen_handler.lock().await = screen_handler;
+            return;
+        }
+
         let Some(window_type) = screen_handler_temp.window_type() else {
             return;
         };

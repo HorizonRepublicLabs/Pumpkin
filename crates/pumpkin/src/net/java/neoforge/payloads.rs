@@ -111,6 +111,26 @@ pub fn network_query(channels: &[ModdedChannel]) -> Result<Bytes, WritingError> 
     Ok(Bytes::from(buf))
 }
 
+/// Encodes `neoforge:advanced_open_screen`.
+///
+/// Window id, the menu's registry id, the title, then whatever the menu's own constructor
+/// reads. See [`super::advanced_open_screen`] for why vanilla's packet will not do.
+pub fn advanced_open_screen(
+    sync_id: u8,
+    menu_id: u16,
+    title: &pumpkin_util::text::TextComponent,
+    extra: &[u8],
+    version: &pumpkin_util::version::JavaMinecraftVersion,
+) -> Result<Bytes, WritingError> {
+    let mut buf = Vec::new();
+    buf.write_var_int(&VarInt(i32::from(sync_id)))?;
+    buf.write_var_int(&VarInt(i32::from(menu_id)))?;
+    buf.write_component(title, version)?;
+    write_len(&mut buf, extra.len())?;
+    buf.extend_from_slice(extra);
+    Ok(Bytes::from(buf))
+}
+
 /// Encodes `neoforge:config_file`: a config file's name and its contents.
 ///
 /// `NeoForge` reads some of its own settings from the server rather than the client, and

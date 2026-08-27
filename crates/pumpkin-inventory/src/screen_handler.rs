@@ -275,6 +275,19 @@ pub trait ScreenHandler: Send + Sync {
         self.get_behaviour().window_type
     }
 
+    /// The runtime-registered menu this screen shows, if it is not a vanilla one.
+    ///
+    /// A mod draws its own screens, so the client is told which menu to open by registry id
+    /// rather than by vanilla's enum, and the menu's own constructor reads whatever extra
+    /// bytes it was given — a block position, usually, so the screen knows which machine it
+    /// is looking at.
+    fn modded_menu(&self) -> Option<(u16, &[u8])> {
+        self.get_behaviour()
+            .modded_menu
+            .as_ref()
+            .map(|(id, extra)| (*id, extra.as_slice()))
+    }
+
     /// Returns this screen handler as an Any reference.
     fn as_any(&self) -> &dyn Any;
 
@@ -1348,6 +1361,9 @@ pub struct ScreenHandlerBehaviour {
     pub tracked_property_values: Vec<i32>,
     /// The window type for this container ( determines client UI).
     pub window_type: Option<WindowType>,
+    /// A runtime-registered menu id and the extra data its constructor reads, for a screen
+    /// drawn by a mod rather than by vanilla.
+    pub modded_menu: Option<(u16, Vec<u8>)>,
     /// Slots selected during a drag operation (for multi-slot distribution).
     pub drag_slots: Vec<u32>,
     /// Whether players can grab items out of the inventory.
@@ -1389,6 +1405,7 @@ impl ScreenHandlerBehaviour {
             properties: Vec::new(),
             tracked_property_values: Vec::new(),
             window_type,
+            modded_menu: None,
             drag_slots: Vec::new(),
             allow_grab_items: true,
             allow_put_items: true,

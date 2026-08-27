@@ -36,6 +36,7 @@ pub mod payloads;
 
 use bytes::Bytes;
 use pumpkin_data::packet::CURRENT_MC_VERSION;
+use pumpkin_util::text::TextComponent;
 use tracing::{debug, warn};
 
 use crate::net::java::{
@@ -45,6 +46,8 @@ use crate::net::java::{
 
 pub use channels::{ChannelError, ChannelProtocol, ModdedChannel};
 
+/// Opens a screen a mod draws itself.
+pub const OPEN_SCREEN_CHANNEL: &str = "neoforge:advanced_open_screen";
 /// Carries a config file the client needs a server-side copy of.
 pub const CONFIG_FILE_CHANNEL: &str = "neoforge:config_file";
 /// Carries the channel list each side offers, server first, client in reply.
@@ -312,4 +315,23 @@ fn sync_payloads() -> Option<&'static SyncPayloads> {
             Some(SyncPayloads { start, snapshots })
         })
         .as_ref()
+}
+
+/// Encodes `neoforge:advanced_open_screen`: which screen to open and what it needs to know.
+///
+/// Vanilla's open-screen packet names a menu and a title and stops there. A mod's menu
+/// constructor reads more than that — a block position, so the screen knows which machine it
+/// is looking at — which is why this payload exists and why a modded screen cannot be opened
+/// the vanilla way.
+#[must_use]
+pub fn advanced_open_screen(
+    sync_id: u8,
+    menu_id: u16,
+    title: &TextComponent,
+    extra: &[u8],
+    version: &pumpkin_util::version::JavaMinecraftVersion,
+) -> Bytes {
+    payloads::advanced_open_screen(sync_id, menu_id, title, extra, version)
+        .inspect_err(|err| warn!("Failed to encode the NeoForge open screen payload: {err}"))
+        .unwrap_or_default()
 }
