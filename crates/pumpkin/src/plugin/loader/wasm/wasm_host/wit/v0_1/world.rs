@@ -315,6 +315,7 @@ impl PluginHostState {
         }
 
         match_be! {
+            crate::block::entities::plugin::PluginBlockEntity => PluginBlockEntity,
             InternalCommandBlockEntity => CommandBlockEntity,
             InternalSignBlockEntity => SignBlockEntity,
             InternalHangingSignBlockEntity => HangingSignBlockEntity,
