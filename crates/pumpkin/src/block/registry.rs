@@ -1011,6 +1011,20 @@ impl BlockRegistry {
                 direction,
                 player,
             });
+            return;
+        }
+
+        // A block with no Rust behind it — a registered one — has nothing to create the
+        // block entity its state asks for. Generated blocks do it from their own `placed`,
+        // which is why this only covers the ones that have no such code: a machine would
+        // otherwise be placed with nowhere to keep its contents.
+        let state = world.get_block_state(position);
+        if state.block_entity_type != u16::MAX
+            && world.get_block_entity(position).is_none()
+            && let Some(entity) =
+                crate::block::entities::create_block_entity(state.block_entity_type, *position)
+        {
+            world.add_block_entity(entity);
         }
     }
 

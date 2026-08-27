@@ -132,6 +132,29 @@ pub fn block_entity_type_id(name: &str) -> Option<u16> {
     registered_id(name)
 }
 
+/// The id of a block entity type, including one registered moments ago.
+///
+/// A block names the type it creates, and both are registered in the same pass, so the
+/// type is still staged when the block asks for it. [`block_entity_type_id`] sees only
+/// what has been published and would report a type registered seconds earlier as unknown.
+#[must_use]
+pub fn registering_block_entity_type_id(name: &str) -> Option<u16> {
+    if let Some(id) = block_entity_type_id(name) {
+        return Some(id);
+    }
+
+    let base = base_block_entity_type_count();
+    STAGING
+        .lock()
+        .unwrap_or_else(std::sync::PoisonError::into_inner)
+        .as_ref()?
+        .names
+        .iter()
+        .position(|candidate| *candidate == name)
+        // `offset` is bounded by the id check made at registration.
+        .map(|offset| base.saturating_add(offset as u16))
+}
+
 /// Whether a name belongs to any block entity type.
 #[must_use]
 pub fn is_block_entity_type(name: &str) -> bool {

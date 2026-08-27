@@ -250,7 +250,11 @@ impl<E: Payload + ToFromWasmEvent> EventHandler<E> for WasmPluginEventHandler {
                             cleanup_event(&returned_event, store.data_mut());
                             cleanup_event(&wasm_event, store.data_mut());
                         }
-                        Err(_) => {
+                        Err(err) => {
+                            // A handler that traps stops where it stood, and until this was
+                            // reported that looked exactly like one that chose to do
+                            // nothing: no screen, no message, nothing in the log.
+                            tracing::error!("Plugin event handler failed: {err:?}");
                             cleanup_event(&wasm_event, store.data_mut());
                         }
                     }
@@ -288,7 +292,11 @@ impl<E: Payload + ToFromWasmEvent> EventHandler<E> for WasmPluginEventHandler {
                             event.apply_wasm_event(returned_event, store.data_mut());
                             cleanup_event(&wasm_event, store.data_mut());
                         }
-                        Err(_) => {
+                        Err(err) => {
+                            // A handler that traps stops where it stood, and until this was
+                            // reported that looked exactly like one that chose to do
+                            // nothing: no screen, no message, nothing in the log.
+                            tracing::error!("Plugin event handler failed: {err:?}");
                             cleanup_event(&wasm_event, store.data_mut());
                         }
                     }

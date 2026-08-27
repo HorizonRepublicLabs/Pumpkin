@@ -48,6 +48,7 @@ mod menu_types;
 pub use block_entity_types::{
     base_block_entity_type_count, block_entity_type_count, block_entity_type_id,
     block_entity_type_name, is_block_entity_type, register_block_entity_type,
+    registering_block_entity_type_id,
 };
 #[cfg(feature = "block")]
 pub use blocks::{

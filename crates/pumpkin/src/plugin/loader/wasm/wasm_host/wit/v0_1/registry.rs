@@ -53,7 +53,8 @@ impl pumpkin::plugin::registry::Host for PluginHostState {
         // Naming a type that was never registered is a mistake worth reporting rather
         // than quietly leaving the block with the template's, or with none at all.
         let block_entity_type = match definition.block_entity {
-            Some(ref name) => match pumpkin_data::dynamic::block_entity_type_id(name) {
+            // Registered in the same pass as the blocks, so it is still staged.
+            Some(ref name) => match pumpkin_data::dynamic::registering_block_entity_type_id(name) {
                 Some(id) => Some(id),
                 None => return Ok(Err(unknown_template("block entity type", name))),
             },

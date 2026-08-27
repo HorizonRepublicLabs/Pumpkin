@@ -314,8 +314,28 @@ impl PluginHostState {
             };
         }
 
+        // A registered block entity is handed over as a container, unlike every other
+        // variant, which carries a resource of its own kind. Pushing the plain kind here
+        // puts the wrong type at that index, and the first call the plugin makes through
+        // the handle fails to resolve it rather than doing anything.
+        if be
+            .as_any()
+            .downcast_ref::<crate::block::entities::plugin::PluginBlockEntity>()
+            .is_some()
+        {
+            let provider = be.clone();
+            let Some(inventory) = be.get_inventory() else {
+                return Ok(None);
+            };
+            let res: Resource<
+                crate::plugin::loader::wasm::wasm_host::wit::v0_1::pumpkin::plugin::block_entity::ContainerBlockEntity,
+            > = self.add_container_block_entity(provider, inventory)?;
+            return Ok(Some(BlockEntityType::PluginBlockEntity(Resource::new_own(
+                res.rep(),
+            ))));
+        }
+
         match_be! {
-            crate::block::entities::plugin::PluginBlockEntity => PluginBlockEntity,
             InternalCommandBlockEntity => CommandBlockEntity,
             InternalSignBlockEntity => SignBlockEntity,
             InternalHangingSignBlockEntity => HangingSignBlockEntity,
