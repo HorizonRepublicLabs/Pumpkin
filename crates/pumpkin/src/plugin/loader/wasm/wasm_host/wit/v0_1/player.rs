@@ -2242,6 +2242,7 @@ impl pumpkin::plugin::player::HostPlayer for PluginHostState {
             &gui.properties,
             gui.allow_grab_items,
             gui.allow_put_items,
+            &(player.inventory.clone() as Arc<dyn pumpkin_world::inventory::Inventory>),
         )));
 
         player.open_handled_screen_direct(screen_handler, &gui.title);

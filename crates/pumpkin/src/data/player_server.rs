@@ -94,7 +94,9 @@ impl ServerPlayerData {
             }
 
             let storage = self.storage.clone();
-            tokio::task::spawn_blocking(move || {
+            // The ticker is a plain thread with no ambient runtime; the server carries the
+            // handle for exactly this.
+            server.runtime.spawn_blocking(move || {
                 for (uuid, nbt) in snapshots {
                     if let Err(e) = storage.save_player_data(&uuid, nbt) {
                         error!("Failed to save player data for {uuid}: {e}");

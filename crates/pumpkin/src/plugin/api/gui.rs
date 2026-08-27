@@ -181,6 +181,14 @@ pub struct PluginScreenHandler {
 
 impl PluginScreenHandler {
     #[must_use]
+    /// Builds the window.
+    ///
+    /// `inventory` holds the container's own slots and nothing else. The player's inventory
+    /// is added after them, as every container screen does: the client draws it as part of
+    /// the window and expects those slots to be the ones it already has. Backing them with
+    /// the plugin's own storage instead leaves the player looking at an empty inventory and
+    /// clicking on slots that are not theirs.
+    #[expect(clippy::too_many_arguments)]
     pub fn new(
         sync_id: u8,
         window_type: WindowType,
@@ -189,6 +197,7 @@ impl PluginScreenHandler {
         properties: &Arc<PluginProperties>,
         allow_grab_items: bool,
         allow_put_items: bool,
+        player_inventory: &Arc<dyn Inventory>,
     ) -> Self {
         let mut behaviour = ScreenHandlerBehaviour::new(sync_id, Some(window_type));
         behaviour.modded_menu = modded_menu;
@@ -204,6 +213,8 @@ impl PluginScreenHandler {
         for i in 0..inventory.size() {
             handler.add_slot(Arc::new(NormalSlot::new(inventory.clone(), i)));
         }
+
+        handler.add_player_slots(player_inventory);
 
         // Tracked from the start, so a value the plugin sets later is noticed and sent.
         let count = properties.get_properties_size();

@@ -223,8 +223,13 @@ pub fn write_chunk_data(
         write.write_i16_be(pos.0.y as i16)?;
 
         let id = nbt.get_string("id").map_or(0, |id_str| {
-            let name = id_str.split(':').next_back().unwrap_or(id_str);
-            usize::from(pumpkin_data::dynamic::block_entity_type_id(name).unwrap_or(0))
+            // Registered types are keyed by their namespaced name, generated ones by the
+            // bare one, so the full id is tried before it is stripped. Stripping first
+            // turns every plugin block entity into id 0 on the wire.
+            let bare = id_str.split(':').next_back().unwrap_or(id_str);
+            let id = pumpkin_data::dynamic::block_entity_type_id(id_str)
+                .or_else(|| pumpkin_data::dynamic::block_entity_type_id(bare));
+            usize::from(id.unwrap_or(0))
         });
         let remapped_id =
             pumpkin_data::block_entity_type_id_remap::remap_block_entity_type_id_for_version(

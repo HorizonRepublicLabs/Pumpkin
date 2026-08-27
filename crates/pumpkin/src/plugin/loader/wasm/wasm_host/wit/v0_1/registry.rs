@@ -49,11 +49,22 @@ impl pumpkin::plugin::registry::Host for PluginHostState {
             .filter(|count| *count > 0)
             .unwrap_or(1);
 
+        // Resolved before the states are built, because every one of them carries it.
+        // Naming a type that was never registered is a mistake worth reporting rather
+        // than quietly leaving the block with the template's, or with none at all.
+        let block_entity_type = match definition.block_entity {
+            Some(ref name) => match pumpkin_data::dynamic::block_entity_type_id(name) {
+                Some(id) => Some(id),
+                None => return Ok(Err(unknown_template("block entity type", name))),
+            },
+            None => None,
+        };
+
         let states: Vec<BlockState> = if definition.properties.is_empty() {
             template
                 .states
                 .iter()
-                .map(|state| copy_state(state, definition.luminance))
+                .map(|state| copy_state(state, definition.luminance, block_entity_type))
                 .collect()
         } else {
             // Cycle the template's states so a block with more states than its template
@@ -64,7 +75,7 @@ impl pumpkin::plugin::registry::Host for PluginHostState {
                         .states
                         .get(index % template.states.len())
                         .unwrap_or(template.default_state);
-                    copy_state(source, definition.luminance)
+                    copy_state(source, definition.luminance, block_entity_type)
                 })
                 .collect()
         };
@@ -195,7 +206,11 @@ impl pumpkin::plugin::registry::Host for PluginHostState {
 
 /// `BlockState` is not `Clone`, and copying it by hand is what lets a registered block
 /// inherit a template's full state list.
-fn copy_state(template: &BlockState, luminance: Option<u8>) -> BlockState {
+fn copy_state(
+    template: &BlockState,
+    luminance: Option<u8>,
+    block_entity_type: Option<u16>,
+) -> BlockState {
     BlockState {
         // Replaced by the registry.
         id: BlockStateId::AIR,
@@ -208,7 +223,7 @@ fn copy_state(template: &BlockState, luminance: Option<u8>) -> BlockState {
         collision_shapes: template.collision_shapes,
         outline_shapes: template.outline_shapes,
         opacity: template.opacity,
-        block_entity_type: template.block_entity_type,
+        block_entity_type: block_entity_type.unwrap_or(template.block_entity_type),
     }
 }
 
@@ -223,7 +238,7 @@ mod tests {
     #[test]
     fn copied_states_inherit_the_template() {
         let template = Block::STONE.default_state;
-        let copy = copy_state(template, None);
+        let copy = copy_state(template, None, None);
 
         assert_eq!(copy.state_flags, template.state_flags);
         assert_eq!(copy.opacity, template.opacity);
@@ -240,9 +255,9 @@ mod tests {
     fn luminance_overrides_the_template_and_clamps_to_the_vanilla_range() {
         let template = Block::STONE.default_state;
 
-        assert_eq!(copy_state(template, Some(7)).luminance, 7);
+        assert_eq!(copy_state(template, Some(7), None).luminance, 7);
         assert_eq!(
-            copy_state(template, Some(200)).luminance,
+            copy_state(template, Some(200), None).luminance,
             15,
             "light level cannot exceed 15"
         );
@@ -257,7 +272,7 @@ mod tests {
         let copies: Vec<_> = template
             .states
             .iter()
-            .map(|state| copy_state(state, None))
+            .map(|state| copy_state(state, None, None))
             .collect();
 
         assert_eq!(copies.len(), template.states.len());

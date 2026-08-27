@@ -51,6 +51,7 @@ impl BlockDefinition {
             properties: Vec::new(),
             default_state: 0,
             item: None,
+            block_entity: None,
         })
     }
 
@@ -109,6 +110,16 @@ impl BlockDefinition {
     #[must_use]
     pub fn placed_by(mut self, item: impl Into<String>) -> Self {
         self.0.item = Some(item.into());
+        self
+    }
+
+    /// Gives the block a block entity, created wherever the block is placed.
+    ///
+    /// Register the type first. Without one the block has nowhere to keep anything, so a
+    /// machine's contents would live only in an open window and go when it closed.
+    #[must_use]
+    pub fn block_entity(mut self, block_entity: impl Into<String>) -> Self {
+        self.0.block_entity = Some(block_entity.into());
         self
     }
 }

@@ -1566,9 +1566,13 @@ impl World {
             if level_time.world_age % 100 == 0 {
                 self.level.should_unload.store(true, Relaxed);
                 let cleaned_chunks = self.level.clean_memory();
-                if !cleaned_chunks.is_empty() {
+                if !cleaned_chunks.is_empty()
+                    && let Some(server) = self.server.upgrade()
+                {
+                    // Ticking happens on a plain thread, so there is no ambient runtime to
+                    // spawn onto; the server carries the handle for exactly this.
                     let world_clone = self.clone();
-                    tokio::spawn(async move {
+                    server.runtime.spawn(async move {
                         world_clone.remove_entities_in_chunks(&cleaned_chunks).await;
                         world_clone.level.clean_entity_chunks(&cleaned_chunks);
                     });
