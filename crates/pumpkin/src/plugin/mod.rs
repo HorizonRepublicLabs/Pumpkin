@@ -1315,4 +1315,56 @@ mod tests {
         let plugins_missing = vec![("A".to_string(), vec!["B".to_string()])];
         assert!(PluginManager::topological_sort(&plugins_missing).is_err());
     }
+
+    /// `allow_unsigned` is the operator saying they accept unverified code. A jar is
+    /// allowed then, and only then.
+    #[test]
+    fn an_allowed_unsigned_jar_loads() {
+        assert!(check_plugin_signature(Path::new("plugins/mod.jar"), true).is_ok());
+    }
+
+    /// The hole this function was written to close: jar signature verification does not
+    /// exist, so an operator who refused unverified code must not silently get a jar
+    /// running with full JVM privileges in-process.
+    #[test]
+    fn a_jar_is_refused_when_unsigned_plugins_are_not_allowed() {
+        let refusal = check_plugin_signature(Path::new("plugins/mod.jar"), false)
+            .expect_err("a jar cannot be verified, so it cannot be allowed");
+        assert!(
+            refusal.contains("jar"),
+            "the reason names the problem: {refusal}"
+        );
+    }
+
+    /// A gate that matches extensions is a gate that leaks on case. `.JAR` is a jar.
+    #[test]
+    fn the_jar_refusal_is_case_insensitive() {
+        for name in ["mod.JAR", "mod.Jar", "mod.jAr"] {
+            assert!(
+                check_plugin_signature(Path::new(name), false).is_err(),
+                "{name} bypassed the jar refusal"
+            );
+        }
+    }
+
+    /// Native plugins and anything else keep whatever behaviour they had; this function
+    /// exists to cover wasm and jar, not to start policing other extensions.
+    #[test]
+    fn other_extensions_are_left_alone() {
+        for name in [
+            "plugins/libnative.so",
+            "plugins/libnative.dylib",
+            "plugins/native",
+        ] {
+            assert!(
+                check_plugin_signature(Path::new(name), false).is_ok(),
+                "{name} should be unaffected"
+            );
+        }
+    }
+
+    // The wasm branch is deliberately not asserted here. `is_wasm_signed` reaches
+    // `fetch_market_public_key`, which performs a network request
+    // (`plugin/loader/wasm/wasm_host/signature.rs:185`), and a unit test must not depend
+    // on the network. Covering it needs the key fetch made injectable first.
 }

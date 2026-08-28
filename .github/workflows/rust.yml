@@ -120,7 +120,9 @@ jobs:
         working-directory: java/pumpkin-jvm-host
         run: ./gradlew build
       - name: Cargo nextest (jvm-plugins feature)
-        run: cargo nextest run --verbose --features jvm-plugins --test jvm_host -p pumpkin
+        # Not scoped to `--test jvm_host`: the feature also gates unit tests inside the
+        # crate, such as the handle table's, and those run nowhere else.
+        run: cargo nextest run --verbose --features jvm-plugins -p pumpkin
   build_release:
     name: Build project in release
     runs-on: ${{ matrix.os }}
