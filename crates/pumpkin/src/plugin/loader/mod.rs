@@ -4,6 +4,8 @@ use thiserror::Error;
 
 pub mod native;
 pub mod wasm;
+#[cfg(feature = "jvm-plugins")]
+pub mod jvm;
 
 pub type PluginLoadFuture<'a> = Pin<
     Box<
