@@ -54,7 +54,7 @@ pub use block_entity_types::{
 pub use blocks::{
     BlockRegistration, base_block_count, base_state_count, block_count, block_from_id,
     block_from_item_id, block_from_name, block_id_from_state_id, block_properties, block_state_for,
-    register_block, state_count, state_from_id, state_has_random_ticks,
+    register_block, registering_block_id, state_count, state_from_id, state_has_random_ticks,
 };
 #[cfg(feature = "entity_type")]
 pub use entity_types::{
@@ -250,6 +250,16 @@ mod tests {
         assert!(
             Block::from_name("examplemod:ruby_block").is_none(),
             "registrations are invisible until the registry is frozen"
+        );
+        assert_eq!(
+            registering_block_id("examplemod:ruby_block"),
+            Some(id),
+            "but registering_block_id sees it staged in this same pass, unlike from_name"
+        );
+        assert_eq!(
+            registering_block_id("examplemod:never_registered"),
+            None,
+            "a name nothing ever registered is not found"
         );
 
         let facing = ["north", "south", "west", "east"];

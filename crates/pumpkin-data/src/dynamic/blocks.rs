@@ -325,3 +325,50 @@ pub fn block_from_item_id(id: u16) -> Option<&'static Block> {
 pub fn block_from_name(name: &str) -> Option<&'static Block> {
     FROZEN.get()?.by_name.get(name).copied()
 }
+
+/// The id of a block registered during this startup, published or not.
+///
+/// Registration happens in one pass, and things registered in it can refer to each other —
+/// an item names the block it places, a block entity type names the block that creates it.
+/// Waiting for [`super::freeze`] would make that impossible, so this sees staged entries
+/// too, without publishing anything early: a caller that only wants to observe what has
+/// been staged, without forcing the registry open for everyone else in the process, reaches
+/// for this instead of [`super::freeze`].
+#[must_use]
+pub fn registering_block_id(name: &str) -> Option<BlockId> {
+    if let Some(block) = block_from_name(name) {
+        return Some(block.id);
+    }
+
+    STAGING
+        .lock()
+        .unwrap_or_else(std::sync::PoisonError::into_inner)
+        .as_ref()?
+        .blocks
+        .iter()
+        .find(|block| block.name == name)
+        .map(|block| block.id)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::registering_block_id;
+
+    // The positive case — a name staged moments ago is visible — lives in
+    // `dynamic::tests::registry_lifecycle` instead of here. That test is the sole owner of
+    // the dynamic block registry's global state for its whole process (see its own doc
+    // comment); a second test in this module that also called `register_block` would stage
+    // an extra block or state ahead of it, shifting the exact ids `registry_lifecycle`
+    // hardcodes and turning a currently-passing test into one that fails depending on
+    // thread scheduling. Confirmed by running it: it shifted `first_state` by one and broke
+    // `registry_lifecycle` on the first try.
+    //
+    // This test makes no registration at all, so it cannot collide with anything.
+    #[test]
+    fn a_name_that_was_never_staged_is_not_found() {
+        assert_eq!(
+            registering_block_id("accessorprobe:never_registered"),
+            None
+        );
+    }
+}

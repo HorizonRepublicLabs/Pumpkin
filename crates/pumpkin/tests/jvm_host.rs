@@ -96,12 +96,13 @@ fn java_can_register_a_block() {
 
     assert!(assigned > 0, "a real block id was assigned, got {assigned}");
 
-    // A staged registration is invisible to `Block::from_name` until the dynamic registry
-    // is frozen; freezing is otherwise a server-startup step, and calling it a second time
-    // is harmless, so it is safe to do here rather than nowhere.
-    pumpkin_data::dynamic::freeze();
+    // `Block::from_name` only sees published content, and freezing the registry here would
+    // make every later registration in this process fail forever — including whatever a
+    // future test registers through a loaded mod jar. `registering_block_id` sees staged
+    // entries without publishing anything, so it can confirm the block exists without
+    // arming that trap for tests that have not run yet.
     assert!(
-        pumpkin_data::Block::from_name("testmod:ruby_block").is_some(),
+        pumpkin_data::dynamic::registering_block_id("testmod:ruby_block").is_some(),
         "the block Java registered is in Pumpkin's registry"
     );
 }
