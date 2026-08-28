@@ -217,6 +217,22 @@ pub enum ManagerError {
     DependencyError(String),
 }
 
+/// What `unload_plugin` actually managed to do.
+///
+/// Not every loader can truly unload its plugin — the JVM loader's `can_unload()` is
+/// `false`, since a JVM, once started, outlives the server for the rest of the process — so
+/// `unload_plugin` can only deactivate: run `on_unload`, mark it inactive, and leave the
+/// loaded code, and anything it registered, right where they were. Callers that report
+/// success to an operator need to say which one happened.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum UnloadOutcome {
+    /// The loader unloaded the plugin; its code is gone.
+    Unloaded,
+    /// The plugin was deactivated — `on_unload` ran and it will no longer receive events —
+    /// but its loader cannot unload it, so its code, and its process-wide effects, remain.
+    Deactivated,
+}
+
 impl Default for PluginManager {
     fn default() -> Self {
         Self::new(true)
@@ -1060,8 +1076,12 @@ impl PluginManager {
         plugins.iter().map(|p| p.metadata.clone()).collect()
     }
 
-    /// Unload a plugin by name
-    pub async fn unload_plugin(&self, name: &str) -> Result<(), ManagerError> {
+    /// Unload a plugin by name.
+    ///
+    /// Returns which of [`UnloadOutcome`]'s two things actually happened — a loader whose
+    /// `can_unload()` is `false` can only be deactivated, not unloaded, and a caller
+    /// reporting this to an operator needs to say so rather than claim success outright.
+    pub async fn unload_plugin(&self, name: &str) -> Result<UnloadOutcome, ManagerError> {
         let index = {
             let plugins = self.plugins.read().await;
             plugins
@@ -1079,19 +1099,21 @@ impl PluginManager {
             instance.on_unload(plugin.context.clone()).await.ok();
         }
 
-        if plugin.loader.can_unload() {
+        let outcome = if plugin.loader.can_unload() {
             if let Some(data) = plugin.loader_data {
                 plugin.loader.unload(data).await?;
             }
+            UnloadOutcome::Unloaded
         } else {
             plugin.is_active = false;
             self.plugins.write().await.push(plugin);
-        }
+            UnloadOutcome::Deactivated
+        };
 
         // Remove from plugin states
         self.plugin_states.write().await.remove(name);
 
-        Ok(())
+        Ok(outcome)
     }
 
     /// Get all plugins that are currently loading

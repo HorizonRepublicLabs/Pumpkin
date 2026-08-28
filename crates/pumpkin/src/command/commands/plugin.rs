@@ -178,12 +178,21 @@ impl CommandExecutor for UnloadExecutor {
                 .await;
 
             match result {
-                Ok(()) => {
+                Ok(crate::plugin::UnloadOutcome::Unloaded) => {
                     sender_clone.send_message(
                         TextComponent::text(format!(
                             "Plugin {plugin_name_clone} unloaded successfully"
                         ))
                         .color_named(NamedColor::Green),
+                    );
+                }
+                Ok(crate::plugin::UnloadOutcome::Deactivated) => {
+                    sender_clone.send_message(
+                        TextComponent::text(format!(
+                            "Plugin {plugin_name_clone} was deactivated, but its loader \
+                             cannot unload it — its code stays loaded until the server stops"
+                        ))
+                        .color_named(NamedColor::Yellow),
                     );
                 }
                 Err(e) => {

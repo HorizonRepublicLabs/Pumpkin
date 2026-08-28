@@ -17,11 +17,13 @@ use crate::plugin::{
 
 use vm::{ModVm, VmError};
 
-/// Brings one mod up inside the VM and returns its declared mod id.
-///
-/// # Errors
-/// Returns [`VmError::Java`] if discovery, construction or registration threw.
-pub fn load_mod(vm: &'static ModVm, jar: &str) -> Result<String, VmError> {
+/// Calls a `Bootstrap` static method that takes a jar path and returns a `String`,
+/// describing and clearing any pending exception before turning it into a [`VmError`].
+fn call_bootstrap_string_method(
+    vm: &'static ModVm,
+    method: &'static str,
+    jar: &str,
+) -> Result<String, VmError> {
     let jar = jar.to_owned();
     vm.call(move |env| {
         let path = env
@@ -30,7 +32,7 @@ pub fn load_mod(vm: &'static ModVm, jar: &str) -> Result<String, VmError> {
 
         let returned = env.call_static_method(
             "dev/pumpkin/jvmhost/Bootstrap",
-            "loadAndRegister",
+            method,
             "(Ljava/lang/String;)Ljava/lang/String;",
             &[(&path).into()],
         );
@@ -40,7 +42,9 @@ pub fn load_mod(vm: &'static ModVm, jar: &str) -> Result<String, VmError> {
         if env.exception_check().unwrap_or(false) {
             let _ = env.exception_describe();
             let _ = env.exception_clear();
-            return Err(VmError::Java(format!("the mod at {jar} threw during load")));
+            return Err(VmError::Java(format!(
+                "the mod at {jar} threw during {method}"
+            )));
         }
 
         let object = returned
@@ -53,16 +57,60 @@ pub fn load_mod(vm: &'static ModVm, jar: &str) -> Result<String, VmError> {
     })
 }
 
+/// Reads a mod jar's declared id without executing any of its code.
+///
+/// Backed by `Bootstrap.discoverModId`, which only reads `neoforge.mods.toml` and scans
+/// class files for `@Mod` using `Class.forName` with `initialize=false` — enough to name
+/// the mod, not enough to run any of it. This is what [`JvmPluginLoader::load`] calls, so
+/// that a jar disabled in configuration or denied by a permission check never executes.
+///
+/// # Errors
+/// Returns [`VmError::Java`] if the jar's `neoforge.mods.toml` or `@Mod` class is missing
+/// or malformed.
+pub fn discover_mod_id(vm: &'static ModVm, jar: &str) -> Result<String, VmError> {
+    call_bootstrap_string_method(vm, "discoverModId", jar)
+}
+
+/// Brings one mod up inside the VM and returns its declared mod id.
+///
+/// Backed by `Bootstrap.loadAndRegister`, which constructs the mod's `@Mod` class and
+/// fires `RegisterEvent` — this is where the mod's own code actually runs. Called from
+/// [`JvmPlugin::on_load`], never from [`JvmPluginLoader::load`].
+///
+/// # Errors
+/// Returns [`VmError::Java`] if discovery, construction or registration threw.
+pub fn load_mod(vm: &'static ModVm, jar: &str) -> Result<String, VmError> {
+    call_bootstrap_string_method(vm, "loadAndRegister", jar)
+}
+
 /// A loaded Java mod, seen by Pumpkin as an ordinary plugin.
 struct JvmPlugin {
     mod_id: String,
+    /// Absolute path to the mod's jar, kept so `on_load` can construct it — `load` only
+    /// discovered its id.
+    jar: String,
 }
 
 impl Plugin for JvmPlugin {
     fn on_load(&self, _context: Arc<Context>) -> PluginFuture<'_, Result<(), String>> {
-        // Registration already ran during load: it has to happen before the registries
-        // freeze, which is earlier than a plugin's on_load.
-        Box::pin(async { Ok(()) })
+        // Construction and registration happen here rather than in `JvmPluginLoader::load`
+        // because `load` runs before the operator gets a say: `PluginManager::load_plugins`
+        // only checks a plugin's config override (the `enabled == false` skip) and its
+        // permissions (`check_permissions_cached`) *after* `load` has already returned
+        // (crates/pumpkin/src/plugin/mod.rs, the override skip around line 707 and the
+        // permission check around line 787). A jar that is disabled or denied permissions
+        // must never have executed by then, so `load` may only discover the mod's id.
+        //
+        // Deferring to `on_load` still lands before the registries freeze: `on_load` is
+        // invoked at crates/pumpkin/src/plugin/mod.rs:595, from inside
+        // `PluginManager::load_plugins`, and `pumpkin::init_plugins` only calls
+        // `pumpkin_data::dynamic::freeze()` (crates/pumpkin/src/lib.rs:413) after
+        // `load_plugins` returns — so there is room to spare.
+        let jar = self.jar.clone();
+        Box::pin(async move {
+            let vm = vm::boot(&[]).map_err(|err| err.to_string())?;
+            load_mod(vm, &jar).map(|_mod_id| ()).map_err(|err| err.to_string())
+        })
     }
 
     fn on_unload(&self, _context: Arc<Context>) -> PluginFuture<'_, Result<(), String>> {
@@ -103,7 +151,9 @@ impl PluginLoader for JvmPluginLoader {
                 .map_err(|err| LoaderError::InitializationFailed(err.to_string()))?;
 
             let jar = path.to_string_lossy().into_owned();
-            let mod_id = load_mod(vm, &jar)
+            // Discovery only: no code from the jar runs until `JvmPlugin::on_load` decides
+            // to construct it. See that method's comment for why the split matters.
+            let mod_id = discover_mod_id(vm, &jar)
                 .map_err(|err| LoaderError::InitializationFailed(err.to_string()))?;
 
             let metadata = PluginMetadata {
@@ -116,7 +166,7 @@ impl PluginLoader for JvmPluginLoader {
             };
 
             Ok((
-                Arc::new(JvmPlugin { mod_id }) as Arc<dyn Plugin>,
+                Arc::new(JvmPlugin { mod_id, jar }) as Arc<dyn Plugin>,
                 metadata,
                 Box::new(()) as Box<dyn Any + Send + Sync>,
             ))

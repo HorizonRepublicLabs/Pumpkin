@@ -26,7 +26,30 @@ public final class Bootstrap {
     }
 
     /**
+     * Reads a mod jar's declared id without constructing anything from it.
+     *
+     * <p>Pumpkin's plugin manager builds a plugin's metadata from this before deciding
+     * whether the plugin is even allowed to run - a config override can disable it, and a
+     * permission check can deny it, both after this returns and before {@link
+     * #loadAndRegister} is ever called. This must not run any of the mod's code, so it
+     * stops at {@link ModLoader#discover}, which finds the {@code @Mod} class via {@link
+     * Class#forName(String, boolean, ClassLoader) Class.forName(name, false, loader)} -
+     * {@code initialize=false} - rather than constructing it.
+     *
+     * @param jarPath absolute path to the mod jar
+     * @return the mod id declared in the jar's {@code neoforge.mods.toml}
+     * @throws java.io.IOException if the jar cannot be read
+     */
+    public static String discoverModId(String jarPath) throws java.io.IOException {
+        return ModLoader.discover(Path.of(jarPath)).modId();
+    }
+
+    /**
      * Loads a mod jar, constructs its {@code @Mod} class, and fires {@link RegisterEvent}.
+     *
+     * <p>This is where the mod's own code actually runs, and it re-discovers the jar rather
+     * than reusing whatever {@link #discoverModId} found: the two calls are independent, and
+     * neither is guaranteed to have run before the other.
      *
      * @param jarPath absolute path to the mod jar
      * @return the mod id that was loaded

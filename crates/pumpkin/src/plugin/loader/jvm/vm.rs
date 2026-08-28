@@ -99,6 +99,15 @@ pub fn boot(classpath: &[PathBuf]) -> Result<&'static ModVm, VmError> {
         return as_vm_result(outcome);
     }
 
+    if let Some(missing) = classpath.iter().find(|entry| !entry.exists()) {
+        return Err(VmError::Boot(format!(
+            "classpath entry {} does not exist; if the server was started from an \
+             unexpected working directory, the jvm-plugins jars will not be where this path \
+             expects them",
+            missing.display()
+        )));
+    }
+
     let joined = join_classpath(classpath);
     info!("Starting the JVM with classpath {joined}");
 
@@ -204,13 +213,17 @@ fn mod_thread(
 /// `PumpkinHost::registerBlock`. Without this, a mod's first registration throws instead
 /// of reaching Pumpkin.
 fn install_default_sink(env: &mut JNIEnv) -> Result<(), VmError> {
-    env.call_static_method(
+    // Bound rather than `?`-ed immediately: jni-rs's exception check already turns a
+    // pending exception into `Err(Error::JavaException)`, and applying `?` on that before
+    // reaching the block below would skip `exception_describe`/`exception_clear` entirely
+    // — the exception stays pending and every later call on this `JNIEnv` fails for the
+    // wrong reason, with only an opaque "Java exception was thrown" to show for it.
+    let result = env.call_static_method(
         "dev/pumpkin/jvmhost/Bootstrap",
         "installDefaultSink",
         "()V",
         &[],
-    )
-    .map_err(|err| VmError::Java(err.to_string()))?;
+    );
 
     if env.exception_check().unwrap_or(false) {
         let _ = env.exception_describe();
@@ -220,7 +233,9 @@ fn install_default_sink(env: &mut JNIEnv) -> Result<(), VmError> {
         ));
     }
 
-    Ok(())
+    result
+        .map(|_| ())
+        .map_err(|err| VmError::Java(err.to_string()))
 }
 
 impl ModVm {

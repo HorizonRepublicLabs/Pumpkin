@@ -116,28 +116,55 @@ fn the_loader_claims_jars_and_nothing_else() {
     assert!(!loader.can_load(std::path::Path::new("plugins/other.wasm")));
 }
 
-#[test]
-fn loading_the_test_mod_jar_registers_its_block() {
+/// Absolute path to the jar `HelloMod` builds into.
+fn testmod_jar() -> PathBuf {
+    PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+        .join("../../java/pumpkin-jvm-host/testmod/build/libs/testmod.jar")
+}
+
+#[tokio::test]
+async fn loading_through_the_plugin_loader_defers_registration_to_on_load() {
+    use pumpkin::plugin::loader::{PluginLoader, jvm::JvmPluginLoader};
+
+    let loader = JvmPluginLoader::new(host_classpath());
+    let jar_path = testmod_jar();
+
+    let (_instance, metadata, _loader_data) = loader
+        .load(&jar_path)
+        .await
+        .expect("the jar is discovered");
+
+    assert_eq!(
+        metadata.name, "hellomod",
+        "load() reads the mod id straight out of the jar's declared metadata"
+    );
+
+    // `load()` only discovers the jar: PluginManager checks a plugin's config override and
+    // its permissions against this same metadata before the plugin is allowed to run at
+    // all (crates/pumpkin/src/plugin/mod.rs, the override skip around line 707 and the
+    // permission check around line 787), and both happen after `load()` has already
+    // returned. A jar that is disabled or denied permissions must never have executed by
+    // then, so nothing here may have registered anything yet.
+    assert!(
+        pumpkin_data::dynamic::registering_block_id("hellomod:ruby_block").is_none(),
+        "load() must not have executed any of the mod's code"
+    );
+
+    // `Plugin::on_load` is what actually constructs the mod and fires `RegisterEvent` —
+    // `JvmPlugin::on_load` does exactly `vm::boot(&[])` then `load_mod`, ignoring the
+    // `Context` it is handed (see that method's own comment for the full reasoning).
+    // Driving the trait method itself here would need a real `Arc<Context>`, which needs a
+    // real `Arc<Server>` — and building one does disk-backed world I/O and terrain
+    // generation, which is too heavy a price for a test scoped to the JVM host. Calling
+    // `load_mod` directly exercises the identical registration path `on_load` runs.
+    let jar = jar_path.to_string_lossy().into_owned();
     let vm = pumpkin::plugin::loader::jvm::vm::boot(&host_classpath()).expect("the VM boots");
-
-    let jar = std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR"))
-        .join("../../java/pumpkin-jvm-host/testmod/build/libs/testmod.jar");
-    let jar = jar.to_string_lossy().into_owned();
-
-    let mod_id = pumpkin::plugin::loader::jvm::load_mod(vm, &jar).expect("the mod loads");
-
+    let mod_id =
+        pumpkin::plugin::loader::jvm::load_mod(vm, &jar).expect("construction succeeds");
     assert_eq!(mod_id, "hellomod");
 
-    // Not `Block::from_name`: that only sees published content, and publishing means
-    // calling `pumpkin_data::dynamic::freeze`, which is one-way and process-global — every
-    // test in this binary shares the one registry, so freezing it here would break any
-    // other test that still needs to register something. Freezing is `PluginManager`'s
-    // job in production (see `pumpkin::init_plugins`, called once after every plugin has
-    // loaded), not something a test should trigger. `registering_block_id` sees staged
-    // entries without publishing anything, which is enough to prove the mod's own code
-    // put the block in the registry.
     assert!(
         pumpkin_data::dynamic::registering_block_id("hellomod:ruby_block").is_some(),
-        "the mod's own code registered the block"
+        "the mod's own code registered the block only once construction actually ran"
     );
 }
