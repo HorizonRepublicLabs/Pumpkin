@@ -2,6 +2,9 @@
 //!
 //! Read back from what a handler returned, so a plugin that cancels an event it was not
 //! registered to be able to cancel can be told rather than ignored.
+//!
+//! Generated from `event.wit`: an event added there without an arm here is one the warning
+//! cannot fire for, which is how the newest event came to be missing from it.
 
 use crate::plugin::loader::wasm::wasm_host::wit::v0_1::pumpkin::plugin::event::Event;
 
@@ -41,6 +44,7 @@ pub const fn event_cancelled(event: &Event) -> Option<bool> {
         Event::BlockCanBuildEvent(data) => Some(data.cancelled),
         Event::BlockGrowEvent(data) => Some(data.cancelled),
         Event::BlockPlaceEvent(data) => Some(data.cancelled),
+        Event::BlockRandomTickEvent(data) => Some(data.cancelled),
         Event::DialogClickActionEvent(data) => Some(data.cancelled),
         Event::DialogShowEvent(data) => Some(data.cancelled),
         Event::DialogClearEvent(data) => Some(data.cancelled),

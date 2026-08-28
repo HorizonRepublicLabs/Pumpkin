@@ -227,7 +227,14 @@ mod tests {
         let base_blocks = BlockId::BASE_COUNT;
         let base_states = BlockStateId::BASE_COUNT;
 
-        let id = register_block(sample("examplemod:ruby_block", 2)).expect("registration succeeds");
+        let registered =
+            register_block(sample("examplemod:ruby_block", 2)).expect("registration succeeds");
+        let id = registered.block_id;
+        assert_eq!(
+            registered.first_state.as_u16(),
+            base_states,
+            "registration hands back the id its states start at"
+        );
         assert_eq!(
             id.as_u16(),
             base_blocks,
@@ -248,7 +255,7 @@ mod tests {
 
         let facing = ["north", "south", "west", "east"];
         let lit = ["false", "true"];
-        let machine_id = register_block(BlockRegistration {
+        let machine = register_block(BlockRegistration {
             name: "examplemod:machine".to_string(),
             block: Block::STONE.clone(),
             states: (0..facing.len() * lit.len())
@@ -470,6 +477,7 @@ mod tests {
         assert_eq!(menu_type_count(), base_menus + 1);
 
         // Properties are digits of a mixed-radix number, the first varying slowest.
+        let machine_id = machine.block_id;
         let machine = Block::from_id(machine_id);
         let state_of = |values: &[(&str, &str)]| {
             block_state_for(machine_id, values).expect("the block has states")

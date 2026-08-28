@@ -61,28 +61,15 @@ impl pumpkin::plugin::registry::Host for PluginHostState {
             None => None,
         };
 
-        // Each state is paired with the one it was copied from, because whether it is
-        // randomly ticked comes from there: the generated bitset covers generated ids only,
-        // so a block standing in for a crop has to be told it ticks like one.
-        let sources: Vec<&BlockState> = if definition.properties.is_empty() {
-            template.states.iter().collect()
-        } else {
-            // Cycle the template's states so a block with more states than its template
-            // still gets a full set rather than running out.
-            (0..state_count)
-                .map(|index| {
-                    template
-                        .states
-                        .get(index % template.states.len())
-                        .unwrap_or(template.default_state)
-                })
-                .collect()
-        };
+        let sources = template_states(template, state_count, definition.properties.is_empty());
 
         let states: Vec<BlockState> = sources
             .iter()
             .map(|state| copy_state(state, definition.luminance, block_entity_type))
             .collect();
+        // Whether a state is randomly ticked comes from the one it was copied from: the
+        // generated bitset covers generated ids only, so a block standing in for a crop has
+        // to be told it ticks like one.
         let state_random_ticks: Vec<bool> = sources
             .iter()
             .map(|state| pumpkin_data::block_properties::has_random_ticks(state.id))
@@ -149,22 +136,22 @@ impl pumpkin::plugin::registry::Host for PluginHostState {
 
         // Every hook the server has asks the registry for behaviour by block id, and a
         // registered block that answers nothing there has none at all.
-        if let Ok(block_id) = registered
+        if let Ok(registered) = registered
             && let Some(server) = self.server.as_ref()
         {
-            // A drop names states by where they sit in the block's own list, so the id the
-            // list starts at is what turns one back into the other.
-            let first_state = pumpkin_data::dynamic::block_from_id(block_id)
-                .and_then(|block| block.states.first())
-                .map_or(0, |state| state.id.as_u16());
             let behaviour: &'static dyn crate::block::BlockBehaviour = Box::leak(Box::new(
-                crate::plugin::api::block_behaviour::PluginBlockBehaviour::new(first_state, drops),
+                crate::plugin::api::block_behaviour::PluginBlockBehaviour::new(
+                    registered.first_state.as_u16(),
+                    drops,
+                ),
             ));
-            server.block_registry.set_plugin_block(block_id, behaviour);
+            server
+                .block_registry
+                .set_plugin_block(registered.block_id, behaviour);
         }
 
         Ok(registered
-            .map(|id| u32::from(id.as_u16()))
+            .map(|registered| u32::from(registered.block_id.as_u16()))
             .map_err(|err| err.to_string()))
     }
 
@@ -257,6 +244,29 @@ fn copy_state(
         opacity: template.opacity,
         block_entity_type: block_entity_type.unwrap_or(template.block_entity_type),
     }
+}
+
+/// The template states each of a registration's states is copied from.
+///
+/// A block that declares properties decides its own state count, and gets the template's
+/// states cycled so one with more states than its template still gets a full set rather
+/// than running out. One that declares none takes the template's own.
+fn template_states(
+    template: &'static Block,
+    state_count: usize,
+    no_properties: bool,
+) -> Vec<&'static BlockState> {
+    if no_properties {
+        return template.states.iter().collect();
+    }
+    (0..state_count)
+        .map(|index| {
+            template
+                .states
+                .get(index % template.states.len())
+                .unwrap_or(template.default_state)
+        })
+        .collect()
 }
 
 /// Turns the drops a registration declared into ones the server can act on.

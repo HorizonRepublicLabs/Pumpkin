@@ -14,6 +14,18 @@ use super::{RegistryError, validate_name};
 ///
 /// The `id` on `block`, and the `id` on every state, are placeholders: the registry
 /// assigns them. Everything else is used verbatim.
+/// What a block registration gives back.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub struct Registered {
+    /// The id the block was given.
+    pub block_id: BlockId,
+    /// The id the block's own states start at.
+    ///
+    /// Anything that names a state by where it sits in the block's list — a drop that
+    /// applies to one age of a crop, say — needs this to turn one into the other.
+    pub first_state: BlockStateId,
+}
+
 pub struct BlockRegistration {
     /// Namespaced name, e.g. `examplemod:ruby_block`. Must contain a namespace, and must
     /// not use `minecraft`, which is reserved for generated content.
@@ -102,7 +114,7 @@ pub fn state_count() -> u16 {
 ///
 /// Returns [`RegistryError`] if the registry is frozen, the name is unusable or already
 /// taken, the states are malformed, or the id space is exhausted.
-pub fn register_block(registration: BlockRegistration) -> Result<BlockId, RegistryError> {
+pub fn register_block(registration: BlockRegistration) -> Result<Registered, RegistryError> {
     if super::is_frozen() {
         return Err(RegistryError::Frozen);
     }
@@ -187,7 +199,13 @@ pub fn register_block(registration: BlockRegistration) -> Result<BlockId, Regist
     staging.state_random_ticks.extend(state_random_ticks);
     staging.names.insert(name.to_string(), ());
 
-    Ok(block_id)
+    Ok(Registered {
+        block_id,
+        // Handed back rather than looked up, because nothing can look it up yet: every
+        // accessor reads the published registry, and publishing happens once every plugin
+        // has loaded. A caller that asked for it here would silently be told zero.
+        first_state: BlockStateId::from_raw(first_state as u16),
+    })
 }
 
 /// Publishes every staged block. Called by [`super::freeze`].
