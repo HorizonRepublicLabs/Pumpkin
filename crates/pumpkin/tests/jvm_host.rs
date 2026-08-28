@@ -1,62 +1,10 @@
 #![cfg(feature = "jvm-plugins")]
 #![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic)]
 
-use std::{
-    path::PathBuf,
-    sync::{Condvar, Mutex},
-    time::Duration,
-};
+use std::path::PathBuf;
 
 use jni::JNIEnv;
 use pumpkin::plugin::loader::jvm::vm::VmError;
-
-/// Signalled once [`java_can_register_a_block`] has finished registering, so
-/// [`loading_the_test_mod_jar_registers_its_block`] can wait for it before freezing.
-///
-/// Every test in this binary shares one process, and therefore one `pumpkin_data`
-/// registry: `freeze` runs exactly once, ever, and only after every registration is done
-/// (see `pumpkin::init_plugins`, which does the same after `PluginManager::load_plugins`
-/// returns). `loading_the_test_mod_jar_registers_its_block` stands in for that final step
-/// since it bypasses `PluginManager` — but cargo runs the tests in this file concurrently
-/// by default and does not order them, so nothing stops that freeze from landing before
-/// `java_can_register_a_block` gets to register. Mutual exclusion alone (a plain `Mutex`)
-/// cannot fix that: it prevents the two from *interleaving*, not from running in the wrong
-/// *order*, and a registration attempted after the registry is frozen fails every time,
-/// deterministically, no matter how the exclusion is arranged. Only an explicit ordering
-/// signal does. `java_can_register_a_block` should probably not exist as a name for this
-/// primitive, but it names exactly the test whose completion is being waited for.
-static PRE_FREEZE_REGISTRATION_DONE: (Mutex<bool>, Condvar) =
-    (Mutex::new(false), Condvar::new());
-
-/// Marks that `java_can_register_a_block` is done, waking anyone waiting to freeze.
-fn signal_pre_freeze_registration_done() {
-    let (done, cvar) = &PRE_FREEZE_REGISTRATION_DONE;
-    let mut done = done
-        .lock()
-        .expect("the pre-freeze registration lock is not poisoned");
-    *done = true;
-    cvar.notify_all();
-}
-
-/// Blocks until [`signal_pre_freeze_registration_done`] has run.
-///
-/// The timeout only guards against running this test in isolation (a filtered `cargo
-/// test` invocation that never runs `java_can_register_a_block` at all) — the full suite
-/// this is meant to run under signals almost immediately.
-fn wait_for_pre_freeze_registration() {
-    let (done, cvar) = &PRE_FREEZE_REGISTRATION_DONE;
-    let done = done
-        .lock()
-        .expect("the pre-freeze registration lock is not poisoned");
-    let (_done, result) = cvar
-        .wait_timeout_while(done, Duration::from_secs(60), |done| !*done)
-        .expect("the pre-freeze registration lock is not poisoned");
-    assert!(
-        !result.timed_out(),
-        "java_can_register_a_block never signalled completion; run the whole jvm_host \
-         test binary, not a filtered subset, so freezing here cannot race its registration"
-    );
-}
 
 /// The classpath the Gradle build produces. Built by `gradle :host:jar` before tests run.
 fn host_classpath() -> Vec<PathBuf> {
@@ -157,8 +105,6 @@ fn java_can_register_a_block() {
         pumpkin_data::dynamic::registering_block_id("testmod:ruby_block").is_some(),
         "the block Java registered is in Pumpkin's registry"
     );
-
-    signal_pre_freeze_registration_done();
 }
 
 #[test]
@@ -182,20 +128,16 @@ fn loading_the_test_mod_jar_registers_its_block() {
 
     assert_eq!(mod_id, "hellomod");
 
-    // Outside `PluginManager`, nothing else ever calls `freeze` on this process's
-    // registries: in production that is `PluginManager::load_plugins`'s caller's job,
-    // done once after every plugin has finished loading (see `pumpkin::init_plugins`).
-    // This test bypasses `PluginManager` entirely, so it stands in for that final step
-    // itself — `Block::from_name` only sees published content, unlike
-    // `registering_block_id` above, which is why the earlier test used that instead and
-    // left freezing for last. Waiting here for `java_can_register_a_block` to finish its
-    // own registration first is what makes that safe to do from a `#[test]` that cargo
-    // may run concurrently with it.
-    wait_for_pre_freeze_registration();
-    pumpkin_data::dynamic::freeze();
-
+    // Not `Block::from_name`: that only sees published content, and publishing means
+    // calling `pumpkin_data::dynamic::freeze`, which is one-way and process-global — every
+    // test in this binary shares the one registry, so freezing it here would break any
+    // other test that still needs to register something. Freezing is `PluginManager`'s
+    // job in production (see `pumpkin::init_plugins`, called once after every plugin has
+    // loaded), not something a test should trigger. `registering_block_id` sees staged
+    // entries without publishing anything, which is enough to prove the mod's own code
+    // put the block in the registry.
     assert!(
-        pumpkin_data::Block::from_name("hellomod:ruby_block").is_some(),
+        pumpkin_data::dynamic::registering_block_id("hellomod:ruby_block").is_some(),
         "the mod's own code registered the block"
     );
 }
