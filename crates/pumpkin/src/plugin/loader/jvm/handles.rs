@@ -8,7 +8,8 @@
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct Handle(u64);
 
-/// The value Java uses for "no handle". Slot 0 generation 0 is never issued.
+/// The value Java uses for "no handle". A stale handle fails to resolve until its slot
+/// has been reused 2^32 times; before that, the generation counter prevents aliasing.
 pub const NULL_HANDLE: i64 = 0;
 
 impl Handle {
@@ -42,6 +43,12 @@ struct Slot<T> {
     value: Option<T>,
 }
 
+/// Advance a generation number, skipping 0 to preserve the `NULL_HANDLE` invariant.
+const fn next_generation(current: u32) -> u32 {
+    let next = current.wrapping_add(1);
+    if next == 0 { 1 } else { next }
+}
+
 /// A slab of values addressed by [`Handle`].
 pub struct HandleTable<T> {
     slots: Vec<Slot<T>>,
@@ -68,12 +75,14 @@ impl<T> HandleTable<T> {
     pub fn insert(&mut self, value: T) -> Handle {
         if let Some(index) = self.free.pop() {
             let slot = &mut self.slots[index as usize];
-            slot.generation = slot.generation.wrapping_add(1);
+            slot.generation = next_generation(slot.generation);
             slot.value = Some(value);
             return Handle::new(index, slot.generation);
         }
 
         // Generation starts at 1 so that slot 0 never yields the null handle.
+        // Slot allocation saturates at u32::MAX, which is unreachable (requires ~4B
+        // simultaneously live entries); thereafter, new inserts fail to allocate.
         let index = u32::try_from(self.slots.len()).unwrap_or(u32::MAX);
         self.slots.push(Slot {
             generation: 1,
@@ -109,7 +118,7 @@ impl<T> HandleTable<T> {
 
 #[cfg(test)]
 mod tests {
-    use super::{Handle, HandleTable};
+    use super::{Handle, HandleTable, next_generation};
 
     #[test]
     fn a_handle_reads_back_the_value_it_was_given() {
@@ -143,5 +152,11 @@ mod tests {
         let mut table = HandleTable::new();
         let handle = table.insert(7u32);
         assert_eq!(table.get(Handle::from_raw(handle.raw())), Some(&7));
+    }
+
+    #[test]
+    fn a_generation_that_wraps_never_produces_the_null_handle() {
+        // When generation wraps from u32::MAX back to 0, we skip 0 to preserve NULL_HANDLE
+        assert_eq!(next_generation(u32::MAX), 1);
     }
 }
