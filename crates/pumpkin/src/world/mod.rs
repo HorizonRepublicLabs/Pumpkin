@@ -1716,29 +1716,15 @@ impl World {
                             (false, false) => (None, None),
                         };
 
-                    if let Some(block) = block {
-                        if let Some(pumpkin_block) =
+                    if let Some(block) = block
+                        && let Some(pumpkin_block) =
                             world.block_registry.get_pumpkin_block(block.id)
-                        {
-                            pumpkin_block.random_tick(RandomTickArgs {
-                                world: &world,
-                                block,
-                                position: &pos,
-                            });
-                        } else if let Some(server) = world.server.upgrade() {
-                            // A registered block has no Rust of its own to be ticked, so the
-                            // tick is handed to whatever registered it. This is the only
-                            // point at which such a block acts on its own: without it a crop
-                            // can be planted and broken but never grows.
-                            let mut event =
-                                crate::plugin::api::events::block::BlockRandomTickEvent::new(
-                                    world.clone(),
-                                    block,
-                                    world.get_block_state_id(&pos),
-                                    pos,
-                                );
-                            server.plugin_manager.fire_blocking(&server, &mut event);
-                        }
+                    {
+                        pumpkin_block.random_tick(RandomTickArgs {
+                            world: &world,
+                            block,
+                            position: &pos,
+                        });
                     }
 
                     if let Some(fluid) = fluid

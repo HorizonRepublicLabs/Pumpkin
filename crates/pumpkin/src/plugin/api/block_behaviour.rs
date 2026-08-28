@@ -12,12 +12,13 @@
 
 use std::sync::Arc;
 
+use pumpkin_data::Block;
 use pumpkin_data::BlockStateId;
 use pumpkin_data::item::Item;
 use pumpkin_data::item_stack::ItemStack;
 use pumpkin_util::math::position::BlockPos;
 
-use crate::block::{BlockBehaviour, BrokenArgs, PlayerPlacedArgs};
+use crate::block::{BlockBehaviour, BrokenArgs, PlayerPlacedArgs, RandomTickArgs};
 use crate::world::World;
 
 /// One thing a block yields when broken, over the states it applies to.
@@ -119,6 +120,24 @@ impl BlockBehaviour for PluginBlockBehaviour {
         {
             args.world.add_block_entity(entity);
         }
+    }
+
+    fn random_tick(&self, args: RandomTickArgs<'_>) {
+        // The one point at which a registered block acts on its own. A generated block has
+        // code of its own to be ticked; this hands the tick to whatever registered this
+        // one, without which a crop can be planted and broken but never grows.
+        let Some(server) = args.world.server.upgrade() else {
+            return;
+        };
+        // The args narrow the block's lifetime; the registry's own copy is the one that
+        // outlives this call, which is what the event carries.
+        let mut event = crate::plugin::api::events::block::BlockRandomTickEvent::new(
+            args.world.clone(),
+            Block::from_id(args.block.id),
+            args.world.get_block_state_id(args.position),
+            *args.position,
+        );
+        server.plugin_manager.fire_blocking(&server, &mut event);
     }
 
     fn broken(&self, args: BrokenArgs<'_>) {

@@ -94,17 +94,33 @@ pub(super) const fn from_wasm_block_position(
     BlockPos::new(position.x, position.y, position.z)
 }
 
+/// The namespaced name a plugin sees for a block.
+///
+/// A generated block is named bare and belongs to `minecraft`. A registered one is named
+/// with the namespace it was registered under, and prefixing that again produced
+/// `minecraft:examplemod:ruby_block` — a name that matches nothing a plugin knows, so a
+/// plugin comparing against its own block quietly never matched.
+pub(super) fn namespaced(name: &str) -> String {
+    if name.contains(':') {
+        return name.to_string();
+    }
+    format!("minecraft:{name}")
+}
+
 pub(super) fn to_wasm_block_name(block: &'static Block) -> String {
-    format!("minecraft:{}", block.name)
+    namespaced(block.name)
 }
 
 pub(super) fn from_wasm_block_name(block_name: &str) -> &'static Block {
-    Block::from_registry_key(block_name.strip_prefix("minecraft:").unwrap_or(block_name))
+    Block::from_registry_key(block_name)
+        .or_else(|| {
+            Block::from_registry_key(block_name.strip_prefix("minecraft:").unwrap_or(block_name))
+        })
         .unwrap_or(&Block::AIR)
 }
 
 pub(super) fn to_wasm_entity_type(entity_type: &'static EntityType) -> String {
-    format!("minecraft:{}", entity_type.resource_name)
+    namespaced(entity_type.resource_name)
 }
 
 pub(super) fn from_wasm_entity_type(entity_type: &str) -> &'static EntityType {
@@ -322,5 +338,23 @@ impl<E: Payload + ToFromWasmEvent> EventHandler<E> for WasmPluginEventHandler {
                 }
             }
         })
+    }
+}
+
+#[cfg(test)]
+mod names {
+    use super::namespaced;
+
+    #[test]
+    fn a_generated_name_is_given_the_vanilla_namespace() {
+        assert_eq!(namespaced("wheat"), "minecraft:wheat");
+    }
+
+    #[test]
+    fn a_registered_name_keeps_the_one_it_has() {
+        // Prefixing again produced `minecraft:examplemod:ruby_block`, which matches nothing
+        // a plugin knows — so a plugin comparing against its own block never matched, and
+        // its crops never grew.
+        assert_eq!(namespaced("examplemod:ruby_block"), "examplemod:ruby_block");
     }
 }

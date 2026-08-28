@@ -383,6 +383,18 @@ mod tests {
     }
 
     #[test]
+    fn a_state_copied_from_a_crop_is_still_randomly_ticked() {
+        // Growing is the one thing a crop does on its own, and it only gets the chance if
+        // the copy carries the template's ticking.
+        let wheat = Block::WHEAT.default_state;
+        assert!(
+            wheat.has_random_ticks(),
+            "test needs a template that is randomly ticked"
+        );
+        assert!(copy_state(wheat, &plain(), None).has_random_ticks());
+    }
+
+    #[test]
     fn a_template_with_many_states_copies_all_of_them() {
         // Stone has one state; something with properties exercises the list copy.
         let template = Block::OAK_LOG;

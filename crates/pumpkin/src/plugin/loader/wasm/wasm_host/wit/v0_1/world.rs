@@ -427,7 +427,8 @@ impl pumpkin::plugin::world::Host for PluginHostState {
         let result = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
             let bsid = BlockStateId::new_or_air(state_id);
             let block = pumpkin_data::Block::from_state_id(bsid);
-            let name = format!("minecraft:{}", block.name);
+            let name =
+                crate::plugin::loader::wasm::wasm_host::wit::v0_1::events::namespaced(block.name);
             let properties = block
                 .properties(bsid)
                 .map(|p| {
