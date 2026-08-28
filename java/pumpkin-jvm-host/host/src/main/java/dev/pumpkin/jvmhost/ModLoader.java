@@ -6,7 +6,9 @@ import java.net.URL;
 import java.net.URLClassLoader;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.Enumeration;
+import java.util.List;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.regex.Matcher;
@@ -60,6 +62,8 @@ public final class ModLoader {
     }
 
     private static Class<?> findAnnotatedClass(Path jar, URLClassLoader loader) throws IOException {
+        List<String> failures = new ArrayList<>();
+        Throwable firstFailure = null;
         try (JarFile file = new JarFile(jar.toFile())) {
             Enumeration<JarEntry> entries = file.entries();
             while (entries.hasMoreElements()) {
@@ -74,12 +78,28 @@ public final class ModLoader {
                     if (candidate.isAnnotationPresent(Mod.class)) {
                         return candidate;
                     }
-                } catch (ClassNotFoundException | NoClassDefFoundError ignored) {
+                } catch (ClassNotFoundException | NoClassDefFoundError e) {
                     // A class referencing shim types that do not exist yet is expected while
-                    // the shim is incomplete. It cannot be the entry point if it will not load.
+                    // the shim is incomplete, and it cannot be the entry point if it will not
+                    // load - so skipping it is correct. But if this unloadable class was the
+                    // actual @Mod class, discarding the reason silently turns a two-minute fix
+                    // (missing shim type X) into "no @Mod class found", which sends whoever is
+                    // debugging looking in the wrong place entirely. Remember it instead.
+                    failures.add(className + ": " + e);
+                    if (firstFailure == null) {
+                        firstFailure = e;
+                    }
                 }
             }
         }
-        throw new IllegalStateException("no @Mod class in " + jar);
+        String message = "no @Mod class in " + jar;
+        if (!failures.isEmpty()) {
+            message += "; " + failures.size() + " class" + (failures.size() == 1 ? "" : "es")
+                    + " could not be loaded: " + String.join("; ", failures);
+        }
+        if (failures.size() == 1) {
+            throw new IllegalStateException(message, firstFailure);
+        }
+        throw new IllegalStateException(message);
     }
 }

@@ -1,6 +1,7 @@
 package dev.pumpkin.jvmhost;
 
 import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.nio.file.Path;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.registries.DeferredRegister;
@@ -37,7 +38,19 @@ public final class Bootstrap {
         IEventBus bus = new IEventBus();
 
         Constructor<?> constructor = candidate.mainClass().getConstructor(IEventBus.class);
-        constructor.newInstance(bus);
+        try {
+            constructor.newInstance(bus);
+        } catch (InvocationTargetException e) {
+            // newInstance wraps whatever the mod's constructor threw. Unwrapped, that surfaces
+            // as a bare InvocationTargetException naming neither the mod nor the jar, leaving
+            // the actual cause reachable only via getCause(). Name both here and keep the real
+            // cause attached, since that is what the person reading this trace is looking for.
+            Throwable cause = e.getCause() != null ? e.getCause() : e;
+            throw new Exception(
+                    "mod " + candidate.modId() + " (" + candidate.mainClass().getName()
+                            + ") failed to construct from " + jarPath + ": " + cause,
+                    cause);
+        }
 
         bus.post(new RegisterEvent());
         return candidate.modId();
