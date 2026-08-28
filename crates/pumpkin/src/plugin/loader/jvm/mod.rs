@@ -89,6 +89,9 @@ struct JvmPlugin {
     /// Absolute path to the mod's jar, kept so `on_load` can construct it — `load` only
     /// discovered its id.
     jar: String,
+    /// The classpath `load` booted the VM with (the shim, FML and host jars), kept so
+    /// `on_load` boots with the same classpath rather than an empty one.
+    classpath: Vec<PathBuf>,
 }
 
 impl Plugin for JvmPlugin {
@@ -97,19 +100,22 @@ impl Plugin for JvmPlugin {
         // because `load` runs before the operator gets a say: `PluginManager::load_plugins`
         // only checks a plugin's config override (the `enabled == false` skip) and its
         // permissions (`check_permissions_cached`) *after* `load` has already returned
-        // (crates/pumpkin/src/plugin/mod.rs, the override skip around line 707 and the
-        // permission check around line 787). A jar that is disabled or denied permissions
-        // must never have executed by then, so `load` may only discover the mod's id.
+        // (crates/pumpkin/src/plugin/mod.rs, the override skip at line 755 and the
+        // permission check at line 829). A jar that is disabled or denied permissions must
+        // never have executed by then, so `load` may only discover the mod's id.
         //
         // Deferring to `on_load` still lands before the registries freeze: `on_load` is
-        // invoked at crates/pumpkin/src/plugin/mod.rs:595, from inside
+        // invoked at crates/pumpkin/src/plugin/mod.rs:643, from inside
         // `PluginManager::load_plugins`, and `pumpkin::init_plugins` only calls
         // `pumpkin_data::dynamic::freeze()` (crates/pumpkin/src/lib.rs:413) after
         // `load_plugins` returns — so there is room to spare.
         let jar = self.jar.clone();
+        let classpath = self.classpath.clone();
         Box::pin(async move {
-            let vm = vm::boot(&[]).map_err(|err| err.to_string())?;
-            load_mod(vm, &jar).map(|_mod_id| ()).map_err(|err| err.to_string())
+            let vm = vm::boot(&classpath).map_err(|err| err.to_string())?;
+            load_mod(vm, &jar)
+                .map(|_mod_id| ())
+                .map_err(|err| err.to_string())
         })
     }
 
@@ -166,7 +172,11 @@ impl PluginLoader for JvmPluginLoader {
             };
 
             Ok((
-                Arc::new(JvmPlugin { mod_id, jar }) as Arc<dyn Plugin>,
+                Arc::new(JvmPlugin {
+                    mod_id,
+                    jar,
+                    classpath: self.classpath.clone(),
+                }) as Arc<dyn Plugin>,
                 metadata,
                 Box::new(()) as Box<dyn Any + Send + Sync>,
             ))

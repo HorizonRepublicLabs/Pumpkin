@@ -366,9 +366,6 @@ mod tests {
     // This test makes no registration at all, so it cannot collide with anything.
     #[test]
     fn a_name_that_was_never_staged_is_not_found() {
-        assert_eq!(
-            registering_block_id("accessorprobe:never_registered"),
-            None
-        );
+        assert_eq!(registering_block_id("accessorprobe:never_registered"), None);
     }
 }

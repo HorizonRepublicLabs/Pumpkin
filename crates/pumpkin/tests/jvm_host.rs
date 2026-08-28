@@ -70,6 +70,32 @@ fn a_reentrant_call_runs_inline_instead_of_deadlocking() {
     assert_eq!(answer, 7);
 }
 
+/// Recurses through the inline reentrant path in `ModVm::call` far past its depth limit. If
+/// the limit were not enforced, this would eventually overflow the mod thread's native stack
+/// instead of returning cleanly.
+fn recurse(
+    vm: &'static pumpkin::plugin::loader::jvm::vm::ModVm,
+    remaining: u32,
+) -> Result<i32, VmError> {
+    if remaining == 0 {
+        return Ok(0);
+    }
+    vm.call(move |_env| recurse(vm, remaining - 1))
+}
+
+#[test]
+fn a_reentrant_call_chain_past_the_depth_limit_errors_instead_of_overflowing_the_stack() {
+    let vm = pumpkin::plugin::loader::jvm::vm::boot(&host_classpath()).expect("the VM boots");
+
+    let result = vm.call(move |_env| recurse(vm, 1000));
+
+    assert!(
+        matches!(result, Err(VmError::Java(_))),
+        "a reentrant call chain past the depth limit should return a clear error instead of \
+         dying, got {result:?}"
+    );
+}
+
 #[test]
 fn java_can_register_a_block() {
     let vm = pumpkin::plugin::loader::jvm::vm::boot(&host_classpath()).expect("the VM boots");
@@ -129,10 +155,8 @@ async fn loading_through_the_plugin_loader_defers_registration_to_on_load() {
     let loader = JvmPluginLoader::new(host_classpath());
     let jar_path = testmod_jar();
 
-    let (_instance, metadata, _loader_data) = loader
-        .load(&jar_path)
-        .await
-        .expect("the jar is discovered");
+    let (_instance, metadata, _loader_data) =
+        loader.load(&jar_path).await.expect("the jar is discovered");
 
     assert_eq!(
         metadata.name, "hellomod",
@@ -141,26 +165,26 @@ async fn loading_through_the_plugin_loader_defers_registration_to_on_load() {
 
     // `load()` only discovers the jar: PluginManager checks a plugin's config override and
     // its permissions against this same metadata before the plugin is allowed to run at
-    // all (crates/pumpkin/src/plugin/mod.rs, the override skip around line 707 and the
-    // permission check around line 787), and both happen after `load()` has already
-    // returned. A jar that is disabled or denied permissions must never have executed by
-    // then, so nothing here may have registered anything yet.
+    // all (crates/pumpkin/src/plugin/mod.rs, the override/disabled skip at line 755 and the
+    // permission check at line 829), and both happen after `load()` has already returned. A
+    // jar that is disabled or denied permissions must never have executed by then, so
+    // nothing here may have registered anything yet.
     assert!(
         pumpkin_data::dynamic::registering_block_id("hellomod:ruby_block").is_none(),
         "load() must not have executed any of the mod's code"
     );
 
     // `Plugin::on_load` is what actually constructs the mod and fires `RegisterEvent` —
-    // `JvmPlugin::on_load` does exactly `vm::boot(&[])` then `load_mod`, ignoring the
-    // `Context` it is handed (see that method's own comment for the full reasoning).
+    // `JvmPlugin::on_load` boots (with the classpath `load` already discovered the mod on)
+    // then calls `load_mod`, ignoring the `Context` it is handed (see that method's own
+    // comment for the full reasoning).
     // Driving the trait method itself here would need a real `Arc<Context>`, which needs a
     // real `Arc<Server>` — and building one does disk-backed world I/O and terrain
     // generation, which is too heavy a price for a test scoped to the JVM host. Calling
     // `load_mod` directly exercises the identical registration path `on_load` runs.
     let jar = jar_path.to_string_lossy().into_owned();
     let vm = pumpkin::plugin::loader::jvm::vm::boot(&host_classpath()).expect("the VM boots");
-    let mod_id =
-        pumpkin::plugin::loader::jvm::load_mod(vm, &jar).expect("construction succeeds");
+    let mod_id = pumpkin::plugin::loader::jvm::load_mod(vm, &jar).expect("construction succeeds");
     assert_eq!(mod_id, "hellomod");
 
     assert!(

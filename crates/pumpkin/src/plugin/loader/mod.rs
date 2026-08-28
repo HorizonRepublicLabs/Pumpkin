@@ -2,10 +2,10 @@ use crate::plugin::{PluginMetadata, api::Plugin, loader::wasm::wasm_host::Plugin
 use std::{any::Any, path::Path, pin::Pin, sync::Arc};
 use thiserror::Error;
 
-pub mod native;
-pub mod wasm;
 #[cfg(feature = "jvm-plugins")]
 pub mod jvm;
+pub mod native;
+pub mod wasm;
 
 pub type PluginLoadFuture<'a> = Pin<
     Box<

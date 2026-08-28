@@ -253,6 +253,38 @@ fn jvm_host_classpath() -> Vec<PathBuf> {
         .collect()
 }
 
+/// Checks whether `path` is allowed to load given `allow_unsigned`.
+///
+/// wasm plugins are checked against their embedded signature and rejected if unsigned or
+/// invalid. `.jar` (JVM mod) plugins have no signature verification implemented at all, so
+/// when `allow_unsigned` is false they are refused outright rather than silently loaded
+/// unverified with full JVM privileges in-process. Every other extension is unaffected.
+///
+/// Returns `Ok(())` if loading may proceed, or `Err` with a human-readable reason otherwise.
+fn check_plugin_signature(path: &Path, allow_unsigned: bool) -> Result<(), String> {
+    if allow_unsigned {
+        return Ok(());
+    }
+
+    let ext = path.extension().unwrap_or_default();
+
+    if ext.eq_ignore_ascii_case("wasm") {
+        let wasm_bytes = std::fs::read(path).unwrap_or_default();
+        if !crate::plugin::loader::wasm::wasm_host::signature::is_wasm_signed(&wasm_bytes) {
+            return Err(
+                "is unsigned or invalid and allow_unsigned is disabled in configuration".to_owned(),
+            );
+        }
+    } else if ext.eq_ignore_ascii_case("jar") {
+        return Err(
+            "is a jar; jar signature verification is not implemented yet and allow_unsigned is disabled"
+                .to_owned(),
+        );
+    }
+
+    Ok(())
+}
+
 impl PluginManager {
     /// Create a new plugin manager with default loaders
     #[must_use]
@@ -733,20 +765,13 @@ impl PluginManager {
                                 .and_then(|o| o.allow_unsigned)
                                 .unwrap_or(server.advanced_config.plugins.allow_unsigned);
 
-                            if !allow_unsigned
-                                && path
-                                    .extension()
-                                    .is_some_and(|ext| ext.eq_ignore_ascii_case("wasm"))
-                            {
-                                let wasm_bytes = std::fs::read(&path).unwrap_or_default();
-                                if !crate::plugin::loader::wasm::wasm_host::signature::is_wasm_signed(&wasm_bytes) {
-                                    error!(
-                                        "Plugin \"{}\" ({:?}) is unsigned or invalid and allow_unsigned is disabled in configuration, skipping.",
-                                        metadata.name, path
-                                    );
-                                    loader_found = true;
-                                    break;
-                                }
+                            if let Err(reason) = check_plugin_signature(&path, allow_unsigned) {
+                                error!(
+                                    "Plugin \"{}\" ({:?}) {reason}, skipping.",
+                                    metadata.name, path
+                                );
+                                loader_found = true;
+                                break;
                             }
 
                             prepared_plugins.push((
@@ -942,22 +967,10 @@ impl PluginManager {
                     .and_then(|o| o.allow_unsigned)
                     .unwrap_or(server.advanced_config.plugins.allow_unsigned);
 
-                if !allow_unsigned
-                    && path
-                        .extension()
-                        .is_some_and(|ext| ext.eq_ignore_ascii_case("wasm"))
-                {
-                    let wasm_bytes = std::fs::read(path).unwrap_or_default();
-                    if !crate::plugin::loader::wasm::wasm_host::signature::is_wasm_signed(
-                        &wasm_bytes,
-                    ) {
-                        return Err(ManagerError::LoaderError(LoaderError::RuntimeError(
-                            format!(
-                                "Plugin \"{}\" is unsigned or invalid and allow_unsigned is disabled",
-                                metadata.name
-                            ),
-                        )));
-                    }
+                if let Err(reason) = check_plugin_signature(path, allow_unsigned) {
+                    return Err(ManagerError::LoaderError(LoaderError::RuntimeError(
+                        format!("Plugin \"{}\" {reason}", metadata.name),
+                    )));
                 }
 
                 let cache_path = Path::new(PLUGIN_DIR).join("permission_cache.json");

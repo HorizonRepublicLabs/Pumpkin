@@ -49,6 +49,16 @@ fn read_string(env: &mut JNIEnv, value: &JString, what: &str) -> Option<String> 
 /// Throws `IllegalStateException` on the Java side. Failure to throw is unrecoverable and
 /// only logged, because there is nowhere left to report it.
 fn throw(env: &mut JNIEnv, message: &str) {
+    // `throw_new` calls `FindClass` internally, and JNI forbids calling `FindClass` (or
+    // almost anything else) while an exception is already pending. A caller can reach here
+    // with one pending already — `read_string` throws on a bad string and then the caller
+    // still falls through to here in some paths — so describe and clear it first, or
+    // `throw_new` fails for an unrelated reason and the real error is lost.
+    if env.exception_check().unwrap_or(false) {
+        let _ = env.exception_describe();
+        let _ = env.exception_clear();
+    }
+
     if let Err(err) = env.throw_new("java/lang/IllegalStateException", message) {
         tracing::error!("Failed to throw into Java: {err}");
     }

@@ -50,6 +50,36 @@ thread_local! {
     /// from this pointer, rather than threading it through as a parameter, is what makes
     /// that possible without changing every call site's signature.
     static CURRENT_ENV: Cell<Option<*mut sys::JNIEnv>> = const { Cell::new(None) };
+
+    /// How many reentrant [`ModVm::call`] frames are currently nested on the mod thread.
+    ///
+    /// The inline reentrant path runs directly on the caller's native stack, so nothing
+    /// stops a mod that calls back into itself without a base case from recursing until
+    /// the mod thread's stack overflows. This counter turns that into a clean
+    /// [`VmError::Java`] instead, once [`MAX_REENTRANT_DEPTH`] is exceeded.
+    static REENTRANT_DEPTH: Cell<u32> = const { Cell::new(0) };
+}
+
+/// The deepest a reentrant [`ModVm::call`] chain may nest before it is refused.
+///
+/// Each nested frame here costs a `JNIEnv` reconstruction plus whatever `work` itself
+/// pushes onto the native stack, so this is deliberately conservative: 64 is far more than
+/// any legitimate callback chain (event dispatch calling a native calling back into a
+/// plugin, a few levels deep) should ever need, while stopping comfortably short of
+/// overflowing the mod thread's default OS stack even in the worst case. Real reentrancy
+/// support — queuing instead of recursing — is deferred past this slice; this is only the
+/// guard rail for the inline path that ships now.
+const MAX_REENTRANT_DEPTH: u32 = 64;
+
+/// Decrements [`REENTRANT_DEPTH`] on drop, so every exit from a reentrant [`ModVm::call`]
+/// frame — including `?` returning early — restores the counter instead of leaving it stuck
+/// high after a failed reentrant call.
+struct DepthGuard;
+
+impl Drop for DepthGuard {
+    fn drop(&mut self) {
+        REENTRANT_DEPTH.with(|cell| cell.set(cell.get() - 1));
+    }
 }
 
 static VM: OnceLock<Result<ModVm, String>> = OnceLock::new();
@@ -247,7 +277,8 @@ impl ModVm {
     /// could ever service the queue is the one that would be blocked waiting on it.
     ///
     /// # Errors
-    /// Returns [`VmError::ThreadGone`] if the mod thread has stopped, or whatever `work`
+    /// Returns [`VmError::ThreadGone`] if the mod thread has stopped, [`VmError::Java`] if a
+    /// reentrant call chain has nested past [`MAX_REENTRANT_DEPTH`], or whatever `work`
     /// returned.
     pub fn call<R, F>(&self, work: F) -> Result<R, VmError>
     where
@@ -255,6 +286,17 @@ impl ModVm {
         R: Send + 'static,
     {
         if thread::current().id() == self.mod_thread {
+            let depth = REENTRANT_DEPTH.with(Cell::get);
+            if depth >= MAX_REENTRANT_DEPTH {
+                return Err(VmError::Java(format!(
+                    "reentrant call chain exceeded the depth limit of {MAX_REENTRANT_DEPTH}; \
+                     this usually means a mod is calling back into itself without a base case"
+                )));
+            }
+
+            REENTRANT_DEPTH.with(|cell| cell.set(depth + 1));
+            let _guard = DepthGuard;
+
             let ptr = CURRENT_ENV.with(Cell::get).ok_or(VmError::ThreadGone)?;
             // SAFETY: `ptr` was obtained from `JNIEnv::get_raw` on this same thread, set
             // by the job currently executing on it. That job's stack frame — and the
