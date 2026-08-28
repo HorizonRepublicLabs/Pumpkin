@@ -1,0 +1,84 @@
+{
+  "minecraft:story/iron_tools": {
+    "iron_pickaxe": {
+      "secs_since_epoch": 1787908390,
+      "nanos_since_epoch": 703930000
+    }
+  },
+  "minecraft:adventure/adventuring_time": {
+    "minecraft:beach": null,
+    "minecraft:jagged_peaks": null,
+    "minecraft:snowy_plains": null,
+    "minecraft:deep_frozen_ocean": null,
+    "minecraft:frozen_river": null,
+    "minecraft:deep_dark": null,
+    "minecraft:windswept_forest": null,
+    "minecraft:river": {
+      "secs_since_epoch": 1787752850,
+      "nanos_since_epoch": 226311000
+    },
+    "minecraft:snowy_slopes": null,
+    "minecraft:old_growth_spruce_taiga": null,
+    "minecraft:ocean": null,
+    "minecraft:windswept_hills": null,
+    "minecraft:desert": null,
+    "minecraft:savanna": null,
+    "minecraft:swamp": null,
+    "minecraft:frozen_ocean": null,
+    "minecraft:taiga": {
+      "secs_since_epoch": 1787752818,
+      "nanos_since_epoch": 820957000
+    },
+    "minecraft:dark_forest": null,
+    "minecraft:pale_garden": null,
+    "minecraft:windswept_savanna": null,
+    "minecraft:savanna_plateau": null,
+    "minecraft:bamboo_jungle": null,
+    "minecraft:birch_forest": null,
+    "minecraft:deep_ocean": null,
+    "minecraft:stony_shore": null,
+    "minecraft:frozen_peaks": null,
+    "minecraft:deep_cold_ocean": null,
+    "minecraft:plains": null,
+    "minecraft:lush_caves": null,
+    "minecraft:badlands": {
+      "secs_since_epoch": 1787752815,
+      "nanos_since_epoch": 97803000
+    },
+    "minecraft:snowy_beach": null,
+    "minecraft:grove": null,
+    "minecraft:sparse_jungle": null,
+    "minecraft:wooded_badlands": null,
+    "minecraft:mangrove_swamp": null,
+    "minecraft:cold_ocean": null,
+    "minecraft:windswept_gravelly_hills": null,
+    "minecraft:stony_peaks": null,
+    "minecraft:cherry_grove": null,
+    "minecraft:snowy_taiga": null,
+    "minecraft:jungle": null,
+    "minecraft:warm_ocean": null,
+    "minecraft:ice_spikes": null,
+    "minecraft:forest": {
+      "secs_since_epoch": 1787752863,
+      "nanos_since_epoch": 538731000
+    },
+    "minecraft:deep_lukewarm_ocean": null,
+    "minecraft:flower_forest": null,
+    "minecraft:sulfur_caves": null,
+    "minecraft:lukewarm_ocean": null,
+    "minecraft:old_growth_birch_forest": null,
+    "minecraft:sunflower_plains": null,
+    "minecraft:mushroom_fields": null,
+    "minecraft:dripstone_caves": null,
+    "minecraft:eroded_badlands": null,
+    "minecraft:meadow": null,
+    "minecraft:old_growth_pine_taiga": null
+  },
+  "minecraft:adventure/root": {
+    "killed_something": {
+      "secs_since_epoch": 1787752875,
+      "nanos_since_epoch": 865925000
+    },
+    "killed_by_something": null
+  }
+}

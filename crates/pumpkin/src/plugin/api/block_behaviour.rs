@@ -17,7 +17,7 @@ use pumpkin_data::item::Item;
 use pumpkin_data::item_stack::ItemStack;
 use pumpkin_util::math::position::BlockPos;
 
-use crate::block::{BlockBehaviour, BrokenArgs};
+use crate::block::{BlockBehaviour, BrokenArgs, PlayerPlacedArgs};
 use crate::world::World;
 
 /// One thing a block yields when broken, over the states it applies to.
@@ -106,6 +106,21 @@ impl PluginBlockBehaviour {
 }
 
 impl BlockBehaviour for PluginBlockBehaviour {
+    fn player_placed(&self, args: PlayerPlacedArgs<'_>) {
+        // A generated block creates its block entity from its own code for it. A registered
+        // one has no such code, and its state naming a type is the whole of what it can
+        // say, so acting on that is this module's job: without it a machine is placed with
+        // nowhere to keep its contents.
+        let state = args.world.get_block_state(args.position);
+        if state.block_entity_type != u16::MAX
+            && args.world.get_block_entity(args.position).is_none()
+            && let Some(entity) =
+                crate::block::entities::create_block_entity(state.block_entity_type, *args.position)
+        {
+            args.world.add_block_entity(entity);
+        }
+    }
+
     fn broken(&self, args: BrokenArgs<'_>) {
         self.drop_all(args.world, args.position, args.state.id);
     }
