@@ -181,6 +181,14 @@ fn mod_thread(
         return;
     }
 
+    // `DeferredRegister`'s default sink throws, so a mod that registers anything before
+    // this runs fails immediately. Doing it here, before `ready` is sent, turns a failure
+    // to install into a boot failure instead of a mystery at a mod's first registration.
+    if let Err(err) = install_default_sink(&mut env) {
+        let _ = ready.send(Err(err.to_string()));
+        return;
+    }
+
     if ready.send(Ok(())).is_err() {
         return;
     }
@@ -190,6 +198,29 @@ fn mod_thread(
         job(&mut env);
         CURRENT_ENV.with(|cell| cell.set(None));
     }
+}
+
+/// Calls `Bootstrap.installDefaultSink()`, pointing `DeferredRegister` at the native
+/// `PumpkinHost::registerBlock`. Without this, a mod's first registration throws instead
+/// of reaching Pumpkin.
+fn install_default_sink(env: &mut JNIEnv) -> Result<(), VmError> {
+    env.call_static_method(
+        "dev/pumpkin/jvmhost/Bootstrap",
+        "installDefaultSink",
+        "()V",
+        &[],
+    )
+    .map_err(|err| VmError::Java(err.to_string()))?;
+
+    if env.exception_check().unwrap_or(false) {
+        let _ = env.exception_describe();
+        let _ = env.exception_clear();
+        return Err(VmError::Java(
+            "Bootstrap.installDefaultSink() threw".to_owned(),
+        ));
+    }
+
+    Ok(())
 }
 
 impl ModVm {

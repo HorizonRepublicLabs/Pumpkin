@@ -223,6 +223,20 @@ impl Default for PluginManager {
     }
 }
 
+/// Where the JVM host's jars live, relative to the server's working directory.
+#[cfg(feature = "jvm-plugins")]
+fn jvm_host_classpath() -> Vec<PathBuf> {
+    ["shim", "fml", "host"]
+        .iter()
+        .map(|project| {
+            PathBuf::from("java/pumpkin-jvm-host")
+                .join(project)
+                .join("build/libs")
+                .join(format!("{project}.jar"))
+        })
+        .collect()
+}
+
 impl PluginManager {
     /// Create a new plugin manager with default loaders
     #[must_use]
@@ -232,6 +246,10 @@ impl PluginManager {
             loaders: RwLock::new(vec![
                 Arc::new(NativePluginLoader),
                 Arc::new(WasmPluginLoader::new(verify_plugin_signatures)),
+                #[cfg(feature = "jvm-plugins")]
+                Arc::new(crate::plugin::loader::jvm::JvmPluginLoader::new(
+                    jvm_host_classpath(),
+                )),
             ]),
             handlers: Arc::new(ArcSwap::from_pointee(HashMap::new())),
             unloaded_files: RwLock::new(HashSet::new()),
