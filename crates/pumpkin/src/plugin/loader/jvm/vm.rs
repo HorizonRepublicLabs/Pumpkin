@@ -176,6 +176,11 @@ fn mod_thread(
         }
     };
 
+    if let Err(err) = super::natives::bind(&mut env) {
+        let _ = ready.send(Err(err.to_string()));
+        return;
+    }
+
     if ready.send(Ok(())).is_err() {
         return;
     }

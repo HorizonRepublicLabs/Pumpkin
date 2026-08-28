@@ -69,3 +69,39 @@ fn a_reentrant_call_runs_inline_instead_of_deadlocking() {
 
     assert_eq!(answer, 7);
 }
+
+#[test]
+fn java_can_register_a_block() {
+    let vm = pumpkin::plugin::loader::jvm::vm::boot(&host_classpath()).expect("the VM boots");
+
+    let assigned = vm
+        .call(|env| {
+            let id = env
+                .new_string("testmod:ruby_block")
+                .map_err(|err| pumpkin::plugin::loader::jvm::vm::VmError::Java(err.to_string()))?;
+            let template = env
+                .new_string("stone")
+                .map_err(|err| pumpkin::plugin::loader::jvm::vm::VmError::Java(err.to_string()))?;
+
+            env.call_static_method(
+                "dev/pumpkin/jvmhost/PumpkinHost",
+                "registerBlock",
+                "(Ljava/lang/String;Ljava/lang/String;)I",
+                &[(&id).into(), (&template).into()],
+            )
+            .and_then(jni::objects::JValueGen::i)
+            .map_err(|err| pumpkin::plugin::loader::jvm::vm::VmError::Java(err.to_string()))
+        })
+        .expect("the registration succeeds");
+
+    assert!(assigned > 0, "a real block id was assigned, got {assigned}");
+
+    // A staged registration is invisible to `Block::from_name` until the dynamic registry
+    // is frozen; freezing is otherwise a server-startup step, and calling it a second time
+    // is harmless, so it is safe to do here rather than nowhere.
+    pumpkin_data::dynamic::freeze();
+    assert!(
+        pumpkin_data::Block::from_name("testmod:ruby_block").is_some(),
+        "the block Java registered is in Pumpkin's registry"
+    );
+}
