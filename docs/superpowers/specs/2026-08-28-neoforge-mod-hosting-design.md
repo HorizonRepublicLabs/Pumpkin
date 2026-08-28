@@ -54,8 +54,47 @@ Taken from the local mod checkouts by counting distinct `net.minecraft` and
 
 Import counts undercount the true surface. They miss supertypes, inner classes,
 same-package references and fully-qualified references, and each named type still
-needs whichever members the mod actually calls. Expect the closed set for
-MA + Cucumber to land around 300 to 400 types. That is tractable. Create is not.
+needs whichever members the mod actually calls.
+
+### Measured at the bytecode level, 2026-08-29
+
+The estimate above ("300 to 400 types") has been replaced by a measurement.
+`javap -v` over the 438 class files in the built `MysticalAgriculture-26.2-9.0.7.jar`
+and `Cucumber-26.2-9.0.5.jar`, reading constant-pool references rather than imports:
+
+| surface | import count said | bytecode says |
+| --- | --- | --- |
+| `net.minecraft` classes | 224 | **353** (277 server-side, 76 client) |
+| `net.neoforged` classes | 94 | **112** |
+| distinct `net.minecraft` members called | not measured | **887** (777 server-side) |
+
+So the class estimate was low by a third, and the number that actually predicts the
+work — members to stub — is **777**, not something the import count could have shown.
+That is still before closing over supertypes and the types appearing in used
+signatures, so it is a floor.
+
+The cost is concentrated, which is the useful part:
+
+| class | server-side members called |
+| --- | --- |
+| `world/entity/player/Player` | 60 |
+| `world/item/ItemStack` | 34 |
+| `world/level/Level` | 25 |
+| `world/item/Items` | 20 |
+| `world/level/block/state/BlockState` | 16 |
+| `world/effect/MobEffects` | 16 |
+
+`Items`, `MobEffects` and `SoundEvents` are static holder classes — mostly constants,
+far cheaper per member than the count suggests. `Player`, `ItemStack` and `Level` are
+the real work, and all three are handle types under the split in section 1.
+
+Signature source of truth is now available: `./gradlew setup` has been run in the
+NeoForge checkout and `projects/base/src/main/java/net/minecraft/**` holds 7055
+decompiled files. It independently confirms two corrections made during slice 1 —
+`net/minecraft/resources/Identifier.java` exists and `ResourceLocation.java` does
+not, and `ResourceKey.java` sits in `resources`, not `core`.
+
+Create remains out of scope and the measurement does not change that.
 
 ## Scope
 
