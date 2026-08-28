@@ -3,8 +3,8 @@ package net.neoforged.neoforge.registries;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Supplier;
-import net.minecraft.core.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.level.block.Block;
 import net.neoforged.bus.api.IEventBus;
 
@@ -31,7 +31,7 @@ public final class DeferredRegister<T> {
 
     private final ResourceKey<T> registry;
     private final String namespace;
-    private final List<DeferredHolder<T>> pending = new ArrayList<>();
+    private final List<DeferredHolder<T, ? extends T>> pending = new ArrayList<>();
 
     private DeferredRegister(ResourceKey<T> registry, String namespace) {
         this.registry = registry;
@@ -42,9 +42,9 @@ public final class DeferredRegister<T> {
         return new DeferredRegister<>(registry, namespace);
     }
 
-    public DeferredHolder<T> register(String path, Supplier<T> factory) {
-        DeferredHolder<T> holder =
-                new DeferredHolder<>(ResourceLocation.fromNamespaceAndPath(namespace, path), factory);
+    public <I extends T> DeferredHolder<T, I> register(String path, Supplier<? extends I> factory) {
+        DeferredHolder<T, I> holder =
+                new DeferredHolder<>(Identifier.fromNamespaceAndPath(namespace, path), factory::get);
         pending.add(holder);
         return holder;
     }
@@ -54,7 +54,7 @@ public final class DeferredRegister<T> {
     }
 
     private void flush() {
-        for (DeferredHolder<T> holder : pending) {
+        for (DeferredHolder<T, ? extends T> holder : pending) {
             Object object = holder.get();
             if (object instanceof Block block) {
                 sink.registerBlock(holder.getId().toString(), block.pumpkinTemplate());

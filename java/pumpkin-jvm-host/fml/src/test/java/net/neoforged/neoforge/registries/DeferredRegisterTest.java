@@ -22,7 +22,7 @@ class DeferredRegisterTest {
 
         IEventBus bus = new IEventBus();
         DeferredRegister<Block> blocks = DeferredRegister.create(Registries.BLOCK, "testmod");
-        DeferredHolder<Block> ruby =
+        DeferredHolder<Block, Block> ruby =
                 blocks.register("ruby_block", () -> new Block(BlockBehaviour.Properties.of().pumpkinTemplate("stone")));
         blocks.register(bus);
 
