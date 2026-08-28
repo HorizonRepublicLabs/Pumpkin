@@ -65,14 +65,7 @@ impl pumpkin::plugin::registry::Host for PluginHostState {
 
         let states: Vec<BlockState> = sources
             .iter()
-            .map(|state| copy_state(state, definition.luminance, block_entity_type))
-            .collect();
-        // Whether a state is randomly ticked comes from the one it was copied from: the
-        // generated bitset covers generated ids only, so a block standing in for a crop has
-        // to be told it ticks like one.
-        let state_random_ticks: Vec<bool> = sources
-            .iter()
-            .map(|state| pumpkin_data::block_properties::has_random_ticks(state.id))
+            .map(|state| copy_state(state, &definition, block_entity_type))
             .collect();
 
         let default_state_index = if definition.properties.is_empty() {
@@ -128,7 +121,6 @@ impl pumpkin::plugin::registry::Host for PluginHostState {
             name: definition.id,
             block,
             states,
-            state_random_ticks,
             default_state_index,
             item_id,
             properties,
@@ -227,10 +219,14 @@ impl pumpkin::plugin::registry::Host for PluginHostState {
 /// inherit a template's full state list.
 fn copy_state(
     template: &BlockState,
-    luminance: Option<u8>,
+    definition: &BlockDefinition,
     block_entity_type: Option<u16>,
 ) -> BlockState {
-    BlockState {
+    let luminance = definition.luminance;
+    // Mining reads the state's hardness, not the block's, so a definition that set only
+    // the block would break at whatever speed its template did.
+    let hardness = definition.hardness.unwrap_or(template.hardness);
+    let state = BlockState {
         // Replaced by the registry.
         id: BlockStateId::AIR,
         state_flags: template.state_flags,
@@ -238,11 +234,16 @@ fn copy_state(
         instrument: template.instrument,
         luminance: luminance.map_or(template.luminance, |value| value.min(15)),
         piston_behavior: template.piston_behavior.clone(),
-        hardness: template.hardness,
+        hardness,
         collision_shapes: template.collision_shapes,
         outline_shapes: template.outline_shapes,
         opacity: template.opacity,
         block_entity_type: block_entity_type.unwrap_or(template.block_entity_type),
+    };
+
+    match definition.requires_tool {
+        Some(required) => state.with_tool_required(required),
+        None => state,
     }
 }
 
@@ -307,10 +308,34 @@ fn unknown_template(kind: &str, name: &str) -> String {
 mod tests {
     use super::*;
 
+    /// A registration that overrides nothing, so every copied state keeps the template's.
+    fn plain() -> BlockDefinition {
+        BlockDefinition {
+            id: "examplemod:thing".to_string(),
+            template: "stone".to_string(),
+            hardness: None,
+            blast_resistance: None,
+            luminance: None,
+            requires_tool: None,
+            properties: Vec::new(),
+            default_state: 0,
+            item: None,
+            block_entity: None,
+            drops: Vec::new(),
+        }
+    }
+
+    fn lit(luminance: u8) -> BlockDefinition {
+        BlockDefinition {
+            luminance: Some(luminance),
+            ..plain()
+        }
+    }
+
     #[test]
     fn copied_states_inherit_the_template() {
         let template = Block::STONE.default_state;
-        let copy = copy_state(template, None, None);
+        let copy = copy_state(template, &plain(), None);
 
         assert_eq!(copy.state_flags, template.state_flags);
         assert_eq!(copy.opacity, template.opacity);
@@ -327,12 +352,34 @@ mod tests {
     fn luminance_overrides_the_template_and_clamps_to_the_vanilla_range() {
         let template = Block::STONE.default_state;
 
-        assert_eq!(copy_state(template, Some(7), None).luminance, 7);
+        assert_eq!(copy_state(template, &lit(7), None).luminance, 7);
         assert_eq!(
-            copy_state(template, Some(200), None).luminance,
+            copy_state(template, &lit(200), None).luminance,
             15,
             "light level cannot exceed 15"
         );
+    }
+
+    #[test]
+    fn hardness_and_tool_rules_reach_the_states_mining_reads() {
+        let template = Block::STONE.default_state;
+
+        let softer = BlockDefinition {
+            hardness: Some(3.5),
+            requires_tool: Some(true),
+            ..plain()
+        };
+        let copy = copy_state(template, &softer, None);
+        assert!((copy.hardness - 3.5).abs() < f32::EPSILON);
+        assert!(copy.tool_required());
+
+        // Mining reads the state, so a definition that set only the block would break at
+        // whatever speed its template did.
+        let freed = BlockDefinition {
+            requires_tool: Some(false),
+            ..plain()
+        };
+        assert!(!copy_state(template, &freed, None).tool_required());
     }
 
     #[test]
@@ -344,7 +391,7 @@ mod tests {
         let copies: Vec<_> = template
             .states
             .iter()
-            .map(|state| copy_state(state, None, None))
+            .map(|state| copy_state(state, &plain(), None))
             .collect();
 
         assert_eq!(copies.len(), template.states.len());

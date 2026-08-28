@@ -192,7 +192,6 @@ mod tests {
             name: name.to_string(),
             block: Block::STONE.clone(),
             states: (0..state_count).map(|_| sample_state()).collect(),
-            state_random_ticks: vec![false; state_count],
             default_state_index: 0,
             item_id: None,
             properties: Vec::new(),
@@ -261,7 +260,6 @@ mod tests {
             states: (0..facing.len() * lit.len())
                 .map(|_| sample_state())
                 .collect(),
-            state_random_ticks: vec![false; facing.len() * lit.len()],
             default_state_index: 0,
             item_id: None,
             properties: vec![

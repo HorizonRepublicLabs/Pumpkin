@@ -82,6 +82,27 @@ impl BlockState {
         self.state_flags & BURNABLE != 0
     }
 
+    /// The same state, mined at a different speed.
+    ///
+    /// Mining reads the state's hardness, not the block's, so a block that set only the
+    /// latter would still break at whatever speed its template did.
+    #[must_use]
+    pub const fn with_hardness(mut self, hardness: f32) -> Self {
+        self.hardness = hardness;
+        self
+    }
+
+    /// The same state, needing a tool to drop anything or not.
+    #[must_use]
+    pub const fn with_tool_required(mut self, required: bool) -> Self {
+        if required {
+            self.state_flags |= TOOL_REQUIRED;
+        } else {
+            self.state_flags &= !TOOL_REQUIRED;
+        }
+        self
+    }
+
     #[must_use]
     pub const fn tool_required(&self) -> bool {
         self.state_flags & TOOL_REQUIRED != 0
@@ -414,6 +435,28 @@ mod tests {
                     block.name
                 );
             }
+        }
+    }
+}
+
+#[cfg(test)]
+mod random_tick_agreement {
+    use crate::{BlockState, BlockStateId, block_properties::has_random_ticks};
+
+    /// The flag on a state and the generated bitset are two spellings of one fact.
+    ///
+    /// Worth pinning: a registered state is copied from a generated one, so if these ever
+    /// disagreed, a block would tick according to whichever spelling its reader happened to
+    /// pick.
+    #[test]
+    fn the_flag_and_the_bitset_agree_for_every_generated_state() {
+        for raw in 0..BlockStateId::BASE_COUNT {
+            let id = BlockStateId::from_raw(raw);
+            assert_eq!(
+                BlockState::from_id(id).has_random_ticks(),
+                has_random_ticks(id),
+                "state {raw} disagrees"
+            );
         }
     }
 }

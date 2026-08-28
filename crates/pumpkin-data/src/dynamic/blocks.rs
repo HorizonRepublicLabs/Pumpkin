@@ -34,8 +34,6 @@ pub struct BlockRegistration {
     pub block: Block,
     /// Every state this block can take. Ids are assigned in order.
     pub states: Vec<BlockState>,
-    /// Whether each state is randomly ticked, parallel to `states`.
-    pub state_random_ticks: Vec<bool>,
     /// Index into `states` for the state used when the block is placed plainly.
     pub default_state_index: usize,
     /// The properties this block's states vary over, in the order they index states:
@@ -57,11 +55,6 @@ struct FrozenBlocks {
     states: Vec<&'static BlockState>,
     /// The owning block of each dynamic state, parallel to `states`.
     state_owners: Vec<BlockId>,
-    /// Whether each dynamic state is randomly ticked, parallel to `states`.
-    ///
-    /// Taken from the template the state was copied from: the generated bitset covers
-    /// generated ids only, so without this a registered crop would never be ticked.
-    state_random_ticks: Vec<bool>,
     by_name: HashMap<&'static str, &'static Block>,
     /// The block each linked item places.
     by_item: HashMap<u16, &'static Block>,
@@ -74,7 +67,6 @@ struct Staging {
     blocks: Vec<&'static Block>,
     states: Vec<&'static BlockState>,
     state_owners: Vec<BlockId>,
-    state_random_ticks: Vec<bool>,
     names: HashMap<String, ()>,
     properties: Vec<(BlockId, &'static [(String, Vec<String>)])>,
 }
@@ -123,17 +115,13 @@ pub fn register_block(registration: BlockRegistration) -> Result<Registered, Reg
         name,
         block,
         mut states,
-        state_random_ticks,
         default_state_index,
         item_id,
         properties,
     } = registration;
 
     validate_name(&name)?;
-    if states.is_empty()
-        || default_state_index >= states.len()
-        || state_random_ticks.len() != states.len()
-    {
+    if states.is_empty() || default_state_index >= states.len() {
         return Err(RegistryError::InvalidStates(name));
     }
 
@@ -144,7 +132,6 @@ pub fn register_block(registration: BlockRegistration) -> Result<Registered, Reg
         blocks: Vec::new(),
         states: Vec::new(),
         state_owners: Vec::new(),
-        state_random_ticks: Vec::new(),
         names: HashMap::new(),
         properties: Vec::new(),
     });
@@ -196,7 +183,6 @@ pub fn register_block(registration: BlockRegistration) -> Result<Registered, Reg
     staging
         .state_owners
         .extend(std::iter::repeat_n(block_id, states.len()));
-    staging.state_random_ticks.extend(state_random_ticks);
     staging.names.insert(name.to_string(), ());
 
     Ok(Registered {
@@ -219,7 +205,6 @@ pub(super) fn publish() {
         blocks: Vec::new(),
         states: Vec::new(),
         state_owners: Vec::new(),
-        state_random_ticks: Vec::new(),
         names: HashMap::new(),
         properties: Vec::new(),
     });
@@ -244,7 +229,6 @@ pub(super) fn publish() {
         blocks: staged.blocks,
         states: staged.states,
         state_owners: staged.state_owners,
-        state_random_ticks: staged.state_random_ticks,
         by_name,
         by_item,
     });
@@ -282,14 +266,9 @@ pub fn state_from_id(id: BlockStateId) -> Option<&'static BlockState> {
 #[inline(never)]
 #[must_use]
 pub fn state_has_random_ticks(id: BlockStateId) -> bool {
-    let Some(index) = usize::from(id.as_u16()).checked_sub(usize::from(BlockStateId::BASE_COUNT))
-    else {
-        return false;
-    };
-    FROZEN
-        .get()
-        .and_then(|frozen| frozen.state_random_ticks.get(index).copied())
-        .unwrap_or(false)
+    // The state already says so: it was copied from a generated one, flags and all, and
+    // the flag and the generated bitset are two spellings of one fact.
+    state_from_id(id).is_some_and(crate::BlockState::has_random_ticks)
 }
 
 /// Finds the block owning a state id at or above [`base_state_count`].

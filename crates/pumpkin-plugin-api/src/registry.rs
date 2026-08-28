@@ -48,6 +48,7 @@ impl BlockDefinition {
             hardness: None,
             blast_resistance: None,
             luminance: None,
+            requires_tool: None,
             properties: Vec::new(),
             default_state: 0,
             item: None,
@@ -111,6 +112,16 @@ impl BlockDefinition {
     #[must_use]
     pub fn placed_by(mut self, item: impl Into<String>) -> Self {
         self.0.item = Some(item.into());
+        self
+    }
+
+    /// Sets whether a tool is needed to get anything out of the block.
+    ///
+    /// Left unset the template's rule applies, which is the template's and not the
+    /// block's: a machine standing in for stone is mined like stone.
+    #[must_use]
+    pub const fn requires_tool(mut self, required: bool) -> Self {
+        self.0.requires_tool = Some(required);
         self
     }
 
