@@ -94,34 +94,40 @@ pub struct BlockSpec {
 
 /// What registering a block spec produces, beyond the id every caller gets back.
 ///
-/// Kept crate-private: turning this into behaviour means reaching a live
-/// [`crate::server::Server`], and how a loader reaches one is its own business — the wasm
-/// host keeps it in per-plugin state, and a JVM host will have its own way of getting there.
-/// `first_state` especially cannot be recovered once [`register_block_spec`] has returned:
-/// the dynamic registry only answers state queries once every plugin has loaded and the
-/// registry freezes, so a caller that asked for it afterwards would silently be told
-/// nothing.
-pub(crate) struct RegisteredBlockSpec {
-    pub(crate) block_id: BlockId,
-    pub(crate) first_state: u16,
-    pub(crate) drops: Vec<crate::plugin::api::block_behaviour::BlockDrop>,
+/// `first_state` and `drops` exist because the caller — not this function — is the one who
+/// has to wire the block up to real behaviour: giving it a [`PluginBlockBehaviour`] on
+/// whatever live [`crate::server::Server`] it can reach, however it reaches one. This module
+/// has no server to wire into, so it hands back what wiring needs instead. A caller that
+/// ignores these fields gets a block that mines and exists but drops nothing and answers
+/// none of the server's per-block hooks — silently, because the registration itself still
+/// succeeds.
+///
+/// `first_state` cannot be recovered after the fact: the dynamic registry only answers
+/// state queries once every plugin has loaded and the registry freezes, so asking for it
+/// later would silently come back empty.
+///
+/// [`PluginBlockBehaviour`]: crate::plugin::api::block_behaviour::PluginBlockBehaviour
+#[derive(Debug)]
+pub struct RegisteredBlockSpec {
+    pub block_id: BlockId,
+    pub first_state: u16,
+    pub drops: Vec<crate::plugin::api::block_behaviour::BlockDrop>,
 }
 
-/// Registers a block built from a vanilla template, returning the id it was assigned.
+/// Registers a block built from a vanilla template.
+///
+/// Returns the id the block was assigned, the state id its own states start at, and its
+/// drops with their items resolved — everything the caller needs to give the block real
+/// behaviour by wiring a [`PluginBlockBehaviour`] into whatever live server it holds. This
+/// function does that wiring for no one: it has no server of its own to reach, and a caller
+/// that discards `first_state` and `drops` ends up with a block that registers and mines
+/// but drops nothing and answers none of the server's per-block hooks.
 ///
 /// Errors are strings rather than a typed error because every caller — wasm, JVM — hands
 /// them straight back to a plugin that can only log them.
-pub fn register_block_spec(spec: &BlockSpec) -> Result<u32, String> {
-    register_block_spec_with_behaviour(spec)
-        .map(|registered| u32::from(registered.block_id.as_u16()))
-}
-
-/// Does everything [`register_block_spec`] does, plus everything a loader needs to give the
-/// block real behaviour. See [`RegisteredBlockSpec`] for why that is not just folded into a
-/// richer public return type.
-pub(crate) fn register_block_spec_with_behaviour(
-    spec: &BlockSpec,
-) -> Result<RegisteredBlockSpec, String> {
+///
+/// [`PluginBlockBehaviour`]: crate::plugin::api::block_behaviour::PluginBlockBehaviour
+pub fn register_block_spec(spec: &BlockSpec) -> Result<RegisteredBlockSpec, String> {
     let Some(template) = Block::from_name(&spec.template) else {
         return Err(unknown_template("block", &spec.template));
     };

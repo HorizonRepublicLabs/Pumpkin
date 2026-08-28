@@ -33,9 +33,7 @@ impl pumpkin::plugin::registry::Host for PluginHostState {
     ) -> wasmtime::Result<Result<u32, String>> {
         let spec = block_spec_from_wit(definition);
 
-        let registered = match crate::plugin::host::registry::register_block_spec_with_behaviour(
-            &spec,
-        ) {
+        let registered = match crate::plugin::host::registry::register_block_spec(&spec) {
             Ok(registered) => registered,
             Err(err) => return Ok(Err(err)),
         };
