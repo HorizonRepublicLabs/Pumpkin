@@ -1,0 +1,22 @@
+subprojects {
+    apply plugin: 'java-library'
+
+    java {
+        toolchain {
+            languageVersion = JavaLanguageVersion.of(25)
+        }
+    }
+
+    repositories { mavenCentral() }
+
+    dependencies {
+        testImplementation 'org.junit.jupiter:junit-jupiter:5.11.3'
+        testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+    }
+
+    test { useJUnitPlatform() }
+}
+
+project(':fml')     { dependencies { api project(':shim') } }
+project(':host')    { dependencies { api project(':fml') } }
+project(':testmod') { dependencies { compileOnly project(':fml') } }

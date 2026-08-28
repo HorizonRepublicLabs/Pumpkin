@@ -74,6 +74,9 @@ gradle-app.setting
 *.zip
 *.tar.gz
 *.rar
+# Re-allow the Gradle wrapper jar (the earlier `!gradle-wrapper.jar` exception
+# is shadowed by the `*.jar` rule above, since later patterns win)
+!**/gradle-wrapper.jar
 # virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
 hs_err_pid*
 replay_pid*
@@ -157,3 +160,7 @@ version_history.json
 world_nether/
 world_the_end/
 patchbukkit/
+
+# Gradle (JVM mod host)
+java/pumpkin-jvm-host/.gradle/
+java/pumpkin-jvm-host/*/build/

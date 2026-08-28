@@ -124,11 +124,15 @@ image = { version = "0.25.10", default-features = false, features = ["png"] }
 
 indexmap.workspace = true
 
+jni = { version = "0.21", features = ["invocation"], optional = true }
+
 [dev-dependencies]
 tempfile.workspace = true
+pumpkin-data.workspace = true
 
 [features]
 console-subscriber = ["dep:console-subscriber"]
+jvm-plugins = ["dep:jni"]
 
 [lints]
 workspace = true
