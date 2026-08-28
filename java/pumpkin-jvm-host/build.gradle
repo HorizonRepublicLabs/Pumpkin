@@ -20,3 +20,11 @@ subprojects {
 project(':fml')     { dependencies { api project(':shim') } }
 project(':host')    { dependencies { api project(':fml') } }
 project(':testmod') { dependencies { compileOnly project(':fml') } }
+
+project(':host') {
+    test {
+        dependsOn ':testmod:jar'
+        systemProperty 'pumpkin.testmod.jar',
+                project(':testmod').tasks.jar.archiveFile.get().asFile.absolutePath
+    }
+}

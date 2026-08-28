@@ -1,0 +1,85 @@
+package dev.pumpkin.jvmhost;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
+import java.net.URLClassLoader;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Path;
+import java.util.Enumeration;
+import java.util.jar.JarEntry;
+import java.util.jar.JarFile;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import net.neoforged.fml.common.Mod;
+
+/**
+ * Finds the mod inside a jar.
+ *
+ * <p>NeoForge scans annotations with its own index; this walks the jar instead. Slower and
+ * entirely adequate for one mod, and it avoids depending on the loader's data format.
+ */
+public final class ModLoader {
+    /** A mod found in a jar: its declared id, and the class annotated {@code @Mod}. */
+    public record ModCandidate(String modId, Class<?> mainClass, URLClassLoader loader) {
+    }
+
+    private static final Pattern MOD_ID =
+            Pattern.compile("^\\s*modId\\s*=\\s*\"([^\"]+)\"\\s*$", Pattern.MULTILINE);
+
+    private ModLoader() {
+    }
+
+    /**
+     * Reads a jar's {@code neoforge.mods.toml} and locates its {@code @Mod} class.
+     *
+     * @throws IOException           if the jar cannot be read
+     * @throws IllegalStateException if the toml or the annotated class is missing
+     */
+    public static ModCandidate discover(Path jar) throws IOException {
+        String modId;
+        try (JarFile file = new JarFile(jar.toFile())) {
+            JarEntry entry = file.getJarEntry("META-INF/neoforge.mods.toml");
+            if (entry == null) {
+                throw new IllegalStateException("no META-INF/neoforge.mods.toml in " + jar);
+            }
+            try (InputStream stream = file.getInputStream(entry)) {
+                String toml = new String(stream.readAllBytes(), StandardCharsets.UTF_8);
+                Matcher matcher = MOD_ID.matcher(toml);
+                if (!matcher.find()) {
+                    throw new IllegalStateException("no modId in " + jar);
+                }
+                modId = matcher.group(1);
+            }
+        }
+
+        URLClassLoader loader =
+                new URLClassLoader(new URL[] {jar.toUri().toURL()}, ModLoader.class.getClassLoader());
+        Class<?> main = findAnnotatedClass(jar, loader);
+        return new ModCandidate(modId, main, loader);
+    }
+
+    private static Class<?> findAnnotatedClass(Path jar, URLClassLoader loader) throws IOException {
+        try (JarFile file = new JarFile(jar.toFile())) {
+            Enumeration<JarEntry> entries = file.entries();
+            while (entries.hasMoreElements()) {
+                JarEntry entry = entries.nextElement();
+                String name = entry.getName();
+                if (!name.endsWith(".class")) {
+                    continue;
+                }
+                String className = name.substring(0, name.length() - ".class".length()).replace('/', '.');
+                try {
+                    Class<?> candidate = Class.forName(className, false, loader);
+                    if (candidate.isAnnotationPresent(Mod.class)) {
+                        return candidate;
+                    }
+                } catch (ClassNotFoundException | NoClassDefFoundError ignored) {
+                    // A class referencing shim types that do not exist yet is expected while
+                    // the shim is incomplete. It cannot be the entry point if it will not load.
+                }
+            }
+        }
+        throw new IllegalStateException("no @Mod class in " + jar);
+    }
+}
