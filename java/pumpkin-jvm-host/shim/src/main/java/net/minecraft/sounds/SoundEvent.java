@@ -10,7 +10,9 @@ public record SoundEvent(Identifier location, Optional<Float> fixedRange) {
         throw Unimplemented.forMember("net/minecraft/sounds/SoundEvent.create:(Lnet/minecraft/resources/Identifier;Ljava/util/Optional;)Lnet/minecraft/sounds/SoundEvent;");
     }
 
+    // Pumpkin divergence: real body, copied from vanilla. SoundEvent is a record the shim
+    // keeps whole, and the factory is one self-contained line -- the ARGB rule again.
     public static SoundEvent createVariableRangeEvent(Identifier location) {
-        throw Unimplemented.forMember("net/minecraft/sounds/SoundEvent.createVariableRangeEvent:(Lnet/minecraft/resources/Identifier;)Lnet/minecraft/sounds/SoundEvent;");
+        return new SoundEvent(location, Optional.empty());
     }
 }

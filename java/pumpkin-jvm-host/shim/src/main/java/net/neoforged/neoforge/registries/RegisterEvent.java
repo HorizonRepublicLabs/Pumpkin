@@ -35,8 +35,7 @@ public class RegisterEvent extends Event implements IModBusEvent {
                         props.pumpkinDestroyTime(), props.pumpkinExplosionResistance(),
                         props.pumpkinRequiresTool());
             } else {
-                throw new IllegalStateException("registry " + registryKey.identifier()
-                        + " is not supported yet: " + name);
+                DeferredRegister.pumpkinWarnUnsupported(registryKey.identifier().toString(), name.toString());
             }
         });
     }

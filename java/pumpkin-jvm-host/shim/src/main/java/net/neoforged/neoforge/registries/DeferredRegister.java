@@ -50,6 +50,22 @@ public class DeferredRegister<T> {
         pumpkinSink = replacement;
     }
 
+    // Pumpkin divergence: no vanilla counterpart. Registrations into registries Pumpkin
+    // does not model -- data components, recipe serializers, sounds -- are accepted and
+    // said out loud once per registry, not thrown and not silently dropped. Throwing
+    // stopped a whole mod over content that cannot matter until the thing consuming it
+    // exists; silence is the failure this project refuses everywhere. Same line
+    // registerConfig draws: the mod goes on, and the operator knows what is missing.
+    static void pumpkinWarnUnsupported(String registry, String entry) {
+        if (PUMPKIN_UNSUPPORTED_WARNED.add(registry)) {
+            System.err.println("[pumpkin] " + registry + " is not modelled yet; entries like "
+                    + entry + " are accepted so their mod can load, but nothing reads them.");
+        }
+    }
+
+    private static final java.util.Set<String> PUMPKIN_UNSUPPORTED_WARNED =
+            java.util.concurrent.ConcurrentHashMap.newKeySet();
+
     // Pumpkin divergence: no vanilla counterpart. RegisterEvent registers straight into the
     // game rather than through a DeferredRegister, so it needs the same sink. Package-private
     // because only its sibling in this package has any business reaching it.
@@ -119,8 +135,8 @@ public class DeferredRegister<T> {
                         props.pumpkinDestroyTime(), props.pumpkinExplosionResistance(),
                         props.pumpkinRequiresTool());
             } else {
-                throw new IllegalStateException("registry " + pumpkinRegistryKey.identifier()
-                        + " is not supported yet: " + holder.getId());
+                pumpkinWarnUnsupported(pumpkinRegistryKey.identifier().toString(),
+                        holder.getId().toString());
             }
         }
     }

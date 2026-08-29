@@ -21,7 +21,14 @@ public final class Identifier implements Comparable<Identifier> {
 
     private final String pumpkinPath;
 
-    public static final Codec<Identifier> CODEC = null;
+    // Pumpkin divergence: real value. Codec is DataFixerUpper, a real library on the
+    // classpath, and parse/toString carry real behaviour here -- so this is vanilla's own
+    // codec, not a stub. It was null, and the first consumer was not a mod calling it but
+    // DFU's RecordCodecBuilder dereferencing it inside Cucumber's recipe conditions: an NPE
+    // deep in library code, with nothing naming the missing piece. The exact silent-null
+    // failure the holder rules exist to prevent, arrived through a side door.
+    public static final Codec<Identifier> CODEC =
+            Codec.STRING.xmap(Identifier::parse, Identifier::toString).stable();
 
     public static final StreamCodec<ByteBuf, Identifier> STREAM_CODEC = Stubs.of(StreamCodec.class, "net/minecraft/network/codec/StreamCodec");
 

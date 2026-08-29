@@ -7,8 +7,10 @@ import dev.pumpkin.shim.Unimplemented;
 
 public interface DataComponentType<T> {
 
+    // Pumpkin divergence: real body. Both mods declare their components through this
+    // chain; nothing reads one back yet, so declaring is all it has to survive.
     static <T> DataComponentType.Builder<T> builder() {
-        throw Unimplemented.forMember("net/minecraft/core/component/DataComponentType.builder:()Lnet/minecraft/core/component/DataComponentType$Builder;");
+        return new Builder<>();
     }
 
     Codec<T> codec();
@@ -19,16 +21,26 @@ public interface DataComponentType<T> {
 
     class Builder<T> {
 
+        // Pumpkin divergence: real body. The codec would matter when components are
+        // saved; Pumpkin does not persist them yet, so it is accepted and dropped and the
+        // chain returns `this`.
         public DataComponentType.Builder<T> persistent(Codec<T> codec) {
-            throw Unimplemented.forMember("net/minecraft/core/component/DataComponentType$Builder.persistent:(Lcom/mojang/serialization/Codec;)Lnet/minecraft/core/component/DataComponentType$Builder;");
+            return this;
         }
 
+        // Pumpkin divergence: real body. Same reasoning as persistent -- sync codecs
+        // matter when a component crosses the wire, which none does yet.
         public DataComponentType.Builder<T> networkSynchronized(StreamCodec<? super RegistryFriendlyByteBuf, T> streamCodec) {
-            throw Unimplemented.forMember("net/minecraft/core/component/DataComponentType$Builder.networkSynchronized:(Lnet/minecraft/network/codec/StreamCodec;)Lnet/minecraft/core/component/DataComponentType$Builder;");
+            return this;
         }
 
+        // Pumpkin divergence: real body. The type is an interface, so the stub stands in:
+        // it survives being registered and stored in the mod's own statics, and the first
+        // actual read on it throws with the member that was wanted -- the failure moves to
+        // where components are used, which is the next slice's territory, not declaration.
         public DataComponentType<T> build() {
-            throw Unimplemented.forMember("net/minecraft/core/component/DataComponentType$Builder.build:()Lnet/minecraft/core/component/DataComponentType;");
+            return dev.pumpkin.shim.Stubs.of(DataComponentType.class,
+                    "net/minecraft/core/component/DataComponentType");
         }
 
         public DataComponentType.Builder<T> ignoreSwapAnimation() {
