@@ -711,4 +711,79 @@ edit("net/minecraft/resources/Identifier.java", [
      "    // Pumpkin divergence: real value. Codec is DataFixerUpper, a real library on the\n    // classpath, and parse/toString carry real behaviour here -- so this is vanilla's own\n    // codec, not a stub. It was null, and the first consumer was not a mod calling it but\n    // DFU's RecordCodecBuilder dereferencing it inside Cucumber's recipe conditions: an NPE\n    // deep in library code, with nothing naming the missing piece. The exact silent-null\n    // failure the holder rules exist to prevent, arrived through a side door.\n    public static final Codec<Identifier> CODEC =\n            Codec.STRING.xmap(Identifier::parse, Identifier::toString).stable();"),
 ])
 
+# ---------------------------------------------------- Recipe.CommonInfo.MAP_CODEC
+edit("net/minecraft/world/item/crafting/Recipe.java", [
+    ('        public static final MapCodec<Recipe.CommonInfo> MAP_CODEC = null;',
+     '        // Pumpkin divergence: real value, copied from vanilla. Entirely self-contained\n        // over DataFixerUpper -- Codec.BOOL, this record\'s own accessor and constructor --\n        // and DFU is a real library here, so this is vanilla\'s codec, not an imitation.\n        // It was null, and DFU dereferenced it inside Cucumber\'s recipe classes: the same\n        // silent-NPE side door as Identifier.CODEC, one commit earlier.\n        public static final MapCodec<Recipe.CommonInfo> MAP_CODEC = com.mojang.serialization.codecs.RecordCodecBuilder.mapCodec(\n            i -> i.group(com.mojang.serialization.Codec.BOOL.optionalFieldOf("show_notification", true).forGetter(Recipe.CommonInfo::showNotification)).apply(i, Recipe.CommonInfo::new)\n        );'),
+])
+
+# ---------------------------------------------- null codec statics, category-wide
+# Every codec-typed static the pruner left at null. See Identifier.CODEC's comment
+# for the failure mode; these close the whole category with loud placeholders.
+edit('net/minecraft/core/component/DataComponentPatch.java', [
+    ('\n    public static final Codec<DataComponentPatch> CODEC = null;',
+     '\n    // Pumpkin divergence: a throwing codec, not null. DFU dereferences these while\n\n    // composing at class-init; null there is an NPE naming nothing. This survives\n\n    // composition and throws on first real serialisation, naming the field.\n\n    public static final Codec<DataComponentPatch> CODEC = dev.pumpkin.shim.Stubs.throwingCodec("net/minecraft/core/component/DataComponentPatch.CODEC");'),
+])
+
+edit('net/minecraft/world/item/Item.java', [
+    ('\n    public static final Codec<Holder<Item>> CODEC_WITH_BOUND_COMPONENTS = null;',
+     '\n    // Pumpkin divergence: a throwing codec, not null. DFU dereferences these while\n\n    // composing at class-init; null there is an NPE naming nothing. This survives\n\n    // composition and throws on first real serialisation, naming the field.\n\n    public static final Codec<Holder<Item>> CODEC_WITH_BOUND_COMPONENTS = dev.pumpkin.shim.Stubs.throwingCodec("net/minecraft/world/item/Item.CODEC_WITH_BOUND_COMPONENTS");'),
+])
+
+edit('net/minecraft/world/item/ItemStackTemplate.java', [
+    ('\n    public static final Codec<ItemStackTemplate> CODEC = null;',
+     '\n    // Pumpkin divergence: a throwing codec, not null. DFU dereferences these while\n\n    // composing at class-init; null there is an NPE naming nothing. This survives\n\n    // composition and throws on first real serialisation, naming the field.\n\n    public static final Codec<ItemStackTemplate> CODEC = dev.pumpkin.shim.Stubs.throwingCodec("net/minecraft/world/item/ItemStackTemplate.CODEC");'),
+])
+
+edit('net/minecraft/world/item/crafting/CraftingRecipe.java', [
+    ('\n        public static final MapCodec<CraftingRecipe.CraftingBookInfo> MAP_CODEC = null;',
+     '\n        // Pumpkin divergence: a throwing codec, not null. DFU dereferences these while\n\n        // composing at class-init; null there is an NPE naming nothing. This survives\n\n        // composition and throws on first real serialisation, naming the field.\n\n        public static final MapCodec<CraftingRecipe.CraftingBookInfo> MAP_CODEC = dev.pumpkin.shim.Stubs.throwingMapCodec("net/minecraft/world/item/crafting/CraftingRecipe.MAP_CODEC");'),
+])
+
+edit('net/minecraft/world/item/crafting/Ingredient.java', [
+    ('\n    public static final Codec<Ingredient> CODEC = null;',
+     '\n    // Pumpkin divergence: a throwing codec, not null. DFU dereferences these while\n\n    // composing at class-init; null there is an NPE naming nothing. This survives\n\n    // composition and throws on first real serialisation, naming the field.\n\n    public static final Codec<Ingredient> CODEC = dev.pumpkin.shim.Stubs.throwingCodec("net/minecraft/world/item/crafting/Ingredient.CODEC");'),
+])
+
+edit('net/minecraft/world/item/crafting/ShapedRecipePattern.java', [
+    ('\n    public static final MapCodec<ShapedRecipePattern> MAP_CODEC = null;',
+     '\n    // Pumpkin divergence: a throwing codec, not null. DFU dereferences these while\n\n    // composing at class-init; null there is an NPE naming nothing. This survives\n\n    // composition and throws on first real serialisation, naming the field.\n\n    public static final MapCodec<ShapedRecipePattern> MAP_CODEC = dev.pumpkin.shim.Stubs.throwingMapCodec("net/minecraft/world/item/crafting/ShapedRecipePattern.MAP_CODEC");'),
+])
+
+edit('net/minecraft/world/item/enchantment/Enchantment.java', [
+    ('\n    public static final Codec<Holder<Enchantment>> CODEC = null;',
+     '\n    // Pumpkin divergence: a throwing codec, not null. DFU dereferences these while\n\n    // composing at class-init; null there is an NPE naming nothing. This survives\n\n    // composition and throws on first real serialisation, naming the field.\n\n    public static final Codec<Holder<Enchantment>> CODEC = dev.pumpkin.shim.Stubs.throwingCodec("net/minecraft/world/item/enchantment/Enchantment.CODEC");'),
+])
+
+edit('net/minecraft/world/level/biome/Biome.java', [
+    ('\n    public static final Codec<HolderSet<Biome>> LIST_CODEC = null;',
+     '\n    // Pumpkin divergence: a throwing codec, not null. DFU dereferences these while\n\n    // composing at class-init; null there is an NPE naming nothing. This survives\n\n    // composition and throws on first real serialisation, naming the field.\n\n    public static final Codec<HolderSet<Biome>> LIST_CODEC = dev.pumpkin.shim.Stubs.throwingCodec("net/minecraft/world/level/biome/Biome.LIST_CODEC");'),
+])
+
+edit('net/minecraft/world/level/levelgen/feature/configurations/OreConfiguration.java', [
+    ('\n    public static final Codec<OreConfiguration> CODEC = null;',
+     '\n    // Pumpkin divergence: a throwing codec, not null. DFU dereferences these while\n\n    // composing at class-init; null there is an NPE naming nothing. This survives\n\n    // composition and throws on first real serialisation, naming the field.\n\n    public static final Codec<OreConfiguration> CODEC = dev.pumpkin.shim.Stubs.throwingCodec("net/minecraft/world/level/levelgen/feature/configurations/OreConfiguration.CODEC");'),
+])
+
+edit('net/minecraft/world/level/levelgen/placement/PlacedFeature.java', [
+    ('\n    public static final Codec<Holder<PlacedFeature>> CODEC = null;',
+     '\n    // Pumpkin divergence: a throwing codec, not null. DFU dereferences these while\n\n    // composing at class-init; null there is an NPE naming nothing. This survives\n\n    // composition and throws on first real serialisation, naming the field.\n\n    public static final Codec<Holder<PlacedFeature>> CODEC = dev.pumpkin.shim.Stubs.throwingCodec("net/minecraft/world/level/levelgen/placement/PlacedFeature.CODEC");'),
+])
+
+edit('net/neoforged/neoforge/common/conditions/ICondition.java', [
+    ('\n    Codec<ICondition> CODEC = null;',
+     '\n    // Pumpkin divergence: a throwing codec, not null. DFU dereferences these while\n\n    // composing at class-init; null there is an NPE naming nothing. This survives\n\n    // composition and throws on first real serialisation, naming the field.\n\n    Codec<ICondition> CODEC = dev.pumpkin.shim.Stubs.throwingCodec("net/neoforged/neoforge/common/conditions/ICondition.CODEC");'),
+])
+
+edit('net/neoforged/neoforge/common/crafting/SizedIngredient.java', [
+    ('\n    public static final Codec<SizedIngredient> NESTED_CODEC = null;',
+     '\n    // Pumpkin divergence: a throwing codec, not null. DFU dereferences these while\n\n    // composing at class-init; null there is an NPE naming nothing. This survives\n\n    // composition and throws on first real serialisation, naming the field.\n\n    public static final Codec<SizedIngredient> NESTED_CODEC = dev.pumpkin.shim.Stubs.throwingCodec("net/neoforged/neoforge/common/crafting/SizedIngredient.NESTED_CODEC");'),
+])
+
+# --------------------------------------------------------------- StreamCodec.of
+edit("net/minecraft/network/codec/StreamCodec.java", [
+    ('    static <B, V> StreamCodec<B, V> of(StreamEncoder<B, V> encoder, StreamDecoder<B, V> decoder) {\n        throw Unimplemented.forMember("net/minecraft/network/codec/StreamCodec.of:(Lnet/minecraft/network/codec/StreamEncoder;Lnet/minecraft/network/codec/StreamDecoder;)Lnet/minecraft/network/codec/StreamCodec;");\n    }',
+     "    // Pumpkin divergence: real body, copied from vanilla. Pure delegation over two shim\n    // interfaces -- the ARGB rule. Static interface methods cannot ride the proxy's\n    // default-method path, so this needs its own body.\n    static <B, V> StreamCodec<B, V> of(StreamEncoder<B, V> encoder, StreamDecoder<B, V> decoder) {\n        return new StreamCodec<B, V>() {\n            @Override\n            public V decode(B input) {\n                return decoder.decode(input);\n            }\n\n            @Override\n            public void encode(B output, V value) {\n                encoder.encode(output, value);\n            }\n        };\n    }"),
+])
+
 commit()

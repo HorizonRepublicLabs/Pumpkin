@@ -46,7 +46,9 @@ ext.gameLibraries = [
 ]
 
 // The single library the hand-written `fml` classes name; see project(':fml') below.
-ext.fmlLibraries = 'org.ow2.asm:asm:9.9'
+// Two libraries, not one: ASM for ModFileScanData's annotationType, and DataFixerUpper
+// for Stubs' throwing codecs -- both real libraries the shim runs against anyway.
+ext.fmlLibraries = ['org.ow2.asm:asm:9.9', 'com.mojang:datafixerupper:8.0.16']
 
 // The shim compiles against the game libraries but does not bundle them, so a JVM booted
 // on shim+fml+host alone cannot load it: the first real mod dies on
@@ -57,7 +59,7 @@ project(':shim') {
     configurations { runtimeLibs }
     dependencies {
         rootProject.ext.gameLibraries.each { runtimeLibs it }
-        runtimeLibs rootProject.ext.fmlLibraries
+        rootProject.ext.fmlLibraries.each { runtimeLibs it }
     }
     tasks.register('collectRuntimeLibs', Copy) {
         group = 'shim'
@@ -84,7 +86,7 @@ project(':shim') {
 // every body here throws, so nothing is needed at run time.
 project(':fml') {
     dependencies {
-        compileOnly rootProject.ext.fmlLibraries
+        rootProject.ext.fmlLibraries.each { compileOnly it }
     }
 }
 project(':shim') {
@@ -138,7 +140,7 @@ project(':generator') {
         rootProject.ext.gameLibraries.each { linkageLibraries it }
         // ASM as well: the mods call `AnnotationData.annotationType()`, whose return type
         // has to be loadable for the member to resolve at all.
-        linkageLibraries rootProject.ext.fmlLibraries
+        rootProject.ext.fmlLibraries.each { linkageLibraries it }
     }
 
     tasks.register('linkageCheck', JavaExec) {

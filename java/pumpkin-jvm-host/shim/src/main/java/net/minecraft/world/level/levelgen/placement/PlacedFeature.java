@@ -8,7 +8,13 @@ import dev.pumpkin.shim.Unimplemented;
 
 public record PlacedFeature(Holder<ConfiguredFeature<?, ?>> feature, List<PlacementModifier> placement) {
 
-    public static final Codec<Holder<PlacedFeature>> CODEC = null;
+    // Pumpkin divergence: a throwing codec, not null. DFU dereferences these while
+
+    // composing at class-init; null there is an NPE naming nothing. This survives
+
+    // composition and throws on first real serialisation, naming the field.
+
+    public static final Codec<Holder<PlacedFeature>> CODEC = dev.pumpkin.shim.Stubs.throwingCodec("net/minecraft/world/level/levelgen/placement/PlacedFeature.CODEC");
 
     public String toString() {
         throw Unimplemented.forMember("net/minecraft/world/level/levelgen/placement/PlacedFeature.toString:()Ljava/lang/String;");

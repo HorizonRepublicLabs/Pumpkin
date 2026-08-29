@@ -16,8 +16,21 @@ import dev.pumpkin.shim.Unimplemented;
 
 public interface StreamCodec<B, V> extends StreamEncoder<B, V>, StreamDecoder<B, V> {
 
+    // Pumpkin divergence: real body, copied from vanilla. Pure delegation over two shim
+    // interfaces -- the ARGB rule. Static interface methods cannot ride the proxy's
+    // default-method path, so this needs its own body.
     static <B, V> StreamCodec<B, V> of(StreamEncoder<B, V> encoder, StreamDecoder<B, V> decoder) {
-        throw Unimplemented.forMember("net/minecraft/network/codec/StreamCodec.of:(Lnet/minecraft/network/codec/StreamEncoder;Lnet/minecraft/network/codec/StreamDecoder;)Lnet/minecraft/network/codec/StreamCodec;");
+        return new StreamCodec<B, V>() {
+            @Override
+            public V decode(B input) {
+                return decoder.decode(input);
+            }
+
+            @Override
+            public void encode(B output, V value) {
+                encoder.encode(output, value);
+            }
+        };
     }
 
     static <B, V> StreamCodec<B, V> unit(V instance) {

@@ -8,7 +8,13 @@ import dev.pumpkin.shim.Unimplemented;
 
 public class OreConfiguration implements FeatureConfiguration {
 
-    public static final Codec<OreConfiguration> CODEC = null;
+    // Pumpkin divergence: a throwing codec, not null. DFU dereferences these while
+
+    // composing at class-init; null there is an NPE naming nothing. This survives
+
+    // composition and throws on first real serialisation, naming the field.
+
+    public static final Codec<OreConfiguration> CODEC = dev.pumpkin.shim.Stubs.throwingCodec("net/minecraft/world/level/levelgen/feature/configurations/OreConfiguration.CODEC");
 
     public final List<OreConfiguration.TargetBlockState> targetStates = null;
 

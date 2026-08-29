@@ -28,7 +28,13 @@ public interface CraftingRecipe extends Recipe<CraftingInput> {
 
     record CraftingBookInfo(CraftingBookCategory category, String group) implements Recipe.BookInfo<CraftingBookCategory> {
 
-        public static final MapCodec<CraftingRecipe.CraftingBookInfo> MAP_CODEC = null;
+        // Pumpkin divergence: a throwing codec, not null. DFU dereferences these while
+
+        // composing at class-init; null there is an NPE naming nothing. This survives
+
+        // composition and throws on first real serialisation, naming the field.
+
+        public static final MapCodec<CraftingRecipe.CraftingBookInfo> MAP_CODEC = dev.pumpkin.shim.Stubs.throwingMapCodec("net/minecraft/world/item/crafting/CraftingRecipe.MAP_CODEC");
 
         public static final StreamCodec<RegistryFriendlyByteBuf, CraftingRecipe.CraftingBookInfo> STREAM_CODEC = Stubs.of(StreamCodec.class, "net/minecraft/network/codec/StreamCodec");
     }

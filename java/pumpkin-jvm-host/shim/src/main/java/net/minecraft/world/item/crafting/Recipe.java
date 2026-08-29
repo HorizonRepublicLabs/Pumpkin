@@ -51,7 +51,14 @@ public interface Recipe<T extends RecipeInput> {
 
     record CommonInfo(boolean showNotification) {
 
-        public static final MapCodec<Recipe.CommonInfo> MAP_CODEC = null;
+        // Pumpkin divergence: real value, copied from vanilla. Entirely self-contained
+        // over DataFixerUpper -- Codec.BOOL, this record's own accessor and constructor --
+        // and DFU is a real library here, so this is vanilla's codec, not an imitation.
+        // It was null, and DFU dereferenced it inside Cucumber's recipe classes: the same
+        // silent-NPE side door as Identifier.CODEC, one commit earlier.
+        public static final MapCodec<Recipe.CommonInfo> MAP_CODEC = com.mojang.serialization.codecs.RecordCodecBuilder.mapCodec(
+            i -> i.group(com.mojang.serialization.Codec.BOOL.optionalFieldOf("show_notification", true).forGetter(Recipe.CommonInfo::showNotification)).apply(i, Recipe.CommonInfo::new)
+        );
 
         public static final StreamCodec<RegistryFriendlyByteBuf, Recipe.CommonInfo> STREAM_CODEC = Stubs.of(StreamCodec.class, "net/minecraft/network/codec/StreamCodec");
     }

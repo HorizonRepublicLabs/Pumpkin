@@ -78,6 +78,14 @@ public final class Stubs {
                     if (answer != null) {
                         return answer;
                     }
+                    // A default method carries its own real implementation -- Codec.fieldOf
+                    // builds a MapCodec out of `this`, and DFU composes through it at
+                    // class-initialisation. Run it: the logic exists, and throwing here
+                    // would stop a mod over code that is not missing. Only the abstract
+                    // methods -- the ones with genuinely nothing behind them -- throw.
+                    if (method.isDefault()) {
+                        return InvocationHandler.invokeDefault(proxy, method, args);
+                    }
                     throw Unimplemented.forMember(
                             owner + "." + method.getName() + ":" + descriptorOf(method));
                 }
@@ -85,6 +93,56 @@ public final class Stubs {
         };
         return iface.cast(
                 Proxy.newProxyInstance(iface.getClassLoader(), new Class<?>[] {iface}, handler));
+    }
+
+    /**
+     * A {@link com.mojang.serialization.Codec} that throws on any encode or decode.
+     *
+     * <p>For codec-typed statics the pruner stripped to {@code null}. The consumer is not a
+     * mod calling a shim method but DataFixerUpper -- a real library -- dereferencing the
+     * field while composing recipe codecs at class-initialisation. A null there is an NPE
+     * deep in library code naming nothing; this survives composition and fails on first
+     * actual serialisation, naming the field, and nothing serialises yet.
+     */
+    @SuppressWarnings("unchecked")
+    public static <T> com.mojang.serialization.Codec<T> throwingCodec(String fieldKey) {
+        return (com.mojang.serialization.Codec<T>) of(com.mojang.serialization.Codec.class, fieldKey);
+    }
+
+    /**
+     * A {@link com.mojang.serialization.MapCodec} that throws on any encode or decode.
+     *
+     * <p>Same purpose as {@link #throwingCodec}, but {@code MapCodec} is an abstract class,
+     * so no proxy: a minimal subclass whose three abstract methods throw. Concrete methods
+     * like {@code forGetter} keep working, which is what lets a mod's
+     * {@code RecordCodecBuilder} composition finish at class-initialisation.
+     */
+    public static <T> com.mojang.serialization.MapCodec<T> throwingMapCodec(String fieldKey) {
+        return new com.mojang.serialization.MapCodec<>() {
+            @Override
+            public <O> java.util.stream.Stream<O> keys(com.mojang.serialization.DynamicOps<O> ops) {
+                throw Unimplemented.forMember(fieldKey);
+            }
+
+            @Override
+            public <O> com.mojang.serialization.DataResult<T> decode(
+                    com.mojang.serialization.DynamicOps<O> ops,
+                    com.mojang.serialization.MapLike<O> input) {
+                throw Unimplemented.forMember(fieldKey);
+            }
+
+            @Override
+            public <O> com.mojang.serialization.RecordBuilder<O> encode(T input,
+                    com.mojang.serialization.DynamicOps<O> ops,
+                    com.mojang.serialization.RecordBuilder<O> prefix) {
+                throw Unimplemented.forMember(fieldKey);
+            }
+
+            @Override
+            public String toString() {
+                return "throwing " + fieldKey;
+            }
+        };
     }
 
     /** The JVM descriptor for a method, so the key matches the manifest's spelling exactly. */

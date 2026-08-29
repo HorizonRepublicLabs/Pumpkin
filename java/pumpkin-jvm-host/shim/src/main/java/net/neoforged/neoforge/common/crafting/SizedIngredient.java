@@ -10,7 +10,13 @@ import dev.pumpkin.shim.Unimplemented;
 
 public final class SizedIngredient {
 
-    public static final Codec<SizedIngredient> NESTED_CODEC = null;
+    // Pumpkin divergence: a throwing codec, not null. DFU dereferences these while
+
+    // composing at class-init; null there is an NPE naming nothing. This survives
+
+    // composition and throws on first real serialisation, naming the field.
+
+    public static final Codec<SizedIngredient> NESTED_CODEC = dev.pumpkin.shim.Stubs.throwingCodec("net/neoforged/neoforge/common/crafting/SizedIngredient.NESTED_CODEC");
 
     public static final StreamCodec<RegistryFriendlyByteBuf, SizedIngredient> STREAM_CODEC = Stubs.of(StreamCodec.class, "net/minecraft/network/codec/StreamCodec");
 

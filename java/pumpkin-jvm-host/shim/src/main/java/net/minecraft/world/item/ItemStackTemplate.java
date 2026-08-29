@@ -11,7 +11,13 @@ import dev.pumpkin.shim.Unimplemented;
 
 public record ItemStackTemplate(Holder<Item> item, int count, DataComponentPatch components) implements ItemInstance {
 
-    public static final Codec<ItemStackTemplate> CODEC = null;
+    // Pumpkin divergence: a throwing codec, not null. DFU dereferences these while
+
+    // composing at class-init; null there is an NPE naming nothing. This survives
+
+    // composition and throws on first real serialisation, naming the field.
+
+    public static final Codec<ItemStackTemplate> CODEC = dev.pumpkin.shim.Stubs.throwingCodec("net/minecraft/world/item/ItemStackTemplate.CODEC");
 
     public static final StreamCodec<RegistryFriendlyByteBuf, ItemStackTemplate> STREAM_CODEC = Stubs.of(StreamCodec.class, "net/minecraft/network/codec/StreamCodec");
 

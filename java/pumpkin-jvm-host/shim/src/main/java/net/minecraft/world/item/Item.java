@@ -35,7 +35,13 @@ import dev.pumpkin.shim.Unimplemented;
 
 public class Item implements ItemLike, FeatureElement, IItemExtension {
 
-    public static final Codec<Holder<Item>> CODEC_WITH_BOUND_COMPONENTS = null;
+    // Pumpkin divergence: a throwing codec, not null. DFU dereferences these while
+
+    // composing at class-init; null there is an NPE naming nothing. This survives
+
+    // composition and throws on first real serialisation, naming the field.
+
+    public static final Codec<Holder<Item>> CODEC_WITH_BOUND_COMPONENTS = dev.pumpkin.shim.Stubs.throwingCodec("net/minecraft/world/item/Item.CODEC_WITH_BOUND_COMPONENTS");
 
     private final Holder.Reference<Item> builtInRegistryHolder = null;
 

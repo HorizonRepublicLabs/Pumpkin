@@ -13,7 +13,13 @@ public final class DataComponentPatch {
 
     public static final DataComponentPatch EMPTY = null;
 
-    public static final Codec<DataComponentPatch> CODEC = null;
+    // Pumpkin divergence: a throwing codec, not null. DFU dereferences these while
+
+    // composing at class-init; null there is an NPE naming nothing. This survives
+
+    // composition and throws on first real serialisation, naming the field.
+
+    public static final Codec<DataComponentPatch> CODEC = dev.pumpkin.shim.Stubs.throwingCodec("net/minecraft/core/component/DataComponentPatch.CODEC");
 
     DataComponentPatch(Reference2ObjectMap<DataComponentType<?>, Optional<?>> map) {
         throw Unimplemented.forMember("net/minecraft/core/component/DataComponentPatch.<init>:(Lit/unimi/dsi/fastutil/objects/Reference2ObjectMap;)V");

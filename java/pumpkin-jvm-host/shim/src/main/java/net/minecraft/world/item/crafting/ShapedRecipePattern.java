@@ -20,7 +20,13 @@ public final class ShapedRecipePattern {
         throw Unimplemented.forMember("net/minecraft/world/item/crafting/ShapedRecipePattern.getMaxHeight:()I");
     }
 
-    public static final MapCodec<ShapedRecipePattern> MAP_CODEC = null;
+    // Pumpkin divergence: a throwing codec, not null. DFU dereferences these while
+
+    // composing at class-init; null there is an NPE naming nothing. This survives
+
+    // composition and throws on first real serialisation, naming the field.
+
+    public static final MapCodec<ShapedRecipePattern> MAP_CODEC = dev.pumpkin.shim.Stubs.throwingMapCodec("net/minecraft/world/item/crafting/ShapedRecipePattern.MAP_CODEC");
 
     public static final StreamCodec<RegistryFriendlyByteBuf, ShapedRecipePattern> STREAM_CODEC = Stubs.of(StreamCodec.class, "net/minecraft/network/codec/StreamCodec");
 

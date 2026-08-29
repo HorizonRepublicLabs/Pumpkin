@@ -19,7 +19,13 @@ public final class Ingredient implements Predicate<ItemStack>, StackedContents.I
 
     public static final StreamCodec<RegistryFriendlyByteBuf, Ingredient> CONTENTS_STREAM_CODEC = Stubs.of(StreamCodec.class, "net/minecraft/network/codec/StreamCodec");
 
-    public static final Codec<Ingredient> CODEC = null;
+    // Pumpkin divergence: a throwing codec, not null. DFU dereferences these while
+
+    // composing at class-init; null there is an NPE naming nothing. This survives
+
+    // composition and throws on first real serialisation, naming the field.
+
+    public static final Codec<Ingredient> CODEC = dev.pumpkin.shim.Stubs.throwingCodec("net/minecraft/world/item/crafting/Ingredient.CODEC");
 
     private Ingredient(HolderSet<Item> values) {
         throw Unimplemented.forMember("net/minecraft/world/item/crafting/Ingredient.<init>:(Lnet/minecraft/core/HolderSet;)V");

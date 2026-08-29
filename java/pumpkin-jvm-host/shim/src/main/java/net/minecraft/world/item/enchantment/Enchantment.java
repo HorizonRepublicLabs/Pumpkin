@@ -19,7 +19,13 @@ import dev.pumpkin.shim.Unimplemented;
 
 public record Enchantment(Component description, Enchantment.EnchantmentDefinition definition, HolderSet<Enchantment> exclusiveSet, DataComponentMap effects) {
 
-    public static final Codec<Holder<Enchantment>> CODEC = null;
+    // Pumpkin divergence: a throwing codec, not null. DFU dereferences these while
+
+    // composing at class-init; null there is an NPE naming nothing. This survives
+
+    // composition and throws on first real serialisation, naming the field.
+
+    public static final Codec<Holder<Enchantment>> CODEC = dev.pumpkin.shim.Stubs.throwingCodec("net/minecraft/world/item/enchantment/Enchantment.CODEC");
 
     public static final StreamCodec<RegistryFriendlyByteBuf, Holder<Enchantment>> STREAM_CODEC = Stubs.of(StreamCodec.class, "net/minecraft/network/codec/StreamCodec");
 
