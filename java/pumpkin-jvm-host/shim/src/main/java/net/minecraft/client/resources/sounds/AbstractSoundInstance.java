@@ -10,6 +10,16 @@ import dev.pumpkin.shim.Unimplemented;
 
 public abstract class AbstractSoundInstance implements SoundInstance {
 
+    protected float volume;
+
+    protected double x;
+
+    protected double y;
+
+    protected double z;
+
+    protected boolean looping;
+
     protected AbstractSoundInstance(SoundEvent event, SoundSource source, RandomSource random) {
         throw Unimplemented.forMember("net/minecraft/client/resources/sounds/AbstractSoundInstance.<init>:(Lnet/minecraft/sounds/SoundEvent;Lnet/minecraft/sounds/SoundSource;Lnet/minecraft/util/RandomSource;)V");
     }

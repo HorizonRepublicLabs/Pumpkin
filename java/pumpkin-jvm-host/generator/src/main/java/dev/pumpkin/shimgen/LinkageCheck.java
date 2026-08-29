@@ -106,23 +106,32 @@ public final class LinkageCheck {
                 modClasses.addAll(classesIn(jar));
             }
 
-            Refs refs = new Refs();
+            // The mod class set is an input to collection, not just to resolution: a
+            // reference whose owner is a mod class is exactly the inherited-member case
+            // (see resolveInheritedMember), and it has to be collected to be checked.
+            Refs refs = new Refs(modClasses);
             for (Path jar : parsed.modJars) {
                 collectRefs(jar, refs);
             }
 
+            Counts counts = new Counts();
             for (String modClass : modClasses) {
                 resolveClassShape(modClass, loader, findings);
             }
             for (Map.Entry<String, SortedSet<String>> entry : refs.types.entrySet()) {
-                resolveType(entry.getKey(), entry.getValue(), loader, findings);
+                resolveType(entry.getKey(), entry.getValue(), loader, findings, counts);
             }
             for (Map.Entry<Ref, SortedSet<String>> entry : refs.members.entrySet()) {
-                resolveMember(entry.getKey(), entry.getValue(), loader, findings);
+                Ref ref = entry.getKey();
+                if (Shimmed.isShimmed(ref.owner())) {
+                    resolveMember(ref, entry.getValue(), loader, findings, counts);
+                } else {
+                    resolveInheritedMember(ref, entry.getValue(), loader, findings, counts);
+                }
             }
 
-            report(parsed, libraries, modClasses.size(), refs, findings);
-            if (findings.hasShimFailures()) {
+            report(parsed, libraries, modClasses.size(), counts, findings);
+            if (findings.hasFailures()) {
                 System.exit(1);
             }
         }
@@ -168,10 +177,12 @@ public final class LinkageCheck {
     }
 
     private static void resolveType(String internalName, SortedSet<String> referrers, ClassLoader loader,
-            Findings findings) {
+            Findings findings, Counts counts) {
+        counts.classRefs++;
         try {
             Class.forName(internalName.replace('/', '.'), false, loader);
         } catch (ClassNotFoundException | LinkageError e) {
+            counts.classMissing++;
             String missing = missingNameOf(e);
             for (String referrer : referrers) {
                 findings.add(missing, kindOf(e), referrer);
@@ -179,77 +190,178 @@ public final class LinkageCheck {
         }
     }
 
-    private static void resolveMember(Ref ref, SortedSet<String> referrers, ClassLoader loader, Findings findings) {
+    /** A reference whose owner is itself a shimmed class: resolve it there. */
+    private static void resolveMember(Ref ref, SortedSet<String> referrers, ClassLoader loader, Findings findings,
+            Counts counts) {
+        counts.shimMemberRefs++;
         Class<?> owner;
         try {
             owner = Class.forName(ref.owner().replace('/', '.'), false, loader);
         } catch (ClassNotFoundException | LinkageError e) {
-            // Already reported by resolveType, which sees the same owner.
+            // Already reported by resolveType, which sees the same owner. Counted as
+            // missing all the same: the member is no more reachable than its class.
+            counts.shimMemberMissing++;
             return;
         }
-        Member found = ref.isMethod() ? findMethod(owner, ref, findings, referrers) : findField(owner, ref);
+        Hierarchy hierarchy = hierarchyOf(owner);
+        Member found = ref.isMethod() ? findMethod(owner, hierarchy, ref, findings) : findField(hierarchy, ref);
         if (found == null) {
+            counts.shimMemberMissing++;
             String kind = ref.isMethod() ? "NoSuchMethodError" : "NoSuchFieldError";
             for (String referrer : referrers) {
                 findings.add(ref.key(), kind, referrer);
             }
             return;
         }
-        // Resolved, but possibly not the way the call site expects. An INVOKEINTERFACE
-        // against a class, or an INVOKESTATIC against an instance member, is an
-        // IncompatibleClassChangeError at the first call, not at resolution -- so it is
-        // reported and not counted as unresolved.
+        reportKindMismatch(ref, owner, found, referrers, findings);
+    }
+
+    /**
+     * A reference whose owner is a <em>mod</em> class but whose target is declared in the
+     * shim -- the case javac's static receiver type hides.
+     *
+     * <p>{@code EnchanterRenderer} calls {@code EnchanterTileEntity.getBlockState()}. The
+     * constant pool records the owner as the mod's own subclass, because that is the
+     * static type of the receiver; {@code getBlockState} is declared four levels up on
+     * {@code BlockEntity}. Filtering references by "is the owner shimmed?" -- which both
+     * this check and {@link JarScanner} used to do -- drops the reference entirely, so the
+     * scanner never records the member, the pruner deletes it as uncalled, and this check
+     * scores a {@code NoSuchMethodError} as resolved. There are 80 such references in the
+     * two mod jars.
+     *
+     * <p>So: walk the loaded hierarchy. If some class declares the member, the reference
+     * is fine -- and it is only <em>the shim's</em> business if that declarer is shimmed.
+     * If nothing declares it, it is a real failure, attributed to the nearest shimmed
+     * ancestor, which is the class that has to grow the member.
+     */
+    private static void resolveInheritedMember(Ref ref, SortedSet<String> referrers, ClassLoader loader,
+            Findings findings, Counts counts) {
+        if (ref.name().equals("<init>")) {
+            // A constructor is never inherited; the owner declares it or nothing does,
+            // and the owner here is the mod's own class.
+            return;
+        }
+        Class<?> owner;
+        try {
+            owner = Class.forName(ref.owner().replace('/', '.'), false, loader);
+        } catch (ClassNotFoundException | LinkageError e) {
+            // The mod class itself did not load -- reported by the class-shape pass, and
+            // its hierarchy is unknown, so nothing can be concluded about this member.
+            return;
+        }
+        Hierarchy hierarchy = hierarchyOf(owner);
+        String nearestShimmed = nearestShimmedIn(hierarchy);
+        if (nearestShimmed == null) {
+            // Nothing shimmed anywhere above this receiver: a mod calling its own code.
+            return;
+        }
+        Member found = ref.isMethod() ? findMethod(owner, hierarchy, ref, findings) : findField(hierarchy, ref);
+        if (found != null) {
+            if (!Shimmed.isShimmed(internalNameOf(found.declaringClass()))) {
+                // A mod class declares it. Resolvable, and not the shim's to supply.
+                return;
+            }
+            counts.inheritedRefs++;
+            reportKindMismatch(ref, owner, found, referrers, findings);
+            return;
+        }
+        if (!hierarchy.complete()) {
+            // A supertype is absent (a JEI or Jade class this checkout lacks), so "not
+            // found" would be an accusation the evidence does not support.
+            return;
+        }
+        counts.inheritedRefs++;
+        counts.inheritedMissing++;
+        String key = nearestShimmed + "." + ref.name() + ":" + ref.descriptor();
+        String kind = ref.isMethod() ? "NoSuchMethodError" : "NoSuchFieldError";
+        for (String referrer : referrers) {
+            findings.add(key, kind, referrer + " (through " + ref.owner() + ")");
+        }
+    }
+
+    /**
+     * Resolved, but possibly not the way the call site expects. An {@code INVOKEINTERFACE}
+     * against a class, or an {@code INVOKESTATIC} against an instance member, resolves and
+     * then throws {@code IncompatibleClassChangeError} at the first call. It is reported
+     * separately from an unresolved reference because it is a different failure -- but it
+     * fails the run all the same: this is the defect class that found {@code IEventBus}
+     * being a class where every mod emits {@code invokeinterface}, and a report nothing is
+     * forced to read is not a gate.
+     */
+    private static void reportKindMismatch(Ref ref, Class<?> owner, Member found, SortedSet<String> referrers,
+            Findings findings) {
         if (ref.expectsStatic() != found.isStatic()) {
             findings.mismatch(ref.key() + "  (call site expects " + (ref.expectsStatic() ? "static" : "instance")
                     + ", shim declares " + (found.isStatic() ? "static" : "instance") + ")", referrers);
-        } else if (ref.expectsInterfaceOwner() && !owner.isInterface()) {
+            return;
+        }
+        if (!Shimmed.isShimmed(internalNameOf(owner))) {
+            // The receiver type is a mod class. Whether it is a class or an interface is
+            // the mod's own affair, and it is right either way -- an INVOKEVIRTUAL on a
+            // class that inherits a default method from a shimmed interface is ordinary,
+            // legal Java (JVMS 5.4.3.3 searches superinterfaces after superclasses), so
+            // asking this question here produced four false positives.
+            return;
+        }
+        if (ref.expectsInterfaceOwner() && !owner.isInterface()) {
             findings.mismatch(ref.key() + "  (call site expects an interface, shim declares a class)", referrers);
         } else if (!ref.expectsInterfaceOwner() && ref.isMethod() && owner.isInterface() && !ref.expectsStatic()) {
             findings.mismatch(ref.key() + "  (call site expects a class, shim declares an interface)", referrers);
         }
     }
 
-    /** A resolved field or method, reduced to the one property resolution can disagree about. */
-    private record Member(boolean isStatic) {}
+    /** The first shimmed class in {@code hierarchy}'s breadth-first order, or {@code null}. */
+    private static String nearestShimmedIn(Hierarchy hierarchy) {
+        for (Class<?> c : hierarchy.classes()) {
+            String internalName = internalNameOf(c);
+            if (Shimmed.isShimmed(internalName)) {
+                return internalName;
+            }
+        }
+        return null;
+    }
+
+    /** A resolved field or method: where it is declared, and whether it is static. */
+    private record Member(Class<?> declaringClass, boolean isStatic) {}
 
     /**
      * Method resolution, JVMS 5.4.3.3-shaped: the class itself, then its superclasses,
      * then every interface it transitively implements. {@code <init>} is looked up on the
      * declaring class only, which is what the JVM does.
      */
-    private static Member findMethod(Class<?> owner, Ref ref, Findings findings, SortedSet<String> referrers) {
+    private static Member findMethod(Class<?> owner, Hierarchy hierarchy, Ref ref, Findings findings) {
         if (ref.name().equals("<init>")) {
             try {
                 for (Constructor<?> ctor : owner.getDeclaredConstructors()) {
                     if (Type.getConstructorDescriptor(ctor).equals(ref.descriptor())) {
-                        return new Member(false);
+                        return new Member(owner, false);
                     }
                 }
             } catch (LinkageError e) {
-                findings.add(missingNameOf(e), kindOf(e), owner.getName().replace('.', '/'));
+                findings.add(missingNameOf(e), kindOf(e), internalNameOf(owner));
             }
             return null;
         }
-        for (Class<?> c : hierarchyOf(owner)) {
+        for (Class<?> c : hierarchy.classes()) {
             try {
                 for (Method m : c.getDeclaredMethods()) {
                     if (m.getName().equals(ref.name()) && Type.getMethodDescriptor(m).equals(ref.descriptor())) {
-                        return new Member(Modifier.isStatic(m.getModifiers()));
+                        return new Member(c, Modifier.isStatic(m.getModifiers()));
                     }
                 }
             } catch (LinkageError e) {
-                findings.add(missingNameOf(e), kindOf(e), c.getName().replace('.', '/'));
+                findings.add(missingNameOf(e), kindOf(e), internalNameOf(c));
             }
         }
         return null;
     }
 
-    private static Member findField(Class<?> owner, Ref ref) {
-        for (Class<?> c : hierarchyOf(owner)) {
+    private static Member findField(Hierarchy hierarchy, Ref ref) {
+        for (Class<?> c : hierarchy.classes()) {
             try {
                 for (Field f : c.getDeclaredFields()) {
                     if (f.getName().equals(ref.name()) && Type.getDescriptor(f.getType()).equals(ref.descriptor())) {
-                        return new Member(Modifier.isStatic(f.getModifiers()));
+                        return new Member(c, Modifier.isStatic(f.getModifiers()));
                     }
                 }
             } catch (LinkageError e) {
@@ -260,12 +372,24 @@ public final class LinkageCheck {
         return null;
     }
 
-    /** {@code owner}, its superclasses, and every interface either transitively implements. */
-    private static List<Class<?>> hierarchyOf(Class<?> owner) {
+    /**
+     * {@code owner}, its superclasses, and every interface either transitively implements,
+     * breadth-first.
+     *
+     * <p>{@code complete} is false when a supertype could not be loaded. It is the
+     * difference between "the shim does not declare this member" and "we could not see far
+     * enough to say": a mod class extending a JEI class this checkout lacks has a truncated
+     * hierarchy, and calling a member missing from it a linkage failure would be an
+     * accusation the evidence does not support.
+     */
+    private record Hierarchy(List<Class<?>> classes, boolean complete) {}
+
+    private static Hierarchy hierarchyOf(Class<?> owner) {
         List<Class<?>> ordered = new ArrayList<>();
         Set<Class<?>> seen = new LinkedHashSet<>();
         Deque<Class<?>> queue = new ArrayDeque<>();
         queue.add(owner);
+        boolean complete = true;
         while (!queue.isEmpty()) {
             Class<?> c = queue.poll();
             if (!seen.add(c)) {
@@ -281,10 +405,14 @@ public final class LinkageCheck {
                 }
                 queue.addAll(List.of(c.getInterfaces()));
             } catch (LinkageError e) {
-                // A supertype that is not there is the class-shape pass's finding.
+                complete = false;
             }
         }
-        return ordered;
+        return new Hierarchy(ordered, complete);
+    }
+
+    private static String internalNameOf(Class<?> c) {
+        return c.getName().replace('.', '/');
     }
 
     /**
@@ -296,12 +424,39 @@ public final class LinkageCheck {
         if (message == null || message.isBlank()) {
             return e.getClass().getSimpleName() + " (no message)";
         }
-        // "Could not initialize class X" and similar prose; keep the whole message rather
-        // than guess at a name that is not there.
         if (message.contains(" ")) {
+            // Prose: "X has been compiled by a more recent version...", "Could not
+            // initialize class X". The whole message is kept as the display key, because
+            // truncating it to a name would throw away the only statement of what went
+            // wrong; {@link #subjectOf} is what decides whose problem it is.
             return message;
         }
         return message.replace('.', '/');
+    }
+
+    /**
+     * The class a finding is about, in internal form, or {@code null} when it cannot be
+     * determined. Used only to decide whether a finding is the shim's to answer for.
+     *
+     * <p>{@code null} is not "ignore it". A finding whose subject cannot be read is
+     * counted as a shim failure, because the alternative -- what this method used to do
+     * by returning the whole prose message and letting it fail {@code isShimmed} -- is to
+     * drop an {@code UnsupportedClassVersionError} or a {@code VerifyError} into the
+     * uncounted bucket and print a green number underneath it.
+     */
+    private static String subjectOf(String finding) {
+        String candidate = finding;
+        int space = candidate.indexOf(' ');
+        if (space >= 0) {
+            // A JVM LinkageError message conventionally opens with the class it is about.
+            candidate = candidate.substring(0, space);
+        }
+        int dot = candidate.indexOf('.');
+        if (dot >= 0) {
+            // A member key: owner.name:descriptor.
+            candidate = candidate.substring(0, dot);
+        }
+        return candidate.matches("[A-Za-z_$][A-Za-z0-9_$]*(/[A-Za-z0-9_$]+)*") ? candidate : null;
     }
 
     private static String kindOf(Throwable e) {
@@ -345,10 +500,25 @@ public final class LinkageCheck {
         }
     }
 
-    /** Every reference a mod class makes into a shimmed package, with who made it. */
+    /**
+     * Every reference a mod class makes that the shim could be responsible for, with who
+     * made it.
+     *
+     * <p>Type references are filtered to shimmed packages, which is exact: a type
+     * reference names the type itself. Member references cannot be filtered that way,
+     * because javac writes the <em>static receiver type</em> as the owner -- so a mod
+     * calling an inherited vanilla method through its own subclass produces a
+     * {@code Methodref} owned by a mod class. Those are collected too, and
+     * {@link #resolveInheritedMember} decides which of them land in the shim.
+     */
     private static final class Refs {
         final TreeMap<String, SortedSet<String>> types = new TreeMap<>();
         final TreeMap<Ref, SortedSet<String>> members = new TreeMap<>();
+        private final Set<String> modClasses;
+
+        Refs(Set<String> modClasses) {
+            this.modClasses = modClasses;
+        }
 
         /** {@code internalName} is an internal name ({@code net/minecraft/X}), never a descriptor. */
         void type(String internalName, String referrer) {
@@ -397,7 +567,9 @@ public final class LinkageCheck {
         }
 
         void member(Ref ref, String referrer) {
-            if (!Shimmed.isShimmed(ref.owner())) {
+            if (!Shimmed.isShimmed(ref.owner()) && !modClasses.contains(ref.owner())) {
+                // Neither the shim's nor reachable through a mod class: the JDK, a
+                // library, or another mod's API. Nothing here can be the shim's fault.
                 return;
             }
             members.computeIfAbsent(ref, k -> new TreeSet<>()).add(referrer);
@@ -536,6 +708,30 @@ public final class LinkageCheck {
 
     // ---------------------------------------------------------------- reporting
 
+    /**
+     * What was checked, so the headline number is a count of references and not of
+     * findings. Every reference the run considered increments exactly one of the three
+     * {@code *Refs} counters, and a failing one also increments its {@code *Missing}
+     * partner.
+     */
+    private static final class Counts {
+        int classRefs;
+        int classMissing;
+        int shimMemberRefs;
+        int shimMemberMissing;
+        /** Members reached through a mod class and declared -- or owed -- by the shim. */
+        int inheritedRefs;
+        int inheritedMissing;
+
+        int total() {
+            return classRefs + shimMemberRefs + inheritedRefs;
+        }
+
+        int missing() {
+            return classMissing + shimMemberMissing + inheritedMissing;
+        }
+    }
+
     /** Unresolved references, grouped by what is missing rather than by who wanted it. */
     private static final class Findings {
         private final TreeMap<String, SortedSet<String>> shim = new TreeMap<>();
@@ -544,8 +740,12 @@ public final class LinkageCheck {
         private final TreeMap<String, SortedSet<String>> mismatches = new TreeMap<>();
 
         void add(String missing, String kind, String referrer) {
-            String owner = missing.contains(".") ? missing.substring(0, missing.indexOf('.')) : missing;
-            if (Shimmed.isShimmed(owner)) {
+            String subject = subjectOf(missing);
+            // subject == null means the finding could not be attributed to a class. It
+            // goes in the counted bucket on purpose: an unreadable LinkageError is a
+            // failure, and the uncounted bucket is only ever for findings positively
+            // identified as somebody else's.
+            if (subject == null || Shimmed.isShimmed(subject)) {
                 shim.computeIfAbsent(missing, k -> new TreeSet<>()).add(referrer);
                 shimKind.put(missing, kind);
             } else {
@@ -557,29 +757,23 @@ public final class LinkageCheck {
             mismatches.computeIfAbsent(description, k -> new TreeSet<>()).addAll(referrers);
         }
 
-        boolean hasShimFailures() {
-            return !shim.isEmpty();
+        /**
+         * Mismatches fail the run as well as unresolved references. They are a different
+         * defect -- they resolve, then throw {@code IncompatibleClassChangeError} at the
+         * call -- but they are no less fatal to a mod, and a finding that only prints is
+         * a finding the next person scrolls past.
+         */
+        boolean hasFailures() {
+            return !shim.isEmpty() || !mismatches.isEmpty();
         }
     }
 
-    private static void report(Args parsed, List<Path> libraries, int modClasses, Refs refs, Findings findings) {
+    private static void report(Args parsed, List<Path> libraries, int modClasses, Counts counts, Findings findings) {
         System.out.println("shim classes:  " + parsed.shimClasses);
         System.out.println("mod jars:      " + parsed.modJars);
         System.out.println("game libs:     " + libraries.size() + " jars from -D" + LIBRARIES_PROPERTY);
         System.out.println("mod classes:   " + modClasses);
         System.out.println();
-
-        int classRefs = refs.types.size();
-        int memberRefs = refs.members.size();
-        int missingClasses = 0;
-        int missingMembers = 0;
-        for (Map.Entry<String, String> entry : findings.shimKind.entrySet()) {
-            if (entry.getValue().equals("NoClassDefFoundError")) {
-                missingClasses++;
-            } else {
-                missingMembers++;
-            }
-        }
 
         if (!findings.shim.isEmpty()) {
             System.out.println("UNRESOLVED references into the shim (" + findings.shim.size() + "):");
@@ -591,8 +785,9 @@ public final class LinkageCheck {
         }
 
         if (!findings.mismatches.isEmpty()) {
-            System.out.println("resolved, but the call site and the shim disagree about the member's kind ("
-                    + findings.mismatches.size() + "). These link and fail at the call, not at resolution:");
+            System.out.println("RESOLVED, but the call site and the shim disagree about the member's kind ("
+                    + findings.mismatches.size() + "). These link and then throw"
+                    + " IncompatibleClassChangeError at the call. They fail this run:");
             for (Map.Entry<String, SortedSet<String>> entry : findings.mismatches.entrySet()) {
                 System.out.println("  " + entry.getKey());
                 System.out.println("      referenced by " + summarise(entry.getValue()));
@@ -611,15 +806,16 @@ public final class LinkageCheck {
             System.out.println();
         }
 
-        System.out.println("classes referenced in a shimmed package: " + (classRefs - missingClasses)
-                + " of " + classRefs + " resolved");
-        System.out.println("members referenced in a shimmed package: " + (memberRefs - missingMembers)
-                + " of " + memberRefs + " resolved");
-        int total = classRefs + memberRefs;
-        int missing = missingClasses + missingMembers;
+        System.out.println("classes referenced in a shimmed package:         "
+                + (counts.classRefs - counts.classMissing) + " of " + counts.classRefs + " resolved");
+        System.out.println("members whose owner is a shimmed class:          "
+                + (counts.shimMemberRefs - counts.shimMemberMissing) + " of " + counts.shimMemberRefs + " resolved");
+        System.out.println("members reached through a mod class, declared in the shim: "
+                + (counts.inheritedRefs - counts.inheritedMissing) + " of " + counts.inheritedRefs + " resolved");
         System.out.println();
-        System.out.println((total - missing) + " of " + total + " references resolved");
-        System.out.println(findings.shim.isEmpty() ? "LINKAGE OK" : "LINKAGE FAILED");
+        System.out.println((counts.total() - counts.missing()) + " of " + counts.total() + " references resolved"
+                + (findings.mismatches.isEmpty() ? "" : ", " + findings.mismatches.size() + " resolved to the wrong kind"));
+        System.out.println(findings.hasFailures() ? "LINKAGE FAILED" : "LINKAGE OK");
     }
 
     private static String summarise(SortedSet<String> referrers) {

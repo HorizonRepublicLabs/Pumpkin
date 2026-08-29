@@ -15,6 +15,10 @@ import dev.pumpkin.shim.Unimplemented;
 
 public class CrossbowItem extends ProjectileWeaponItem {
 
+    private boolean startSoundPlayed;
+
+    private boolean midLoadSoundPlayed;
+
     public CrossbowItem(Item.Properties properties) {
         throw Unimplemented.forMember("net/minecraft/world/item/CrossbowItem.<init>:(Lnet/minecraft/world/item/Item$Properties;)V");
     }
@@ -33,6 +37,14 @@ public class CrossbowItem extends ProjectileWeaponItem {
 
     public boolean releaseUsing(ItemStack itemStack, Level level, LivingEntity entity, int remainingTime) {
         throw Unimplemented.forMember("net/minecraft/world/item/CrossbowItem.releaseUsing:(Lnet/minecraft/world/item/ItemStack;Lnet/minecraft/world/level/Level;Lnet/minecraft/world/entity/LivingEntity;I)Z");
+    }
+
+    private static boolean tryLoadProjectiles(LivingEntity shooter, ItemStack heldItem) {
+        throw Unimplemented.forMember("net/minecraft/world/item/CrossbowItem.tryLoadProjectiles:(Lnet/minecraft/world/entity/LivingEntity;Lnet/minecraft/world/item/ItemStack;)Z");
+    }
+
+    public static boolean isCharged(ItemStack itemStack) {
+        throw Unimplemented.forMember("net/minecraft/world/item/CrossbowItem.isCharged:(Lnet/minecraft/world/item/ItemStack;)Z");
     }
 
     protected void shootProjectile(LivingEntity livingEntity, Projectile projectileEntity, int index, float power, float uncertainty, float angle, LivingEntity targetOverride) {
@@ -55,8 +67,20 @@ public class CrossbowItem extends ProjectileWeaponItem {
         throw Unimplemented.forMember("net/minecraft/world/item/CrossbowItem.getUseDuration:(Lnet/minecraft/world/item/ItemStack;Lnet/minecraft/world/entity/LivingEntity;)I");
     }
 
+    public static int getChargeDuration(ItemStack crossbow, LivingEntity user) {
+        throw Unimplemented.forMember("net/minecraft/world/item/CrossbowItem.getChargeDuration:(Lnet/minecraft/world/item/ItemStack;Lnet/minecraft/world/entity/LivingEntity;)I");
+    }
+
     public ItemUseAnimation getUseAnimation(ItemStack itemStack) {
         throw Unimplemented.forMember("net/minecraft/world/item/CrossbowItem.getUseAnimation:(Lnet/minecraft/world/item/ItemStack;)Lnet/minecraft/world/item/ItemUseAnimation;");
+    }
+
+    private static CrossbowItem.ChargingSounds getChargingSounds(ItemStack itemStack) {
+        throw Unimplemented.forMember("net/minecraft/world/item/CrossbowItem.getChargingSounds:(Lnet/minecraft/world/item/ItemStack;)Lnet/minecraft/world/item/CrossbowItem$ChargingSounds;");
+    }
+
+    private static float getPowerForTime(int timeHeld, ItemStack itemStack, LivingEntity holder) {
+        throw Unimplemented.forMember("net/minecraft/world/item/CrossbowItem.getPowerForTime:(ILnet/minecraft/world/item/ItemStack;Lnet/minecraft/world/entity/LivingEntity;)F");
     }
 
     public boolean useOnRelease(ItemStack itemStack) {

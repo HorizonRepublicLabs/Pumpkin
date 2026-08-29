@@ -15,6 +15,16 @@ import dev.pumpkin.shim.Unimplemented;
 
 public abstract class AbstractWidget implements LayoutElement, Renderable, GuiEventListener, NarratableEntry {
 
+    protected int width;
+
+    protected int height;
+
+    protected boolean isHovered;
+
+    public boolean active;
+
+    private final WidgetTooltipHolder tooltip = null;
+
     public AbstractWidget(int x, int y, int width, int height, Component message) {
         throw Unimplemented.forMember("net/minecraft/client/gui/components/AbstractWidget.<init>:(IIIILnet/minecraft/network/chat/Component;)V");
     }
@@ -55,6 +65,14 @@ public abstract class AbstractWidget implements LayoutElement, Renderable, GuiEv
 
     public boolean isFocused() {
         throw Unimplemented.forMember("net/minecraft/client/gui/components/AbstractWidget.isFocused:()Z");
+    }
+
+    public boolean isHovered() {
+        throw Unimplemented.forMember("net/minecraft/client/gui/components/AbstractWidget.isHovered:()Z");
+    }
+
+    public boolean isHoveredOrFocused() {
+        throw Unimplemented.forMember("net/minecraft/client/gui/components/AbstractWidget.isHoveredOrFocused:()Z");
     }
 
     public boolean isActive() {

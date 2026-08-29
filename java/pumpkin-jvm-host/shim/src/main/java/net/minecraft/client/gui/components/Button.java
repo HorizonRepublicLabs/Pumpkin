@@ -10,6 +10,8 @@ import dev.pumpkin.shim.Unimplemented;
 
 public abstract class Button extends AbstractButton {
 
+    protected static final Button.CreateNarration DEFAULT_NARRATION = null;
+
     protected Button(int x, int y, int width, int height, Component message, Button.OnPress onPress, Button.CreateNarration createNarration) {
         throw Unimplemented.forMember("net/minecraft/client/gui/components/Button.<init>:(IIIILnet/minecraft/network/chat/Component;Lnet/minecraft/client/gui/components/Button$OnPress;Lnet/minecraft/client/gui/components/Button$CreateNarration;)V");
     }

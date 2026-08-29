@@ -64,6 +64,10 @@ public class FarmlandBlock extends Block {
         throw Unimplemented.forMember("net/minecraft/world/level/block/FarmlandBlock.fallOn:(Lnet/minecraft/world/level/Level;Lnet/minecraft/world/level/block/state/BlockState;Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/entity/Entity;D)V");
     }
 
+    private static boolean isNearWater(LevelReader level, BlockPos pos) {
+        throw Unimplemented.forMember("net/minecraft/world/level/block/FarmlandBlock.isNearWater:(Lnet/minecraft/world/level/LevelReader;Lnet/minecraft/core/BlockPos;)Z");
+    }
+
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
         throw Unimplemented.forMember("net/minecraft/world/level/block/FarmlandBlock.createBlockStateDefinition:(Lnet/minecraft/world/level/block/state/StateDefinition$Builder;)V");
     }

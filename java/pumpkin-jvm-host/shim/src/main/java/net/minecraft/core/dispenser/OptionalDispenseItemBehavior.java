@@ -8,6 +8,10 @@ public abstract class OptionalDispenseItemBehavior extends DefaultDispenseItemBe
         throw Unimplemented.forMember("net/minecraft/core/dispenser/OptionalDispenseItemBehavior.isSuccess:()Z");
     }
 
+    public void setSuccess(boolean success) {
+        throw Unimplemented.forMember("net/minecraft/core/dispenser/OptionalDispenseItemBehavior.setSuccess:(Z)V");
+    }
+
     protected void playSound(BlockSource source) {
         throw Unimplemented.forMember("net/minecraft/core/dispenser/OptionalDispenseItemBehavior.playSound:(Lnet/minecraft/core/dispenser/BlockSource;)V");
     }

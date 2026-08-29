@@ -1,6 +1,8 @@
 package net.minecraft.world.item;
 
 import com.mojang.serialization.Codec;
+import java.util.function.Consumer;
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.component.DataComponentMap;
@@ -8,17 +10,25 @@ import net.minecraft.core.component.DataComponentType;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.tags.TagKey;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.flag.FeatureElement;
 import net.minecraft.world.flag.FeatureFlagSet;
+import net.minecraft.world.item.component.TooltipDisplay;
+import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.item.equipment.ArmorMaterial;
 import net.minecraft.world.item.equipment.ArmorType;
+import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.saveddata.maps.MapId;
 import net.minecraft.world.level.saveddata.maps.MapItemSavedData;
+import net.minecraft.world.phys.BlockHitResult;
 import net.neoforged.neoforge.common.extensions.IItemExtension;
 import net.neoforged.neoforge.common.extensions.IItemPropertiesExtensions;
 import dev.pumpkin.shim.Unimplemented;
@@ -57,6 +67,30 @@ public class Item implements ItemLike, FeatureElement, IItemExtension {
         throw Unimplemented.forMember("net/minecraft/world/item/Item.asItem:()Lnet/minecraft/world/item/Item;");
     }
 
+    public InteractionResult useOn(UseOnContext context) {
+        throw Unimplemented.forMember("net/minecraft/world/item/Item.useOn:(Lnet/minecraft/world/item/context/UseOnContext;)Lnet/minecraft/world/InteractionResult;");
+    }
+
+    public float getDestroySpeed(ItemStack itemStack, BlockState state) {
+        throw Unimplemented.forMember("net/minecraft/world/item/Item.getDestroySpeed:(Lnet/minecraft/world/item/ItemStack;Lnet/minecraft/world/level/block/state/BlockState;)F");
+    }
+
+    public InteractionResult use(Level level, Player player, InteractionHand hand) {
+        throw Unimplemented.forMember("net/minecraft/world/item/Item.use:(Lnet/minecraft/world/level/Level;Lnet/minecraft/world/entity/player/Player;Lnet/minecraft/world/InteractionHand;)Lnet/minecraft/world/InteractionResult;");
+    }
+
+    public boolean mineBlock(ItemStack itemStack, Level level, BlockState state, BlockPos pos, LivingEntity owner) {
+        throw Unimplemented.forMember("net/minecraft/world/item/Item.mineBlock:(Lnet/minecraft/world/item/ItemStack;Lnet/minecraft/world/level/Level;Lnet/minecraft/world/level/block/state/BlockState;Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/entity/LivingEntity;)Z");
+    }
+
+    public boolean isCorrectToolForDrops(ItemStack itemStack, BlockState state) {
+        throw Unimplemented.forMember("net/minecraft/world/item/Item.isCorrectToolForDrops:(Lnet/minecraft/world/item/ItemStack;Lnet/minecraft/world/level/block/state/BlockState;)Z");
+    }
+
+    public InteractionResult interactLivingEntity(ItemStack itemStack, Player player, LivingEntity target, InteractionHand type) {
+        throw Unimplemented.forMember("net/minecraft/world/item/Item.interactLivingEntity:(Lnet/minecraft/world/item/ItemStack;Lnet/minecraft/world/entity/player/Player;Lnet/minecraft/world/entity/LivingEntity;Lnet/minecraft/world/InteractionHand;)Lnet/minecraft/world/InteractionResult;");
+    }
+
     public String toString() {
         throw Unimplemented.forMember("net/minecraft/world/item/Item.toString:()Ljava/lang/String;");
     }
@@ -65,8 +99,24 @@ public class Item implements ItemLike, FeatureElement, IItemExtension {
         throw Unimplemented.forMember("net/minecraft/world/item/Item.getCraftingRemainder:()Lnet/minecraft/world/item/ItemStackTemplate;");
     }
 
+    public int getUseDuration(ItemStack itemStack, LivingEntity user) {
+        throw Unimplemented.forMember("net/minecraft/world/item/Item.getUseDuration:(Lnet/minecraft/world/item/ItemStack;Lnet/minecraft/world/entity/LivingEntity;)I");
+    }
+
+    public void appendHoverText(ItemStack itemStack, Item.TooltipContext context, TooltipDisplay display, Consumer<Component> builder, TooltipFlag tooltipFlag) {
+        throw Unimplemented.forMember("net/minecraft/world/item/Item.appendHoverText:(Lnet/minecraft/world/item/ItemStack;Lnet/minecraft/world/item/Item$TooltipContext;Lnet/minecraft/world/item/component/TooltipDisplay;Ljava/util/function/Consumer;Lnet/minecraft/world/item/TooltipFlag;)V");
+    }
+
     public Component getName(ItemStack itemStack) {
         throw Unimplemented.forMember("net/minecraft/world/item/Item.getName:(Lnet/minecraft/world/item/ItemStack;)Lnet/minecraft/network/chat/Component;");
+    }
+
+    public boolean isFoil(ItemStack itemStack) {
+        throw Unimplemented.forMember("net/minecraft/world/item/Item.isFoil:(Lnet/minecraft/world/item/ItemStack;)Z");
+    }
+
+    public static BlockHitResult getPlayerPOVHitResult(Level level, Player player, ClipContext.Fluid fluid) {
+        throw Unimplemented.forMember("net/minecraft/world/item/Item.getPlayerPOVHitResult:(Lnet/minecraft/world/level/Level;Lnet/minecraft/world/entity/player/Player;Lnet/minecraft/world/level/ClipContext$Fluid;)Lnet/minecraft/world/phys/BlockHitResult;");
     }
 
     public boolean isCombineRepairable(ItemStack stack) {

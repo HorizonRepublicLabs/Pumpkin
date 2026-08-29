@@ -15,6 +15,10 @@ public abstract class AbstractTickableSoundInstance extends AbstractSoundInstanc
         throw Unimplemented.forMember("net/minecraft/client/resources/sounds/AbstractTickableSoundInstance.isStopped:()Z");
     }
 
+    protected final void stop() {
+        throw Unimplemented.forMember("net/minecraft/client/resources/sounds/AbstractTickableSoundInstance.stop:()V");
+    }
+
     protected AbstractTickableSoundInstance() {
     }
 }

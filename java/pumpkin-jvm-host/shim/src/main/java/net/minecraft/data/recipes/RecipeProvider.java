@@ -13,6 +13,8 @@ import dev.pumpkin.shim.Unimplemented;
 
 public abstract class RecipeProvider {
 
+    protected final RecipeOutput output = null;
+
     protected RecipeProvider(HolderLookup.Provider registries, RecipeOutput output) {
         throw Unimplemented.forMember("net/minecraft/data/recipes/RecipeProvider.<init>:(Lnet/minecraft/core/HolderLookup$Provider;Lnet/minecraft/data/recipes/RecipeOutput;)V");
     }

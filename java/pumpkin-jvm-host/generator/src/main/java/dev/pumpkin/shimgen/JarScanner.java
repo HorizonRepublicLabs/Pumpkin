@@ -3,7 +3,13 @@ package dev.pumpkin.shimgen;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeSet;
 import java.util.jar.JarEntry;
 import java.util.jar.JarInputStream;
 import org.objectweb.asm.ClassReader;
@@ -28,14 +34,134 @@ public final class JarScanner {
     private JarScanner() {}
 
     public static void scan(Path jar, UsedSet into) throws IOException {
-        try (JarInputStream in = new JarInputStream(Files.newInputStream(jar))) {
-            JarEntry entry;
-            while ((entry = in.getNextJarEntry()) != null) {
-                if (entry.isDirectory() || !entry.getName().endsWith(".class")) {
+        scan(List.of(jar), into);
+    }
+
+    /**
+     * Scans every jar as one unit, which is required and not merely convenient: {@link
+     * Inherited} resolves a mod class's supertype chain, and MysticalAgriculture's classes
+     * extend Cucumber's. Scanned one jar at a time, half of those chains end at a name
+     * this scanner has never seen.
+     */
+    public static void scan(List<Path> jars, UsedSet into) throws IOException {
+        Inherited inherited = new Inherited();
+        for (Path jar : jars) {
+            try (JarInputStream in = new JarInputStream(Files.newInputStream(jar))) {
+                JarEntry entry;
+                while ((entry = in.getNextJarEntry()) != null) {
+                    if (entry.isDirectory() || !entry.getName().endsWith(".class")) {
+                        continue;
+                    }
+                    byte[] bytes = in.readAllBytes();
+                    new ClassReader(bytes)
+                            .accept(new Visitor(into, inherited), ClassReader.SKIP_DEBUG | ClassReader.SKIP_FRAMES);
+                }
+            }
+        }
+        inherited.resolveInto(into);
+    }
+
+    /**
+     * The references whose owner is a mod class but whose target may well be the shim's.
+     *
+     * <p>javac writes the <em>static receiver type</em> as a {@code Methodref}'s owner. So
+     * {@code EnchanterRenderer} calling {@code tile.getBlockState()} on an {@code
+     * EnchanterTileEntity} emits an owner of {@code EnchanterTileEntity} -- a mod class --
+     * even though {@code getBlockState} is declared four levels up on vanilla's {@code
+     * BlockEntity}. {@link #recordMember} filtered those out on the owner's package, so the
+     * member was never recorded, the pruner deleted it as uncalled, and the shim shipped
+     * without a method two mods call. There are 80 such references in the two mod jars and
+     * they accounted for 236 unresolved references once the linkage check learned to look.
+     *
+     * <p>Resolution is deliberately coarse: walk the owner's superclass chain and stop at
+     * the first shimmed class, or -- if the chain reaches the end of the mod's own code
+     * without meeting one -- record against every nearest shimmed interface instead. It
+     * does not work out which ancestor <em>declares</em> the member, because it has no
+     * source tree and no classpath here. It does not need to: {@code Main.keepSet} closes
+     * every recorded member over its owner's supertypes, so recording against the entry
+     * point into the shim is enough for the declaring class to keep it. The superclass
+     * chain is tried first because that is the order the JVM resolves in; interfaces
+     * supply only default methods.
+     */
+    private static final class Inherited {
+        /** Every class in the scanned jars, mapped to its superclass then its interfaces. */
+        private final Map<String, List<String>> supertypes = new HashMap<>();
+        private final Set<Deferred> deferred = new TreeSet<>();
+
+        private record Deferred(String owner, String name, String descriptor, String referencedBy)
+                implements Comparable<Deferred> {
+            @Override
+            public int compareTo(Deferred other) {
+                return (owner + "." + name + ":" + descriptor + "\t" + referencedBy)
+                        .compareTo(other.owner + "." + other.name + ":" + other.descriptor + "\t"
+                                + other.referencedBy);
+            }
+        }
+
+        void declare(String internalName, String superName, String[] interfaces) {
+            List<String> parents = new ArrayList<>();
+            if (superName != null) {
+                parents.add(superName);
+            }
+            if (interfaces != null) {
+                parents.addAll(List.of(interfaces));
+            }
+            supertypes.put(internalName, parents);
+        }
+
+        void defer(String owner, String name, String descriptor, String referencedBy) {
+            deferred.add(new Deferred(owner, name, descriptor, referencedBy));
+        }
+
+        void resolveInto(UsedSet into) {
+            for (Deferred ref : deferred) {
+                if (!supertypes.containsKey(ref.owner())) {
+                    // Not a class from these jars: the JDK, a library, or another mod's
+                    // API. Its hierarchy is unknown and nothing here can be the shim's.
                     continue;
                 }
-                byte[] bytes = in.readAllBytes();
-                new ClassReader(bytes).accept(new Visitor(into), ClassReader.SKIP_DEBUG | ClassReader.SKIP_FRAMES);
+                for (String entryPoint : shimEntryPointsAbove(ref.owner())) {
+                    recordMember(into, entryPoint, ref.name(), ref.descriptor(), ref.referencedBy());
+                }
+            }
+        }
+
+        /**
+         * The shimmed classes a member lookup starting at {@code owner} would first meet:
+         * the nearest shimmed superclass if the chain has one, otherwise the nearest
+         * shimmed interfaces.
+         */
+        private Set<String> shimEntryPointsAbove(String owner) {
+            for (String current = owner; current != null; ) {
+                List<String> parents = supertypes.get(current);
+                String superName = parents == null || parents.isEmpty() ? null : parents.get(0);
+                if (superName == null) {
+                    break;
+                }
+                if (Shimmed.isShimmed(Shimmed.outerOf(superName))) {
+                    return Set.of(superName);
+                }
+                current = supertypes.containsKey(superName) ? superName : null;
+            }
+            Set<String> interfaces = new TreeSet<>();
+            collectNearestShimmedInterfaces(owner, interfaces, new HashSet<>());
+            return interfaces;
+        }
+
+        private void collectNearestShimmedInterfaces(String internalName, Set<String> found, Set<String> seen) {
+            if (!seen.add(internalName)) {
+                return;
+            }
+            List<String> parents = supertypes.get(internalName);
+            if (parents == null) {
+                return;
+            }
+            for (String parent : parents) {
+                if (Shimmed.isShimmed(Shimmed.outerOf(parent))) {
+                    found.add(parent);
+                } else {
+                    collectNearestShimmedInterfaces(parent, found, seen);
+                }
             }
         }
     }
@@ -71,6 +197,22 @@ public final class JarScanner {
         if (Shimmed.isShimmed(outer)) {
             into.addMember(new UsedSet.MemberRef(owner, name, descriptor), referencedBy);
             into.addClass(outer, referencedBy);
+        }
+    }
+
+    /**
+     * Records a member whose owner may be a mod class, deferring it to {@link Inherited}
+     * when it is. A member is not the shim's business only when neither its owner nor
+     * anything above its owner is shimmed, and that is not decidable until every jar has
+     * been read.
+     */
+    private static void recordPossiblyInherited(UsedSet into, Inherited inherited, String owner, String name,
+            String descriptor, String referencedBy) {
+        if (Shimmed.isShimmed(Shimmed.outerOf(owner))) {
+            recordMember(into, owner, name, descriptor, referencedBy);
+        } else if (!name.equals("<init>")) {
+            // A constructor is never inherited: the owner declares it or nothing does.
+            inherited.defer(owner, name, descriptor, referencedBy);
         }
     }
 
@@ -148,17 +290,20 @@ public final class JarScanner {
 
     private static final class Visitor extends ClassVisitor {
         private final UsedSet into;
+        private final Inherited inherited;
         private String className;
 
-        Visitor(UsedSet into) {
+        Visitor(UsedSet into, Inherited inherited) {
             super(Opcodes.ASM9);
             this.into = into;
+            this.inherited = inherited;
         }
 
         @Override
         public void visit(int version, int access, String name, String signature, String superName,
                 String[] interfaces) {
             this.className = name;
+            inherited.declare(name, superName, interfaces);
             if (superName != null) {
                 recordClass(into, superName, className);
             }
@@ -188,13 +333,15 @@ public final class JarScanner {
                 @Override
                 public void visitMethodInsn(int opcode, String owner, String name, String descriptor,
                         boolean isInterface) {
-                    recordMember(into, owner, name, descriptor, className);
+                    if (!owner.startsWith("[")) {
+                        recordPossiblyInherited(into, inherited, owner, name, descriptor, className);
+                    }
                     recordDescriptorTypes(into, descriptor, className);
                 }
 
                 @Override
                 public void visitFieldInsn(int opcode, String owner, String name, String descriptor) {
-                    recordMember(into, owner, name, descriptor, className);
+                    recordPossiblyInherited(into, inherited, owner, name, descriptor, className);
                     recordDescriptorTypes(into, descriptor, className);
                 }
 
@@ -219,7 +366,8 @@ public final class JarScanner {
                     for (Object argument : arguments) {
                         if (argument instanceof Handle handle) {
                             if (!handle.getOwner().startsWith("[")) {
-                                recordMember(into, handle.getOwner(), handle.getName(), handle.getDesc(), className);
+                                recordPossiblyInherited(into, inherited, handle.getOwner(), handle.getName(),
+                                        handle.getDesc(), className);
                             }
                             recordDescriptorTypes(into, handle.getDesc(), className);
                         } else if (argument instanceof Type type) {

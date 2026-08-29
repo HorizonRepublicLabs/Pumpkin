@@ -1,5 +1,6 @@
 package net.neoforged.neoforge.common.conditions;
 
+import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.tags.TagKey;
@@ -7,6 +8,8 @@ import net.minecraft.world.flag.FeatureFlagSet;
 import dev.pumpkin.shim.Unimplemented;
 
 public interface ICondition {
+
+    Codec<ICondition> CODEC = null;
 
     boolean test(IContext context);
 

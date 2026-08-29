@@ -1,6 +1,7 @@
 package net.neoforged.neoforge.transfer;
 
 import com.mojang.serialization.Codec;
+import java.util.Collection;
 import net.minecraft.core.NonNullList;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
@@ -12,12 +13,26 @@ import dev.pumpkin.shim.Unimplemented;
 
 public abstract class StacksResourceHandler<S, T extends Resource> implements ResourceHandler<T>, ValueIOSerializable {
 
+    protected final S emptyStack = null;
+
+    protected NonNullList<S> stacks;
+
+    protected final Codec<NonNullList<S>> codec = null;
+
     protected StacksResourceHandler(int size, S emptyStack, Codec<S> stackCodec) {
         throw Unimplemented.forMember("net/neoforged/neoforge/transfer/StacksResourceHandler.<init>:(ILjava/lang/Object;Lcom/mojang/serialization/Codec;)V");
     }
 
     protected StacksResourceHandler(NonNullList<S> stacks, S emptyStack, Codec<S> stackCodec) {
         throw Unimplemented.forMember("net/neoforged/neoforge/transfer/StacksResourceHandler.<init>:(Lnet/minecraft/core/NonNullList;Ljava/lang/Object;Lcom/mojang/serialization/Codec;)V");
+    }
+
+    private NonNullList<S> mutableCopyOf(Collection<S> list) {
+        throw Unimplemented.forMember("net/neoforged/neoforge/transfer/StacksResourceHandler.mutableCopyOf:(Ljava/util/Collection;)Lnet/minecraft/core/NonNullList;");
+    }
+
+    protected void setStacks(NonNullList<S> stacks) {
+        throw Unimplemented.forMember("net/neoforged/neoforge/transfer/StacksResourceHandler.setStacks:(Lnet/minecraft/core/NonNullList;)V");
     }
 
     public void serialize(ValueOutput output) {
@@ -49,6 +64,10 @@ public abstract class StacksResourceHandler<S, T extends Resource> implements Re
     }
 
     protected abstract int getCapacity(int index, T resource);
+
+    protected void onContentsChanged(int index, S previousContents) {
+        throw Unimplemented.forMember("net/neoforged/neoforge/transfer/StacksResourceHandler.onContentsChanged:(ILjava/lang/Object;)V");
+    }
 
     public int size() {
         throw Unimplemented.forMember("net/neoforged/neoforge/transfer/StacksResourceHandler.size:()I");

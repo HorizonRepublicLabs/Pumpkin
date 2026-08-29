@@ -42,6 +42,10 @@ public class ResourceHandlerSlot extends StackCopySlot {
         throw Unimplemented.forMember("net/neoforged/neoforge/transfer/item/ResourceHandlerSlot.mayPickup:(Lnet/minecraft/world/entity/player/Player;)Z");
     }
 
+    public ResourceHandler<ItemResource> getResourceHandler() {
+        throw Unimplemented.forMember("net/neoforged/neoforge/transfer/item/ResourceHandlerSlot.getResourceHandler:()Lnet/neoforged/neoforge/transfer/ResourceHandler;");
+    }
+
     public boolean isSameInventory(Slot other) {
         throw Unimplemented.forMember("net/neoforged/neoforge/transfer/item/ResourceHandlerSlot.isSameInventory:(Lnet/minecraft/world/inventory/Slot;)Z");
     }

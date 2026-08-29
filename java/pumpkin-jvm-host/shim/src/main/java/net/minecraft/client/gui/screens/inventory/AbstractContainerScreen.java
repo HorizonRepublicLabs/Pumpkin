@@ -5,11 +5,28 @@ import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.input.KeyEvent;
 import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import dev.pumpkin.shim.Unimplemented;
 
 public abstract class AbstractContainerScreen<T extends AbstractContainerMenu> extends Screen implements MenuAccess<T> {
+
+    private static final Identifier SLOT_HIGHLIGHT_BACK_SPRITE = null;
+
+    private static final Identifier SLOT_HIGHLIGHT_FRONT_SPRITE = null;
+
+    protected final int imageWidth = 0;
+
+    protected final int imageHeight = 0;
+
+    protected final T menu = null;
+
+    protected final Component playerInventoryTitle = null;
+
+    protected int leftPos;
+
+    protected int topPos;
 
     public AbstractContainerScreen(T menu, Inventory inventory, Component title) {
         throw Unimplemented.forMember("net/minecraft/client/gui/screens/inventory/AbstractContainerScreen.<init>:(Lnet/minecraft/world/inventory/AbstractContainerMenu;Lnet/minecraft/world/entity/player/Inventory;Lnet/minecraft/network/chat/Component;)V");
@@ -33,6 +50,18 @@ public abstract class AbstractContainerScreen<T extends AbstractContainerMenu> e
 
     public boolean mouseScrolled(double x, double y, double scrollX, double scrollY) {
         throw Unimplemented.forMember("net/minecraft/client/gui/screens/inventory/AbstractContainerScreen.mouseScrolled:(DDDD)Z");
+    }
+
+    private void extractSlotHighlightBack(GuiGraphicsExtractor graphics) {
+        throw Unimplemented.forMember("net/minecraft/client/gui/screens/inventory/AbstractContainerScreen.extractSlotHighlightBack:(Lnet/minecraft/client/gui/GuiGraphicsExtractor;)V");
+    }
+
+    private void extractSlotHighlightFront(GuiGraphicsExtractor graphics) {
+        throw Unimplemented.forMember("net/minecraft/client/gui/screens/inventory/AbstractContainerScreen.extractSlotHighlightFront:(Lnet/minecraft/client/gui/GuiGraphicsExtractor;)V");
+    }
+
+    protected void extractTooltip(GuiGraphicsExtractor graphics, int mouseX, int mouseY) {
+        throw Unimplemented.forMember("net/minecraft/client/gui/screens/inventory/AbstractContainerScreen.extractTooltip:(Lnet/minecraft/client/gui/GuiGraphicsExtractor;II)V");
     }
 
     public boolean mouseClicked(MouseButtonEvent event, boolean doubleClick) {
@@ -69,6 +98,14 @@ public abstract class AbstractContainerScreen<T extends AbstractContainerMenu> e
 
     public T getMenu() {
         throw Unimplemented.forMember("net/minecraft/client/gui/screens/inventory/AbstractContainerScreen.getMenu:()Lnet/minecraft/world/inventory/AbstractContainerMenu;");
+    }
+
+    public int getLeftPos() {
+        throw Unimplemented.forMember("net/minecraft/client/gui/screens/inventory/AbstractContainerScreen.getLeftPos:()I");
+    }
+
+    public int getTopPos() {
+        throw Unimplemented.forMember("net/minecraft/client/gui/screens/inventory/AbstractContainerScreen.getTopPos:()I");
     }
 
     public void onClose() {

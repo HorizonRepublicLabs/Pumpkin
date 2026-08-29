@@ -15,6 +15,10 @@ public interface RecipeBuilder {
 
     void save(RecipeOutput output, ResourceKey<Recipe<?>> location);
 
+    default void save(RecipeOutput output) {
+        throw Unimplemented.forMember("net/minecraft/data/recipes/RecipeBuilder.save:(Lnet/minecraft/data/recipes/RecipeOutput;)V");
+    }
+
     default void save(RecipeOutput output, String id) {
         throw Unimplemented.forMember("net/minecraft/data/recipes/RecipeBuilder.save:(Lnet/minecraft/data/recipes/RecipeOutput;Ljava/lang/String;)V");
     }

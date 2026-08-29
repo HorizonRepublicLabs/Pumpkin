@@ -23,6 +23,10 @@ public class BowItem extends ProjectileWeaponItem {
         throw Unimplemented.forMember("net/minecraft/world/item/BowItem.shootProjectile:(Lnet/minecraft/world/entity/LivingEntity;Lnet/minecraft/world/entity/projectile/Projectile;IFFFLnet/minecraft/world/entity/LivingEntity;)V");
     }
 
+    public static float getPowerForTime(int timeHeld) {
+        throw Unimplemented.forMember("net/minecraft/world/item/BowItem.getPowerForTime:(I)F");
+    }
+
     public int getUseDuration(ItemStack itemStack, LivingEntity user) {
         throw Unimplemented.forMember("net/minecraft/world/item/BowItem.getUseDuration:(Lnet/minecraft/world/item/ItemStack;Lnet/minecraft/world/entity/LivingEntity;)I");
     }

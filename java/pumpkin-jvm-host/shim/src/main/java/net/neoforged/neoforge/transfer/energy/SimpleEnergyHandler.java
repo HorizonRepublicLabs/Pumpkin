@@ -9,6 +9,8 @@ import dev.pumpkin.shim.Unimplemented;
 
 public class SimpleEnergyHandler implements EnergyHandler, ValueIOSerializable {
 
+    protected int capacity;
+
     public SimpleEnergyHandler(int capacity) {
         throw Unimplemented.forMember("net/neoforged/neoforge/transfer/energy/SimpleEnergyHandler.<init>:(I)V");
     }

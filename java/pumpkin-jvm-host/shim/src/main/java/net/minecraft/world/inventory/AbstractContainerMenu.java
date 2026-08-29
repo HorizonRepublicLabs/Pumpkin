@@ -8,12 +8,22 @@ import dev.pumpkin.shim.Unimplemented;
 
 public abstract class AbstractContainerMenu {
 
+    public final NonNullList<Slot> slots = null;
+
     protected AbstractContainerMenu(MenuType<?> menuType, int containerId) {
         throw Unimplemented.forMember("net/minecraft/world/inventory/AbstractContainerMenu.<init>:(Lnet/minecraft/world/inventory/MenuType;I)V");
     }
 
     public MenuType<?> getType() {
         throw Unimplemented.forMember("net/minecraft/world/inventory/AbstractContainerMenu.getType:()Lnet/minecraft/world/inventory/MenuType;");
+    }
+
+    protected Slot addSlot(Slot slot) {
+        throw Unimplemented.forMember("net/minecraft/world/inventory/AbstractContainerMenu.addSlot:(Lnet/minecraft/world/inventory/Slot;)Lnet/minecraft/world/inventory/Slot;");
+    }
+
+    protected void addDataSlots(ContainerData container) {
+        throw Unimplemented.forMember("net/minecraft/world/inventory/AbstractContainerMenu.addDataSlots:(Lnet/minecraft/world/inventory/ContainerData;)V");
     }
 
     public NonNullList<ItemStack> getItems() {
@@ -35,6 +45,10 @@ public abstract class AbstractContainerMenu {
     }
 
     public abstract boolean stillValid(Player player);
+
+    protected boolean moveItemStackTo(ItemStack itemStack, int startSlot, int endSlot, boolean backwards) {
+        throw Unimplemented.forMember("net/minecraft/world/inventory/AbstractContainerMenu.moveItemStackTo:(Lnet/minecraft/world/item/ItemStack;IIZ)Z");
+    }
 
     protected AbstractContainerMenu() {
     }

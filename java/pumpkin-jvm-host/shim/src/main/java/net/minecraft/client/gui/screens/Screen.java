@@ -15,6 +15,10 @@ import dev.pumpkin.shim.Unimplemented;
 
 public abstract class Screen extends AbstractContainerEventHandler implements Renderable {
 
+    protected final Component title = null;
+
+    protected final Font font = null;
+
     protected Screen(Component title) {
         throw Unimplemented.forMember("net/minecraft/client/gui/screens/Screen.<init>:(Lnet/minecraft/network/chat/Component;)V");
     }
@@ -31,8 +35,20 @@ public abstract class Screen extends AbstractContainerEventHandler implements Re
         throw Unimplemented.forMember("net/minecraft/client/gui/screens/Screen.keyPressed:(Lnet/minecraft/client/input/KeyEvent;)Z");
     }
 
+    protected <T extends GuiEventListener & Renderable & NarratableEntry> T addRenderableWidget(T widget) {
+        throw Unimplemented.forMember("net/minecraft/client/gui/screens/Screen.addRenderableWidget:(Lnet/minecraft/client/gui/components/events/GuiEventListener;)Lnet/minecraft/client/gui/components/events/GuiEventListener;");
+    }
+
+    public final void init(int width, int height) {
+        throw Unimplemented.forMember("net/minecraft/client/gui/screens/Screen.init:(II)V");
+    }
+
     public List<? extends GuiEventListener> children() {
         throw Unimplemented.forMember("net/minecraft/client/gui/screens/Screen.children:()Ljava/util/List;");
+    }
+
+    protected void init() {
+        throw Unimplemented.forMember("net/minecraft/client/gui/screens/Screen.init:()V");
     }
 
     public void tick() {
@@ -45,6 +61,10 @@ public abstract class Screen extends AbstractContainerEventHandler implements Re
 
     public boolean isMouseOver(double mouseX, double mouseY) {
         throw Unimplemented.forMember("net/minecraft/client/gui/screens/Screen.isMouseOver:(DD)Z");
+    }
+
+    public Minecraft getMinecraft() {
+        throw Unimplemented.forMember("net/minecraft/client/gui/screens/Screen.getMinecraft:()Lnet/minecraft/client/Minecraft;");
     }
 
     public ScreenRectangle getRectangle() {

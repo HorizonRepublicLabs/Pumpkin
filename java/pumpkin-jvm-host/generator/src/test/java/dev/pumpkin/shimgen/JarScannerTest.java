@@ -6,6 +6,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.io.ByteArrayOutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Map;
+import java.util.TreeMap;
 import java.util.jar.JarEntry;
 import java.util.jar.JarOutputStream;
 import org.junit.jupiter.api.Test;
@@ -90,13 +92,45 @@ class JarScannerTest {
     }
 
     private static Path jarWith(String entryName, byte[] classBytes) throws Exception {
+        return jarWith(Map.of(entryName, classBytes));
+    }
+
+    private static Path jarWith(Map<String, byte[]> entries) throws Exception {
         Path jar = Files.createTempFile("scanner", ".jar");
         try (JarOutputStream out = new JarOutputStream(Files.newOutputStream(jar))) {
-            out.putNextEntry(new JarEntry(entryName));
-            out.write(classBytes);
-            out.closeEntry();
+            for (Map.Entry<String, byte[]> entry : new TreeMap<>(entries).entrySet()) {
+                out.putNextEntry(new JarEntry(entry.getKey()));
+                out.write(entry.getValue());
+                out.closeEntry();
+            }
         }
         return jar;
+    }
+
+    /** {@code class Base extends BlockEntity}, {@code class Sub extends Base}. */
+    private static byte[] subclassOf(String name, String superName) {
+        ClassWriter cw = new ClassWriter(0);
+        cw.visit(Opcodes.V21, Opcodes.ACC_PUBLIC, name, null, superName, null);
+        cw.visitEnd();
+        return cw.toByteArray();
+    }
+
+    /** {@code sub.getBlockState()} -- owner {@code Sub}, declared on vanilla's BlockEntity. */
+    private static byte[] callerThroughSubclass() {
+        ClassWriter cw = new ClassWriter(0);
+        cw.visit(Opcodes.V21, Opcodes.ACC_PUBLIC, "example/Caller", null, "java/lang/Object", null);
+        MethodVisitor mv = cw.visitMethod(Opcodes.ACC_PUBLIC | Opcodes.ACC_STATIC, "go", "(Lexample/Sub;)V", null,
+                null);
+        mv.visitCode();
+        mv.visitVarInsn(Opcodes.ALOAD, 0);
+        mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL, "example/Sub", "getBlockState",
+                "()Lnet/minecraft/world/level/block/state/BlockState;", false);
+        mv.visitInsn(Opcodes.POP);
+        mv.visitInsn(Opcodes.RETURN);
+        mv.visitMaxs(1, 1);
+        mv.visitEnd();
+        cw.visitEnd();
+        return cw.toByteArray();
     }
 
     /**
@@ -266,6 +300,34 @@ class JarScannerTest {
         JarScanner.scan(jarWith("example/HasMethodRef.class", methodReferenceClass()), used);
         assertTrue(used.classes().contains("net/minecraft/world/entity/Entity"));
         assertTrue(used.membersOf("net/minecraft/world/entity/Entity").contains("isAlive:()Z"));
+    }
+
+    /**
+     * A vanilla member called through a mod's own subclass is still a vanilla member.
+     *
+     * <p>javac writes the static receiver type as the owner, so {@code sub.getBlockState()}
+     * emits a {@code Methodref} owned by {@code example/Sub}. Filtering member references
+     * on the owner's package -- which this scanner did -- dropped the reference entirely,
+     * so the pruner deleted {@code BlockEntity.getBlockState} as uncalled and two real mods
+     * shipped against a method the shim did not have. 236 of the linkage check's
+     * references were this.
+     *
+     * <p>{@code Sub extends Base extends BlockEntity}: two mod levels, because the real
+     * case ({@code EnchanterTileEntity} -> {@code BaseInventoryTileEntity} -> {@code
+     * BaseTileEntity} -> {@code BlockEntity}) is not a single hop.
+     */
+    @Test
+    void findsAVanillaMemberCalledThroughAModsOwnSubclass() throws Exception {
+        UsedSet used = new UsedSet();
+        JarScanner.scan(jarWith(Map.of(
+                "example/Base.class", subclassOf("example/Base", "net/minecraft/world/level/block/entity/BlockEntity"),
+                "example/Sub.class", subclassOf("example/Sub", "example/Base"),
+                "example/Caller.class", callerThroughSubclass())), used);
+
+        assertTrue(
+                used.membersOf("net/minecraft/world/level/block/entity/BlockEntity")
+                        .contains("getBlockState:()Lnet/minecraft/world/level/block/state/BlockState;"),
+                "the member must be recorded against the shimmed class the lookup first meets");
     }
 
     /// A MULTIANEWARRAY instruction's element type is a real reference too.

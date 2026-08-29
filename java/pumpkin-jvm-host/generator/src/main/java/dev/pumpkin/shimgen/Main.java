@@ -31,8 +31,11 @@ public final class Main {
         Args parsed = Args.parse(args);
 
         UsedSet used = new UsedSet();
+        // One JarScanner call for all the jars, not one per jar: resolving an inherited
+        // member walks the owner's supertype chain, and MysticalAgriculture's classes
+        // extend Cucumber's, so the chains cross jar boundaries.
+        JarScanner.scan(parsed.modJars, used);
         for (Path jar : parsed.modJars) {
-            JarScanner.scan(jar, used);
             MixinScanner.scan(jar, used);
         }
         int seedClasses = used.classes().size();

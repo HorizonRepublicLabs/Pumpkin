@@ -45,6 +45,10 @@ public abstract class TagsProvider<T> implements DataProvider {
         throw Unimplemented.forMember("net/minecraft/data/tags/TagsProvider.tag:(Lnet/minecraft/tags/TagKey;)Lnet/minecraft/data/tags/TagAppender;");
     }
 
+    protected TagAppender<T> tag(TagKey<T> tag, boolean replace) {
+        throw Unimplemented.forMember("net/minecraft/data/tags/TagsProvider.tag:(Lnet/minecraft/tags/TagKey;Z)Lnet/minecraft/data/tags/TagAppender;");
+    }
+
     public interface TagLookup<T> extends Function<TagKey<T>, Optional<TagBuilder>> {
 
         default boolean contains(TagKey<T> key) {

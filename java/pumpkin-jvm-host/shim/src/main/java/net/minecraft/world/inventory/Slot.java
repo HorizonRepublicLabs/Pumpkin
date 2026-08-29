@@ -7,6 +7,10 @@ import dev.pumpkin.shim.Unimplemented;
 
 public class Slot {
 
+    public final Container container = null;
+
+    public int index;
+
     public final int x = 0;
 
     public final int y = 0;

@@ -23,6 +23,7 @@ import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import net.neoforged.neoforge.common.extensions.IBlockExtension;
 import dev.pumpkin.shim.Unimplemented;
@@ -103,6 +104,14 @@ public class Block extends BlockBehaviour implements ItemLike, IBlockExtension {
 
     public MutableComponent getName() {
         throw Unimplemented.forMember("net/minecraft/world/level/block/Block.getName:()Lnet/minecraft/network/chat/MutableComponent;");
+    }
+
+    public StateDefinition<Block, BlockState> getStateDefinition() {
+        throw Unimplemented.forMember("net/minecraft/world/level/block/Block.getStateDefinition:()Lnet/minecraft/world/level/block/state/StateDefinition;");
+    }
+
+    protected final void registerDefaultState(BlockState state) {
+        throw Unimplemented.forMember("net/minecraft/world/level/block/Block.registerDefaultState:(Lnet/minecraft/world/level/block/state/BlockState;)V");
     }
 
     public final BlockState defaultBlockState() {
