@@ -19,8 +19,23 @@ public class RegisterEvent extends Event implements IModBusEvent {
         throw Unimplemented.forMember("net/neoforged/neoforge/registries/RegisterEvent.register:(Lnet/minecraft/resources/ResourceKey;Lnet/minecraft/resources/Identifier;Ljava/util/function/Supplier;)V");
     }
 
+    // Pumpkin divergence: real body. The other way a mod registers content -- straight into
+    // the game during the event, rather than declaring it up front through a
+    // DeferredRegister. MysticalAgriculture uses both.
+    //
+    // The helper routes to the same sink DeferredRegister's flush does, so the two paths
+    // cannot drift into registering differently. Only blocks are carried so far, and anything
+    // else stops loudly rather than being dropped -- a silently ignored registration is a mod
+    // whose content simply is not there, with nothing to say why.
     public <T> void register(ResourceKey<? extends Registry<T>> registryKey, Consumer<RegisterHelper<T>> consumer) {
-        throw Unimplemented.forMember("net/neoforged/neoforge/registries/RegisterEvent.register:(Lnet/minecraft/resources/ResourceKey;Ljava/util/function/Consumer;)V");
+        consumer.accept((name, value) -> {
+            if (value instanceof net.minecraft.world.level.block.Block block) {
+                DeferredRegister.pumpkinSink().registerBlock(name.toString(), block.pumpkinTemplate());
+            } else {
+                throw new IllegalStateException("registry " + registryKey.identifier()
+                        + " is not supported yet: " + name);
+            }
+        });
     }
 
     public interface RegisterHelper<T> {

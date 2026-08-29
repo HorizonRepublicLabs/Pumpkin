@@ -333,6 +333,19 @@ edit("net/neoforged/neoforge/common/ModConfigSpec.java", [
      '        // Pumpkin divergence: real body. See the double overload for the range.\n        public IntValue defineInRange(String path, int defaultValue, int min, int max) {\n            return new IntValue(defaultValue);\n        }'),
 ])
 
+# -------------------------------------------------------------------- ARGB
+# Pure arithmetic with no dependencies, and the real bodies are two lines. Stubbing a
+# function whose whole definition is `alpha << 24 | rgb & 0xFFFFFF` refuses a question
+# that has exactly one right answer, and four MysticalAgriculture classes ask it.
+edit("net/minecraft/util/ARGB.java", [
+    ('    public static int color(int alpha, int red, int green, int blue) {\n        throw Unimplemented.forMember("net/minecraft/util/ARGB.color:(IIII)I");\n    }',
+     '    // Pumpkin divergence: real body, copied from vanilla. Pure arithmetic over primitives\n    // -- there is nothing here for the shim to be missing, so stubbing it would refuse to\n    // answer a question that has one right answer.\n    public static int color(int alpha, int red, int green, int blue) {\n        return (alpha & 0xFF) << 24 | (red & 0xFF) << 16 | (green & 0xFF) << 8 | blue & 0xFF;\n    }'),
+    ('    public static int color(int red, int green, int blue) {\n        throw Unimplemented.forMember("net/minecraft/util/ARGB.color:(III)I");\n    }',
+     '    // Pumpkin divergence: real body, copied from vanilla.\n    public static int color(int red, int green, int blue) {\n        return color(255, red, green, blue);\n    }'),
+    ('    public static int color(int alpha, int rgb) {\n        throw Unimplemented.forMember("net/minecraft/util/ARGB.color:(II)I");\n    }',
+     '    // Pumpkin divergence: real body, copied from vanilla. This is the one four\n    // MysticalAgriculture classes call to build their tier and crop colours.\n    public static int color(int alpha, int rgb) {\n        return alpha << 24 | rgb & 16777215;\n    }'),
+])
+
 # ---------------------------------------------------------------- Registries
 import re
 p = os.path.join(ROOT, "net/minecraft/core/registries/Registries.java")
@@ -618,10 +631,14 @@ edit("net/neoforged/neoforge/registries/DeferredRegister.java", [
             }
         }
     }"""),
+    ('    public static void setSink(Sink replacement) {\n        pumpkinSink = replacement;\n    }',
+     '    public static void setSink(Sink replacement) {\n        pumpkinSink = replacement;\n    }\n\n    // Pumpkin divergence: no vanilla counterpart. RegisterEvent registers straight into the\n    // game rather than through a DeferredRegister, so it needs the same sink. Package-private\n    // because only its sibling in this package has any business reaching it.\n    static Sink pumpkinSink() {\n        return pumpkinSink;\n    }'),
 ])
 
 # -------------------------------------------------------------- RegisterEvent
 edit("net/neoforged/neoforge/registries/RegisterEvent.java", [
+    ('    public <T> void register(ResourceKey<? extends Registry<T>> registryKey, Consumer<RegisterHelper<T>> consumer) {\n        throw Unimplemented.forMember("net/neoforged/neoforge/registries/RegisterEvent.register:(Lnet/minecraft/resources/ResourceKey;Ljava/util/function/Consumer;)V");\n    }',
+     '    // Pumpkin divergence: real body. The other way a mod registers content -- straight into\n    // the game during the event, rather than declaring it up front through a\n    // DeferredRegister. MysticalAgriculture uses both.\n    //\n    // The helper routes to the same sink DeferredRegister\'s flush does, so the two paths\n    // cannot drift into registering differently. Only blocks are carried so far, and anything\n    // else stops loudly rather than being dropped -- a silently ignored registration is a mod\n    // whose content simply is not there, with nothing to say why.\n    public <T> void register(ResourceKey<? extends Registry<T>> registryKey, Consumer<RegisterHelper<T>> consumer) {\n        consumer.accept((name, value) -> {\n            if (value instanceof net.minecraft.world.level.block.Block block) {\n                DeferredRegister.pumpkinSink().registerBlock(name.toString(), block.pumpkinTemplate());\n            } else {\n                throw new IllegalStateException("registry " + registryKey.identifier()\n                        + " is not supported yet: " + name);\n            }\n        });\n    }'),
 ("""    public RegisterEvent() {
     }""",
 """    // Pumpkin divergence from the generated shim: public. In NeoForge this event is

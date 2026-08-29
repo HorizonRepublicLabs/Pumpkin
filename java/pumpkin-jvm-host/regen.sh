@@ -4,7 +4,21 @@
 # which live beside the Pumpkin repo and are not vendored.
 set -e
 cd "$(dirname "$0")"
-./gradlew :testmod:jar
+# The test mod is a scan input, so it has to exist before generation -- but it compiles
+# against the shim, which generation is about to replace. A shim left broken by an earlier
+# run therefore blocks the very regeneration that would repair it. Fall back to the existing
+# jar in that case: as a scan input a slightly stale one is harmless, and the build at the
+# end still catches anything genuinely wrong.
+if ! ./gradlew --quiet :testmod:jar 2>/dev/null; then
+    if [ -f testmod/build/libs/testmod.jar ]; then
+        echo "regen: test mod would not compile against the current shim; scanning the existing jar."
+        echo "regen: if that shim is broken, 'git checkout -- shim/src/main/java' before rerunning."
+    else
+        echo "regen: test mod will not compile and no previous jar exists." >&2
+        echo "regen: restore a working shim with 'git checkout -- shim/src/main/java'." >&2
+        exit 1
+    fi
+fi
 
 # Clear the generated roots first. Per-file emission is deterministic, but overwriting in
 # place is not the same as regenerating: a class that leaves the used set leaves an orphan

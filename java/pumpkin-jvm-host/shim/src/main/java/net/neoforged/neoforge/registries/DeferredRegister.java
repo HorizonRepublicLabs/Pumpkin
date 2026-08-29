@@ -40,6 +40,13 @@ public class DeferredRegister<T> {
         pumpkinSink = replacement;
     }
 
+    // Pumpkin divergence: no vanilla counterpart. RegisterEvent registers straight into the
+    // game rather than through a DeferredRegister, so it needs the same sink. Package-private
+    // because only its sibling in this package has any business reaching it.
+    static Sink pumpkinSink() {
+        return pumpkinSink;
+    }
+
     private ResourceKey<? extends Registry<T>> pumpkinRegistryKey;
 
     private String pumpkinNamespace;
