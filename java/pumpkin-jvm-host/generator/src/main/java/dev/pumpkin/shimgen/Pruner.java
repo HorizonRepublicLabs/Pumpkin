@@ -76,9 +76,12 @@ public final class Pruner {
 
     /**
      * Every member key (in {@link Unimplemented#forMember} form, {@code
-     * Owner.name:descriptor}) that was kept by the by-name fallback rather than an
-     * exact descriptor match — i.e. every member whose descriptor this generator is
-     * not confident it reproduced correctly.
+     * Owner.name:descriptor}) kept without an exact {@code name:descriptor} hit in the
+     * used set — i.e. every member whose descriptor this generator is not confident it
+     * reproduced correctly. That is the by-name fallback for fields and methods, and
+     * for a constructor (which is kept unconditionally) it is simply the absence of a
+     * matching entry: either way the key embedded in the emitted {@code
+     * forMember(...)} string may not name the member the runtime will look for.
      */
     public static SortedSet<String> keptByFallback() {
         return Collections.unmodifiableSortedSet(new TreeSet<>(KEPT_BY_FALLBACK));
@@ -101,13 +104,21 @@ public final class Pruner {
     }
 
     /**
-     * VALUE for an enum or a record, and — vanishingly rarely on real Minecraft source
-     * — a class whose every declared field is a {@code static final} primitive or
-     * {@code String} constant. HOLDER for a class whose every declared field is {@code
-     * static final} with an initializer and which declares no instance method (a
-     * private no-arg constructor does not count against it: {@code Registries}, {@code
-     * BlockTags}, {@code ItemTags} and {@code ParticleTypes} all declare one precisely
-     * to prevent instantiation). HANDLE otherwise.
+     * VALUE for an enum or a record, and nothing else. HOLDER for a class whose every
+     * declared field is {@code static final} with an initializer and which declares no
+     * instance method (a private no-arg constructor does not count against it: {@code
+     * Registries}, {@code BlockTags}, {@code ItemTags} and {@code ParticleTypes} all
+     * declare one precisely to prevent instantiation). HANDLE otherwise.
+     *
+     * <p>There used to be a third VALUE arm — a class whose every declared field is a
+     * {@code static final} primitive or {@code String} constant — and it is gone. VALUE
+     * means the file is copied verbatim, real bodies included, and real bodies name
+     * arbitrary types that were never generated; body-stripping is the entire reason
+     * the emitted class set is closed at all, so any arm that opts a class out of it
+     * has to earn that risk. This one did not: it fired on zero of 277 real classes,
+     * and even guarded against instance methods it still admitted a constant holder
+     * with only static methods, whose bodies are just as unbounded. A class of pure
+     * constants now classifies HOLDER or HANDLE, gets stubbed, and compiles.
      *
      * <p>The HOLDER check deliberately requires the absence of instance methods on top
      * of the field shape: "every declared field is static final with an initializer"
@@ -122,50 +133,11 @@ public final class Pruner {
         }
         if (type.isClassOrInterfaceDeclaration()) {
             ClassOrInterfaceDeclaration decl = type.asClassOrInterfaceDeclaration();
-            if (!decl.isInterface()) {
-                if (isPrimitiveOrStringConstantClass(decl)) {
-                    return Treatment.VALUE;
-                }
-                if (isHolder(decl)) {
-                    return Treatment.HOLDER;
-                }
+            if (!decl.isInterface() && isHolder(decl)) {
+                return Treatment.HOLDER;
             }
         }
         return Treatment.HANDLE;
-    }
-
-    /**
-     * A behaviour-bearing class whose only fields happen to be constants is not a
-     * value type, exactly for the reason the HOLDER rule was corrected: an instance
-     * method means mods extend or call into real behaviour here, so this arm requires
-     * the same absence-of-instance-methods guard as {@link #isHolder}. Left unguarded,
-     * a class like this would classify VALUE and be copied whole — worse than the
-     * HOLDER version of this bug, since an untouched body can call arbitrary
-     * ungenerated code instead of merely failing at class-init.
-     */
-    private static boolean isPrimitiveOrStringConstantClass(ClassOrInterfaceDeclaration decl) {
-        List<FieldDeclaration> fields = decl.getFields();
-        if (fields.isEmpty() || !hasOnlyStaticMethods(decl)) {
-            return false;
-        }
-        for (FieldDeclaration f : fields) {
-            if (!f.isStatic() || !f.isFinal()) {
-                return false;
-            }
-            for (VariableDeclarator v : f.getVariables()) {
-                if (v.getInitializer().isEmpty() || !isPrimitiveOrString(v.getType())) {
-                    return false;
-                }
-            }
-        }
-        return true;
-    }
-
-    private static boolean isPrimitiveOrString(Type type) {
-        if (type.isPrimitiveType()) {
-            return true;
-        }
-        return type.isClassOrInterfaceType() && "String".equals(type.asClassOrInterfaceType().getNameAsString());
     }
 
     private static boolean isHolder(ClassOrInterfaceDeclaration decl) {
@@ -303,10 +275,16 @@ public final class Pruner {
                 ConstructorDeclaration c = member.asConstructorDeclaration();
                 Set<String> referenced = new TreeSet<>();
                 String descriptor = methodDescriptor(cu, decl, c, null, selfTypes, referenced);
-                String key = internalName + ".<init>:" + descriptor;
+                String lookupKey = "<init>:" + descriptor;
+                // Whether the constructor is *kept* no longer depends on this, but
+                // whether its descriptor is trustworthy still does: the same key is
+                // embedded in the emitted forMember(...) string, and a guessed-wrong
+                // descriptor makes that string wrong. Report the real match mode.
+                boolean exact = usedKeys.contains(lookupKey);
+                String key = internalName + "." + lookupKey;
                 replaceConstructorBody(c, key);
                 threw[0] = true;
-                reportKept(key, true, referenced, used);
+                reportKept(key, exact, referenced, used);
             }
         }
 
@@ -401,9 +379,14 @@ public final class Pruner {
         if (type.isPrimitiveType()) {
             return switch (type.asPrimitiveType().getType()) {
                 case BOOLEAN -> new BooleanLiteralExpr(false);
-                // The escaped form, not a raw NUL byte: this text is committed and
-                // reviewed as a diff, and a literal NUL corrupts diffs and text tooling.
-                case CHAR -> CharLiteralExpr.escape("\0");
+                // The two-character escape as *source text*, not a raw NUL byte: this
+                // text is committed and reviewed as a diff, and a literal NUL corrupts
+                // diffs and text tooling. Deliberately the String constructor (whose
+                // argument is the source form printed between the quotes) and not
+                // CharLiteralExpr.escape("\0"): that helper only escapes end-of-line
+                // characters (Utils.escapeEndOfLines handles \n and \r and nothing
+                // else), so a NUL passes through it unchanged.
+                case CHAR -> new CharLiteralExpr("\\0");
                 case LONG -> new LongLiteralExpr("0L");
                 // Distinct from DOUBLE: "0.0" alone is a double literal, and a final
                 // float field initialized with one is "incompatible types: possible

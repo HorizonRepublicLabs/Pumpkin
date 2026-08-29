@@ -105,6 +105,52 @@ class PrunerTest {
                 "an instance method disqualifies HOLDER regardless of the field shape");
     }
 
+    /// The same shape again, but with the field a *primitive* constant — the case the
+    /// sibling test above cannot reach, because its `Object` field never satisfied the
+    /// constant-shape check in the first place. Deleting `hasOnlyStaticMethods` from
+    /// `isHolder` makes this class a HOLDER: its fields are all `static final` with
+    /// initializers, so nothing else stands between it and a throwing static
+    /// initializer that would break every mod subclass at class-initialisation.
+    @Test
+    void constantOnlyClassesWithAnInstanceMethodAreHandlesNotHolders() {
+        CompilationUnit cu = parse("""
+                package net.minecraft.world.level.block;
+                public class HorizontalDirectionalBlock {
+                    public static final int FACING = 1;
+                    public Object getStateForPlacement(Object context) { return null; }
+                }
+                """);
+        assertEquals(Treatment.HANDLE, Pruner.treatmentOf(cu.getType(0)),
+                "an instance method disqualifies HOLDER even when every field is a primitive constant");
+    }
+
+    /// VALUE means enum or record, full stop. A class of nothing but primitive/`String`
+    /// constants used to classify VALUE and be copied verbatim — real bodies included,
+    /// naming arbitrary types that were never generated. Body-stripping is the whole
+    /// reason the emitted class set is closed, so this must be stubbed like anything
+    /// else, whether or not it declares instance methods.
+    @Test
+    void constantOnlyClassesAreNeverValueTypes() {
+        CompilationUnit cu = parse("""
+                package net.minecraft.world.item;
+                public class ItemNames {
+                    public static final String DIAMOND = "diamond";
+                    public static final int MAX_STACK = 64;
+                    public static Object lookUp(String name) { return Registry.get(name); }
+                }
+                """);
+        assertEquals(Treatment.HOLDER, Pruner.treatmentOf(cu.getType(0)),
+                "a constant-only class is stubbed, not copied whole with its real bodies");
+
+        UsedSet used = new UsedSet();
+        used.addMember(new UsedSet.MemberRef("net/minecraft/world/item/ItemNames", "DIAMOND",
+                "Ljava/lang/String;"), "mod");
+        Pruner.prune(cu, "net/minecraft/world/item/ItemNames", used);
+        String out = cu.toString();
+        assertFalse(out.contains("Registry.get"), "the real body must not survive into the emitted source");
+        assertTrue(out.contains("Unimplemented"), "the class must fail loudly instead");
+    }
+
     /// A nested member type (the `Item$Properties` shape: a heavily-used nested class
     /// on real input) must be pruned recursively, exactly like a top-level type — not
     /// left whole. Left whole, its real bodies could reference arbitrary types outside
@@ -194,6 +240,60 @@ class PrunerTest {
                 "a bare 0.0 double literal on a final float field does not compile");
     }
 
+    /// A `final char` field's default must be written as the two-character escape
+    /// `'\0'`. Emitting a raw NUL byte into the source text corrupts the diff this
+    /// output is committed and reviewed as. `CharLiteralExpr.escape` does not do this:
+    /// it escapes end-of-line characters only, and passes a NUL straight through.
+    @Test
+    void charFieldsGetAnEscapedNulDefaultNotARawNulByte() {
+        CompilationUnit cu = parse("""
+                package net.minecraft.util;
+                public class ChatFormatting {
+                    public static final char PREFIX_CODE = 'x';
+                    public void apply() {}
+                }
+                """);
+        UsedSet used = new UsedSet();
+        used.addMember(new UsedSet.MemberRef("net/minecraft/util/ChatFormatting", "PREFIX_CODE", "C"), "mod");
+        used.addMember(new UsedSet.MemberRef("net/minecraft/util/ChatFormatting", "apply", "()V"), "mod");
+
+        Pruner.prune(cu, "net/minecraft/util/ChatFormatting", used);
+        String out = cu.toString();
+        assertEquals(-1, out.indexOf('\0'), "a raw NUL byte in emitted source corrupts the diff it is reviewed as");
+        assertTrue(out.contains("PREFIX_CODE = '\\0'"),
+                "the default must be the escaped source form, not the character itself");
+    }
+
+    /// `missingTypesInKeptSignatures` has to walk the *unerased* source signature. A
+    /// kept `List<Ingredient>` writes `Ingredient` into the emitted source, and a
+    /// `throws SomeMcException` writes that — both need a generated file to compile
+    /// against, and an erasure-based walk reports neither (it sees only `java/util/List`
+    /// and never looks at the throws clause at all).
+    @Test
+    void keptSignaturesReportGenericArgumentsAndThrownTypes() {
+        CompilationUnit cu = parse("""
+                package net.minecraft.world.item.crafting;
+                import java.util.List;
+                public class RecipeManager {
+                    public List<Ingredient> ingredients() throws SomeMcException { return null; }
+                }
+                """);
+        UsedSet used = new UsedSet();
+        used.addMember(new UsedSet.MemberRef("net/minecraft/world/item/crafting/RecipeManager", "ingredients",
+                "()Ljava/util/List;"), "mod");
+
+        Pruner.prune(cu, "net/minecraft/world/item/crafting/RecipeManager", used);
+
+        assertTrue(Pruner.keptByFallback().isEmpty(),
+                "the erased descriptor matches exactly; this test is about what erasure hides, not the fallback");
+        assertTrue(Pruner.missingTypesInKeptSignatures()
+                        .contains("net/minecraft/world/item/crafting/Ingredient"),
+                "a generic type argument is named by the emitted source and must be reported when ungenerated");
+        assertTrue(Pruner.missingTypesInKeptSignatures()
+                        .contains("net/minecraft/world/item/crafting/SomeMcException"),
+                "a thrown type is named by the emitted source and must be reported when ungenerated");
+    }
+
     /// An interface field written `int FOO = 5;` carries no explicit `final` in
     /// source, but is final by JLS regardless. Trusting only the syntactic modifier
     /// strips the initializer without replacing it, emitting an uncompilable blank
@@ -238,6 +338,14 @@ class PrunerTest {
         String out = cu.toString();
         assertTrue(out.contains("BlockItem(int id, String name)"),
                 "an unused overload must still survive so a preserved super(...) elsewhere keeps compiling");
+        // Keeping it unconditionally is not the same as vouching for its descriptor:
+        // the key built here is embedded verbatim in its forMember(...) string, and
+        // nothing in the used set confirms it. That has to stay visible in the report.
+        assertTrue(Pruner.keptByFallback()
+                        .contains("net/minecraft/world/item/BlockItem.<init>:(ILjava/lang/String;)V"),
+                "a constructor kept with no matching used entry is not an exact descriptor match");
+        assertFalse(Pruner.keptByFallback().contains("net/minecraft/world/item/BlockItem.<init>:(I)V"),
+                "the constructor the used set does confirm is an exact match and must not be flagged");
     }
 
     /// A body replaced by throw still gets an implicit super(), which fails when the
