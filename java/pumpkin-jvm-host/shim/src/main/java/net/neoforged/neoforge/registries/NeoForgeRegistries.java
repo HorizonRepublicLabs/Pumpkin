@@ -19,12 +19,6 @@ public class NeoForgeRegistries {
 
         protected Keys() {
         }
-
-        static {
-            if (true) {
-                throw Unimplemented.forMember("net/neoforged/neoforge/registries/NeoForgeRegistries$Keys");
-            }
-        }
     }
 
     protected NeoForgeRegistries() {

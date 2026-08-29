@@ -32,12 +32,6 @@ public final class Style {
 
         protected Serializer() {
         }
-
-        static {
-            if (true) {
-                throw Unimplemented.forMember("net/minecraft/network/chat/Style$Serializer");
-            }
-        }
     }
 
     protected Style() {

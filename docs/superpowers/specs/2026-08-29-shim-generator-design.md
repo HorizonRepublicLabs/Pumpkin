@@ -2,8 +2,34 @@
 
 Date: 2026-08-29
 Branch: `neoforge-support`
-Status: design approved, not yet implemented
+Status: implemented on `shim-generator`; seven figures below were measured wrong and
+are corrected in place
 Predecessor: `docs/superpowers/specs/2026-08-28-neoforge-mod-hosting-design.md`
+
+## Corrections after implementation
+
+The design held. Its numbers did not, and the artifact disproved them. They are
+corrected inline below, each marked **Corrected**, with the original figure left
+visible and the reason it was wrong stated — a spec quietly rewritten to match its
+output stops being evidence of anything.
+
+One mistake produced most of the others. **"Signature closure adds 0 new types" was
+measured on erased descriptors.** `List<Ingredient>` erases to `Ljava/util/List;`,
+and a descriptor-level closure sees `List` and stops. But the pruner emits the
+*source* signature, which writes `Ingredient`, and `Ingredient` has to be generated
+for the file to compile. Erasure hides exactly the types the closure has to chase.
+So the one figure recorded as zero is the whole driver: 469 seed classes close to
+1698 over 8 rounds, and against the spec's 353 that is a factor of roughly five.
+
+| | spec said | measured |
+| --- | --- | --- |
+| added by signature closure | 0 | **1229**, over 8 rounds |
+| classes to generate | 353 | **1698** in the used set, **1667** emitted |
+| reference count at the finish line | 913 | **2103** |
+| client classes | out of scope | **379 generated**, by a later ruling |
+| `Unimplemented` lives in | `shim` | **`fml`** |
+| source roots | 3 | **5** |
+| `Direction`, `Vec3i`, `BlockPos` | copied whole | **stubbed** (`Direction` keeps its constants), and rightly so |
 
 ## Where this sits
 
@@ -54,6 +80,30 @@ Both totals being 353 is a coincidence, not a typo: 277 server-side references p
 closure. The number that governs this slice is the second — **353 server-side classes
 to generate**. Client classes are out of scope.
 
+> **Corrected — "added by signature closure: 0".** Wrong, and wrong in the direction
+> that matters: it is the largest single term, not a zero one. The figure was taken
+> over *erased descriptors*, where `List<Ingredient>` is `Ljava/util/List;` and
+> `Ingredient` is simply not visible. The pruner emits the source signature, generics
+> and all, so `Ingredient` must exist for the file to compile, and the closure has to
+> chase it. Measured over what the source actually names: **469 seed classes close to
+> 1698 over 8 rounds**, adding **1229**. Against the spec's 353 that is ~4.8x.
+>
+> **Corrected — "353 classes".** **1667 files are emitted**: 1386 `net.minecraft`,
+> 215 `net.neoforged`, 66 `com.mojang`. (1698 classes are in the used set; 31 have no
+> decompiled source and are hand-written under `fml/`.) The 1698-vs-353 gap is the
+> closure correction above and nothing else — no rule was loosened to get there.
+>
+> **Corrected — "client classes are out of scope".** They are generated: **379 of
+> the 1667** are client-side (261 `net.minecraft.client`, 63 `com.mojang.blaze3d`, 55
+> under `net/neoforged/**/client/**`). This was a deliberate ruling during
+> implementation, not drift. Both mods ship client code — `JeiCompat`,
+> `ModRenderTypes`, `CropTintSource` — in the same jar as their server code, and the
+> linkage check resolves *every* class in the jar. Declaring client classes out of
+> scope would mean either failing the finish line on references that are really there,
+> or special-casing the gate to look away, which is the defect class the whole check
+> exists to prevent. Every generated body throws, so a client class costs a file and
+> nothing else.
+
 | quantity | value |
 | --- | --- |
 | distinct `net.minecraft` members called | 887 (777 server-side) |
@@ -61,10 +111,25 @@ to generate**. Client classes are out of scope.
 | `net.neoforged` classes referenced | 112 |
 | of the 353 server-side: enums / records / interfaces | 16 / 23 / 63 |
 
+> **Corrected — "913 member references".** 913 was a count of `Methodref`/`Fieldref`
+> constant-pool entries whose *declared owner* is shimmed. Two things it missed, both
+> found by the check itself: class references (`new`, `checkcast`, `instanceof`,
+> signature types) are references too, and javac writes the **static receiver type**
+> as an owner, so `EnchanterRenderer` calling `EnchanterTileEntity.getBlockState()`
+> records a mod class as the owner while the member is declared four levels up on
+> `BlockEntity`. **The finish line is 2103**: 542 class references, 1237 members whose
+> owner is shimmed, 324 reached through a mod class.
+
 **Body-stripping is what makes the closed set closed.** Whole decompiled files
 reference far beyond 353 in their bodies. Strip the bodies and only signature-level
 references remain — which measurement shows add nothing new. Without stripping,
 the closure runs toward all 7055 files; with it, 353 is a fixpoint.
+
+> **Corrected.** The mechanism is right and is what makes the generator work at all;
+> only the claim that signature-level references "add nothing new" is false, per the
+> first correction. Restated: strip the bodies and the closure reaches a fixpoint at
+> 1698 instead of running toward all 7055. That it *terminates* is the load-bearing
+> claim. That it terminates near its seed was the wrong one.
 
 ## Decisions taken before design
 
@@ -102,6 +167,21 @@ the no-op client stubs the previous slice established, and three of the remainde
 roughly 17 classes across `bus/api`, `fml`, `fml/loading`, `fml/config` and
 `neoforgespi/language` — annotations, interfaces and enums.
 
+> **Corrected — "three source trees".** There are **five**, and the two extra ones are
+> the reason client classes exist. `regen.sh` passes:
+>
+> | root | why |
+> | --- | --- |
+> | `NeoForge/projects/neoforge/src/main/java` | patched MC, server |
+> | `NeoForge/projects/neoforge/src/client/java` | patched MC, client |
+> | `NeoForge/projects/base/src/main/java` | the spec's one MC root; still needed, it holds what the patched trees do not override |
+> | `NeoForge/src/main/java` | NeoForge's own code, server |
+> | `NeoForge/src/client/java` | NeoForge's own code, client |
+>
+> The `projects/base` split alone was not enough: the decompiled tree NeoForge builds
+> from is the **patched** one, and reading `base` only gives an unpatched `Block` with
+> no `IBlockExtension`. The hand-written count also settled at 23 files, not 43.
+
 Extraction runs inside the generator with ASM: `ClassReader` over both mod jars,
 collecting class references and `Methodref`/`Fieldref`/`InterfaceMethodref` entries
 into `net.minecraft` and `net.neoforged`, plus the supertypes of the mod's own
@@ -124,6 +204,28 @@ Vec3i(0, 0, -1))`. A stubbed `Direction` is useless, and a pruned one is wrong,
 because dropping a constant shifts every ordinal after it and Minecraft serialises
 by ordinal. The same holds for `Vec3i`, `BlockPos` and most records. This is the
 predecessor spec's value/handle split arriving as a concrete rule.
+
+> **Corrected — this rule describes the opposite of what ships, and the shipped rule
+> is the better one.** `Direction` is not copied whole: it keeps its constant *names*
+> and their *order* — `DOWN, UP, NORTH, SOUTH, WEST, EAST` — and every constructor
+> argument, every method body and every constant class body is stubbed. `Vec3i` and
+> `BlockPos` are not value types at all; both are HANDLE, stubbed like `Level`.
+>
+> The spec's argument for copying whole was sound about ordinals and wrong about
+> everything else, because it did not follow its own reasoning one step further.
+> `NORTH(2, 3, 2, "north", AxisDirection.NEGATIVE, Axis.Z, new Vec3i(0, 0, -1))` is a
+> *real body*, and a real body names arbitrary types — that is precisely the thing
+> body-stripping exists to prevent, and the same "signature closure adds 0" error the
+> Measurements section made. Copy `Direction` whole and its constructor arguments drag
+> in whatever they mention; do it across "most records" and the closure stops being
+> closed. Nothing survives that reopening at 1698 classes, let alone at 353.
+>
+> Keeping the names and the order preserves everything the ordinal argument actually
+> needed, at no cost to the closure. What the shipped rule concedes is that a *read* of
+> a value is wrong rather than loud — `Direction.NORTH.getOpposite()` throws instead of
+> returning `SOUTH` — and that is the honest failure, not the quiet one. The VALUE arm
+> that copied constant-holder classes verbatim was removed for the same reason: it
+> fired on zero of 277 real classes and admitted unbounded bodies for nothing.
 
 **Handle types — pruned to used members, bodies throw.** `Level`, `ItemStack`,
 `Player`. This is where the 777 figure pays: 25 methods on `Level`, not 300.
@@ -159,6 +261,23 @@ reproduces.
 It lives at `dev.pumpkin.shim.Unimplemented`, inside the `shim` Gradle project. The
 layering rule from the previous slice stands — `shim` and `fml` must not depend on
 `host`.
+
+> **Corrected — the project, and the direction of the arrow.** The class name is
+> right; the placement is not. `Unimplemented` is in **`fml`**
+> (`fml/src/main/java/dev/pumpkin/shim/Unimplemented.java`), and the dependency arrow
+> runs **`shim` → `fml`**, the reverse of what this section assumes.
+>
+> It has to. The spec pictured a clean layering with generated `net.minecraft` below
+> hand-written `net.neoforged`. That layering does not exist, because the decompiled
+> sources are NeoForge's **patched** Minecraft: `Block implements IBlockExtension` and
+> `Item implements IItemExtension`, so generated `net.minecraft` and generated
+> `net.neoforged` are mutually recursive. Gradle cannot express a cycle, so both live
+> in `shim` as one compilation unit, and `fml` — the hand-written surface NeoForge
+> publishes as separate artifacts, plus `Unimplemented` — sits underneath as the only
+> thing `shim` can depend on. Every generated body throws `Unimplemented`, so it must
+> be reachable from `shim`, which fixes the arrow.
+>
+> The layering rule itself survives intact: neither `shim` nor `fml` depends on `host`.
 
 **Its message is the manifest's member key, verbatim**, including the descriptor:
 `net/minecraft/world/item/ItemStack.hurtAndBreak:(ILnet/minecraft/world/entity/LivingEntity;Lnet/minecraft/world/InteractionHand;)V`.
@@ -217,6 +336,24 @@ and forcing resolution surfaces failures as `NoSuchMethodError` /
 `NoClassDefFoundError` naming the exact missing member. It covers precisely the
 references that exist and runs in seconds.
 
+> **Corrected — 913 is 2103**, for the reasons under Measurements. The mechanism is
+> exactly as described and is what found the error.
+>
+> **And a boundary this section does not draw.** Linkage proves the shim is *complete
+> with respect to the mods' references*. It does **not** prove the shim *loads on the
+> classpath Pumpkin actually builds*, and the two are easy to read as one. The check
+> runs with the fifteen declared game libraries (30 jars with transitives) on its
+> classloader, because the shim reproduces real vanilla signatures that name them.
+> The real VM `crates/pumpkin/tests/jvm_host.rs` boots has none of them: `shim`, `fml`
+> and `host` jars only. `net/minecraft/world/level/block/Block` imports
+> `com.mojang.serialization.MapCodec` and declares a member returning it, and the
+> server has no copy of `MapCodec` anywhere. Nothing has broken because JVM resolution
+> is lazy — no code path has touched that stubbed signature, so the reference is never
+> resolved. Shipping fifteen game libraries with Pumpkin is a product decision well
+> beyond this slice, so the gap is recorded rather than closed. The same paragraph is
+> in `LinkageCheck`'s class javadoc, where someone reading a green "2103 of 2103" will
+> meet it.
+
 Compiling MysticalAgriculture from source against the shim would additionally
 prove source-level compatibility, at the cost of rewiring a `build.gradle` in a
 checkout we do not own, for a weaker guarantee than linkage. Not done.
@@ -226,13 +363,16 @@ Five checks, in running order:
 1. `:shim:compileJava` succeeds. The constructor/`super(...)` and `@Override` traps
    surface here first.
 2. **Linkage: 913 of 913 references resolve.** This is the finish line.
+   **Corrected: 2103 of 2103**, and that is what the check reports today.
 3. Manifest and output agree in both directions. Catches a silent drop, otherwise
    invisible until runtime.
 4. Regeneration is deterministic — run twice, require byte-identical output. Map
    iteration order is the usual culprit, and without this the committed shim churns
    and code review stops working.
 5. The four mixin-only members exist, named individually. If mixin-config parsing
-   regresses, this is what catches it.
+   regresses, this is what catches it. **Asserted against the emitted source**, not
+   against the manifest: the manifest is written before pruning runs, so a manifest
+   assertion is green whatever the pruner does to the file that ships.
 
 Not a finish-line criterion: that anything runs. Every body throws by construction.
 

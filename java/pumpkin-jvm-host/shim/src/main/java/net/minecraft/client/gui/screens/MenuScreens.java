@@ -25,10 +25,4 @@ public class MenuScreens {
 
     protected MenuScreens() {
     }
-
-    static {
-        if (true) {
-            throw Unimplemented.forMember("net/minecraft/client/gui/screens/MenuScreens");
-        }
-    }
 }

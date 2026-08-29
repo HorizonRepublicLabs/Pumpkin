@@ -68,10 +68,4 @@ public class InputConstants {
 
     protected InputConstants() {
     }
-
-    static {
-        if (true) {
-            throw Unimplemented.forMember("com/mojang/blaze3d/platform/InputConstants");
-        }
-    }
 }

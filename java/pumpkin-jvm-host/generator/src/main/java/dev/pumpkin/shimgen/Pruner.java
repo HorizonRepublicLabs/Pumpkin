@@ -568,14 +568,19 @@ public final class Pruner {
      * <p>Takes a {@link TypeDeclaration}, not a {@link ClassOrInterfaceDeclaration}: an
      * enum and a record get exactly this treatment too, once {@link #pruneValueShape} has
      * reduced them to their shape.
+     *
+     * @return whether some kept {@code final} field lost a real initializer to a default
+     *     literal, so that {@link #pruneHolder} knows whether there is anything for a
+     *     throwing static initializer to protect
      */
-    private static void pruneMembers(CompilationUnit cu, TypeDeclaration<?> decl, String internalName,
+    private static boolean pruneMembers(CompilationUnit cu, TypeDeclaration<?> decl, String internalName,
             UsedSet used, Map<String, String> selfTypes, Map<String, String> classTypeParams,
             Set<String> inheritedAbstracts) {
         SortedSet<String> usedKeys = used.membersOf(internalName);
         NodeList<BodyDeclaration<?>> members = decl.getMembers();
         List<BodyDeclaration<?>> toRemove = new ArrayList<>();
         boolean[] threw = {false};
+        boolean strippedFinalInitializer = false;
         boolean isInterface = decl instanceof ClassOrInterfaceDeclaration c && c.isInterface();
         boolean inheritsFromOutside = inheritsFromOutsideTheSet(cu, decl, used, selfTypes, classTypeParams);
 
@@ -586,8 +591,8 @@ public final class Pruner {
                 // decompiled code survived into the shim, referencing whatever it liked.
                 toRemove.add(member);
             } else if (member.isFieldDeclaration()) {
-                pruneField(member.asFieldDeclaration(), isInterface, internalName, usedKeys, used, selfTypes,
-                        classTypeParams, toRemove);
+                strippedFinalInitializer |= pruneField(member.asFieldDeclaration(), isInterface, internalName,
+                        usedKeys, used, selfTypes, classTypeParams, toRemove);
             } else if (member.isMethodDeclaration()) {
                 MethodDeclaration m = member.asMethodDeclaration();
                 if (m.getBody().isEmpty()) {
@@ -679,6 +684,7 @@ public final class Pruner {
         if (threw[0]) {
             addUnimplementedImport(cu);
         }
+        return strippedFinalInitializer;
     }
 
     /**
@@ -737,7 +743,8 @@ public final class Pruner {
     /**
      * A holder is pruned exactly like a HANDLE type -- its fields lose their initializers,
      * its methods are kept only when something calls them, and every kept body throws --
-     * and then gains a static initializer that throws too.
+     * and then gains a static initializer that throws too, but only when some kept {@code
+     * final} field actually lost an initializer.
      *
      * <p>Methods used to be removed here wholesale, on the reasoning that a holder's
      * methods exist only to build the registry values its fields held. That reasoning does
@@ -749,13 +756,31 @@ public final class Pruner {
      * file holding nothing but a throwing static block. The linkage check surfaced 20 of
      * these. Keeping the used ones as throwing stubs costs nothing: the class still cannot
      * be touched without the static initializer firing first.
+     *
+     * <p>Which is exactly why the initializer is now conditional. What it protects against
+     * is a <em>silently wrong value</em>: {@link #pruneField} replaces a kept {@code final}
+     * field's real initializer with a default literal, so {@code Mth.PI} would read {@code
+     * 0.0F} and {@code Registries.BLOCK} would read {@code null} with nothing to announce
+     * it. A holder none of whose fields survived pruning has no such value to state
+     * wrongly -- every member it still declares is a stub that throws on its own, naming
+     * itself. Emitting a clinit there buys nothing and costs the accuracy of the error: it
+     * fires before any stub can, with a key naming only the class ({@code
+     * net/minecraft/util/Mth}) and no member, so the next slice's real {@code Mth.floor}
+     * would be unreachable behind an unhelpful class-initialisation failure. Eighteen of
+     * the forty holders carrying a clinit -- {@code Mth}, {@code Shapes}, {@code ARGB},
+     * {@code ExtraCodecs}, {@code GsonHelper}, {@code StringUtil} and the rest -- are in
+     * exactly that shape and no longer get one.
      */
     private static void pruneHolder(CompilationUnit cu, TypeDeclaration<?> decl, String internalName,
             UsedSet used, Map<String, String> selfTypes, Map<String, String> classTypeParams,
             Set<String> inheritedAbstracts) {
         // Nested member types are left alone here -- pruneType recurses into them
         // separately once this level is done.
-        pruneMembers(cu, decl, internalName, used, selfTypes, classTypeParams, inheritedAbstracts);
+        boolean strippedFinalInitializer =
+                pruneMembers(cu, decl, internalName, used, selfTypes, classTypeParams, inheritedAbstracts);
+        if (!strippedFinalInitializer) {
+            return;
+        }
         NodeList<BodyDeclaration<?>> members = decl.getMembers();
 
         // `static { throw ...; }` does not compile: JLS 8.7 requires a static initializer
@@ -785,8 +810,14 @@ public final class Pruner {
      * JLS regardless. Trusting the syntactic modifier alone would strip its initializer
      * without replacing it, emitting an uncompilable blank {@code int FOO;} inside the
      * interface.
+     *
+     * @return whether some surviving {@code final} variable actually had an initializer to
+     *     lose. A default literal in place of a real expression is a value the emitted
+     *     class now states wrongly -- {@code Mth.PI} reading {@code 0.0F} rather than
+     *     {@code 3.1415927F} -- and it is the only thing {@link #pruneHolder}'s throwing
+     *     static initializer protects against.
      */
-    private static void pruneField(FieldDeclaration f, boolean declaringTypeIsInterface, String internalName,
+    private static boolean pruneField(FieldDeclaration f, boolean declaringTypeIsInterface, String internalName,
             SortedSet<String> usedKeys, UsedSet used, Map<String, String> selfTypes,
             Map<String, String> classTypeParams, List<BodyDeclaration<?>> toRemove) {
         boolean isFinal = f.isFinal() || declaringTypeIsInterface;
@@ -813,16 +844,20 @@ public final class Pruner {
         }
         if (kept.isEmpty()) {
             toRemove.add(f);
-            return;
+            return false;
         }
         vars.removeAll(unused);
+        boolean strippedFinalInitializer = false;
         for (VariableDeclarator v : kept) {
+            boolean hadInitializer = v.getInitializer().isPresent();
             if (isFinal) {
                 v.setInitializer(defaultLiteralFor(v.getType()));
+                strippedFinalInitializer |= hadInitializer;
             } else {
                 v.removeInitializer();
             }
         }
+        return strippedFinalInitializer;
     }
 
     private static Expression defaultLiteralFor(Type type) {
@@ -910,6 +945,12 @@ public final class Pruner {
      * constructor on the superclass, and since every generated class gets one, the chain
      * resolves all the way up to {@code Object}. {@code protected}, not private, because
      * the subclass doing the implicit call is usually in another package.
+     *
+     * <p>Caveat: this is a member vanilla does not have, and widening an existing private
+     * one loosens access vanilla deliberately closed, so the shim admits a construction
+     * the real game rejects -- a divergence accepted only because it can never be
+     * <em>compiled</em> against by the mods (they were built against real Minecraft) and
+     * can never run.
      */
     private static void ensureNoArgConstructor(ClassOrInterfaceDeclaration decl, String internalName) {
         if (decl.isInterface()) {

@@ -120,10 +120,4 @@ public class Climate {
 
     protected Climate() {
     }
-
-    static {
-        if (true) {
-            throw Unimplemented.forMember("net/minecraft/world/level/biome/Climate");
-        }
-    }
 }

@@ -29,10 +29,4 @@ public class EventHooks {
 
     protected EventHooks() {
     }
-
-    static {
-        if (true) {
-            throw Unimplemented.forMember("net/neoforged/neoforge/event/EventHooks");
-        }
-    }
 }

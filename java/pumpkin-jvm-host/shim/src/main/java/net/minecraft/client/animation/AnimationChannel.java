@@ -2,7 +2,6 @@ package net.minecraft.client.animation;
 
 import net.minecraft.client.model.geom.ModelPart;
 import org.joml.Vector3f;
-import dev.pumpkin.shim.Unimplemented;
 
 public record AnimationChannel(AnimationChannel.Target target, Keyframe... keyframes) {
 
@@ -15,12 +14,6 @@ public record AnimationChannel(AnimationChannel.Target target, Keyframe... keyfr
 
         protected Interpolations() {
         }
-
-        static {
-            if (true) {
-                throw Unimplemented.forMember("net/minecraft/client/animation/AnimationChannel$Interpolations");
-            }
-        }
     }
 
     public interface Target {
@@ -31,12 +24,6 @@ public record AnimationChannel(AnimationChannel.Target target, Keyframe... keyfr
     public static class Targets {
 
         protected Targets() {
-        }
-
-        static {
-            if (true) {
-                throw Unimplemented.forMember("net/minecraft/client/animation/AnimationChannel$Targets");
-            }
         }
     }
 }

@@ -656,10 +656,4 @@ public final class DensityFunctions {
             throw Unimplemented.forMember("net/minecraft/world/level/levelgen/DensityFunctions$YClampedGradient.codec:()Lnet/minecraft/util/KeyDispatchDataCodec;");
         }
     }
-
-    static {
-        if (true) {
-            throw Unimplemented.forMember("net/minecraft/world/level/levelgen/DensityFunctions");
-        }
-    }
 }

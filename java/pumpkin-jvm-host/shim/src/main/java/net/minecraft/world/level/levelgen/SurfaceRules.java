@@ -364,10 +364,4 @@ public class SurfaceRules {
 
     protected SurfaceRules() {
     }
-
-    static {
-        if (true) {
-            throw Unimplemented.forMember("net/minecraft/world/level/levelgen/SurfaceRules");
-        }
-    }
 }

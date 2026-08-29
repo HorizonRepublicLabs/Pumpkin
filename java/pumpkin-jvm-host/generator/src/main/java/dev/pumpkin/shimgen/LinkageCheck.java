@@ -64,6 +64,36 @@ import org.objectweb.asm.Type;
  *
  * <p>Not run in CI: it needs the mod jars, which are not vendored. Run it by hand through
  * {@code :generator:linkageCheck}.
+ *
+ * <h2>What this check does not prove</h2>
+ *
+ * <p>Two separate claims are easy to conflate, and only the first is on offer here:
+ *
+ * <ol>
+ *   <li><b>The shim is complete with respect to the mods' references.</b> Every class,
+ *       method and field the two mod jars name in a shimmed package exists, with the
+ *       descriptor the call site was compiled against. That is what this check proves,
+ *       and it is the finish line the plan set.
+ *   <li><b>The shim loads on the classpath Pumpkin actually builds.</b> That is
+ *       <em>not</em> proved here, and is not the same claim.
+ * </ol>
+ *
+ * <p>The gap is the game libraries. This check builds its classloader over the shim, the
+ * mod jars <em>and</em> the fifteen declared game libraries (thirty jars with transitives)
+ * handed over through {@code -D}{@value #LIBRARIES_PROPERTY}, because the shim reproduces
+ * real vanilla signatures and those signatures name DataFixerUpper, Brigadier, guava and
+ * the rest. The real VM that {@code crates/pumpkin/tests/jvm_host.rs} boots has none of
+ * them: it starts on the {@code shim}, {@code fml} and {@code host} jars alone. So {@code
+ * net/minecraft/world/level/block/Block} imports {@code com.mojang.serialization.MapCodec}
+ * and declares a member returning it, and the server has no copy of {@code MapCodec}
+ * anywhere on its classpath. Nothing has broken yet only because JVM resolution is lazy:
+ * no code path has touched the stubbed signature that names it, so the reference is never
+ * resolved and no {@link NoClassDefFoundError} is ever raised.
+ *
+ * <p>Closing that gap means shipping fifteen game libraries with Pumpkin, which is a
+ * product decision well outside this slice. It is recorded here rather than papered over,
+ * because a green "N of N references resolved" invites exactly the second reading, and the
+ * second reading is not supported.
  */
 public final class LinkageCheck {
     private LinkageCheck() {}
@@ -267,7 +297,12 @@ public final class LinkageCheck {
         }
         if (!hierarchy.complete()) {
             // A supertype is absent (a JEI or Jade class this checkout lacks), so "not
-            // found" would be an accusation the evidence does not support.
+            // found" would be an accusation the evidence does not support. Counted, not
+            // just returned: a reference the run declined to judge is not a reference that
+            // resolved, and leaving it out of every number prints "N of N" while the
+            // reference disappears. Empty today; the day a mod extends a JEI class it will
+            // not be, and the headline has to say so rather than leave it to be inferred.
+            counts.skipped++;
             return;
         }
         counts.inheritedRefs++;
@@ -443,14 +478,23 @@ public final class LinkageCheck {
      * by returning the whole prose message and letting it fail {@code isShimmed} -- is to
      * drop an {@code UnsupportedClassVersionError} or a {@code VerifyError} into the
      * uncounted bucket and print a green number underneath it.
+     *
+     * <p>Which is why prose returns {@code null} outright rather than being split at its
+     * first space. Splitting looks like it recovers the subject, because a {@code
+     * NoClassDefFoundError} message conventionally opens with the class -- but a {@code
+     * VerifyError} opens "Bad type on operand stack...", whose first word {@code Bad} is a
+     * perfectly good identifier, is not shimmed, and lands in {@code external}: printed,
+     * uncounted, exit 0. The same goes for "Could not initialize class X" ({@code Could})
+     * and for the {@code "<Kind> (no message)"} {@link #missingNameOf} synthesises. A
+     * heuristic that scores a real {@code LinkageError} as somebody else's problem is
+     * worse than no heuristic, so anything with a space in it is unreadable by definition
+     * and gets counted.
      */
     private static String subjectOf(String finding) {
-        String candidate = finding;
-        int space = candidate.indexOf(' ');
-        if (space >= 0) {
-            // A JVM LinkageError message conventionally opens with the class it is about.
-            candidate = candidate.substring(0, space);
+        if (finding.indexOf(' ') >= 0) {
+            return null;
         }
+        String candidate = finding;
         int dot = candidate.indexOf('.');
         if (dot >= 0) {
             // A member key: owner.name:descriptor.
@@ -722,6 +766,13 @@ public final class LinkageCheck {
         /** Members reached through a mod class and declared -- or owed -- by the shim. */
         int inheritedRefs;
         int inheritedMissing;
+        /**
+         * References the run declined to judge, because a supertype of the receiver is
+         * absent from this checkout. Deliberately outside {@link #total()}: these are
+         * neither resolved nor missing, and folding them into either would state something
+         * the evidence does not support. They are reported on their own line instead.
+         */
+        int skipped;
 
         int total() {
             return classRefs + shimMemberRefs + inheritedRefs;
@@ -812,8 +863,12 @@ public final class LinkageCheck {
                 + (counts.shimMemberRefs - counts.shimMemberMissing) + " of " + counts.shimMemberRefs + " resolved");
         System.out.println("members reached through a mod class, declared in the shim: "
                 + (counts.inheritedRefs - counts.inheritedMissing) + " of " + counts.inheritedRefs + " resolved");
+        System.out.println("skipped: " + counts.skipped
+                + "  (a supertype of the receiver is absent from this checkout, so neither"
+                + " \"resolves\" nor \"missing\" is supportable)");
         System.out.println();
         System.out.println((counts.total() - counts.missing()) + " of " + counts.total() + " references resolved"
+                + (counts.skipped == 0 ? "" : ", " + counts.skipped + " skipped")
                 + (findings.mismatches.isEmpty() ? "" : ", " + findings.mismatches.size() + " resolved to the wrong kind"));
         System.out.println(findings.hasFailures() ? "LINKAGE FAILED" : "LINKAGE OK");
     }

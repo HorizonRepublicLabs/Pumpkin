@@ -63,10 +63,4 @@ public class Mth {
 
     protected Mth() {
     }
-
-    static {
-        if (true) {
-            throw Unimplemented.forMember("net/minecraft/util/Mth");
-        }
-    }
 }

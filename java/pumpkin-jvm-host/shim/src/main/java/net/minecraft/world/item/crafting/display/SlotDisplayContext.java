@@ -12,10 +12,4 @@ public class SlotDisplayContext {
 
     protected SlotDisplayContext() {
     }
-
-    static {
-        if (true) {
-            throw Unimplemented.forMember("net/minecraft/world/item/crafting/display/SlotDisplayContext");
-        }
-    }
 }

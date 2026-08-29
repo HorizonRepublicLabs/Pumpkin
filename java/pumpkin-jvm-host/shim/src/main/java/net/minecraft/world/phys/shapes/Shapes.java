@@ -36,10 +36,4 @@ public final class Shapes {
 
     protected Shapes() {
     }
-
-    static {
-        if (true) {
-            throw Unimplemented.forMember("net/minecraft/world/phys/shapes/Shapes");
-        }
-    }
 }

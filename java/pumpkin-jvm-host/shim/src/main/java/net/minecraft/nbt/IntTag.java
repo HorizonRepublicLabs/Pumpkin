@@ -70,11 +70,5 @@ public record IntTag(int value) implements NumericTag {
 
         protected Cache() {
         }
-
-        static {
-            if (true) {
-                throw Unimplemented.forMember("net/minecraft/nbt/IntTag$Cache");
-            }
-        }
     }
 }

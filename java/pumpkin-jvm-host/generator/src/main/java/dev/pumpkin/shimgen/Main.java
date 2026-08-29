@@ -34,7 +34,7 @@ public final class Main {
         // One JarScanner call for all the jars, not one per jar: resolving an inherited
         // member walks the owner's supertype chain, and MysticalAgriculture's classes
         // extend Cucumber's, so the chains cross jar boundaries.
-        JarScanner.scan(parsed.modJars, used);
+        int skippedRefs = JarScanner.scan(parsed.modJars, used);
         for (Path jar : parsed.modJars) {
             MixinScanner.scan(jar, used);
         }
@@ -75,6 +75,12 @@ public final class Main {
         System.out.println("  added by closure:                      " + (classes.size() - seedClasses)
                 + " over " + closureRounds + " rounds");
         System.out.println("members recorded:                        " + used.members().size());
+        // Printed rather than swallowed: this is the one bucket in the scan that drops a
+        // reference without recording anything. Almost all of it is the JDK (every
+        // `List.add` in the mods), so a large number is the normal state -- but nothing
+        // else would show it moving.
+        System.out.println("  skipped: " + skippedRefs
+                + " (possibly-inherited references whose owner is neither shimmed nor a class in these jars)");
         System.out.println("emitted:                                 " + (emittedShim + emittedFml)
                 + " (shim " + emittedShim + ", fml " + emittedFml + ")");
         System.out.println("no source found:                         " + noSource.size());

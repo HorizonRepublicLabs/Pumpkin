@@ -10,10 +10,4 @@ public class StringUtil {
 
     protected StringUtil() {
     }
-
-    static {
-        if (true) {
-            throw Unimplemented.forMember("net/minecraft/util/StringUtil");
-        }
-    }
 }

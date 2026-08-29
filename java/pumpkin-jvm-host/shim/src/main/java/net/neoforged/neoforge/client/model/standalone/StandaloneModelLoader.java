@@ -29,10 +29,4 @@ public final class StandaloneModelLoader {
             throw Unimplemented.forMember("net/neoforged/neoforge/client/model/standalone/StandaloneModelLoader$BakedModels.get:(Lnet/neoforged/neoforge/client/model/standalone/StandaloneModelKey;)Ljava/lang/Object;");
         }
     }
-
-    static {
-        if (true) {
-            throw Unimplemented.forMember("net/neoforged/neoforge/client/model/standalone/StandaloneModelLoader");
-        }
-    }
 }

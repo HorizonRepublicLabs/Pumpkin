@@ -33,8 +33,8 @@ import org.objectweb.asm.signature.SignatureVisitor;
 public final class JarScanner {
     private JarScanner() {}
 
-    public static void scan(Path jar, UsedSet into) throws IOException {
-        scan(List.of(jar), into);
+    public static int scan(Path jar, UsedSet into) throws IOException {
+        return scan(List.of(jar), into);
     }
 
     /**
@@ -42,8 +42,12 @@ public final class JarScanner {
      * Inherited} resolves a mod class's supertype chain, and MysticalAgriculture's classes
      * extend Cucumber's. Scanned one jar at a time, half of those chains end at a name
      * this scanner has never seen.
+     *
+     * @return how many possibly-inherited references were skipped for want of the owner's
+     *     hierarchy; see {@link Inherited#resolveInto}. Mostly the JDK, and expected to be
+     *     large.
      */
-    public static void scan(List<Path> jars, UsedSet into) throws IOException {
+    public static int scan(List<Path> jars, UsedSet into) throws IOException {
         Inherited inherited = new Inherited();
         for (Path jar : jars) {
             try (JarInputStream in = new JarInputStream(Files.newInputStream(jar))) {
@@ -58,7 +62,7 @@ public final class JarScanner {
                 }
             }
         }
-        inherited.resolveInto(into);
+        return inherited.resolveInto(into);
     }
 
     /**
@@ -113,17 +117,29 @@ public final class JarScanner {
             deferred.add(new Deferred(owner, name, descriptor, referencedBy));
         }
 
-        void resolveInto(UsedSet into) {
+        /**
+         * @return how many deferred references were skipped because their owner is not a
+         *     class from these jars. Overwhelmingly the JDK and the libraries -- every
+         *     {@code List.add} in the mods lands here -- so a large number is the normal
+         *     state and not a warning. It is returned rather than swallowed because it is
+         *     the only bucket in this pass that drops a reference on the floor, and the
+         *     one thing that would make it interesting -- it moving sharply between runs
+         *     over the same jars -- is invisible while nothing prints it.
+         */
+        int resolveInto(UsedSet into) {
+            int skipped = 0;
             for (Deferred ref : deferred) {
                 if (!supertypes.containsKey(ref.owner())) {
                     // Not a class from these jars: the JDK, a library, or another mod's
                     // API. Its hierarchy is unknown and nothing here can be the shim's.
+                    skipped++;
                     continue;
                 }
                 for (String entryPoint : shimEntryPointsAbove(ref.owner())) {
                     recordMember(into, entryPoint, ref.name(), ref.descriptor(), ref.referencedBy());
                 }
             }
+            return skipped;
         }
 
         /**

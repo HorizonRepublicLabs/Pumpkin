@@ -155,8 +155,8 @@ class PrunerTest {
      * {@code Mth}, {@code Shapes} and {@code ARGB} -- static utilities the mods call
      * constantly. Removing their methods left {@code Mth.floor} to link against a file
      * containing nothing but a throwing static block, and the shim compiled perfectly
-     * while the mods could not link. The static initializer still throws, so keeping the
-     * method concedes nothing: the class cannot be touched at all.
+     * while the mods could not link. Keeping the method concedes nothing: the stub throws
+     * on its own, naming itself.
      */
     @Test
     void holderClassesKeepTheStaticMethodsSomethingCalls() {
@@ -178,8 +178,67 @@ class PrunerTest {
         assertTrue(out.contains("floor"), "a called static method must survive so the mod can link");
         assertFalse(out.contains("Math.floor"), "but its real body must not");
         assertFalse(out.contains("unused"), "a method nothing calls is still pruned");
+        assertTrue(out.contains("Unimplemented"), "and what survives throws");
+    }
+
+    /**
+     * A holder whose fields all got pruned away gets no static initializer.
+     *
+     * <p>The clinit protects against exactly one thing: a kept {@code final} field whose
+     * real initializer was replaced by a default literal, so the class states a value --
+     * {@code PI} as {@code 0.0F} -- that is silently wrong. When nothing survived to be
+     * wrong, the clinit only makes the error worse. It fires before any stub can, with a
+     * key naming the class and no member, which is how {@code Mth.floor} would become
+     * unreachable behind {@code net/minecraft/util/Mth} the moment someone implements it.
+     * Eighteen of the forty holders carrying one were in this shape.
+     */
+    @Test
+    void aHolderWithNoSurvivingFieldGetsNoStaticInitializer() {
+        CompilationUnit cu = parse("""
+                package net.minecraft.util;
+                public class Mth {
+                    public static final float PI = 3.14F;
+                    public static int floor(double value) { return (int) Math.floor(value); }
+                }
+                """);
+        UsedSet used = new UsedSet();
+        used.addMember(new UsedSet.MemberRef("net/minecraft/util/Mth", "floor", "(D)I"), "mod");
+        Pruner.prune(cu, "net/minecraft/util/Mth", used);
+        String out = cu.toString();
+
+        assertFalse(out.contains("PI"), "nothing calls the field, so it is pruned like any other");
+        assertFalse(out.contains("static {"),
+                "and with no field left to misstate there is nothing for a clinit to protect");
+        assertTrue(out.contains("floor"), "the stub is still there, and still throws on its own");
+    }
+
+    /**
+     * The other side of the same rule: a holder that did keep a field keeps its clinit.
+     *
+     * <p>{@code Registries.BLOCK} survives pruning because a mod names it, and survives it
+     * as {@code null} -- the registry call that built it cannot exist in the shim. A mod
+     * reading it would get {@code null} back with nothing to say so, which is precisely
+     * what the throwing initializer is for.
+     */
+    @Test
+    void aHolderWithASurvivingFieldKeepsItsStaticInitializer() {
+        CompilationUnit cu = parse("""
+                package net.minecraft.core.registries;
+                public class Registries {
+                    public static final Object BLOCK = createRegistryKey("block");
+                    public static final Object ITEM = createRegistryKey("item");
+                }
+                """);
+        UsedSet used = new UsedSet();
+        used.addMember(new UsedSet.MemberRef("net/minecraft/core/registries/Registries", "BLOCK",
+                "Ljava/lang/Object;"), "mod");
+        Pruner.prune(cu, "net/minecraft/core/registries/Registries", used);
+        String out = cu.toString();
+
+        assertTrue(out.contains("BLOCK"), "the field must exist to compile");
+        assertFalse(out.contains("createRegistryKey"), "but its real initializer cannot survive");
         assertTrue(out.contains("static {") && out.contains("Unimplemented"),
-                "the class still fails loudly on initialisation");
+                "so touching the class fails loudly rather than handing out null");
     }
 
     /// A class that merely declares its properties as static final constants but also

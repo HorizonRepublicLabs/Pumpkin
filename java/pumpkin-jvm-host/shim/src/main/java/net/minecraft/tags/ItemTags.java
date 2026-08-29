@@ -13,10 +13,4 @@ public final class ItemTags {
     public static TagKey<Item> create(final Identifier name) {
         throw Unimplemented.forMember("net/minecraft/tags/ItemTags.create:(Lnet/minecraft/resources/Identifier;)Lnet/minecraft/tags/TagKey;");
     }
-
-    static {
-        if (true) {
-            throw Unimplemented.forMember("net/minecraft/tags/ItemTags");
-        }
-    }
 }

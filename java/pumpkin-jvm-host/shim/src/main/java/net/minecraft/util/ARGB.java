@@ -39,10 +39,4 @@ public class ARGB {
 
     protected ARGB() {
     }
-
-    static {
-        if (true) {
-            throw Unimplemented.forMember("net/minecraft/util/ARGB");
-        }
-    }
 }

@@ -19,10 +19,4 @@ public abstract class EntityModel<T extends EntityRenderState> extends Model<T> 
 
     protected EntityModel() {
     }
-
-    static {
-        if (true) {
-            throw Unimplemented.forMember("net/minecraft/client/model/EntityModel");
-        }
-    }
 }

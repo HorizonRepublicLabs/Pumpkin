@@ -14,10 +14,4 @@ public class RenderTypes {
 
     protected RenderTypes() {
     }
-
-    static {
-        if (true) {
-            throw Unimplemented.forMember("net/minecraft/client/renderer/rendertype/RenderTypes");
-        }
-    }
 }

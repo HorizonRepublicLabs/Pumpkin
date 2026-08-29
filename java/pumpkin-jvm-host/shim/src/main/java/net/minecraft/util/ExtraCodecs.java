@@ -59,10 +59,4 @@ public class ExtraCodecs {
 
     protected ExtraCodecs() {
     }
-
-    static {
-        if (true) {
-            throw Unimplemented.forMember("net/minecraft/util/ExtraCodecs");
-        }
-    }
 }
