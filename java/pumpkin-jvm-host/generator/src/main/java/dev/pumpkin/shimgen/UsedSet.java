@@ -70,10 +70,10 @@ public final class UsedSet {
     public void writeTo(Writer w) {
         try {
             for (Map.Entry<String, TreeSet<String>> entry : classReferrers.entrySet()) {
-                w.write("CLASS\t" + entry.getKey() + "\t" + String.join(",", entry.getValue()) + "\n");
+                w.write("CLASS\t" + entry.getKey() + "\t" + joinReferrers(entry.getValue()) + "\n");
             }
             for (Map.Entry<MemberRef, TreeSet<String>> entry : memberReferrers.entrySet()) {
-                w.write("MEMBER\t" + entry.getKey().key() + "\t" + String.join(",", entry.getValue()) + "\n");
+                w.write("MEMBER\t" + entry.getKey().key() + "\t" + joinReferrers(entry.getValue()) + "\n");
             }
         } catch (IOException e) {
             throw new UncheckedIOException(e);
@@ -81,29 +81,45 @@ public final class UsedSet {
     }
 
     /**
+     * Joins referrers with {@code ,}, first checking that none of them contain a tab
+     * or a comma — either would corrupt the tab-separated, comma-joined line format
+     * and misparse silently on the way back in.
+     */
+    private static String joinReferrers(TreeSet<String> referrers) {
+        for (String referrer : referrers) {
+            if (referrer.indexOf('\t') >= 0 || referrer.indexOf(',') >= 0) {
+                throw new IllegalArgumentException(
+                        "Referrer contains a tab or comma, which would corrupt the manifest: " + referrer);
+            }
+        }
+        return String.join(",", referrers);
+    }
+
+    /**
      * Parses exactly what {@link #writeTo} produces. Any line that is not a {@code
-     * CLASS} or {@code MEMBER} line is rejected loudly: a silently skipped line would
-     * mean data loss that the round-trip test would never catch.
+     * CLASS} or {@code MEMBER} line is rejected loudly, blank lines included: a
+     * silently skipped line would mean data loss that the round-trip test would never
+     * catch. Likewise a {@code CLASS}/{@code MEMBER} line with no referrers is
+     * rejected rather than registering a referrer-less entry: every entry this
+     * generator ever produces has at least one referrer by construction, so a line
+     * without one means the manifest was hand-edited or corrupted, and silently
+     * accepting it would be the wrong answer.
      */
     public static UsedSet readFrom(Reader r) {
         UsedSet used = new UsedSet();
         try (BufferedReader br = new BufferedReader(r)) {
             String line;
             while ((line = br.readLine()) != null) {
-                if (line.isEmpty()) {
-                    continue;
-                }
                 String[] parts = line.split("\t", 3);
                 String kind = parts[0];
                 if (!kind.equals("CLASS") && !kind.equals("MEMBER")) {
                     throw new IllegalArgumentException("Not a CLASS or MEMBER line: " + line);
                 }
-                if (parts.length < 2) {
-                    throw new IllegalArgumentException("Not a CLASS or MEMBER line: " + line);
+                if (parts.length < 3 || parts[2].isEmpty()) {
+                    throw new IllegalArgumentException("Line has no referrers: " + line);
                 }
                 String key = parts[1];
-                String referrersField = parts.length > 2 ? parts[2] : "";
-                String[] referrers = referrersField.isEmpty() ? new String[0] : referrersField.split(",");
+                String[] referrers = parts[2].split(",");
                 if (kind.equals("CLASS")) {
                     for (String referrer : referrers) {
                         used.addClass(key, referrer);

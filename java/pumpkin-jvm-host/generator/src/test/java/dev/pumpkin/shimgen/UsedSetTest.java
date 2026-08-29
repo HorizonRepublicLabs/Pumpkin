@@ -1,6 +1,7 @@
 package dev.pumpkin.shimgen;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.StringReader;
@@ -58,5 +59,46 @@ class UsedSetTest {
         sample().writeTo(out);
         assertTrue(out.toString().contains("com/blakebr0/example/Thing"),
                 "a reader must be able to see why an entry is present");
+    }
+
+    /// A blank line is neither CLASS nor MEMBER, so it must be rejected like any
+    /// other malformed line rather than silently skipped.
+    @Test
+    void aBlankLineIsRejected() {
+        StringWriter out = new StringWriter();
+        sample().writeTo(out);
+        String withBlankLine = out.toString() + "\n";
+
+        assertThrows(IllegalArgumentException.class, () -> UsedSet.readFrom(new StringReader(withBlankLine)));
+    }
+
+    /// Every entry this generator ever produces has at least one referrer by
+    /// construction, so a line with none is corrupt input, not a legitimate entry.
+    @Test
+    void aLineWithNoReferrersIsRejected() {
+        String noReferrers = "CLASS\tnet/minecraft/world/level/Level\t\n";
+
+        assertThrows(IllegalArgumentException.class, () -> UsedSet.readFrom(new StringReader(noReferrers)));
+    }
+
+    /// A missing referrers field entirely (no trailing tab at all) is just as corrupt.
+    @Test
+    void aLineWithNoReferrersFieldAtAllIsRejected() {
+        String noReferrersField = "CLASS\tnet/minecraft/world/level/Level\n";
+
+        assertThrows(IllegalArgumentException.class, () -> UsedSet.readFrom(new StringReader(noReferrersField)));
+    }
+
+    /// A referrer containing a tab or comma would corrupt the line format and
+    /// misparse silently on the way back in, so writeTo must refuse to emit it.
+    @Test
+    void writeToRejectsAReferrerContainingATabOrComma() {
+        UsedSet commaReferrer = new UsedSet();
+        commaReferrer.addClass("net/minecraft/world/level/Level", "com/blakebr0/example,Thing");
+        assertThrows(IllegalArgumentException.class, () -> commaReferrer.writeTo(new StringWriter()));
+
+        UsedSet tabReferrer = new UsedSet();
+        tabReferrer.addClass("net/minecraft/world/level/Level", "com/blakebr0/example\tThing");
+        assertThrows(IllegalArgumentException.class, () -> tabReferrer.writeTo(new StringWriter()));
     }
 }
