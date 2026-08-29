@@ -39,6 +39,13 @@ pub const PLUGIN_API_VERSION: u32 = 2;
 
 const PLUGIN_DIR: &str = "./plugins";
 
+/// Where NeoForge-shaped mod jars live, following the convention every modded server uses:
+/// jars go in `mods/`, server plugins in `plugins/`. Scanned by the same loop with the same
+/// loaders — the split is for the operator, who should be able to drop a mod where every
+/// other modded server has taught them to.
+#[cfg(feature = "jvm-plugins")]
+const MODS_DIR: &str = "./mods";
+
 /// A trait for handling events dynamically.
 ///
 /// This trait allows for handling events of any type that implements the `Event` trait.
@@ -755,8 +762,26 @@ impl PluginManager {
 
         let mut prepared_plugins = Vec::new();
 
-        for entry in std::fs::read_dir(path)? {
-            let entry = entry?;
+        // `mods/` joins the scan when the JVM host is compiled in. Created eagerly like
+        // `plugins/`, so an operator sees where jars belong without reading anything.
+        let mut scan_dirs = vec![path.to_path_buf()];
+        #[cfg(feature = "jvm-plugins")]
+        {
+            let mods_dir = Path::new(MODS_DIR);
+            if !mods_dir.exists() {
+                std::fs::create_dir(mods_dir)?;
+            }
+            scan_dirs.push(mods_dir.to_path_buf());
+        }
+
+        let mut entries = Vec::new();
+        for dir in &scan_dirs {
+            for entry in std::fs::read_dir(dir)? {
+                entries.push(entry?);
+            }
+        }
+
+        for entry in entries {
             let path = entry.path();
 
             if path.is_dir() {
