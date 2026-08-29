@@ -84,33 +84,17 @@ public final class MixinScanner {
         }
     }
 
-    /**
-     * Strips {@code $} and everything after it, so a nested type's reference lands on
-     * the outer class the generator actually emits a file for. Mirrors {@code
-     * JarScanner}'s convention exactly; the two scanners must agree on which class a
-     * reference belongs to.
-     */
-    private static String outerOf(String internalName) {
-        int dollar = internalName.indexOf('$');
-        return dollar < 0 ? internalName : internalName.substring(0, dollar);
-    }
-
-    /** Only these packages are shimmed; mirrors {@code JarScanner}'s filter exactly. */
-    private static boolean isShimmed(String internalName) {
-        return internalName.startsWith("net/minecraft/") || internalName.startsWith("net/neoforged/");
-    }
-
     private static void recordClass(UsedSet into, String internalName, String referencedBy) {
-        String outer = outerOf(internalName);
-        if (isShimmed(outer)) {
+        String outer = Shimmed.outerOf(internalName);
+        if (Shimmed.isShimmed(outer)) {
             into.addClass(outer, referencedBy);
         }
     }
 
     private static void recordMember(UsedSet into, String owner, String name, String descriptor,
             String referencedBy) {
-        String outer = outerOf(owner);
-        if (isShimmed(outer)) {
+        String outer = Shimmed.outerOf(owner);
+        if (Shimmed.isShimmed(outer)) {
             into.addMember(new UsedSet.MemberRef(outer, name, descriptor), referencedBy);
         }
     }

@@ -12,7 +12,8 @@ class SupertypeCloserTest {
     private static Path tree() throws Exception {
         Path root = Files.createTempDirectory("srcroot");
         write(root, "net/minecraft/world/entity/Entity.java",
-                "package net.minecraft.world.entity; public abstract class Entity implements Nameable {}");
+                "package net.minecraft.world.entity; import net.minecraft.world.Nameable; "
+                        + "public abstract class Entity implements Nameable {}");
         write(root, "net/minecraft/world/entity/LivingEntity.java",
                 "package net.minecraft.world.entity; public abstract class LivingEntity extends Entity {}");
         write(root, "net/minecraft/world/entity/player/Player.java",

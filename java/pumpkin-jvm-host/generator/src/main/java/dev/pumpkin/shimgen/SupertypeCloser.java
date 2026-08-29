@@ -81,9 +81,10 @@ public final class SupertypeCloser {
             }
             for (String superName : superTypeNames(unit)) {
                 String resolved = resolve(unit, superName);
-                if (resolved != null && isShimmed(resolved) && !used.classes().contains(resolved)) {
-                    used.addClass(resolved, "supertype of " + internalName);
-                    worklist.addLast(resolved);
+                String outer = Shimmed.outerOf(resolved);
+                if (Shimmed.isShimmed(outer) && !used.classes().contains(outer)) {
+                    used.addClass(outer, "supertype of " + internalName);
+                    worklist.addLast(outer);
                 }
             }
         }
@@ -109,18 +110,15 @@ public final class SupertypeCloser {
     /**
      * Resolves a simple type name to an internal name, in order: an import that ends
      * in {@code .<simpleName>} (a single-type import, never {@code .*}); then the
-     * compilation unit's own package, walking up through each enclosing package
-     * (checked by actually finding a source file there, via {@link #parse}) so a
-     * same-tree reference one or more packages up still resolves without an import;
-     * then {@code java.lang} as an unverified last resort.
-     *
-     * <p>The package walk-up is a deliberate widening of "own package": a decompiled
-     * tree is expected to always import a cross-package reference, but resolution
-     * must not silently guess a wrong (non-existent) internal name when it doesn't —
-     * checking existence via {@code parse} at each level means this only ever returns
-     * a name that is backed by a real file, never a plausible-looking miss.
+     * compilation unit's own package; then {@code java.lang}. Matches Java's actual
+     * resolution rules for an unqualified type name — no other package is ever
+     * consulted. In a tree this size several simple names (e.g. {@code
+     * BlockPredicate}, {@code Main}) exist in multiple packages; guessing beyond
+     * these three rules risks silently binding to the wrong one. A supertype that
+     * genuinely cannot be resolved this way should fail loudly downstream (a missing
+     * class at {@code :shim:compileJava}) rather than be silently mis-resolved here.
      */
-    private String resolve(CompilationUnit unit, String simpleName) {
+    private static String resolve(CompilationUnit unit, String simpleName) {
         for (ImportDeclaration imp : unit.getImports()) {
             if (imp.isStatic() || imp.isAsterisk()) {
                 continue;
@@ -130,34 +128,10 @@ public final class SupertypeCloser {
                 return qualified.replace('.', '/');
             }
         }
-        String pkg = unit.getPackageDeclaration().map(pd -> pd.getNameAsString()).orElse("");
-        String[] segments = pkg.isEmpty() ? new String[0] : pkg.split("\\.");
-        for (int depth = segments.length; depth >= 0; depth--) {
-            StringBuilder path = new StringBuilder();
-            for (int i = 0; i < depth; i++) {
-                path.append(segments[i]).append('/');
-            }
-            String candidate = path + simpleName;
-            if (parse(candidate) != null) {
-                return candidate;
-            }
+        Optional<String> pkg = unit.getPackageDeclaration().map(pd -> pd.getNameAsString());
+        if (pkg.isPresent()) {
+            return pkg.get().replace('.', '/') + "/" + simpleName;
         }
         return "java/lang/" + simpleName;
-    }
-
-    /**
-     * Strips {@code $} and everything after it, so a nested type's reference lands on
-     * the outer class the generator actually emits a file for. Mirrors {@link
-     * JarScanner}'s and {@link MixinScanner}'s convention exactly.
-     */
-    private static String outerOf(String internalName) {
-        int dollar = internalName.indexOf('$');
-        return dollar < 0 ? internalName : internalName.substring(0, dollar);
-    }
-
-    /** Only these packages are shimmed; mirrors {@code JarScanner}'s filter exactly. */
-    private static boolean isShimmed(String internalName) {
-        String outer = outerOf(internalName);
-        return outer.startsWith("net/minecraft/") || outer.startsWith("net/neoforged/");
     }
 }
