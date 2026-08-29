@@ -261,6 +261,41 @@ s = s.replace("import dev.pumpkin.shim.Unimplemented;",
               "import dev.pumpkin.shim.Unimplemented;", 1)
 PENDING[p] = s
 
+# ------------------------------------------------------ NeoForgeRegistries
+# Same shape as BuiltInRegistries, and reached by real mods immediately after it. The
+# pruner supplies the stubs; only the identities are hand-written.
+#
+# These names are read from NeoForge's own source, not derived from the field name, because
+# the derivation would be wrong: INGREDIENT_TYPES is registered as "ingredient_serializer",
+# and CONDITION_SERIALIZERS as "condition_codecs". Both would have looked right and been
+# silently wrong -- the mod would register into a registry nothing else uses.
+# Namespace is "neoforge" (NeoForgeMod.MOD_ID), not "minecraft".
+p = os.path.join(ROOT, "net/neoforged/neoforge/registries/NeoForgeRegistries.java")
+s = open(p).read()
+
+NEOFORGE_IDENTITIES = {
+    "BIOME_MODIFIER_SERIALIZERS": "biome_modifier_serializers",
+    "INGREDIENT_TYPES": "ingredient_serializer",
+    "CONDITION_SERIALIZERS": "condition_codecs",
+}
+
+for field, registry_name in NEOFORGE_IDENTITIES.items():
+    match = re.search(r"( " + field + r" = Stubs\.of\((\w+)\.class, \"([^\"]+)\"\));", s)
+    if not match:
+        sys.exit("NeoForgeRegistries: no generated stub for " + field)
+    upgraded = (' %s = Stubs.of(%s.class, "%s", java.util.Map.of("key",'
+                ' ResourceKey.createRegistryKey('
+                'Identifier.fromNamespaceAndPath("neoforge", "%s"))));'
+                % (field, match.group(2), match.group(3), registry_name))
+    s = s[:match.start()] + upgraded + s[match.end():]
+
+if "import net.minecraft.resources.ResourceKey;" not in s:
+    s = s.replace("import dev.pumpkin.shim.Stubs;",
+                  "import net.minecraft.resources.Identifier;\n"
+                  "import net.minecraft.resources.ResourceKey;\n"
+                  "import dev.pumpkin.shim.Stubs;", 1)
+PENDING[p] = s
+
 # ---------------------------------------------------------------- Registries
 import re
 p = os.path.join(ROOT, "net/minecraft/core/registries/Registries.java")
