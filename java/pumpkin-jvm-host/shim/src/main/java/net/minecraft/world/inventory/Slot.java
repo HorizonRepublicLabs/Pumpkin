@@ -76,6 +76,6 @@ public class Slot {
         throw Unimplemented.forMember("net/minecraft/world/inventory/Slot.isActive:()Z");
     }
 
-    protected Slot() {
+    public Slot() {
     }
 }

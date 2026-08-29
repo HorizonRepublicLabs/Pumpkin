@@ -28,6 +28,6 @@ public class ClientboundUpdateMobEffectPacket implements Packet<ClientGamePacket
         throw Unimplemented.forMember("net/minecraft/network/protocol/game/ClientboundUpdateMobEffectPacket.handle:(Lnet/minecraft/network/protocol/game/ClientGamePacketListener;)V");
     }
 
-    protected ClientboundUpdateMobEffectPacket() {
+    public ClientboundUpdateMobEffectPacket() {
     }
 }

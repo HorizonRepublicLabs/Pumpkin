@@ -35,10 +35,10 @@ public class TagNetworkSerialization {
             throw Unimplemented.forMember("net/minecraft/tags/TagNetworkSerialization$NetworkPayload.resolve:(Lnet/minecraft/core/Registry;)Lnet/minecraft/tags/TagLoader$LoadResult;");
         }
 
-        protected NetworkPayload() {
+        public NetworkPayload() {
         }
     }
 
-    protected TagNetworkSerialization() {
+    public TagNetworkSerialization() {
     }
 }

@@ -22,6 +22,6 @@ public class ClimateSettingsBuilder {
         throw Unimplemented.forMember("net/neoforged/neoforge/common/world/ClimateSettingsBuilder.build:()Lnet/minecraft/world/level/biome/Biome$ClimateSettings;");
     }
 
-    protected ClimateSettingsBuilder() {
+    public ClimateSettingsBuilder() {
     }
 }

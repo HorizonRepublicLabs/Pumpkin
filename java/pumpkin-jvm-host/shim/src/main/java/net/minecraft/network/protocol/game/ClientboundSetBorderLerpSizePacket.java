@@ -32,6 +32,6 @@ public class ClientboundSetBorderLerpSizePacket implements Packet<ClientGamePack
         throw Unimplemented.forMember("net/minecraft/network/protocol/game/ClientboundSetBorderLerpSizePacket.getLerpTime:()J");
     }
 
-    protected ClientboundSetBorderLerpSizePacket() {
+    public ClientboundSetBorderLerpSizePacket() {
     }
 }

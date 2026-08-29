@@ -21,7 +21,7 @@ public record AnimationDefinition(float lengthInSeconds, boolean looping, Map<St
             throw Unimplemented.forMember("net/minecraft/client/animation/AnimationDefinition$Builder.build:()Lnet/minecraft/client/animation/AnimationDefinition;");
         }
 
-        protected Builder() {
+        public Builder() {
         }
     }
 }

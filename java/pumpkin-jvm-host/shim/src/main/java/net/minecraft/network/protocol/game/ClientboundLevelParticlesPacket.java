@@ -44,6 +44,6 @@ public class ClientboundLevelParticlesPacket implements Packet<ClientGamePacketL
         throw Unimplemented.forMember("net/minecraft/network/protocol/game/ClientboundLevelParticlesPacket.getCount:()I");
     }
 
-    protected ClientboundLevelParticlesPacket() {
+    public ClientboundLevelParticlesPacket() {
     }
 }

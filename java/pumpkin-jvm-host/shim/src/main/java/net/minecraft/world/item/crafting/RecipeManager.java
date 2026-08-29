@@ -67,7 +67,7 @@ public class RecipeManager extends SimplePreparableReloadListener<RecipeMap> imp
             throw Unimplemented.forMember("net/minecraft/world/item/crafting/RecipeManager$IngredientCollector.accept:(Lnet/minecraft/world/item/crafting/Recipe;)V");
         }
 
-        protected IngredientCollector() {
+        public IngredientCollector() {
         }
     }
 
@@ -79,6 +79,6 @@ public class RecipeManager extends SimplePreparableReloadListener<RecipeMap> imp
     public record ServerDisplayInfo(RecipeDisplayEntry display, RecipeHolder<?> parent) {
     }
 
-    protected RecipeManager() {
+    public RecipeManager() {
     }
 }

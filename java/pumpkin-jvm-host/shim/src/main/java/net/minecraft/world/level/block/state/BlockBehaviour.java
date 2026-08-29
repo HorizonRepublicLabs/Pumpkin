@@ -137,7 +137,7 @@ public abstract class BlockBehaviour implements FeatureElement {
             }
         }
 
-        protected BlockStateBase() {
+        public BlockStateBase() {
         }
     }
 
@@ -251,6 +251,6 @@ public abstract class BlockBehaviour implements FeatureElement {
         boolean test(BlockState state, BlockGetter level, BlockPos pos);
     }
 
-    protected BlockBehaviour() {
+    public BlockBehaviour() {
     }
 }

@@ -27,6 +27,6 @@ public class ServerboundSetCommandMinecartPacket implements Packet<ServerGamePac
         throw Unimplemented.forMember("net/minecraft/network/protocol/game/ServerboundSetCommandMinecartPacket.handle:(Lnet/minecraft/network/protocol/game/ServerGamePacketListener;)V");
     }
 
-    protected ServerboundSetCommandMinecartPacket() {
+    public ServerboundSetCommandMinecartPacket() {
     }
 }

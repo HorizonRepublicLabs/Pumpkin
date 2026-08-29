@@ -16,6 +16,6 @@ public abstract class OptionalDispenseItemBehavior extends DefaultDispenseItemBe
         throw Unimplemented.forMember("net/minecraft/core/dispenser/OptionalDispenseItemBehavior.playSound:(Lnet/minecraft/core/dispenser/BlockSource;)V");
     }
 
-    protected OptionalDispenseItemBehavior() {
+    public OptionalDispenseItemBehavior() {
     }
 }

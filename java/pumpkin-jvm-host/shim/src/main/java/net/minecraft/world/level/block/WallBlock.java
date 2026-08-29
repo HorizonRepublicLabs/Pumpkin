@@ -67,6 +67,6 @@ public class WallBlock extends Block implements SimpleWaterloggedBlock {
         throw Unimplemented.forMember("net/minecraft/world/level/block/WallBlock.mirror:(Lnet/minecraft/world/level/block/state/BlockState;Lnet/minecraft/world/level/block/Mirror;)Lnet/minecraft/world/level/block/state/BlockState;");
     }
 
-    protected WallBlock() {
+    public WallBlock() {
     }
 }

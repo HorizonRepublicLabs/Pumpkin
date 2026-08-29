@@ -73,6 +73,6 @@ public class SimpleEnergyHandler implements EnergyHandler, ValueIOSerializable {
         }
     }
 
-    protected SimpleEnergyHandler() {
+    public SimpleEnergyHandler() {
     }
 }

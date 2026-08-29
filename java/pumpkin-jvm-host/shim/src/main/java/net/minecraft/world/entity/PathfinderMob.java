@@ -22,6 +22,6 @@ public abstract class PathfinderMob extends Mob {
         throw Unimplemented.forMember("net/minecraft/world/entity/PathfinderMob.whenLeashedTo:(Lnet/minecraft/world/entity/Entity;)V");
     }
 
-    protected PathfinderMob() {
+    public PathfinderMob() {
     }
 }

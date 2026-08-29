@@ -51,10 +51,10 @@ public class LegacyRandomSource implements BitRandomSource {
             throw Unimplemented.forMember("net/minecraft/world/level/levelgen/LegacyRandomSource$LegacyPositionalRandomFactory.parityConfigString:(Ljava/lang/StringBuilder;)V");
         }
 
-        protected LegacyPositionalRandomFactory() {
+        public LegacyPositionalRandomFactory() {
         }
     }
 
-    protected LegacyRandomSource() {
+    public LegacyRandomSource() {
     }
 }

@@ -277,10 +277,10 @@ public class NoiseChunk implements DensityFunction.FunctionContext, DensityFunct
             throw Unimplemented.forMember("net/minecraft/world/level/levelgen/NoiseChunk$NoiseInterpolator.type:()Lnet/minecraft/world/level/levelgen/DensityFunctions$Marker$Type;");
         }
 
-        protected NoiseInterpolator() {
+        public NoiseInterpolator() {
         }
     }
 
-    protected NoiseChunk() {
+    public NoiseChunk() {
     }
 }

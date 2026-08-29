@@ -22,7 +22,7 @@ public abstract class RenderGuiEvent extends Event {
             throw Unimplemented.forMember("net/neoforged/neoforge/client/event/RenderGuiEvent$Pre.<init>:(Lnet/minecraft/client/gui/GuiGraphicsExtractor;Lnet/minecraft/client/DeltaTracker;)V");
         }
 
-        protected Pre() {
+        public Pre() {
         }
     }
 
@@ -32,10 +32,10 @@ public abstract class RenderGuiEvent extends Event {
             throw Unimplemented.forMember("net/neoforged/neoforge/client/event/RenderGuiEvent$Post.<init>:(Lnet/minecraft/client/gui/GuiGraphicsExtractor;Lnet/minecraft/client/DeltaTracker;)V");
         }
 
-        protected Post() {
+        public Post() {
         }
     }
 
-    protected RenderGuiEvent() {
+    public RenderGuiEvent() {
     }
 }

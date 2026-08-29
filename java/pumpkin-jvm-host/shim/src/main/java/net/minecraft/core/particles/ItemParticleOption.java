@@ -18,6 +18,6 @@ public class ItemParticleOption implements ParticleOptions {
         throw Unimplemented.forMember("net/minecraft/core/particles/ItemParticleOption.getType:()Lnet/minecraft/core/particles/ParticleType;");
     }
 
-    protected ItemParticleOption() {
+    public ItemParticleOption() {
     }
 }

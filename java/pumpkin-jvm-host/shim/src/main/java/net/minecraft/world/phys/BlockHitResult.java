@@ -30,6 +30,6 @@ public class BlockHitResult extends HitResult {
         throw Unimplemented.forMember("net/minecraft/world/phys/BlockHitResult.getType:()Lnet/minecraft/world/phys/HitResult$Type;");
     }
 
-    protected BlockHitResult() {
+    public BlockHitResult() {
     }
 }

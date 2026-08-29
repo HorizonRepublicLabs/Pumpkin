@@ -69,6 +69,6 @@ public class ClientboundAddEntityPacket implements Packet<ClientGamePacketListen
         throw Unimplemented.forMember("net/minecraft/network/protocol/game/ClientboundAddEntityPacket.getZ:()D");
     }
 
-    protected ClientboundAddEntityPacket() {
+    public ClientboundAddEntityPacket() {
     }
 }

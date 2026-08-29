@@ -42,6 +42,6 @@ public class ServerboundSetJigsawBlockPacket implements Packet<ServerGamePacketL
         throw Unimplemented.forMember("net/minecraft/network/protocol/game/ServerboundSetJigsawBlockPacket.getTarget:()Lnet/minecraft/resources/Identifier;");
     }
 
-    protected ServerboundSetJigsawBlockPacket() {
+    public ServerboundSetJigsawBlockPacket() {
     }
 }

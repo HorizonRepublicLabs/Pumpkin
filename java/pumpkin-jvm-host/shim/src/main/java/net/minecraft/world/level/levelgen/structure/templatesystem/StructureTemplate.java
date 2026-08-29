@@ -38,7 +38,7 @@ public class StructureTemplate {
             throw Unimplemented.forMember("net/minecraft/world/level/levelgen/structure/templatesystem/StructureTemplate$Palette.<init>:(Ljava/util/List;)V");
         }
 
-        protected Palette() {
+        public Palette() {
         }
     }
 
@@ -65,10 +65,10 @@ public class StructureTemplate {
             throw Unimplemented.forMember("net/minecraft/world/level/levelgen/structure/templatesystem/StructureTemplate$StructureEntityInfo.<init>:(Lnet/minecraft/world/phys/Vec3;Lnet/minecraft/core/BlockPos;Lnet/minecraft/nbt/CompoundTag;)V");
         }
 
-        protected StructureEntityInfo() {
+        public StructureEntityInfo() {
         }
     }
 
-    protected StructureTemplate() {
+    public StructureTemplate() {
     }
 }

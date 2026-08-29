@@ -31,6 +31,6 @@ public class ServerboundKeepAlivePacket implements Packet<ServerCommonPacketList
         throw Unimplemented.forMember("net/minecraft/network/protocol/common/ServerboundKeepAlivePacket.getId:()J");
     }
 
-    protected ServerboundKeepAlivePacket() {
+    public ServerboundKeepAlivePacket() {
     }
 }

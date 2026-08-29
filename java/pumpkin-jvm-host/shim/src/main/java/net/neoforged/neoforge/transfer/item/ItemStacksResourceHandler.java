@@ -39,6 +39,6 @@ public class ItemStacksResourceHandler extends StacksResourceHandler<ItemStack, 
         throw Unimplemented.forMember("net/neoforged/neoforge/transfer/item/ItemStacksResourceHandler.matches:(Lnet/minecraft/world/item/ItemStack;Lnet/neoforged/neoforge/transfer/item/ItemResource;)Z");
     }
 
-    protected ItemStacksResourceHandler() {
+    public ItemStacksResourceHandler() {
     }
 }

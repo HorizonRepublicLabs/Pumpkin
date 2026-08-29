@@ -63,6 +63,6 @@ public abstract class ItemStackResourceHandler extends SnapshotJournal<ItemStack
         throw Unimplemented.forMember("net/neoforged/neoforge/transfer/item/ItemStackResourceHandler.toString:()Ljava/lang/String;");
     }
 
-    protected ItemStackResourceHandler() {
+    public ItemStackResourceHandler() {
     }
 }

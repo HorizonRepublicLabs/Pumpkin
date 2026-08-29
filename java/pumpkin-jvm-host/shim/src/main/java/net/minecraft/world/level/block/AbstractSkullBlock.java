@@ -50,6 +50,6 @@ public abstract class AbstractSkullBlock extends BaseEntityBlock {
         throw Unimplemented.forMember("net/minecraft/world/level/block/AbstractSkullBlock.neighborChanged:(Lnet/minecraft/world/level/block/state/BlockState;Lnet/minecraft/world/level/Level;Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/Block;Lnet/minecraft/world/level/redstone/Orientation;Z)V");
     }
 
-    protected AbstractSkullBlock() {
+    public AbstractSkullBlock() {
     }
 }

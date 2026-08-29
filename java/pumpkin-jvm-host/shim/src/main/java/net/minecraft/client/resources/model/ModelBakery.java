@@ -99,6 +99,6 @@ public class ModelBakery {
         }
     }
 
-    protected ModelBakery() {
+    public ModelBakery() {
     }
 }

@@ -525,7 +525,7 @@ class PrunerTest {
                 "the super call goes, and with it the argument expressions that named arbitrary members");
         assertFalse(out.contains("name.length()"), "no decompiled expression may survive into the shim");
         assertTrue(out.contains("Unimplemented"));
-        assertTrue(out.contains("protected BlockItem() {"),
+        assertTrue(out.contains("public BlockItem() {"),
                 "a synthesised no-arg constructor is what the dropped super call now binds to");
     }
 
@@ -542,9 +542,9 @@ class PrunerTest {
                 """);
         Pruner.prune(cu, "net/minecraft/world/level/block/Block", new UsedSet());
         String out = cu.toString();
-        int at = out.indexOf("protected Block() {");
+        int at = out.indexOf("public Block() {");
         assertTrue(at >= 0, "every class gets one");
-        assertEquals("protected Block() {\n    }", out.substring(at, at + "protected Block() {\n    }".length()));
+        assertEquals("public Block() {\n    }", out.substring(at, at + "public Block() {\n    }".length()));
     }
 
     /// A class whose superclass is not in the generated set -- Netty's `ByteBuf` under
@@ -580,5 +580,37 @@ class PrunerTest {
         used.addMember(new UsedSet.MemberRef("net/minecraft/world/level/Level", "toString", "()Ljava/lang/String;"), "mod");
         Pruner.prune(cu, "net/minecraft/world/level/Level", used);
         assertFalse(cu.toString().contains("@Override"));
+    }
+
+    /// A synthesised constructor takes the class's own access, the way Java's implicit
+    /// default constructor does. Always-protected sent a mod calling `new
+    /// ModConfigSpec.Builder()` into IllegalAccessError: a mod runs in its own classloader,
+    /// so it is a different runtime package, and protected access needs the same one. The
+    /// error named the mod rather than the shim, so it read as the mod's fault.
+    @Test
+    void aSynthesisedConstructorTakesTheClassesOwnAccess() {
+        CompilationUnit publicClass = StaticJavaParser.parse("""
+                package net.minecraft.world.level;
+                public class Visible {
+                    public void used() {}
+                }
+                """);
+        UsedSet used = new UsedSet();
+        used.addMember(new UsedSet.MemberRef("net/minecraft/world/level/Visible", "used", "()V"), "mod");
+        Pruner.prune(publicClass, "net/minecraft/world/level/Visible", used);
+        assertTrue(publicClass.toString().contains("public Visible() {"),
+                "a public class's implicit constructor is public, so the synthesised one must be");
+
+        CompilationUnit packagePrivate = StaticJavaParser.parse("""
+                package net.minecraft.world.level;
+                class Hidden {
+                    public void used() {}
+                }
+                """);
+        UsedSet used2 = new UsedSet();
+        used2.addMember(new UsedSet.MemberRef("net/minecraft/world/level/Hidden", "used", "()V"), "mod");
+        Pruner.prune(packagePrivate, "net/minecraft/world/level/Hidden", used2);
+        assertTrue(packagePrivate.toString().contains("protected Hidden() {"),
+                "a non-public class keeps the wider-than-default protected, for subclass super()");
     }
 }

@@ -20,6 +20,6 @@ public final class SoundAction {
         throw Unimplemented.forMember("net/neoforged/neoforge/common/SoundAction.toString:()Ljava/lang/String;");
     }
 
-    protected SoundAction() {
+    public SoundAction() {
     }
 }

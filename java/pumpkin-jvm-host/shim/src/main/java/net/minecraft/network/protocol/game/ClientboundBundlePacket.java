@@ -19,6 +19,6 @@ public class ClientboundBundlePacket extends BundlePacket<ClientGamePacketListen
         throw Unimplemented.forMember("net/minecraft/network/protocol/game/ClientboundBundlePacket.handle:(Lnet/minecraft/network/protocol/game/ClientGamePacketListener;)V");
     }
 
-    protected ClientboundBundlePacket() {
+    public ClientboundBundlePacket() {
     }
 }

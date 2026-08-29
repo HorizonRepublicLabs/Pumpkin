@@ -12,6 +12,6 @@ public class TickTask implements Runnable {
         throw Unimplemented.forMember("net/minecraft/server/TickTask.run:()V");
     }
 
-    protected TickTask() {
+    public TickTask() {
     }
 }

@@ -15,6 +15,6 @@ public class BlockModelResolver {
         throw Unimplemented.forMember("net/minecraft/client/renderer/block/BlockModelResolver.update:(Lnet/minecraft/client/renderer/block/BlockModelRenderState;Lnet/minecraft/world/level/block/state/BlockState;Lnet/minecraft/client/renderer/block/model/BlockDisplayContext;)V");
     }
 
-    protected BlockModelResolver() {
+    public BlockModelResolver() {
     }
 }

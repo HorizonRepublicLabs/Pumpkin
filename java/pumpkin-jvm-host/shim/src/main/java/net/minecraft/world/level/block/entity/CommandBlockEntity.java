@@ -39,6 +39,6 @@ public class CommandBlockEntity extends BlockEntity {
         SEQUENCE, AUTO, REDSTONE
     }
 
-    protected CommandBlockEntity() {
+    public CommandBlockEntity() {
     }
 }

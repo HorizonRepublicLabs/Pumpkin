@@ -52,7 +52,7 @@ public class ShaderManager extends SimplePreparableReloadListener<ShaderManager.
             throw Unimplemented.forMember("net/minecraft/client/renderer/ShaderManager$CompilationException.<init>:(Ljava/lang/String;)V");
         }
 
-        protected CompilationException() {
+        public CompilationException() {
         }
     }
 
@@ -66,6 +66,6 @@ public class ShaderManager extends SimplePreparableReloadListener<ShaderManager.
         }
     }
 
-    protected ShaderManager() {
+    public ShaderManager() {
     }
 }

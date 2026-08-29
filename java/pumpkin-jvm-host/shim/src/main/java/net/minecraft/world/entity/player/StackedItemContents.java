@@ -28,6 +28,6 @@ public class StackedItemContents {
         throw Unimplemented.forMember("net/minecraft/world/entity/player/StackedItemContents.clear:()V");
     }
 
-    protected StackedItemContents() {
+    public StackedItemContents() {
     }
 }

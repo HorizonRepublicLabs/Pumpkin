@@ -9,6 +9,6 @@ public class BiomeGenerationSettingsBuilder extends BiomeGenerationSettings.Plai
         throw Unimplemented.forMember("net/neoforged/neoforge/common/world/BiomeGenerationSettingsBuilder.<init>:(Lnet/minecraft/world/level/biome/BiomeGenerationSettings;)V");
     }
 
-    protected BiomeGenerationSettingsBuilder() {
+    public BiomeGenerationSettingsBuilder() {
     }
 }

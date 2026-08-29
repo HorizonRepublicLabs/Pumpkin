@@ -21,7 +21,7 @@ public abstract class PlayerXpEvent extends PlayerEvent {
             throw Unimplemented.forMember("net/neoforged/neoforge/event/entity/player/PlayerXpEvent$PickupXp.getOrb:()Lnet/minecraft/world/entity/ExperienceOrb;");
         }
 
-        protected PickupXp() {
+        public PickupXp() {
         }
     }
 
@@ -35,7 +35,7 @@ public abstract class PlayerXpEvent extends PlayerEvent {
             throw Unimplemented.forMember("net/neoforged/neoforge/event/entity/player/PlayerXpEvent$XpChange.getAmount:()I");
         }
 
-        protected XpChange() {
+        public XpChange() {
         }
     }
 
@@ -45,10 +45,10 @@ public abstract class PlayerXpEvent extends PlayerEvent {
             throw Unimplemented.forMember("net/neoforged/neoforge/event/entity/player/PlayerXpEvent$LevelChange.<init>:(Lnet/minecraft/world/entity/player/Player;I)V");
         }
 
-        protected LevelChange() {
+        public LevelChange() {
         }
     }
 
-    protected PlayerXpEvent() {
+    public PlayerXpEvent() {
     }
 }

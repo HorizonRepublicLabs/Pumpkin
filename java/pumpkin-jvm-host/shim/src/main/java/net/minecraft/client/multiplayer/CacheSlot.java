@@ -22,6 +22,6 @@ public class CacheSlot<C extends CacheSlot.Cleaner<C>, D> {
         void registerForCleaning(CacheSlot<C, ?> slot);
     }
 
-    protected CacheSlot() {
+    public CacheSlot() {
     }
 }

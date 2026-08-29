@@ -26,7 +26,7 @@ public record ItemTransform(Vector3fc rotation, Vector3fc translation, Vector3fc
             throw Unimplemented.forMember("net/minecraft/client/resources/model/cuboid/ItemTransform$Deserializer.deserialize:(Lcom/google/gson/JsonElement;Ljava/lang/reflect/Type;Lcom/google/gson/JsonDeserializationContext;)Lnet/minecraft/client/resources/model/cuboid/ItemTransform;");
         }
 
-        protected Deserializer() {
+        public Deserializer() {
         }
     }
 }

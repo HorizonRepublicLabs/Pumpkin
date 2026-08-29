@@ -84,6 +84,6 @@ public abstract class AbstractSoundInstance implements SoundInstance {
         throw Unimplemented.forMember("net/minecraft/client/resources/sounds/AbstractSoundInstance.toString:()Ljava/lang/String;");
     }
 
-    protected AbstractSoundInstance() {
+    public AbstractSoundInstance() {
     }
 }

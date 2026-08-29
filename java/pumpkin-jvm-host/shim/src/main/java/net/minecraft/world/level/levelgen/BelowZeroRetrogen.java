@@ -11,6 +11,6 @@ public final class BelowZeroRetrogen {
         throw Unimplemented.forMember("net/minecraft/world/level/levelgen/BelowZeroRetrogen.<init>:(Lnet/minecraft/world/level/chunk/status/ChunkStatus;Ljava/util/Optional;)V");
     }
 
-    protected BelowZeroRetrogen() {
+    public BelowZeroRetrogen() {
     }
 }

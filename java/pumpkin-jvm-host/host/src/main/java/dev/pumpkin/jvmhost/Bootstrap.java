@@ -85,7 +85,7 @@ public final class Bootstrap {
         // Told after construction, not before: a mod that failed to construct is not loaded,
         // and claiming otherwise would have the next mod take an integration path against
         // something that is not there.
-        ModList.pumpkinMarkLoaded(candidate.modId());
+        ModList.pumpkinMarkLoaded(candidate.modId(), Path.of(jarPath));
         return candidate.modId();
     }
 

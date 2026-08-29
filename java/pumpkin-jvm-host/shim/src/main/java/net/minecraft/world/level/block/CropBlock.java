@@ -91,6 +91,6 @@ public class CropBlock extends VegetationBlock implements BonemealableBlock {
         throw Unimplemented.forMember("net/minecraft/world/level/block/CropBlock.createBlockStateDefinition:(Lnet/minecraft/world/level/block/state/StateDefinition$Builder;)V");
     }
 
-    protected CropBlock() {
+    public CropBlock() {
     }
 }

@@ -47,6 +47,6 @@ public class SoundManager extends SimplePreparableReloadListener<SoundManager.Pr
         }
     }
 
-    protected SoundManager() {
+    public SoundManager() {
     }
 }

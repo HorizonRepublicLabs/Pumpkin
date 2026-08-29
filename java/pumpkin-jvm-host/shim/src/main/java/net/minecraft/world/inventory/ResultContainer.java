@@ -52,6 +52,6 @@ public class ResultContainer implements Container, RecipeCraftingHolder {
         throw Unimplemented.forMember("net/minecraft/world/inventory/ResultContainer.getRecipeUsed:()Lnet/minecraft/world/item/crafting/RecipeHolder;");
     }
 
-    protected ResultContainer() {
+    public ResultContainer() {
     }
 }

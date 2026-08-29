@@ -26,6 +26,6 @@ public class BlockGrowFeatureEvent extends LevelEvent implements ICancellableEve
         throw Unimplemented.forMember("net/neoforged/neoforge/event/level/BlockGrowFeatureEvent.setCanceled:(Z)V");
     }
 
-    protected BlockGrowFeatureEvent() {
+    public BlockGrowFeatureEvent() {
     }
 }

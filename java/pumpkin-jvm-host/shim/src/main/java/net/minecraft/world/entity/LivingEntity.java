@@ -380,6 +380,6 @@ public abstract class LivingEntity extends Entity implements Attackable, Waypoin
     public record Fallsounds(SoundEvent small, SoundEvent big) {
     }
 
-    protected LivingEntity() {
+    public LivingEntity() {
     }
 }

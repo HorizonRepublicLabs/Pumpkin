@@ -51,7 +51,7 @@ public class Stitcher<T extends Stitcher.Entry> {
             throw Unimplemented.forMember("net/minecraft/client/renderer/texture/Stitcher$Region.toString:()Ljava/lang/String;");
         }
 
-        protected Region() {
+        public Region() {
         }
     }
 
@@ -60,6 +60,6 @@ public class Stitcher<T extends Stitcher.Entry> {
         void load(T entry, int x, int z, int padding);
     }
 
-    protected Stitcher() {
+    public Stitcher() {
     }
 }

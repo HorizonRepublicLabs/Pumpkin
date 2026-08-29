@@ -38,7 +38,7 @@ public class StateDefinition<O, S extends StateHolder<O, S>> {
             throw Unimplemented.forMember("net/minecraft/world/level/block/state/StateDefinition$Builder.create:(Ljava/util/function/Function;Lnet/minecraft/world/level/block/state/StateDefinition$Factory;)Lnet/minecraft/world/level/block/state/StateDefinition;");
         }
 
-        protected Builder() {
+        public Builder() {
         }
     }
 
@@ -55,6 +55,6 @@ public class StateDefinition<O, S extends StateHolder<O, S>> {
         }
     }
 
-    protected StateDefinition() {
+    public StateDefinition() {
     }
 }

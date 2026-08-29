@@ -24,6 +24,6 @@ public class DataComponents {
         throw Unimplemented.forMember("net/minecraft/core/component/DataComponents.register:(Ljava/lang/String;Ljava/util/function/UnaryOperator;)Lnet/minecraft/core/component/DataComponentType;");
     }
 
-    protected DataComponents() {
+    public DataComponents() {
     }
 }

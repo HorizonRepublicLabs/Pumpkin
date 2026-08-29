@@ -54,6 +54,6 @@ public class TagLoader<T> {
         }
     }
 
-    protected TagLoader() {
+    public TagLoader() {
     }
 }

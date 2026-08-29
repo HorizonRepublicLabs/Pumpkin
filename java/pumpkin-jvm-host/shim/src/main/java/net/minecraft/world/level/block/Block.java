@@ -152,7 +152,7 @@ public class Block extends BlockBehaviour implements ItemLike, IBlockExtension {
 
     // Pumpkin divergence: the generator synthesises an empty no-argument constructor for
     // every class; this one has a final field to assign, so it delegates.
-    protected Block() {
+    public Block() {
         this(BlockBehaviour.Properties.of());
     }
 }

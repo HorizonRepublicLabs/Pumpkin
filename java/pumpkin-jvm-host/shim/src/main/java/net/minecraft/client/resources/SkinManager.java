@@ -41,6 +41,6 @@ public class SkinManager {
         }
     }
 
-    protected SkinManager() {
+    public SkinManager() {
     }
 }

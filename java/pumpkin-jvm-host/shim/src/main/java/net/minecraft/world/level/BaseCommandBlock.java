@@ -53,6 +53,6 @@ public abstract class BaseCommandBlock {
         }
     }
 
-    protected BaseCommandBlock() {
+    public BaseCommandBlock() {
     }
 }

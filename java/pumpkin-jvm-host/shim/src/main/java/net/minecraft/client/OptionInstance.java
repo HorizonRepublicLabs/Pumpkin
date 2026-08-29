@@ -184,7 +184,7 @@ public final class OptionInstance<T> {
             throw Unimplemented.forMember("net/minecraft/client/OptionInstance$OptionInstanceSliderButton.keyPressed:(Lnet/minecraft/client/input/KeyEvent;)Z");
         }
 
-        protected OptionInstanceSliderButton() {
+        public OptionInstanceSliderButton() {
         }
     }
 
@@ -275,6 +275,6 @@ public final class OptionInstance<T> {
         void valueChanged(T newValue);
     }
 
-    protected OptionInstance() {
+    public OptionInstance() {
     }
 }

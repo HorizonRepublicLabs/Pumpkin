@@ -31,6 +31,6 @@ public class ClientboundPingPacket implements Packet<ClientCommonPacketListener>
         throw Unimplemented.forMember("net/minecraft/network/protocol/common/ClientboundPingPacket.getId:()I");
     }
 
-    protected ClientboundPingPacket() {
+    public ClientboundPingPacket() {
     }
 }

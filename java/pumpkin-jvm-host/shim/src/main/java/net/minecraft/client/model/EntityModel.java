@@ -17,6 +17,6 @@ public abstract class EntityModel<T extends EntityRenderState> extends Model<T> 
         throw Unimplemented.forMember("net/minecraft/client/model/EntityModel.<init>:(Lnet/minecraft/client/model/geom/ModelPart;Ljava/util/function/Function;)V");
     }
 
-    protected EntityModel() {
+    public EntityModel() {
     }
 }

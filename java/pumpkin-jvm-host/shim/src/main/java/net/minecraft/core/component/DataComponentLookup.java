@@ -13,6 +13,6 @@ public class DataComponentLookup<T> {
     private record ComponentStorage<C, T>(Multimap<C, Holder<T>> valueToComponent) {
     }
 
-    protected DataComponentLookup() {
+    public DataComponentLookup() {
     }
 }

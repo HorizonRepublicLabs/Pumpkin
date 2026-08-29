@@ -19,6 +19,6 @@ public class CarvingContext extends WorldGenerationContext {
         throw Unimplemented.forMember("net/minecraft/world/level/levelgen/carver/CarvingContext.registryAccess:()Lnet/minecraft/core/RegistryAccess;");
     }
 
-    protected CarvingContext() {
+    public CarvingContext() {
     }
 }

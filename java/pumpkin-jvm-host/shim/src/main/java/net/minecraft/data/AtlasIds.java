@@ -7,7 +7,7 @@ public class AtlasIds {
 
     public static final Identifier BLOCKS = null;
 
-    protected AtlasIds() {
+    public AtlasIds() {
     }
 
     static {

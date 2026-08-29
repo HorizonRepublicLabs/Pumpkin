@@ -48,10 +48,10 @@ public abstract class RecipeProvider {
 
         protected abstract RecipeProvider createRecipeProvider(HolderLookup.Provider registries, RecipeOutput output);
 
-        protected Runner() {
+        public Runner() {
         }
     }
 
-    protected RecipeProvider() {
+    public RecipeProvider() {
     }
 }

@@ -68,6 +68,6 @@ public final class MutableComponent implements Component {
         throw Unimplemented.forMember("net/minecraft/network/chat/MutableComponent.toString:()Ljava/lang/String;");
     }
 
-    protected MutableComponent() {
+    public MutableComponent() {
     }
 }

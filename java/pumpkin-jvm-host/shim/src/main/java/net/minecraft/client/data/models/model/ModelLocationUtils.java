@@ -23,6 +23,6 @@ public class ModelLocationUtils {
         throw Unimplemented.forMember("net/minecraft/client/data/models/model/ModelLocationUtils.getModelLocation:(Lnet/minecraft/world/item/Item;Ljava/lang/String;)Lnet/minecraft/resources/Identifier;");
     }
 
-    protected ModelLocationUtils() {
+    public ModelLocationUtils() {
     }
 }

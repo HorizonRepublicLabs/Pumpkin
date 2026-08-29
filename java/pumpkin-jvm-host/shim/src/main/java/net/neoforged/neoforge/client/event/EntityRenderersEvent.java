@@ -51,7 +51,7 @@ public abstract class EntityRenderersEvent extends Event implements IModBusEvent
             throw Unimplemented.forMember("net/neoforged/neoforge/client/event/EntityRenderersEvent$AddLayers.<init>:(Ljava/util/Map;Ljava/util/Map;Ljava/util/Map;Lnet/minecraft/client/renderer/entity/EntityRendererProvider$Context;)V");
         }
 
-        protected AddLayers() {
+        public AddLayers() {
         }
     }
 
@@ -61,7 +61,7 @@ public abstract class EntityRenderersEvent extends Event implements IModBusEvent
             throw Unimplemented.forMember("net/neoforged/neoforge/client/event/EntityRenderersEvent$CreateSkullModels.<init>:(Ljava/util/Map;Ljava/util/Map;)V");
         }
 
-        protected CreateSkullModels() {
+        public CreateSkullModels() {
         }
     }
 }

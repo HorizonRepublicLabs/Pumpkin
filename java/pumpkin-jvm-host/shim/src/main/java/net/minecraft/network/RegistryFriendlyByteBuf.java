@@ -22,6 +22,6 @@ public class RegistryFriendlyByteBuf extends FriendlyByteBuf {
         throw Unimplemented.forMember("net/minecraft/network/RegistryFriendlyByteBuf.registryAccess:()Lnet/minecraft/core/RegistryAccess;");
     }
 
-    protected RegistryFriendlyByteBuf() {
+    public RegistryFriendlyByteBuf() {
     }
 }

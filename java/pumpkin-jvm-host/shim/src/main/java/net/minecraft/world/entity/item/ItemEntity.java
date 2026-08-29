@@ -130,6 +130,6 @@ public class ItemEntity extends Entity implements TraceableEntity {
         throw Unimplemented.forMember("net/minecraft/world/entity/item/ItemEntity.getSlot:(I)Lnet/minecraft/world/entity/SlotAccess;");
     }
 
-    protected ItemEntity() {
+    public ItemEntity() {
     }
 }

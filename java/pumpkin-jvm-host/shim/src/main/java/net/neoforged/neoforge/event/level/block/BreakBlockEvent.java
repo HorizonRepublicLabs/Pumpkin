@@ -22,6 +22,6 @@ public class BreakBlockEvent extends BlockEvent implements ICancellableEvent {
         throw Unimplemented.forMember("net/neoforged/neoforge/event/level/block/BreakBlockEvent.setCanceled:(Z)V");
     }
 
-    protected BreakBlockEvent() {
+    public BreakBlockEvent() {
     }
 }

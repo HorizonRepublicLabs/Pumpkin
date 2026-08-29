@@ -192,6 +192,6 @@ public class LevelChunk extends ChunkAccess implements DebugValueSource, IAttach
         void setUnsaved(ChunkPos chunkPos);
     }
 
-    protected LevelChunk() {
+    public LevelChunk() {
     }
 }

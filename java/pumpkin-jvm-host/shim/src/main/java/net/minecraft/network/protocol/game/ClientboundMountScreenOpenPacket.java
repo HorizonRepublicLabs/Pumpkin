@@ -27,6 +27,6 @@ public class ClientboundMountScreenOpenPacket implements Packet<ClientGamePacket
         throw Unimplemented.forMember("net/minecraft/network/protocol/game/ClientboundMountScreenOpenPacket.handle:(Lnet/minecraft/network/protocol/game/ClientGamePacketListener;)V");
     }
 
-    protected ClientboundMountScreenOpenPacket() {
+    public ClientboundMountScreenOpenPacket() {
     }
 }

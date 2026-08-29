@@ -51,6 +51,6 @@ public abstract class ChunkGenerator {
 
     public abstract void addDebugScreenInfo(final List<String> result, final RandomState randomState, final BlockPos feetPos);
 
-    protected ChunkGenerator() {
+    public ChunkGenerator() {
     }
 }

@@ -32,6 +32,6 @@ public abstract class NormalCraftingRecipe implements CraftingRecipe {
         throw Unimplemented.forMember("net/minecraft/world/item/crafting/NormalCraftingRecipe.placementInfo:()Lnet/minecraft/world/item/crafting/PlacementInfo;");
     }
 
-    protected NormalCraftingRecipe() {
+    public NormalCraftingRecipe() {
     }
 }

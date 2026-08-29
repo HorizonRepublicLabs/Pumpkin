@@ -40,7 +40,7 @@ public record Advancement(Optional<Identifier> parent, Optional<DisplayInfo> dis
             throw Unimplemented.forMember("net/minecraft/advancements/Advancement$Builder.save:(Ljava/util/function/Consumer;Ljava/lang/String;)Lnet/minecraft/advancements/AdvancementHolder;");
         }
 
-        protected Builder() {
+        public Builder() {
         }
     }
 }

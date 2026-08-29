@@ -35,6 +35,6 @@ public class ClientboundSetChunkCacheCenterPacket implements Packet<ClientGamePa
         throw Unimplemented.forMember("net/minecraft/network/protocol/game/ClientboundSetChunkCacheCenterPacket.getZ:()I");
     }
 
-    protected ClientboundSetChunkCacheCenterPacket() {
+    public ClientboundSetChunkCacheCenterPacket() {
     }
 }

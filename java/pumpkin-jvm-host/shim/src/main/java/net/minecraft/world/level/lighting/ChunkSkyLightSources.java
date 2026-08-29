@@ -22,6 +22,6 @@ public class ChunkSkyLightSources {
         throw Unimplemented.forMember("net/minecraft/world/level/lighting/ChunkSkyLightSources.get:(I)I");
     }
 
-    protected ChunkSkyLightSources() {
+    public ChunkSkyLightSources() {
     }
 }

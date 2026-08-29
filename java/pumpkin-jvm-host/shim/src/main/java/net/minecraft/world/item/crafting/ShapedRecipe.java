@@ -41,6 +41,6 @@ public class ShapedRecipe extends NormalCraftingRecipe {
         throw Unimplemented.forMember("net/minecraft/world/item/crafting/ShapedRecipe.display:()Ljava/util/List;");
     }
 
-    protected ShapedRecipe() {
+    public ShapedRecipe() {
     }
 }

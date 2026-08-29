@@ -26,6 +26,6 @@ public class RecipeMap {
         throw Unimplemented.forMember("net/minecraft/world/item/crafting/RecipeMap.byType:(Lnet/minecraft/world/item/crafting/RecipeType;)Ljava/util/Collection;");
     }
 
-    protected RecipeMap() {
+    public RecipeMap() {
     }
 }

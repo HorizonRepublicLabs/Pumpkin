@@ -31,6 +31,6 @@ public class ClientboundKeepAlivePacket implements Packet<ClientCommonPacketList
         throw Unimplemented.forMember("net/minecraft/network/protocol/common/ClientboundKeepAlivePacket.getId:()J");
     }
 
-    protected ClientboundKeepAlivePacket() {
+    public ClientboundKeepAlivePacket() {
     }
 }

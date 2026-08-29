@@ -58,6 +58,6 @@ public class NonNullList<E> extends AbstractList<E> {
         throw Unimplemented.forMember("net/minecraft/core/NonNullList.clear:()V");
     }
 
-    protected NonNullList() {
+    public NonNullList() {
     }
 }

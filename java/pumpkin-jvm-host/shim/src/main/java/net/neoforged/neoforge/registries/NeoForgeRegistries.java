@@ -19,10 +19,10 @@ public class NeoForgeRegistries {
 
     public static final class Keys {
 
-        protected Keys() {
+        public Keys() {
         }
     }
 
-    protected NeoForgeRegistries() {
+    public NeoForgeRegistries() {
     }
 }

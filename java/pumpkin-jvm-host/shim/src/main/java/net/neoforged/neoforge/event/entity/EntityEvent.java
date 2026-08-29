@@ -22,7 +22,7 @@ public abstract class EntityEvent extends Event {
             throw Unimplemented.forMember("net/neoforged/neoforge/event/entity/EntityEvent$EntityConstructing.<init>:(Lnet/minecraft/world/entity/Entity;)V");
         }
 
-        protected EntityConstructing() {
+        public EntityConstructing() {
         }
     }
 
@@ -32,7 +32,7 @@ public abstract class EntityEvent extends Event {
             throw Unimplemented.forMember("net/neoforged/neoforge/event/entity/EntityEvent$EnteringSection.<init>:(Lnet/minecraft/world/entity/Entity;JJ)V");
         }
 
-        protected EnteringSection() {
+        public EnteringSection() {
         }
     }
 
@@ -46,10 +46,10 @@ public abstract class EntityEvent extends Event {
             throw Unimplemented.forMember("net/neoforged/neoforge/event/entity/EntityEvent$Size.<init>:(Lnet/minecraft/world/entity/Entity;Lnet/minecraft/world/entity/Pose;Lnet/minecraft/world/entity/EntityDimensions;Lnet/minecraft/world/entity/EntityDimensions;)V");
         }
 
-        protected Size() {
+        public Size() {
         }
     }
 
-    protected EntityEvent() {
+    public EntityEvent() {
     }
 }

@@ -113,6 +113,6 @@ public abstract class AbstractContainerScreen<T extends AbstractContainerMenu> e
         throw Unimplemented.forMember("net/minecraft/client/gui/screens/inventory/AbstractContainerScreen.onClose:()V");
     }
 
-    protected AbstractContainerScreen() {
+    public AbstractContainerScreen() {
     }
 }

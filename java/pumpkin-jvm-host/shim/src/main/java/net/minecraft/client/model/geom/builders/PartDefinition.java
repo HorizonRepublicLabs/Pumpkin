@@ -15,6 +15,6 @@ public class PartDefinition {
         throw Unimplemented.forMember("net/minecraft/client/model/geom/builders/PartDefinition.bake:(II)Lnet/minecraft/client/model/geom/ModelPart;");
     }
 
-    protected PartDefinition() {
+    public PartDefinition() {
     }
 }

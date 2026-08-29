@@ -15,6 +15,6 @@ public abstract class HitResult {
         MISS, BLOCK, ENTITY
     }
 
-    protected HitResult() {
+    public HitResult() {
     }
 }

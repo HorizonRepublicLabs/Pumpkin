@@ -14,6 +14,6 @@ public class PortalShape {
         throw Unimplemented.forMember("net/minecraft/world/level/portal/PortalShape.isValid:()Z");
     }
 
-    protected PortalShape() {
+    public PortalShape() {
     }
 }

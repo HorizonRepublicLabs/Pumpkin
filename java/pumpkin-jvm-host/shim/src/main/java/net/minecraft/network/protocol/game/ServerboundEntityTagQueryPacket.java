@@ -27,6 +27,6 @@ public class ServerboundEntityTagQueryPacket implements Packet<ServerGamePacketL
         throw Unimplemented.forMember("net/minecraft/network/protocol/game/ServerboundEntityTagQueryPacket.handle:(Lnet/minecraft/network/protocol/game/ServerGamePacketListener;)V");
     }
 
-    protected ServerboundEntityTagQueryPacket() {
+    public ServerboundEntityTagQueryPacket() {
     }
 }

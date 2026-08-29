@@ -12,6 +12,6 @@ public class NbtAccounter {
         throw Unimplemented.forMember("net/minecraft/nbt/NbtAccounter.create:(J)Lnet/minecraft/nbt/NbtAccounter;");
     }
 
-    protected NbtAccounter() {
+    public NbtAccounter() {
     }
 }

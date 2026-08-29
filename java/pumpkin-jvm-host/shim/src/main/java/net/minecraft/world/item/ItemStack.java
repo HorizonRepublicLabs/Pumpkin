@@ -258,6 +258,6 @@ public final class ItemStack implements DataComponentHolder, ItemInstance, IItem
         throw Unimplemented.forMember("net/minecraft/world/item/ItemStack.onDestroyed:(Lnet/minecraft/world/entity/item/ItemEntity;)V");
     }
 
-    protected ItemStack() {
+    public ItemStack() {
     }
 }

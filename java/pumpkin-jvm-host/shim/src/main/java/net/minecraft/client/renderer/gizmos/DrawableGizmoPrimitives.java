@@ -51,6 +51,6 @@ public class DrawableGizmoPrimitives implements GizmoPrimitives {
     public record TriangleFan(Vec3[] points, int color) {
     }
 
-    protected DrawableGizmoPrimitives() {
+    public DrawableGizmoPrimitives() {
     }
 }

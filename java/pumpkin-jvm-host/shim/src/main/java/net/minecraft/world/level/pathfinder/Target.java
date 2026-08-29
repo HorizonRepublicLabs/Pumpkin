@@ -12,6 +12,6 @@ public class Target extends Node {
         throw Unimplemented.forMember("net/minecraft/world/level/pathfinder/Target.<init>:(III)V");
     }
 
-    protected Target() {
+    public Target() {
     }
 }

@@ -13,6 +13,6 @@ public class ExecutionContext<T> implements AutoCloseable {
         throw Unimplemented.forMember("net/minecraft/commands/execution/ExecutionContext.close:()V");
     }
 
-    protected ExecutionContext() {
+    public ExecutionContext() {
     }
 }

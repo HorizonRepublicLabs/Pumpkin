@@ -15,6 +15,6 @@ public class ValidationContextSource {
         throw Unimplemented.forMember("net/minecraft/world/level/storage/loot/ValidationContextSource.context:(Lnet/minecraft/util/context/ContextKeySet;)Lnet/minecraft/world/level/storage/loot/ValidationContext;");
     }
 
-    protected ValidationContextSource() {
+    public ValidationContextSource() {
     }
 }

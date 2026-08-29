@@ -49,6 +49,6 @@ public class ServerboundPlayerActionPacket implements Packet<ServerGamePacketLis
         STAB
     }
 
-    protected ServerboundPlayerActionPacket() {
+    public ServerboundPlayerActionPacket() {
     }
 }

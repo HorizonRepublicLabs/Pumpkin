@@ -39,6 +39,6 @@ public class ClientboundPlayerLookAtPacket implements Packet<ClientGamePacketLis
         throw Unimplemented.forMember("net/minecraft/network/protocol/game/ClientboundPlayerLookAtPacket.getPosition:(Lnet/minecraft/world/level/Level;)Lnet/minecraft/world/phys/Vec3;");
     }
 
-    protected ClientboundPlayerLookAtPacket() {
+    public ClientboundPlayerLookAtPacket() {
     }
 }

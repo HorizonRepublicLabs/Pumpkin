@@ -25,7 +25,7 @@ public final class Biome {
             throw Unimplemented.forMember("net/minecraft/world/level/biome/Biome$BiomeBuilder.toString:()Ljava/lang/String;");
         }
 
-        protected BiomeBuilder() {
+        public BiomeBuilder() {
         }
     }
 
@@ -68,6 +68,6 @@ public final class Biome {
         }
     }
 
-    protected Biome() {
+    public Biome() {
     }
 }

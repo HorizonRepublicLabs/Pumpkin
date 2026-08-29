@@ -20,6 +20,6 @@ public class FluidStateModelSet {
         throw Unimplemented.forMember("net/minecraft/client/renderer/block/FluidStateModelSet.get:(Lnet/minecraft/world/level/material/FluidState;)Lnet/minecraft/client/renderer/block/FluidModel;");
     }
 
-    protected FluidStateModelSet() {
+    public FluidStateModelSet() {
     }
 }

@@ -32,6 +32,6 @@ public class ClientboundInitializeBorderPacket implements Packet<ClientGamePacke
         throw Unimplemented.forMember("net/minecraft/network/protocol/game/ClientboundInitializeBorderPacket.getLerpTime:()J");
     }
 
-    protected ClientboundInitializeBorderPacket() {
+    public ClientboundInitializeBorderPacket() {
     }
 }

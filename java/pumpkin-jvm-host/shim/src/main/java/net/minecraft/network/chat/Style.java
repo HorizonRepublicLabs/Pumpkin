@@ -30,10 +30,10 @@ public final class Style {
 
     public static class Serializer {
 
-        protected Serializer() {
+        public Serializer() {
         }
     }
 
-    protected Style() {
+    public Style() {
     }
 }

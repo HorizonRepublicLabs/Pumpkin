@@ -23,7 +23,7 @@ public class PackOutput {
             throw Unimplemented.forMember("net/minecraft/data/PackOutput$PathProvider.<init>:(Lnet/minecraft/data/PackOutput;Lnet/minecraft/data/PackOutput$Target;Ljava/lang/String;)V");
         }
 
-        protected PathProvider() {
+        public PathProvider() {
         }
     }
 
@@ -32,6 +32,6 @@ public class PackOutput {
         DATA_PACK, RESOURCE_PACK, REPORTS
     }
 
-    protected PackOutput() {
+    public PackOutput() {
     }
 }

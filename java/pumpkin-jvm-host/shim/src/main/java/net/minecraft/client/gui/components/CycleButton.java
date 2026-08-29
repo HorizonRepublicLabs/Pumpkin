@@ -58,7 +58,7 @@ public class CycleButton<T> extends AbstractButton implements ResettableOptionWi
             throw Unimplemented.forMember("net/minecraft/client/gui/components/CycleButton$Builder.create:(IIIILnet/minecraft/network/chat/Component;Lnet/minecraft/client/gui/components/CycleButton$OnValueChange;)Lnet/minecraft/client/gui/components/CycleButton;");
         }
 
-        protected Builder() {
+        public Builder() {
         }
     }
 
@@ -92,6 +92,6 @@ public class CycleButton<T> extends AbstractButton implements ResettableOptionWi
         }
     }
 
-    protected CycleButton() {
+    public CycleButton() {
     }
 }

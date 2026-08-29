@@ -24,6 +24,6 @@ public class ClientboundOpenScreenPacket implements Packet<ClientGamePacketListe
         throw Unimplemented.forMember("net/minecraft/network/protocol/game/ClientboundOpenScreenPacket.getType:()Lnet/minecraft/world/inventory/MenuType;");
     }
 
-    protected ClientboundOpenScreenPacket() {
+    public ClientboundOpenScreenPacket() {
     }
 }

@@ -49,6 +49,6 @@ public class ServerboundSetStructureBlockPacket implements Packet<ServerGamePack
         throw Unimplemented.forMember("net/minecraft/network/protocol/game/ServerboundSetStructureBlockPacket.getSeed:()J");
     }
 
-    protected ServerboundSetStructureBlockPacket() {
+    public ServerboundSetStructureBlockPacket() {
     }
 }

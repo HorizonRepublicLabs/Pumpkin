@@ -28,6 +28,6 @@ public final class Transformation implements ITransformationExtension {
         throw Unimplemented.forMember("com/mojang/math/Transformation.hashCode:()I");
     }
 
-    protected Transformation() {
+    public Transformation() {
     }
 }

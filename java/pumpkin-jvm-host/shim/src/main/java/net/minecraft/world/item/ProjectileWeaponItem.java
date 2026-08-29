@@ -28,6 +28,6 @@ public abstract class ProjectileWeaponItem extends Item {
         throw Unimplemented.forMember("net/minecraft/world/item/ProjectileWeaponItem.draw:(Lnet/minecraft/world/item/ItemStack;Lnet/minecraft/world/item/ItemStack;Lnet/minecraft/world/entity/LivingEntity;)Ljava/util/List;");
     }
 
-    protected ProjectileWeaponItem() {
+    public ProjectileWeaponItem() {
     }
 }

@@ -25,6 +25,6 @@ public class CarvingMask {
         boolean test(int x, int y, int z);
     }
 
-    protected CarvingMask() {
+    public CarvingMask() {
     }
 }

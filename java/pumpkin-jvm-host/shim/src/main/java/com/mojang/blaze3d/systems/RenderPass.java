@@ -126,6 +126,6 @@ public class RenderPass implements AutoCloseable {
         void upload(String name, GpuBufferSlice buffer);
     }
 
-    protected RenderPass() {
+    public RenderPass() {
     }
 }

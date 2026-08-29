@@ -29,6 +29,6 @@ public class ClientboundBlockUpdatePacket implements Packet<ClientGamePacketList
         throw Unimplemented.forMember("net/minecraft/network/protocol/game/ClientboundBlockUpdatePacket.getPos:()Lnet/minecraft/core/BlockPos;");
     }
 
-    protected ClientboundBlockUpdatePacket() {
+    public ClientboundBlockUpdatePacket() {
     }
 }

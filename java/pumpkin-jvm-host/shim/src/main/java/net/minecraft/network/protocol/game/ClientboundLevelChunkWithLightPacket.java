@@ -38,6 +38,6 @@ public class ClientboundLevelChunkWithLightPacket implements Packet<ClientGamePa
         throw Unimplemented.forMember("net/minecraft/network/protocol/game/ClientboundLevelChunkWithLightPacket.getZ:()I");
     }
 
-    protected ClientboundLevelChunkWithLightPacket() {
+    public ClientboundLevelChunkWithLightPacket() {
     }
 }

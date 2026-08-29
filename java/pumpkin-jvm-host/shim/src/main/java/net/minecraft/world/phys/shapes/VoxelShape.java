@@ -33,6 +33,6 @@ public abstract class VoxelShape {
         throw Unimplemented.forMember("net/minecraft/world/phys/shapes/VoxelShape.toString:()Ljava/lang/String;");
     }
 
-    protected VoxelShape() {
+    public VoxelShape() {
     }
 }

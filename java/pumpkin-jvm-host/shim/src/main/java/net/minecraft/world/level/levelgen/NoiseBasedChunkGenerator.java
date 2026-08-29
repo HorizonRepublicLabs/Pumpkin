@@ -70,6 +70,6 @@ public class NoiseBasedChunkGenerator extends ChunkGenerator {
         throw Unimplemented.forMember("net/minecraft/world/level/levelgen/NoiseBasedChunkGenerator.spawnOriginalMobs:(Lnet/minecraft/server/level/WorldGenRegion;)V");
     }
 
-    protected NoiseBasedChunkGenerator() {
+    public NoiseBasedChunkGenerator() {
     }
 }

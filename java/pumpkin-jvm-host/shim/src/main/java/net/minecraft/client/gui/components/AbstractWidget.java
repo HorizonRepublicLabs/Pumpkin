@@ -135,10 +135,10 @@ public abstract class AbstractWidget implements LayoutElement, Renderable, GuiEv
             throw Unimplemented.forMember("net/minecraft/client/gui/components/AbstractWidget$WithInactiveMessage.setMessage:(Lnet/minecraft/network/chat/Component;)V");
         }
 
-        protected WithInactiveMessage() {
+        public WithInactiveMessage() {
         }
     }
 
-    protected AbstractWidget() {
+    public AbstractWidget() {
     }
 }

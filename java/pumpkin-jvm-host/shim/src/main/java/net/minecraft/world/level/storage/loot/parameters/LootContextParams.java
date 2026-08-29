@@ -8,7 +8,7 @@ public class LootContextParams {
 
     public static final ContextKey<Vec3> ORIGIN = null;
 
-    protected LootContextParams() {
+    public LootContextParams() {
     }
 
     static {

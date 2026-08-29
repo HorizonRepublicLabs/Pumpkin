@@ -67,6 +67,6 @@ public class StairBlock extends Block implements SimpleWaterloggedBlock {
         throw Unimplemented.forMember("net/minecraft/world/level/block/StairBlock.isPathfindable:(Lnet/minecraft/world/level/block/state/BlockState;Lnet/minecraft/world/level/pathfinder/PathComputationType;)Z");
     }
 
-    protected StairBlock() {
+    public StairBlock() {
     }
 }

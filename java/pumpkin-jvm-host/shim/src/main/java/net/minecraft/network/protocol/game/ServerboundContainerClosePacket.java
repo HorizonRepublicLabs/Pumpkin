@@ -27,6 +27,6 @@ public class ServerboundContainerClosePacket implements Packet<ServerGamePacketL
         throw Unimplemented.forMember("net/minecraft/network/protocol/game/ServerboundContainerClosePacket.handle:(Lnet/minecraft/network/protocol/game/ServerGamePacketListener;)V");
     }
 
-    protected ServerboundContainerClosePacket() {
+    public ServerboundContainerClosePacket() {
     }
 }

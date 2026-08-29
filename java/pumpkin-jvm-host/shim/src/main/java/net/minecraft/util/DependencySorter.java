@@ -11,6 +11,6 @@ public class DependencySorter<K, V extends DependencySorter.Entry<K>> {
         void visitOptionalDependencies(final Consumer<K> output);
     }
 
-    protected DependencySorter() {
+    public DependencySorter() {
     }
 }

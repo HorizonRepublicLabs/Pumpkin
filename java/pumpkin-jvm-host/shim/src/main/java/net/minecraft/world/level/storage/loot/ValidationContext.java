@@ -55,6 +55,6 @@ public class ValidationContext {
         }
     }
 
-    protected ValidationContext() {
+    public ValidationContext() {
     }
 }

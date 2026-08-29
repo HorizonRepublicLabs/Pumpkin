@@ -40,10 +40,10 @@ public class OreConfiguration implements FeatureConfiguration {
             throw Unimplemented.forMember("net/minecraft/world/level/levelgen/feature/configurations/OreConfiguration$TargetBlockState.<init>:(Lnet/minecraft/world/level/levelgen/structure/templatesystem/RuleTest;Lnet/minecraft/world/level/block/state/BlockState;)V");
         }
 
-        protected TargetBlockState() {
+        public TargetBlockState() {
         }
     }
 
-    protected OreConfiguration() {
+    public OreConfiguration() {
     }
 }

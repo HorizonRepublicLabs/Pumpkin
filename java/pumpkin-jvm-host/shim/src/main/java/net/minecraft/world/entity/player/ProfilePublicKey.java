@@ -31,7 +31,7 @@ public record ProfilePublicKey(ProfilePublicKey.Data data) {
             throw Unimplemented.forMember("net/minecraft/world/entity/player/ProfilePublicKey$ValidationException.<init>:(Lnet/minecraft/network/chat/Component;)V");
         }
 
-        protected ValidationException() {
+        public ValidationException() {
         }
     }
 }

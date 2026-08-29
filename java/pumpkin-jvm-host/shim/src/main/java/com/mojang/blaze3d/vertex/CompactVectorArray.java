@@ -22,6 +22,6 @@ public class CompactVectorArray {
         throw Unimplemented.forMember("com/mojang/blaze3d/vertex/CompactVectorArray.get:(ILorg/joml/Vector3f;)Lorg/joml/Vector3f;");
     }
 
-    protected CompactVectorArray() {
+    public CompactVectorArray() {
     }
 }

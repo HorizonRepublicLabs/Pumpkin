@@ -89,7 +89,7 @@ public class EntityType<T extends Entity> implements EntityTypeTest<Entity, T>, 
             throw Unimplemented.forMember("net/minecraft/world/entity/EntityType$Builder.<init>:(Lnet/minecraft/world/entity/EntityType$EntityFactory;Lnet/minecraft/world/entity/MobCategory;)V");
         }
 
-        protected Builder() {
+        public Builder() {
         }
     }
 
@@ -98,6 +98,6 @@ public class EntityType<T extends Entity> implements EntityTypeTest<Entity, T>, 
         T create(final EntityType<T> entityType, final Level level);
     }
 
-    protected EntityType() {
+    public EntityType() {
     }
 }

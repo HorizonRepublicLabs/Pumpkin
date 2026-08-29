@@ -8,6 +8,6 @@ public class AnimationState {
         throw Unimplemented.forMember("net/minecraft/world/entity/AnimationState.start:(I)V");
     }
 
-    protected AnimationState() {
+    public AnimationState() {
     }
 }

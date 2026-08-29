@@ -11,7 +11,7 @@ public class BlockUtil {
             throw Unimplemented.forMember("net/minecraft/util/BlockUtil$FoundRectangle.<init>:(Lnet/minecraft/core/BlockPos;II)V");
         }
 
-        protected FoundRectangle() {
+        public FoundRectangle() {
         }
     }
 
@@ -25,10 +25,10 @@ public class BlockUtil {
             throw Unimplemented.forMember("net/minecraft/util/BlockUtil$IntBounds.toString:()Ljava/lang/String;");
         }
 
-        protected IntBounds() {
+        public IntBounds() {
         }
     }
 
-    protected BlockUtil() {
+    public BlockUtil() {
     }
 }

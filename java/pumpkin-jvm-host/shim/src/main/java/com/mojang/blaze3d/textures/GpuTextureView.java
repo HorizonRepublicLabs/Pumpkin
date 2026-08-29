@@ -20,6 +20,6 @@ public abstract class GpuTextureView implements AutoCloseable {
 
     public abstract boolean isClosed();
 
-    protected GpuTextureView() {
+    public GpuTextureView() {
     }
 }

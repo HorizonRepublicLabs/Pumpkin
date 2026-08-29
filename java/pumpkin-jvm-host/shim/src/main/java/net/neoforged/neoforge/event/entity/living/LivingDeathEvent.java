@@ -15,6 +15,6 @@ public class LivingDeathEvent extends LivingEvent implements ICancellableEvent {
         throw Unimplemented.forMember("net/neoforged/neoforge/event/entity/living/LivingDeathEvent.getSource:()Lnet/minecraft/world/damagesource/DamageSource;");
     }
 
-    protected LivingDeathEvent() {
+    public LivingDeathEvent() {
     }
 }

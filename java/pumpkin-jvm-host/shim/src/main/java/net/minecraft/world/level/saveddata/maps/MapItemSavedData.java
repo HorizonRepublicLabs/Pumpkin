@@ -27,7 +27,7 @@ public class MapItemSavedData extends SavedData {
             throw Unimplemented.forMember("net/minecraft/world/level/saveddata/maps/MapItemSavedData$HoldingPlayer.<init>:(Lnet/minecraft/world/entity/player/Player;)V");
         }
 
-        protected HoldingPlayer() {
+        public HoldingPlayer() {
         }
     }
 
@@ -45,6 +45,6 @@ public class MapItemSavedData extends SavedData {
         }
     }
 
-    protected MapItemSavedData() {
+    public MapItemSavedData() {
     }
 }

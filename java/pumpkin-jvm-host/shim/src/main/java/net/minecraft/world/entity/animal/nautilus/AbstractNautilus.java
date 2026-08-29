@@ -174,6 +174,6 @@ public abstract class AbstractNautilus extends TamableAnimal implements PlayerRi
         throw Unimplemented.forMember("net/minecraft/world/entity/animal/nautilus/AbstractNautilus.requiresCustomPersistence:()Z");
     }
 
-    protected AbstractNautilus() {
+    public AbstractNautilus() {
     }
 }

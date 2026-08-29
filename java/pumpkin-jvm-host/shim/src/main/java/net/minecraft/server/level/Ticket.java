@@ -24,6 +24,6 @@ public class Ticket {
         throw Unimplemented.forMember("net/minecraft/server/level/Ticket.getTicketLevel:()I");
     }
 
-    protected Ticket() {
+    public Ticket() {
     }
 }

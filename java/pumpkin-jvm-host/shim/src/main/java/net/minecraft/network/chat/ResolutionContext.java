@@ -22,7 +22,7 @@ public record ResolutionContext(CommandSourceStack source, Entity defaultScorebo
             throw Unimplemented.forMember("net/minecraft/network/chat/ResolutionContext$Builder.build:()Lnet/minecraft/network/chat/ResolutionContext;");
         }
 
-        protected Builder() {
+        public Builder() {
         }
     }
 

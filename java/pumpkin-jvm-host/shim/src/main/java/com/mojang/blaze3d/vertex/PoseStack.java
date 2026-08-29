@@ -62,7 +62,7 @@ public class PoseStack {
             throw Unimplemented.forMember("com/mojang/blaze3d/vertex/PoseStack$Pose.copy:()Lcom/mojang/blaze3d/vertex/PoseStack$Pose;");
         }
 
-        protected Pose() {
+        public Pose() {
         }
     }
 }

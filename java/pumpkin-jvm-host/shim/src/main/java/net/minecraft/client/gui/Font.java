@@ -81,6 +81,6 @@ public class Font implements IFontExtension {
         EffectGlyph effect();
     }
 
-    protected Font() {
+    public Font() {
     }
 }

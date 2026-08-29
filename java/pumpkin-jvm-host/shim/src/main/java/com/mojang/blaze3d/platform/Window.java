@@ -53,10 +53,10 @@ public final class Window implements AutoCloseable {
             throw Unimplemented.forMember("com/mojang/blaze3d/platform/Window$WindowInitFailed.<init>:(Ljava/lang/String;)V");
         }
 
-        protected WindowInitFailed() {
+        public WindowInitFailed() {
         }
     }
 
-    protected Window() {
+    public Window() {
     }
 }

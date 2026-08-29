@@ -92,6 +92,6 @@ public class ClientboundPlayerInfoUpdatePacket implements Packet<ClientGamePacke
         }
     }
 
-    protected ClientboundPlayerInfoUpdatePacket() {
+    public ClientboundPlayerInfoUpdatePacket() {
     }
 }

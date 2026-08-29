@@ -9,6 +9,6 @@ public class ClientAvatarState {
         throw Unimplemented.forMember("net/minecraft/client/entity/ClientAvatarState.tick:(Lnet/minecraft/world/phys/Vec3;Lnet/minecraft/world/phys/Vec3;)V");
     }
 
-    protected ClientAvatarState() {
+    public ClientAvatarState() {
     }
 }

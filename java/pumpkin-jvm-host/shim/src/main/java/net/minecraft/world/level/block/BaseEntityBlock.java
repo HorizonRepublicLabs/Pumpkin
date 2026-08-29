@@ -24,6 +24,6 @@ public abstract class BaseEntityBlock extends Block implements EntityBlock {
         throw Unimplemented.forMember("net/minecraft/world/level/block/BaseEntityBlock.getMenuProvider:(Lnet/minecraft/world/level/block/state/BlockState;Lnet/minecraft/world/level/Level;Lnet/minecraft/core/BlockPos;)Lnet/minecraft/world/MenuProvider;");
     }
 
-    protected BaseEntityBlock() {
+    public BaseEntityBlock() {
     }
 }

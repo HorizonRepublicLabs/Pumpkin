@@ -19,6 +19,6 @@ public class Potion implements FeatureElement {
         throw Unimplemented.forMember("net/minecraft/world/item/alchemy/Potion.name:()Ljava/lang/String;");
     }
 
-    protected Potion() {
+    public Potion() {
     }
 }

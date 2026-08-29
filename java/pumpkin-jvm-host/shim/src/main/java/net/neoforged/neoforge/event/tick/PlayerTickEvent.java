@@ -16,7 +16,7 @@ public abstract class PlayerTickEvent extends PlayerEvent {
             throw Unimplemented.forMember("net/neoforged/neoforge/event/tick/PlayerTickEvent$Pre.<init>:(Lnet/minecraft/world/entity/player/Player;)V");
         }
 
-        protected Pre() {
+        public Pre() {
         }
     }
 
@@ -26,10 +26,10 @@ public abstract class PlayerTickEvent extends PlayerEvent {
             throw Unimplemented.forMember("net/neoforged/neoforge/event/tick/PlayerTickEvent$Post.<init>:(Lnet/minecraft/world/entity/player/Player;)V");
         }
 
-        protected Post() {
+        public Post() {
         }
     }
 
-    protected PlayerTickEvent() {
+    public PlayerTickEvent() {
     }
 }

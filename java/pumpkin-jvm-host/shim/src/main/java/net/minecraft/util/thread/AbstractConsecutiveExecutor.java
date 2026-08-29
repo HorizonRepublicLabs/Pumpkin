@@ -49,6 +49,6 @@ public abstract class AbstractConsecutiveExecutor<T extends Runnable> implements
         SLEEPING, RUNNING, CLOSED
     }
 
-    protected AbstractConsecutiveExecutor() {
+    public AbstractConsecutiveExecutor() {
     }
 }

@@ -9,6 +9,6 @@ public class ModelDataManager {
         throw Unimplemented.forMember("net/neoforged/neoforge/model/data/ModelDataManager.<init>:(Lnet/minecraft/world/level/Level;)V");
     }
 
-    protected ModelDataManager() {
+    public ModelDataManager() {
     }
 }

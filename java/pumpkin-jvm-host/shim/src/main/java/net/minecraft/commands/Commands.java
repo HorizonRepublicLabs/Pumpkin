@@ -32,6 +32,6 @@ public class Commands {
         void parse(StringReader value) throws CommandSyntaxException;
     }
 
-    protected Commands() {
+    public Commands() {
     }
 }

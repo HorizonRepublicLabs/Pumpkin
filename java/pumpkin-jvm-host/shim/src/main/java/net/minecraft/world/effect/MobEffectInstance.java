@@ -75,6 +75,6 @@ public class MobEffectInstance implements Comparable<MobEffectInstance> {
         }
     }
 
-    protected MobEffectInstance() {
+    public MobEffectInstance() {
     }
 }

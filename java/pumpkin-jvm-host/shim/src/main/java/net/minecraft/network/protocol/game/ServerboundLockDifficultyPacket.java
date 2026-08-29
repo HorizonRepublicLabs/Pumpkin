@@ -31,6 +31,6 @@ public class ServerboundLockDifficultyPacket implements Packet<ServerGamePacketL
         throw Unimplemented.forMember("net/minecraft/network/protocol/game/ServerboundLockDifficultyPacket.isLocked:()Z");
     }
 
-    protected ServerboundLockDifficultyPacket() {
+    public ServerboundLockDifficultyPacket() {
     }
 }

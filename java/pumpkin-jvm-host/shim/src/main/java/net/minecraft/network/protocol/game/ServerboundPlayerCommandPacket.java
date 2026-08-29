@@ -47,6 +47,6 @@ public class ServerboundPlayerCommandPacket implements Packet<ServerGamePacketLi
         START_FALL_FLYING
     }
 
-    protected ServerboundPlayerCommandPacket() {
+    public ServerboundPlayerCommandPacket() {
     }
 }

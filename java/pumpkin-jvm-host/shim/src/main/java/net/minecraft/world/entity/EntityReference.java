@@ -64,6 +64,6 @@ public final class EntityReference<StoredEntityType extends UniquelyIdentifyable
         throw Unimplemented.forMember("net/minecraft/world/entity/EntityReference.hashCode:()I");
     }
 
-    protected EntityReference() {
+    public EntityReference() {
     }
 }

@@ -11,6 +11,6 @@ public abstract class StoredUserEntry<T> {
 
     protected abstract void serialize(final JsonObject object);
 
-    protected StoredUserEntry() {
+    public StoredUserEntry() {
     }
 }

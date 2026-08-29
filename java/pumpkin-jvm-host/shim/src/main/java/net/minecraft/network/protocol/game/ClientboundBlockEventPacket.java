@@ -33,6 +33,6 @@ public class ClientboundBlockEventPacket implements Packet<ClientGamePacketListe
         throw Unimplemented.forMember("net/minecraft/network/protocol/game/ClientboundBlockEventPacket.getPos:()Lnet/minecraft/core/BlockPos;");
     }
 
-    protected ClientboundBlockEventPacket() {
+    public ClientboundBlockEventPacket() {
     }
 }

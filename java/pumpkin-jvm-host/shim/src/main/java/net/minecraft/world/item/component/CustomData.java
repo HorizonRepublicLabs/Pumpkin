@@ -52,6 +52,6 @@ public final class CustomData {
         throw Unimplemented.forMember("net/minecraft/world/item/component/CustomData.toString:()Ljava/lang/String;");
     }
 
-    protected CustomData() {
+    public CustomData() {
     }
 }

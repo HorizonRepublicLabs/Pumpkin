@@ -45,7 +45,7 @@ public abstract class ClientboundMoveEntityPacket implements Packet<ClientGamePa
             throw Unimplemented.forMember("net/minecraft/network/protocol/game/ClientboundMoveEntityPacket$Pos.type:()Lnet/minecraft/network/protocol/PacketType;");
         }
 
-        protected Pos() {
+        public Pos() {
         }
     }
 
@@ -67,7 +67,7 @@ public abstract class ClientboundMoveEntityPacket implements Packet<ClientGamePa
             throw Unimplemented.forMember("net/minecraft/network/protocol/game/ClientboundMoveEntityPacket$PosRot.type:()Lnet/minecraft/network/protocol/PacketType;");
         }
 
-        protected PosRot() {
+        public PosRot() {
         }
     }
 
@@ -89,10 +89,10 @@ public abstract class ClientboundMoveEntityPacket implements Packet<ClientGamePa
             throw Unimplemented.forMember("net/minecraft/network/protocol/game/ClientboundMoveEntityPacket$Rot.type:()Lnet/minecraft/network/protocol/PacketType;");
         }
 
-        protected Rot() {
+        public Rot() {
         }
     }
 
-    protected ClientboundMoveEntityPacket() {
+    public ClientboundMoveEntityPacket() {
     }
 }

@@ -13,6 +13,6 @@ public class MultiPlayerGameMode {
         throw Unimplemented.forMember("net/minecraft/client/multiplayer/MultiPlayerGameMode.tick:()V");
     }
 
-    protected MultiPlayerGameMode() {
+    public MultiPlayerGameMode() {
     }
 }

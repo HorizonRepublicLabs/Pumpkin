@@ -21,7 +21,7 @@ public abstract class LivingEvent extends EntityEvent {
             throw Unimplemented.forMember("net/neoforged/neoforge/event/entity/living/LivingEvent$LivingJumpEvent.<init>:(Lnet/minecraft/world/entity/LivingEntity;)V");
         }
 
-        protected LivingJumpEvent() {
+        public LivingJumpEvent() {
         }
     }
 
@@ -31,10 +31,10 @@ public abstract class LivingEvent extends EntityEvent {
             throw Unimplemented.forMember("net/neoforged/neoforge/event/entity/living/LivingEvent$LivingVisibilityEvent.<init>:(Lnet/minecraft/world/entity/LivingEntity;Lnet/minecraft/world/entity/Entity;D)V");
         }
 
-        protected LivingVisibilityEvent() {
+        public LivingVisibilityEvent() {
         }
     }
 
-    protected LivingEvent() {
+    public LivingEvent() {
     }
 }

@@ -42,10 +42,10 @@ public abstract class AttachmentHolder implements IAttachmentHolder {
             throw Unimplemented.forMember("net/neoforged/neoforge/attachment/AttachmentHolder$AsField.syncData:(Lnet/neoforged/neoforge/attachment/AttachmentType;)V");
         }
 
-        protected AsField() {
+        public AsField() {
         }
     }
 
-    protected AttachmentHolder() {
+    public AttachmentHolder() {
     }
 }

@@ -22,6 +22,6 @@ public class Orientation {
         }
     }
 
-    protected Orientation() {
+    public Orientation() {
     }
 }

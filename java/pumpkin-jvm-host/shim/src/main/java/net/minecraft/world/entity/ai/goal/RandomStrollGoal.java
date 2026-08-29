@@ -33,6 +33,6 @@ public class RandomStrollGoal extends Goal {
         throw Unimplemented.forMember("net/minecraft/world/entity/ai/goal/RandomStrollGoal.stop:()V");
     }
 
-    protected RandomStrollGoal() {
+    public RandomStrollGoal() {
     }
 }

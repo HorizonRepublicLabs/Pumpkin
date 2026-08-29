@@ -15,6 +15,6 @@ public class ChunkGenerationTask {
         throw Unimplemented.forMember("net/minecraft/server/level/ChunkGenerationTask.create:(Lnet/minecraft/server/level/GeneratingChunkMap;Lnet/minecraft/world/level/chunk/status/ChunkStatus;Lnet/minecraft/world/level/ChunkPos;)Lnet/minecraft/server/level/ChunkGenerationTask;");
     }
 
-    protected ChunkGenerationTask() {
+    public ChunkGenerationTask() {
     }
 }

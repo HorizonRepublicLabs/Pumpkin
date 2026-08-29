@@ -28,10 +28,10 @@ public class QuadCollection {
             throw Unimplemented.forMember("net/minecraft/client/resources/model/geometry/QuadCollection$Builder.build:()Lnet/minecraft/client/resources/model/geometry/QuadCollection;");
         }
 
-        protected Builder() {
+        public Builder() {
         }
     }
 
-    protected QuadCollection() {
+    public QuadCollection() {
     }
 }

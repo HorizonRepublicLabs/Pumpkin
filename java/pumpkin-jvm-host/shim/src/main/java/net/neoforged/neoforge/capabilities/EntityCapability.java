@@ -23,6 +23,6 @@ public final class EntityCapability<T, C extends Object> extends BaseCapability<
         throw Unimplemented.forMember("net/neoforged/neoforge/capabilities/EntityCapability.getCapability:(Lnet/minecraft/world/entity/Entity;Ljava/lang/Object;)Ljava/lang/Object;");
     }
 
-    protected EntityCapability() {
+    public EntityCapability() {
     }
 }

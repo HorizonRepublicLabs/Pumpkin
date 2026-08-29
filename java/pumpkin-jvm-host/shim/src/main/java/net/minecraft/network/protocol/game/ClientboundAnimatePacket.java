@@ -32,6 +32,6 @@ public class ClientboundAnimatePacket implements Packet<ClientGamePacketListener
         throw Unimplemented.forMember("net/minecraft/network/protocol/game/ClientboundAnimatePacket.getId:()I");
     }
 
-    protected ClientboundAnimatePacket() {
+    public ClientboundAnimatePacket() {
     }
 }

@@ -28,6 +28,6 @@ public class ClientboundSetEntityLinkPacket implements Packet<ClientGamePacketLi
         throw Unimplemented.forMember("net/minecraft/network/protocol/game/ClientboundSetEntityLinkPacket.handle:(Lnet/minecraft/network/protocol/game/ClientGamePacketListener;)V");
     }
 
-    protected ClientboundSetEntityLinkPacket() {
+    public ClientboundSetEntityLinkPacket() {
     }
 }

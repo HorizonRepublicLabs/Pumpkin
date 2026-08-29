@@ -8,6 +8,6 @@ public class ProbabilityFeatureConfiguration implements FeatureConfiguration {
         throw Unimplemented.forMember("net/minecraft/world/level/levelgen/feature/configurations/ProbabilityFeatureConfiguration.<init>:(F)V");
     }
 
-    protected ProbabilityFeatureConfiguration() {
+    public ProbabilityFeatureConfiguration() {
     }
 }

@@ -77,6 +77,6 @@ public class TestInstanceBlockEntity extends BlockEntity implements BoundingBoxR
         }
     }
 
-    protected TestInstanceBlockEntity() {
+    public TestInstanceBlockEntity() {
     }
 }

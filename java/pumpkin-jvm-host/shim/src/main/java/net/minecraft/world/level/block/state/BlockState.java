@@ -15,6 +15,6 @@ public class BlockState extends BlockBehaviour.BlockStateBase implements IBlockS
         throw Unimplemented.forMember("net/minecraft/world/level/block/state/BlockState.asState:()Lnet/minecraft/world/level/block/state/BlockState;");
     }
 
-    protected BlockState() {
+    public BlockState() {
     }
 }

@@ -78,10 +78,10 @@ public class ItemEnchantments implements TooltipProvider {
             throw Unimplemented.forMember("net/minecraft/world/item/enchantment/ItemEnchantments$Mutable.toImmutable:()Lnet/minecraft/world/item/enchantment/ItemEnchantments;");
         }
 
-        protected Mutable() {
+        public Mutable() {
         }
     }
 
-    protected ItemEnchantments() {
+    public ItemEnchantments() {
     }
 }

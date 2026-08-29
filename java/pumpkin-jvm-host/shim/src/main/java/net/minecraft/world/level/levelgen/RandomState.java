@@ -19,6 +19,6 @@ public final class RandomState {
         throw Unimplemented.forMember("net/minecraft/world/level/levelgen/RandomState.<init>:(Lnet/minecraft/world/level/levelgen/NoiseGeneratorSettings;Lnet/minecraft/core/HolderGetter;J)V");
     }
 
-    protected RandomState() {
+    public RandomState() {
     }
 }

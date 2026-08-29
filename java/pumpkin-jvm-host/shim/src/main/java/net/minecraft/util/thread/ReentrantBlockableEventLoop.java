@@ -16,6 +16,6 @@ public abstract class ReentrantBlockableEventLoop<R extends Runnable> extends Bl
         throw Unimplemented.forMember("net/minecraft/util/thread/ReentrantBlockableEventLoop.doRunTask:(Ljava/lang/Runnable;)V");
     }
 
-    protected ReentrantBlockableEventLoop() {
+    public ReentrantBlockableEventLoop() {
     }
 }

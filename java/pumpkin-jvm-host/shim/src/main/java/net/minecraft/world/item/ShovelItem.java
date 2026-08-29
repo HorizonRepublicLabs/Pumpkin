@@ -18,6 +18,6 @@ public class ShovelItem extends Item {
         throw Unimplemented.forMember("net/minecraft/world/item/ShovelItem.canPerformAction:(Lnet/minecraft/world/item/ItemInstance;Lnet/neoforged/neoforge/common/ItemAbility;)Z");
     }
 
-    protected ShovelItem() {
+    public ShovelItem() {
     }
 }

@@ -20,6 +20,6 @@ public class RegisterMenuScreensEvent extends Event implements IModBusEvent {
         throw Unimplemented.forMember("net/neoforged/neoforge/client/event/RegisterMenuScreensEvent.register:(Lnet/minecraft/world/inventory/MenuType;Lnet/minecraft/client/gui/screens/MenuScreens$ScreenConstructor;)V");
     }
 
-    protected RegisterMenuScreensEvent() {
+    public RegisterMenuScreensEvent() {
     }
 }

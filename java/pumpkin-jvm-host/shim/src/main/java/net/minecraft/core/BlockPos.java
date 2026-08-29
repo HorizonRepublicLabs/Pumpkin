@@ -192,6 +192,6 @@ public class BlockPos extends Vec3i {
         ACCEPT, SKIP, STOP
     }
 
-    protected BlockPos() {
+    public BlockPos() {
     }
 }

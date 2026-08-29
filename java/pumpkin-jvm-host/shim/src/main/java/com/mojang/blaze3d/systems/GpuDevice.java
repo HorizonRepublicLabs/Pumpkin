@@ -90,6 +90,6 @@ public class GpuDevice {
         throw Unimplemented.forMember("com/mojang/blaze3d/systems/GpuDevice.getDeviceInfo:()Lcom/mojang/blaze3d/systems/DeviceInfo;");
     }
 
-    protected GpuDevice() {
+    public GpuDevice() {
     }
 }

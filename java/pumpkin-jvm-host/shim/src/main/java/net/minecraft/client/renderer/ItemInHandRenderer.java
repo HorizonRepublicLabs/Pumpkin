@@ -20,6 +20,6 @@ public class ItemInHandRenderer {
         RENDER_BOTH_HANDS, RENDER_MAIN_HAND_ONLY, RENDER_OFF_HAND_ONLY
     }
 
-    protected ItemInHandRenderer() {
+    public ItemInHandRenderer() {
     }
 }

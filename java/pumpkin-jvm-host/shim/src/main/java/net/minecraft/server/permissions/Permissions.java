@@ -6,6 +6,6 @@ public class Permissions {
 
     public static final Permission COMMANDS_ADMIN = Stubs.of(Permission.class, "net/minecraft/server/permissions/Permission");
 
-    protected Permissions() {
+    public Permissions() {
     }
 }

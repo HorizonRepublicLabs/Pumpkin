@@ -27,7 +27,7 @@ public abstract class InputEvent extends Event {
                 throw Unimplemented.forMember("net/neoforged/neoforge/client/event/InputEvent$MouseButton$Pre.<init>:(Lnet/minecraft/client/input/MouseButtonInfo;I)V");
             }
 
-            protected Pre() {
+            public Pre() {
             }
         }
 
@@ -37,11 +37,11 @@ public abstract class InputEvent extends Event {
                 throw Unimplemented.forMember("net/neoforged/neoforge/client/event/InputEvent$MouseButton$Post.<init>:(Lnet/minecraft/client/input/MouseButtonInfo;I)V");
             }
 
-            protected Post() {
+            public Post() {
             }
         }
 
-        protected MouseButton() {
+        public MouseButton() {
         }
     }
 
@@ -51,7 +51,7 @@ public abstract class InputEvent extends Event {
             throw Unimplemented.forMember("net/neoforged/neoforge/client/event/InputEvent$MouseScrollingEvent.<init>:(DDLorg/joml/Vector2ic;ZZZDD)V");
         }
 
-        protected MouseScrollingEvent() {
+        public MouseScrollingEvent() {
         }
     }
 
@@ -65,7 +65,7 @@ public abstract class InputEvent extends Event {
             throw Unimplemented.forMember("net/neoforged/neoforge/client/event/InputEvent$Key.getKey:()I");
         }
 
-        protected Key() {
+        public Key() {
         }
     }
 
@@ -75,7 +75,7 @@ public abstract class InputEvent extends Event {
             throw Unimplemented.forMember("net/neoforged/neoforge/client/event/InputEvent$InteractionKeyMappingTriggered.<init>:(ILnet/minecraft/client/KeyMapping;Lnet/minecraft/world/InteractionHand;)V");
         }
 
-        protected InteractionKeyMappingTriggered() {
+        public InteractionKeyMappingTriggered() {
         }
     }
 }

@@ -30,6 +30,6 @@ public class AvatarRenderer<AvatarlikeEntity extends Avatar & ClientAvatarEntity
         throw Unimplemented.forMember("net/minecraft/client/renderer/entity/player/AvatarRenderer.createRenderState:()Lnet/minecraft/client/renderer/entity/state/AvatarRenderState;");
     }
 
-    protected AvatarRenderer() {
+    public AvatarRenderer() {
     }
 }

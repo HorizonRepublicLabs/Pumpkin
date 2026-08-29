@@ -33,6 +33,6 @@ public class EnchantmentHelper {
         void accept(Holder<Enchantment> enchantment, int level);
     }
 
-    protected EnchantmentHelper() {
+    public EnchantmentHelper() {
     }
 }

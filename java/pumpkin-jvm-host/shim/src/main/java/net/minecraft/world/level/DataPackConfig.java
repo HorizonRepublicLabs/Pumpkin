@@ -9,6 +9,6 @@ public class DataPackConfig {
         throw Unimplemented.forMember("net/minecraft/world/level/DataPackConfig.<init>:(Ljava/util/List;Ljava/util/List;)V");
     }
 
-    protected DataPackConfig() {
+    public DataPackConfig() {
     }
 }

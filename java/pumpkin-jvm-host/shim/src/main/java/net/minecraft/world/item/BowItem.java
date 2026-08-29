@@ -47,6 +47,6 @@ public class BowItem extends ProjectileWeaponItem {
         throw Unimplemented.forMember("net/minecraft/world/item/BowItem.getDefaultProjectileRange:()I");
     }
 
-    protected BowItem() {
+    public BowItem() {
     }
 }

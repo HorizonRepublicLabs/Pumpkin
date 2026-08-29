@@ -71,6 +71,6 @@ public final class ShapedRecipePattern {
     public record Data(Map<Character, Ingredient> key, List<String> pattern) {
     }
 
-    protected ShapedRecipePattern() {
+    public ShapedRecipePattern() {
     }
 }

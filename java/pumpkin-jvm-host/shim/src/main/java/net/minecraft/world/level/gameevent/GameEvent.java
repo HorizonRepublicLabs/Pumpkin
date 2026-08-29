@@ -43,7 +43,7 @@ public record GameEvent(int notificationRadius) {
             throw Unimplemented.forMember("net/minecraft/world/level/gameevent/GameEvent$ListenerInfo.compareTo:(Lnet/minecraft/world/level/gameevent/GameEvent$ListenerInfo;)I");
         }
 
-        protected ListenerInfo() {
+        public ListenerInfo() {
         }
     }
 }

@@ -25,6 +25,6 @@ public class PlacementInfo {
         throw Unimplemented.forMember("net/minecraft/world/item/crafting/PlacementInfo.create:(Ljava/util/List;)Lnet/minecraft/world/item/crafting/PlacementInfo;");
     }
 
-    protected PlacementInfo() {
+    public PlacementInfo() {
     }
 }

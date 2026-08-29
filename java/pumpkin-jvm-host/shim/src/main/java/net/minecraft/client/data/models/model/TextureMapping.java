@@ -21,6 +21,6 @@ public class TextureMapping {
         throw Unimplemented.forMember("net/minecraft/client/data/models/model/TextureMapping.copy:()Lnet/minecraft/client/data/models/model/TextureMapping;");
     }
 
-    protected TextureMapping() {
+    public TextureMapping() {
     }
 }

@@ -11,6 +11,6 @@ public abstract class GameTestException extends RuntimeException {
 
     public abstract Component getDescription();
 
-    protected GameTestException() {
+    public GameTestException() {
     }
 }

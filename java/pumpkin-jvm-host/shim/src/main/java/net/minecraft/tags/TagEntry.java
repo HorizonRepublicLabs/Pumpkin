@@ -47,6 +47,6 @@ public class TagEntry {
         Collection<T> tag(Identifier key);
     }
 
-    protected TagEntry() {
+    public TagEntry() {
     }
 }

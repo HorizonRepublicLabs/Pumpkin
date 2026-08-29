@@ -38,7 +38,7 @@ public class LootParams {
             throw Unimplemented.forMember("net/minecraft/world/level/storage/loot/LootParams$Builder.create:(Lnet/minecraft/util/context/ContextKeySet;)Lnet/minecraft/world/level/storage/loot/LootParams;");
         }
 
-        protected Builder() {
+        public Builder() {
         }
     }
 
@@ -47,6 +47,6 @@ public class LootParams {
         void add(Consumer<ItemStack> output);
     }
 
-    protected LootParams() {
+    public LootParams() {
     }
 }

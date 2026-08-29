@@ -18,6 +18,6 @@ public class AxeItem extends Item {
         throw Unimplemented.forMember("net/minecraft/world/item/AxeItem.canPerformAction:(Lnet/minecraft/world/item/ItemInstance;Lnet/neoforged/neoforge/common/ItemAbility;)Z");
     }
 
-    protected AxeItem() {
+    public AxeItem() {
     }
 }

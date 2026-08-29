@@ -13,6 +13,6 @@ public class Std140Builder {
         throw Unimplemented.forMember("com/mojang/blaze3d/buffers/Std140Builder.get:()Ljava/nio/ByteBuffer;");
     }
 
-    protected Std140Builder() {
+    public Std140Builder() {
     }
 }

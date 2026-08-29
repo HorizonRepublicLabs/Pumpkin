@@ -23,6 +23,6 @@ public final class ItemCapability<T, C extends Object> extends BaseCapability<T,
         throw Unimplemented.forMember("net/neoforged/neoforge/capabilities/ItemCapability.getCapability:(Lnet/minecraft/world/item/ItemStack;Ljava/lang/Object;)Ljava/lang/Object;");
     }
 
-    protected ItemCapability() {
+    public ItemCapability() {
     }
 }

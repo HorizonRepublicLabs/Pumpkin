@@ -48,10 +48,10 @@ public class Camera implements TrackedWaypoint.Camera {
             throw Unimplemented.forMember("net/minecraft/client/Camera$NearPlane.<init>:(Lnet/minecraft/world/phys/Vec3;Lnet/minecraft/world/phys/Vec3;Lnet/minecraft/world/phys/Vec3;)V");
         }
 
-        protected NearPlane() {
+        public NearPlane() {
         }
     }
 
-    protected Camera() {
+    public Camera() {
     }
 }

@@ -4,10 +4,10 @@ public class MapRenderState extends net.neoforged.neoforge.client.renderstate.Ba
 
     public static class MapDecorationRenderState extends net.neoforged.neoforge.client.renderstate.BaseRenderState {
 
-        protected MapDecorationRenderState() {
+        public MapDecorationRenderState() {
         }
     }
 
-    protected MapRenderState() {
+    public MapRenderState() {
     }
 }

@@ -36,6 +36,6 @@ public class ShearsItem extends Item {
         throw Unimplemented.forMember("net/minecraft/world/item/ShearsItem.useOn:(Lnet/minecraft/world/item/context/UseOnContext;)Lnet/minecraft/world/InteractionResult;");
     }
 
-    protected ShearsItem() {
+    public ShearsItem() {
     }
 }

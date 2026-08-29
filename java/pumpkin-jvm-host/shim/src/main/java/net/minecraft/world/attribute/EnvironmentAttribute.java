@@ -31,10 +31,10 @@ public class EnvironmentAttribute<Value> {
             throw Unimplemented.forMember("net/minecraft/world/attribute/EnvironmentAttribute$Builder.build:()Lnet/minecraft/world/attribute/EnvironmentAttribute;");
         }
 
-        protected Builder() {
+        public Builder() {
         }
     }
 
-    protected EnvironmentAttribute() {
+    public EnvironmentAttribute() {
     }
 }

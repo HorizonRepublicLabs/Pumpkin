@@ -31,6 +31,6 @@ public class TransparentBlock extends HalfTransparentBlock {
         throw Unimplemented.forMember("net/minecraft/world/level/block/TransparentBlock.propagatesSkylightDown:(Lnet/minecraft/world/level/block/state/BlockState;)Z");
     }
 
-    protected TransparentBlock() {
+    public TransparentBlock() {
     }
 }

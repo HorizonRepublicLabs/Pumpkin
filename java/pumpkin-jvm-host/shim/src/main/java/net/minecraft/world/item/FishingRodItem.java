@@ -20,6 +20,6 @@ public class FishingRodItem extends Item {
         throw Unimplemented.forMember("net/minecraft/world/item/FishingRodItem.canPerformAction:(Lnet/minecraft/world/item/ItemInstance;Lnet/neoforged/neoforge/common/ItemAbility;)Z");
     }
 
-    protected FishingRodItem() {
+    public FishingRodItem() {
     }
 }

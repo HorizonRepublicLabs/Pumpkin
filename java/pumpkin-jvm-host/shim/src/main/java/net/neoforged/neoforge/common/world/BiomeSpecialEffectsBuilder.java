@@ -17,6 +17,6 @@ public class BiomeSpecialEffectsBuilder extends BiomeSpecialEffects.Builder {
         throw Unimplemented.forMember("net/neoforged/neoforge/common/world/BiomeSpecialEffectsBuilder.<init>:(I)V");
     }
 
-    protected BiomeSpecialEffectsBuilder() {
+    public BiomeSpecialEffectsBuilder() {
     }
 }

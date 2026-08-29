@@ -35,6 +35,6 @@ public class BackendCreationException extends Exception {
         OTHER
     }
 
-    protected BackendCreationException() {
+    public BackendCreationException() {
     }
 }

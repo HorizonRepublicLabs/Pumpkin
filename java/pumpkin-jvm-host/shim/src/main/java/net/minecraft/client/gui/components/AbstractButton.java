@@ -29,6 +29,6 @@ public abstract class AbstractButton extends AbstractWidget.WithInactiveMessage 
         throw Unimplemented.forMember("net/minecraft/client/gui/components/AbstractButton.keyPressed:(Lnet/minecraft/client/input/KeyEvent;)Z");
     }
 
-    protected AbstractButton() {
+    public AbstractButton() {
     }
 }

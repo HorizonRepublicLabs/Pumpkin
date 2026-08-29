@@ -24,6 +24,6 @@ public final class TreeGrower {
         throw Unimplemented.forMember("net/minecraft/world/level/block/grower/TreeGrower.growTree:(Lnet/minecraft/server/level/ServerLevel;Lnet/minecraft/world/level/chunk/ChunkGenerator;Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/state/BlockState;Lnet/minecraft/util/RandomSource;)Z");
     }
 
-    protected TreeGrower() {
+    public TreeGrower() {
     }
 }

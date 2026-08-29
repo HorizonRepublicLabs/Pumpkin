@@ -43,6 +43,6 @@ public class AttributeInstance {
     public record Packed(Holder<Attribute> attribute, double baseValue, List<AttributeModifier> modifiers) {
     }
 
-    protected AttributeInstance() {
+    public AttributeInstance() {
     }
 }

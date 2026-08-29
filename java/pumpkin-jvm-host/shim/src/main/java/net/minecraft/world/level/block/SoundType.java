@@ -25,6 +25,6 @@ public class SoundType {
         throw Unimplemented.forMember("net/minecraft/world/level/block/SoundType.getPitch:()F");
     }
 
-    protected SoundType() {
+    public SoundType() {
     }
 }

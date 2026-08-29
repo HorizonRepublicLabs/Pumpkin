@@ -27,6 +27,6 @@ public abstract class GpuBuffer implements AutoCloseable {
     public @interface Usage {
     }
 
-    protected GpuBuffer() {
+    public GpuBuffer() {
     }
 }

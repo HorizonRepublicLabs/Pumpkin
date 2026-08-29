@@ -46,6 +46,6 @@ public abstract class SingleItemRecipe implements Recipe<SingleRecipeInput> {
         T create(Recipe.CommonInfo commonInfo, Ingredient ingredient, ItemStackTemplate result);
     }
 
-    protected SingleItemRecipe() {
+    public SingleItemRecipe() {
     }
 }

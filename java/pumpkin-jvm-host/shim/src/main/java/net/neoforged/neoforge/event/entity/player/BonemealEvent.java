@@ -39,6 +39,6 @@ public class BonemealEvent extends Event implements ICancellableEvent {
         throw Unimplemented.forMember("net/neoforged/neoforge/event/entity/player/BonemealEvent.setCanceled:(Z)V");
     }
 
-    protected BonemealEvent() {
+    public BonemealEvent() {
     }
 }

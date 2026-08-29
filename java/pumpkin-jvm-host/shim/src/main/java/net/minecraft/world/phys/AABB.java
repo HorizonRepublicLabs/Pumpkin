@@ -57,10 +57,10 @@ public class AABB {
             throw Unimplemented.forMember("net/minecraft/world/phys/AABB$Builder.build:()Lnet/minecraft/world/phys/AABB;");
         }
 
-        protected Builder() {
+        public Builder() {
         }
     }
 
-    protected AABB() {
+    public AABB() {
     }
 }

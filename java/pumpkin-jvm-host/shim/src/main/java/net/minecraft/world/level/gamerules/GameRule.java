@@ -47,6 +47,6 @@ public final class GameRule<T> implements FeatureElement {
         throw Unimplemented.forMember("net/minecraft/world/level/gamerules/GameRule.requiredFeatures:()Lnet/minecraft/world/flag/FeatureFlagSet;");
     }
 
-    protected GameRule() {
+    public GameRule() {
     }
 }

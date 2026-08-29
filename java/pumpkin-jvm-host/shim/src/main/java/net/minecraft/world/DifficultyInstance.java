@@ -12,6 +12,6 @@ public class DifficultyInstance {
         throw Unimplemented.forMember("net/minecraft/world/DifficultyInstance.getDifficulty:()Lnet/minecraft/world/Difficulty;");
     }
 
-    protected DifficultyInstance() {
+    public DifficultyInstance() {
     }
 }

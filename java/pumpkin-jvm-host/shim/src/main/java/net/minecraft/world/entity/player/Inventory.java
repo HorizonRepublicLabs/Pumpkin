@@ -109,6 +109,6 @@ public class Inventory implements Container, Nameable {
         throw Unimplemented.forMember("net/minecraft/world/entity/player/Inventory.clearContent:()V");
     }
 
-    protected Inventory() {
+    public Inventory() {
     }
 }

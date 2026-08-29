@@ -19,6 +19,6 @@ public abstract class EntityRenderer<T extends Entity, S extends EntityRenderSta
 
     public abstract S createRenderState();
 
-    protected EntityRenderer() {
+    public EntityRenderer() {
     }
 }

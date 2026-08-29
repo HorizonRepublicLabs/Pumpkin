@@ -81,6 +81,6 @@ public abstract class FlowingFluid extends Fluid {
         }
     }
 
-    protected FlowingFluid() {
+    public FlowingFluid() {
     }
 }

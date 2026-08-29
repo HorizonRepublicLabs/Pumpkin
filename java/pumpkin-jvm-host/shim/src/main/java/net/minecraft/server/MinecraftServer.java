@@ -233,6 +233,6 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
         }
     }
 
-    protected MinecraftServer() {
+    public MinecraftServer() {
     }
 }

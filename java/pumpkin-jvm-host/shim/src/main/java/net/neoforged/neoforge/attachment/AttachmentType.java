@@ -28,10 +28,10 @@ public final class AttachmentType<T> {
             throw Unimplemented.forMember("net/neoforged/neoforge/attachment/AttachmentType$Builder.build:()Lnet/neoforged/neoforge/attachment/AttachmentType;");
         }
 
-        protected Builder() {
+        public Builder() {
         }
     }
 
-    protected AttachmentType() {
+    public AttachmentType() {
     }
 }

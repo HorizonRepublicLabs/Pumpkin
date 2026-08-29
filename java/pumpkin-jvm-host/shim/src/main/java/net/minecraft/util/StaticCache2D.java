@@ -30,6 +30,6 @@ public class StaticCache2D<T> {
         T get(int x, int z);
     }
 
-    protected StaticCache2D() {
+    public StaticCache2D() {
     }
 }

@@ -12,6 +12,6 @@ public class FeatureFlagUniverse {
         throw Unimplemented.forMember("net/minecraft/world/flag/FeatureFlagUniverse.toString:()Ljava/lang/String;");
     }
 
-    protected FeatureFlagUniverse() {
+    public FeatureFlagUniverse() {
     }
 }

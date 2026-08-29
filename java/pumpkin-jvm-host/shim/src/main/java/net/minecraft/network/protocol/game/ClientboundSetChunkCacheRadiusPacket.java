@@ -27,6 +27,6 @@ public class ClientboundSetChunkCacheRadiusPacket implements Packet<ClientGamePa
         throw Unimplemented.forMember("net/minecraft/network/protocol/game/ClientboundSetChunkCacheRadiusPacket.handle:(Lnet/minecraft/network/protocol/game/ClientGamePacketListener;)V");
     }
 
-    protected ClientboundSetChunkCacheRadiusPacket() {
+    public ClientboundSetChunkCacheRadiusPacket() {
     }
 }

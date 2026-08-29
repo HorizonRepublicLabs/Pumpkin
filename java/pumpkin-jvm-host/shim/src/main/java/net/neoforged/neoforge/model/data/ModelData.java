@@ -27,10 +27,10 @@ public final class ModelData {
             throw Unimplemented.forMember("net/neoforged/neoforge/model/data/ModelData$Builder.build:()Lnet/neoforged/neoforge/model/data/ModelData;");
         }
 
-        protected Builder() {
+        public Builder() {
         }
     }
 
-    protected ModelData() {
+    public ModelData() {
     }
 }

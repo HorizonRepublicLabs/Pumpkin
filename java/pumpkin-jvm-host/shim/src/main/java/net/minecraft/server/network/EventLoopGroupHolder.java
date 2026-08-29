@@ -13,6 +13,6 @@ public abstract class EventLoopGroupHolder {
 
     protected abstract IoHandlerFactory ioHandlerFactory();
 
-    protected EventLoopGroupHolder() {
+    public EventLoopGroupHolder() {
     }
 }

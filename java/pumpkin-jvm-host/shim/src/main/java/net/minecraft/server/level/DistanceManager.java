@@ -60,6 +60,6 @@ public abstract class DistanceManager {
         }
     }
 
-    protected DistanceManager() {
+    public DistanceManager() {
     }
 }

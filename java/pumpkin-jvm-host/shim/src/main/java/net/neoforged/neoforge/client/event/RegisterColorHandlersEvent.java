@@ -29,7 +29,7 @@ public abstract class RegisterColorHandlersEvent extends Event implements IModBu
             throw Unimplemented.forMember("net/neoforged/neoforge/client/event/RegisterColorHandlersEvent$BlockTintSources.register:(Ljava/util/List;[Lnet/minecraft/world/level/block/Block;)V");
         }
 
-        protected BlockTintSources() {
+        public BlockTintSources() {
         }
     }
 
@@ -43,7 +43,7 @@ public abstract class RegisterColorHandlersEvent extends Event implements IModBu
             throw Unimplemented.forMember("net/neoforged/neoforge/client/event/RegisterColorHandlersEvent$ColorResolvers.register:(Lnet/minecraft/world/level/ColorResolver;)V");
         }
 
-        protected ColorResolvers() {
+        public ColorResolvers() {
         }
     }
 
@@ -57,7 +57,7 @@ public abstract class RegisterColorHandlersEvent extends Event implements IModBu
             throw Unimplemented.forMember("net/neoforged/neoforge/client/event/RegisterColorHandlersEvent$ItemTintSources.register:(Lnet/minecraft/resources/Identifier;Lcom/mojang/serialization/MapCodec;)V");
         }
 
-        protected ItemTintSources() {
+        public ItemTintSources() {
         }
     }
 }

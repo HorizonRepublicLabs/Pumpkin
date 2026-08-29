@@ -28,6 +28,6 @@ public class ServerboundSwingPacket implements Packet<ServerGamePacketListener> 
         throw Unimplemented.forMember("net/minecraft/network/protocol/game/ServerboundSwingPacket.handle:(Lnet/minecraft/network/protocol/game/ServerGamePacketListener;)V");
     }
 
-    protected ServerboundSwingPacket() {
+    public ServerboundSwingPacket() {
     }
 }

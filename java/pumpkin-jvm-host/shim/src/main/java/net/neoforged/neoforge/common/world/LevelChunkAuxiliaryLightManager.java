@@ -18,6 +18,6 @@ public final class LevelChunkAuxiliaryLightManager implements AuxiliaryLightMana
         throw Unimplemented.forMember("net/neoforged/neoforge/common/world/LevelChunkAuxiliaryLightManager.getLightAt:(Lnet/minecraft/core/BlockPos;)I");
     }
 
-    protected LevelChunkAuxiliaryLightManager() {
+    public LevelChunkAuxiliaryLightManager() {
     }
 }

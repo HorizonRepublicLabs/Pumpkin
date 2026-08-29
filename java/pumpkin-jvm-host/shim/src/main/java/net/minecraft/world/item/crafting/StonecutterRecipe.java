@@ -31,6 +31,6 @@ public class StonecutterRecipe extends SingleItemRecipe {
         throw Unimplemented.forMember("net/minecraft/world/item/crafting/StonecutterRecipe.recipeBookCategory:()Lnet/minecraft/world/item/crafting/RecipeBookCategory;");
     }
 
-    protected StonecutterRecipe() {
+    public StonecutterRecipe() {
     }
 }

@@ -16,6 +16,6 @@ public class CrashReportCategory {
         }
     }
 
-    protected CrashReportCategory() {
+    public CrashReportCategory() {
     }
 }

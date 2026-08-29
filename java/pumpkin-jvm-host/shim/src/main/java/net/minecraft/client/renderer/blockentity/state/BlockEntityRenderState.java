@@ -8,6 +8,6 @@ public class BlockEntityRenderState {
 
     public int lightCoords;
 
-    protected BlockEntityRenderState() {
+    public BlockEntityRenderState() {
     }
 }

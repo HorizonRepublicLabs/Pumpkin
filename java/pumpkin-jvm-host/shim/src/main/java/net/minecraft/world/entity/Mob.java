@@ -193,6 +193,6 @@ public abstract class Mob extends LivingEntity implements Targeting, EquipmentUs
         throw Unimplemented.forMember("net/minecraft/world/entity/Mob.registerDebugValues:(Lnet/minecraft/server/level/ServerLevel;Lnet/minecraft/util/debug/DebugValueSource$Registration;)V");
     }
 
-    protected Mob() {
+    public Mob() {
     }
 }

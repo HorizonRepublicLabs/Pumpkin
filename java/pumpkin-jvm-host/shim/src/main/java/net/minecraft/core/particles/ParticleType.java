@@ -15,6 +15,6 @@ public abstract class ParticleType<T extends ParticleOptions> {
 
     public abstract StreamCodec<? super RegistryFriendlyByteBuf, T> streamCodec();
 
-    protected ParticleType() {
+    public ParticleType() {
     }
 }

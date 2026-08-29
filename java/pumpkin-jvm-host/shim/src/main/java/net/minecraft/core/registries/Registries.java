@@ -42,7 +42,7 @@ public class Registries {
 
     public static final ResourceKey<Registry<Recipe<?>>> RECIPE = pumpkinRegistryKey("recipe");
 
-    protected Registries() {
+    public Registries() {
     }
 
     // Pumpkin divergence from the generated shim: every key above is initialised, and the

@@ -33,6 +33,6 @@ public class ClientboundSetCameraPacket implements Packet<ClientGamePacketListen
         throw Unimplemented.forMember("net/minecraft/network/protocol/game/ClientboundSetCameraPacket.getEntity:(Lnet/minecraft/world/level/Level;)Lnet/minecraft/world/entity/Entity;");
     }
 
-    protected ClientboundSetCameraPacket() {
+    public ClientboundSetCameraPacket() {
     }
 }

@@ -35,6 +35,6 @@ public abstract class VegetationBlock extends Block {
         throw Unimplemented.forMember("net/minecraft/world/level/block/VegetationBlock.isPathfindable:(Lnet/minecraft/world/level/block/state/BlockState;Lnet/minecraft/world/level/pathfinder/PathComputationType;)Z");
     }
 
-    protected VegetationBlock() {
+    public VegetationBlock() {
     }
 }

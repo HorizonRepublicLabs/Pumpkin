@@ -104,6 +104,6 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
         throw Unimplemented.forMember("net/minecraft/client/Minecraft.playerSkinRenderCache:()Lnet/minecraft/client/renderer/PlayerSkinRenderCache;");
     }
 
-    protected Minecraft() {
+    public Minecraft() {
     }
 }

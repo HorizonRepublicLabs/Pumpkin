@@ -502,6 +502,6 @@ public abstract class Entity extends net.neoforged.neoforge.attachment.Attachmen
         KILLED, DISCARDED, UNLOADED_TO_CHUNK, UNLOADED_WITH_PLAYER, CHANGED_DIMENSION
     }
 
-    protected Entity() {
+    public Entity() {
     }
 }

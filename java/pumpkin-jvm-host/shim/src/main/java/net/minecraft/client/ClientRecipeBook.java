@@ -19,6 +19,6 @@ public class ClientRecipeBook extends RecipeBook {
         throw Unimplemented.forMember("net/minecraft/client/ClientRecipeBook.clear:()V");
     }
 
-    protected ClientRecipeBook() {
+    public ClientRecipeBook() {
     }
 }

@@ -36,6 +36,6 @@ public class ServerboundJigsawGeneratePacket implements Packet<ServerGamePacketL
         throw Unimplemented.forMember("net/minecraft/network/protocol/game/ServerboundJigsawGeneratePacket.levels:()I");
     }
 
-    protected ServerboundJigsawGeneratePacket() {
+    public ServerboundJigsawGeneratePacket() {
     }
 }

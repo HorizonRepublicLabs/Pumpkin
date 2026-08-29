@@ -20,6 +20,6 @@ public class Node {
         throw Unimplemented.forMember("net/minecraft/world/level/pathfinder/Node.toString:()Ljava/lang/String;");
     }
 
-    protected Node() {
+    public Node() {
     }
 }

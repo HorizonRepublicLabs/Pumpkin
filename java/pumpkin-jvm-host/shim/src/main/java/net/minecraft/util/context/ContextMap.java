@@ -15,10 +15,10 @@ public class ContextMap {
             throw Unimplemented.forMember("net/minecraft/util/context/ContextMap$Builder.create:(Lnet/minecraft/util/context/ContextKeySet;)Lnet/minecraft/util/context/ContextMap;");
         }
 
-        protected Builder() {
+        public Builder() {
         }
     }
 
-    protected ContextMap() {
+    public ContextMap() {
     }
 }

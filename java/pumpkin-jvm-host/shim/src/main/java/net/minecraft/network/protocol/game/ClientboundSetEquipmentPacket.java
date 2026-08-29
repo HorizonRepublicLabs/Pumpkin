@@ -31,6 +31,6 @@ public class ClientboundSetEquipmentPacket implements Packet<ClientGamePacketLis
         throw Unimplemented.forMember("net/minecraft/network/protocol/game/ClientboundSetEquipmentPacket.handle:(Lnet/minecraft/network/protocol/game/ClientGamePacketListener;)V");
     }
 
-    protected ClientboundSetEquipmentPacket() {
+    public ClientboundSetEquipmentPacket() {
     }
 }

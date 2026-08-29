@@ -13,6 +13,6 @@ public abstract class BaseCapability<T, C extends Object> {
         throw Unimplemented.forMember("net/neoforged/neoforge/capabilities/BaseCapability.name:()Lnet/minecraft/resources/Identifier;");
     }
 
-    protected BaseCapability() {
+    public BaseCapability() {
     }
 }

@@ -70,6 +70,6 @@ public class Mannequin extends Avatar {
         throw Unimplemented.forMember("net/minecraft/world/entity/decoration/Mannequin.aiStep:()V");
     }
 
-    protected Mannequin() {
+    public Mannequin() {
     }
 }

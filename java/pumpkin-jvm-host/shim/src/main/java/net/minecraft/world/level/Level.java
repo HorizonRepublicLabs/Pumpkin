@@ -283,6 +283,6 @@ public abstract class Level extends net.neoforged.neoforge.attachment.Attachment
         }
     }
 
-    protected Level() {
+    public Level() {
     }
 }

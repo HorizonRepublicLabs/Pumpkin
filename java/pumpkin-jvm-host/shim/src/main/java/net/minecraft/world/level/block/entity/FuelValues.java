@@ -41,10 +41,10 @@ public class FuelValues {
             throw Unimplemented.forMember("net/minecraft/world/level/block/entity/FuelValues$Builder.add:(Lnet/minecraft/world/level/ItemLike;I)Lnet/minecraft/world/level/block/entity/FuelValues$Builder;");
         }
 
-        protected Builder() {
+        public Builder() {
         }
     }
 
-    protected FuelValues() {
+    public FuelValues() {
     }
 }

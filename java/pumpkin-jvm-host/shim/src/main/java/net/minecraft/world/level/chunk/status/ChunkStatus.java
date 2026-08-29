@@ -18,6 +18,6 @@ public class ChunkStatus {
         throw Unimplemented.forMember("net/minecraft/world/level/chunk/status/ChunkStatus.getName:()Ljava/lang/String;");
     }
 
-    protected ChunkStatus() {
+    public ChunkStatus() {
     }
 }

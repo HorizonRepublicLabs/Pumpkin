@@ -130,6 +130,6 @@ public class WitherBoss extends Monster implements RangedAttackMob {
         }
     }
 
-    protected WitherBoss() {
+    public WitherBoss() {
     }
 }

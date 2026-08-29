@@ -108,6 +108,6 @@ public class ClientboundCommandsPacket implements Packet<ClientGamePacketListene
         void write(FriendlyByteBuf output);
     }
 
-    protected ClientboundCommandsPacket() {
+    public ClientboundCommandsPacket() {
     }
 }

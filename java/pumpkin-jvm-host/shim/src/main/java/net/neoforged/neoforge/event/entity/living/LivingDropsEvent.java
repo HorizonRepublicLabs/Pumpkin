@@ -21,6 +21,6 @@ public class LivingDropsEvent extends LivingEvent implements ICancellableEvent {
         throw Unimplemented.forMember("net/neoforged/neoforge/event/entity/living/LivingDropsEvent.getDrops:()Ljava/util/Collection;");
     }
 
-    protected LivingDropsEvent() {
+    public LivingDropsEvent() {
     }
 }

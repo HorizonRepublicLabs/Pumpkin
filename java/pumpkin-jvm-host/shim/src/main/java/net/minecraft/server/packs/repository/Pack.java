@@ -63,6 +63,6 @@ public class Pack {
         PackResources openFull(PackLocationInfo location, Pack.Metadata metadata);
     }
 
-    protected Pack() {
+    public Pack() {
     }
 }

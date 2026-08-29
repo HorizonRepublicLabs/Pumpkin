@@ -5,6 +5,6 @@ public class Scoreboard {
     public record PackedScore(String owner, String objective, Score.Packed score) {
     }
 
-    protected Scoreboard() {
+    public Scoreboard() {
     }
 }

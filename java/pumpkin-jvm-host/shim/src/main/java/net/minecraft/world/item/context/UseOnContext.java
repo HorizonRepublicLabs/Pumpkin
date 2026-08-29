@@ -47,6 +47,6 @@ public class UseOnContext {
         throw Unimplemented.forMember("net/minecraft/world/item/context/UseOnContext.getHorizontalDirection:()Lnet/minecraft/core/Direction;");
     }
 
-    protected UseOnContext() {
+    public UseOnContext() {
     }
 }

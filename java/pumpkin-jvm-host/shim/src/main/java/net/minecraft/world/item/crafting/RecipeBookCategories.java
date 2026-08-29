@@ -10,7 +10,7 @@ public class RecipeBookCategories {
         throw Unimplemented.forMember("net/minecraft/world/item/crafting/RecipeBookCategories.register:(Ljava/lang/String;)Lnet/minecraft/world/item/crafting/RecipeBookCategory;");
     }
 
-    protected RecipeBookCategories() {
+    public RecipeBookCategories() {
     }
 
     static {

@@ -24,6 +24,6 @@ public class ServerAdvancementManager extends SimpleJsonResourceReloadListener<A
         throw Unimplemented.forMember("net/minecraft/server/ServerAdvancementManager.get:(Lnet/minecraft/resources/Identifier;)Lnet/minecraft/advancements/AdvancementHolder;");
     }
 
-    protected ServerAdvancementManager() {
+    public ServerAdvancementManager() {
     }
 }

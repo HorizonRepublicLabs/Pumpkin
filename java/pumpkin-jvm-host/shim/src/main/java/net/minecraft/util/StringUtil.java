@@ -8,6 +8,6 @@ public class StringUtil {
         throw Unimplemented.forMember("net/minecraft/util/StringUtil.truncateStringIfNecessary:(Ljava/lang/String;IZ)Ljava/lang/String;");
     }
 
-    protected StringUtil() {
+    public StringUtil() {
     }
 }

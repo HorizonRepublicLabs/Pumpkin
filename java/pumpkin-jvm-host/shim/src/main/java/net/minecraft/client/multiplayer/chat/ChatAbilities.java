@@ -20,10 +20,10 @@ public class ChatAbilities {
             throw Unimplemented.forMember("net/minecraft/client/multiplayer/chat/ChatAbilities$Builder.build:()Lnet/minecraft/client/multiplayer/chat/ChatAbilities;");
         }
 
-        protected Builder() {
+        public Builder() {
         }
     }
 
-    protected ChatAbilities() {
+    public ChatAbilities() {
     }
 }

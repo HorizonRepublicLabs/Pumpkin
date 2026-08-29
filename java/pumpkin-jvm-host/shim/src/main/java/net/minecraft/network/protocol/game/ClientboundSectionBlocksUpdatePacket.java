@@ -30,6 +30,6 @@ public class ClientboundSectionBlocksUpdatePacket implements Packet<ClientGamePa
         throw Unimplemented.forMember("net/minecraft/network/protocol/game/ClientboundSectionBlocksUpdatePacket.handle:(Lnet/minecraft/network/protocol/game/ClientGamePacketListener;)V");
     }
 
-    protected ClientboundSectionBlocksUpdatePacket() {
+    public ClientboundSectionBlocksUpdatePacket() {
     }
 }

@@ -30,6 +30,6 @@ public class TestBlockEntity extends BlockEntity {
         throw Unimplemented.forMember("net/minecraft/world/level/block/entity/TestBlockEntity.reset:()V");
     }
 
-    protected TestBlockEntity() {
+    public TestBlockEntity() {
     }
 }

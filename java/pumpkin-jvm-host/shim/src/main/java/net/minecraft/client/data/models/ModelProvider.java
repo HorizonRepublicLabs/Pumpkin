@@ -99,6 +99,6 @@ public class ModelProvider implements DataProvider, IModelProviderExtension {
         }
     }
 
-    protected ModelProvider() {
+    public ModelProvider() {
     }
 }

@@ -8,6 +8,6 @@ public class SpatialAttributeInterpolator {
         throw Unimplemented.forMember("net/minecraft/world/attribute/SpatialAttributeInterpolator.clear:()V");
     }
 
-    protected SpatialAttributeInterpolator() {
+    public SpatialAttributeInterpolator() {
     }
 }

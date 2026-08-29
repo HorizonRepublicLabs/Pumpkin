@@ -115,6 +115,6 @@ public abstract class StacksResourceHandler<S, T extends Resource> implements Re
         }
     }
 
-    protected StacksResourceHandler() {
+    public StacksResourceHandler() {
     }
 }

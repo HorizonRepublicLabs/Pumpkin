@@ -10,6 +10,6 @@ public class SkinTextureDownloader {
         throw Unimplemented.forMember("net/minecraft/client/renderer/texture/SkinTextureDownloader.<init>:(Ljava/net/Proxy;Lnet/minecraft/client/renderer/texture/TextureManager;Ljava/util/concurrent/Executor;)V");
     }
 
-    protected SkinTextureDownloader() {
+    public SkinTextureDownloader() {
     }
 }

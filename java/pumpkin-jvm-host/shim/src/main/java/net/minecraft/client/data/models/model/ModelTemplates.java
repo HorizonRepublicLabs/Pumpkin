@@ -26,7 +26,7 @@ public class ModelTemplates {
         throw Unimplemented.forMember("net/minecraft/client/data/models/model/ModelTemplates.create:(Ljava/lang/String;Ljava/lang/String;[Lnet/minecraft/client/data/models/model/TextureSlot;)Lnet/minecraft/client/data/models/model/ModelTemplate;");
     }
 
-    protected ModelTemplates() {
+    public ModelTemplates() {
     }
 
     static {

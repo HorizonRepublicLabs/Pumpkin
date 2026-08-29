@@ -10,6 +10,6 @@ public class SlotDisplayContext {
         throw Unimplemented.forMember("net/minecraft/world/item/crafting/display/SlotDisplayContext.fromLevel:(Lnet/minecraft/world/level/Level;)Lnet/minecraft/util/context/ContextMap;");
     }
 
-    protected SlotDisplayContext() {
+    public SlotDisplayContext() {
     }
 }

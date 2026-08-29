@@ -34,6 +34,6 @@ public class ServerboundTeleportToEntityPacket implements Packet<ServerGamePacke
         throw Unimplemented.forMember("net/minecraft/network/protocol/game/ServerboundTeleportToEntityPacket.getEntity:(Lnet/minecraft/server/level/ServerLevel;)Lnet/minecraft/world/entity/Entity;");
     }
 
-    protected ServerboundTeleportToEntityPacket() {
+    public ServerboundTeleportToEntityPacket() {
     }
 }

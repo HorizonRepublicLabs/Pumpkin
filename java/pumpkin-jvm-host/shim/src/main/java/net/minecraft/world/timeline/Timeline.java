@@ -30,13 +30,13 @@ public class Timeline {
             throw Unimplemented.forMember("net/minecraft/world/timeline/Timeline$Builder.build:()Lnet/minecraft/world/timeline/Timeline;");
         }
 
-        protected Builder() {
+        public Builder() {
         }
     }
 
     private record TimeMarkerInfo(int ticks, boolean showInCommands) {
     }
 
-    protected Timeline() {
+    public Timeline() {
     }
 }

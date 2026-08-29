@@ -13,6 +13,6 @@ public abstract class RenderTarget {
         throw Unimplemented.forMember("com/mojang/blaze3d/pipeline/RenderTarget.<init>:(Ljava/lang/String;ZZLcom/mojang/blaze3d/GpuFormat;)V");
     }
 
-    protected RenderTarget() {
+    public RenderTarget() {
     }
 }

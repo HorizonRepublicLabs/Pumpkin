@@ -26,7 +26,7 @@ public abstract class LevelEvent extends Event {
             throw Unimplemented.forMember("net/neoforged/neoforge/event/level/LevelEvent$Load.<init>:(Lnet/minecraft/world/level/LevelAccessor;)V");
         }
 
-        protected Load() {
+        public Load() {
         }
     }
 
@@ -36,7 +36,7 @@ public abstract class LevelEvent extends Event {
             throw Unimplemented.forMember("net/neoforged/neoforge/event/level/LevelEvent$Unload.<init>:(Lnet/minecraft/world/level/LevelAccessor;)V");
         }
 
-        protected Unload() {
+        public Unload() {
         }
     }
 
@@ -46,7 +46,7 @@ public abstract class LevelEvent extends Event {
             throw Unimplemented.forMember("net/neoforged/neoforge/event/level/LevelEvent$Save.<init>:(Lnet/minecraft/world/level/LevelAccessor;)V");
         }
 
-        protected Save() {
+        public Save() {
         }
     }
 
@@ -56,7 +56,7 @@ public abstract class LevelEvent extends Event {
             throw Unimplemented.forMember("net/neoforged/neoforge/event/level/LevelEvent$CreateSpawnPosition.<init>:(Lnet/minecraft/world/level/LevelAccessor;Lnet/minecraft/world/level/storage/ServerLevelData;)V");
         }
 
-        protected CreateSpawnPosition() {
+        public CreateSpawnPosition() {
         }
     }
 
@@ -70,10 +70,10 @@ public abstract class LevelEvent extends Event {
             throw Unimplemented.forMember("net/neoforged/neoforge/event/level/LevelEvent$PotentialSpawns.getPos:()Lnet/minecraft/core/BlockPos;");
         }
 
-        protected PotentialSpawns() {
+        public PotentialSpawns() {
         }
     }
 
-    protected LevelEvent() {
+    public LevelEvent() {
     }
 }

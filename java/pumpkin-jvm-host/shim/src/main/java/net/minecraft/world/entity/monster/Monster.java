@@ -63,6 +63,6 @@ public abstract class Monster extends PathfinderMob implements Enemy {
         throw Unimplemented.forMember("net/minecraft/world/entity/monster/Monster.getProjectile:(Lnet/minecraft/world/item/ItemStack;)Lnet/minecraft/world/item/ItemStack;");
     }
 
-    protected Monster() {
+    public Monster() {
     }
 }

@@ -17,6 +17,6 @@ public final class StandaloneModelKey<T> {
         throw Unimplemented.forMember("net/neoforged/neoforge/client/model/standalone/StandaloneModelKey.toString:()Ljava/lang/String;");
     }
 
-    protected StandaloneModelKey() {
+    public StandaloneModelKey() {
     }
 }

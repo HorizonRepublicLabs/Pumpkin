@@ -18,6 +18,6 @@ public class HoeItem extends Item {
         throw Unimplemented.forMember("net/minecraft/world/item/HoeItem.canPerformAction:(Lnet/minecraft/world/item/ItemInstance;Lnet/neoforged/neoforge/common/ItemAbility;)Z");
     }
 
-    protected HoeItem() {
+    public HoeItem() {
     }
 }

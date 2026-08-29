@@ -31,6 +31,6 @@ public class ClientboundTakeItemEntityPacket implements Packet<ClientGamePacketL
         throw Unimplemented.forMember("net/minecraft/network/protocol/game/ClientboundTakeItemEntityPacket.getAmount:()I");
     }
 
-    protected ClientboundTakeItemEntityPacket() {
+    public ClientboundTakeItemEntityPacket() {
     }
 }

@@ -35,6 +35,6 @@ public final class SimpleUnbakedStandaloneModel<T> implements UnbakedStandaloneM
         T bake(ResolvedModel model, ModelBaker baker, ModelDebugName name);
     }
 
-    protected SimpleUnbakedStandaloneModel() {
+    public SimpleUnbakedStandaloneModel() {
     }
 }

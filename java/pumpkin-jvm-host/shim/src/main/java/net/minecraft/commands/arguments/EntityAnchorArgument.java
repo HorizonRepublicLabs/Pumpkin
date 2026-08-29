@@ -40,6 +40,6 @@ public class EntityAnchorArgument implements ArgumentType<EntityAnchorArgument.A
         }
     }
 
-    protected EntityAnchorArgument() {
+    public EntityAnchorArgument() {
     }
 }

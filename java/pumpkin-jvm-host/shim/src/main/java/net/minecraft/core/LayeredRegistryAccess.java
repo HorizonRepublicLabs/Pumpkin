@@ -13,6 +13,6 @@ public class LayeredRegistryAccess<T> {
         throw Unimplemented.forMember("net/minecraft/core/LayeredRegistryAccess.<init>:(Ljava/util/List;Ljava/util/List;)V");
     }
 
-    protected LayeredRegistryAccess() {
+    public LayeredRegistryAccess() {
     }
 }

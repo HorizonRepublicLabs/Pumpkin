@@ -14,6 +14,6 @@ public class WorldGenerationContext {
         throw Unimplemented.forMember("net/minecraft/world/level/levelgen/WorldGenerationContext.getGenDepth:()I");
     }
 
-    protected WorldGenerationContext() {
+    public WorldGenerationContext() {
     }
 }

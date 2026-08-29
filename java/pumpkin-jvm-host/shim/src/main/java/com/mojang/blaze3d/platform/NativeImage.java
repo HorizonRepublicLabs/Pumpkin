@@ -92,6 +92,6 @@ public final class NativeImage implements AutoCloseable {
         }
     }
 
-    protected NativeImage() {
+    public NativeImage() {
     }
 }

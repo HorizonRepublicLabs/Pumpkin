@@ -38,6 +38,6 @@ public abstract class VehicleEntity extends Entity {
 
     protected abstract Item getDropItem();
 
-    protected VehicleEntity() {
+    public VehicleEntity() {
     }
 }

@@ -18,6 +18,6 @@ public class ServerFunctionLibrary implements PreparableReloadListener {
         throw Unimplemented.forMember("net/minecraft/server/ServerFunctionLibrary.reload:(Lnet/minecraft/server/packs/resources/PreparableReloadListener$SharedState;Ljava/util/concurrent/Executor;Lnet/minecraft/server/packs/resources/PreparableReloadListener$PreparationBarrier;Ljava/util/concurrent/Executor;)Ljava/util/concurrent/CompletableFuture;");
     }
 
-    protected ServerFunctionLibrary() {
+    public ServerFunctionLibrary() {
     }
 }

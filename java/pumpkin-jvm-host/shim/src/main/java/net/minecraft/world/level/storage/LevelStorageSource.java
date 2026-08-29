@@ -46,10 +46,10 @@ public class LevelStorageSource {
             throw Unimplemented.forMember("net/minecraft/world/level/storage/LevelStorageSource$LevelStorageAccess.close:()V");
         }
 
-        protected LevelStorageAccess() {
+        public LevelStorageAccess() {
         }
     }
 
-    protected LevelStorageSource() {
+    public LevelStorageSource() {
     }
 }

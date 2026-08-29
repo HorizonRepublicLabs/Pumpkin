@@ -23,6 +23,6 @@ public class SimpleParticleType extends ParticleType<SimpleParticleType> impleme
         throw Unimplemented.forMember("net/minecraft/core/particles/SimpleParticleType.streamCodec:()Lnet/minecraft/network/codec/StreamCodec;");
     }
 
-    protected SimpleParticleType() {
+    public SimpleParticleType() {
     }
 }

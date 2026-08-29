@@ -36,6 +36,6 @@ public class InterpolationHandler {
         }
     }
 
-    protected InterpolationHandler() {
+    public InterpolationHandler() {
     }
 }

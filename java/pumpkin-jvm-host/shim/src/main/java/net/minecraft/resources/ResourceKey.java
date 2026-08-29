@@ -58,7 +58,7 @@ public class ResourceKey<T> implements Comparable<ResourceKey<?>> {
 
     // Pumpkin divergence: the generator synthesises an empty no-argument constructor for
     // every class; this one has two final fields to assign, so it delegates.
-    protected ResourceKey() {
+    public ResourceKey() {
         this(Identifier.fromNamespaceAndPath("minecraft", "root"), Identifier.fromNamespaceAndPath("minecraft", ""));
     }
 }

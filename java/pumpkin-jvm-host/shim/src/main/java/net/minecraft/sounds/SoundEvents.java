@@ -45,7 +45,7 @@ public class SoundEvents {
         throw Unimplemented.forMember("net/minecraft/sounds/SoundEvents.register:(Lnet/minecraft/resources/Identifier;Lnet/minecraft/resources/Identifier;)Lnet/minecraft/sounds/SoundEvent;");
     }
 
-    protected SoundEvents() {
+    public SoundEvents() {
     }
 
     static {

@@ -123,7 +123,7 @@ public class DeferredRegister<T> {
             throw Unimplemented.forMember("net/neoforged/neoforge/registries/DeferredRegister$Blocks.createHolder:(Lnet/minecraft/resources/ResourceKey;Lnet/minecraft/resources/Identifier;)Lnet/neoforged/neoforge/registries/DeferredBlock;");
         }
 
-        protected Blocks() {
+        public Blocks() {
         }
     }
 
@@ -145,7 +145,7 @@ public class DeferredRegister<T> {
             throw Unimplemented.forMember("net/neoforged/neoforge/registries/DeferredRegister$Items.createHolder:(Lnet/minecraft/resources/ResourceKey;Lnet/minecraft/resources/Identifier;)Lnet/neoforged/neoforge/registries/DeferredItem;");
         }
 
-        protected Items() {
+        public Items() {
         }
     }
 
@@ -155,7 +155,7 @@ public class DeferredRegister<T> {
             throw Unimplemented.forMember("net/neoforged/neoforge/registries/DeferredRegister$DataComponents.<init>:(Lnet/minecraft/resources/ResourceKey;Ljava/lang/String;)V");
         }
 
-        protected DataComponents() {
+        public DataComponents() {
         }
     }
 
@@ -165,7 +165,7 @@ public class DeferredRegister<T> {
             throw Unimplemented.forMember("net/neoforged/neoforge/registries/DeferredRegister$Entities.<init>:(Ljava/lang/String;)V");
         }
 
-        protected Entities() {
+        public Entities() {
         }
     }
 
@@ -183,6 +183,6 @@ public class DeferredRegister<T> {
         }
     }
 
-    protected DeferredRegister() {
+    public DeferredRegister() {
     }
 }

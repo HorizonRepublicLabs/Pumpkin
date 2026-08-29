@@ -40,6 +40,6 @@ public class EnvironmentAttributeSystem implements EnvironmentAttributeReader {
         }
     }
 
-    protected EnvironmentAttributeSystem() {
+    public EnvironmentAttributeSystem() {
     }
 }

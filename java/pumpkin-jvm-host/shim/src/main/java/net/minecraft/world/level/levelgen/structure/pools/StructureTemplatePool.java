@@ -34,6 +34,6 @@ public class StructureTemplatePool {
         }
     }
 
-    protected StructureTemplatePool() {
+    public StructureTemplatePool() {
     }
 }

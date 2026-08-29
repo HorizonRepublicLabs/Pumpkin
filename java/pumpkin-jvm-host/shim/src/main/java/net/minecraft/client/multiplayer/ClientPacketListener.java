@@ -717,6 +717,6 @@ public class ClientPacketListener extends ClientCommonPacketListenerImpl impleme
         NO_ISSUES, PARSE_ERRORS, SIGNATURE_REQUIRED, PERMISSIONS_REQUIRED
     }
 
-    protected ClientPacketListener() {
+    public ClientPacketListener() {
     }
 }

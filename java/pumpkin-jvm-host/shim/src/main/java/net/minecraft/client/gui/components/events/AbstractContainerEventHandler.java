@@ -20,6 +20,6 @@ public abstract class AbstractContainerEventHandler implements ContainerEventHan
         throw Unimplemented.forMember("net/minecraft/client/gui/components/events/AbstractContainerEventHandler.setFocused:(Lnet/minecraft/client/gui/components/events/GuiEventListener;)V");
     }
 
-    protected AbstractContainerEventHandler() {
+    public AbstractContainerEventHandler() {
     }
 }

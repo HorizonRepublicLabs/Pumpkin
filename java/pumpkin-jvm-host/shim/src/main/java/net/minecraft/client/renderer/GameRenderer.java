@@ -48,6 +48,6 @@ public class GameRenderer implements AutoCloseable, TrackedWaypoint.Projector {
         throw Unimplemented.forMember("net/minecraft/client/renderer/GameRenderer.projectHorizonToScreen:()D");
     }
 
-    protected GameRenderer() {
+    public GameRenderer() {
     }
 }

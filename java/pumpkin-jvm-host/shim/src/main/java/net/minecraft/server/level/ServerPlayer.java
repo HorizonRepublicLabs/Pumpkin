@@ -409,6 +409,6 @@ public class ServerPlayer extends Player {
     public record SavedPosition(Optional<ResourceKey<Level>> dimension, Optional<Vec3> position, Optional<Vec2> rotation) {
     }
 
-    protected ServerPlayer() {
+    public ServerPlayer() {
     }
 }

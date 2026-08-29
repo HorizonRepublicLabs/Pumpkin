@@ -25,6 +25,6 @@ public abstract class Avatar extends LivingEntity {
 
     public abstract ResolvableProfile getProfile();
 
-    protected Avatar() {
+    public Avatar() {
     }
 }

@@ -174,7 +174,7 @@ public class FakePlayer extends ServerPlayer {
             throw Unimplemented.forMember("net/neoforged/neoforge/common/util/FakePlayer$FakePlayerAdvancements.getOrStartProgress:(Lnet/minecraft/advancements/AdvancementHolder;)Lnet/minecraft/advancements/AdvancementProgress;");
         }
 
-        protected FakePlayerAdvancements() {
+        public FakePlayerAdvancements() {
         }
     }
 
@@ -431,6 +431,6 @@ public class FakePlayer extends ServerPlayer {
         }
     }
 
-    protected FakePlayer() {
+    public FakePlayer() {
     }
 }

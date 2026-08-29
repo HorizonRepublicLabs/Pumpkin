@@ -33,6 +33,6 @@ public class ServerboundSetCommandBlockPacket implements Packet<ServerGamePacket
         throw Unimplemented.forMember("net/minecraft/network/protocol/game/ServerboundSetCommandBlockPacket.getPos:()Lnet/minecraft/core/BlockPos;");
     }
 
-    protected ServerboundSetCommandBlockPacket() {
+    public ServerboundSetCommandBlockPacket() {
     }
 }

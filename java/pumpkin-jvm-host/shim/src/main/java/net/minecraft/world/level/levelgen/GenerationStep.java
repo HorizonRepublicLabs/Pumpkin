@@ -28,6 +28,6 @@ public class GenerationStep {
         }
     }
 
-    protected GenerationStep() {
+    public GenerationStep() {
     }
 }

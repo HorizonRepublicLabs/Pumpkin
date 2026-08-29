@@ -30,6 +30,6 @@ public abstract class SimpleJsonResourceReloadListener<T> extends SimplePreparab
         throw Unimplemented.forMember("net/minecraft/server/packs/resources/SimpleJsonResourceReloadListener.prepare:(Lnet/minecraft/server/packs/resources/ResourceManager;Lnet/minecraft/util/profiling/ProfilerFiller;)Ljava/util/Map;");
     }
 
-    protected SimpleJsonResourceReloadListener() {
+    public SimpleJsonResourceReloadListener() {
     }
 }

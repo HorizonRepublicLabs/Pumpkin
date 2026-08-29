@@ -59,6 +59,6 @@ public abstract class BossEvent {
         }
     }
 
-    protected BossEvent() {
+    public BossEvent() {
     }
 }

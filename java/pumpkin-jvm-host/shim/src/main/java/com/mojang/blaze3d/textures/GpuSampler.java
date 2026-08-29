@@ -18,6 +18,6 @@ public abstract class GpuSampler implements AutoCloseable {
 
     public abstract void close();
 
-    protected GpuSampler() {
+    public GpuSampler() {
     }
 }

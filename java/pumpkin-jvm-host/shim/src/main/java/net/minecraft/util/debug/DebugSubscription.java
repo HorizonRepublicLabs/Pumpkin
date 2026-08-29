@@ -25,6 +25,6 @@ public class DebugSubscription<T> {
     public record Update<T>(DebugSubscription<T> subscription, Optional<T> value) {
     }
 
-    protected DebugSubscription() {
+    public DebugSubscription() {
     }
 }

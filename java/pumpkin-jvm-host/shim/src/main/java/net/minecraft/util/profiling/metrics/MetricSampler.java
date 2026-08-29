@@ -41,7 +41,7 @@ public class MetricSampler {
             throw Unimplemented.forMember("net/minecraft/util/profiling/metrics/MetricSampler$MetricSamplerBuilder.build:()Lnet/minecraft/util/profiling/metrics/MetricSampler;");
         }
 
-        protected MetricSamplerBuilder() {
+        public MetricSamplerBuilder() {
         }
     }
 
@@ -51,7 +51,7 @@ public class MetricSampler {
             throw Unimplemented.forMember("net/minecraft/util/profiling/metrics/MetricSampler$SamplerResult.<init>:(IILit/unimi/dsi/fastutil/ints/Int2DoubleMap;)V");
         }
 
-        protected SamplerResult() {
+        public SamplerResult() {
         }
     }
 
@@ -75,10 +75,10 @@ public class MetricSampler {
             throw Unimplemented.forMember("net/minecraft/util/profiling/metrics/MetricSampler$ValueIncreasedByPercentage.test:(D)Z");
         }
 
-        protected ValueIncreasedByPercentage() {
+        public ValueIncreasedByPercentage() {
         }
     }
 
-    protected MetricSampler() {
+    public MetricSampler() {
     }
 }

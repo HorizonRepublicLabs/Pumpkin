@@ -20,6 +20,6 @@ public class Resource {
         throw Unimplemented.forMember("net/minecraft/server/packs/resources/Resource.openAsReader:()Ljava/io/BufferedReader;");
     }
 
-    protected Resource() {
+    public Resource() {
     }
 }

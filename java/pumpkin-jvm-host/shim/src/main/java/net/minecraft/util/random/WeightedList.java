@@ -82,7 +82,7 @@ public final class WeightedList<E> {
             throw Unimplemented.forMember("net/minecraft/util/random/WeightedList$Builder.build:()Lnet/minecraft/util/random/WeightedList;");
         }
 
-        protected Builder() {
+        public Builder() {
         }
     }
 
@@ -119,6 +119,6 @@ public final class WeightedList<E> {
         E get(int selection);
     }
 
-    protected WeightedList() {
+    public WeightedList() {
     }
 }

@@ -43,6 +43,6 @@ public class ClientMannequin extends Mannequin implements ClientAvatarEntity {
         throw Unimplemented.forMember("net/minecraft/client/entity/ClientMannequin.showExtraEars:()Z");
     }
 
-    protected ClientMannequin() {
+    public ClientMannequin() {
     }
 }

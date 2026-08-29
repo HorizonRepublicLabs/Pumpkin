@@ -28,6 +28,6 @@ public class TelemetryPropertyMap {
         }
     }
 
-    protected TelemetryPropertyMap() {
+    public TelemetryPropertyMap() {
     }
 }

@@ -20,6 +20,6 @@ public class ReportedException extends RuntimeException {
         throw Unimplemented.forMember("net/minecraft/ReportedException.getMessage:()Ljava/lang/String;");
     }
 
-    protected ReportedException() {
+    public ReportedException() {
     }
 }

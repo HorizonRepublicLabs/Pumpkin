@@ -16,6 +16,6 @@ public class RegisterRenderPipelinesEvent extends Event implements IModBusEvent 
         throw Unimplemented.forMember("net/neoforged/neoforge/client/event/RegisterRenderPipelinesEvent.registerPipeline:(Lcom/mojang/blaze3d/pipeline/RenderPipeline;)V");
     }
 
-    protected RegisterRenderPipelinesEvent() {
+    public RegisterRenderPipelinesEvent() {
     }
 }

@@ -52,7 +52,7 @@ public class InputConstants {
             throw Unimplemented.forMember("com/mojang/blaze3d/platform/InputConstants$Key.toString:()Ljava/lang/String;");
         }
 
-        protected Key() {
+        public Key() {
         }
     }
 
@@ -66,6 +66,6 @@ public class InputConstants {
     public @interface Value {
     }
 
-    protected InputConstants() {
+    public InputConstants() {
     }
 }

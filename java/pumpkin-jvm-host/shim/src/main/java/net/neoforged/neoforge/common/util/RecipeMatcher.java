@@ -10,6 +10,6 @@ public class RecipeMatcher {
         throw Unimplemented.forMember("net/neoforged/neoforge/common/util/RecipeMatcher.findMatches:(Ljava/util/List;Ljava/util/List;)[I");
     }
 
-    protected RecipeMatcher() {
+    public RecipeMatcher() {
     }
 }

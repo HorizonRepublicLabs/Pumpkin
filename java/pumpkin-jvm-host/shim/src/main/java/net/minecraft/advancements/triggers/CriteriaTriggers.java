@@ -10,7 +10,7 @@ public class CriteriaTriggers {
         throw Unimplemented.forMember("net/minecraft/advancements/triggers/CriteriaTriggers.register:(Ljava/lang/String;Lnet/minecraft/advancements/triggers/CriterionTrigger;)Lnet/minecraft/advancements/triggers/CriterionTrigger;");
     }
 
-    protected CriteriaTriggers() {
+    public CriteriaTriggers() {
     }
 
     static {

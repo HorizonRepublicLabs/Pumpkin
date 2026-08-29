@@ -15,6 +15,6 @@ public class StructureManager {
         throw Unimplemented.forMember("net/minecraft/world/level/StructureManager.registryAccess:()Lnet/minecraft/core/RegistryAccess;");
     }
 
-    protected StructureManager() {
+    public StructureManager() {
     }
 }

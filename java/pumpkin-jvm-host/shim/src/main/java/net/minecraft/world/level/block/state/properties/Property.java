@@ -50,6 +50,6 @@ public abstract class Property<T extends Comparable<T>> {
         }
     }
 
-    protected Property() {
+    public Property() {
     }
 }

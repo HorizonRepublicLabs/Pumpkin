@@ -39,10 +39,10 @@ public class PlayerSkinRenderCache {
             throw Unimplemented.forMember("net/minecraft/client/renderer/PlayerSkinRenderCache$RenderInfo.hashCode:()I");
         }
 
-        protected RenderInfo() {
+        public RenderInfo() {
         }
     }
 
-    protected PlayerSkinRenderCache() {
+    public PlayerSkinRenderCache() {
     }
 }

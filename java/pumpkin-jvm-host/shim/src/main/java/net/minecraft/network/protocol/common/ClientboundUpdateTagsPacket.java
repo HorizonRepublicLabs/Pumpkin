@@ -35,6 +35,6 @@ public class ClientboundUpdateTagsPacket implements Packet<ClientCommonPacketLis
         throw Unimplemented.forMember("net/minecraft/network/protocol/common/ClientboundUpdateTagsPacket.getTags:()Ljava/util/Map;");
     }
 
-    protected ClientboundUpdateTagsPacket() {
+    public ClientboundUpdateTagsPacket() {
     }
 }

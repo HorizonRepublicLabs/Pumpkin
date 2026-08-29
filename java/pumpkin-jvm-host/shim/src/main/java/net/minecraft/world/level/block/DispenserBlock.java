@@ -80,6 +80,6 @@ public class DispenserBlock extends BaseEntityBlock {
         throw Unimplemented.forMember("net/minecraft/world/level/block/DispenserBlock.createBlockStateDefinition:(Lnet/minecraft/world/level/block/state/StateDefinition$Builder;)V");
     }
 
-    protected DispenserBlock() {
+    public DispenserBlock() {
     }
 }

@@ -32,6 +32,6 @@ public class ClientboundRemoveEntitiesPacket implements Packet<ClientGamePacketL
         throw Unimplemented.forMember("net/minecraft/network/protocol/game/ClientboundRemoveEntitiesPacket.handle:(Lnet/minecraft/network/protocol/game/ClientGamePacketListener;)V");
     }
 
-    protected ClientboundRemoveEntitiesPacket() {
+    public ClientboundRemoveEntitiesPacket() {
     }
 }

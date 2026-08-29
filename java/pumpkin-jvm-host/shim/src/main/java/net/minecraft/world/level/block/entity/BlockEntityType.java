@@ -38,6 +38,6 @@ public class BlockEntityType<T extends BlockEntity> {
         T create(BlockPos worldPosition, BlockState blockState);
     }
 
-    protected BlockEntityType() {
+    public BlockEntityType() {
     }
 }

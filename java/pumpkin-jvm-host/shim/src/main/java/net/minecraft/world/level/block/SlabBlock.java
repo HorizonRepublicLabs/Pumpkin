@@ -70,6 +70,6 @@ public class SlabBlock extends Block implements SimpleWaterloggedBlock {
         throw Unimplemented.forMember("net/minecraft/world/level/block/SlabBlock.isPathfindable:(Lnet/minecraft/world/level/block/state/BlockState;Lnet/minecraft/world/level/pathfinder/PathComputationType;)Z");
     }
 
-    protected SlabBlock() {
+    public SlabBlock() {
     }
 }

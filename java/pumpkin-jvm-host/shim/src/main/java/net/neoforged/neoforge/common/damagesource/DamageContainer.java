@@ -23,6 +23,6 @@ public class DamageContainer {
         throw Unimplemented.forMember("net/neoforged/neoforge/common/damagesource/DamageContainer.getSource:()Lnet/minecraft/world/damagesource/DamageSource;");
     }
 
-    protected DamageContainer() {
+    public DamageContainer() {
     }
 }

@@ -34,7 +34,7 @@ public abstract class CustomBlockStateModelBuilder {
             throw Unimplemented.forMember("net/neoforged/neoforge/client/model/generators/blockstate/CustomBlockStateModelBuilder$Simple.toUnbaked:()Lnet/neoforged/neoforge/client/model/block/CustomUnbakedBlockStateModel;");
         }
 
-        protected Simple() {
+        public Simple() {
         }
     }
 }

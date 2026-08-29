@@ -29,6 +29,6 @@ public class SavedDataStorage implements AutoCloseable {
         throw Unimplemented.forMember("net/minecraft/world/level/storage/SavedDataStorage.close:()V");
     }
 
-    protected SavedDataStorage() {
+    public SavedDataStorage() {
     }
 }

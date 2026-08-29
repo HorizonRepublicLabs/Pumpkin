@@ -593,7 +593,7 @@ public final class DensityFunctions {
         public record Point(DensityFunction.FunctionContext context) {
         }
 
-        protected Spline() {
+        public Spline() {
         }
     }
 

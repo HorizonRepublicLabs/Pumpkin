@@ -53,7 +53,7 @@ public abstract class PropertyDispatch<V> {
             throw Unimplemented.forMember("net/minecraft/client/data/models/blockstates/PropertyDispatch$C1.generate:(Ljava/util/function/Function;)Lnet/minecraft/client/data/models/blockstates/PropertyDispatch;");
         }
 
-        protected C1() {
+        public C1() {
         }
     }
 
@@ -67,7 +67,7 @@ public abstract class PropertyDispatch<V> {
             throw Unimplemented.forMember("net/minecraft/client/data/models/blockstates/PropertyDispatch$C2.getDefinedProperties:()Ljava/util/List;");
         }
 
-        protected C2() {
+        public C2() {
         }
     }
 
@@ -81,7 +81,7 @@ public abstract class PropertyDispatch<V> {
             throw Unimplemented.forMember("net/minecraft/client/data/models/blockstates/PropertyDispatch$C3.getDefinedProperties:()Ljava/util/List;");
         }
 
-        protected C3() {
+        public C3() {
         }
     }
 
@@ -95,7 +95,7 @@ public abstract class PropertyDispatch<V> {
             throw Unimplemented.forMember("net/minecraft/client/data/models/blockstates/PropertyDispatch$C4.getDefinedProperties:()Ljava/util/List;");
         }
 
-        protected C4() {
+        public C4() {
         }
     }
 
@@ -109,10 +109,10 @@ public abstract class PropertyDispatch<V> {
             throw Unimplemented.forMember("net/minecraft/client/data/models/blockstates/PropertyDispatch$C5.getDefinedProperties:()Ljava/util/List;");
         }
 
-        protected C5() {
+        public C5() {
         }
     }
 
-    protected PropertyDispatch() {
+    public PropertyDispatch() {
     }
 }

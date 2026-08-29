@@ -31,6 +31,6 @@ public abstract class RenderTypeFeatureRenderer<Submit extends SubmitNode> imple
         }
     }
 
-    protected RenderTypeFeatureRenderer() {
+    public RenderTypeFeatureRenderer() {
     }
 }

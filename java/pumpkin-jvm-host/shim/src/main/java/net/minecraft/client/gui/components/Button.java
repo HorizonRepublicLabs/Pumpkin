@@ -42,7 +42,7 @@ public abstract class Button extends AbstractButton {
             throw Unimplemented.forMember("net/minecraft/client/gui/components/Button$Builder.build:()Lnet/minecraft/client/gui/components/Button;");
         }
 
-        protected Builder() {
+        public Builder() {
         }
     }
 
@@ -70,10 +70,10 @@ public abstract class Button extends AbstractButton {
             throw Unimplemented.forMember("net/minecraft/client/gui/components/Button$Plain.extractContents:(Lnet/minecraft/client/gui/GuiGraphicsExtractor;IIF)V");
         }
 
-        protected Plain() {
+        public Plain() {
         }
     }
 
-    protected Button() {
+    public Button() {
     }
 }

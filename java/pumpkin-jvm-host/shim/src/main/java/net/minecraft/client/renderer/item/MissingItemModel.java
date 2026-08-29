@@ -25,6 +25,6 @@ public class MissingItemModel implements ItemModel {
         throw Unimplemented.forMember("net/minecraft/client/renderer/item/MissingItemModel.update:(Lnet/minecraft/client/renderer/item/ItemStackRenderState;Lnet/minecraft/world/item/ItemStack;Lnet/minecraft/client/renderer/item/ItemModelResolver;Lnet/minecraft/world/item/ItemDisplayContext;Lnet/minecraft/client/multiplayer/ClientLevel;Lnet/minecraft/world/entity/ItemOwner;I)V");
     }
 
-    protected MissingItemModel() {
+    public MissingItemModel() {
     }
 }

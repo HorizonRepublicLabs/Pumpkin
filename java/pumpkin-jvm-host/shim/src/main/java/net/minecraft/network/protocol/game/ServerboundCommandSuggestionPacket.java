@@ -31,6 +31,6 @@ public class ServerboundCommandSuggestionPacket implements Packet<ServerGamePack
         throw Unimplemented.forMember("net/minecraft/network/protocol/game/ServerboundCommandSuggestionPacket.getId:()I");
     }
 
-    protected ServerboundCommandSuggestionPacket() {
+    public ServerboundCommandSuggestionPacket() {
     }
 }

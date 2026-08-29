@@ -61,6 +61,6 @@ public class Mth {
         throw Unimplemented.forMember("net/minecraft/util/Mth.sign:(D)I");
     }
 
-    protected Mth() {
+    public Mth() {
     }
 }

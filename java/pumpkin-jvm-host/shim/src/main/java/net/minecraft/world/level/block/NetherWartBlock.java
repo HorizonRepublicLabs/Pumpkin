@@ -51,6 +51,6 @@ public class NetherWartBlock extends VegetationBlock {
         throw Unimplemented.forMember("net/minecraft/world/level/block/NetherWartBlock.createBlockStateDefinition:(Lnet/minecraft/world/level/block/state/StateDefinition$Builder;)V");
     }
 
-    protected NetherWartBlock() {
+    public NetherWartBlock() {
     }
 }

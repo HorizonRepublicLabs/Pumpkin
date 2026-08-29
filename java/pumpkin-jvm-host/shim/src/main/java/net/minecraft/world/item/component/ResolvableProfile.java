@@ -61,7 +61,7 @@ public abstract class ResolvableProfile implements TooltipProvider {
             throw Unimplemented.forMember("net/minecraft/world/item/component/ResolvableProfile$Dynamic.addToTooltip:(Lnet/minecraft/world/item/Item$TooltipContext;Ljava/util/function/Consumer;Lnet/minecraft/world/item/TooltipFlag;Lnet/minecraft/core/component/DataComponentGetter;)V");
         }
 
-        protected Dynamic() {
+        public Dynamic() {
         }
     }
 
@@ -98,10 +98,10 @@ public abstract class ResolvableProfile implements TooltipProvider {
             throw Unimplemented.forMember("net/minecraft/world/item/component/ResolvableProfile$Static.addToTooltip:(Lnet/minecraft/world/item/Item$TooltipContext;Ljava/util/function/Consumer;Lnet/minecraft/world/item/TooltipFlag;Lnet/minecraft/core/component/DataComponentGetter;)V");
         }
 
-        protected Static() {
+        public Static() {
         }
     }
 
-    protected ResolvableProfile() {
+    public ResolvableProfile() {
     }
 }

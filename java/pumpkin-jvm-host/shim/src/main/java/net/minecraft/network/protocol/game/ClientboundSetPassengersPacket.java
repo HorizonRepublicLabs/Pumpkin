@@ -28,6 +28,6 @@ public class ClientboundSetPassengersPacket implements Packet<ClientGamePacketLi
         throw Unimplemented.forMember("net/minecraft/network/protocol/game/ClientboundSetPassengersPacket.handle:(Lnet/minecraft/network/protocol/game/ClientGamePacketListener;)V");
     }
 
-    protected ClientboundSetPassengersPacket() {
+    public ClientboundSetPassengersPacket() {
     }
 }

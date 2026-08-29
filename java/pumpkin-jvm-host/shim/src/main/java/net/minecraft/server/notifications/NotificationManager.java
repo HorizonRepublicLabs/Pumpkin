@@ -78,6 +78,6 @@ public class NotificationManager implements NotificationService {
         throw Unimplemented.forMember("net/minecraft/server/notifications/NotificationManager.statusHeartbeat:()V");
     }
 
-    protected NotificationManager() {
+    public NotificationManager() {
     }
 }

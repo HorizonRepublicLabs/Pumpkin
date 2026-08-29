@@ -19,10 +19,10 @@ public class ContextKeySet {
             throw Unimplemented.forMember("net/minecraft/util/context/ContextKeySet$Builder.build:()Lnet/minecraft/util/context/ContextKeySet;");
         }
 
-        protected Builder() {
+        public Builder() {
         }
     }
 
-    protected ContextKeySet() {
+    public ContextKeySet() {
     }
 }

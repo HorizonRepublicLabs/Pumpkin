@@ -21,6 +21,6 @@ public final class ChunkDependencies {
         throw Unimplemented.forMember("net/minecraft/world/level/chunk/status/ChunkDependencies.toString:()Ljava/lang/String;");
     }
 
-    protected ChunkDependencies() {
+    public ChunkDependencies() {
     }
 }

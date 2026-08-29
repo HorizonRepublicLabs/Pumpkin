@@ -46,7 +46,7 @@ public abstract class RenderTooltipEvent extends Event {
             throw Unimplemented.forMember("net/neoforged/neoforge/client/event/RenderTooltipEvent$GatherComponents.getTooltipElements:()Ljava/util/List;");
         }
 
-        protected GatherComponents() {
+        public GatherComponents() {
         }
     }
 
@@ -64,7 +64,7 @@ public abstract class RenderTooltipEvent extends Event {
             throw Unimplemented.forMember("net/neoforged/neoforge/client/event/RenderTooltipEvent$Pre.setY:(I)V");
         }
 
-        protected Pre() {
+        public Pre() {
         }
     }
 
@@ -74,10 +74,10 @@ public abstract class RenderTooltipEvent extends Event {
             throw Unimplemented.forMember("net/neoforged/neoforge/client/event/RenderTooltipEvent$Texture.<init>:(Lnet/minecraft/world/item/ItemStack;Lnet/minecraft/client/gui/GuiGraphicsExtractor;IILnet/minecraft/client/gui/Font;Ljava/util/List;Lnet/minecraft/resources/Identifier;)V");
         }
 
-        protected Texture() {
+        public Texture() {
         }
     }
 
-    protected RenderTooltipEvent() {
+    public RenderTooltipEvent() {
     }
 }

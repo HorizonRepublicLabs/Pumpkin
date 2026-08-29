@@ -27,6 +27,6 @@ public class ClientboundClearTitlesPacket implements Packet<ClientGamePacketList
         throw Unimplemented.forMember("net/minecraft/network/protocol/game/ClientboundClearTitlesPacket.handle:(Lnet/minecraft/network/protocol/game/ClientGamePacketListener;)V");
     }
 
-    protected ClientboundClearTitlesPacket() {
+    public ClientboundClearTitlesPacket() {
     }
 }

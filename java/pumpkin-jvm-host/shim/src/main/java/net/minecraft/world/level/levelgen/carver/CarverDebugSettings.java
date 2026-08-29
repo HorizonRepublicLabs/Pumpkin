@@ -9,6 +9,6 @@ public class CarverDebugSettings {
         throw Unimplemented.forMember("net/minecraft/world/level/levelgen/carver/CarverDebugSettings.<init>:(ZLnet/minecraft/world/level/block/state/BlockState;Lnet/minecraft/world/level/block/state/BlockState;Lnet/minecraft/world/level/block/state/BlockState;Lnet/minecraft/world/level/block/state/BlockState;)V");
     }
 
-    protected CarverDebugSettings() {
+    public CarverDebugSettings() {
     }
 }

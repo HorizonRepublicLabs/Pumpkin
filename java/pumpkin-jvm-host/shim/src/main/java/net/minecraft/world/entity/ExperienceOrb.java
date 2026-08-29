@@ -94,6 +94,6 @@ public class ExperienceOrb extends Entity {
         throw Unimplemented.forMember("net/minecraft/world/entity/ExperienceOrb.getInterpolation:()Lnet/minecraft/world/entity/InterpolationHandler;");
     }
 
-    protected ExperienceOrb() {
+    public ExperienceOrb() {
     }
 }

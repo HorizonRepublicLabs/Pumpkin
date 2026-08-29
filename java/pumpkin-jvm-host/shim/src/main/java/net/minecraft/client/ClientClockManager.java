@@ -21,6 +21,6 @@ public class ClientClockManager implements ClockManager {
         }
     }
 
-    protected ClientClockManager() {
+    public ClientClockManager() {
     }
 }

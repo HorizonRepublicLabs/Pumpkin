@@ -27,6 +27,6 @@ public class ClientboundLoginCompressionPacket implements Packet<ClientLoginPack
         throw Unimplemented.forMember("net/minecraft/network/protocol/login/ClientboundLoginCompressionPacket.handle:(Lnet/minecraft/network/protocol/login/ClientLoginPacketListener;)V");
     }
 
-    protected ClientboundLoginCompressionPacket() {
+    public ClientboundLoginCompressionPacket() {
     }
 }

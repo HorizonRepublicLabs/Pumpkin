@@ -16,7 +16,7 @@ public record AdvancementRewards(int experience, List<ResourceKey<LootTable>> lo
             throw Unimplemented.forMember("net/minecraft/advancements/AdvancementRewards$Builder.build:()Lnet/minecraft/advancements/AdvancementRewards;");
         }
 
-        protected Builder() {
+        public Builder() {
         }
     }
 }

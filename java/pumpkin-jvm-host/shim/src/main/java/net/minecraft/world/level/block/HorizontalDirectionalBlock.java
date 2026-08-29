@@ -25,6 +25,6 @@ public abstract class HorizontalDirectionalBlock extends Block {
         throw Unimplemented.forMember("net/minecraft/world/level/block/HorizontalDirectionalBlock.mirror:(Lnet/minecraft/world/level/block/state/BlockState;Lnet/minecraft/world/level/block/Mirror;)Lnet/minecraft/world/level/block/state/BlockState;");
     }
 
-    protected HorizontalDirectionalBlock() {
+    public HorizontalDirectionalBlock() {
     }
 }

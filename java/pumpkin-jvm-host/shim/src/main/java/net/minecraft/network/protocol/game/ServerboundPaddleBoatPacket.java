@@ -27,6 +27,6 @@ public class ServerboundPaddleBoatPacket implements Packet<ServerGamePacketListe
         throw Unimplemented.forMember("net/minecraft/network/protocol/game/ServerboundPaddleBoatPacket.type:()Lnet/minecraft/network/protocol/PacketType;");
     }
 
-    protected ServerboundPaddleBoatPacket() {
+    public ServerboundPaddleBoatPacket() {
     }
 }

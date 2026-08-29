@@ -12,6 +12,6 @@ public class PathFinder {
         throw Unimplemented.forMember("net/minecraft/world/level/pathfinder/PathFinder.distance:(Lnet/minecraft/world/level/pathfinder/Node;Lnet/minecraft/world/level/pathfinder/Node;)F");
     }
 
-    protected PathFinder() {
+    public PathFinder() {
     }
 }

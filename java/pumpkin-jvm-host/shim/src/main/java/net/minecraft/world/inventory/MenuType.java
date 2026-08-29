@@ -33,6 +33,6 @@ public class MenuType<T extends AbstractContainerMenu> implements FeatureElement
         T create(int containerId, Inventory inventory);
     }
 
-    protected MenuType() {
+    public MenuType() {
     }
 }

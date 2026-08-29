@@ -18,6 +18,6 @@ public class Attribute implements IAttributeExtension {
         POSITIVE, NEUTRAL, NEGATIVE
     }
 
-    protected Attribute() {
+    public Attribute() {
     }
 }

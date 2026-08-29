@@ -32,6 +32,6 @@ public class ModelTemplate {
         throw Unimplemented.forMember("net/minecraft/client/data/models/model/ModelTemplate.createBaseTemplate:(Lnet/minecraft/resources/Identifier;Ljava/util/Map;)Lcom/google/gson/JsonObject;");
     }
 
-    protected ModelTemplate() {
+    public ModelTemplate() {
     }
 }

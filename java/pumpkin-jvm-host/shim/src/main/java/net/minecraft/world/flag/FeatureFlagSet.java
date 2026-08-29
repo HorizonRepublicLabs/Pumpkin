@@ -45,6 +45,6 @@ public final class FeatureFlagSet {
         throw Unimplemented.forMember("net/minecraft/world/flag/FeatureFlagSet.hashCode:()I");
     }
 
-    protected FeatureFlagSet() {
+    public FeatureFlagSet() {
     }
 }

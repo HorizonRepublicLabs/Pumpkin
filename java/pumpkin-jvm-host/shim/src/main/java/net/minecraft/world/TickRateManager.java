@@ -8,6 +8,6 @@ public class TickRateManager {
         throw Unimplemented.forMember("net/minecraft/world/TickRateManager.tick:()V");
     }
 
-    protected TickRateManager() {
+    public TickRateManager() {
     }
 }

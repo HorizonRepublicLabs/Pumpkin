@@ -103,6 +103,6 @@ public class CrossbowItem extends ProjectileWeaponItem {
     public record ChargingSounds(Optional<Holder<SoundEvent>> start, Optional<Holder<SoundEvent>> mid, Optional<Holder<SoundEvent>> end) {
     }
 
-    protected CrossbowItem() {
+    public CrossbowItem() {
     }
 }

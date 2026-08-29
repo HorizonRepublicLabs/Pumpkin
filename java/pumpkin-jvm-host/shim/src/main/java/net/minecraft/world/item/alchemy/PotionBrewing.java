@@ -36,13 +36,13 @@ public class PotionBrewing {
             throw Unimplemented.forMember("net/minecraft/world/item/alchemy/PotionBrewing$Builder.build:()Lnet/minecraft/world/item/alchemy/PotionBrewing;");
         }
 
-        protected Builder() {
+        public Builder() {
         }
     }
 
     private record Mix<T>(Holder<T> from, Ingredient ingredient, Holder<T> to) {
     }
 
-    protected PotionBrewing() {
+    public PotionBrewing() {
     }
 }

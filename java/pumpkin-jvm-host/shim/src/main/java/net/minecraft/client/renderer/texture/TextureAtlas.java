@@ -45,6 +45,6 @@ public class TextureAtlas extends AbstractTexture implements TickableTexture, Du
         throw Unimplemented.forMember("net/minecraft/client/renderer/texture/TextureAtlas.getHeight:()I");
     }
 
-    protected TextureAtlas() {
+    public TextureAtlas() {
     }
 }

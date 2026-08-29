@@ -7,7 +7,7 @@ public class Stats {
 
     public static final StatType<Item> ITEM_USED = null;
 
-    protected Stats() {
+    public Stats() {
     }
 
     static {

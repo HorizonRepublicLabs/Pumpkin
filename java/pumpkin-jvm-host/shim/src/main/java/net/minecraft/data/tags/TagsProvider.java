@@ -56,6 +56,6 @@ public abstract class TagsProvider<T> implements DataProvider {
         }
     }
 
-    protected TagsProvider() {
+    public TagsProvider() {
     }
 }

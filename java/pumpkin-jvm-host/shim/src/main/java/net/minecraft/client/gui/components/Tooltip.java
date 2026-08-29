@@ -38,6 +38,6 @@ public class Tooltip implements NarrationSupplier {
         throw Unimplemented.forMember("net/minecraft/client/gui/components/Tooltip.updateNarration:(Lnet/minecraft/client/gui/narration/NarrationElementOutput;)V");
     }
 
-    protected Tooltip() {
+    public Tooltip() {
     }
 }

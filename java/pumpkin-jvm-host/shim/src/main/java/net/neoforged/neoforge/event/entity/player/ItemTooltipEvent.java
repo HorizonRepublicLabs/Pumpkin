@@ -31,6 +31,6 @@ public class ItemTooltipEvent extends PlayerEvent {
         throw Unimplemented.forMember("net/neoforged/neoforge/event/entity/player/ItemTooltipEvent.getEntity:()Lnet/minecraft/world/entity/player/Player;");
     }
 
-    protected ItemTooltipEvent() {
+    public ItemTooltipEvent() {
     }
 }

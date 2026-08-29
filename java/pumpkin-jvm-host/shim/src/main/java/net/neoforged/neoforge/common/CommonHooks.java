@@ -33,6 +33,6 @@ public class CommonHooks {
         Biome apply(final Biome.ClimateSettings climate, final BiomeSpecialEffects effects, final BiomeGenerationSettings gen, final MobSpawnSettings spawns);
     }
 
-    protected CommonHooks() {
+    public CommonHooks() {
     }
 }

@@ -22,7 +22,7 @@ public record Equippable(EquipmentSlot slot, Holder<SoundEvent> equipSound, Opti
             throw Unimplemented.forMember("net/minecraft/world/item/equipment/Equippable$Builder.build:()Lnet/minecraft/world/item/equipment/Equippable;");
         }
 
-        protected Builder() {
+        public Builder() {
         }
     }
 }

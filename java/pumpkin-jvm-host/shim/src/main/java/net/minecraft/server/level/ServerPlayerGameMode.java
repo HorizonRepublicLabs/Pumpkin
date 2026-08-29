@@ -21,6 +21,6 @@ public class ServerPlayerGameMode {
         throw Unimplemented.forMember("net/minecraft/server/level/ServerPlayerGameMode.tick:()V");
     }
 
-    protected ServerPlayerGameMode() {
+    public ServerPlayerGameMode() {
     }
 }

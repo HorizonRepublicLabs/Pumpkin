@@ -138,6 +138,6 @@ public class ChunkMap extends SimpleRegionStorage implements ChunkHolder.PlayerP
         }
     }
 
-    protected ChunkMap() {
+    public ChunkMap() {
     }
 }

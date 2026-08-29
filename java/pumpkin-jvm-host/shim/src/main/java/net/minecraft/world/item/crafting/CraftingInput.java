@@ -70,6 +70,6 @@ public class CraftingInput implements RecipeInput {
     public record Positioned(CraftingInput input, int left, int top) {
     }
 
-    protected CraftingInput() {
+    public CraftingInput() {
     }
 }

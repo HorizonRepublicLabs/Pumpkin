@@ -50,7 +50,7 @@ public class MultiVariantGenerator implements BlockModelDefinitionGenerator {
             throw Unimplemented.forMember("net/minecraft/client/data/models/blockstates/MultiVariantGenerator$Empty.with:(Lnet/minecraft/client/data/models/blockstates/PropertyDispatch;)Lnet/minecraft/client/data/models/blockstates/MultiVariantGenerator;");
         }
 
-        protected Empty() {
+        public Empty() {
         }
     }
 
@@ -65,6 +65,6 @@ public class MultiVariantGenerator implements BlockModelDefinitionGenerator {
         }
     }
 
-    protected MultiVariantGenerator() {
+    public MultiVariantGenerator() {
     }
 }

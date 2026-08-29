@@ -231,6 +231,6 @@ public class WorldGenRegion implements WorldGenLevel {
         throw Unimplemented.forMember("net/minecraft/server/level/WorldGenRegion.environmentAttributes:()Lnet/minecraft/world/attribute/EnvironmentAttributeReader;");
     }
 
-    protected WorldGenRegion() {
+    public WorldGenRegion() {
     }
 }

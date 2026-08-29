@@ -20,6 +20,6 @@ public class SoundEngine {
         STARTED, STARTED_SILENTLY, NOT_STARTED
     }
 
-    protected SoundEngine() {
+    public SoundEngine() {
     }
 }

@@ -37,6 +37,6 @@ public final class UnbakedMutator {
         }
     }
 
-    protected UnbakedMutator() {
+    public UnbakedMutator() {
     }
 }

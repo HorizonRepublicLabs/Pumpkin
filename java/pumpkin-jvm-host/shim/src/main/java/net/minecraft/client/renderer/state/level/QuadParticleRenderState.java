@@ -36,6 +36,6 @@ public class QuadParticleRenderState implements ParticleGroupRenderState {
         }
     }
 
-    protected QuadParticleRenderState() {
+    public QuadParticleRenderState() {
     }
 }

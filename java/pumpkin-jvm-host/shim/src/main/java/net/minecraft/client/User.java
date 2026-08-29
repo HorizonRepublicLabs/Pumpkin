@@ -14,6 +14,6 @@ public class User {
         throw Unimplemented.forMember("net/minecraft/client/User.getName:()Ljava/lang/String;");
     }
 
-    protected User() {
+    public User() {
     }
 }

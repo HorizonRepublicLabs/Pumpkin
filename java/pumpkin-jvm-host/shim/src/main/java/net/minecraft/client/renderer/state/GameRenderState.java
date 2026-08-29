@@ -4,6 +4,6 @@ public class GameRenderState {
 
     public final WindowRenderState windowRenderState = null;
 
-    protected GameRenderState() {
+    public GameRenderState() {
     }
 }

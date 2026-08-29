@@ -86,6 +86,6 @@ public class CommandEncoder {
         throw Unimplemented.forMember("com/mojang/blaze3d/systems/CommandEncoder.writeTimestamp:(Lcom/mojang/blaze3d/systems/GpuQueryPool;I)V");
     }
 
-    protected CommandEncoder() {
+    public CommandEncoder() {
     }
 }

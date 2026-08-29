@@ -44,6 +44,6 @@ public class EntityRenderDispatcher implements ResourceManagerReloadListener {
         throw Unimplemented.forMember("net/minecraft/client/renderer/entity/EntityRenderDispatcher.onResourceManagerReload:(Lnet/minecraft/server/packs/resources/ResourceManager;)V");
     }
 
-    protected EntityRenderDispatcher() {
+    public EntityRenderDispatcher() {
     }
 }

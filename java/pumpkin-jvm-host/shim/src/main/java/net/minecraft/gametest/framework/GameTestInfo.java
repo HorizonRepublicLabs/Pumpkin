@@ -28,6 +28,6 @@ public class GameTestInfo {
         throw Unimplemented.forMember("net/minecraft/gametest/framework/GameTestInfo.toString:()Ljava/lang/String;");
     }
 
-    protected GameTestInfo() {
+    public GameTestInfo() {
     }
 }

@@ -138,6 +138,6 @@ public final class ItemResource implements DataComponentHolderResource<Item> {
         throw Unimplemented.forMember("net/neoforged/neoforge/transfer/item/ItemResource.toString:()Ljava/lang/String;");
     }
 
-    protected ItemResource() {
+    public ItemResource() {
     }
 }

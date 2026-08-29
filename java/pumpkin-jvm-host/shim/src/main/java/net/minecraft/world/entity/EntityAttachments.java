@@ -26,6 +26,6 @@ public class EntityAttachments {
         }
     }
 
-    protected EntityAttachments() {
+    public EntityAttachments() {
     }
 }

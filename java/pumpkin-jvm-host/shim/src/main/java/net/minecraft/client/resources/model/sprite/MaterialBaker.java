@@ -16,6 +16,6 @@ public abstract class MaterialBaker {
 
     protected abstract Material.Baked bake(Material material);
 
-    protected MaterialBaker() {
+    public MaterialBaker() {
     }
 }

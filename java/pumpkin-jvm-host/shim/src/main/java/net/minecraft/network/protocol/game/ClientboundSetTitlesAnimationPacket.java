@@ -27,6 +27,6 @@ public class ClientboundSetTitlesAnimationPacket implements Packet<ClientGamePac
         throw Unimplemented.forMember("net/minecraft/network/protocol/game/ClientboundSetTitlesAnimationPacket.handle:(Lnet/minecraft/network/protocol/game/ClientGamePacketListener;)V");
     }
 
-    protected ClientboundSetTitlesAnimationPacket() {
+    public ClientboundSetTitlesAnimationPacket() {
     }
 }

@@ -73,6 +73,6 @@ public class PlayerTeam extends Team {
     public record Packed(String name, Optional<Component> displayName, Optional<TeamColor> color, boolean allowFriendlyFire, boolean seeFriendlyInvisibles, Component memberNamePrefix, Component memberNameSuffix, Team.Visibility nameTagVisibility, Team.Visibility deathMessageVisibility, Team.CollisionRule collisionRule, List<String> players) {
     }
 
-    protected PlayerTeam() {
+    public PlayerTeam() {
     }
 }

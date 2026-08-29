@@ -32,6 +32,6 @@ public class ClientboundOpenSignEditorPacket implements Packet<ClientGamePacketL
         throw Unimplemented.forMember("net/minecraft/network/protocol/game/ClientboundOpenSignEditorPacket.getPos:()Lnet/minecraft/core/BlockPos;");
     }
 
-    protected ClientboundOpenSignEditorPacket() {
+    public ClientboundOpenSignEditorPacket() {
     }
 }

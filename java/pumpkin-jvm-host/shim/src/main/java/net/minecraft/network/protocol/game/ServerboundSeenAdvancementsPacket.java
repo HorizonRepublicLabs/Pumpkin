@@ -33,6 +33,6 @@ public class ServerboundSeenAdvancementsPacket implements Packet<ServerGamePacke
         OPENED_TAB, CLOSED_SCREEN
     }
 
-    protected ServerboundSeenAdvancementsPacket() {
+    public ServerboundSeenAdvancementsPacket() {
     }
 }

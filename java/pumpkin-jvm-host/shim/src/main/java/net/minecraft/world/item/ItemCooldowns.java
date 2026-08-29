@@ -24,6 +24,6 @@ public class ItemCooldowns {
     private record CooldownInstance(int startTime, int endTime) {
     }
 
-    protected ItemCooldowns() {
+    public ItemCooldowns() {
     }
 }

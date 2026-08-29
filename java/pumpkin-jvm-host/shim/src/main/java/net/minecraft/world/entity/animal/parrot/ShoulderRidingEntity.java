@@ -15,6 +15,6 @@ public abstract class ShoulderRidingEntity extends TamableAnimal {
         throw Unimplemented.forMember("net/minecraft/world/entity/animal/parrot/ShoulderRidingEntity.tick:()V");
     }
 
-    protected ShoulderRidingEntity() {
+    public ShoulderRidingEntity() {
     }
 }

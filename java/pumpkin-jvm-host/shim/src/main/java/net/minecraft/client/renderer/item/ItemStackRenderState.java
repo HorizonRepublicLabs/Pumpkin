@@ -29,10 +29,10 @@ public class ItemStackRenderState {
             throw Unimplemented.forMember("net/minecraft/client/renderer/item/ItemStackRenderState$LayerRenderState.clear:()V");
         }
 
-        protected LayerRenderState() {
+        public LayerRenderState() {
         }
     }
 
-    protected ItemStackRenderState() {
+    public ItemStackRenderState() {
     }
 }

@@ -37,6 +37,6 @@ public final class Transaction implements AutoCloseable, TransactionContext {
         NONE, OPEN, CLOSING, ROOT_CLOSING
     }
 
-    protected Transaction() {
+    public Transaction() {
     }
 }

@@ -1039,7 +1039,15 @@ public final class Pruner {
         // it throw would mean no generated object could ever be constructed, including by
         // the few classes whose real behaviour is re-applied by hand -- and the declared
         // constructor the caller actually named still throws, which is the honest signal.
-        ConstructorDeclaration synthesised = decl.addConstructor(Modifier.Keyword.PROTECTED);
+        // Same access as the class, which is what Java's own implicit default constructor
+        // has. Always-protected was wrong: a mod calling `new ModConfigSpec.Builder()` on a
+        // public class whose real constructor is implicit got IllegalAccessError, because a
+        // mod loaded in its own classloader is in a different runtime package and protected
+        // access needs one. The error names the mod, not the shim, so it reads as the mod's
+        // fault and is not.
+        ConstructorDeclaration synthesised = decl.isPublic()
+                ? decl.addConstructor(Modifier.Keyword.PUBLIC)
+                : decl.addConstructor(Modifier.Keyword.PROTECTED);
         synthesised.setBody(new BlockStmt());
     }
 

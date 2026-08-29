@@ -37,6 +37,6 @@ public class ServerData {
         LAN, REALM, OTHER
     }
 
-    protected ServerData() {
+    public ServerData() {
     }
 }

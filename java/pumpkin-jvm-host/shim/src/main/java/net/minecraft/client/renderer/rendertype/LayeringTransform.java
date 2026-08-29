@@ -14,6 +14,6 @@ public class LayeringTransform {
         throw Unimplemented.forMember("net/minecraft/client/renderer/rendertype/LayeringTransform.toString:()Ljava/lang/String;");
     }
 
-    protected LayeringTransform() {
+    public LayeringTransform() {
     }
 }

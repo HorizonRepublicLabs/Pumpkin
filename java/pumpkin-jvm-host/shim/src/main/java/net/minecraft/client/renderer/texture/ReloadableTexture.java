@@ -17,6 +17,6 @@ public abstract class ReloadableTexture extends AbstractTexture {
 
     public abstract TextureContents loadContents(ResourceManager resourceManager) throws IOException;
 
-    protected ReloadableTexture() {
+    public ReloadableTexture() {
     }
 }

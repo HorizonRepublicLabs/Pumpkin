@@ -7,6 +7,6 @@ public class GameProtocols {
         boolean hasInfiniteMaterials();
     }
 
-    protected GameProtocols() {
+    public GameProtocols() {
     }
 }

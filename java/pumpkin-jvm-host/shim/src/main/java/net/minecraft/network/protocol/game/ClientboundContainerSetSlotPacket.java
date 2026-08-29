@@ -28,6 +28,6 @@ public class ClientboundContainerSetSlotPacket implements Packet<ClientGamePacke
         throw Unimplemented.forMember("net/minecraft/network/protocol/game/ClientboundContainerSetSlotPacket.handle:(Lnet/minecraft/network/protocol/game/ClientGamePacketListener;)V");
     }
 
-    protected ClientboundContainerSetSlotPacket() {
+    public ClientboundContainerSetSlotPacket() {
     }
 }

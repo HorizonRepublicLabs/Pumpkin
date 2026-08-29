@@ -1,6 +1,5 @@
 package net.neoforged.neoforgespi.language;
 
-import dev.pumpkin.shim.Unimplemented;
 import java.util.Set;
 import org.objectweb.asm.Type;
 
@@ -18,12 +17,19 @@ import org.objectweb.asm.Type;
  * {@code fml} compiles against ASM, and it is the only reason.
  */
 public class ModFileScanData {
+    private final Set<AnnotationData> annotations;
+
     public ModFileScanData() {
+        this(Set.of());
+    }
+
+    /** The scan result for one mod file. */
+    public ModFileScanData(Set<AnnotationData> annotations) {
+        this.annotations = Set.copyOf(annotations);
     }
 
     public Set<AnnotationData> getAnnotations() {
-        throw Unimplemented.forMember(
-                "net/neoforged/neoforgespi/language/ModFileScanData.getAnnotations:()Ljava/util/Set;");
+        return annotations;
     }
 
     /**

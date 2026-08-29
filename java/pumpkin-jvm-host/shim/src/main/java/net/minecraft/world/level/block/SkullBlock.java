@@ -60,6 +60,6 @@ public class SkullBlock extends AbstractSkullBlock {
         }
     }
 
-    protected SkullBlock() {
+    public SkullBlock() {
     }
 }

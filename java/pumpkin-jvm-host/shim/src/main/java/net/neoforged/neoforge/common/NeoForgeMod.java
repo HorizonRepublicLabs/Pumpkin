@@ -16,6 +16,6 @@ public class NeoForgeMod {
         throw Unimplemented.forMember("net/neoforged/neoforge/common/NeoForgeMod.<init>:(Lnet/neoforged/bus/api/IEventBus;Lnet/neoforged/api/distmarker/Dist;Lnet/neoforged/fml/ModContainer;)V");
     }
 
-    protected NeoForgeMod() {
+    public NeoForgeMod() {
     }
 }

@@ -28,6 +28,6 @@ public class CacheableFunction {
         throw Unimplemented.forMember("net/minecraft/commands/CacheableFunction.hashCode:()I");
     }
 
-    protected CacheableFunction() {
+    public CacheableFunction() {
     }
 }

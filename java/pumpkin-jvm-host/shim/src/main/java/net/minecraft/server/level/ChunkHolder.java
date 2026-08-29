@@ -37,6 +37,6 @@ public class ChunkHolder extends GenerationChunkHolder {
         List<ServerPlayer> getPlayers(ChunkPos pos, boolean borderOnly);
     }
 
-    protected ChunkHolder() {
+    public ChunkHolder() {
     }
 }

@@ -45,6 +45,6 @@ public class ServerConnectionListener {
         }
     }
 
-    protected ServerConnectionListener() {
+    public ServerConnectionListener() {
     }
 }

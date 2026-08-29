@@ -11,6 +11,6 @@ public abstract class BundlePacket<T extends PacketListener> implements Packet<T
 
     public abstract PacketType<? extends BundlePacket<T>> type();
 
-    protected BundlePacket() {
+    public BundlePacket() {
     }
 }

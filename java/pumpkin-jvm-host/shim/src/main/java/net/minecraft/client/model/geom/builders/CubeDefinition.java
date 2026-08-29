@@ -15,6 +15,6 @@ public final class CubeDefinition {
         throw Unimplemented.forMember("net/minecraft/client/model/geom/builders/CubeDefinition.bake:(II)Lnet/minecraft/client/model/geom/ModelPart$Cube;");
     }
 
-    protected CubeDefinition() {
+    public CubeDefinition() {
     }
 }

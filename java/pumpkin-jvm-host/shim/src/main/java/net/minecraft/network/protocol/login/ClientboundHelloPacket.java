@@ -27,6 +27,6 @@ public class ClientboundHelloPacket implements Packet<ClientLoginPacketListener>
         throw Unimplemented.forMember("net/minecraft/network/protocol/login/ClientboundHelloPacket.handle:(Lnet/minecraft/network/protocol/login/ClientLoginPacketListener;)V");
     }
 
-    protected ClientboundHelloPacket() {
+    public ClientboundHelloPacket() {
     }
 }

@@ -48,6 +48,6 @@ public class MobEffect implements FeatureElement, IMobEffectExtension {
         }
     }
 
-    protected MobEffect() {
+    public MobEffect() {
     }
 }

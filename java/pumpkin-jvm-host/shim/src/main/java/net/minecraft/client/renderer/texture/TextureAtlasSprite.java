@@ -53,6 +53,6 @@ public class TextureAtlasSprite implements AutoCloseable {
         throw Unimplemented.forMember("net/minecraft/client/renderer/texture/TextureAtlasSprite.close:()V");
     }
 
-    protected TextureAtlasSprite() {
+    public TextureAtlasSprite() {
     }
 }

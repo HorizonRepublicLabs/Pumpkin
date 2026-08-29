@@ -10,6 +10,6 @@ public abstract class PlacementModifier {
 
     public abstract PlacementModifierType<?> type();
 
-    protected PlacementModifier() {
+    public PlacementModifier() {
     }
 }

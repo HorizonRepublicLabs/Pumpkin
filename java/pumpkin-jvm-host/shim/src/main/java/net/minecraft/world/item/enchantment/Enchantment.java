@@ -53,7 +53,7 @@ public record Enchantment(Component description, Enchantment.EnchantmentDefiniti
             throw Unimplemented.forMember("net/minecraft/world/item/enchantment/Enchantment$Builder.<init>:(Lnet/minecraft/world/item/enchantment/Enchantment$EnchantmentDefinition;)V");
         }
 
-        protected Builder() {
+        public Builder() {
         }
     }
 

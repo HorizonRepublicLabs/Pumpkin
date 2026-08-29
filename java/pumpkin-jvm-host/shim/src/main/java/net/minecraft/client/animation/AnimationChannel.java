@@ -12,7 +12,7 @@ public record AnimationChannel(AnimationChannel.Target target, Keyframe... keyfr
 
     public static class Interpolations {
 
-        protected Interpolations() {
+        public Interpolations() {
         }
     }
 
@@ -23,7 +23,7 @@ public record AnimationChannel(AnimationChannel.Target target, Keyframe... keyfr
 
     public static class Targets {
 
-        protected Targets() {
+        public Targets() {
         }
     }
 }

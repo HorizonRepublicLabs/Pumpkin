@@ -18,7 +18,7 @@ public class MobSpawnSettings {
             throw Unimplemented.forMember("net/minecraft/world/level/biome/MobSpawnSettings$Builder.build:()Lnet/minecraft/world/level/biome/MobSpawnSettings;");
         }
 
-        protected Builder() {
+        public Builder() {
         }
     }
 
@@ -32,6 +32,6 @@ public class MobSpawnSettings {
         }
     }
 
-    protected MobSpawnSettings() {
+    public MobSpawnSettings() {
     }
 }

@@ -28,6 +28,6 @@ public class ClientboundPlayerAbilitiesPacket implements Packet<ClientGamePacket
         throw Unimplemented.forMember("net/minecraft/network/protocol/game/ClientboundPlayerAbilitiesPacket.handle:(Lnet/minecraft/network/protocol/game/ClientGamePacketListener;)V");
     }
 
-    protected ClientboundPlayerAbilitiesPacket() {
+    public ClientboundPlayerAbilitiesPacket() {
     }
 }

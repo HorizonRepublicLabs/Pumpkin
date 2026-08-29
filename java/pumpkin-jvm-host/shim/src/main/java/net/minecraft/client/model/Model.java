@@ -23,10 +23,10 @@ public abstract class Model<S> {
             throw Unimplemented.forMember("net/minecraft/client/model/Model$Simple.<init>:(Lnet/minecraft/client/model/geom/ModelPart;Ljava/util/function/Function;)V");
         }
 
-        protected Simple() {
+        public Simple() {
         }
     }
 
-    protected Model() {
+    public Model() {
     }
 }

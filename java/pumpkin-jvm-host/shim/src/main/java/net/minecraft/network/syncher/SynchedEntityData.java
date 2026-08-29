@@ -35,7 +35,7 @@ public class SynchedEntityData {
             throw Unimplemented.forMember("net/minecraft/network/syncher/SynchedEntityData$Builder.build:()Lnet/minecraft/network/syncher/SynchedEntityData;");
         }
 
-        protected Builder() {
+        public Builder() {
         }
     }
 
@@ -49,7 +49,7 @@ public class SynchedEntityData {
             throw Unimplemented.forMember("net/minecraft/network/syncher/SynchedEntityData$DataItem.value:()Lnet/minecraft/network/syncher/SynchedEntityData$DataValue;");
         }
 
-        protected DataItem() {
+        public DataItem() {
         }
     }
 
@@ -68,6 +68,6 @@ public class SynchedEntityData {
         }
     }
 
-    protected SynchedEntityData() {
+    public SynchedEntityData() {
     }
 }

@@ -147,6 +147,6 @@ public abstract class ChunkAccess implements LightChunk, StructureAccess, BiomeM
     public record PackedTicks(List<SavedTick<Block>> blocks, List<SavedTick<Fluid>> fluids) {
     }
 
-    protected ChunkAccess() {
+    public ChunkAccess() {
     }
 }

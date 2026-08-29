@@ -13,6 +13,6 @@ public class WorldOptions {
         throw Unimplemented.forMember("net/minecraft/world/level/levelgen/WorldOptions.<init>:(JZZLjava/util/Optional;)V");
     }
 
-    protected WorldOptions() {
+    public WorldOptions() {
     }
 }

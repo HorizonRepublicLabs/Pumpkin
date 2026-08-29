@@ -38,6 +38,6 @@ public class BlockItem extends Item {
         throw Unimplemented.forMember("net/minecraft/world/item/BlockItem.onDestroyed:(Lnet/minecraft/world/entity/item/ItemEntity;)V");
     }
 
-    protected BlockItem() {
+    public BlockItem() {
     }
 }

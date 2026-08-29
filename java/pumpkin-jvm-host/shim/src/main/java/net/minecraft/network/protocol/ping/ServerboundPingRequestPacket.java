@@ -27,6 +27,6 @@ public class ServerboundPingRequestPacket implements Packet<ServerPingPacketList
         throw Unimplemented.forMember("net/minecraft/network/protocol/ping/ServerboundPingRequestPacket.handle:(Lnet/minecraft/network/protocol/ping/ServerPingPacketListener;)V");
     }
 
-    protected ServerboundPingRequestPacket() {
+    public ServerboundPingRequestPacket() {
     }
 }

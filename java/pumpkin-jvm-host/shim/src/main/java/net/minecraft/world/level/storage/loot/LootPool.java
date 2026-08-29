@@ -49,10 +49,10 @@ public class LootPool implements Validatable {
             throw Unimplemented.forMember("net/minecraft/world/level/storage/loot/LootPool$Builder.build:()Lnet/minecraft/world/level/storage/loot/LootPool;");
         }
 
-        protected Builder() {
+        public Builder() {
         }
     }
 
-    protected LootPool() {
+    public LootPool() {
     }
 }

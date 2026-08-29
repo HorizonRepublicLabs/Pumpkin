@@ -31,6 +31,6 @@ public class ItemModelUtils {
         throw Unimplemented.forMember("net/minecraft/client/data/models/model/ItemModelUtils.select:(Lnet/minecraft/client/renderer/item/properties/select/SelectItemModelProperty;Ljava/util/List;)Lnet/minecraft/client/renderer/item/ItemModel$Unbaked;");
     }
 
-    protected ItemModelUtils() {
+    public ItemModelUtils() {
     }
 }

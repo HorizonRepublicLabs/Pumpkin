@@ -42,6 +42,6 @@ public class Util {
         , UNKNOWN
     }
 
-    protected Util() {
+    public Util() {
     }
 }

@@ -27,6 +27,6 @@ public class StructureTemplateManager {
         throw Unimplemented.forMember("net/minecraft/world/level/levelgen/structure/templatesystem/StructureTemplateManager.remove:(Lnet/minecraft/resources/Identifier;)V");
     }
 
-    protected StructureTemplateManager() {
+    public StructureTemplateManager() {
     }
 }

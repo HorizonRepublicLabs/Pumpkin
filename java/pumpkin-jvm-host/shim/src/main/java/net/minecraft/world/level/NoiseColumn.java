@@ -18,6 +18,6 @@ public final class NoiseColumn implements BlockColumn {
         throw Unimplemented.forMember("net/minecraft/world/level/NoiseColumn.setBlock:(ILnet/minecraft/world/level/block/state/BlockState;)V");
     }
 
-    protected NoiseColumn() {
+    public NoiseColumn() {
     }
 }

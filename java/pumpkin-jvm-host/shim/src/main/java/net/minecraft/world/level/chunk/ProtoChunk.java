@@ -114,6 +114,6 @@ public class ProtoChunk extends ChunkAccess {
         throw Unimplemented.forMember("net/minecraft/world/level/chunk/ProtoChunk.getHeightAccessorForGeneration:()Lnet/minecraft/world/level/LevelHeightAccessor;");
     }
 
-    protected ProtoChunk() {
+    public ProtoChunk() {
     }
 }

@@ -57,6 +57,6 @@ public class SelectItemModel<T> implements ItemModel {
         }
     }
 
-    protected SelectItemModel() {
+    public SelectItemModel() {
     }
 }

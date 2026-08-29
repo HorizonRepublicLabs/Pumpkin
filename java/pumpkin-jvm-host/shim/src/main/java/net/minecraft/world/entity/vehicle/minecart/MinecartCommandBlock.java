@@ -79,6 +79,6 @@ public class MinecartCommandBlock extends AbstractMinecart {
         }
     }
 
-    protected MinecartCommandBlock() {
+    public MinecartCommandBlock() {
     }
 }

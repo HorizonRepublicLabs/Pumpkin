@@ -28,6 +28,6 @@ public class ClientboundSelectAdvancementsTabPacket implements Packet<ClientGame
         throw Unimplemented.forMember("net/minecraft/network/protocol/game/ClientboundSelectAdvancementsTabPacket.handle:(Lnet/minecraft/network/protocol/game/ClientGamePacketListener;)V");
     }
 
-    protected ClientboundSelectAdvancementsTabPacket() {
+    public ClientboundSelectAdvancementsTabPacket() {
     }
 }

@@ -103,6 +103,6 @@ public abstract class BaseContainerBlockEntity extends BlockEntity implements Co
         throw Unimplemented.forMember("net/minecraft/world/level/block/entity/BaseContainerBlockEntity.removeComponentsFromTag:(Lnet/minecraft/world/level/storage/ValueOutput;)V");
     }
 
-    protected BaseContainerBlockEntity() {
+    public BaseContainerBlockEntity() {
     }
 }

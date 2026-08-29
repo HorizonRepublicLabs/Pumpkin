@@ -6,6 +6,6 @@ public abstract class SnapshotJournal<T extends Object> {
 
     protected abstract void revertToSnapshot(T snapshot);
 
-    protected SnapshotJournal() {
+    public SnapshotJournal() {
     }
 }

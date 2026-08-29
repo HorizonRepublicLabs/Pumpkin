@@ -27,6 +27,6 @@ public class UserBanListEntry extends BanListEntry<NameAndId> {
         throw Unimplemented.forMember("net/minecraft/server/players/UserBanListEntry.getDisplayName:()Lnet/minecraft/network/chat/Component;");
     }
 
-    protected UserBanListEntry() {
+    public UserBanListEntry() {
     }
 }

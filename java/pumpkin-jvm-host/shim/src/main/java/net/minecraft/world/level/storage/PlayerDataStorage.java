@@ -20,6 +20,6 @@ public class PlayerDataStorage {
         throw Unimplemented.forMember("net/minecraft/world/level/storage/PlayerDataStorage.load:(Lnet/minecraft/server/players/NameAndId;)Ljava/util/Optional;");
     }
 
-    protected PlayerDataStorage() {
+    public PlayerDataStorage() {
     }
 }

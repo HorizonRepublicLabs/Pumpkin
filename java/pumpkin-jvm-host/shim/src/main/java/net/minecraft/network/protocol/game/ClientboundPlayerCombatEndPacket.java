@@ -32,6 +32,6 @@ public class ClientboundPlayerCombatEndPacket implements Packet<ClientGamePacket
         throw Unimplemented.forMember("net/minecraft/network/protocol/game/ClientboundPlayerCombatEndPacket.handle:(Lnet/minecraft/network/protocol/game/ClientGamePacketListener;)V");
     }
 
-    protected ClientboundPlayerCombatEndPacket() {
+    public ClientboundPlayerCombatEndPacket() {
     }
 }

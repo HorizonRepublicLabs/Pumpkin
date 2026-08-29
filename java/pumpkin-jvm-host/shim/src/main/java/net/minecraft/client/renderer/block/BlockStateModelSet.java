@@ -15,6 +15,6 @@ public class BlockStateModelSet {
         throw Unimplemented.forMember("net/minecraft/client/renderer/block/BlockStateModelSet.get:(Lnet/minecraft/world/level/block/state/BlockState;)Lnet/minecraft/client/renderer/block/dispatch/BlockStateModel;");
     }
 
-    protected BlockStateModelSet() {
+    public BlockStateModelSet() {
     }
 }

@@ -24,6 +24,6 @@ public class SectionPos extends Vec3i {
         throw Unimplemented.forMember("net/minecraft/core/SectionPos.center:()Lnet/minecraft/core/BlockPos;");
     }
 
-    protected SectionPos() {
+    public SectionPos() {
     }
 }

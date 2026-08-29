@@ -199,6 +199,6 @@ public abstract class TrackedWaypoint implements Waypoint {
         }
     }
 
-    protected TrackedWaypoint() {
+    public TrackedWaypoint() {
     }
 }

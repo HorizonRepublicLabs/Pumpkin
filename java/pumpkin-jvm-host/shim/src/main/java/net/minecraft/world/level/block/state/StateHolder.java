@@ -33,6 +33,6 @@ public abstract class StateHolder<O, S> {
         throw Unimplemented.forMember("net/minecraft/world/level/block/state/StateHolder.setValue:(Lnet/minecraft/world/level/block/state/properties/Property;Lnet/minecraft/world/level/block/state/T;)Ljava/lang/Object;");
     }
 
-    protected StateHolder() {
+    public StateHolder() {
     }
 }

@@ -31,6 +31,6 @@ public class ClientboundContainerSetDataPacket implements Packet<ClientGamePacke
         throw Unimplemented.forMember("net/minecraft/network/protocol/game/ClientboundContainerSetDataPacket.getId:()I");
     }
 
-    protected ClientboundContainerSetDataPacket() {
+    public ClientboundContainerSetDataPacket() {
     }
 }

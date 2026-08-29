@@ -71,10 +71,10 @@ public abstract class AgeableMob extends PathfinderMob {
             throw Unimplemented.forMember("net/minecraft/world/entity/AgeableMob$AgeableMobGroupData.<init>:(F)V");
         }
 
-        protected AgeableMobGroupData() {
+        public AgeableMobGroupData() {
         }
     }
 
-    protected AgeableMob() {
+    public AgeableMob() {
     }
 }

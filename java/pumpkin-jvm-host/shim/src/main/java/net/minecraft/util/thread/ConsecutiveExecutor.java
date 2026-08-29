@@ -13,6 +13,6 @@ public class ConsecutiveExecutor extends AbstractConsecutiveExecutor<Runnable> {
         throw Unimplemented.forMember("net/minecraft/util/thread/ConsecutiveExecutor.wrapRunnable:(Ljava/lang/Runnable;)Ljava/lang/Runnable;");
     }
 
-    protected ConsecutiveExecutor() {
+    public ConsecutiveExecutor() {
     }
 }

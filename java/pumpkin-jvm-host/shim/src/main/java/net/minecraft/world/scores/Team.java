@@ -53,6 +53,6 @@ public abstract class Team {
         }
     }
 
-    protected Team() {
+    public Team() {
     }
 }

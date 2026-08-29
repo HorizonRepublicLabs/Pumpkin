@@ -137,7 +137,7 @@ edit("net/minecraft/resources/Identifier.java", [
         int byPath = pumpkinPath.compareTo(o.pumpkinPath);
         return byPath != 0 ? byPath : pumpkinNamespace.compareTo(o.pumpkinNamespace);
     }"""),
-("""    protected Identifier() {
+("""    public Identifier() {
     }""",
 """    // Pumpkin divergence: the generator synthesises an empty no-argument constructor for
     // every class so a subclass's implicit super() resolves. Identifier is final and has
@@ -211,11 +211,11 @@ edit("net/minecraft/resources/ResourceKey.java", [
         int byRegistry = pumpkinRegistryName.compareTo(o.pumpkinRegistryName);
         return byRegistry != 0 ? byRegistry : identifier.compareTo(o.identifier);
     }"""),
-("""    protected ResourceKey() {
+("""    public ResourceKey() {
     }""",
 """    // Pumpkin divergence: the generator synthesises an empty no-argument constructor for
     // every class; this one has two final fields to assign, so it delegates.
-    protected ResourceKey() {
+    public ResourceKey() {
         this(Identifier.fromNamespaceAndPath("minecraft", "root"), Identifier.fromNamespaceAndPath("minecraft", ""));
     }"""),
 ])
@@ -380,11 +380,11 @@ edit("net/minecraft/world/level/block/Block.java", [
     public String pumpkinTemplate() {
         return pumpkinProperties.template();
     }"""),
-("""    protected Block() {
+("""    public Block() {
     }""",
 """    // Pumpkin divergence: the generator synthesises an empty no-argument constructor for
     // every class; this one has a final field to assign, so it delegates.
-    protected Block() {
+    public Block() {
         this(BlockBehaviour.Properties.of());
     }"""),
 ])
@@ -478,11 +478,11 @@ edit("net/neoforged/neoforge/registries/DeferredHolder.java", [
     public Identifier getId() {
         return pumpkinId;
     }"""),
-("""    protected DeferredHolder() {
+("""    public DeferredHolder() {
     }""",
 """    // Pumpkin divergence: the generator synthesises an empty no-argument constructor for
     // every class; this one has final fields to assign, so it delegates.
-    protected DeferredHolder() {
+    public DeferredHolder() {
         this(Identifier.fromNamespaceAndPath("minecraft", "air"), null);
     }"""),
 ])
@@ -580,7 +580,7 @@ edit("net/neoforged/neoforge/registries/DeferredRegister.java", [
 
 # -------------------------------------------------------------- RegisterEvent
 edit("net/neoforged/neoforge/registries/RegisterEvent.java", [
-("""    protected RegisterEvent() {
+("""    public RegisterEvent() {
     }""",
 """    // Pumpkin divergence from the generated shim: public. In NeoForge this event is
     // constructed by the loader, once per registry, and mods only ever receive it. Pumpkin's

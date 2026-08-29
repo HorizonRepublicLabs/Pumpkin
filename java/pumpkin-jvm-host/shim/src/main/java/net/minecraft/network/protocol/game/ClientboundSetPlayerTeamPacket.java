@@ -54,6 +54,6 @@ public class ClientboundSetPlayerTeamPacket implements Packet<ClientGamePacketLi
         }
     }
 
-    protected ClientboundSetPlayerTeamPacket() {
+    public ClientboundSetPlayerTeamPacket() {
     }
 }

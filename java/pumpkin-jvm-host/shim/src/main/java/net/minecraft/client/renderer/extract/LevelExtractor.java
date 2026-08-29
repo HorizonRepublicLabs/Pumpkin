@@ -23,6 +23,6 @@ public class LevelExtractor implements ResourceManagerReloadListener {
         throw Unimplemented.forMember("net/minecraft/client/renderer/extract/LevelExtractor.onResourceManagerReload:(Lnet/minecraft/server/packs/resources/ResourceManager;)V");
     }
 
-    protected LevelExtractor() {
+    public LevelExtractor() {
     }
 }

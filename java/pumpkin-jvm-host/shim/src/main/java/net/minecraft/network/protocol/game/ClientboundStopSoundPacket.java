@@ -37,6 +37,6 @@ public class ClientboundStopSoundPacket implements Packet<ClientGamePacketListen
         throw Unimplemented.forMember("net/minecraft/network/protocol/game/ClientboundStopSoundPacket.getSource:()Lnet/minecraft/sounds/SoundSource;");
     }
 
-    protected ClientboundStopSoundPacket() {
+    public ClientboundStopSoundPacket() {
     }
 }

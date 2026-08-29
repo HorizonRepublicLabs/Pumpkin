@@ -17,6 +17,6 @@ public final class WorldGenSettings extends SavedData {
         throw Unimplemented.forMember("net/minecraft/world/level/levelgen/WorldGenSettings.toString:()Ljava/lang/String;");
     }
 
-    protected WorldGenSettings() {
+    public WorldGenSettings() {
     }
 }

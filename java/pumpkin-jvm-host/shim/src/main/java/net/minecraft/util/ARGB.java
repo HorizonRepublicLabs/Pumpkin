@@ -37,6 +37,6 @@ public class ARGB {
         throw Unimplemented.forMember("net/minecraft/util/ARGB.colorFromFloat:(FFFF)I");
     }
 
-    protected ARGB() {
+    public ARGB() {
     }
 }

@@ -90,6 +90,6 @@ public class RenderPipeline {
         }
     }
 
-    protected RenderPipeline() {
+    public RenderPipeline() {
     }
 }

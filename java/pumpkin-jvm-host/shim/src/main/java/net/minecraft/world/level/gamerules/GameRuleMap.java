@@ -57,10 +57,10 @@ public final class GameRuleMap extends SavedData {
             throw Unimplemented.forMember("net/minecraft/world/level/gamerules/GameRuleMap$Builder.build:()Lnet/minecraft/world/level/gamerules/GameRuleMap;");
         }
 
-        protected Builder() {
+        public Builder() {
         }
     }
 
-    protected GameRuleMap() {
+    public GameRuleMap() {
     }
 }

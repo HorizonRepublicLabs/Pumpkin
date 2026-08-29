@@ -190,7 +190,7 @@ public class ModConfigSpec implements IConfigSpec {
             throw Unimplemented.forMember("net/neoforged/neoforge/common/ModConfigSpec$Builder.build:()Lnet/neoforged/neoforge/common/ModConfigSpec;");
         }
 
-        protected Builder() {
+        public Builder() {
         }
     }
 
@@ -214,7 +214,7 @@ public class ModConfigSpec implements IConfigSpec {
             throw Unimplemented.forMember("net/neoforged/neoforge/common/ModConfigSpec$Range.toString:()Ljava/lang/String;");
         }
 
-        protected Range() {
+        public Range() {
         }
     }
 
@@ -228,7 +228,7 @@ public class ModConfigSpec implements IConfigSpec {
             throw Unimplemented.forMember("net/neoforged/neoforge/common/ModConfigSpec$ValueSpec.test:(Ljava/lang/Object;)Z");
         }
 
-        protected ValueSpec() {
+        public ValueSpec() {
         }
     }
 
@@ -238,7 +238,7 @@ public class ModConfigSpec implements IConfigSpec {
             throw Unimplemented.forMember("net/neoforged/neoforge/common/ModConfigSpec$ListValueSpec.<init>:(Ljava/util/function/Supplier;Ljava/util/function/Supplier;Ljava/util/function/Predicate;Ljava/util/function/Predicate;Lnet/neoforged/neoforge/common/ModConfigSpec$BuilderContext;Ljava/util/List;Lnet/neoforged/neoforge/common/ModConfigSpec$Range;)V");
         }
 
-        protected ListValueSpec() {
+        public ListValueSpec() {
         }
     }
 
@@ -268,7 +268,7 @@ public class ModConfigSpec implements IConfigSpec {
             throw Unimplemented.forMember("net/neoforged/neoforge/common/ModConfigSpec$ConfigValue.set:(Ljava/lang/Object;)V");
         }
 
-        protected ConfigValue() {
+        public ConfigValue() {
         }
     }
 
@@ -282,7 +282,7 @@ public class ModConfigSpec implements IConfigSpec {
             throw Unimplemented.forMember("net/neoforged/neoforge/common/ModConfigSpec$BooleanValue.getAsBoolean:()Z");
         }
 
-        protected BooleanValue() {
+        public BooleanValue() {
         }
     }
 
@@ -300,7 +300,7 @@ public class ModConfigSpec implements IConfigSpec {
             throw Unimplemented.forMember("net/neoforged/neoforge/common/ModConfigSpec$IntValue.getAsInt:()I");
         }
 
-        protected IntValue() {
+        public IntValue() {
         }
     }
 
@@ -318,7 +318,7 @@ public class ModConfigSpec implements IConfigSpec {
             throw Unimplemented.forMember("net/neoforged/neoforge/common/ModConfigSpec$LongValue.getAsLong:()J");
         }
 
-        protected LongValue() {
+        public LongValue() {
         }
     }
 
@@ -336,7 +336,7 @@ public class ModConfigSpec implements IConfigSpec {
             throw Unimplemented.forMember("net/neoforged/neoforge/common/ModConfigSpec$DoubleValue.getAsDouble:()D");
         }
 
-        protected DoubleValue() {
+        public DoubleValue() {
         }
     }
 
@@ -350,7 +350,7 @@ public class ModConfigSpec implements IConfigSpec {
             throw Unimplemented.forMember("net/neoforged/neoforge/common/ModConfigSpec$EnumValue.getRaw:(Lcom/electronwill/nightconfig/core/Config;Ljava/util/List;Ljava/util/function/Supplier;)Ljava/lang/Enum;");
         }
 
-        protected EnumValue() {
+        public EnumValue() {
         }
     }
 
@@ -363,6 +363,6 @@ public class ModConfigSpec implements IConfigSpec {
         }
     }
 
-    protected ModConfigSpec() {
+    public ModConfigSpec() {
     }
 }

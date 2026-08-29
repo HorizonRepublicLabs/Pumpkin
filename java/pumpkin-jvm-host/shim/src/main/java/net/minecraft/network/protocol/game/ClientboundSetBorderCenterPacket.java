@@ -28,6 +28,6 @@ public class ClientboundSetBorderCenterPacket implements Packet<ClientGamePacket
         throw Unimplemented.forMember("net/minecraft/network/protocol/game/ClientboundSetBorderCenterPacket.handle:(Lnet/minecraft/network/protocol/game/ClientGamePacketListener;)V");
     }
 
-    protected ClientboundSetBorderCenterPacket() {
+    public ClientboundSetBorderCenterPacket() {
     }
 }

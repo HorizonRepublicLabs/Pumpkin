@@ -31,6 +31,6 @@ public class ClientboundProjectilePowerPacket implements Packet<ClientGamePacket
         throw Unimplemented.forMember("net/minecraft/network/protocol/game/ClientboundProjectilePowerPacket.getId:()I");
     }
 
-    protected ClientboundProjectilePowerPacket() {
+    public ClientboundProjectilePowerPacket() {
     }
 }

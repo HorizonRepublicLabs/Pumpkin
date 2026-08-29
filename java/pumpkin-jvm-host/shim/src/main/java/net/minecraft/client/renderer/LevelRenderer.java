@@ -21,6 +21,6 @@ public class LevelRenderer implements AutoCloseable {
     private record FinalizedGizmos(DrawableGizmoPrimitives standardPrimitives, DrawableGizmoPrimitives alwaysOnTopPrimitives) {
     }
 
-    protected LevelRenderer() {
+    public LevelRenderer() {
     }
 }

@@ -35,6 +35,6 @@ public class SignBlockEntity extends BlockEntity {
         throw Unimplemented.forMember("net/minecraft/world/level/block/entity/SignBlockEntity.tick:(Lnet/minecraft/world/level/Level;Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/state/BlockState;Lnet/minecraft/world/level/block/entity/SignBlockEntity;)V");
     }
 
-    protected SignBlockEntity() {
+    public SignBlockEntity() {
     }
 }

@@ -113,6 +113,6 @@ public abstract class BlockEntity extends net.neoforged.neoforge.attachment.Atta
         }
     }
 
-    protected BlockEntity() {
+    public BlockEntity() {
     }
 }

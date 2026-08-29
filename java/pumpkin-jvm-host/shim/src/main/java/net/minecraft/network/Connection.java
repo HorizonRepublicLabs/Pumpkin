@@ -265,6 +265,6 @@ public class Connection extends SimpleChannelInboundHandler<Packet<?>> {
         throw Unimplemented.forMember("net/minecraft/network/Connection.getInboundProtocol:()Lnet/minecraft/network/ProtocolInfo;");
     }
 
-    protected Connection() {
+    public Connection() {
     }
 }

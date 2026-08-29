@@ -37,10 +37,10 @@ public class TelemetryEventType {
             throw Unimplemented.forMember("net/minecraft/client/telemetry/TelemetryEventType$Builder.<init>:(Ljava/lang/String;Ljava/lang/String;)V");
         }
 
-        protected Builder() {
+        public Builder() {
         }
     }
 
-    protected TelemetryEventType() {
+    public TelemetryEventType() {
     }
 }

@@ -79,6 +79,6 @@ public final class IntArrayTag implements CollectionTag {
         throw Unimplemented.forMember("net/minecraft/nbt/IntArrayTag.accept:(Lnet/minecraft/nbt/StreamTagVisitor;)Lnet/minecraft/nbt/StreamTagVisitor$ValueResult;");
     }
 
-    protected IntArrayTag() {
+    public IntArrayTag() {
     }
 }

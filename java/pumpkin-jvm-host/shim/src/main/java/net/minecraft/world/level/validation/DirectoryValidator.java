@@ -9,6 +9,6 @@ public class DirectoryValidator {
         throw Unimplemented.forMember("net/minecraft/world/level/validation/DirectoryValidator.<init>:(Ljava/nio/file/PathMatcher;)V");
     }
 
-    protected DirectoryValidator() {
+    public DirectoryValidator() {
     }
 }

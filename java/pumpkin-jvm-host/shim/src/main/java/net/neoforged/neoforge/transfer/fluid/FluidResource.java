@@ -123,6 +123,6 @@ public final class FluidResource implements DataComponentHolderResource<Fluid> {
         throw Unimplemented.forMember("net/neoforged/neoforge/transfer/fluid/FluidResource.toString:()Ljava/lang/String;");
     }
 
-    protected FluidResource() {
+    public FluidResource() {
     }
 }

@@ -21,7 +21,7 @@ public class TagsUpdatedEvent extends Event {
             throw Unimplemented.forMember("net/neoforged/neoforge/event/TagsUpdatedEvent$ServerDataLoad.<init>:(Lnet/minecraft/server/ReloadableServerResources;Lnet/minecraft/core/RegistryAccess;)V");
         }
 
-        protected ServerDataLoad() {
+        public ServerDataLoad() {
         }
     }
 
@@ -39,7 +39,7 @@ public class TagsUpdatedEvent extends Event {
             throw Unimplemented.forMember("net/neoforged/neoforge/event/TagsUpdatedEvent$ClientPacketReceived.shouldUpdateStaticData:()Z");
         }
 
-        protected ClientPacketReceived() {
+        public ClientPacketReceived() {
         }
     }
 
@@ -48,6 +48,6 @@ public class TagsUpdatedEvent extends Event {
         SERVER_DATA_LOAD, CLIENT_PACKET_RECEIVED
     }
 
-    protected TagsUpdatedEvent() {
+    public TagsUpdatedEvent() {
     }
 }

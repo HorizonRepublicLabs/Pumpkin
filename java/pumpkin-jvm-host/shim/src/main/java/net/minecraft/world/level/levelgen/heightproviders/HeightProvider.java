@@ -9,6 +9,6 @@ public abstract class HeightProvider {
 
     public abstract HeightProviderType<?> getType();
 
-    protected HeightProvider() {
+    public HeightProvider() {
     }
 }

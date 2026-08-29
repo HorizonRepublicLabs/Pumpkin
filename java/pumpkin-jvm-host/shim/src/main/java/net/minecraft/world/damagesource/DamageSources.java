@@ -24,6 +24,6 @@ public class DamageSources {
         throw Unimplemented.forMember("net/minecraft/world/damagesource/DamageSources.playerAttack:(Lnet/minecraft/world/entity/player/Player;)Lnet/minecraft/world/damagesource/DamageSource;");
     }
 
-    protected DamageSources() {
+    public DamageSources() {
     }
 }

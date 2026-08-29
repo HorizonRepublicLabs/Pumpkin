@@ -21,6 +21,6 @@ public class FluidRenderer {
         VertexConsumer getBuilder(ChunkSectionLayer layer);
     }
 
-    protected FluidRenderer() {
+    public FluidRenderer() {
     }
 }

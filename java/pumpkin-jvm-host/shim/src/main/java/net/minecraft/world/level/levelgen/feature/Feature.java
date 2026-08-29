@@ -16,6 +16,6 @@ public abstract class Feature<FC extends FeatureConfiguration> {
 
     public abstract boolean place(final FeaturePlaceContext<FC> context);
 
-    protected Feature() {
+    public Feature() {
     }
 }

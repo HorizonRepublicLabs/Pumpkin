@@ -482,6 +482,6 @@ public abstract class Player extends Avatar implements ContainerUser, IPlayerExt
     public record BedSleepingProblem(Component message) {
     }
 
-    protected Player() {
+    public Player() {
     }
 }

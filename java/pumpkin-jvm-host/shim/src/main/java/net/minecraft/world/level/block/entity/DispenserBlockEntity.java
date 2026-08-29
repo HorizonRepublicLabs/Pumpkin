@@ -49,6 +49,6 @@ public class DispenserBlockEntity extends RandomizableContainerBlockEntity {
         throw Unimplemented.forMember("net/minecraft/world/level/block/entity/DispenserBlockEntity.createMenu:(ILnet/minecraft/world/entity/player/Inventory;)Lnet/minecraft/world/inventory/AbstractContainerMenu;");
     }
 
-    protected DispenserBlockEntity() {
+    public DispenserBlockEntity() {
     }
 }

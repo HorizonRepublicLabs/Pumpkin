@@ -12,6 +12,6 @@ public class FeatureFlag {
         throw Unimplemented.forMember("net/minecraft/world/flag/FeatureFlag.<init>:(Lnet/minecraft/world/flag/FeatureFlagUniverse;IIZ)V");
     }
 
-    protected FeatureFlag() {
+    public FeatureFlag() {
     }
 }

@@ -9,6 +9,6 @@ public abstract class RuleTest {
 
     protected abstract RuleTestType<?> getType();
 
-    protected RuleTest() {
+    public RuleTest() {
     }
 }

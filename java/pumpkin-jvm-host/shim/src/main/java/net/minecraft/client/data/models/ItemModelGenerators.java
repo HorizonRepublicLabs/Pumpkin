@@ -26,6 +26,6 @@ public class ItemModelGenerators {
     public record TrimMaterialData(MaterialAssetGroup assets, ResourceKey<TrimMaterial> materialKey) {
     }
 
-    protected ItemModelGenerators() {
+    public ItemModelGenerators() {
     }
 }

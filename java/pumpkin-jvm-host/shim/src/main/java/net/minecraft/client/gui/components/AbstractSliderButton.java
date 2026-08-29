@@ -59,6 +59,6 @@ public abstract class AbstractSliderButton extends AbstractWidget.WithInactiveMe
 
     protected abstract void applyValue();
 
-    protected AbstractSliderButton() {
+    public AbstractSliderButton() {
     }
 }

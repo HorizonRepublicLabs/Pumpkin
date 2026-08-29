@@ -46,6 +46,6 @@ public class GpuSurface implements AutoCloseable {
         IMMEDIATE, MAILBOX, FIFO, FIFO_RELAXED
     }
 
-    protected GpuSurface() {
+    public GpuSurface() {
     }
 }

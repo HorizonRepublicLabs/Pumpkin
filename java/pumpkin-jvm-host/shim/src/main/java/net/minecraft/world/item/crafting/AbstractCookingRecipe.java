@@ -44,6 +44,6 @@ public abstract class AbstractCookingRecipe extends SingleItemRecipe {
         T create(Recipe.CommonInfo commonInfo, AbstractCookingRecipe.CookingBookInfo cbookInfotegory, Ingredient ingredient, ItemStackTemplate result, float experience, int cookingTime);
     }
 
-    protected AbstractCookingRecipe() {
+    public AbstractCookingRecipe() {
     }
 }

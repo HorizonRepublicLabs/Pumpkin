@@ -29,7 +29,7 @@ public abstract class ModelEvent extends Event {
             throw Unimplemented.forMember("net/neoforged/neoforge/client/event/ModelEvent$ModifyBakingResult.getBakingResult:()Lnet/minecraft/client/resources/model/ModelBakery$BakingResult;");
         }
 
-        protected ModifyBakingResult() {
+        public ModifyBakingResult() {
         }
     }
 
@@ -39,7 +39,7 @@ public abstract class ModelEvent extends Event {
             throw Unimplemented.forMember("net/neoforged/neoforge/client/event/ModelEvent$BakingCompleted.<init>:(Lnet/minecraft/client/resources/model/ModelManager;Lnet/minecraft/client/resources/model/ModelBakery$BakingResult;Lnet/minecraft/client/resources/model/ModelBakery;)V");
         }
 
-        protected BakingCompleted() {
+        public BakingCompleted() {
         }
     }
 
@@ -53,7 +53,7 @@ public abstract class ModelEvent extends Event {
             throw Unimplemented.forMember("net/neoforged/neoforge/client/event/ModelEvent$RegisterStandalone.register:(Lnet/neoforged/neoforge/client/model/standalone/StandaloneModelKey;Lnet/neoforged/neoforge/client/model/standalone/UnbakedStandaloneModel;)V");
         }
 
-        protected RegisterStandalone() {
+        public RegisterStandalone() {
         }
     }
 
@@ -67,7 +67,7 @@ public abstract class ModelEvent extends Event {
             throw Unimplemented.forMember("net/neoforged/neoforge/client/event/ModelEvent$RegisterLoaders.register:(Lnet/minecraft/resources/Identifier;Lnet/neoforged/neoforge/client/model/UnbakedModelLoader;)V");
         }
 
-        protected RegisterLoaders() {
+        public RegisterLoaders() {
         }
     }
 }

@@ -35,10 +35,10 @@ public class VertexFormat {
             throw Unimplemented.forMember("com/mojang/blaze3d/vertex/VertexFormat$Builder.build:()Lcom/mojang/blaze3d/vertex/VertexFormat;");
         }
 
-        protected Builder() {
+        public Builder() {
         }
     }
 
-    protected VertexFormat() {
+    public VertexFormat() {
     }
 }

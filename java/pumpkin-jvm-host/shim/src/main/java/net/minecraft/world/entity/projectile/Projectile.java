@@ -84,6 +84,6 @@ public abstract class Projectile extends Entity implements TraceableEntity {
         T create(final ServerLevel level, LivingEntity entity, ItemStack itemStack);
     }
 
-    protected Projectile() {
+    public Projectile() {
     }
 }

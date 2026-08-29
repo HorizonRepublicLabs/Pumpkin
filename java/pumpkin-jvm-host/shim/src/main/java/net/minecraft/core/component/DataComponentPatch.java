@@ -93,6 +93,6 @@ public final class DataComponentPatch {
     public record SplitResult(DataComponentMap added, Set<DataComponentType<?>> removed) {
     }
 
-    protected DataComponentPatch() {
+    public DataComponentPatch() {
     }
 }

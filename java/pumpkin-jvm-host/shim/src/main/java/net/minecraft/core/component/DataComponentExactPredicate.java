@@ -41,6 +41,6 @@ public final class DataComponentExactPredicate implements Predicate<DataComponen
         }
     }
 
-    protected DataComponentExactPredicate() {
+    public DataComponentExactPredicate() {
     }
 }

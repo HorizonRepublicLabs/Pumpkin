@@ -72,10 +72,10 @@ public abstract class TamableAnimal extends Animal implements OwnableEntity {
             throw Unimplemented.forMember("net/minecraft/world/entity/TamableAnimal$TamableAnimalPanicGoal.tick:()V");
         }
 
-        protected TamableAnimalPanicGoal() {
+        public TamableAnimalPanicGoal() {
         }
     }
 
-    protected TamableAnimal() {
+    public TamableAnimal() {
     }
 }

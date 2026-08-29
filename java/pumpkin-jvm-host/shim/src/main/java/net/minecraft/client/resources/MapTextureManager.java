@@ -28,6 +28,6 @@ public class MapTextureManager implements AutoCloseable {
         }
     }
 
-    protected MapTextureManager() {
+    public MapTextureManager() {
     }
 }

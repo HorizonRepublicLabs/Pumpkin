@@ -18,6 +18,6 @@ public class SpriteLoader {
     public record Preparations(int width, int height, int mipLevel, TextureAtlasSprite missing, Map<Identifier, TextureAtlasSprite> regions, CompletableFuture<Void> readyForUpload) {
     }
 
-    protected SpriteLoader() {
+    public SpriteLoader() {
     }
 }

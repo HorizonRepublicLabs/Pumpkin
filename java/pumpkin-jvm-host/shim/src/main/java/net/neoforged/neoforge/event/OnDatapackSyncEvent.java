@@ -24,6 +24,6 @@ public class OnDatapackSyncEvent extends Event {
         throw Unimplemented.forMember("net/neoforged/neoforge/event/OnDatapackSyncEvent.sendRecipes:(Ljava/lang/Iterable;)V");
     }
 
-    protected OnDatapackSyncEvent() {
+    public OnDatapackSyncEvent() {
     }
 }

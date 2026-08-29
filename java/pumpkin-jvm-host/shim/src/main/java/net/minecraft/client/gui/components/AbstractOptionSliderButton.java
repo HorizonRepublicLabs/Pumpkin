@@ -9,6 +9,6 @@ public abstract class AbstractOptionSliderButton extends AbstractSliderButton {
         throw Unimplemented.forMember("net/minecraft/client/gui/components/AbstractOptionSliderButton.<init>:(Lnet/minecraft/client/Options;IIIID)V");
     }
 
-    protected AbstractOptionSliderButton() {
+    public AbstractOptionSliderButton() {
     }
 }

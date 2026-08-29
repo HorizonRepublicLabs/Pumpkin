@@ -12,6 +12,6 @@ public class RenderTypes {
         throw Unimplemented.forMember("net/minecraft/client/renderer/rendertype/RenderTypes.lines:()Lnet/minecraft/client/renderer/rendertype/RenderType;");
     }
 
-    protected RenderTypes() {
+    public RenderTypes() {
     }
 }

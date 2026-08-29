@@ -148,7 +148,7 @@ public class DeferredHolder<R, T extends R> implements Holder<R>, Supplier<T> {
 
     // Pumpkin divergence: the generator synthesises an empty no-argument constructor for
     // every class; this one has final fields to assign, so it delegates.
-    protected DeferredHolder() {
+    public DeferredHolder() {
         this(Identifier.fromNamespaceAndPath("minecraft", "air"), null);
     }
 }

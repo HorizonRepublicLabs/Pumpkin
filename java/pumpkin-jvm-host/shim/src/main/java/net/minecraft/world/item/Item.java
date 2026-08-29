@@ -185,7 +185,7 @@ public class Item implements ItemLike, FeatureElement, IItemExtension {
             throw Unimplemented.forMember("net/minecraft/world/item/Item$Properties.component:(Lnet/minecraft/core/component/DataComponentType;Ljava/lang/Object;)Lnet/minecraft/world/item/Item$Properties;");
         }
 
-        protected Properties() {
+        public Properties() {
         }
     }
 
@@ -208,6 +208,6 @@ public class Item implements ItemLike, FeatureElement, IItemExtension {
         }
     }
 
-    protected Item() {
+    public Item() {
     }
 }

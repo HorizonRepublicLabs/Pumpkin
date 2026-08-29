@@ -40,6 +40,6 @@ public class BuiltInRegistries {
         Object run(Registry<T> registry);
     }
 
-    protected BuiltInRegistries() {
+    public BuiltInRegistries() {
     }
 }

@@ -16,6 +16,6 @@ public class RecipesReceivedEvent extends Event {
         throw Unimplemented.forMember("net/neoforged/neoforge/client/event/RecipesReceivedEvent.getRecipeMap:()Lnet/minecraft/world/item/crafting/RecipeMap;");
     }
 
-    protected RecipesReceivedEvent() {
+    public RecipesReceivedEvent() {
     }
 }

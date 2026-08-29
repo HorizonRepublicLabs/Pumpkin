@@ -21,6 +21,6 @@ public class ChunkTaskDispatcher implements ChunkHolder.LevelChangeListener, Aut
         throw Unimplemented.forMember("net/minecraft/server/level/ChunkTaskDispatcher.close:()V");
     }
 
-    protected ChunkTaskDispatcher() {
+    public ChunkTaskDispatcher() {
     }
 }

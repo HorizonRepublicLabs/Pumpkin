@@ -40,6 +40,6 @@ public abstract class PlayerList implements IPlayerListExtension {
         throw Unimplemented.forMember("net/minecraft/server/players/PlayerList.getPlayers:()Ljava/util/List;");
     }
 
-    protected PlayerList() {
+    public PlayerList() {
     }
 }

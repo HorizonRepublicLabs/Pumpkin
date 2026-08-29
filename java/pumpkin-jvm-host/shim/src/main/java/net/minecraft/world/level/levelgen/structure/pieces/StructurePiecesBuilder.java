@@ -31,6 +31,6 @@ public class StructurePiecesBuilder implements StructurePieceAccessor {
         throw Unimplemented.forMember("net/minecraft/world/level/levelgen/structure/pieces/StructurePiecesBuilder.getBoundingBox:()Lnet/minecraft/world/level/levelgen/structure/BoundingBox;");
     }
 
-    protected StructurePiecesBuilder() {
+    public StructurePiecesBuilder() {
     }
 }

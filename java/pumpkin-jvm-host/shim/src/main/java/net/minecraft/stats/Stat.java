@@ -29,6 +29,6 @@ public class Stat<T> extends ObjectiveCriteria {
         throw Unimplemented.forMember("net/minecraft/stats/Stat.toString:()Ljava/lang/String;");
     }
 
-    protected Stat() {
+    public Stat() {
     }
 }

@@ -21,6 +21,6 @@ public class ServerEntity {
         void sendToTrackingPlayersFiltered(Packet<? super ClientGamePacketListener> packet, Predicate<ServerPlayer> predicate);
     }
 
-    protected ServerEntity() {
+    public ServerEntity() {
     }
 }

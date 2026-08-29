@@ -19,7 +19,7 @@ public class GameConfig {
             throw Unimplemented.forMember("net/minecraft/client/main/GameConfig$FolderData.<init>:(Ljava/io/File;Ljava/io/File;Ljava/io/File;Ljava/lang/String;)V");
         }
 
-        protected FolderData() {
+        public FolderData() {
         }
     }
 
@@ -29,7 +29,7 @@ public class GameConfig {
             throw Unimplemented.forMember("net/minecraft/client/main/GameConfig$GameData.<init>:(ZLjava/lang/String;Ljava/lang/String;ZZZZZLnet/minecraft/client/PreferredGraphicsApi;Z)V");
         }
 
-        protected GameData() {
+        public GameData() {
         }
     }
 
@@ -79,10 +79,10 @@ public class GameConfig {
             throw Unimplemented.forMember("net/minecraft/client/main/GameConfig$UserData.<init>:(Lnet/minecraft/client/User;Ljava/net/Proxy;)V");
         }
 
-        protected UserData() {
+        public UserData() {
         }
     }
 
-    protected GameConfig() {
+    public GameConfig() {
     }
 }

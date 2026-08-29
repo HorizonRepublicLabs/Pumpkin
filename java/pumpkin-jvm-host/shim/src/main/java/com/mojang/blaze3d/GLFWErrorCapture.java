@@ -21,6 +21,6 @@ public class GLFWErrorCapture implements GLFWErrorCallbackI, Iterable<GLFWErrorC
         }
     }
 
-    protected GLFWErrorCapture() {
+    public GLFWErrorCapture() {
     }
 }

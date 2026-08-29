@@ -33,7 +33,7 @@ public final class ModelPart {
             throw Unimplemented.forMember("net/minecraft/client/model/geom/ModelPart$Cube.<init>:(IIFFFFFFFFFZFFLjava/util/Set;)V");
         }
 
-        protected Cube() {
+        public Cube() {
         }
     }
 
@@ -53,6 +53,6 @@ public final class ModelPart {
         void visit(final PoseStack.Pose pose, final String partPath, final int cubeIndex, final ModelPart.Cube cube);
     }
 
-    protected ModelPart() {
+    public ModelPart() {
     }
 }

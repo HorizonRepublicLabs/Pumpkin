@@ -14,6 +14,6 @@ public class OutputTarget {
         throw Unimplemented.forMember("net/minecraft/client/renderer/rendertype/OutputTarget.toString:()Ljava/lang/String;");
     }
 
-    protected OutputTarget() {
+    public OutputTarget() {
     }
 }

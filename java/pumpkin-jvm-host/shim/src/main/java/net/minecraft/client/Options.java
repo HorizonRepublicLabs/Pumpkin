@@ -38,6 +38,6 @@ public class Options {
         <T> void process(String name, OptionInstance<T> option);
     }
 
-    protected Options() {
+    public Options() {
     }
 }

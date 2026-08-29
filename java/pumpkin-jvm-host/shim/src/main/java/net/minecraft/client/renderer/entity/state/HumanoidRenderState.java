@@ -9,6 +9,6 @@ public class HumanoidRenderState extends ArmedEntityRenderState {
         throw Unimplemented.forMember("net/minecraft/client/renderer/entity/state/HumanoidRenderState.ticksUsingItem:(Lnet/minecraft/world/entity/HumanoidArm;)F");
     }
 
-    protected HumanoidRenderState() {
+    public HumanoidRenderState() {
     }
 }

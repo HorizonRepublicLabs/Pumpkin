@@ -28,6 +28,6 @@ public class ClientboundOpenBookPacket implements Packet<ClientGamePacketListene
         throw Unimplemented.forMember("net/minecraft/network/protocol/game/ClientboundOpenBookPacket.handle:(Lnet/minecraft/network/protocol/game/ClientGamePacketListener;)V");
     }
 
-    protected ClientboundOpenBookPacket() {
+    public ClientboundOpenBookPacket() {
     }
 }

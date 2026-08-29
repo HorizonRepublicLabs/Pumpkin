@@ -79,6 +79,6 @@ public final class ByteArrayTag implements CollectionTag {
         throw Unimplemented.forMember("net/minecraft/nbt/ByteArrayTag.accept:(Lnet/minecraft/nbt/StreamTagVisitor;)Lnet/minecraft/nbt/StreamTagVisitor$ValueResult;");
     }
 
-    protected ByteArrayTag() {
+    public ByteArrayTag() {
     }
 }

@@ -36,6 +36,6 @@ public class TextureManager implements PreparableReloadListener, AutoCloseable {
     private record PendingReload(ReloadableTexture texture, CompletableFuture<TextureContents> newContents) {
     }
 
-    protected TextureManager() {
+    public TextureManager() {
     }
 }

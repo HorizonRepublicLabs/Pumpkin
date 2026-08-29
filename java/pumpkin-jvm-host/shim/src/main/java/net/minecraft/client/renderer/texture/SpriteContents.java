@@ -67,13 +67,13 @@ public class SpriteContents implements AutoCloseable, Stitcher.Entry {
             throw Unimplemented.forMember("net/minecraft/client/renderer/texture/SpriteContents$AnimationState.close:()V");
         }
 
-        protected AnimationState() {
+        public AnimationState() {
         }
     }
 
     private record FrameInfo(int index, int time) {
     }
 
-    protected SpriteContents() {
+    public SpriteContents() {
     }
 }

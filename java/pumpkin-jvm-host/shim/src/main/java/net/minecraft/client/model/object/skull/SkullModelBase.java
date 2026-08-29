@@ -12,10 +12,10 @@ public abstract class SkullModelBase extends Model<SkullModelBase.State> {
 
     public static class State {
 
-        protected State() {
+        public State() {
         }
     }
 
-    protected SkullModelBase() {
+    public SkullModelBase() {
     }
 }

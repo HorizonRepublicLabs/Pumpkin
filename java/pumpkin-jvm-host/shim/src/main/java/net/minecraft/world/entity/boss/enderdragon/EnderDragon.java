@@ -128,6 +128,6 @@ public class EnderDragon extends Mob implements Enemy {
         throw Unimplemented.forMember("net/minecraft/world/entity/boss/enderdragon/EnderDragon.sanitizeScale:(F)F");
     }
 
-    protected EnderDragon() {
+    public EnderDragon() {
     }
 }

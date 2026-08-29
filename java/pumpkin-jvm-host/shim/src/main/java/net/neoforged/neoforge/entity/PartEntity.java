@@ -16,6 +16,6 @@ public abstract class PartEntity<T extends Entity> extends Entity {
         throw Unimplemented.forMember("net/neoforged/neoforge/entity/PartEntity.getAddEntityPacket:(Lnet/minecraft/server/level/ServerEntity;)Lnet/minecraft/network/protocol/Packet;");
     }
 
-    protected PartEntity() {
+    public PartEntity() {
     }
 }

@@ -62,6 +62,6 @@ public class ClientboundSoundPacket implements Packet<ClientGamePacketListener> 
         throw Unimplemented.forMember("net/minecraft/network/protocol/game/ClientboundSoundPacket.getSeed:()J");
     }
 
-    protected ClientboundSoundPacket() {
+    public ClientboundSoundPacket() {
     }
 }

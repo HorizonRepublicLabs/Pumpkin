@@ -21,6 +21,6 @@ public class BlockModelRenderState {
         throw Unimplemented.forMember("net/minecraft/client/renderer/block/BlockModelRenderState.isEmpty:()Z");
     }
 
-    protected BlockModelRenderState() {
+    public BlockModelRenderState() {
     }
 }

@@ -57,6 +57,6 @@ public final class EnvironmentAttributeMap {
     public record Entry<Value, Argument>(Argument argument, AttributeModifier<Value, Argument> modifier) {
     }
 
-    protected EnvironmentAttributeMap() {
+    public EnvironmentAttributeMap() {
     }
 }

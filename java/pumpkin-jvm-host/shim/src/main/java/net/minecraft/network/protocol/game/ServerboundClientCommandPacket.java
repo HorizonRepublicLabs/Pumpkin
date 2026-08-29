@@ -32,6 +32,6 @@ public class ServerboundClientCommandPacket implements Packet<ServerGamePacketLi
         PERFORM_RESPAWN, REQUEST_STATS, REQUEST_GAMERULE_VALUES
     }
 
-    protected ServerboundClientCommandPacket() {
+    public ServerboundClientCommandPacket() {
     }
 }

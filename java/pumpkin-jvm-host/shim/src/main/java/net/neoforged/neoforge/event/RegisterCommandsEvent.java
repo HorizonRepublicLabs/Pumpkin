@@ -17,6 +17,6 @@ public class RegisterCommandsEvent extends Event {
         throw Unimplemented.forMember("net/neoforged/neoforge/event/RegisterCommandsEvent.getDispatcher:()Lcom/mojang/brigadier/CommandDispatcher;");
     }
 
-    protected RegisterCommandsEvent() {
+    public RegisterCommandsEvent() {
     }
 }

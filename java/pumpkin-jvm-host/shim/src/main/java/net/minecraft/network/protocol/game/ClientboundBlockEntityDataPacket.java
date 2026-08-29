@@ -40,6 +40,6 @@ public class ClientboundBlockEntityDataPacket implements Packet<ClientGamePacket
         throw Unimplemented.forMember("net/minecraft/network/protocol/game/ClientboundBlockEntityDataPacket.getType:()Lnet/minecraft/world/level/block/entity/BlockEntityType;");
     }
 
-    protected ClientboundBlockEntityDataPacket() {
+    public ClientboundBlockEntityDataPacket() {
     }
 }

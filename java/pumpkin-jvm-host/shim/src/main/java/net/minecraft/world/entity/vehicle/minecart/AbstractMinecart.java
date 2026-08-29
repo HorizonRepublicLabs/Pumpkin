@@ -151,6 +151,6 @@ public abstract class AbstractMinecart extends VehicleEntity {
 
     public abstract ItemStack getPickResult();
 
-    protected AbstractMinecart() {
+    public AbstractMinecart() {
     }
 }

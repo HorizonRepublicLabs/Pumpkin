@@ -93,6 +93,6 @@ public abstract class ServerCommonPacketListenerImpl implements ServerCommonPack
         throw Unimplemented.forMember("net/minecraft/server/network/ServerCommonPacketListenerImpl.getConnectionType:()Lnet/neoforged/neoforge/network/connection/ConnectionType;");
     }
 
-    protected ServerCommonPacketListenerImpl() {
+    public ServerCommonPacketListenerImpl() {
     }
 }

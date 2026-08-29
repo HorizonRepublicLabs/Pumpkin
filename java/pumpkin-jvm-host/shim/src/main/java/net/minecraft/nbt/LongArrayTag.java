@@ -79,6 +79,6 @@ public final class LongArrayTag implements CollectionTag {
         throw Unimplemented.forMember("net/minecraft/nbt/LongArrayTag.accept:(Lnet/minecraft/nbt/StreamTagVisitor;)Lnet/minecraft/nbt/StreamTagVisitor$ValueResult;");
     }
 
-    protected LongArrayTag() {
+    public LongArrayTag() {
     }
 }

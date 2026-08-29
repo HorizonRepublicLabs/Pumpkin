@@ -65,7 +65,7 @@ public class CreativeModeTab {
             throw Unimplemented.forMember("net/minecraft/world/item/CreativeModeTab$Builder.build:()Lnet/minecraft/world/item/CreativeModeTab;");
         }
 
-        protected Builder() {
+        public Builder() {
         }
     }
 
@@ -123,6 +123,6 @@ public class CreativeModeTab {
         CATEGORY, INVENTORY, HOTBAR, SEARCH
     }
 
-    protected CreativeModeTab() {
+    public CreativeModeTab() {
     }
 }

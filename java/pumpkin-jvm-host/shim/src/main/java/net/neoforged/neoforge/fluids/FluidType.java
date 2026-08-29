@@ -47,6 +47,6 @@ public class FluidType {
     public record DripstoneDripInfo(float chance, ParticleOptions dripParticle, Block filledCauldron) {
     }
 
-    protected FluidType() {
+    public FluidType() {
     }
 }

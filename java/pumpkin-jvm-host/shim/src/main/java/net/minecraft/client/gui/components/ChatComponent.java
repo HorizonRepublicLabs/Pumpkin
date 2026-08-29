@@ -197,10 +197,10 @@ public class ChatComponent {
             throw Unimplemented.forMember("net/minecraft/client/gui/components/ChatComponent$State.<init>:(Ljava/util/List;Ljava/util/List;Ljava/util/List;)V");
         }
 
-        protected State() {
+        public State() {
         }
     }
 
-    protected ChatComponent() {
+    public ChatComponent() {
     }
 }

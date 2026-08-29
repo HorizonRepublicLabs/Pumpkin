@@ -25,6 +25,6 @@ public class ContextAwarePredicate implements Validatable {
         throw Unimplemented.forMember("net/minecraft/advancements/predicates/ContextAwarePredicate.validate:(Lnet/minecraft/world/level/storage/loot/ValidationContext;)V");
     }
 
-    protected ContextAwarePredicate() {
+    public ContextAwarePredicate() {
     }
 }

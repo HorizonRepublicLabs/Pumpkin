@@ -14,6 +14,6 @@ public class LivingFallEvent extends LivingEvent implements ICancellableEvent {
         throw Unimplemented.forMember("net/neoforged/neoforge/event/entity/living/LivingFallEvent.setDamageMultiplier:(F)V");
     }
 
-    protected LivingFallEvent() {
+    public LivingFallEvent() {
     }
 }

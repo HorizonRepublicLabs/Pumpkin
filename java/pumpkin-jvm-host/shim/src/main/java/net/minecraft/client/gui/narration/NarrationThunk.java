@@ -18,6 +18,6 @@ public class NarrationThunk<T> {
         throw Unimplemented.forMember("net/minecraft/client/gui/narration/NarrationThunk.hashCode:()I");
     }
 
-    protected NarrationThunk() {
+    public NarrationThunk() {
     }
 }

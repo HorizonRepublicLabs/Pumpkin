@@ -9,6 +9,6 @@ public class DefaultDispenseItemBehavior implements DispenseItemBehavior {
         throw Unimplemented.forMember("net/minecraft/core/dispenser/DefaultDispenseItemBehavior.dispense:(Lnet/minecraft/core/dispenser/BlockSource;Lnet/minecraft/world/item/ItemStack;)Lnet/minecraft/world/item/ItemStack;");
     }
 
-    protected DefaultDispenseItemBehavior() {
+    public DefaultDispenseItemBehavior() {
     }
 }

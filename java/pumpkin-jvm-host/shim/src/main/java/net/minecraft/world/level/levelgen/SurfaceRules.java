@@ -362,6 +362,6 @@ public class SurfaceRules {
         }
     }
 
-    protected SurfaceRules() {
+    public SurfaceRules() {
     }
 }

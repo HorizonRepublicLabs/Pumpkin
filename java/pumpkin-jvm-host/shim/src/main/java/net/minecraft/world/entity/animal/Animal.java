@@ -73,6 +73,6 @@ public abstract class Animal extends AgeableMob {
         throw Unimplemented.forMember("net/minecraft/world/entity/animal/Animal.getDismountLocationForPassenger:(Lnet/minecraft/world/entity/LivingEntity;)Lnet/minecraft/world/phys/Vec3;");
     }
 
-    protected Animal() {
+    public Animal() {
     }
 }

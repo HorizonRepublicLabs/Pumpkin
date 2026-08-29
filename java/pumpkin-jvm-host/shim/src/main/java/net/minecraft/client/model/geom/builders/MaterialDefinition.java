@@ -8,6 +8,6 @@ public class MaterialDefinition {
         throw Unimplemented.forMember("net/minecraft/client/model/geom/builders/MaterialDefinition.<init>:(II)V");
     }
 
-    protected MaterialDefinition() {
+    public MaterialDefinition() {
     }
 }

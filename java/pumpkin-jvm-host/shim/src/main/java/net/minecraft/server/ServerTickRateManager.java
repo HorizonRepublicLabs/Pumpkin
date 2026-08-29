@@ -17,6 +17,6 @@ public class ServerTickRateManager extends TickRateManager {
         throw Unimplemented.forMember("net/minecraft/server/ServerTickRateManager.setTickRate:(F)V");
     }
 
-    protected ServerTickRateManager() {
+    public ServerTickRateManager() {
     }
 }

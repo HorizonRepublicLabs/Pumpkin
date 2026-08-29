@@ -82,6 +82,6 @@ public class GameTestHelper implements GameTestHelperExtension {
         }
     }
 
-    protected GameTestHelper() {
+    public GameTestHelper() {
     }
 }

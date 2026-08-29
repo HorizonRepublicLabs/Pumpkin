@@ -31,6 +31,6 @@ public class TagBuilder implements ITagBuilderExtension {
         throw Unimplemented.forMember("net/minecraft/tags/TagBuilder.remove:(Lnet/minecraft/tags/TagEntry;)Lnet/minecraft/tags/TagBuilder;");
     }
 
-    protected TagBuilder() {
+    public TagBuilder() {
     }
 }

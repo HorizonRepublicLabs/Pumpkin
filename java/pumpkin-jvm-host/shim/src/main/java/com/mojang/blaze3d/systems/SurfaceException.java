@@ -12,6 +12,6 @@ public class SurfaceException extends Exception {
         throw Unimplemented.forMember("com/mojang/blaze3d/systems/SurfaceException.<init>:(Ljava/lang/Throwable;)V");
     }
 
-    protected SurfaceException() {
+    public SurfaceException() {
     }
 }

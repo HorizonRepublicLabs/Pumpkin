@@ -23,6 +23,6 @@ public class WeighedSoundEvents implements Weighted<Sound> {
         throw Unimplemented.forMember("net/minecraft/client/sounds/WeighedSoundEvents.preloadIfRequired:(Lnet/minecraft/client/sounds/SoundEngine;)V");
     }
 
-    protected WeighedSoundEvents() {
+    public WeighedSoundEvents() {
     }
 }

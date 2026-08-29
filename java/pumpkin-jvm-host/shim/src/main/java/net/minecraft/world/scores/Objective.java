@@ -31,6 +31,6 @@ public class Objective {
     public record Packed(String name, ObjectiveCriteria criteria, Component displayName, ObjectiveCriteria.RenderType renderType, boolean displayAutoUpdate, Optional<NumberFormat> numberFormat) {
     }
 
-    protected Objective() {
+    public Objective() {
     }
 }

@@ -45,6 +45,6 @@ public class JigsawBlockEntity extends BlockEntity {
         }
     }
 
-    protected JigsawBlockEntity() {
+    public JigsawBlockEntity() {
     }
 }

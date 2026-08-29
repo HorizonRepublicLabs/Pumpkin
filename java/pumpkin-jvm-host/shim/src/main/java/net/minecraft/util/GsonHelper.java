@@ -41,6 +41,6 @@ public class GsonHelper {
         }
     }
 
-    protected GsonHelper() {
+    public GsonHelper() {
     }
 }

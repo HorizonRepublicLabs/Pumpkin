@@ -8,6 +8,6 @@ public class CrashReport {
         throw Unimplemented.forMember("net/minecraft/CrashReport.<init>:(Ljava/lang/String;Ljava/lang/Throwable;)V");
     }
 
-    protected CrashReport() {
+    public CrashReport() {
     }
 }

@@ -34,10 +34,10 @@ public abstract class LootPoolEntryContainer implements ComposableEntryContainer
 
         public abstract LootPoolEntryContainer build();
 
-        protected Builder() {
+        public Builder() {
         }
     }
 
-    protected LootPoolEntryContainer() {
+    public LootPoolEntryContainer() {
     }
 }

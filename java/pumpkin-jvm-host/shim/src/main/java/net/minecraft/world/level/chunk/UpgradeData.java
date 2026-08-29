@@ -74,6 +74,6 @@ public class UpgradeData {
 
     }
 
-    protected UpgradeData() {
+    public UpgradeData() {
     }
 }

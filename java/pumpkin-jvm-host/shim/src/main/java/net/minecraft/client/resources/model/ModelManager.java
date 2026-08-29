@@ -68,6 +68,6 @@ public class ModelManager implements PreparableReloadListener {
     private record ResolvedModels(ResolvedModel missing, Map<Identifier, ResolvedModel> models) {
     }
 
-    protected ModelManager() {
+    public ModelManager() {
     }
 }

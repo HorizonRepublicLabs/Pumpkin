@@ -30,6 +30,6 @@ public class ProtoChunkTicks<T> implements TickContainerAccess<T>, SerializableT
         throw Unimplemented.forMember("net/minecraft/world/ticks/ProtoChunkTicks.load:(Ljava/util/List;)Lnet/minecraft/world/ticks/ProtoChunkTicks;");
     }
 
-    protected ProtoChunkTicks() {
+    public ProtoChunkTicks() {
     }
 }

@@ -51,6 +51,6 @@ public class HumanoidModel<T extends HumanoidRenderState> extends EntityModel<T>
 
     }
 
-    protected HumanoidModel() {
+    public HumanoidModel() {
     }
 }

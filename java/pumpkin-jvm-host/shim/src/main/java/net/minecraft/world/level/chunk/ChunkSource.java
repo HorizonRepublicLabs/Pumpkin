@@ -30,6 +30,6 @@ public abstract class ChunkSource implements AutoCloseable, LightChunkGetter {
 
     public abstract LevelLightEngine getLightEngine();
 
-    protected ChunkSource() {
+    public ChunkSource() {
     }
 }

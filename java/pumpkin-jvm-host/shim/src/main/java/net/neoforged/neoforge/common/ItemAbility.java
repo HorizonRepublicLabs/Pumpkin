@@ -20,6 +20,6 @@ public final class ItemAbility {
         throw Unimplemented.forMember("net/neoforged/neoforge/common/ItemAbility.<init>:(Ljava/lang/String;)V");
     }
 
-    protected ItemAbility() {
+    public ItemAbility() {
     }
 }

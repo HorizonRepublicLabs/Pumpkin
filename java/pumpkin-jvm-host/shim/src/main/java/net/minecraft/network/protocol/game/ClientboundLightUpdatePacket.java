@@ -38,6 +38,6 @@ public class ClientboundLightUpdatePacket implements Packet<ClientGamePacketList
         throw Unimplemented.forMember("net/minecraft/network/protocol/game/ClientboundLightUpdatePacket.getZ:()I");
     }
 
-    protected ClientboundLightUpdatePacket() {
+    public ClientboundLightUpdatePacket() {
     }
 }

@@ -36,6 +36,6 @@ public class LocalSampleLogger extends AbstractSampleLogger implements SampleSto
         throw Unimplemented.forMember("net/minecraft/util/debugchart/LocalSampleLogger.reset:()V");
     }
 
-    protected LocalSampleLogger() {
+    public LocalSampleLogger() {
     }
 }

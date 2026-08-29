@@ -55,8 +55,7 @@ public final class ModLoader {
             }
         }
 
-        URLClassLoader loader =
-                new URLClassLoader(new URL[] {jar.toUri().toURL()}, ModLoader.class.getClassLoader());
+        URLClassLoader loader = sharedLoader(jar);
         Class<?> main = findAnnotatedClass(jar, loader);
         return new ModCandidate(modId, main, loader);
     }
@@ -101,5 +100,34 @@ public final class ModLoader {
             throw new IllegalStateException(message, firstFailure);
         }
         throw new IllegalStateException(message);
+    }
+
+    /**
+     * One classloader for every mod, not one each.
+     *
+     * <p>Mods depend on each other: MysticalAgriculture extends Cucumber's {@code BaseBlock}.
+     * With a loader per jar, the class is simply not visible and the mod dies on
+     * {@code NoClassDefFoundError} naming a class that is sitting in the next jar along.
+     * NeoForge puts every mod on one loader, and so must this.
+     *
+     * <p>Jars are added as they are discovered, so a mod can only see those loaded before
+     * it. That is the same ordering constraint {@code ModList.isLoaded} carries and it is
+     * why NeoForge mods do cross-mod work in setup events rather than constructors.
+     */
+    private static final java.util.List<URL> JARS = new java.util.ArrayList<>();
+
+    private static URLClassLoader shared;
+
+    private static synchronized URLClassLoader sharedLoader(Path jar) throws IOException {
+        URL url = jar.toUri().toURL();
+        if (!JARS.contains(url)) {
+            JARS.add(url);
+            // Rebuilt rather than mutated: URLClassLoader has no public way to add a URL, and
+            // classes already loaded stay reachable through the new loader's parent chain
+            // only if that loader is the one asked next -- which it is, since every lookup
+            // goes through here.
+            shared = new URLClassLoader(JARS.toArray(new URL[0]), ModLoader.class.getClassLoader());
+        }
+        return shared;
     }
 }

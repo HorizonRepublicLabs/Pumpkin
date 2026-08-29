@@ -30,6 +30,6 @@ public final class BooleanProperty extends Property<Boolean> {
         throw Unimplemented.forMember("net/minecraft/world/level/block/state/properties/BooleanProperty.getInternalIndex:(Ljava/lang/Boolean;)I");
     }
 
-    protected BooleanProperty() {
+    public BooleanProperty() {
     }
 }

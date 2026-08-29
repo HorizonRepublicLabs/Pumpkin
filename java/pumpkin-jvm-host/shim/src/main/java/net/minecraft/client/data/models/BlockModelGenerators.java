@@ -43,7 +43,7 @@ public class BlockModelGenerators {
             throw Unimplemented.forMember("net/minecraft/client/data/models/BlockModelGenerators$BlockFamilyProvider.sign:(Lnet/minecraft/world/level/block/Block;)Lnet/minecraft/client/data/models/BlockModelGenerators$BlockFamilyProvider;");
         }
 
-        protected BlockFamilyProvider() {
+        public BlockFamilyProvider() {
         }
     }
 
@@ -66,10 +66,10 @@ public class BlockModelGenerators {
             throw Unimplemented.forMember("net/minecraft/client/data/models/BlockModelGenerators$WoodProvider.<init>:(Lnet/minecraft/client/data/models/model/TextureMapping;)V");
         }
 
-        protected WoodProvider() {
+        public WoodProvider() {
         }
     }
 
-    protected BlockModelGenerators() {
+    public BlockModelGenerators() {
     }
 }

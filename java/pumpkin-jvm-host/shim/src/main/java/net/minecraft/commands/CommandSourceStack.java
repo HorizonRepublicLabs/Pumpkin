@@ -133,6 +133,6 @@ public class CommandSourceStack implements SharedSuggestionProvider, ExecutionCo
         throw Unimplemented.forMember("net/minecraft/commands/CommandSourceStack.isSilent:()Z");
     }
 
-    protected CommandSourceStack() {
+    public CommandSourceStack() {
     }
 }

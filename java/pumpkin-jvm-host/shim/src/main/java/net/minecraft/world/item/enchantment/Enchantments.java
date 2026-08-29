@@ -9,7 +9,7 @@ public class Enchantments {
 
     public static final ResourceKey<Enchantment> UNBREAKING = null;
 
-    protected Enchantments() {
+    public Enchantments() {
     }
 
     static {

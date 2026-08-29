@@ -28,6 +28,6 @@ public class ServerboundPlayerAbilitiesPacket implements Packet<ServerGamePacket
         throw Unimplemented.forMember("net/minecraft/network/protocol/game/ServerboundPlayerAbilitiesPacket.handle:(Lnet/minecraft/network/protocol/game/ServerGamePacketListener;)V");
     }
 
-    protected ServerboundPlayerAbilitiesPacket() {
+    public ServerboundPlayerAbilitiesPacket() {
     }
 }

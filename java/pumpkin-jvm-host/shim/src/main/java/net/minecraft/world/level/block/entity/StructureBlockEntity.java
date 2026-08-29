@@ -47,6 +47,6 @@ public class StructureBlockEntity extends BlockEntity implements BoundingBoxRend
         UPDATE_DATA, SAVE_AREA, LOAD_AREA, SCAN_AREA
     }
 
-    protected StructureBlockEntity() {
+    public StructureBlockEntity() {
     }
 }

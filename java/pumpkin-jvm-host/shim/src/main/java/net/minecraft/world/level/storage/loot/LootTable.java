@@ -41,10 +41,10 @@ public class LootTable implements Validatable {
             throw Unimplemented.forMember("net/minecraft/world/level/storage/loot/LootTable$Builder.build:()Lnet/minecraft/world/level/storage/loot/LootTable;");
         }
 
-        protected Builder() {
+        public Builder() {
         }
     }
 
-    protected LootTable() {
+    public LootTable() {
     }
 }

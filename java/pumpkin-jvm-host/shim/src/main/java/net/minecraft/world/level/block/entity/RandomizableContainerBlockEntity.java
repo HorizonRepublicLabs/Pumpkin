@@ -76,6 +76,6 @@ public abstract class RandomizableContainerBlockEntity extends BaseContainerBloc
         throw Unimplemented.forMember("net/minecraft/world/level/block/entity/RandomizableContainerBlockEntity.removeComponentsFromTag:(Lnet/minecraft/world/level/storage/ValueOutput;)V");
     }
 
-    protected RandomizableContainerBlockEntity() {
+    public RandomizableContainerBlockEntity() {
     }
 }

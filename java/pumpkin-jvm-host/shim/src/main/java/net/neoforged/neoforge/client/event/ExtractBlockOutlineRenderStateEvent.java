@@ -39,6 +39,6 @@ public final class ExtractBlockOutlineRenderStateEvent extends Event implements 
         throw Unimplemented.forMember("net/neoforged/neoforge/client/event/ExtractBlockOutlineRenderStateEvent.getCamera:()Lnet/minecraft/client/Camera;");
     }
 
-    protected ExtractBlockOutlineRenderStateEvent() {
+    public ExtractBlockOutlineRenderStateEvent() {
     }
 }

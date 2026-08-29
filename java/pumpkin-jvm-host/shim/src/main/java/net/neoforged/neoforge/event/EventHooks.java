@@ -27,6 +27,6 @@ public class EventHooks {
         throw Unimplemented.forMember("net/neoforged/neoforge/event/EventHooks.fireBlockGrowFeature:(Lnet/minecraft/world/level/LevelAccessor;Lnet/minecraft/util/RandomSource;Lnet/minecraft/core/BlockPos;Lnet/minecraft/core/Holder;)Lnet/neoforged/neoforge/event/level/BlockGrowFeatureEvent;");
     }
 
-    protected EventHooks() {
+    public EventHooks() {
     }
 }

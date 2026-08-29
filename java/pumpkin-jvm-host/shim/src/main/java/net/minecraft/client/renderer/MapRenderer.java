@@ -10,6 +10,6 @@ public class MapRenderer {
         throw Unimplemented.forMember("net/minecraft/client/renderer/MapRenderer.<init>:(Lnet/minecraft/client/resources/model/sprite/AtlasManager;Lnet/minecraft/client/resources/MapTextureManager;)V");
     }
 
-    protected MapRenderer() {
+    public MapRenderer() {
     }
 }

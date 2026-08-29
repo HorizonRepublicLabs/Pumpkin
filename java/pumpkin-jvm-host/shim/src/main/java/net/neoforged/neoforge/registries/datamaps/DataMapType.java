@@ -30,10 +30,10 @@ public class DataMapType<R, T> {
             throw Unimplemented.forMember("net/neoforged/neoforge/registries/datamaps/DataMapType$Builder.build:()Lnet/neoforged/neoforge/registries/datamaps/DataMapType;");
         }
 
-        protected Builder() {
+        public Builder() {
         }
     }
 
-    protected DataMapType() {
+    public DataMapType() {
     }
 }

@@ -39,6 +39,6 @@ public class FeaturePlaceContext<FC extends FeatureConfiguration> {
         throw Unimplemented.forMember("net/minecraft/world/level/levelgen/feature/FeaturePlaceContext.config:()Lnet/minecraft/world/level/levelgen/feature/configurations/FeatureConfiguration;");
     }
 
-    protected FeaturePlaceContext() {
+    public FeaturePlaceContext() {
     }
 }

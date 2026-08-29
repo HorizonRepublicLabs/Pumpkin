@@ -78,6 +78,6 @@ public class Vec3 implements Position {
         throw Unimplemented.forMember("net/minecraft/world/phys/Vec3.z:()D");
     }
 
-    protected Vec3() {
+    public Vec3() {
     }
 }

@@ -21,6 +21,6 @@ public abstract class GameTestInstance {
 
     protected abstract MutableComponent typeDescription();
 
-    protected GameTestInstance() {
+    public GameTestInstance() {
     }
 }

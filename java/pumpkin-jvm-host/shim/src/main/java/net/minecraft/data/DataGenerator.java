@@ -31,7 +31,7 @@ public abstract class DataGenerator {
             throw Unimplemented.forMember("net/minecraft/data/DataGenerator$Cached.run:()V");
         }
 
-        protected Cached() {
+        public Cached() {
         }
     }
 
@@ -41,7 +41,7 @@ public abstract class DataGenerator {
             throw Unimplemented.forMember("net/minecraft/data/DataGenerator$PackGenerator.<init>:(ZLjava/lang/String;Lnet/minecraft/data/PackOutput;)V");
         }
 
-        protected PackGenerator() {
+        public PackGenerator() {
         }
     }
 
@@ -55,10 +55,10 @@ public abstract class DataGenerator {
             throw Unimplemented.forMember("net/minecraft/data/DataGenerator$Uncached.run:()V");
         }
 
-        protected Uncached() {
+        public Uncached() {
         }
     }
 
-    protected DataGenerator() {
+    public DataGenerator() {
     }
 }

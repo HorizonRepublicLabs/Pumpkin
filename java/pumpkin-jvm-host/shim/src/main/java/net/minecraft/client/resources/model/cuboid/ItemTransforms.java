@@ -21,7 +21,7 @@ public record ItemTransforms(ItemTransform thirdPersonLeftHand, ItemTransform th
             throw Unimplemented.forMember("net/minecraft/client/resources/model/cuboid/ItemTransforms$Deserializer.deserialize:(Lcom/google/gson/JsonElement;Ljava/lang/reflect/Type;Lcom/google/gson/JsonDeserializationContext;)Lnet/minecraft/client/resources/model/cuboid/ItemTransforms;");
         }
 
-        protected Deserializer() {
+        public Deserializer() {
         }
     }
 }

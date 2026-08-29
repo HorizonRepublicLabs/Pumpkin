@@ -53,6 +53,6 @@ public class ThreadedLevelLightEngine extends LevelLightEngine implements AutoCl
         PRE_UPDATE, POST_UPDATE
     }
 
-    protected ThreadedLevelLightEngine() {
+    public ThreadedLevelLightEngine() {
     }
 }

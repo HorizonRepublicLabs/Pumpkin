@@ -80,10 +80,10 @@ public class MultiPartModel implements BlockStateModel, DynamicBlockStateModel {
             throw Unimplemented.forMember("net/minecraft/client/renderer/block/dispatch/multipart/MultiPartModel$Unbaked.bake:(Lnet/minecraft/world/level/block/state/BlockState;Lnet/minecraft/client/resources/model/ModelBaker;)Lnet/minecraft/client/renderer/block/dispatch/BlockStateModel;");
         }
 
-        protected Unbaked() {
+        public Unbaked() {
         }
     }
 
-    protected MultiPartModel() {
+    public MultiPartModel() {
     }
 }

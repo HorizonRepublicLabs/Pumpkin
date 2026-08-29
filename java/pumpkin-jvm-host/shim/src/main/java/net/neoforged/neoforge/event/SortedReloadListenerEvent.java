@@ -22,6 +22,6 @@ public abstract class SortedReloadListenerEvent extends Event {
         Identifier apply(PreparableReloadListener t);
     }
 
-    protected SortedReloadListenerEvent() {
+    public SortedReloadListenerEvent() {
     }
 }

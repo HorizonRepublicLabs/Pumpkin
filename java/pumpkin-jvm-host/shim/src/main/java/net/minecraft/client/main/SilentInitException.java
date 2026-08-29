@@ -12,6 +12,6 @@ public class SilentInitException extends RuntimeException {
         throw Unimplemented.forMember("net/minecraft/client/main/SilentInitException.<init>:(Ljava/lang/String;Ljava/lang/Throwable;)V");
     }
 
-    protected SilentInitException() {
+    public SilentInitException() {
     }
 }

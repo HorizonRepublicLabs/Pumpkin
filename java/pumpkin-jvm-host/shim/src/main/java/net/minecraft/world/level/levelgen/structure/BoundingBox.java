@@ -25,6 +25,6 @@ public class BoundingBox {
         throw Unimplemented.forMember("net/minecraft/world/level/levelgen/structure/BoundingBox.hashCode:()I");
     }
 
-    protected BoundingBox() {
+    public BoundingBox() {
     }
 }

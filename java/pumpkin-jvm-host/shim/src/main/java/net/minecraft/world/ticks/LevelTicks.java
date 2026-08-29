@@ -31,6 +31,6 @@ public class LevelTicks<T> implements LevelTickAccess<T> {
         void accept(long pos, LevelChunkTicks<T> container);
     }
 
-    protected LevelTicks() {
+    public LevelTicks() {
     }
 }

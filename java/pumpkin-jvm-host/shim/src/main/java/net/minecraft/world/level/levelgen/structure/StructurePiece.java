@@ -45,10 +45,10 @@ public abstract class StructurePiece {
 
         public abstract void next(RandomSource random, int worldX, int worldY, int worldZ, boolean isEdge);
 
-        protected BlockSelector() {
+        public BlockSelector() {
         }
     }
 
-    protected StructurePiece() {
+    public StructurePiece() {
     }
 }

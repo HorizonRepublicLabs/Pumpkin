@@ -24,6 +24,6 @@ public final class TextColor {
         throw Unimplemented.forMember("net/minecraft/network/chat/TextColor.toString:()Ljava/lang/String;");
     }
 
-    protected TextColor() {
+    public TextColor() {
     }
 }

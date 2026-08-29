@@ -75,6 +75,6 @@ public abstract class Screen extends AbstractContainerEventHandler implements Re
     public record NarratableSearchResult(NarratableEntry entry, int index, NarratableEntry.NarrationPriority priority) {
     }
 
-    protected Screen() {
+    public Screen() {
     }
 }

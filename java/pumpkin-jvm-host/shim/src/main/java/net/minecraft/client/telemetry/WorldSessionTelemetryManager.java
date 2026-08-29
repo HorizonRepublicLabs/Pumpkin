@@ -14,6 +14,6 @@ public class WorldSessionTelemetryManager {
         throw Unimplemented.forMember("net/minecraft/client/telemetry/WorldSessionTelemetryManager.tick:()V");
     }
 
-    protected WorldSessionTelemetryManager() {
+    public WorldSessionTelemetryManager() {
     }
 }

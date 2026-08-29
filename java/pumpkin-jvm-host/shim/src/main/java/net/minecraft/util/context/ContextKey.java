@@ -17,6 +17,6 @@ public class ContextKey<T> {
         throw Unimplemented.forMember("net/minecraft/util/context/ContextKey.toString:()Ljava/lang/String;");
     }
 
-    protected ContextKey() {
+    public ContextKey() {
     }
 }

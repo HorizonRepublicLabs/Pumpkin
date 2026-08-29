@@ -32,6 +32,6 @@ public class ServerboundBlockEntityTagQueryPacket implements Packet<ServerGamePa
         throw Unimplemented.forMember("net/minecraft/network/protocol/game/ServerboundBlockEntityTagQueryPacket.getPos:()Lnet/minecraft/core/BlockPos;");
     }
 
-    protected ServerboundBlockEntityTagQueryPacket() {
+    public ServerboundBlockEntityTagQueryPacket() {
     }
 }

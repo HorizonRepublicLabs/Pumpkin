@@ -27,7 +27,7 @@ public class ExtraCodecs {
             throw Unimplemented.forMember("net/minecraft/util/ExtraCodecs$LateBoundIdMapper.getValue:(Ljava/lang/Object;)Ljava/lang/Object;");
         }
 
-        protected LateBoundIdMapper() {
+        public LateBoundIdMapper() {
         }
     }
 
@@ -57,6 +57,6 @@ public class ExtraCodecs {
         }
     }
 
-    protected ExtraCodecs() {
+    public ExtraCodecs() {
     }
 }

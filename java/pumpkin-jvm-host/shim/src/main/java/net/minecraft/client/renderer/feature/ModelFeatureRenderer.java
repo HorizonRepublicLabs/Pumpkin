@@ -33,6 +33,6 @@ public class ModelFeatureRenderer extends RenderTypeFeatureRenderer<ModelFeature
         }
     }
 
-    protected ModelFeatureRenderer() {
+    public ModelFeatureRenderer() {
     }
 }

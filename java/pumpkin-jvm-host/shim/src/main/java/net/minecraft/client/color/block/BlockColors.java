@@ -10,6 +10,6 @@ public class BlockColors {
         throw Unimplemented.forMember("net/minecraft/client/color/block/BlockColors.register:(Ljava/util/List;[Lnet/minecraft/world/level/block/Block;)V");
     }
 
-    protected BlockColors() {
+    public BlockColors() {
     }
 }

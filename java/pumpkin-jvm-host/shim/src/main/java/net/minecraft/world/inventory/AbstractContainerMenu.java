@@ -50,6 +50,6 @@ public abstract class AbstractContainerMenu {
         throw Unimplemented.forMember("net/minecraft/world/inventory/AbstractContainerMenu.moveItemStackTo:(Lnet/minecraft/world/item/ItemStack;IIZ)Z");
     }
 
-    protected AbstractContainerMenu() {
+    public AbstractContainerMenu() {
     }
 }

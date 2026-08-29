@@ -10,6 +10,6 @@ public class LivingEntityRenderState extends EntityRenderState {
 
     public float scale;
 
-    protected LivingEntityRenderState() {
+    public LivingEntityRenderState() {
     }
 }

@@ -167,6 +167,6 @@ public class PrimaryLevelData implements ServerLevelData, WorldData {
         throw Unimplemented.forMember("net/minecraft/world/level/storage/PrimaryLevelData.setDayTimePerTick:(F)V");
     }
 
-    protected PrimaryLevelData() {
+    public PrimaryLevelData() {
     }
 }

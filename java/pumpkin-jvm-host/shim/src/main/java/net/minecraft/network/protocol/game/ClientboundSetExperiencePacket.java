@@ -27,6 +27,6 @@ public class ClientboundSetExperiencePacket implements Packet<ClientGamePacketLi
         throw Unimplemented.forMember("net/minecraft/network/protocol/game/ClientboundSetExperiencePacket.handle:(Lnet/minecraft/network/protocol/game/ClientGamePacketListener;)V");
     }
 
-    protected ClientboundSetExperiencePacket() {
+    public ClientboundSetExperiencePacket() {
     }
 }

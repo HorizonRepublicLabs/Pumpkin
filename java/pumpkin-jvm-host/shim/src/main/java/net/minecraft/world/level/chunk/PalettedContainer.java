@@ -109,6 +109,6 @@ public class PalettedContainer<T> implements PaletteResize<T>, PalettedContainer
         }
     }
 
-    protected PalettedContainer() {
+    public PalettedContainer() {
     }
 }

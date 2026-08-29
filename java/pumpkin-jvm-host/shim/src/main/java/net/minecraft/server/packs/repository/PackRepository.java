@@ -8,6 +8,6 @@ public class PackRepository {
         throw Unimplemented.forMember("net/minecraft/server/packs/repository/PackRepository.<init>:([Lnet/minecraft/server/packs/repository/RepositorySource;)V");
     }
 
-    protected PackRepository() {
+    public PackRepository() {
     }
 }

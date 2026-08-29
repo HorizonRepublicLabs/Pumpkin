@@ -37,6 +37,6 @@ public class ClipContext {
         VoxelShape get(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context);
     }
 
-    protected ClipContext() {
+    public ClipContext() {
     }
 }

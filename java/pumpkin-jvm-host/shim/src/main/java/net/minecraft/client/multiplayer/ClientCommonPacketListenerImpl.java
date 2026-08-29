@@ -174,6 +174,6 @@ public abstract class ClientCommonPacketListenerImpl implements ClientCommonPack
         throw Unimplemented.forMember("net/minecraft/client/multiplayer/ClientCommonPacketListenerImpl.getPacketProcessor:()Lnet/minecraft/network/PacketProcessor;");
     }
 
-    protected ClientCommonPacketListenerImpl() {
+    public ClientCommonPacketListenerImpl() {
     }
 }

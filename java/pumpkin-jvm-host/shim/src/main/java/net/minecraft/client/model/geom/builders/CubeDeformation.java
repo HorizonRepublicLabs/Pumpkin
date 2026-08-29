@@ -12,6 +12,6 @@ public class CubeDeformation {
         throw Unimplemented.forMember("net/minecraft/client/model/geom/builders/CubeDeformation.<init>:(F)V");
     }
 
-    protected CubeDeformation() {
+    public CubeDeformation() {
     }
 }

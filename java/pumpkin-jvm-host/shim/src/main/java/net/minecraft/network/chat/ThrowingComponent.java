@@ -16,6 +16,6 @@ public class ThrowingComponent extends Exception {
         throw Unimplemented.forMember("net/minecraft/network/chat/ThrowingComponent.getComponent:()Lnet/minecraft/network/chat/Component;");
     }
 
-    protected ThrowingComponent() {
+    public ThrowingComponent() {
     }
 }

@@ -29,6 +29,6 @@ public class ClientboundSetDisplayObjectivePacket implements Packet<ClientGamePa
         throw Unimplemented.forMember("net/minecraft/network/protocol/game/ClientboundSetDisplayObjectivePacket.handle:(Lnet/minecraft/network/protocol/game/ClientGamePacketListener;)V");
     }
 
-    protected ClientboundSetDisplayObjectivePacket() {
+    public ClientboundSetDisplayObjectivePacket() {
     }
 }

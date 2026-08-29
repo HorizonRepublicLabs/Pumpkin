@@ -12,6 +12,6 @@ public class TracyGpuProfiler {
         throw Unimplemented.forMember("com/mojang/blaze3d/systems/TracyGpuProfiler.close:()V");
     }
 
-    protected TracyGpuProfiler() {
+    public TracyGpuProfiler() {
     }
 }

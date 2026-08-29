@@ -39,6 +39,6 @@ public class ConfirmScreen extends Screen {
         throw Unimplemented.forMember("net/minecraft/client/gui/screens/ConfirmScreen.keyPressed:(Lnet/minecraft/client/input/KeyEvent;)Z");
     }
 
-    protected ConfirmScreen() {
+    public ConfirmScreen() {
     }
 }

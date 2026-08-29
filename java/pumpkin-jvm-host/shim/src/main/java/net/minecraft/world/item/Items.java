@@ -44,7 +44,7 @@ public class Items {
 
     public static final Item CROSSBOW = null;
 
-    protected Items() {
+    public Items() {
     }
 
     static {

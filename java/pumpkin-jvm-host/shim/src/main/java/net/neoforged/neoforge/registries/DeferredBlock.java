@@ -16,6 +16,6 @@ public class DeferredBlock<T extends Block> extends DeferredHolder<Block, T> imp
         throw Unimplemented.forMember("net/neoforged/neoforge/registries/DeferredBlock.asItem:()Lnet/minecraft/world/item/Item;");
     }
 
-    protected DeferredBlock() {
+    public DeferredBlock() {
     }
 }

@@ -45,6 +45,6 @@ public abstract class MinecartBehavior {
 
     public abstract double getSlowdownFactor();
 
-    protected MinecartBehavior() {
+    public MinecartBehavior() {
     }
 }

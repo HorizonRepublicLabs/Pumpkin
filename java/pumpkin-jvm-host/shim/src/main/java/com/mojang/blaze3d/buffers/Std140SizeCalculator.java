@@ -8,6 +8,6 @@ public class Std140SizeCalculator {
         throw Unimplemented.forMember("com/mojang/blaze3d/buffers/Std140SizeCalculator.get:()I");
     }
 
-    protected Std140SizeCalculator() {
+    public Std140SizeCalculator() {
     }
 }

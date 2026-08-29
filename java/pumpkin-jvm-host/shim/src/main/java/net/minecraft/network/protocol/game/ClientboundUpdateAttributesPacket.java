@@ -31,6 +31,6 @@ public class ClientboundUpdateAttributesPacket implements Packet<ClientGamePacke
     public record AttributeSnapshot(Holder<Attribute> attribute, double base, Collection<AttributeModifier> modifiers) {
     }
 
-    protected ClientboundUpdateAttributesPacket() {
+    public ClientboundUpdateAttributesPacket() {
     }
 }

@@ -48,6 +48,6 @@ public class NewMinecartBehavior extends MinecartBehavior {
         }
     }
 
-    protected NewMinecartBehavior() {
+    public NewMinecartBehavior() {
     }
 }

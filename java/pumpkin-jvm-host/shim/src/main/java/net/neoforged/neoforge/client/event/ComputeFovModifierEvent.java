@@ -22,6 +22,6 @@ public class ComputeFovModifierEvent extends Event {
         throw Unimplemented.forMember("net/neoforged/neoforge/client/event/ComputeFovModifierEvent.setNewFovModifier:(F)V");
     }
 
-    protected ComputeFovModifierEvent() {
+    public ComputeFovModifierEvent() {
     }
 }

@@ -33,6 +33,6 @@ public class ClientboundEntityEventPacket implements Packet<ClientGamePacketList
         throw Unimplemented.forMember("net/minecraft/network/protocol/game/ClientboundEntityEventPacket.getEntity:(Lnet/minecraft/world/level/Level;)Lnet/minecraft/world/entity/Entity;");
     }
 
-    protected ClientboundEntityEventPacket() {
+    public ClientboundEntityEventPacket() {
     }
 }

@@ -14,6 +14,6 @@ public class BiomeManager {
         Holder<Biome> getNoiseBiome(final int quartX, final int quartY, final int quartZ);
     }
 
-    protected BiomeManager() {
+    public BiomeManager() {
     }
 }

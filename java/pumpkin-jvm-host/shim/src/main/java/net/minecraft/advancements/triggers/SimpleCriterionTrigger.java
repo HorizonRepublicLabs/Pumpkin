@@ -23,6 +23,6 @@ public abstract class SimpleCriterionTrigger<T extends SimpleCriterionTrigger.Si
         Optional<ContextAwarePredicate> player();
     }
 
-    protected SimpleCriterionTrigger() {
+    public SimpleCriterionTrigger() {
     }
 }

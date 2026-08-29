@@ -17,6 +17,6 @@ public class RenderPassDescriptor {
     public record Attachment<T>(GpuTextureView textureView, T clearValue) {
     }
 
-    protected RenderPassDescriptor() {
+    public RenderPassDescriptor() {
     }
 }

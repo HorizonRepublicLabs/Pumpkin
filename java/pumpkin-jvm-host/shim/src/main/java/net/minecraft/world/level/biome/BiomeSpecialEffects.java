@@ -13,7 +13,7 @@ public record BiomeSpecialEffects(int waterColor, Optional<Integer> foliageColor
             throw Unimplemented.forMember("net/minecraft/world/level/biome/BiomeSpecialEffects$Builder.build:()Lnet/minecraft/world/level/biome/BiomeSpecialEffects;");
         }
 
-        protected Builder() {
+        public Builder() {
         }
     }
 

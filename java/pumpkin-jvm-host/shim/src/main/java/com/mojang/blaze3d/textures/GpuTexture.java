@@ -30,6 +30,6 @@ public abstract class GpuTexture implements AutoCloseable {
     public @interface Usage {
     }
 
-    protected GpuTexture() {
+    public GpuTexture() {
     }
 }

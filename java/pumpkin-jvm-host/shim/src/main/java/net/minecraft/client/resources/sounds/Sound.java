@@ -46,6 +46,6 @@ public class Sound implements Weighted<Sound> {
         FILE, SOUND_EVENT
     }
 
-    protected Sound() {
+    public Sound() {
     }
 }

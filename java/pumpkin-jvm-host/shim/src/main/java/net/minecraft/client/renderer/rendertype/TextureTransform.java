@@ -20,10 +20,10 @@ public class TextureTransform {
             throw Unimplemented.forMember("net/minecraft/client/renderer/rendertype/TextureTransform$OffsetTextureTransform.<init>:(FF)V");
         }
 
-        protected OffsetTextureTransform() {
+        public OffsetTextureTransform() {
         }
     }
 
-    protected TextureTransform() {
+    public TextureTransform() {
     }
 }

@@ -31,6 +31,6 @@ public class PlacementContext extends WorldGenerationContext {
         throw Unimplemented.forMember("net/minecraft/world/level/levelgen/placement/PlacementContext.getLevel:()Lnet/minecraft/world/level/WorldGenLevel;");
     }
 
-    protected PlacementContext() {
+    public PlacementContext() {
     }
 }

@@ -26,6 +26,6 @@ public class SmeltingRecipe extends AbstractCookingRecipe {
         throw Unimplemented.forMember("net/minecraft/world/item/crafting/SmeltingRecipe.recipeBookCategory:()Lnet/minecraft/world/item/crafting/RecipeBookCategory;");
     }
 
-    protected SmeltingRecipe() {
+    public SmeltingRecipe() {
     }
 }

@@ -192,6 +192,6 @@ public class Parrot extends ShoulderRidingEntity {
         }
     }
 
-    protected Parrot() {
+    public Parrot() {
     }
 }

@@ -31,6 +31,6 @@ public class ServerboundAcceptTeleportationPacket implements Packet<ServerGamePa
         throw Unimplemented.forMember("net/minecraft/network/protocol/game/ServerboundAcceptTeleportationPacket.getId:()I");
     }
 
-    protected ServerboundAcceptTeleportationPacket() {
+    public ServerboundAcceptTeleportationPacket() {
     }
 }

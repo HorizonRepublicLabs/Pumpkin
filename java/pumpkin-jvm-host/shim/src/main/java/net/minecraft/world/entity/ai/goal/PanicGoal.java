@@ -36,6 +36,6 @@ public class PanicGoal extends Goal {
         throw Unimplemented.forMember("net/minecraft/world/entity/ai/goal/PanicGoal.canContinueToUse:()Z");
     }
 
-    protected PanicGoal() {
+    public PanicGoal() {
     }
 }

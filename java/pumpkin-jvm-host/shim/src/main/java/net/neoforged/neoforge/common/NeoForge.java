@@ -7,7 +7,7 @@ public class NeoForge {
 
     public static final IEventBus EVENT_BUS = null;
 
-    protected NeoForge() {
+    public NeoForge() {
     }
 
     static {

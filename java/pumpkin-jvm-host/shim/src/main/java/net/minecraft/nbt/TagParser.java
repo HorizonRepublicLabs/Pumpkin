@@ -19,6 +19,6 @@ public class TagParser<T> {
         throw Unimplemented.forMember("net/minecraft/nbt/TagParser.parseCompoundFully:(Ljava/lang/String;)Lnet/minecraft/nbt/CompoundTag;");
     }
 
-    protected TagParser() {
+    public TagParser() {
     }
 }

@@ -25,7 +25,7 @@ public class Blocks {
         throw Unimplemented.forMember("net/minecraft/world/level/block/Blocks.register:(Lnet/minecraft/resources/ResourceKey;Lnet/minecraft/world/level/block/state/BlockBehaviour$Properties;)Lnet/minecraft/world/level/block/Block;");
     }
 
-    protected Blocks() {
+    public Blocks() {
     }
 
     static {

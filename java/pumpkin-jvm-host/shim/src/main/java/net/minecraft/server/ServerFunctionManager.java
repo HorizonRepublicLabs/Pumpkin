@@ -20,6 +20,6 @@ public class ServerFunctionManager {
         throw Unimplemented.forMember("net/minecraft/server/ServerFunctionManager.get:(Lnet/minecraft/resources/Identifier;)Ljava/util/Optional;");
     }
 
-    protected ServerFunctionManager() {
+    public ServerFunctionManager() {
     }
 }

@@ -358,6 +358,6 @@ public class ServerLevel extends Level implements WorldGenLevel, ServerEntityGet
         throw Unimplemented.forMember("net/minecraft/server/level/ServerLevel.invalidateCapabilities:(Lnet/minecraft/world/level/ChunkPos;)V");
     }
 
-    protected ServerLevel() {
+    public ServerLevel() {
     }
 }

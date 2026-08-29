@@ -16,6 +16,6 @@ public class LayerDefinition {
         throw Unimplemented.forMember("net/minecraft/client/model/geom/builders/LayerDefinition.create:(Lnet/minecraft/client/model/geom/builders/MeshDefinition;II)Lnet/minecraft/client/model/geom/builders/LayerDefinition;");
     }
 
-    protected LayerDefinition() {
+    public LayerDefinition() {
     }
 }

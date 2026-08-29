@@ -26,7 +26,7 @@ public class Climate {
             throw Unimplemented.forMember("net/minecraft/world/level/biome/Climate$ParameterList.<init>:(Ljava/util/List;)V");
         }
 
-        protected ParameterList() {
+        public ParameterList() {
         }
     }
 
@@ -118,6 +118,6 @@ public class Climate {
     public record TargetPoint(long temperature, long humidity, long continentalness, long erosion, long depth, long weirdness) {
     }
 
-    protected Climate() {
+    public Climate() {
     }
 }

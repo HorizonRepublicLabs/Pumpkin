@@ -23,6 +23,6 @@ public class MenuScreens {
         U create(T menu, Inventory inventory, final Component title);
     }
 
-    protected MenuScreens() {
+    public MenuScreens() {
     }
 }

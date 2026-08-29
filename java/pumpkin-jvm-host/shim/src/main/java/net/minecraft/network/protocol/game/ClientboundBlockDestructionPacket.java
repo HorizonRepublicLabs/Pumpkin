@@ -36,6 +36,6 @@ public class ClientboundBlockDestructionPacket implements Packet<ClientGamePacke
         throw Unimplemented.forMember("net/minecraft/network/protocol/game/ClientboundBlockDestructionPacket.getPos:()Lnet/minecraft/core/BlockPos;");
     }
 
-    protected ClientboundBlockDestructionPacket() {
+    public ClientboundBlockDestructionPacket() {
     }
 }

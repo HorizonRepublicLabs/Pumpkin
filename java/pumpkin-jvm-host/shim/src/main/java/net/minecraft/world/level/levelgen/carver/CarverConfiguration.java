@@ -14,6 +14,6 @@ public class CarverConfiguration extends ProbabilityFeatureConfiguration {
         throw Unimplemented.forMember("net/minecraft/world/level/levelgen/carver/CarverConfiguration.<init>:(FLnet/minecraft/world/level/levelgen/heightproviders/HeightProvider;Lnet/minecraft/util/valueproviders/FloatProvider;Lnet/minecraft/world/level/levelgen/VerticalAnchor;Lnet/minecraft/world/level/levelgen/carver/CarverDebugSettings;Lnet/minecraft/core/HolderSet;)V");
     }
 
-    protected CarverConfiguration() {
+    public CarverConfiguration() {
     }
 }

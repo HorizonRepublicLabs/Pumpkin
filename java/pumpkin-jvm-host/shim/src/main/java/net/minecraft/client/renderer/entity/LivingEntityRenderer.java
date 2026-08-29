@@ -25,6 +25,6 @@ public abstract class LivingEntityRenderer<T extends LivingEntity, S extends Liv
 
     public abstract Identifier getTextureLocation(final S state);
 
-    protected LivingEntityRenderer() {
+    public LivingEntityRenderer() {
     }
 }

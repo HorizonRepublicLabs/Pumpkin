@@ -21,6 +21,6 @@ public class PacketProcessor implements AutoCloseable {
         }
     }
 
-    protected PacketProcessor() {
+    public PacketProcessor() {
     }
 }

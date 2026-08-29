@@ -13,6 +13,6 @@ public class FunctionInstantiationException extends Exception {
         throw Unimplemented.forMember("net/minecraft/commands/FunctionInstantiationException.messageComponent:()Lnet/minecraft/network/chat/Component;");
     }
 
-    protected FunctionInstantiationException() {
+    public FunctionInstantiationException() {
     }
 }

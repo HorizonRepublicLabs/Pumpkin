@@ -28,6 +28,6 @@ public class ClientboundSetBorderWarningDistancePacket implements Packet<ClientG
         throw Unimplemented.forMember("net/minecraft/network/protocol/game/ClientboundSetBorderWarningDistancePacket.handle:(Lnet/minecraft/network/protocol/game/ClientGamePacketListener;)V");
     }
 
-    protected ClientboundSetBorderWarningDistancePacket() {
+    public ClientboundSetBorderWarningDistancePacket() {
     }
 }

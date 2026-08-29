@@ -54,6 +54,6 @@ public class PathNavigationRegion implements CollisionGetter {
         throw Unimplemented.forMember("net/minecraft/world/level/PathNavigationRegion.getHeight:()I");
     }
 
-    protected PathNavigationRegion() {
+    public PathNavigationRegion() {
     }
 }

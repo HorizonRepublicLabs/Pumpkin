@@ -22,6 +22,6 @@ public abstract class AbstractSampleLogger implements SampleLogger {
 
     protected abstract void useSample();
 
-    protected AbstractSampleLogger() {
+    public AbstractSampleLogger() {
     }
 }

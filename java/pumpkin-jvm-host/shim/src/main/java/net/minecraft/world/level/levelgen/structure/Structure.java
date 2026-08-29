@@ -65,11 +65,11 @@ public abstract class Structure {
                 throw Unimplemented.forMember("net/minecraft/world/level/levelgen/structure/Structure$StructureSettings$Builder.build:()Lnet/minecraft/world/level/levelgen/structure/Structure$StructureSettings;");
             }
 
-            protected Builder() {
+            public Builder() {
             }
         }
     }
 
-    protected Structure() {
+    public Structure() {
     }
 }

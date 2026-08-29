@@ -26,7 +26,7 @@ public abstract class ClientPlayerNetworkEvent extends Event {
             throw Unimplemented.forMember("net/neoforged/neoforge/client/event/ClientPlayerNetworkEvent$LoggingIn.<init>:(Lnet/minecraft/client/multiplayer/MultiPlayerGameMode;Lnet/minecraft/client/player/LocalPlayer;Lnet/minecraft/network/Connection;)V");
         }
 
-        protected LoggingIn() {
+        public LoggingIn() {
         }
     }
 
@@ -48,7 +48,7 @@ public abstract class ClientPlayerNetworkEvent extends Event {
             throw Unimplemented.forMember("net/neoforged/neoforge/client/event/ClientPlayerNetworkEvent$LoggingOut.getConnection:()Lnet/minecraft/network/Connection;");
         }
 
-        protected LoggingOut() {
+        public LoggingOut() {
         }
     }
 
@@ -62,10 +62,10 @@ public abstract class ClientPlayerNetworkEvent extends Event {
             throw Unimplemented.forMember("net/neoforged/neoforge/client/event/ClientPlayerNetworkEvent$Clone.getPlayer:()Lnet/minecraft/client/player/LocalPlayer;");
         }
 
-        protected Clone() {
+        public Clone() {
         }
     }
 
-    protected ClientPlayerNetworkEvent() {
+    public ClientPlayerNetworkEvent() {
     }
 }

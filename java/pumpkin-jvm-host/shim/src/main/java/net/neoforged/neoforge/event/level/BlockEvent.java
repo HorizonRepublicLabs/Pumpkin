@@ -37,7 +37,7 @@ public abstract class BlockEvent extends Event {
             throw Unimplemented.forMember("net/neoforged/neoforge/event/level/BlockEvent$EntityPlaceEvent.<init>:(Lnet/neoforged/neoforge/common/util/BlockSnapshot;Lnet/minecraft/world/level/block/state/BlockState;Lnet/minecraft/world/entity/Entity;)V");
         }
 
-        protected EntityPlaceEvent() {
+        public EntityPlaceEvent() {
         }
     }
 
@@ -47,7 +47,7 @@ public abstract class BlockEvent extends Event {
             throw Unimplemented.forMember("net/neoforged/neoforge/event/level/BlockEvent$EntityMultiPlaceEvent.<init>:(Ljava/util/List;Lnet/minecraft/world/level/block/state/BlockState;Lnet/minecraft/world/entity/Entity;)V");
         }
 
-        protected EntityMultiPlaceEvent() {
+        public EntityMultiPlaceEvent() {
         }
     }
 
@@ -57,7 +57,7 @@ public abstract class BlockEvent extends Event {
             throw Unimplemented.forMember("net/neoforged/neoforge/event/level/BlockEvent$NeighborNotifyEvent.<init>:(Lnet/minecraft/world/level/Level;Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/state/BlockState;Ljava/util/EnumSet;Z)V");
         }
 
-        protected NeighborNotifyEvent() {
+        public NeighborNotifyEvent() {
         }
     }
 
@@ -67,7 +67,7 @@ public abstract class BlockEvent extends Event {
             throw Unimplemented.forMember("net/neoforged/neoforge/event/level/BlockEvent$FluidPlaceBlockEvent.<init>:(Lnet/minecraft/world/level/LevelAccessor;Lnet/minecraft/core/BlockPos;Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/state/BlockState;)V");
         }
 
-        protected FluidPlaceBlockEvent() {
+        public FluidPlaceBlockEvent() {
         }
     }
 
@@ -77,7 +77,7 @@ public abstract class BlockEvent extends Event {
             throw Unimplemented.forMember("net/neoforged/neoforge/event/level/BlockEvent$FarmlandTrampleEvent.<init>:(Lnet/minecraft/world/level/Level;Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/state/BlockState;DLnet/minecraft/world/entity/Entity;)V");
         }
 
-        protected FarmlandTrampleEvent() {
+        public FarmlandTrampleEvent() {
         }
     }
 
@@ -87,7 +87,7 @@ public abstract class BlockEvent extends Event {
             throw Unimplemented.forMember("net/neoforged/neoforge/event/level/BlockEvent$PortalSpawnEvent.<init>:(Lnet/minecraft/world/level/LevelAccessor;Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/state/BlockState;Lnet/minecraft/world/level/portal/PortalShape;)V");
         }
 
-        protected PortalSpawnEvent() {
+        public PortalSpawnEvent() {
         }
     }
 
@@ -101,10 +101,10 @@ public abstract class BlockEvent extends Event {
             throw Unimplemented.forMember("net/neoforged/neoforge/event/level/BlockEvent$BlockToolModificationEvent.getPlayer:()Lnet/minecraft/world/entity/player/Player;");
         }
 
-        protected BlockToolModificationEvent() {
+        public BlockToolModificationEvent() {
         }
     }
 
-    protected BlockEvent() {
+    public BlockEvent() {
     }
 }

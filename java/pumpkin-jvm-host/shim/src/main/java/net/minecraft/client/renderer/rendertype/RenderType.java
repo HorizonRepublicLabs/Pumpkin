@@ -21,6 +21,6 @@ public class RenderType {
         throw Unimplemented.forMember("net/minecraft/client/renderer/rendertype/RenderType.format:()Lcom/mojang/blaze3d/vertex/VertexFormat;");
     }
 
-    protected RenderType() {
+    public RenderType() {
     }
 }

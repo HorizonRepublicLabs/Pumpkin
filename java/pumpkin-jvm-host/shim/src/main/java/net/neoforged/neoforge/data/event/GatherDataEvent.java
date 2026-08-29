@@ -38,7 +38,7 @@ public abstract class GatherDataEvent extends Event implements IModBusEvent {
             throw Unimplemented.forMember("net/neoforged/neoforge/data/event/GatherDataEvent$Server.<init>:(Lnet/neoforged/fml/ModContainer;Lnet/minecraft/data/DataGenerator;Lnet/neoforged/neoforge/data/event/GatherDataEvent$DataGeneratorConfig;)V");
         }
 
-        protected Server() {
+        public Server() {
         }
     }
 
@@ -48,7 +48,7 @@ public abstract class GatherDataEvent extends Event implements IModBusEvent {
             throw Unimplemented.forMember("net/neoforged/neoforge/data/event/GatherDataEvent$Client.<init>:(Lnet/neoforged/fml/ModContainer;Lnet/minecraft/data/DataGenerator;Lnet/neoforged/neoforge/data/event/GatherDataEvent$DataGeneratorConfig;)V");
         }
 
-        protected Client() {
+        public Client() {
         }
     }
 
@@ -58,7 +58,7 @@ public abstract class GatherDataEvent extends Event implements IModBusEvent {
             throw Unimplemented.forMember("net/neoforged/neoforge/data/event/GatherDataEvent$DataGeneratorConfig.<init>:(Ljava/util/Set;Ljava/nio/file/Path;Ljava/util/Collection;Ljava/util/concurrent/CompletableFuture;ZZZZLnet/minecraft/data/DataGenerator;Ljava/util/Collection;Ljava/util/function/Consumer;)V");
         }
 
-        protected DataGeneratorConfig() {
+        public DataGeneratorConfig() {
         }
     }
 
@@ -86,6 +86,6 @@ public abstract class GatherDataEvent extends Event implements IModBusEvent {
         TagsProvider<Item> create(PackOutput output, CompletableFuture<HolderLookup.Provider> lookupProvider, CompletableFuture<TagsProvider.TagLookup<Block>> contentsGetter);
     }
 
-    protected GatherDataEvent() {
+    public GatherDataEvent() {
     }
 }

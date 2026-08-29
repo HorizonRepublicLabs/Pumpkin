@@ -53,6 +53,6 @@ public class DamageSource {
         throw Unimplemented.forMember("net/minecraft/world/damagesource/DamageSource.typeHolder:()Lnet/minecraft/core/Holder;");
     }
 
-    protected DamageSource() {
+    public DamageSource() {
     }
 }

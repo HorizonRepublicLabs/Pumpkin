@@ -18,6 +18,6 @@ public class RegisterClientTooltipComponentFactoriesEvent extends Event implemen
         throw Unimplemented.forMember("net/neoforged/neoforge/client/event/RegisterClientTooltipComponentFactoriesEvent.register:(Ljava/lang/Class;Ljava/util/function/Function;)V");
     }
 
-    protected RegisterClientTooltipComponentFactoriesEvent() {
+    public RegisterClientTooltipComponentFactoriesEvent() {
     }
 }

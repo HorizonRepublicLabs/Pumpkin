@@ -27,6 +27,6 @@ public class IpBanListEntry extends BanListEntry<String> {
         throw Unimplemented.forMember("net/minecraft/server/players/IpBanListEntry.serialize:(Lcom/google/gson/JsonObject;)V");
     }
 
-    protected IpBanListEntry() {
+    public IpBanListEntry() {
     }
 }

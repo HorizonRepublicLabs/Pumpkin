@@ -35,6 +35,6 @@ public class BindGroupLayout {
         }
     }
 
-    protected BindGroupLayout() {
+    public BindGroupLayout() {
     }
 }

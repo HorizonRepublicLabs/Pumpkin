@@ -21,6 +21,6 @@ public abstract class ContainerOpenersCounter {
         throw Unimplemented.forMember("net/minecraft/world/level/block/entity/ContainerOpenersCounter.hasContainerOpen:(Lnet/minecraft/world/entity/Entity;Lnet/minecraft/core/BlockPos;)Z");
     }
 
-    protected ContainerOpenersCounter() {
+    public ContainerOpenersCounter() {
     }
 }

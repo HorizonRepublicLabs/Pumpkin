@@ -18,6 +18,6 @@ public class PlayerInfo {
         throw Unimplemented.forMember("net/minecraft/client/multiplayer/PlayerInfo.getSkin:()Lnet/minecraft/world/entity/player/PlayerSkin;");
     }
 
-    protected PlayerInfo() {
+    public PlayerInfo() {
     }
 }

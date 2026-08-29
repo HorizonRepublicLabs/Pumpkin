@@ -19,6 +19,6 @@ public abstract class Goal {
         MOVE, LOOK, JUMP, TARGET
     }
 
-    protected Goal() {
+    public Goal() {
     }
 }

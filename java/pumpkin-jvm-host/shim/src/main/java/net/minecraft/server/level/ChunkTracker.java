@@ -31,6 +31,6 @@ public abstract class ChunkTracker extends DynamicGraphMinFixedPoint {
         throw Unimplemented.forMember("net/minecraft/server/level/ChunkTracker.update:(JIZ)V");
     }
 
-    protected ChunkTracker() {
+    public ChunkTracker() {
     }
 }

@@ -28,6 +28,6 @@ public class Vec2 {
         throw Unimplemented.forMember("net/minecraft/world/phys/Vec2.length:()F");
     }
 
-    protected Vec2() {
+    public Vec2() {
     }
 }

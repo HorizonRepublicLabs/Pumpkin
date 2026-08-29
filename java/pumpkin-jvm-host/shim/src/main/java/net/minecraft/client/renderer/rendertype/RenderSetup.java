@@ -70,13 +70,13 @@ public final class RenderSetup {
             throw Unimplemented.forMember("net/minecraft/client/renderer/rendertype/RenderSetup$RenderSetupBuilder.createRenderSetup:()Lnet/minecraft/client/renderer/rendertype/RenderSetup;");
         }
 
-        protected RenderSetupBuilder() {
+        public RenderSetupBuilder() {
         }
     }
 
     record TextureBinding(Identifier location, Supplier<GpuSampler> sampler) {
     }
 
-    protected RenderSetup() {
+    public RenderSetup() {
     }
 }

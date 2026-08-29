@@ -31,6 +31,6 @@ public class ServerboundPongPacket implements Packet<ServerCommonPacketListener>
         throw Unimplemented.forMember("net/minecraft/network/protocol/common/ServerboundPongPacket.getId:()I");
     }
 
-    protected ServerboundPongPacket() {
+    public ServerboundPongPacket() {
     }
 }

@@ -17,6 +17,6 @@ public class WidgetTooltipHolder {
         throw Unimplemented.forMember("net/minecraft/client/gui/components/WidgetTooltipHolder.updateNarration:(Lnet/minecraft/client/gui/narration/NarrationElementOutput;)V");
     }
 
-    protected WidgetTooltipHolder() {
+    public WidgetTooltipHolder() {
     }
 }

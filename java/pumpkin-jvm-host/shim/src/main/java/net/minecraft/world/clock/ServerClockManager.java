@@ -45,6 +45,6 @@ public class ServerClockManager extends SavedData implements ClockManager {
         }
     }
 
-    protected ServerClockManager() {
+    public ServerClockManager() {
     }
 }

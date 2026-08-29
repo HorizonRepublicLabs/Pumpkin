@@ -40,7 +40,7 @@ public abstract class PlayerEvent extends LivingEvent {
             throw Unimplemented.forMember("net/neoforged/neoforge/event/entity/player/PlayerEvent$HarvestCheck.getPos:()Lnet/minecraft/core/BlockPos;");
         }
 
-        protected HarvestCheck() {
+        public HarvestCheck() {
         }
     }
 
@@ -50,7 +50,7 @@ public abstract class PlayerEvent extends LivingEvent {
             throw Unimplemented.forMember("net/neoforged/neoforge/event/entity/player/PlayerEvent$BreakSpeed.<init>:(Lnet/minecraft/world/entity/player/Player;Lnet/minecraft/world/level/block/state/BlockState;FLnet/minecraft/core/BlockPos;)V");
         }
 
-        protected BreakSpeed() {
+        public BreakSpeed() {
         }
     }
 
@@ -60,7 +60,7 @@ public abstract class PlayerEvent extends LivingEvent {
             throw Unimplemented.forMember("net/neoforged/neoforge/event/entity/player/PlayerEvent$NameFormat.<init>:(Lnet/minecraft/world/entity/player/Player;Lnet/minecraft/network/chat/Component;)V");
         }
 
-        protected NameFormat() {
+        public NameFormat() {
         }
     }
 
@@ -74,7 +74,7 @@ public abstract class PlayerEvent extends LivingEvent {
             throw Unimplemented.forMember("net/neoforged/neoforge/event/entity/player/PlayerEvent$TabListNameFormat.getDisplayName:()Lnet/minecraft/network/chat/Component;");
         }
 
-        protected TabListNameFormat() {
+        public TabListNameFormat() {
         }
     }
 
@@ -84,7 +84,7 @@ public abstract class PlayerEvent extends LivingEvent {
             throw Unimplemented.forMember("net/neoforged/neoforge/event/entity/player/PlayerEvent$Clone.<init>:(Lnet/minecraft/world/entity/player/Player;Lnet/minecraft/world/entity/player/Player;Z)V");
         }
 
-        protected Clone() {
+        public Clone() {
         }
     }
 
@@ -98,7 +98,7 @@ public abstract class PlayerEvent extends LivingEvent {
             throw Unimplemented.forMember("net/neoforged/neoforge/event/entity/player/PlayerEvent$StartTracking.getTarget:()Lnet/minecraft/world/entity/Entity;");
         }
 
-        protected StartTracking() {
+        public StartTracking() {
         }
     }
 
@@ -112,7 +112,7 @@ public abstract class PlayerEvent extends LivingEvent {
             throw Unimplemented.forMember("net/neoforged/neoforge/event/entity/player/PlayerEvent$StopTracking.getTarget:()Lnet/minecraft/world/entity/Entity;");
         }
 
-        protected StopTracking() {
+        public StopTracking() {
         }
     }
 
@@ -122,7 +122,7 @@ public abstract class PlayerEvent extends LivingEvent {
             throw Unimplemented.forMember("net/neoforged/neoforge/event/entity/player/PlayerEvent$LoadFromFile.<init>:(Lnet/minecraft/world/entity/player/Player;Ljava/io/File;Ljava/lang/String;)V");
         }
 
-        protected LoadFromFile() {
+        public LoadFromFile() {
         }
     }
 
@@ -132,7 +132,7 @@ public abstract class PlayerEvent extends LivingEvent {
             throw Unimplemented.forMember("net/neoforged/neoforge/event/entity/player/PlayerEvent$SaveToFile.<init>:(Lnet/minecraft/world/entity/player/Player;Ljava/io/File;Ljava/lang/String;)V");
         }
 
-        protected SaveToFile() {
+        public SaveToFile() {
         }
     }
 
@@ -142,7 +142,7 @@ public abstract class PlayerEvent extends LivingEvent {
             throw Unimplemented.forMember("net/neoforged/neoforge/event/entity/player/PlayerEvent$ItemCraftedEvent.<init>:(Lnet/minecraft/world/entity/player/Player;Lnet/minecraft/world/item/ItemStack;Lnet/minecraft/world/Container;)V");
         }
 
-        protected ItemCraftedEvent() {
+        public ItemCraftedEvent() {
         }
     }
 
@@ -152,7 +152,7 @@ public abstract class PlayerEvent extends LivingEvent {
             throw Unimplemented.forMember("net/neoforged/neoforge/event/entity/player/PlayerEvent$ItemSmeltedEvent.<init>:(Lnet/minecraft/world/entity/player/Player;Lnet/minecraft/world/item/ItemStack;I)V");
         }
 
-        protected ItemSmeltedEvent() {
+        public ItemSmeltedEvent() {
         }
     }
 
@@ -162,7 +162,7 @@ public abstract class PlayerEvent extends LivingEvent {
             throw Unimplemented.forMember("net/neoforged/neoforge/event/entity/player/PlayerEvent$PlayerLoggedInEvent.<init>:(Lnet/minecraft/world/entity/player/Player;)V");
         }
 
-        protected PlayerLoggedInEvent() {
+        public PlayerLoggedInEvent() {
         }
     }
 
@@ -172,7 +172,7 @@ public abstract class PlayerEvent extends LivingEvent {
             throw Unimplemented.forMember("net/neoforged/neoforge/event/entity/player/PlayerEvent$PlayerLoggedOutEvent.<init>:(Lnet/minecraft/world/entity/player/Player;)V");
         }
 
-        protected PlayerLoggedOutEvent() {
+        public PlayerLoggedOutEvent() {
         }
     }
 
@@ -182,7 +182,7 @@ public abstract class PlayerEvent extends LivingEvent {
             throw Unimplemented.forMember("net/neoforged/neoforge/event/entity/player/PlayerEvent$PlayerRespawnEvent.<init>:(Lnet/minecraft/world/entity/player/Player;Z)V");
         }
 
-        protected PlayerRespawnEvent() {
+        public PlayerRespawnEvent() {
         }
     }
 
@@ -192,7 +192,7 @@ public abstract class PlayerEvent extends LivingEvent {
             throw Unimplemented.forMember("net/neoforged/neoforge/event/entity/player/PlayerEvent$PlayerChangedDimensionEvent.<init>:(Lnet/minecraft/world/entity/player/Player;Lnet/minecraft/resources/ResourceKey;Lnet/minecraft/resources/ResourceKey;)V");
         }
 
-        protected PlayerChangedDimensionEvent() {
+        public PlayerChangedDimensionEvent() {
         }
     }
 
@@ -202,10 +202,10 @@ public abstract class PlayerEvent extends LivingEvent {
             throw Unimplemented.forMember("net/neoforged/neoforge/event/entity/player/PlayerEvent$PlayerChangeGameModeEvent.<init>:(Lnet/minecraft/world/entity/player/Player;Lnet/minecraft/world/level/GameType;Lnet/minecraft/world/level/GameType;)V");
         }
 
-        protected PlayerChangeGameModeEvent() {
+        public PlayerChangeGameModeEvent() {
         }
     }
 
-    protected PlayerEvent() {
+    public PlayerEvent() {
     }
 }

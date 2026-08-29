@@ -49,6 +49,6 @@ public class ItemAttributeModifierEvent extends Event {
         }
     }
 
-    protected ItemAttributeModifierEvent() {
+    public ItemAttributeModifierEvent() {
     }
 }

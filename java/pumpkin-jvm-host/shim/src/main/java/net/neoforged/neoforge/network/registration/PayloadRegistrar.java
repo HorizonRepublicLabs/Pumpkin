@@ -28,6 +28,6 @@ public class PayloadRegistrar {
         throw Unimplemented.forMember("net/neoforged/neoforge/network/registration/PayloadRegistrar.playToServer:(Lnet/minecraft/network/protocol/common/custom/CustomPacketPayload$Type;Lnet/minecraft/network/codec/StreamCodec;Lnet/neoforged/neoforge/network/handling/IPayloadHandler;)Lnet/neoforged/neoforge/network/registration/PayloadRegistrar;");
     }
 
-    protected PayloadRegistrar() {
+    public PayloadRegistrar() {
     }
 }

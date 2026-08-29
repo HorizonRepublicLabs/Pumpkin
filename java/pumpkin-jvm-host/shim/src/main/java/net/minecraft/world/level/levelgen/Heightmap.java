@@ -34,6 +34,6 @@ public class Heightmap {
         WORLDGEN, LIVE_WORLD, CLIENT
     }
 
-    protected Heightmap() {
+    public Heightmap() {
     }
 }

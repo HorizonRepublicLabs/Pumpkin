@@ -46,6 +46,6 @@ public final class SizedIngredient {
         throw Unimplemented.forMember("net/neoforged/neoforge/common/crafting/SizedIngredient.toString:()Ljava/lang/String;");
     }
 
-    protected SizedIngredient() {
+    public SizedIngredient() {
     }
 }

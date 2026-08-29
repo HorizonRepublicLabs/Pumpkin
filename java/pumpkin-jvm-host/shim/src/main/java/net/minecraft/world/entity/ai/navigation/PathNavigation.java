@@ -24,6 +24,6 @@ public abstract class PathNavigation {
 
     public abstract boolean canNavigateGround();
 
-    protected PathNavigation() {
+    public PathNavigation() {
     }
 }

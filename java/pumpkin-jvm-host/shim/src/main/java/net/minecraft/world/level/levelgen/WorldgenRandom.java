@@ -34,6 +34,6 @@ public class WorldgenRandom extends LegacyRandomSource {
         LEGACY, XOROSHIRO
     }
 
-    protected WorldgenRandom() {
+    public WorldgenRandom() {
     }
 }

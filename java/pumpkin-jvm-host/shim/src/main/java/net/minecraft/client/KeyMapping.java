@@ -103,6 +103,6 @@ public class KeyMapping implements Comparable<KeyMapping>, IKeyMappingExtension 
         }
     }
 
-    protected KeyMapping() {
+    public KeyMapping() {
     }
 }

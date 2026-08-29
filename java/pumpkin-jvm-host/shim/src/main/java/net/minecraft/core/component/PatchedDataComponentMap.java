@@ -60,6 +60,6 @@ public final class PatchedDataComponentMap implements DataComponentMap {
         throw Unimplemented.forMember("net/minecraft/core/component/PatchedDataComponentMap.toString:()Ljava/lang/String;");
     }
 
-    protected PatchedDataComponentMap() {
+    public PatchedDataComponentMap() {
     }
 }

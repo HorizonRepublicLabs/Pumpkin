@@ -17,6 +17,6 @@ public class ItemModelResolver {
         throw Unimplemented.forMember("net/minecraft/client/renderer/item/ItemModelResolver.updateForTopItem:(Lnet/minecraft/client/renderer/item/ItemStackRenderState;Lnet/minecraft/world/item/ItemStack;Lnet/minecraft/world/item/ItemDisplayContext;Lnet/minecraft/world/level/Level;Lnet/minecraft/world/entity/ItemOwner;I)V");
     }
 
-    protected ItemModelResolver() {
+    public ItemModelResolver() {
     }
 }

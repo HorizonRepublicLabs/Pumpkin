@@ -129,6 +129,6 @@ public class ServerChunkCache extends ChunkSource implements IServerChunkCacheEx
         }
     }
 
-    protected ServerChunkCache() {
+    public ServerChunkCache() {
     }
 }

@@ -174,6 +174,6 @@ public class ClientboundBossEventPacket implements Packet<ClientGamePacketListen
         }
     }
 
-    protected ClientboundBossEventPacket() {
+    public ClientboundBossEventPacket() {
     }
 }

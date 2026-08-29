@@ -11,6 +11,6 @@ public abstract class Strategy<T> {
 
     protected abstract Configuration getConfigurationForBitCount(int entryBits);
 
-    protected Strategy() {
+    public Strategy() {
     }
 }

@@ -31,6 +31,6 @@ public class ItemUsedOnLocationTrigger extends SimpleCriterionTrigger<ItemUsedOn
         }
     }
 
-    protected ItemUsedOnLocationTrigger() {
+    public ItemUsedOnLocationTrigger() {
     }
 }

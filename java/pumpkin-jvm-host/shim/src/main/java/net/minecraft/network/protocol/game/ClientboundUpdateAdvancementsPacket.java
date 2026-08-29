@@ -33,6 +33,6 @@ public class ClientboundUpdateAdvancementsPacket implements Packet<ClientGamePac
         throw Unimplemented.forMember("net/minecraft/network/protocol/game/ClientboundUpdateAdvancementsPacket.handle:(Lnet/minecraft/network/protocol/game/ClientGamePacketListener;)V");
     }
 
-    protected ClientboundUpdateAdvancementsPacket() {
+    public ClientboundUpdateAdvancementsPacket() {
     }
 }

@@ -37,6 +37,6 @@ public abstract class BanListEntry<T> extends StoredUserEntry<T> {
         throw Unimplemented.forMember("net/minecraft/server/players/BanListEntry.hashCode:()I");
     }
 
-    protected BanListEntry() {
+    public BanListEntry() {
     }
 }

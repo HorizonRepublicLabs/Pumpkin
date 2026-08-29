@@ -26,6 +26,6 @@ public class Blender {
         double getDistance(double x, double y, double z);
     }
 
-    protected Blender() {
+    public Blender() {
     }
 }

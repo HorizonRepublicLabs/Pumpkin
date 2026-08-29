@@ -32,6 +32,6 @@ public abstract class BlockableEventLoop<R extends Runnable> implements Executor
         throw Unimplemented.forMember("net/minecraft/util/thread/BlockableEventLoop.profiledMetrics:()Ljava/util/List;");
     }
 
-    protected BlockableEventLoop() {
+    public BlockableEventLoop() {
     }
 }

@@ -20,6 +20,6 @@ public abstract class NodeEvaluator {
 
     public abstract PathType getPathType(PathfindingContext context, int x, int y, int z);
 
-    protected NodeEvaluator() {
+    public NodeEvaluator() {
     }
 }

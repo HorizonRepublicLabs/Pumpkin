@@ -350,6 +350,6 @@ public class ServerGamePacketListenerImpl extends ServerCommonPacketListenerImpl
         throw Unimplemented.forMember("net/minecraft/server/network/ServerGamePacketListenerImpl.getPlayer:()Lnet/minecraft/server/level/ServerPlayer;");
     }
 
-    protected ServerGamePacketListenerImpl() {
+    public ServerGamePacketListenerImpl() {
     }
 }

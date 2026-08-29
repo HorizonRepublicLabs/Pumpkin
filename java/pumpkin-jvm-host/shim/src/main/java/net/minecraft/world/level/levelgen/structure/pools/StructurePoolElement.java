@@ -30,6 +30,6 @@ public abstract class StructurePoolElement {
 
     public abstract StructurePoolElementType<?> getType();
 
-    protected StructurePoolElement() {
+    public StructurePoolElement() {
     }
 }

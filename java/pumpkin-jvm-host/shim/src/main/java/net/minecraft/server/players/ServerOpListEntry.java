@@ -22,6 +22,6 @@ public class ServerOpListEntry extends StoredUserEntry<NameAndId> {
         throw Unimplemented.forMember("net/minecraft/server/players/ServerOpListEntry.serialize:(Lcom/google/gson/JsonObject;)V");
     }
 
-    protected ServerOpListEntry() {
+    public ServerOpListEntry() {
     }
 }

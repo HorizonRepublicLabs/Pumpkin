@@ -33,6 +33,6 @@ public final class FluidState extends StateHolder<Fluid, FluidState> implements 
         throw Unimplemented.forMember("net/minecraft/world/level/material/FluidState.getExplosionResistance:()F");
     }
 
-    protected FluidState() {
+    public FluidState() {
     }
 }

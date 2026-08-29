@@ -21,6 +21,6 @@ public class RecipePropertySet {
         throw Unimplemented.forMember("net/minecraft/world/item/crafting/RecipePropertySet.create:(Ljava/util/Collection;)Lnet/minecraft/world/item/crafting/RecipePropertySet;");
     }
 
-    protected RecipePropertySet() {
+    public RecipePropertySet() {
     }
 }

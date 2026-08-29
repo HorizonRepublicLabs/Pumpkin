@@ -73,10 +73,10 @@ public class AtlasManager implements AutoCloseable, PreparableReloadListener, Sp
             throw Unimplemented.forMember("net/minecraft/client/resources/model/sprite/AtlasManager$PendingStitchResults.get:(Lnet/minecraft/resources/Identifier;)Ljava/util/concurrent/CompletableFuture;");
         }
 
-        protected PendingStitchResults() {
+        public PendingStitchResults() {
         }
     }
 
-    protected AtlasManager() {
+    public AtlasManager() {
     }
 }

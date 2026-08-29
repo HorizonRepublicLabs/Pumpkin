@@ -18,6 +18,6 @@ public final class StructureStart {
         throw Unimplemented.forMember("net/minecraft/world/level/levelgen/structure/StructureStart.isValid:()Z");
     }
 
-    protected StructureStart() {
+    public StructureStart() {
     }
 }

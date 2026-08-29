@@ -29,6 +29,6 @@ public class Containers {
         throw Unimplemented.forMember("net/minecraft/world/Containers.dropItemStack:(Lnet/minecraft/world/level/Level;DDDLnet/minecraft/world/item/ItemStack;)V");
     }
 
-    protected Containers() {
+    public Containers() {
     }
 }

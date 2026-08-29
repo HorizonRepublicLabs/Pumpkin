@@ -32,6 +32,6 @@ public class ClientboundTagQueryPacket implements Packet<ClientGamePacketListene
         throw Unimplemented.forMember("net/minecraft/network/protocol/game/ClientboundTagQueryPacket.isSkippable:()Z");
     }
 
-    protected ClientboundTagQueryPacket() {
+    public ClientboundTagQueryPacket() {
     }
 }

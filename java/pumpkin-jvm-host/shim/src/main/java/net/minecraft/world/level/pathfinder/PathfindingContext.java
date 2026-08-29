@@ -20,6 +20,6 @@ public class PathfindingContext {
         throw Unimplemented.forMember("net/minecraft/world/level/pathfinder/PathfindingContext.level:()Lnet/minecraft/world/level/CollisionGetter;");
     }
 
-    protected PathfindingContext() {
+    public PathfindingContext() {
     }
 }

@@ -19,7 +19,7 @@ public class ItemAbilities {
 
     public static final Set<ItemAbility> DEFAULT_SHOVEL_ACTIONS = null;
 
-    protected ItemAbilities() {
+    public ItemAbilities() {
     }
 
     static {

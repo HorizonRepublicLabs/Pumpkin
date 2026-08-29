@@ -11,7 +11,7 @@ public record KeyframeTrack<T>(List<Keyframe<T>> keyframes, EasingType easingTyp
             throw Unimplemented.forMember("net/minecraft/util/KeyframeTrack$Builder.build:()Lnet/minecraft/util/KeyframeTrack;");
         }
 
-        protected Builder() {
+        public Builder() {
         }
     }
 }

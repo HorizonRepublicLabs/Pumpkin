@@ -18,7 +18,7 @@ public class ParticleTypes {
         throw Unimplemented.forMember("net/minecraft/core/particles/ParticleTypes.register:(Ljava/lang/String;Z)Lnet/minecraft/core/particles/SimpleParticleType;");
     }
 
-    protected ParticleTypes() {
+    public ParticleTypes() {
     }
 
     static {

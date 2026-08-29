@@ -47,6 +47,6 @@ public class MovingBlockRenderState implements BlockAndTintGetter {
         throw Unimplemented.forMember("net/minecraft/client/renderer/block/MovingBlockRenderState.getModelData:(Lnet/minecraft/core/BlockPos;)Lnet/neoforged/neoforge/model/data/ModelData;");
     }
 
-    protected MovingBlockRenderState() {
+    public MovingBlockRenderState() {
     }
 }

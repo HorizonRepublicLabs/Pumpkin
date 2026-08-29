@@ -28,6 +28,6 @@ public class ClientboundMerchantOffersPacket implements Packet<ClientGamePacketL
         throw Unimplemented.forMember("net/minecraft/network/protocol/game/ClientboundMerchantOffersPacket.handle:(Lnet/minecraft/network/protocol/game/ClientGamePacketListener;)V");
     }
 
-    protected ClientboundMerchantOffersPacket() {
+    public ClientboundMerchantOffersPacket() {
     }
 }

@@ -84,6 +84,6 @@ public class Vec3i implements Comparable<Vec3i> {
         throw Unimplemented.forMember("net/minecraft/core/Vec3i.toString:()Ljava/lang/String;");
     }
 
-    protected Vec3i() {
+    public Vec3i() {
     }
 }

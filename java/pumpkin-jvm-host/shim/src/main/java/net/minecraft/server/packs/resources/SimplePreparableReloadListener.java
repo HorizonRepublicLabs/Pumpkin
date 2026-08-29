@@ -15,6 +15,6 @@ public abstract class SimplePreparableReloadListener<T> extends net.neoforged.ne
 
     protected abstract void apply(final T preparations, final ResourceManager manager, final ProfilerFiller profiler);
 
-    protected SimplePreparableReloadListener() {
+    public SimplePreparableReloadListener() {
     }
 }

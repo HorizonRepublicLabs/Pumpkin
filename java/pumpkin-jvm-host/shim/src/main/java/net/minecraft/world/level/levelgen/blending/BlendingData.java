@@ -41,6 +41,6 @@ public class BlendingData {
     public record Packed(int minSection, int maxSection, Optional<double[]> heights) {
     }
 
-    protected BlendingData() {
+    public BlendingData() {
     }
 }

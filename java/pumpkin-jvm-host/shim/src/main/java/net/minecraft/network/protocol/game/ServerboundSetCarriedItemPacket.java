@@ -27,6 +27,6 @@ public class ServerboundSetCarriedItemPacket implements Packet<ServerGamePacketL
         throw Unimplemented.forMember("net/minecraft/network/protocol/game/ServerboundSetCarriedItemPacket.handle:(Lnet/minecraft/network/protocol/game/ServerGamePacketListener;)V");
     }
 
-    protected ServerboundSetCarriedItemPacket() {
+    public ServerboundSetCarriedItemPacket() {
     }
 }

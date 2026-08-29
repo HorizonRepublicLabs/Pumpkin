@@ -30,7 +30,7 @@ public class StagedVertexBuffer implements AutoCloseable {
             throw Unimplemented.forMember("net/minecraft/client/renderer/StagedVertexBuffer$Draw.isEmpty:()Z");
         }
 
-        protected Draw() {
+        public Draw() {
         }
     }
 
@@ -58,6 +58,6 @@ public class StagedVertexBuffer implements AutoCloseable {
         }
     }
 
-    protected StagedVertexBuffer() {
+    public StagedVertexBuffer() {
     }
 }

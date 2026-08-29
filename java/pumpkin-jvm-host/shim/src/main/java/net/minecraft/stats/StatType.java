@@ -37,6 +37,6 @@ public class StatType<T> implements Iterable<Stat<T>> {
         throw Unimplemented.forMember("net/minecraft/stats/StatType.getDisplayName:()Lnet/minecraft/network/chat/Component;");
     }
 
-    protected StatType() {
+    public StatType() {
     }
 }

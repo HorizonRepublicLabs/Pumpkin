@@ -31,6 +31,6 @@ public abstract class WorldCarver<C extends CarverConfiguration> {
         boolean shouldSkip(CarvingContext context, double xd, double yd, double zd, int y);
     }
 
-    protected WorldCarver() {
+    public WorldCarver() {
     }
 }

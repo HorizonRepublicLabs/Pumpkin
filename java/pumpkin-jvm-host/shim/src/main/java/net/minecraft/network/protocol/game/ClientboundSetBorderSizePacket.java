@@ -32,6 +32,6 @@ public class ClientboundSetBorderSizePacket implements Packet<ClientGamePacketLi
         throw Unimplemented.forMember("net/minecraft/network/protocol/game/ClientboundSetBorderSizePacket.getSize:()D");
     }
 
-    protected ClientboundSetBorderSizePacket() {
+    public ClientboundSetBorderSizePacket() {
     }
 }

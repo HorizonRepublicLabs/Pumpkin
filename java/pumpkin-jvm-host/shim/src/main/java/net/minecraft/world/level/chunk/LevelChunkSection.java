@@ -49,6 +49,6 @@ public class LevelChunkSection {
         throw Unimplemented.forMember("net/minecraft/world/level/chunk/LevelChunkSection.copy:()Lnet/minecraft/world/level/chunk/LevelChunkSection;");
     }
 
-    protected LevelChunkSection() {
+    public LevelChunkSection() {
     }
 }

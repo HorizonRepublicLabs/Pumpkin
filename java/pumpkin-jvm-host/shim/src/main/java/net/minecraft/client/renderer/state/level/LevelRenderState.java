@@ -10,6 +10,6 @@ public class LevelRenderState extends net.neoforged.neoforge.client.renderstate.
         throw Unimplemented.forMember("net/minecraft/client/renderer/state/level/LevelRenderState.reset:()V");
     }
 
-    protected LevelRenderState() {
+    public LevelRenderState() {
     }
 }

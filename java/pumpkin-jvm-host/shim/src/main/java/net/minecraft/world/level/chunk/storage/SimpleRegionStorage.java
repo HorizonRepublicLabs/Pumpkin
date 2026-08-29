@@ -33,6 +33,6 @@ public class SimpleRegionStorage implements AutoCloseable {
         throw Unimplemented.forMember("net/minecraft/world/level/chunk/storage/SimpleRegionStorage.close:()V");
     }
 
-    protected SimpleRegionStorage() {
+    public SimpleRegionStorage() {
     }
 }

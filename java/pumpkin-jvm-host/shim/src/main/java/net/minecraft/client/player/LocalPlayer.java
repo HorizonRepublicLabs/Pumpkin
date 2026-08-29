@@ -242,6 +242,6 @@ public class LocalPlayer extends AbstractClientPlayer {
         throw Unimplemented.forMember("net/minecraft/client/player/LocalPlayer.canDropItems:()Z");
     }
 
-    protected LocalPlayer() {
+    public LocalPlayer() {
     }
 }

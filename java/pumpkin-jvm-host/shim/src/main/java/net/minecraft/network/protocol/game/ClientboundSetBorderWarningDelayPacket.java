@@ -28,6 +28,6 @@ public class ClientboundSetBorderWarningDelayPacket implements Packet<ClientGame
         throw Unimplemented.forMember("net/minecraft/network/protocol/game/ClientboundSetBorderWarningDelayPacket.handle:(Lnet/minecraft/network/protocol/game/ClientGamePacketListener;)V");
     }
 
-    protected ClientboundSetBorderWarningDelayPacket() {
+    public ClientboundSetBorderWarningDelayPacket() {
     }
 }

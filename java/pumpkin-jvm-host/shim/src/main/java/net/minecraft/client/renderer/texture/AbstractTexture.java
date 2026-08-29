@@ -8,6 +8,6 @@ public abstract class AbstractTexture implements AutoCloseable {
         throw Unimplemented.forMember("net/minecraft/client/renderer/texture/AbstractTexture.close:()V");
     }
 
-    protected AbstractTexture() {
+    public AbstractTexture() {
     }
 }

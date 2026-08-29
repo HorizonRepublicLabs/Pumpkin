@@ -34,6 +34,6 @@ public class MerchantOffer {
         throw Unimplemented.forMember("net/minecraft/world/item/trading/MerchantOffer.copy:()Lnet/minecraft/world/item/trading/MerchantOffer;");
     }
 
-    protected MerchantOffer() {
+    public MerchantOffer() {
     }
 }

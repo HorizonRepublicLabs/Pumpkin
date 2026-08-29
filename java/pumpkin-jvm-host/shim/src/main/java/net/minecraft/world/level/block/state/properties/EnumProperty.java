@@ -52,6 +52,6 @@ public final class EnumProperty<T extends Enum<T> & StringRepresentable> extends
         throw Unimplemented.forMember("net/minecraft/world/level/block/state/properties/EnumProperty.create:(Ljava/lang/String;Ljava/lang/Class;Ljava/util/List;)Lnet/minecraft/world/level/block/state/properties/EnumProperty;");
     }
 
-    protected EnumProperty() {
+    public EnumProperty() {
     }
 }

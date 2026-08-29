@@ -109,6 +109,6 @@ public final class FluidStack implements MutableDataComponentHolder, FluidInstan
         throw Unimplemented.forMember("net/neoforged/neoforge/fluids/FluidStack.getAmount:()I");
     }
 
-    protected FluidStack() {
+    public FluidStack() {
     }
 }

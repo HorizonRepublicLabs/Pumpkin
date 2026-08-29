@@ -18,6 +18,6 @@ public final class ListenerKey<T extends PreparableReloadListener> {
         throw Unimplemented.forMember("net/neoforged/neoforge/resource/ListenerKey.toString:()Ljava/lang/String;");
     }
 
-    protected ListenerKey() {
+    public ListenerKey() {
     }
 }

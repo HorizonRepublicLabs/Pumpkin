@@ -28,6 +28,6 @@ public class ServerboundRecipeBookChangeSettingsPacket implements Packet<ServerG
         throw Unimplemented.forMember("net/minecraft/network/protocol/game/ServerboundRecipeBookChangeSettingsPacket.handle:(Lnet/minecraft/network/protocol/game/ServerGamePacketListener;)V");
     }
 
-    protected ServerboundRecipeBookChangeSettingsPacket() {
+    public ServerboundRecipeBookChangeSettingsPacket() {
     }
 }

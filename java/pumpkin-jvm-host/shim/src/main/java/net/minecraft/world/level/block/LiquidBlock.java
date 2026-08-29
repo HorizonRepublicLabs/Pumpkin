@@ -105,6 +105,6 @@ public class LiquidBlock extends Block implements BucketPickup {
         throw Unimplemented.forMember("net/minecraft/world/level/block/LiquidBlock.getPickupSound:()Ljava/util/Optional;");
     }
 
-    protected LiquidBlock() {
+    public LiquidBlock() {
     }
 }

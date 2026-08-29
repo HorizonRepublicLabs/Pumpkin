@@ -18,6 +18,6 @@ public class WaterAvoidingRandomStrollGoal extends RandomStrollGoal {
         throw Unimplemented.forMember("net/minecraft/world/entity/ai/goal/WaterAvoidingRandomStrollGoal.getPosition:()Lnet/minecraft/world/phys/Vec3;");
     }
 
-    protected WaterAvoidingRandomStrollGoal() {
+    public WaterAvoidingRandomStrollGoal() {
     }
 }

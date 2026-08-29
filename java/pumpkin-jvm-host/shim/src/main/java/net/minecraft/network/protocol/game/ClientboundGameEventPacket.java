@@ -33,10 +33,10 @@ public class ClientboundGameEventPacket implements Packet<ClientGamePacketListen
             throw Unimplemented.forMember("net/minecraft/network/protocol/game/ClientboundGameEventPacket$Type.<init>:(I)V");
         }
 
-        protected Type() {
+        public Type() {
         }
     }
 
-    protected ClientboundGameEventPacket() {
+    public ClientboundGameEventPacket() {
     }
 }

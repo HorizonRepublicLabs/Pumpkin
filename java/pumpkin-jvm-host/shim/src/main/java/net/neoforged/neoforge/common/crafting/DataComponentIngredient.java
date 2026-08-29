@@ -93,6 +93,6 @@ public class DataComponentIngredient implements ICustomIngredient {
         throw Unimplemented.forMember("net/neoforged/neoforge/common/crafting/DataComponentIngredient.of:(ZLnet/minecraft/core/component/DataComponentPatch;Lnet/minecraft/core/HolderSet;)Lnet/minecraft/world/item/crafting/Ingredient;");
     }
 
-    protected DataComponentIngredient() {
+    public DataComponentIngredient() {
     }
 }

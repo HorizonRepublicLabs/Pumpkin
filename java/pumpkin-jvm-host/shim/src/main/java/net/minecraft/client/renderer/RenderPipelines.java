@@ -13,7 +13,7 @@ public class RenderPipelines {
         throw Unimplemented.forMember("net/minecraft/client/renderer/RenderPipelines.register:(Lcom/mojang/blaze3d/pipeline/RenderPipeline;)Lcom/mojang/blaze3d/pipeline/RenderPipeline;");
     }
 
-    protected RenderPipelines() {
+    public RenderPipelines() {
     }
 
     static {

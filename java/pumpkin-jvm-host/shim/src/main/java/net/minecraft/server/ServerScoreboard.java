@@ -71,6 +71,6 @@ public class ServerScoreboard extends Scoreboard {
         throw Unimplemented.forMember("net/minecraft/server/ServerScoreboard.onTeamRemoved:(Lnet/minecraft/world/scores/PlayerTeam;)V");
     }
 
-    protected ServerScoreboard() {
+    public ServerScoreboard() {
     }
 }

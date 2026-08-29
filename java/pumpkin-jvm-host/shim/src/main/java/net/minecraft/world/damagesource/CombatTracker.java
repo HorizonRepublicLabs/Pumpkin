@@ -9,6 +9,6 @@ public class CombatTracker {
         throw Unimplemented.forMember("net/minecraft/world/damagesource/CombatTracker.<init>:(Lnet/minecraft/world/entity/LivingEntity;)V");
     }
 
-    protected CombatTracker() {
+    public CombatTracker() {
     }
 }

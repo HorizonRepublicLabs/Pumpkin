@@ -34,6 +34,6 @@ public class Dictionary<S> {
         }
     }
 
-    protected Dictionary() {
+    public Dictionary() {
     }
 }

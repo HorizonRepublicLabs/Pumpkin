@@ -20,6 +20,6 @@ public class SimpleContainerData implements ContainerData {
         throw Unimplemented.forMember("net/minecraft/world/inventory/SimpleContainerData.getCount:()I");
     }
 
-    protected SimpleContainerData() {
+    public SimpleContainerData() {
     }
 }

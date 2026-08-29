@@ -23,6 +23,6 @@ public class ReloadableServerResources {
         throw Unimplemented.forMember("net/minecraft/server/ReloadableServerResources.updateComponentsAndStaticRegistryTags:()V");
     }
 
-    protected ReloadableServerResources() {
+    public ReloadableServerResources() {
     }
 }

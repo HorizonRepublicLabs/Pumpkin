@@ -27,6 +27,6 @@ public class ClientboundSetHealthPacket implements Packet<ClientGamePacketListen
         throw Unimplemented.forMember("net/minecraft/network/protocol/game/ClientboundSetHealthPacket.handle:(Lnet/minecraft/network/protocol/game/ClientGamePacketListener;)V");
     }
 
-    protected ClientboundSetHealthPacket() {
+    public ClientboundSetHealthPacket() {
     }
 }

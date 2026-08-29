@@ -33,6 +33,6 @@ public class ClientboundSetObjectivePacket implements Packet<ClientGamePacketLis
         throw Unimplemented.forMember("net/minecraft/network/protocol/game/ClientboundSetObjectivePacket.getDisplayName:()Lnet/minecraft/network/chat/Component;");
     }
 
-    protected ClientboundSetObjectivePacket() {
+    public ClientboundSetObjectivePacket() {
     }
 }

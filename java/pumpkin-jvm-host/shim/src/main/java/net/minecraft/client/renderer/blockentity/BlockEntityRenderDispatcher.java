@@ -30,6 +30,6 @@ public class BlockEntityRenderDispatcher implements ResourceManagerReloadListene
         throw Unimplemented.forMember("net/minecraft/client/renderer/blockentity/BlockEntityRenderDispatcher.onResourceManagerReload:(Lnet/minecraft/server/packs/resources/ResourceManager;)V");
     }
 
-    protected BlockEntityRenderDispatcher() {
+    public BlockEntityRenderDispatcher() {
     }
 }

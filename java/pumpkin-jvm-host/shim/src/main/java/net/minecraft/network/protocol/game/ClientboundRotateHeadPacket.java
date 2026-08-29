@@ -33,6 +33,6 @@ public class ClientboundRotateHeadPacket implements Packet<ClientGamePacketListe
         throw Unimplemented.forMember("net/minecraft/network/protocol/game/ClientboundRotateHeadPacket.getEntity:(Lnet/minecraft/world/level/Level;)Lnet/minecraft/world/entity/Entity;");
     }
 
-    protected ClientboundRotateHeadPacket() {
+    public ClientboundRotateHeadPacket() {
     }
 }

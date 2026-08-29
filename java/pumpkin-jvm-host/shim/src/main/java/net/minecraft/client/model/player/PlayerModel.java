@@ -17,6 +17,6 @@ public class PlayerModel extends HumanoidModel<AvatarRenderState> {
         throw Unimplemented.forMember("net/minecraft/client/model/player/PlayerModel.translateToHand:(Lnet/minecraft/client/renderer/entity/state/AvatarRenderState;Lnet/minecraft/world/entity/HumanoidArm;Lcom/mojang/blaze3d/vertex/PoseStack;)V");
     }
 
-    protected PlayerModel() {
+    public PlayerModel() {
     }
 }

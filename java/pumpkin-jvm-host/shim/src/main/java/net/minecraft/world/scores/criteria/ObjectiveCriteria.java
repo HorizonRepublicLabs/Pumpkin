@@ -34,6 +34,6 @@ public class ObjectiveCriteria {
         }
     }
 
-    protected ObjectiveCriteria() {
+    public ObjectiveCriteria() {
     }
 }

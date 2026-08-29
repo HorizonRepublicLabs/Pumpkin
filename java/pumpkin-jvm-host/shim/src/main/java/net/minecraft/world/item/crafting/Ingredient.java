@@ -81,6 +81,6 @@ public final class Ingredient implements Predicate<ItemStack>, StackedContents.I
         throw Unimplemented.forMember("net/minecraft/world/item/crafting/Ingredient.display:()Lnet/minecraft/world/item/crafting/display/SlotDisplay;");
     }
 
-    protected Ingredient() {
+    public Ingredient() {
     }
 }

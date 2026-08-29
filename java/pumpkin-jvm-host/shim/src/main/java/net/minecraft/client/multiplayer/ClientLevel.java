@@ -336,7 +336,7 @@ public class ClientLevel extends Level implements BlockAndTintGetter, CacheSlot.
             throw Unimplemented.forMember("net/minecraft/client/multiplayer/ClientLevel$ClientLevelData.setDifficultyLocked:(Z)V");
         }
 
-        protected ClientLevelData() {
+        public ClientLevelData() {
         }
     }
 
@@ -382,6 +382,6 @@ public class ClientLevel extends Level implements BlockAndTintGetter, CacheSlot.
         throw Unimplemented.forMember("net/minecraft/client/multiplayer/ClientLevel.getModelData:(Lnet/minecraft/core/BlockPos;)Lnet/neoforged/neoforge/model/data/ModelData;");
     }
 
-    protected ClientLevel() {
+    public ClientLevel() {
     }
 }

@@ -51,6 +51,6 @@ public class SaplingBlock extends VegetationBlock implements BonemealableBlock {
         throw Unimplemented.forMember("net/minecraft/world/level/block/SaplingBlock.createBlockStateDefinition:(Lnet/minecraft/world/level/block/state/StateDefinition$Builder;)V");
     }
 
-    protected SaplingBlock() {
+    public SaplingBlock() {
     }
 }

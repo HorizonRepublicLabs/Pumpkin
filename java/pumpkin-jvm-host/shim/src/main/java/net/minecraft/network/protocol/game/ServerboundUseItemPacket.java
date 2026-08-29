@@ -28,6 +28,6 @@ public class ServerboundUseItemPacket implements Packet<ServerGamePacketListener
         throw Unimplemented.forMember("net/minecraft/network/protocol/game/ServerboundUseItemPacket.handle:(Lnet/minecraft/network/protocol/game/ServerGamePacketListener;)V");
     }
 
-    protected ServerboundUseItemPacket() {
+    public ServerboundUseItemPacket() {
     }
 }

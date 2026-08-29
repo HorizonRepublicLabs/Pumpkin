@@ -61,7 +61,7 @@ public class LootContext {
             throw Unimplemented.forMember("net/minecraft/world/level/storage/loot/LootContext$Builder.create:(Ljava/util/Optional;)Lnet/minecraft/world/level/storage/loot/LootContext;");
         }
 
-        protected Builder() {
+        public Builder() {
         }
     }
 
@@ -103,6 +103,6 @@ public class LootContext {
     public record VisitedEntry<T extends Validatable>(LootDataType<T> type, T value) {
     }
 
-    protected LootContext() {
+    public LootContext() {
     }
 }

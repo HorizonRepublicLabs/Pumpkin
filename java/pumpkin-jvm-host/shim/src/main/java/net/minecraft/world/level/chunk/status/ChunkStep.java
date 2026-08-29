@@ -26,7 +26,7 @@ public record ChunkStep(ChunkStatus targetStatus, ChunkDependencies directDepend
             throw Unimplemented.forMember("net/minecraft/world/level/chunk/status/ChunkStep$Builder.build:()Lnet/minecraft/world/level/chunk/status/ChunkStep;");
         }
 
-        protected Builder() {
+        public Builder() {
         }
     }
 }

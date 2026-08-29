@@ -32,6 +32,6 @@ public abstract class GenerationChunkHolder {
 
     public abstract int getQueueLevel();
 
-    protected GenerationChunkHolder() {
+    public GenerationChunkHolder() {
     }
 }

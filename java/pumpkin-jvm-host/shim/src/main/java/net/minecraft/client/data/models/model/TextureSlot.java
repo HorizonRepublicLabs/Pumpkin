@@ -28,6 +28,6 @@ public final class TextureSlot {
         throw Unimplemented.forMember("net/minecraft/client/data/models/model/TextureSlot.toString:()Ljava/lang/String;");
     }
 
-    protected TextureSlot() {
+    public TextureSlot() {
     }
 }

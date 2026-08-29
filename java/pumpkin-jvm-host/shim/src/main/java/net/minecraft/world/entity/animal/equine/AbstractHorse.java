@@ -227,6 +227,6 @@ public abstract class AbstractHorse extends Animal implements PlayerRideableJump
         }
     }
 
-    protected AbstractHorse() {
+    public AbstractHorse() {
     }
 }

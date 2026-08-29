@@ -22,6 +22,6 @@ public abstract class DynamicGraphMinFixedPoint {
 
     protected abstract int computeLevelFromNeighbor(long from, long to, final int fromLevel);
 
-    protected DynamicGraphMinFixedPoint() {
+    public DynamicGraphMinFixedPoint() {
     }
 }

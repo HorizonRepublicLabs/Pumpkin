@@ -50,6 +50,6 @@ public class ResourceHandlerSlot extends StackCopySlot {
         throw Unimplemented.forMember("net/neoforged/neoforge/transfer/item/ResourceHandlerSlot.isSameInventory:(Lnet/minecraft/world/inventory/Slot;)Z");
     }
 
-    protected ResourceHandlerSlot() {
+    public ResourceHandlerSlot() {
     }
 }

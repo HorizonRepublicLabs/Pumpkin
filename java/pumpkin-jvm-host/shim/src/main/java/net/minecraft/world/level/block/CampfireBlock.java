@@ -107,6 +107,6 @@ public class CampfireBlock extends BaseEntityBlock implements SimpleWaterloggedB
         throw Unimplemented.forMember("net/minecraft/world/level/block/CampfireBlock.isPathfindable:(Lnet/minecraft/world/level/block/state/BlockState;Lnet/minecraft/world/level/pathfinder/PathComputationType;)Z");
     }
 
-    protected CampfireBlock() {
+    public CampfireBlock() {
     }
 }

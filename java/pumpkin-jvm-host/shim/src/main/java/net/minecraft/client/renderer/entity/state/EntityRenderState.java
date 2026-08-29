@@ -12,13 +12,13 @@ public class EntityRenderState extends net.neoforged.neoforge.client.renderstate
 
     public static class LeashState {
 
-        protected LeashState() {
+        public LeashState() {
         }
     }
 
     public record ShadowPiece(float relativeX, float relativeY, float relativeZ, VoxelShape shapeBelow, float alpha) {
     }
 
-    protected EntityRenderState() {
+    public EntityRenderState() {
     }
 }

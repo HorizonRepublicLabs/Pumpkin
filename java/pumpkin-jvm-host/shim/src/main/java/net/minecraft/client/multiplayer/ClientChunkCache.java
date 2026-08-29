@@ -62,6 +62,6 @@ public class ClientChunkCache extends ChunkSource {
         }
     }
 
-    protected ClientChunkCache() {
+    public ClientChunkCache() {
     }
 }

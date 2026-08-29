@@ -32,6 +32,6 @@ public class SpawnEggItem extends Item {
         throw Unimplemented.forMember("net/minecraft/world/item/SpawnEggItem.shouldPrintOpWarning:(Lnet/minecraft/world/item/ItemStack;Lnet/minecraft/world/entity/player/Player;)Z");
     }
 
-    protected SpawnEggItem() {
+    public SpawnEggItem() {
     }
 }

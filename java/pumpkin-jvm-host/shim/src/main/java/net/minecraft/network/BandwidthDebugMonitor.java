@@ -13,6 +13,6 @@ public class BandwidthDebugMonitor {
         throw Unimplemented.forMember("net/minecraft/network/BandwidthDebugMonitor.tick:()V");
     }
 
-    protected BandwidthDebugMonitor() {
+    public BandwidthDebugMonitor() {
     }
 }

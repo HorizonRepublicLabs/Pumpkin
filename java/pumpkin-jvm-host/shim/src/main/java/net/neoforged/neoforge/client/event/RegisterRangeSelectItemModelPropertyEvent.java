@@ -18,6 +18,6 @@ public class RegisterRangeSelectItemModelPropertyEvent extends Event implements 
         throw Unimplemented.forMember("net/neoforged/neoforge/client/event/RegisterRangeSelectItemModelPropertyEvent.register:(Lnet/minecraft/resources/Identifier;Lcom/mojang/serialization/MapCodec;)V");
     }
 
-    protected RegisterRangeSelectItemModelPropertyEvent() {
+    public RegisterRangeSelectItemModelPropertyEvent() {
     }
 }

@@ -28,6 +28,6 @@ public class BucketItem extends Item implements DispensibleContainerItem {
         throw Unimplemented.forMember("net/minecraft/world/item/BucketItem.emptyContents:(Lnet/minecraft/world/entity/LivingEntity;Lnet/minecraft/world/level/Level;Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/phys/BlockHitResult;)Z");
     }
 
-    protected BucketItem() {
+    public BucketItem() {
     }
 }

@@ -48,6 +48,6 @@ public abstract class AbstractClientPlayer extends Player implements ClientAvata
         throw Unimplemented.forMember("net/minecraft/client/player/AbstractClientPlayer.showExtraEars:()Z");
     }
 
-    protected AbstractClientPlayer() {
+    public AbstractClientPlayer() {
     }
 }

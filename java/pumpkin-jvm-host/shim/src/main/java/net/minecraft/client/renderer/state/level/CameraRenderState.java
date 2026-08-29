@@ -6,6 +6,6 @@ public class CameraRenderState {
 
     public Vec3 pos;
 
-    protected CameraRenderState() {
+    public CameraRenderState() {
     }
 }

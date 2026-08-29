@@ -50,6 +50,6 @@ public class DataComponentInitializers {
         C create(HolderLookup.Provider context);
     }
 
-    protected DataComponentInitializers() {
+    public DataComponentInitializers() {
     }
 }

@@ -26,6 +26,6 @@ public class MessageSignatureCache {
         throw Unimplemented.forMember("net/minecraft/network/chat/MessageSignatureCache.push:(Ljava/util/ArrayDeque;)V");
     }
 
-    protected MessageSignatureCache() {
+    public MessageSignatureCache() {
     }
 }

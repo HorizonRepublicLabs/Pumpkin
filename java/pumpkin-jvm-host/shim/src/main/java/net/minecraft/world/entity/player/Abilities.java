@@ -15,6 +15,6 @@ public class Abilities {
     public record Packed(boolean invulnerable, boolean flying, boolean mayFly, boolean instabuild, boolean mayBuild, float flyingSpeed, float walkingSpeed) {
     }
 
-    protected Abilities() {
+    public Abilities() {
     }
 }

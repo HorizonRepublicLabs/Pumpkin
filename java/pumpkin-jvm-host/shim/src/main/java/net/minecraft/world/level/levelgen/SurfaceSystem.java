@@ -13,6 +13,6 @@ public class SurfaceSystem {
         throw Unimplemented.forMember("net/minecraft/world/level/levelgen/SurfaceSystem.getSeaLevel:()I");
     }
 
-    protected SurfaceSystem() {
+    public SurfaceSystem() {
     }
 }

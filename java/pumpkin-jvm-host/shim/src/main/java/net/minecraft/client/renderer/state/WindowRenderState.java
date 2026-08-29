@@ -4,6 +4,6 @@ public class WindowRenderState {
 
     public float appropriateLineWidth;
 
-    protected WindowRenderState() {
+    public WindowRenderState() {
     }
 }

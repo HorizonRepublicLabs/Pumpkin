@@ -1205,6 +1205,6 @@ public class FriendlyByteBuf extends ByteBuf implements IFriendlyByteBufExtensio
         throw Unimplemented.forMember("net/minecraft/network/FriendlyByteBuf.getSource:()Lio/netty/buffer/ByteBuf;");
     }
 
-    protected FriendlyByteBuf() {
+    public FriendlyByteBuf() {
     }
 }

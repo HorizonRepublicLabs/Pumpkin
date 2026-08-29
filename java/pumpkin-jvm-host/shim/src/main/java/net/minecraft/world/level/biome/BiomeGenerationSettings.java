@@ -21,7 +21,7 @@ public class BiomeGenerationSettings {
             throw Unimplemented.forMember("net/minecraft/world/level/biome/BiomeGenerationSettings$Builder.<init>:(Lnet/minecraft/core/HolderGetter;Lnet/minecraft/core/HolderGetter;)V");
         }
 
-        protected Builder() {
+        public Builder() {
         }
     }
 
@@ -39,10 +39,10 @@ public class BiomeGenerationSettings {
             throw Unimplemented.forMember("net/minecraft/world/level/biome/BiomeGenerationSettings$PlainBuilder.build:()Lnet/minecraft/world/level/biome/BiomeGenerationSettings;");
         }
 
-        protected PlainBuilder() {
+        public PlainBuilder() {
         }
     }
 
-    protected BiomeGenerationSettings() {
+    public BiomeGenerationSettings() {
     }
 }

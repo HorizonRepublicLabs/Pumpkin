@@ -38,6 +38,6 @@ public class GameRules {
         void call(GameRuleTypeVisitor visitor, GameRule<T> key);
     }
 
-    protected GameRules() {
+    public GameRules() {
     }
 }

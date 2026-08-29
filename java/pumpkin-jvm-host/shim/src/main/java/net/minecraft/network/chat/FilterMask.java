@@ -61,6 +61,6 @@ public class FilterMask {
         }
     }
 
-    protected FilterMask() {
+    public FilterMask() {
     }
 }

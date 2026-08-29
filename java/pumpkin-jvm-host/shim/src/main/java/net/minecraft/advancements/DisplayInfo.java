@@ -28,6 +28,6 @@ public class DisplayInfo {
         throw Unimplemented.forMember("net/minecraft/advancements/DisplayInfo.getY:()F");
     }
 
-    protected DisplayInfo() {
+    public DisplayInfo() {
     }
 }

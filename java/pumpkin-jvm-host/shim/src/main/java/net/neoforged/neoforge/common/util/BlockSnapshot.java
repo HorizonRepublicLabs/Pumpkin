@@ -46,6 +46,6 @@ public class BlockSnapshot {
         throw Unimplemented.forMember("net/neoforged/neoforge/common/util/BlockSnapshot.toString:()Ljava/lang/String;");
     }
 
-    protected BlockSnapshot() {
+    public BlockSnapshot() {
     }
 }

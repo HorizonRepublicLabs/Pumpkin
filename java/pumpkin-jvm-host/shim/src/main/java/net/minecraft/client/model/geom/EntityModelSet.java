@@ -10,6 +10,6 @@ public class EntityModelSet {
         throw Unimplemented.forMember("net/minecraft/client/model/geom/EntityModelSet.<init>:(Ljava/util/Map;)V");
     }
 
-    protected EntityModelSet() {
+    public EntityModelSet() {
     }
 }

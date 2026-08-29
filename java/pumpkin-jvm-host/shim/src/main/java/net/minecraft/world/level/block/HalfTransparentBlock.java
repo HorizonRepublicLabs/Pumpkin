@@ -20,6 +20,6 @@ public class HalfTransparentBlock extends Block {
         throw Unimplemented.forMember("net/minecraft/world/level/block/HalfTransparentBlock.skipRendering:(Lnet/minecraft/world/level/block/state/BlockState;Lnet/minecraft/world/level/block/state/BlockState;Lnet/minecraft/core/Direction;)Z");
     }
 
-    protected HalfTransparentBlock() {
+    public HalfTransparentBlock() {
     }
 }

@@ -9,6 +9,6 @@ public class MobSpawnSettingsBuilder extends MobSpawnSettings.Builder {
         throw Unimplemented.forMember("net/neoforged/neoforge/common/world/MobSpawnSettingsBuilder.<init>:(Lnet/minecraft/world/level/biome/MobSpawnSettings;)V");
     }
 
-    protected MobSpawnSettingsBuilder() {
+    public MobSpawnSettingsBuilder() {
     }
 }

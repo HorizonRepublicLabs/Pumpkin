@@ -18,6 +18,6 @@ public class Attributes {
         throw Unimplemented.forMember("net/minecraft/world/entity/ai/attributes/Attributes.register:(Ljava/lang/String;Lnet/minecraft/world/entity/ai/attributes/Attribute;)Lnet/minecraft/core/Holder;");
     }
 
-    protected Attributes() {
+    public Attributes() {
     }
 }

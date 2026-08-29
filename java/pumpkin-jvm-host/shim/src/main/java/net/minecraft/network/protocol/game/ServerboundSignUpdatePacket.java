@@ -32,6 +32,6 @@ public class ServerboundSignUpdatePacket implements Packet<ServerGamePacketListe
         throw Unimplemented.forMember("net/minecraft/network/protocol/game/ServerboundSignUpdatePacket.getPos:()Lnet/minecraft/core/BlockPos;");
     }
 
-    protected ServerboundSignUpdatePacket() {
+    public ServerboundSignUpdatePacket() {
     }
 }

@@ -31,6 +31,6 @@ public class ServerboundRenameItemPacket implements Packet<ServerGamePacketListe
         throw Unimplemented.forMember("net/minecraft/network/protocol/game/ServerboundRenameItemPacket.getName:()Ljava/lang/String;");
     }
 
-    protected ServerboundRenameItemPacket() {
+    public ServerboundRenameItemPacket() {
     }
 }

@@ -44,6 +44,6 @@ public class NormalNoise {
         }
     }
 
-    protected NormalNoise() {
+    public NormalNoise() {
     }
 }

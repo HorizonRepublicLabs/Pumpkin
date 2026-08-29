@@ -280,6 +280,6 @@ public class GuiGraphicsExtractor implements GuiGraphicsExtractorExtension {
         }
     }
 
-    protected GuiGraphicsExtractor() {
+    public GuiGraphicsExtractor() {
     }
 }

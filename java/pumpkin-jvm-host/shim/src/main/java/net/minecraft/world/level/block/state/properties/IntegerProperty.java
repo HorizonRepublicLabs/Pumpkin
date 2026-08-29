@@ -38,6 +38,6 @@ public final class IntegerProperty extends Property<Integer> {
         throw Unimplemented.forMember("net/minecraft/world/level/block/state/properties/IntegerProperty.getInternalIndex:(Ljava/lang/Integer;)I");
     }
 
-    protected IntegerProperty() {
+    public IntegerProperty() {
     }
 }

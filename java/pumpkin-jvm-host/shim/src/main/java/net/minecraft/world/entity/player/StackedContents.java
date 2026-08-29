@@ -29,6 +29,6 @@ public class StackedContents<T> {
         }
     }
 
-    protected StackedContents() {
+    public StackedContents() {
     }
 }
