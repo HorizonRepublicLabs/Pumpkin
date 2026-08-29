@@ -171,6 +171,75 @@ class PrunerTest {
                 "the guessed return type was never added to the used set and will not be generated");
     }
 
+    /// A `final float` field's default must carry the `F` suffix. `0.0` alone is a
+    /// double literal, and `static final float X = 0.0;` is "incompatible types:
+    /// possible lossy conversion from double to float" under javac. Minecraft declares
+    /// many `static final float` constants, so this fires on the very next run.
+    @Test
+    void floatFieldsGetAnFSuffixedDefaultLiteral() {
+        CompilationUnit cu = parse("""
+                package net.minecraft.world.entity;
+                public class Mob {
+                    public static final float DEFAULT_SPEED = 1.0F;
+                    public void tick() {}
+                }
+                """);
+        UsedSet used = new UsedSet();
+        used.addMember(new UsedSet.MemberRef("net/minecraft/world/entity/Mob", "DEFAULT_SPEED", "F"), "mod");
+        used.addMember(new UsedSet.MemberRef("net/minecraft/world/entity/Mob", "tick", "()V"), "mod");
+
+        Pruner.prune(cu, "net/minecraft/world/entity/Mob", used);
+        String out = cu.toString();
+        assertTrue(out.contains("DEFAULT_SPEED = 0.0F"),
+                "a bare 0.0 double literal on a final float field does not compile");
+    }
+
+    /// An interface field written `int FOO = 5;` carries no explicit `final` in
+    /// source, but is final by JLS regardless. Trusting only the syntactic modifier
+    /// strips the initializer without replacing it, emitting an uncompilable blank
+    /// `int FOO;` inside the interface — a live path, since an interface always
+    /// classifies HANDLE.
+    @Test
+    void interfaceConstantFieldsKeepACompilableDefaultInitializer() {
+        CompilationUnit cu = parse("""
+                package net.minecraft.tags;
+                public interface BlockTags {
+                    int FOO = 5;
+                }
+                """);
+        UsedSet used = new UsedSet();
+        used.addMember(new UsedSet.MemberRef("net/minecraft/tags/BlockTags", "FOO", "I"), "mod");
+
+        Pruner.prune(cu, "net/minecraft/tags/BlockTags", used);
+        String out = cu.toString();
+        assertTrue(out.contains("FOO = 0"),
+                "an interface constant is implicitly final and must keep a compilable initializer");
+    }
+
+    /// Constructors are never pruned by usage, used or not: `SupertypeCloser` closes
+    /// the used set over classes, never members, so a superclass constructor a kept
+    /// subclass's preserved `super(...)` call targets is very often simply absent from
+    /// the used set. Pruning constructors by usage would delete the very constructor
+    /// that call needs to keep compiling.
+    @Test
+    void everyDeclaredConstructorSurvivesRegardlessOfUsage() {
+        CompilationUnit cu = parse("""
+                package net.minecraft.world.item;
+                public class BlockItem extends Item {
+                    public BlockItem(int id) { super(id); }
+                    public BlockItem(int id, String name) { super(id); }
+                }
+                """);
+        UsedSet used = new UsedSet();
+        // Only one of the two constructors is actually called by any mod.
+        used.addMember(new UsedSet.MemberRef("net/minecraft/world/item/BlockItem", "<init>", "(I)V"), "mod");
+
+        Pruner.prune(cu, "net/minecraft/world/item/BlockItem", used);
+        String out = cu.toString();
+        assertTrue(out.contains("BlockItem(int id, String name)"),
+                "an unused overload must still survive so a preserved super(...) elsewhere keeps compiling");
+    }
+
     /// A body replaced by throw still gets an implicit super(), which fails when the
     /// superclass has no no-arg constructor.
     @Test

@@ -31,8 +31,10 @@ import com.github.javaparser.ast.stmt.ThrowStmt;
 import com.github.javaparser.ast.type.ArrayType;
 import com.github.javaparser.ast.type.ClassOrInterfaceType;
 import com.github.javaparser.ast.type.PrimitiveType;
+import com.github.javaparser.ast.type.ReferenceType;
 import com.github.javaparser.ast.type.Type;
 import com.github.javaparser.ast.type.TypeParameter;
+import com.github.javaparser.ast.type.WildcardType;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -132,9 +134,18 @@ public final class Pruner {
         return Treatment.HANDLE;
     }
 
+    /**
+     * A behaviour-bearing class whose only fields happen to be constants is not a
+     * value type, exactly for the reason the HOLDER rule was corrected: an instance
+     * method means mods extend or call into real behaviour here, so this arm requires
+     * the same absence-of-instance-methods guard as {@link #isHolder}. Left unguarded,
+     * a class like this would classify VALUE and be copied whole — worse than the
+     * HOLDER version of this bug, since an untouched body can call arbitrary
+     * ungenerated code instead of merely failing at class-init.
+     */
     private static boolean isPrimitiveOrStringConstantClass(ClassOrInterfaceDeclaration decl) {
         List<FieldDeclaration> fields = decl.getFields();
-        if (fields.isEmpty()) {
+        if (fields.isEmpty() || !hasOnlyStaticMethods(decl)) {
             return false;
         }
         for (FieldDeclaration f : fields) {
@@ -159,7 +170,7 @@ public final class Pruner {
 
     private static boolean isHolder(ClassOrInterfaceDeclaration decl) {
         List<FieldDeclaration> fields = decl.getFields();
-        if (fields.isEmpty()) {
+        if (fields.isEmpty() || !hasOnlyStaticMethods(decl)) {
             return false;
         }
         for (FieldDeclaration f : fields) {
@@ -172,6 +183,11 @@ public final class Pruner {
                 }
             }
         }
+        return true;
+    }
+
+    /** A private no-arg constructor does not count as an instance method; see {@link #isHolder}. */
+    private static boolean hasOnlyStaticMethods(ClassOrInterfaceDeclaration decl) {
         for (MethodDeclaration m : decl.getMethods()) {
             if (!m.isStatic()) {
                 return false;
@@ -249,7 +265,8 @@ public final class Pruner {
 
         for (BodyDeclaration<?> member : members) {
             if (member.isFieldDeclaration()) {
-                pruneField(member.asFieldDeclaration(), internalName, usedKeys, used, selfTypes, toRemove);
+                pruneField(member.asFieldDeclaration(), decl.isInterface(), internalName, usedKeys, used, selfTypes,
+                        toRemove);
             } else if (member.isMethodDeclaration()) {
                 MethodDeclaration m = member.asMethodDeclaration();
                 if (m.getBody().isEmpty()) {
@@ -273,19 +290,23 @@ public final class Pruner {
                     toRemove.add(member);
                 }
             } else if (member.isConstructorDeclaration()) {
+                // Constructors are never pruned, used or not: SupertypeCloser closes
+                // the used set over classes, never members, so a superclass
+                // constructor a kept subclass constructor's preserved super(...) call
+                // targets is often simply absent from usedKeys — pruning by usage here
+                // would delete the very constructor that call needs to keep compiling.
+                // The same gap empties out to the implicit default constructor's
+                // super() when every declared constructor gets removed. Keeping every
+                // constructor covers both in one rule; its parameter types may still
+                // fall outside the closure, which is what missingTypesInKeptSignatures
+                // exists to surface.
                 ConstructorDeclaration c = member.asConstructorDeclaration();
                 Set<String> referenced = new TreeSet<>();
                 String descriptor = methodDescriptor(cu, decl, c, null, selfTypes, referenced);
-                String lookupKey = "<init>:" + descriptor;
-                boolean exact = usedKeys.contains(lookupKey);
-                if (exact || matchesByName(usedKeys, "<init>")) {
-                    String key = internalName + "." + lookupKey;
-                    replaceConstructorBody(c, key);
-                    threw[0] = true;
-                    reportKept(key, exact, referenced, used);
-                } else {
-                    toRemove.add(member);
-                }
+                String key = internalName + ".<init>:" + descriptor;
+                replaceConstructorBody(c, key);
+                threw[0] = true;
+                reportKept(key, true, referenced, used);
             }
         }
 
@@ -304,7 +325,8 @@ public final class Pruner {
 
         for (BodyDeclaration<?> member : members) {
             if (member.isFieldDeclaration()) {
-                pruneField(member.asFieldDeclaration(), internalName, usedKeys, used, selfTypes, toRemove);
+                pruneField(member.asFieldDeclaration(), decl.isInterface(), internalName, usedKeys, used, selfTypes,
+                        toRemove);
             } else if (member.isMethodDeclaration() || member.isConstructorDeclaration()) {
                 // Methods and constructors on a holder exist only to build the
                 // registry values its fields used to hold; once those initializers
@@ -331,22 +353,31 @@ public final class Pruner {
      * final} (blank finals must be definitely assigned; a non-final field is simply
      * left uninitialized, defaulting to zero/{@code null} per the JVM). Queues {@code
      * f} itself for removal when no variable survives.
+     *
+     * <p>{@code declaringTypeIsInterface} treats the field as final even when {@link
+     * FieldDeclaration#isFinal()} says otherwise: an interface field written {@code int
+     * FOO = 5;} carries no explicit {@code final} modifier in source, but is final by
+     * JLS regardless. Trusting the syntactic modifier alone would strip its initializer
+     * without replacing it, emitting an uncompilable blank {@code int FOO;} inside the
+     * interface.
      */
-    private static void pruneField(FieldDeclaration f, String internalName, SortedSet<String> usedKeys,
-            UsedSet used, Map<String, String> selfTypes, List<BodyDeclaration<?>> toRemove) {
-        boolean isFinal = f.isFinal();
+    private static void pruneField(FieldDeclaration f, boolean declaringTypeIsInterface, String internalName,
+            SortedSet<String> usedKeys, UsedSet used, Map<String, String> selfTypes,
+            List<BodyDeclaration<?>> toRemove) {
+        boolean isFinal = f.isFinal() || declaringTypeIsInterface;
         CompilationUnit cu = f.findCompilationUnit().orElseThrow();
         NodeList<VariableDeclarator> vars = f.getVariables();
         List<VariableDeclarator> unused = new ArrayList<>();
         List<VariableDeclarator> kept = new ArrayList<>();
         for (VariableDeclarator v : vars) {
             String name = v.getNameAsString();
-            Set<String> referenced = new TreeSet<>();
-            String descriptor = typeDescriptor(cu, v.getType(), Map.of(), selfTypes, referenced);
+            String descriptor = typeDescriptor(cu, v.getType(), Map.of(), selfTypes);
             String lookupKey = name + ":" + descriptor;
             boolean exact = usedKeys.contains(lookupKey);
             if (exact || matchesByName(usedKeys, name)) {
                 kept.add(v);
+                Set<String> referenced = new TreeSet<>();
+                collectReferencedTypes(cu, v.getType(), Map.of(), selfTypes, referenced);
                 reportKept(internalName + "." + lookupKey, exact, referenced, used);
             } else {
                 unused.add(v);
@@ -370,9 +401,15 @@ public final class Pruner {
         if (type.isPrimitiveType()) {
             return switch (type.asPrimitiveType().getType()) {
                 case BOOLEAN -> new BooleanLiteralExpr(false);
-                case CHAR -> new CharLiteralExpr('\0');
+                // The escaped form, not a raw NUL byte: this text is committed and
+                // reviewed as a diff, and a literal NUL corrupts diffs and text tooling.
+                case CHAR -> CharLiteralExpr.escape("\0");
                 case LONG -> new LongLiteralExpr("0L");
-                case FLOAT, DOUBLE -> new DoubleLiteralExpr("0.0");
+                // Distinct from DOUBLE: "0.0" alone is a double literal, and a final
+                // float field initialized with one is "incompatible types: possible
+                // lossy conversion from double to float" under javac.
+                case FLOAT -> new DoubleLiteralExpr("0.0F");
+                case DOUBLE -> new DoubleLiteralExpr("0.0");
                 case BYTE, SHORT, INT -> new IntegerLiteralExpr("0");
             };
         }
@@ -470,20 +507,36 @@ public final class Pruner {
 
     // --- Descriptor synthesis -------------------------------------------------
 
+    /**
+     * Builds the JVM-style descriptor (erased, as a real member descriptor is) while
+     * separately collecting every type actually named in the *source* signature —
+     * parameters, return type, generic type arguments, and {@code throws} clauses —
+     * into {@code referencedTypes}, for {@link #reportKept} to check against the used
+     * set's closure. The two are deliberately different walks: a kept {@code
+     * List<Ingredient>} erases to {@code Ljava/util/List;} for matching purposes, but
+     * {@code Ingredient} is what the emitted source actually writes and needs
+     * generated to compile — erasure hides exactly the thing this check exists to
+     * catch.
+     */
     private static String methodDescriptor(CompilationUnit cu, ClassOrInterfaceDeclaration owner,
             CallableDeclaration<?> callable, Type returnType, Map<String, String> selfTypes,
             Set<String> referencedTypes) {
         Map<String, String> typeParams = typeParamBounds(cu, owner, callable);
         StringBuilder sb = new StringBuilder("(");
-        List<Parameter> params = callable.getParameters();
-        for (int i = 0; i < params.size(); i++) {
-            Parameter p = params.get(i);
+        for (Parameter p : callable.getParameters()) {
             boolean varargs = p.isVarArgs();
-            String descriptor = typeDescriptor(cu, p.getType(), typeParams, selfTypes, referencedTypes);
+            String descriptor = typeDescriptor(cu, p.getType(), typeParams, selfTypes);
             sb.append(varargs ? "[" + descriptor : descriptor);
+            collectReferencedTypes(cu, p.getType(), typeParams, selfTypes, referencedTypes);
         }
         sb.append(")");
-        sb.append(returnType == null ? "V" : typeDescriptor(cu, returnType, typeParams, selfTypes, referencedTypes));
+        sb.append(returnType == null ? "V" : typeDescriptor(cu, returnType, typeParams, selfTypes));
+        if (returnType != null) {
+            collectReferencedTypes(cu, returnType, typeParams, selfTypes, referencedTypes);
+        }
+        for (ReferenceType thrown : callable.getThrownExceptions()) {
+            collectReferencedTypes(cu, thrown, typeParams, selfTypes, referencedTypes);
+        }
         return sb.toString();
     }
 
@@ -510,12 +563,12 @@ public final class Pruner {
      * {@code selfTypes} maps the pruned type's own simple name and every enclosing
      * type's simple name to its already-known internal name; checked before any
      * lookup-based resolution, since a self- or enclosing-reference needs no guess.
-     * {@code referencedTypes}, when non-null, collects the internal name of every
-     * object type resolved along the way, for {@link #reportKept} to check for gaps in
-     * the used set afterward.
+     * Erased: generic type arguments are deliberately not walked here, matching how a
+     * real JVM descriptor is built. See {@link #collectReferencedTypes} for the
+     * unerased walk used for missing-type reporting.
      */
     private static String typeDescriptor(CompilationUnit cu, Type type, Map<String, String> typeParams,
-            Map<String, String> selfTypes, Set<String> referencedTypes) {
+            Map<String, String> selfTypes) {
         if (type.isPrimitiveType()) {
             return type.asPrimitiveType().getType().toDescriptor();
         }
@@ -524,23 +577,55 @@ public final class Pruner {
         }
         if (type.isArrayType()) {
             ArrayType at = type.asArrayType();
-            return "[" + typeDescriptor(cu, at.getComponentType(), typeParams, selfTypes, referencedTypes);
+            return "[" + typeDescriptor(cu, at.getComponentType(), typeParams, selfTypes);
         }
         if (type.isClassOrInterfaceType()) {
-            ClassOrInterfaceType cit = type.asClassOrInterfaceType();
-            String simpleName = cit.getNameAsString();
-            String internal = typeParams.get(simpleName);
-            if (internal == null) {
-                String self = selfTypes.get(simpleName);
-                internal = self != null ? self
-                        : qualifiedInternalName(cit).orElseGet(() -> SupertypeCloser.resolve(cu, simpleName));
-            }
-            if (referencedTypes != null) {
-                referencedTypes.add(internal);
-            }
-            return "L" + internal + ";";
+            return "L" + resolveClassOrInterfaceType(cu, type.asClassOrInterfaceType(), typeParams, selfTypes) + ";";
         }
         return "Ljava/lang/Object;";
+    }
+
+    private static String resolveClassOrInterfaceType(CompilationUnit cu, ClassOrInterfaceType cit,
+            Map<String, String> typeParams, Map<String, String> selfTypes) {
+        String simpleName = cit.getNameAsString();
+        String internal = typeParams.get(simpleName);
+        if (internal != null) {
+            return internal;
+        }
+        String self = selfTypes.get(simpleName);
+        return self != null ? self : qualifiedInternalName(cit).orElseGet(() -> SupertypeCloser.resolve(cu, simpleName));
+    }
+
+    /**
+     * Walks a *source* type — parameters, return type, or a {@code throws} clause
+     * entry — recursively through arrays, generic type arguments, and wildcard bounds,
+     * recording the internal name of every object type it finds. Unlike {@link
+     * #typeDescriptor}, this does not erase: a kept {@code List<Ingredient>} must
+     * report {@code Ingredient}, not just the raw {@code List}, because {@code
+     * Ingredient} is what the emitted source names and needs generated to compile.
+     */
+    private static void collectReferencedTypes(CompilationUnit cu, Type type, Map<String, String> typeParams,
+            Map<String, String> selfTypes, Set<String> referencedTypes) {
+        if (type.isArrayType()) {
+            collectReferencedTypes(cu, type.asArrayType().getComponentType(), typeParams, selfTypes, referencedTypes);
+            return;
+        }
+        if (type.isWildcardType()) {
+            WildcardType wt = type.asWildcardType();
+            wt.getExtendedType().ifPresent(t -> collectReferencedTypes(cu, t, typeParams, selfTypes, referencedTypes));
+            wt.getSuperType().ifPresent(t -> collectReferencedTypes(cu, t, typeParams, selfTypes, referencedTypes));
+            return;
+        }
+        if (!type.isClassOrInterfaceType()) {
+            return;
+        }
+        ClassOrInterfaceType cit = type.asClassOrInterfaceType();
+        referencedTypes.add(resolveClassOrInterfaceType(cu, cit, typeParams, selfTypes));
+        cit.getTypeArguments().ifPresent(args -> {
+            for (Type arg : args) {
+                collectReferencedTypes(cu, arg, typeParams, selfTypes, referencedTypes);
+            }
+        });
     }
 
     /**
