@@ -16,7 +16,6 @@ public class NormalNoise {
     }
 
     private NormalNoise(RandomSource random, NormalNoise.NoiseParameters parameters, boolean useNewInitialization) {
-        throw Unimplemented.forMember("net/minecraft/world/level/levelgen/synth/NormalNoise.<init>:(Lnet/minecraft/util/RandomSource;Lnet/minecraft/world/level/levelgen/synth/NormalNoise$NoiseParameters;Z)V");
     }
 
     public double maxValue() {
@@ -35,12 +34,10 @@ public class NormalNoise {
 
         public NoiseParameters(int firstOctave, List<Double> amplitudes) {
             this((int) 0, (DoubleList) null);
-            throw Unimplemented.forMember("net/minecraft/world/level/levelgen/synth/NormalNoise$NoiseParameters.<init>:(ILjava/util/List;)V");
         }
 
         public NoiseParameters(int firstOctave, double firstAmplitude, double... amplitudes) {
             this((int) 0, (DoubleList) null);
-            throw Unimplemented.forMember("net/minecraft/world/level/levelgen/synth/NormalNoise$NoiseParameters.<init>:(ID[D)V");
         }
     }
 

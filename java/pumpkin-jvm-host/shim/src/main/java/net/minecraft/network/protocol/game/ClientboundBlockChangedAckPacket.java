@@ -9,7 +9,6 @@ public record ClientboundBlockChangedAckPacket(int sequence) implements Packet<C
 
     private ClientboundBlockChangedAckPacket(FriendlyByteBuf input) {
         this((int) 0);
-        throw Unimplemented.forMember("net/minecraft/network/protocol/game/ClientboundBlockChangedAckPacket.<init>:(Lnet/minecraft/network/FriendlyByteBuf;)V");
     }
 
     private void write(FriendlyByteBuf output) {

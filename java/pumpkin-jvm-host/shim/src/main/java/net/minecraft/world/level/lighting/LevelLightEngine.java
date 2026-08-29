@@ -9,11 +9,9 @@ import dev.pumpkin.shim.Unimplemented;
 public class LevelLightEngine implements LightEventListener {
 
     public LevelLightEngine(LightChunkGetter chunkSource, boolean hasBlockLight, boolean hasSkyLight) {
-        throw Unimplemented.forMember("net/minecraft/world/level/lighting/LevelLightEngine.<init>:(Lnet/minecraft/world/level/chunk/LightChunkGetter;ZZ)V");
     }
 
     protected LevelLightEngine() {
-        throw Unimplemented.forMember("net/minecraft/world/level/lighting/LevelLightEngine.<init>:()V");
     }
 
     public void checkBlock(BlockPos pos) {

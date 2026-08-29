@@ -8,11 +8,9 @@ import dev.pumpkin.shim.Unimplemented;
 public class ClientboundSetChunkCacheCenterPacket implements Packet<ClientGamePacketListener> {
 
     public ClientboundSetChunkCacheCenterPacket(int x, int z) {
-        throw Unimplemented.forMember("net/minecraft/network/protocol/game/ClientboundSetChunkCacheCenterPacket.<init>:(II)V");
     }
 
     private ClientboundSetChunkCacheCenterPacket(FriendlyByteBuf input) {
-        throw Unimplemented.forMember("net/minecraft/network/protocol/game/ClientboundSetChunkCacheCenterPacket.<init>:(Lnet/minecraft/network/FriendlyByteBuf;)V");
     }
 
     private void write(FriendlyByteBuf output) {

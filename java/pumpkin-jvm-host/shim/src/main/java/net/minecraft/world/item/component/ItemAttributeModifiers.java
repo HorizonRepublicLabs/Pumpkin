@@ -19,7 +19,6 @@ public record ItemAttributeModifiers(List<ItemAttributeModifiers.Entry> modifier
     public static class Builder {
 
         protected Builder() {
-            throw Unimplemented.forMember("net/minecraft/world/item/component/ItemAttributeModifiers$Builder.<init>:()V");
         }
 
         public ItemAttributeModifiers build() {
@@ -88,7 +87,6 @@ public record ItemAttributeModifiers(List<ItemAttributeModifiers.Entry> modifier
 
         public Entry(Holder<Attribute> attribute, AttributeModifier modifier, EquipmentSlotGroup slot) {
             this((Holder<Attribute>) null, (AttributeModifier) null, (EquipmentSlotGroup) null, (ItemAttributeModifiers.Display) null);
-            throw Unimplemented.forMember("net/minecraft/world/item/component/ItemAttributeModifiers$Entry.<init>:(Lnet/minecraft/core/Holder;Lnet/minecraft/world/entity/ai/attributes/AttributeModifier;Lnet/minecraft/world/entity/EquipmentSlotGroup;)V");
         }
 
         public boolean matches(Holder<Attribute> attribute, Identifier id) {

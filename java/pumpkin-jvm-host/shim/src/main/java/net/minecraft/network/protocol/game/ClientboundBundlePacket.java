@@ -8,7 +8,6 @@ import dev.pumpkin.shim.Unimplemented;
 public class ClientboundBundlePacket extends BundlePacket<ClientGamePacketListener> {
 
     public ClientboundBundlePacket(Iterable<Packet<? super ClientGamePacketListener>> packets) {
-        throw Unimplemented.forMember("net/minecraft/network/protocol/game/ClientboundBundlePacket.<init>:(Ljava/lang/Iterable;)V");
     }
 
     public PacketType<ClientboundBundlePacket> type() {

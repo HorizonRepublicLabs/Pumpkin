@@ -12,7 +12,6 @@ import dev.pumpkin.shim.Unimplemented;
 public abstract class AbstractSliderButton extends AbstractWidget.WithInactiveMessage {
 
     public AbstractSliderButton(int x, int y, int width, int height, Component message, double initialValue) {
-        throw Unimplemented.forMember("net/minecraft/client/gui/components/AbstractSliderButton.<init>:(IIIILnet/minecraft/network/chat/Component;D)V");
     }
 
     protected MutableComponent createNarrationMessage() {

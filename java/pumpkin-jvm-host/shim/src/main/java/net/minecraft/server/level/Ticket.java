@@ -5,11 +5,9 @@ import dev.pumpkin.shim.Unimplemented;
 public class Ticket {
 
     public Ticket(TicketType type, int ticketLevel) {
-        throw Unimplemented.forMember("net/minecraft/server/level/Ticket.<init>:(Lnet/minecraft/server/level/TicketType;I)V");
     }
 
     private Ticket(TicketType type, int ticketLevel, long ticksLeft) {
-        throw Unimplemented.forMember("net/minecraft/server/level/Ticket.<init>:(Lnet/minecraft/server/level/TicketType;IJ)V");
     }
 
     public String toString() {

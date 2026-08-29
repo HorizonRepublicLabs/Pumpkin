@@ -8,7 +8,6 @@ import dev.pumpkin.shim.Unimplemented;
 public class RegisterPayloadHandlersEvent extends Event implements IModBusEvent {
 
     public RegisterPayloadHandlersEvent() {
-        throw Unimplemented.forMember("net/neoforged/neoforge/network/event/RegisterPayloadHandlersEvent.<init>:()V");
     }
 
     public PayloadRegistrar registrar(String version) {

@@ -21,7 +21,6 @@ public class ClientboundBlockEntityDataPacket implements Packet<ClientGamePacket
     }
 
     private ClientboundBlockEntityDataPacket(BlockPos pos, BlockEntityType<?> type, CompoundTag tag) {
-        throw Unimplemented.forMember("net/minecraft/network/protocol/game/ClientboundBlockEntityDataPacket.<init>:(Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/entity/BlockEntityType;Lnet/minecraft/nbt/CompoundTag;)V");
     }
 
     public PacketType<ClientboundBlockEntityDataPacket> type() {

@@ -10,7 +10,6 @@ import dev.pumpkin.shim.Unimplemented;
 public class RecipePropertySet {
 
     private RecipePropertySet(Set<Holder<Item>> items) {
-        throw Unimplemented.forMember("net/minecraft/world/item/crafting/RecipePropertySet.<init>:(Ljava/util/Set;)V");
     }
 
     public boolean test(ItemStack itemStack) {

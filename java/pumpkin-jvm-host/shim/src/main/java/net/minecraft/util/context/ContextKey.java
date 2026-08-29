@@ -6,7 +6,6 @@ import dev.pumpkin.shim.Unimplemented;
 public class ContextKey<T> {
 
     public ContextKey(Identifier name) {
-        throw Unimplemented.forMember("net/minecraft/util/context/ContextKey.<init>:(Lnet/minecraft/resources/Identifier;)V");
     }
 
     public Identifier name() {

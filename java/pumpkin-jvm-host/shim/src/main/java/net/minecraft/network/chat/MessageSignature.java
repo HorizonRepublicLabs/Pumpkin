@@ -34,12 +34,10 @@ public record MessageSignature(byte[] bytes) {
 
         public Packed(MessageSignature signature) {
             this((int) 0, (MessageSignature) null);
-            throw Unimplemented.forMember("net/minecraft/network/chat/MessageSignature$Packed.<init>:(Lnet/minecraft/network/chat/MessageSignature;)V");
         }
 
         public Packed(int id) {
             this((int) 0, (MessageSignature) null);
-            throw Unimplemented.forMember("net/minecraft/network/chat/MessageSignature$Packed.<init>:(I)V");
         }
 
         public static MessageSignature.Packed read(FriendlyByteBuf input) {

@@ -15,11 +15,9 @@ public record ChunkStep(ChunkStatus targetStatus, ChunkDependencies directDepend
     public static class Builder {
 
         protected Builder(ChunkStatus status) {
-            throw Unimplemented.forMember("net/minecraft/world/level/chunk/status/ChunkStep$Builder.<init>:(Lnet/minecraft/world/level/chunk/status/ChunkStatus;)V");
         }
 
         protected Builder(ChunkStatus status, ChunkStep parent) {
-            throw Unimplemented.forMember("net/minecraft/world/level/chunk/status/ChunkStep$Builder.<init>:(Lnet/minecraft/world/level/chunk/status/ChunkStatus;Lnet/minecraft/world/level/chunk/status/ChunkStep;)V");
         }
 
         public ChunkStep build() {

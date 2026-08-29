@@ -8,11 +8,9 @@ import dev.pumpkin.shim.Unimplemented;
 public class ConfirmScreen extends Screen {
 
     public ConfirmScreen(BooleanConsumer callback, Component title, Component message) {
-        throw Unimplemented.forMember("net/minecraft/client/gui/screens/ConfirmScreen.<init>:(Lit/unimi/dsi/fastutil/booleans/BooleanConsumer;Lnet/minecraft/network/chat/Component;Lnet/minecraft/network/chat/Component;)V");
     }
 
     public ConfirmScreen(BooleanConsumer callback, Component title, Component message, Component yesButtonComponent, Component noButtonComponent) {
-        throw Unimplemented.forMember("net/minecraft/client/gui/screens/ConfirmScreen.<init>:(Lit/unimi/dsi/fastutil/booleans/BooleanConsumer;Lnet/minecraft/network/chat/Component;Lnet/minecraft/network/chat/Component;Lnet/minecraft/network/chat/Component;Lnet/minecraft/network/chat/Component;)V");
     }
 
     public Component getNarrationMessage() {

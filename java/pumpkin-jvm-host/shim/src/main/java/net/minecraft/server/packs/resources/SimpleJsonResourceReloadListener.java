@@ -15,15 +15,12 @@ import dev.pumpkin.shim.Unimplemented;
 public abstract class SimpleJsonResourceReloadListener<T> extends SimplePreparableReloadListener<Map<Identifier, T>> {
 
     protected SimpleJsonResourceReloadListener(HolderLookup.Provider registries, Codec<T> codec, ResourceKey<? extends Registry<T>> registryKey) {
-        throw Unimplemented.forMember("net/minecraft/server/packs/resources/SimpleJsonResourceReloadListener.<init>:(Lnet/minecraft/core/HolderLookup$Provider;Lcom/mojang/serialization/Codec;Lnet/minecraft/resources/ResourceKey;)V");
     }
 
     protected SimpleJsonResourceReloadListener(Codec<T> codec, FileToIdConverter lister) {
-        throw Unimplemented.forMember("net/minecraft/server/packs/resources/SimpleJsonResourceReloadListener.<init>:(Lcom/mojang/serialization/Codec;Lnet/minecraft/resources/FileToIdConverter;)V");
     }
 
     private SimpleJsonResourceReloadListener(DynamicOps<JsonElement> ops, Codec<T> codec, FileToIdConverter lister) {
-        throw Unimplemented.forMember("net/minecraft/server/packs/resources/SimpleJsonResourceReloadListener.<init>:(Lcom/mojang/serialization/DynamicOps;Lcom/mojang/serialization/Codec;Lnet/minecraft/resources/FileToIdConverter;)V");
     }
 
     protected Map<Identifier, T> prepare(ResourceManager manager, ProfilerFiller profiler) {

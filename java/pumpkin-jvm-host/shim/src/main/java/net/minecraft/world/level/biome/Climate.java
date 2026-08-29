@@ -23,7 +23,6 @@ public class Climate {
     public static class ParameterList<T> {
 
         public ParameterList(List<Pair<Climate.ParameterPoint, T>> values) {
-            throw Unimplemented.forMember("net/minecraft/world/level/biome/Climate$ParameterList.<init>:(Ljava/util/List;)V");
         }
 
         public ParameterList() {
@@ -36,7 +35,6 @@ public class Climate {
     protected static final class RTree<T> {
 
         private RTree(Climate.RTree.Node<T> root) {
-            throw Unimplemented.forMember("net/minecraft/world/level/biome/Climate$RTree.<init>:(Lnet/minecraft/world/level/biome/Climate$RTree$Node;)V");
         }
 
         public static <T> Climate.RTree<T> create(List<Pair<Climate.ParameterPoint, T>> values) {
@@ -50,7 +48,6 @@ public class Climate {
         private static final class Leaf<T> extends Climate.RTree.Node<T> {
 
             private Leaf(Climate.ParameterPoint parameterPoint, T value) {
-                throw Unimplemented.forMember("net/minecraft/world/level/biome/Climate$RTree$Leaf.<init>:(Lnet/minecraft/world/level/biome/Climate$ParameterPoint;Ljava/lang/Object;)V");
             }
 
             protected Climate.RTree.Leaf<T> search(long[] target, Climate.RTree.Leaf<T> candidate, Climate.DistanceMetric<T> distanceMetric) {
@@ -64,7 +61,6 @@ public class Climate {
         abstract static class Node<T> {
 
             protected Node(List<Climate.Parameter> parameterSpace) {
-                throw Unimplemented.forMember("net/minecraft/world/level/biome/Climate$RTree$Node.<init>:(Ljava/util/List;)V");
             }
 
             protected abstract Climate.RTree.Leaf<T> search(final long[] target, final Climate.RTree.Leaf<T> candidate, final Climate.DistanceMetric<T> distanceMetric);
@@ -80,11 +76,9 @@ public class Climate {
         private static final class SubTree<T> extends Climate.RTree.Node<T> {
 
             public SubTree(List<? extends Climate.RTree.Node<T>> children) {
-                throw Unimplemented.forMember("net/minecraft/world/level/biome/Climate$RTree$SubTree.<init>:(Ljava/util/List;)V");
             }
 
             public SubTree(List<Climate.Parameter> parameterSpace, List<? extends Climate.RTree.Node<T>> children) {
-                throw Unimplemented.forMember("net/minecraft/world/level/biome/Climate$RTree$SubTree.<init>:(Ljava/util/List;Ljava/util/List;)V");
             }
 
             protected Climate.RTree.Leaf<T> search(long[] target, Climate.RTree.Leaf<T> candidate, Climate.DistanceMetric<T> distanceMetric) {
@@ -105,7 +99,6 @@ public class Climate {
     private static class SpawnFinder {
 
         private SpawnFinder(List<Climate.ParameterPoint> targetClimates, Climate.Sampler sampler) {
-            throw Unimplemented.forMember("net/minecraft/world/level/biome/Climate$SpawnFinder.<init>:(Ljava/util/List;Lnet/minecraft/world/level/biome/Climate$Sampler;)V");
         }
 
         private record Result(BlockPos location, long fitness) {

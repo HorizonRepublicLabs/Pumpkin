@@ -12,11 +12,9 @@ import dev.pumpkin.shim.Unimplemented;
 public class CreativeModeTab {
 
     private CreativeModeTab(CreativeModeTab.Row row, int column, CreativeModeTab.Type type, Component displayName, Supplier<ItemStack> iconGenerator, CreativeModeTab.DisplayItemsGenerator displayItemsGenerator, net.minecraft.resources.Identifier scrollerSpriteLocation, boolean hasSearchBar, int searchBarWidth, net.minecraft.resources.Identifier tabsImage, int labelColor, java.util.List<net.minecraft.resources.Identifier> tabsBefore, java.util.List<net.minecraft.resources.Identifier> tabsAfter) {
-        throw Unimplemented.forMember("net/minecraft/world/item/CreativeModeTab.<init>:(Lnet/minecraft/world/item/CreativeModeTab$Row;ILnet/minecraft/world/item/CreativeModeTab$Type;Lnet/minecraft/network/chat/Component;Ljava/util/function/Supplier;Lnet/minecraft/world/item/CreativeModeTab$DisplayItemsGenerator;Lnet/minecraft/resources/Identifier;ZILnet/minecraft/resources/Identifier;ILjava/util/List;Ljava/util/List;)V");
     }
 
     protected CreativeModeTab(CreativeModeTab.Builder builder) {
-        throw Unimplemented.forMember("net/minecraft/world/item/CreativeModeTab.<init>:(Lnet/minecraft/world/item/CreativeModeTab$Builder;)V");
     }
 
     public static CreativeModeTab.Builder builder() {
@@ -42,7 +40,6 @@ public class CreativeModeTab {
     public static class Builder {
 
         public Builder(CreativeModeTab.Row row, int column) {
-            throw Unimplemented.forMember("net/minecraft/world/item/CreativeModeTab$Builder.<init>:(Lnet/minecraft/world/item/CreativeModeTab$Row;I)V");
         }
 
         public CreativeModeTab.Builder title(Component displayName) {
@@ -77,7 +74,6 @@ public class CreativeModeTab {
     private static class ItemDisplayBuilder implements CreativeModeTab.Output {
 
         public ItemDisplayBuilder(CreativeModeTab tab, FeatureFlagSet featureFlagSet) {
-            throw Unimplemented.forMember("net/minecraft/world/item/CreativeModeTab$ItemDisplayBuilder.<init>:(Lnet/minecraft/world/item/CreativeModeTab;Lnet/minecraft/world/flag/FeatureFlagSet;)V");
         }
 
         public void accept(ItemStack stack, CreativeModeTab.TabVisibility tabVisibility) {

@@ -22,7 +22,6 @@ public class StackedContents<T> {
     private class RecipePicker {
 
         public RecipePicker(List<? extends StackedContents.IngredientInfo<T>> ingredients) {
-            throw Unimplemented.forMember("net/minecraft/world/entity/player/StackedContents$RecipePicker.<init>:(Ljava/util/List;)V");
         }
 
         protected RecipePicker() {

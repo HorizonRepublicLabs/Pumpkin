@@ -36,8 +36,16 @@ public class DeferredHolder<R, T extends R> implements Holder<R>, Supplier<T> {
     // The factory is null: this holder names something it did not create, so get() would
     // have nothing to call. A mod that asks for the value gets a NullPointerException rather
     // than a wrong object, which is the honest failure until cross-registry lookup exists.
+    @SuppressWarnings("unchecked")
     public static <R, T extends R> DeferredHolder<R, T> create(ResourceKey<? extends Registry<R>> registryKey, Identifier valueName) {
-        return new DeferredHolder<>(valueName, null);
+        return new DeferredHolder<>(valueName, () -> {
+            DeferredHolder<?, ?> target = PUMPKIN_BY_ID.get(registryKey.identifier() + "|" + valueName);
+            if (target == null) {
+                throw new IllegalStateException(valueName + " was never registered; a holder"
+                        + " created by name can only resolve after its target registers");
+            }
+            return (T) target.get();
+        });
     }
 
     public static <R, T extends R> DeferredHolder<R, T> create(Identifier registryName, Identifier valueName) {
@@ -58,6 +66,26 @@ public class DeferredHolder<R, T extends R> implements Holder<R>, Supplier<T> {
     DeferredHolder(Identifier id, Supplier<T> factory) {
         this.pumpkinId = id;
         this.pumpkinFactory = factory;
+    }
+
+    // Keyed by registry AND id, not id alone. A mod registers a block and an item under
+    // the same id as a matter of course, and Cucumber registers codecs beside them; keyed
+    // by id alone, whichever registered last won, and a slab asking for its base block got
+    // a RecordCodecBuilder back -- a ClassCastException naming two classes and no cause.
+    private static final java.util.Map<String, DeferredHolder<?, ?>> PUMPKIN_BY_ID =
+            new java.util.concurrent.ConcurrentHashMap<>();
+
+    // Called by DeferredRegister.register, which is the one place that knows both halves.
+    static void pumpkinRecord(String registry, DeferredHolder<?, ?> holder) {
+        PUMPKIN_BY_ID.put(registry + "|" + holder.getId(), holder);
+    }
+
+    // The RegisterEvent path hands over a value, not a supplier: it was built before the
+    // helper ever saw it. Wrapped so holders created by name resolve regardless of which
+    // of the two registration roads the target took -- MysticalAgriculture registers its
+    // blocks on this one and its slabs then ask for them by name.
+    static <V> void pumpkinRecordValue(String registry, Identifier id, V value) {
+        PUMPKIN_BY_ID.put(registry + "|" + id, new DeferredHolder<>(id, () -> value));
     }
 
     public T value() {

@@ -7,7 +7,6 @@ import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.stream.LongStream;
 import net.minecraft.network.FriendlyByteBuf;
-import dev.pumpkin.shim.Unimplemented;
 
 public interface PalettedContainerRO<T> {
 
@@ -37,7 +36,6 @@ public interface PalettedContainerRO<T> {
 
         public PackedData(List<T> paletteEntries, Optional<LongStream> storage) {
             this((List<T>) null, (Optional<LongStream>) null, (int) 0);
-            throw Unimplemented.forMember("net/minecraft/world/level/chunk/PalettedContainerRO$PackedData.<init>:(Ljava/util/List;Ljava/util/Optional;)V");
         }
     }
 

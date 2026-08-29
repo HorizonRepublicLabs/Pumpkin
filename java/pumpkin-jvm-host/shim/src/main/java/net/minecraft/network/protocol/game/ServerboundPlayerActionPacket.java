@@ -10,15 +10,12 @@ import dev.pumpkin.shim.Unimplemented;
 public class ServerboundPlayerActionPacket implements Packet<ServerGamePacketListener> {
 
     public ServerboundPlayerActionPacket(ServerboundPlayerActionPacket.Action action, BlockPos pos, Direction direction, int sequence) {
-        throw Unimplemented.forMember("net/minecraft/network/protocol/game/ServerboundPlayerActionPacket.<init>:(Lnet/minecraft/network/protocol/game/ServerboundPlayerActionPacket$Action;Lnet/minecraft/core/BlockPos;Lnet/minecraft/core/Direction;I)V");
     }
 
     public ServerboundPlayerActionPacket(ServerboundPlayerActionPacket.Action action, BlockPos pos, Direction direction) {
-        throw Unimplemented.forMember("net/minecraft/network/protocol/game/ServerboundPlayerActionPacket.<init>:(Lnet/minecraft/network/protocol/game/ServerboundPlayerActionPacket$Action;Lnet/minecraft/core/BlockPos;Lnet/minecraft/core/Direction;)V");
     }
 
     private ServerboundPlayerActionPacket(FriendlyByteBuf input) {
-        throw Unimplemented.forMember("net/minecraft/network/protocol/game/ServerboundPlayerActionPacket.<init>:(Lnet/minecraft/network/FriendlyByteBuf;)V");
     }
 
     private void write(FriendlyByteBuf output) {

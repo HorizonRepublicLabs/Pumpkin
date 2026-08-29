@@ -16,7 +16,6 @@ public final class RandomState {
     }
 
     private RandomState(NoiseGeneratorSettings settings, HolderGetter<NormalNoise.NoiseParameters> noises, long seed) {
-        throw Unimplemented.forMember("net/minecraft/world/level/levelgen/RandomState.<init>:(Lnet/minecraft/world/level/levelgen/NoiseGeneratorSettings;Lnet/minecraft/core/HolderGetter;J)V");
     }
 
     public RandomState() {

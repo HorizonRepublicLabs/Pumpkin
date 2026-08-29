@@ -13,7 +13,6 @@ import dev.pumpkin.shim.Unimplemented;
 public class ShearsItem extends Item {
 
     public ShearsItem(Item.Properties properties) {
-        throw Unimplemented.forMember("net/minecraft/world/item/ShearsItem.<init>:(Lnet/minecraft/world/item/Item$Properties;)V");
     }
 
     public static Tool createToolProperties() {

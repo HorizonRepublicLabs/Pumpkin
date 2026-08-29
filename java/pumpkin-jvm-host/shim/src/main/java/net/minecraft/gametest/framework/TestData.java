@@ -9,12 +9,10 @@ public record TestData<EnvironmentType>(EnvironmentType environment, Identifier 
 
     public TestData(EnvironmentType environment, Identifier structure, int maxTicks, int setupTicks, boolean required, Rotation rotation) {
         this((EnvironmentType) null, (Identifier) null, (int) 0, (int) 0, (boolean) false, (Rotation) null, (boolean) false, (int) 0, (int) 0, (boolean) false, (int) 0);
-        throw Unimplemented.forMember("net/minecraft/gametest/framework/TestData.<init>:(Ljava/lang/Object;Lnet/minecraft/resources/Identifier;IIZLnet/minecraft/world/level/block/Rotation;)V");
     }
 
     public TestData(EnvironmentType environment, Identifier structure, int maxTicks, int setupTicks, boolean required) {
         this((EnvironmentType) null, (Identifier) null, (int) 0, (int) 0, (boolean) false, (Rotation) null, (boolean) false, (int) 0, (int) 0, (boolean) false, (int) 0);
-        throw Unimplemented.forMember("net/minecraft/gametest/framework/TestData.<init>:(Ljava/lang/Object;Lnet/minecraft/resources/Identifier;IIZ)V");
     }
 
     public <T> TestData<T> map(Function<EnvironmentType, T> mapper) {

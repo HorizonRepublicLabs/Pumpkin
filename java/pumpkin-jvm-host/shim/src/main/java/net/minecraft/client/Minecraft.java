@@ -33,7 +33,6 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
     public HitResult hitResult;
 
     public Minecraft(GameConfig gameConfig) {
-        throw Unimplemented.forMember("net/minecraft/client/Minecraft.<init>:(Lnet/minecraft/client/main/GameConfig;)V");
     }
 
     public void run() {

@@ -12,7 +12,6 @@ import dev.pumpkin.shim.Unimplemented;
 public class StructureTemplateManager {
 
     public StructureTemplateManager(ResourceManager resourceManager, LevelStorageSource.LevelStorageAccess storage, DataFixer fixerUpper, HolderGetter<Block> blockLookup) {
-        throw Unimplemented.forMember("net/minecraft/world/level/levelgen/structure/templatesystem/StructureTemplateManager.<init>:(Lnet/minecraft/server/packs/resources/ResourceManager;Lnet/minecraft/world/level/storage/LevelStorageSource$LevelStorageAccess;Lcom/mojang/datafixers/DataFixer;Lnet/minecraft/core/HolderGetter;)V");
     }
 
     public Optional<StructureTemplate> get(Identifier id) {

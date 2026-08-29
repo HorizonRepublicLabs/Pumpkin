@@ -7,19 +7,15 @@ import dev.pumpkin.shim.Unimplemented;
 public class InterpolationHandler {
 
     public InterpolationHandler(Entity entity) {
-        throw Unimplemented.forMember("net/minecraft/world/entity/InterpolationHandler.<init>:(Lnet/minecraft/world/entity/Entity;)V");
     }
 
     public InterpolationHandler(Entity entity, int interpolationSteps) {
-        throw Unimplemented.forMember("net/minecraft/world/entity/InterpolationHandler.<init>:(Lnet/minecraft/world/entity/Entity;I)V");
     }
 
     public InterpolationHandler(Entity entity, Consumer<InterpolationHandler> onInterpolationStart) {
-        throw Unimplemented.forMember("net/minecraft/world/entity/InterpolationHandler.<init>:(Lnet/minecraft/world/entity/Entity;Ljava/util/function/Consumer;)V");
     }
 
     public InterpolationHandler(Entity entity, int interpolationSteps, Consumer<InterpolationHandler> onInterpolationStart) {
-        throw Unimplemented.forMember("net/minecraft/world/entity/InterpolationHandler.<init>:(Lnet/minecraft/world/entity/Entity;ILjava/util/function/Consumer;)V");
     }
 
     public Vec3 position() {
@@ -29,7 +25,6 @@ public class InterpolationHandler {
     private static class InterpolationData {
 
         private InterpolationData(int steps, Vec3 position, float yRot, float xRot) {
-            throw Unimplemented.forMember("net/minecraft/world/entity/InterpolationHandler$InterpolationData.<init>:(ILnet/minecraft/world/phys/Vec3;FF)V");
         }
 
         protected InterpolationData() {

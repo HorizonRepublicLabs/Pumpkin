@@ -13,7 +13,6 @@ import dev.pumpkin.shim.Unimplemented;
 public abstract class AbstractClientPlayer extends Player implements ClientAvatarEntity {
 
     public AbstractClientPlayer(ClientLevel level, GameProfile gameProfile) {
-        throw Unimplemented.forMember("net/minecraft/client/player/AbstractClientPlayer.<init>:(Lnet/minecraft/client/multiplayer/ClientLevel;Lcom/mojang/authlib/GameProfile;)V");
     }
 
     public GameType gameMode() {

@@ -27,11 +27,9 @@ public interface HoverEvent {
     class EntityTooltipInfo {
 
         public EntityTooltipInfo(EntityType<?> type, UUID uuid, Component name) {
-            throw Unimplemented.forMember("net/minecraft/network/chat/HoverEvent$EntityTooltipInfo.<init>:(Lnet/minecraft/world/entity/EntityType;Ljava/util/UUID;Lnet/minecraft/network/chat/Component;)V");
         }
 
         public EntityTooltipInfo(EntityType<?> type, UUID uuid, Optional<Component> name) {
-            throw Unimplemented.forMember("net/minecraft/network/chat/HoverEvent$EntityTooltipInfo.<init>:(Lnet/minecraft/world/entity/EntityType;Ljava/util/UUID;Ljava/util/Optional;)V");
         }
 
         public boolean equals(Object o) {

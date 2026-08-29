@@ -8,7 +8,6 @@ import dev.pumpkin.shim.Unimplemented;
 public abstract class ReloadableTexture extends AbstractTexture {
 
     public ReloadableTexture(Identifier resourceId) {
-        throw Unimplemented.forMember("net/minecraft/client/renderer/texture/ReloadableTexture.<init>:(Lnet/minecraft/resources/Identifier;)V");
     }
 
     public void apply(TextureContents contents) {

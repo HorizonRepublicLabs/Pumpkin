@@ -11,11 +11,9 @@ import dev.pumpkin.shim.Unimplemented;
 public class PotionBrewing {
 
     private PotionBrewing(List<Ingredient> containers, List<PotionBrewing.Mix<Potion>> potionMixes, List<PotionBrewing.Mix<Item>> containerMixes) {
-        throw Unimplemented.forMember("net/minecraft/world/item/alchemy/PotionBrewing.<init>:(Ljava/util/List;Ljava/util/List;Ljava/util/List;)V");
     }
 
     PotionBrewing(List<Ingredient> containers, List<PotionBrewing.Mix<Potion>> potionMixes, List<PotionBrewing.Mix<Item>> containerMixes, List<net.neoforged.neoforge.common.brewing.IBrewingRecipe> recipes) {
-        throw Unimplemented.forMember("net/minecraft/world/item/alchemy/PotionBrewing.<init>:(Ljava/util/List;Ljava/util/List;Ljava/util/List;Ljava/util/List;)V");
     }
 
     public boolean isIngredient(ItemStack ingredient) {
@@ -29,7 +27,6 @@ public class PotionBrewing {
     public static class Builder {
 
         public Builder(FeatureFlagSet enabledFeatures) {
-            throw Unimplemented.forMember("net/minecraft/world/item/alchemy/PotionBrewing$Builder.<init>:(Lnet/minecraft/world/flag/FeatureFlagSet;)V");
         }
 
         public PotionBrewing build() {

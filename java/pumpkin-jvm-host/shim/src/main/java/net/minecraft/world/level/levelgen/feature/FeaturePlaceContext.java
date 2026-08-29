@@ -20,7 +20,6 @@ public class FeaturePlaceContext<FC extends FeatureConfiguration> {
     private final FC config = null;
 
     public FeaturePlaceContext(Optional<ConfiguredFeature<?, ?>> topFeature, WorldGenLevel level, ChunkGenerator chunkGenerator, RandomSource random, BlockPos origin, FC config) {
-        throw Unimplemented.forMember("net/minecraft/world/level/levelgen/feature/FeaturePlaceContext.<init>:(Ljava/util/Optional;Lnet/minecraft/world/level/WorldGenLevel;Lnet/minecraft/world/level/chunk/ChunkGenerator;Lnet/minecraft/util/RandomSource;Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/levelgen/feature/configurations/FeatureConfiguration;)V");
     }
 
     public WorldGenLevel level() {

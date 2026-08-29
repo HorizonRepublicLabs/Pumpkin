@@ -11,7 +11,6 @@ import dev.pumpkin.shim.Unimplemented;
 public class BreakBlockEvent extends BlockEvent implements ICancellableEvent {
 
     public BreakBlockEvent(Level level, BlockPos pos, BlockState state, Player player) {
-        throw Unimplemented.forMember("net/neoforged/neoforge/event/level/block/BreakBlockEvent.<init>:(Lnet/minecraft/world/level/Level;Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/state/BlockState;Lnet/minecraft/world/entity/player/Player;)V");
     }
 
     public Player getPlayer() {

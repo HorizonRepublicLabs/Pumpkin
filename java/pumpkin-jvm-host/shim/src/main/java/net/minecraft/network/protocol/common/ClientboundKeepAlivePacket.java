@@ -8,11 +8,9 @@ import dev.pumpkin.shim.Unimplemented;
 public class ClientboundKeepAlivePacket implements Packet<ClientCommonPacketListener> {
 
     public ClientboundKeepAlivePacket(long id) {
-        throw Unimplemented.forMember("net/minecraft/network/protocol/common/ClientboundKeepAlivePacket.<init>:(J)V");
     }
 
     private ClientboundKeepAlivePacket(FriendlyByteBuf input) {
-        throw Unimplemented.forMember("net/minecraft/network/protocol/common/ClientboundKeepAlivePacket.<init>:(Lnet/minecraft/network/FriendlyByteBuf;)V");
     }
 
     private void write(FriendlyByteBuf output) {

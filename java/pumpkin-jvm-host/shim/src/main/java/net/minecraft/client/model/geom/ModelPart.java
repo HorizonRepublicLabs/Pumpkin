@@ -12,7 +12,6 @@ import dev.pumpkin.shim.Unimplemented;
 public final class ModelPart {
 
     public ModelPart(List<ModelPart.Cube> cubes, Map<String, ModelPart> children) {
-        throw Unimplemented.forMember("net/minecraft/client/model/geom/ModelPart.<init>:(Ljava/util/List;Ljava/util/Map;)V");
     }
 
     public void render(PoseStack poseStack, VertexConsumer buffer, int lightCoords, int overlayCoords) {
@@ -30,7 +29,6 @@ public final class ModelPart {
     public static class Cube {
 
         public Cube(int xTexOffs, int yTexOffs, float minX, float minY, float minZ, float width, float height, float depth, float growX, float growY, float growZ, boolean mirror, float xTexSize, float yTexSize, Set<Direction> visibleFaces) {
-            throw Unimplemented.forMember("net/minecraft/client/model/geom/ModelPart$Cube.<init>:(IIFFFFFFFFFZFFLjava/util/Set;)V");
         }
 
         public Cube() {
@@ -41,7 +39,6 @@ public final class ModelPart {
 
         public Polygon(ModelPart.Vertex[] vertices, float u0, float v0, float u1, float v1, float xTexSize, float yTexSize, boolean mirror, Direction facing) {
             this((ModelPart.Vertex[]) null, (Vector3fc) null);
-            throw Unimplemented.forMember("net/minecraft/client/model/geom/ModelPart$Polygon.<init>:([Lnet/minecraft/client/model/geom/ModelPart$Vertex;FFFFFFZLnet/minecraft/core/Direction;)V");
         }
     }
 

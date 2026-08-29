@@ -17,7 +17,6 @@ import dev.pumpkin.shim.Unimplemented;
 public abstract class AbstractSkullBlock extends BaseEntityBlock {
 
     public AbstractSkullBlock(SkullBlock.Type type, BlockBehaviour.Properties properties) {
-        throw Unimplemented.forMember("net/minecraft/world/level/block/AbstractSkullBlock.<init>:(Lnet/minecraft/world/level/block/SkullBlock$Type;Lnet/minecraft/world/level/block/state/BlockBehaviour$Properties;)V");
     }
 
     protected abstract MapCodec<? extends AbstractSkullBlock> codec();

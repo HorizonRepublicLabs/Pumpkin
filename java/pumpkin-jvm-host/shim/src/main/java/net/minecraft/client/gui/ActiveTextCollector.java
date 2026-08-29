@@ -40,7 +40,6 @@ public interface ActiveTextCollector {
     class ClickableStyleFinder implements ActiveTextCollector {
 
         public ClickableStyleFinder(Font font, int testX, int testY) {
-            throw Unimplemented.forMember("net/minecraft/client/gui/ActiveTextCollector$ClickableStyleFinder.<init>:(Lnet/minecraft/client/gui/Font;II)V");
         }
 
         public ActiveTextCollector.Parameters defaultParameters() {
@@ -71,7 +70,6 @@ public interface ActiveTextCollector {
 
         public Parameters(Matrix3x2fc pose) {
             this((Matrix3x2fc) null, (float) 0.0F, (ScreenRectangle) null);
-            throw Unimplemented.forMember("net/minecraft/client/gui/ActiveTextCollector$Parameters.<init>:(Lorg/joml/Matrix3x2fc;)V");
         }
     }
 }

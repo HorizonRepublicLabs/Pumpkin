@@ -9,11 +9,9 @@ import dev.pumpkin.shim.Unimplemented;
 public class ClientboundMerchantOffersPacket implements Packet<ClientGamePacketListener> {
 
     public ClientboundMerchantOffersPacket(int containerId, MerchantOffers offers, int merchantLevel, int merchantXp, boolean showProgress, boolean canRestock) {
-        throw Unimplemented.forMember("net/minecraft/network/protocol/game/ClientboundMerchantOffersPacket.<init>:(ILnet/minecraft/world/item/trading/MerchantOffers;IIZZ)V");
     }
 
     private ClientboundMerchantOffersPacket(RegistryFriendlyByteBuf input) {
-        throw Unimplemented.forMember("net/minecraft/network/protocol/game/ClientboundMerchantOffersPacket.<init>:(Lnet/minecraft/network/RegistryFriendlyByteBuf;)V");
     }
 
     private void write(RegistryFriendlyByteBuf output) {

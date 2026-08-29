@@ -6,7 +6,6 @@ import dev.pumpkin.shim.Unimplemented;
 public abstract class StateHolder<O, S> {
 
     protected StateHolder(O owner, Property<?>[] propertyKeys, Comparable<?>[] propertyValues) {
-        throw Unimplemented.forMember("net/minecraft/world/level/block/state/StateHolder.<init>:(Ljava/lang/Object;[Lnet/minecraft/world/level/block/state/properties/Property;[Ljava/lang/Comparable;)V");
     }
 
     public <T extends Comparable<T>> S cycle(Property<T> property) {

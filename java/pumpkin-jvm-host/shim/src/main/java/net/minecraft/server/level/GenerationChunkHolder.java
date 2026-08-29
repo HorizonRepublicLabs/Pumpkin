@@ -11,7 +11,6 @@ import dev.pumpkin.shim.Unimplemented;
 public abstract class GenerationChunkHolder {
 
     public GenerationChunkHolder(ChunkPos pos) {
-        throw Unimplemented.forMember("net/minecraft/server/level/GenerationChunkHolder.<init>:(Lnet/minecraft/world/level/ChunkPos;)V");
     }
 
     CompletableFuture<ChunkResult<ChunkAccess>> applyStep(ChunkStep step, GeneratingChunkMap chunkMap, StaticCache2D<GenerationChunkHolder> cache) {

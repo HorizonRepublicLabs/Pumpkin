@@ -8,7 +8,6 @@ import dev.pumpkin.shim.Unimplemented;
 public class BlendingData {
 
     private BlendingData(int minSection, int maxSection, Optional<double[]> heights) {
-        throw Unimplemented.forMember("net/minecraft/world/level/levelgen/blending/BlendingData.<init>:(IILjava/util/Optional;)V");
     }
 
     public static BlendingData unpack(BlendingData.Packed packed) {

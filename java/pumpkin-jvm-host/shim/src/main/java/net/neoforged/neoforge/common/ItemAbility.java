@@ -17,7 +17,6 @@ public final class ItemAbility {
     }
 
     private ItemAbility(String name) {
-        throw Unimplemented.forMember("net/neoforged/neoforge/common/ItemAbility.<init>:(Ljava/lang/String;)V");
     }
 
     public ItemAbility() {

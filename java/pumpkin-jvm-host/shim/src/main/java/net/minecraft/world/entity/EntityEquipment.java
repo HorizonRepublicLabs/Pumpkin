@@ -7,11 +7,9 @@ import dev.pumpkin.shim.Unimplemented;
 public class EntityEquipment {
 
     private EntityEquipment(EnumMap<EquipmentSlot, ItemStack> items) {
-        throw Unimplemented.forMember("net/minecraft/world/entity/EntityEquipment.<init>:(Ljava/util/EnumMap;)V");
     }
 
     public EntityEquipment() {
-        throw Unimplemented.forMember("net/minecraft/world/entity/EntityEquipment.<init>:()V");
     }
 
     public ItemStack set(EquipmentSlot slot, ItemStack itemStack) {

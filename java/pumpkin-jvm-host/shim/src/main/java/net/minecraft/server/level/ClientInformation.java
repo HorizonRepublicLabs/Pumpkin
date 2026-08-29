@@ -9,7 +9,6 @@ public record ClientInformation(String language, int viewDistance, ChatVisiblity
 
     public ClientInformation(FriendlyByteBuf input) {
         this((String) null, (int) 0, (ChatVisiblity) null, (boolean) false, (int) 0, (HumanoidArm) null, (boolean) false, (boolean) false, (ParticleStatus) null);
-        throw Unimplemented.forMember("net/minecraft/server/level/ClientInformation.<init>:(Lnet/minecraft/network/FriendlyByteBuf;)V");
     }
 
     public void write(FriendlyByteBuf output) {

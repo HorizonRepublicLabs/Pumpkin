@@ -13,7 +13,6 @@ import dev.pumpkin.shim.Unimplemented;
 public class SpawnEggItem extends Item {
 
     public SpawnEggItem(Item.Properties properties) {
-        throw Unimplemented.forMember("net/minecraft/world/item/SpawnEggItem.<init>:(Lnet/minecraft/world/item/Item$Properties;)V");
     }
 
     public InteractionResult useOn(UseOnContext context) {

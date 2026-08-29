@@ -67,7 +67,6 @@ public class ClientLevel extends Level implements BlockAndTintGetter, CacheSlot.
     }
 
     public ClientLevel(ClientPacketListener connection, ClientLevel.ClientLevelData levelData, ResourceKey<Level> dimension, Holder<DimensionType> dimensionType, int serverChunkRadius, int serverSimulationDistance, LevelExtractor levelExtractor, boolean isDebug, long biomeZoomSeed, int seaLevel) {
-        throw Unimplemented.forMember("net/minecraft/client/multiplayer/ClientLevel.<init>:(Lnet/minecraft/client/multiplayer/ClientPacketListener;Lnet/minecraft/client/multiplayer/ClientLevel$ClientLevelData;Lnet/minecraft/resources/ResourceKey;Lnet/minecraft/core/Holder;IILnet/minecraft/client/renderer/extract/LevelExtractor;ZJI)V");
     }
 
     public boolean shouldTickDeath(Entity entity) {
@@ -293,7 +292,6 @@ public class ClientLevel extends Level implements BlockAndTintGetter, CacheSlot.
     public static class ClientLevelData implements WritableLevelData {
 
         public ClientLevelData(Difficulty difficulty, boolean hardcore, boolean isFlat) {
-            throw Unimplemented.forMember("net/minecraft/client/multiplayer/ClientLevel$ClientLevelData.<init>:(Lnet/minecraft/world/Difficulty;ZZ)V");
         }
 
         public LevelData.RespawnData getRespawnData() {

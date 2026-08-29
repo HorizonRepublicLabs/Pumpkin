@@ -9,7 +9,6 @@ import dev.pumpkin.shim.Unimplemented;
 public class DisplayInfo {
 
     public DisplayInfo(ItemStackTemplate icon, Component title, Component description, Optional<ClientAsset.ResourceTexture> background, AdvancementType type, boolean showToast, boolean announceChat, boolean hidden) {
-        throw Unimplemented.forMember("net/minecraft/advancements/DisplayInfo.<init>:(Lnet/minecraft/world/item/ItemStackTemplate;Lnet/minecraft/network/chat/Component;Lnet/minecraft/network/chat/Component;Ljava/util/Optional;Lnet/minecraft/advancements/AdvancementType;ZZZ)V");
     }
 
     public Component getDescription() {

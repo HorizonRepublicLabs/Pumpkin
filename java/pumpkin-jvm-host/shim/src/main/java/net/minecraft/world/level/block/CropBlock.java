@@ -28,7 +28,6 @@ public class CropBlock extends VegetationBlock implements BonemealableBlock {
     }
 
     public CropBlock(BlockBehaviour.Properties properties) {
-        throw Unimplemented.forMember("net/minecraft/world/level/block/CropBlock.<init>:(Lnet/minecraft/world/level/block/state/BlockBehaviour$Properties;)V");
     }
 
     protected VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {

@@ -10,7 +10,6 @@ public record ClientboundSetEntityMotionPacket(int id, Vec3 movement) implements
 
     public ClientboundSetEntityMotionPacket(Entity entity) {
         this((int) 0, (Vec3) null);
-        throw Unimplemented.forMember("net/minecraft/network/protocol/game/ClientboundSetEntityMotionPacket.<init>:(Lnet/minecraft/world/entity/Entity;)V");
     }
 
     public PacketType<ClientboundSetEntityMotionPacket> type() {

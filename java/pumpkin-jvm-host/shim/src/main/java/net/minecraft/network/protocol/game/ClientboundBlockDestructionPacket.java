@@ -9,11 +9,9 @@ import dev.pumpkin.shim.Unimplemented;
 public class ClientboundBlockDestructionPacket implements Packet<ClientGamePacketListener> {
 
     public ClientboundBlockDestructionPacket(int id, BlockPos pos, int progress) {
-        throw Unimplemented.forMember("net/minecraft/network/protocol/game/ClientboundBlockDestructionPacket.<init>:(ILnet/minecraft/core/BlockPos;I)V");
     }
 
     private ClientboundBlockDestructionPacket(FriendlyByteBuf input) {
-        throw Unimplemented.forMember("net/minecraft/network/protocol/game/ClientboundBlockDestructionPacket.<init>:(Lnet/minecraft/network/FriendlyByteBuf;)V");
     }
 
     private void write(FriendlyByteBuf output) {

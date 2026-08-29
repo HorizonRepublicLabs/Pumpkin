@@ -8,11 +8,9 @@ import dev.pumpkin.shim.Unimplemented;
 public class ServerboundPaddleBoatPacket implements Packet<ServerGamePacketListener> {
 
     public ServerboundPaddleBoatPacket(boolean left, boolean right) {
-        throw Unimplemented.forMember("net/minecraft/network/protocol/game/ServerboundPaddleBoatPacket.<init>:(ZZ)V");
     }
 
     private ServerboundPaddleBoatPacket(FriendlyByteBuf input) {
-        throw Unimplemented.forMember("net/minecraft/network/protocol/game/ServerboundPaddleBoatPacket.<init>:(Lnet/minecraft/network/FriendlyByteBuf;)V");
     }
 
     private void write(FriendlyByteBuf output) {

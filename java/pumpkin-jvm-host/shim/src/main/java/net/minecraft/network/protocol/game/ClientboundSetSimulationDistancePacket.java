@@ -9,7 +9,6 @@ public record ClientboundSetSimulationDistancePacket(int simulationDistance) imp
 
     private ClientboundSetSimulationDistancePacket(FriendlyByteBuf input) {
         this((int) 0);
-        throw Unimplemented.forMember("net/minecraft/network/protocol/game/ClientboundSetSimulationDistancePacket.<init>:(Lnet/minecraft/network/FriendlyByteBuf;)V");
     }
 
     private void write(FriendlyByteBuf output) {

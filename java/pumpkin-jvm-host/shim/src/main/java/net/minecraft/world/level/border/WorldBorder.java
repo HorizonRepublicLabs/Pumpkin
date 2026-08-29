@@ -7,11 +7,9 @@ import dev.pumpkin.shim.Unimplemented;
 public class WorldBorder extends SavedData {
 
     public WorldBorder() {
-        throw Unimplemented.forMember("net/minecraft/world/level/border/WorldBorder.<init>:()V");
     }
 
     public WorldBorder(WorldBorder.Settings settings) {
-        throw Unimplemented.forMember("net/minecraft/world/level/border/WorldBorder.<init>:(Lnet/minecraft/world/level/border/WorldBorder$Settings;)V");
     }
 
     public VoxelShape getCollisionShape() {
@@ -90,7 +88,6 @@ public class WorldBorder extends SavedData {
     private class MovingBorderExtent implements WorldBorder.BorderExtent {
 
         private MovingBorderExtent(double from, double to, long duration, long gameTime) {
-            throw Unimplemented.forMember("net/minecraft/world/level/border/WorldBorder$MovingBorderExtent.<init>:(DDJJ)V");
         }
 
         public double getMinX(float deltaPartialTick) {
@@ -153,14 +150,12 @@ public class WorldBorder extends SavedData {
 
         public Settings(WorldBorder worldBorder) {
             this((double) 0.0, (double) 0.0, (double) 0.0, (double) 0.0, (int) 0, (int) 0, (double) 0.0, (long) 0L, (double) 0.0);
-            throw Unimplemented.forMember("net/minecraft/world/level/border/WorldBorder$Settings.<init>:(Lnet/minecraft/world/level/border/WorldBorder;)V");
         }
     }
 
     private class StaticBorderExtent implements WorldBorder.BorderExtent {
 
         public StaticBorderExtent(double size) {
-            throw Unimplemented.forMember("net/minecraft/world/level/border/WorldBorder$StaticBorderExtent.<init>:(D)V");
         }
 
         public double getMinX(float deltaPartialTick) {

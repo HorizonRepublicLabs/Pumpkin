@@ -14,7 +14,6 @@ public class BiomeSpecialEffectsBuilder extends BiomeSpecialEffects.Builder {
     }
 
     protected BiomeSpecialEffectsBuilder(int waterColor) {
-        throw Unimplemented.forMember("net/neoforged/neoforge/common/world/BiomeSpecialEffectsBuilder.<init>:(I)V");
     }
 
     public BiomeSpecialEffectsBuilder() {

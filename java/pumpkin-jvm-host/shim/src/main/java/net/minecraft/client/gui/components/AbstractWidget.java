@@ -26,7 +26,6 @@ public abstract class AbstractWidget implements LayoutElement, Renderable, GuiEv
     private final WidgetTooltipHolder tooltip = null;
 
     public AbstractWidget(int x, int y, int width, int height, Component message) {
-        throw Unimplemented.forMember("net/minecraft/client/gui/components/AbstractWidget.<init>:(IIIILnet/minecraft/network/chat/Component;)V");
     }
 
     public int getHeight() {
@@ -124,7 +123,6 @@ public abstract class AbstractWidget implements LayoutElement, Renderable, GuiEv
     public abstract static class WithInactiveMessage extends AbstractWidget {
 
         public WithInactiveMessage(int x, int y, int width, int height, Component message) {
-            throw Unimplemented.forMember("net/minecraft/client/gui/components/AbstractWidget$WithInactiveMessage.<init>:(IIIILnet/minecraft/network/chat/Component;)V");
         }
 
         public Component getMessage() {

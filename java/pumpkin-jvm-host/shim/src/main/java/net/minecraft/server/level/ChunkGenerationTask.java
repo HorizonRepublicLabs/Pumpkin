@@ -8,7 +8,6 @@ import dev.pumpkin.shim.Unimplemented;
 public class ChunkGenerationTask {
 
     private ChunkGenerationTask(GeneratingChunkMap chunkMap, ChunkStatus targetStatus, ChunkPos pos, StaticCache2D<GenerationChunkHolder> cache) {
-        throw Unimplemented.forMember("net/minecraft/server/level/ChunkGenerationTask.<init>:(Lnet/minecraft/server/level/GeneratingChunkMap;Lnet/minecraft/world/level/chunk/status/ChunkStatus;Lnet/minecraft/world/level/ChunkPos;Lnet/minecraft/util/StaticCache2D;)V");
     }
 
     public static ChunkGenerationTask create(GeneratingChunkMap chunkMap, ChunkStatus targetStatus, ChunkPos pos) {

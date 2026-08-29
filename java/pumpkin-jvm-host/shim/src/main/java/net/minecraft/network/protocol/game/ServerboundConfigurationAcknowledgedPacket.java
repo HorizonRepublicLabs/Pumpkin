@@ -7,7 +7,6 @@ import dev.pumpkin.shim.Unimplemented;
 public class ServerboundConfigurationAcknowledgedPacket implements Packet<ServerGamePacketListener> {
 
     protected ServerboundConfigurationAcknowledgedPacket() {
-        throw Unimplemented.forMember("net/minecraft/network/protocol/game/ServerboundConfigurationAcknowledgedPacket.<init>:()V");
     }
 
     public PacketType<ServerboundConfigurationAcknowledgedPacket> type() {

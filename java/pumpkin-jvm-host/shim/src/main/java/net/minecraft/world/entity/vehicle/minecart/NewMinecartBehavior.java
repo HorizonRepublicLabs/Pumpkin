@@ -9,7 +9,6 @@ import dev.pumpkin.shim.Unimplemented;
 public class NewMinecartBehavior extends MinecartBehavior {
 
     public NewMinecartBehavior(AbstractMinecart minecart) {
-        throw Unimplemented.forMember("net/minecraft/world/entity/vehicle/minecart/NewMinecartBehavior.<init>:(Lnet/minecraft/world/entity/vehicle/minecart/AbstractMinecart;)V");
     }
 
     public void tick() {

@@ -9,7 +9,6 @@ import dev.pumpkin.shim.Unimplemented;
 public abstract class GpuBuffer implements AutoCloseable {
 
     public GpuBuffer(int usage, long size) {
-        throw Unimplemented.forMember("com/mojang/blaze3d/buffers/GpuBuffer.<init>:(IJ)V");
     }
 
     public long size() {

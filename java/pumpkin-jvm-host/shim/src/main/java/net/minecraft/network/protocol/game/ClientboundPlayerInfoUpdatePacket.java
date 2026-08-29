@@ -17,15 +17,12 @@ import dev.pumpkin.shim.Unimplemented;
 public class ClientboundPlayerInfoUpdatePacket implements Packet<ClientGamePacketListener> {
 
     public ClientboundPlayerInfoUpdatePacket(EnumSet<ClientboundPlayerInfoUpdatePacket.Action> actions, Collection<ServerPlayer> players) {
-        throw Unimplemented.forMember("net/minecraft/network/protocol/game/ClientboundPlayerInfoUpdatePacket.<init>:(Ljava/util/EnumSet;Ljava/util/Collection;)V");
     }
 
     public ClientboundPlayerInfoUpdatePacket(ClientboundPlayerInfoUpdatePacket.Action action, ServerPlayer player) {
-        throw Unimplemented.forMember("net/minecraft/network/protocol/game/ClientboundPlayerInfoUpdatePacket.<init>:(Lnet/minecraft/network/protocol/game/ClientboundPlayerInfoUpdatePacket$Action;Lnet/minecraft/server/level/ServerPlayer;)V");
     }
 
     private ClientboundPlayerInfoUpdatePacket(RegistryFriendlyByteBuf input) {
-        throw Unimplemented.forMember("net/minecraft/network/protocol/game/ClientboundPlayerInfoUpdatePacket.<init>:(Lnet/minecraft/network/RegistryFriendlyByteBuf;)V");
     }
 
     private void write(RegistryFriendlyByteBuf output) {
@@ -74,14 +71,12 @@ public class ClientboundPlayerInfoUpdatePacket implements Packet<ClientGamePacke
 
         private Entry(ServerPlayer player) {
             this((UUID) null, (GameProfile) null, (boolean) false, (int) 0, (GameType) null, (Component) null, (boolean) false, (int) 0, (RemoteChatSession.Data) null);
-            throw Unimplemented.forMember("net/minecraft/network/protocol/game/ClientboundPlayerInfoUpdatePacket$Entry.<init>:(Lnet/minecraft/server/level/ServerPlayer;)V");
         }
     }
 
     private static class EntryBuilder {
 
         private EntryBuilder(UUID profileId) {
-            throw Unimplemented.forMember("net/minecraft/network/protocol/game/ClientboundPlayerInfoUpdatePacket$EntryBuilder.<init>:(Ljava/util/UUID;)V");
         }
 
         private ClientboundPlayerInfoUpdatePacket.Entry build() {

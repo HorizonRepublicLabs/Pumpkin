@@ -9,7 +9,6 @@ public class DamageSources {
     private final DamageSource fall = null;
 
     public DamageSources(RegistryAccess registries) {
-        throw Unimplemented.forMember("net/minecraft/world/damagesource/DamageSources.<init>:(Lnet/minecraft/core/RegistryAccess;)V");
     }
 
     public DamageSource fall() {

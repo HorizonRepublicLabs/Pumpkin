@@ -12,7 +12,6 @@ public record ClientboundLoginPacket(int playerId, boolean hardcore, Set<Resourc
 
     private ClientboundLoginPacket(RegistryFriendlyByteBuf input) {
         this((int) 0, (boolean) false, (Set<ResourceKey<Level>>) null, (int) 0, (int) 0, (int) 0, (boolean) false, (boolean) false, (boolean) false, (CommonPlayerSpawnInfo) null, (boolean) false, (boolean) false);
-        throw Unimplemented.forMember("net/minecraft/network/protocol/game/ClientboundLoginPacket.<init>:(Lnet/minecraft/network/RegistryFriendlyByteBuf;)V");
     }
 
     private void write(RegistryFriendlyByteBuf output) {

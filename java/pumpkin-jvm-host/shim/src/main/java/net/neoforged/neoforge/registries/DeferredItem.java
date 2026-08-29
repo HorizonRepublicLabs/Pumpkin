@@ -8,7 +8,6 @@ import dev.pumpkin.shim.Unimplemented;
 public class DeferredItem<T extends Item> extends DeferredHolder<Item, T> implements ItemLike {
 
     protected DeferredItem(ResourceKey<Item> key) {
-        throw Unimplemented.forMember("net/neoforged/neoforge/registries/DeferredItem.<init>:(Lnet/minecraft/resources/ResourceKey;)V");
     }
 
     public Item asItem() {

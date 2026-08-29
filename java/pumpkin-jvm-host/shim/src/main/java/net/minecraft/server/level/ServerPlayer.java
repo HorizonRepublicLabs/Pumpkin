@@ -57,7 +57,6 @@ public class ServerPlayer extends Player {
     public final ServerPlayerGameMode gameMode = null;
 
     public ServerPlayer(MinecraftServer server, ServerLevel level, GameProfile gameProfile, ClientInformation clientInformation) {
-        throw Unimplemented.forMember("net/minecraft/server/level/ServerPlayer.<init>:(Lnet/minecraft/server/MinecraftServer;Lnet/minecraft/server/level/ServerLevel;Lcom/mojang/authlib/GameProfile;Lnet/minecraft/server/level/ClientInformation;)V");
     }
 
     public BlockPos adjustSpawnLocation(ServerLevel level, BlockPos spawnSuggestion) {

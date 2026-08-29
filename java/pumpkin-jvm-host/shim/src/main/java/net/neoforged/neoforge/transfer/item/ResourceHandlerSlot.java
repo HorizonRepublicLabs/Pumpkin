@@ -11,7 +11,6 @@ import dev.pumpkin.shim.Unimplemented;
 public class ResourceHandlerSlot extends StackCopySlot {
 
     public ResourceHandlerSlot(ResourceHandler<ItemResource> handler, IndexModifier<ItemResource> slotModifier, int handlerSlot, int xPosition, int yPosition) {
-        throw Unimplemented.forMember("net/neoforged/neoforge/transfer/item/ResourceHandlerSlot.<init>:(Lnet/neoforged/neoforge/transfer/ResourceHandler;Lnet/neoforged/neoforge/transfer/IndexModifier;III)V");
     }
 
     public boolean mayPlace(ItemStack stack) {

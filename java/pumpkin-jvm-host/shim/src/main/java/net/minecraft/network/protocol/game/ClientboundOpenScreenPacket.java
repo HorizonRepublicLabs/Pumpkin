@@ -9,7 +9,6 @@ import dev.pumpkin.shim.Unimplemented;
 public class ClientboundOpenScreenPacket implements Packet<ClientGamePacketListener> {
 
     public ClientboundOpenScreenPacket(int containerId, MenuType<?> type, Component title) {
-        throw Unimplemented.forMember("net/minecraft/network/protocol/game/ClientboundOpenScreenPacket.<init>:(ILnet/minecraft/world/inventory/MenuType;Lnet/minecraft/network/chat/Component;)V");
     }
 
     public PacketType<ClientboundOpenScreenPacket> type() {

@@ -9,7 +9,6 @@ import dev.pumpkin.shim.Unimplemented;
 public class Objective {
 
     public Objective(Scoreboard scoreboard, String name, ObjectiveCriteria criteria, Component displayName, ObjectiveCriteria.RenderType renderType, boolean displayAutoUpdate, NumberFormat numberFormat) {
-        throw Unimplemented.forMember("net/minecraft/world/scores/Objective.<init>:(Lnet/minecraft/world/scores/Scoreboard;Ljava/lang/String;Lnet/minecraft/world/scores/criteria/ObjectiveCriteria;Lnet/minecraft/network/chat/Component;Lnet/minecraft/world/scores/criteria/ObjectiveCriteria$RenderType;ZLnet/minecraft/network/chat/numbers/NumberFormat;)V");
     }
 
     public Scoreboard getScoreboard() {

@@ -32,11 +32,9 @@ public class GuiGraphicsExtractor implements GuiGraphicsExtractorExtension {
     private final Matrix3x2fStack pose = null;
 
     private GuiGraphicsExtractor(Minecraft minecraft, Matrix3x2fStack pose, GuiRenderState guiRenderState, int mouseX, int mouseY) {
-        throw Unimplemented.forMember("net/minecraft/client/gui/GuiGraphicsExtractor.<init>:(Lnet/minecraft/client/Minecraft;Lorg/joml/Matrix3x2fStack;Lnet/minecraft/client/renderer/state/gui/GuiRenderState;II)V");
     }
 
     public GuiGraphicsExtractor(Minecraft minecraft, GuiRenderState guiRenderState, int mouseX, int mouseY) {
-        throw Unimplemented.forMember("net/minecraft/client/gui/GuiGraphicsExtractor.<init>:(Lnet/minecraft/client/Minecraft;Lnet/minecraft/client/renderer/state/gui/GuiRenderState;II)V");
     }
 
     public Matrix3x2fStack pose() {
@@ -235,7 +233,6 @@ public class GuiGraphicsExtractor implements GuiGraphicsExtractorExtension {
     private class RenderingTextCollector implements ActiveTextCollector, Consumer<Style> {
 
         private RenderingTextCollector(ActiveTextCollector.Parameters initialParameters, GuiGraphicsExtractor.HoveredTextEffects hoveredTextEffects, Consumer<Style> additonalConsumer) {
-            throw Unimplemented.forMember("net/minecraft/client/gui/GuiGraphicsExtractor$RenderingTextCollector.<init>:(Lnet/minecraft/client/gui/ActiveTextCollector$Parameters;Lnet/minecraft/client/gui/GuiGraphicsExtractor$HoveredTextEffects;Ljava/util/function/Consumer;)V");
         }
 
         public ActiveTextCollector.Parameters defaultParameters() {
@@ -265,7 +262,6 @@ public class GuiGraphicsExtractor implements GuiGraphicsExtractorExtension {
     private static class ScissorStack {
 
         private ScissorStack(ScreenRectangle screenSize) {
-            throw Unimplemented.forMember("net/minecraft/client/gui/GuiGraphicsExtractor$ScissorStack.<init>:(Lnet/minecraft/client/gui/navigation/ScreenRectangle;)V");
         }
 
         public void push(ScreenRectangle rectangle) {

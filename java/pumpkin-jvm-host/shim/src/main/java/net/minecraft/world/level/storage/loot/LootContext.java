@@ -15,7 +15,6 @@ import dev.pumpkin.shim.Unimplemented;
 public class LootContext {
 
     private LootContext(LootParams params, RandomSource random, HolderGetter.Provider lootDataResolver) {
-        throw Unimplemented.forMember("net/minecraft/world/level/storage/loot/LootContext.<init>:(Lnet/minecraft/world/level/storage/loot/LootParams;Lnet/minecraft/util/RandomSource;Lnet/minecraft/core/HolderGetter$Provider;)V");
     }
 
     public RandomSource getRandom() {
@@ -40,17 +39,14 @@ public class LootContext {
     }
 
     private LootContext(LootParams params, RandomSource random, HolderGetter.Provider p_287619_, Identifier queriedLootTableId) {
-        throw Unimplemented.forMember("net/minecraft/world/level/storage/loot/LootContext.<init>:(Lnet/minecraft/world/level/storage/loot/LootParams;Lnet/minecraft/util/RandomSource;Lnet/minecraft/core/HolderGetter$Provider;Lnet/minecraft/resources/Identifier;)V");
     }
 
     public static class Builder {
 
         public Builder(LootParams params) {
-            throw Unimplemented.forMember("net/minecraft/world/level/storage/loot/LootContext$Builder.<init>:(Lnet/minecraft/world/level/storage/loot/LootParams;)V");
         }
 
         public Builder(LootContext context) {
-            throw Unimplemented.forMember("net/minecraft/world/level/storage/loot/LootContext$Builder.<init>:(Lnet/minecraft/world/level/storage/loot/LootContext;)V");
         }
 
         public ServerLevel getLevel() {

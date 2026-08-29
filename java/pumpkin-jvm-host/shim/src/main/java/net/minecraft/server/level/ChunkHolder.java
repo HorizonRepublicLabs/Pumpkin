@@ -12,7 +12,6 @@ import dev.pumpkin.shim.Unimplemented;
 public class ChunkHolder extends GenerationChunkHolder {
 
     public ChunkHolder(ChunkPos pos, int ticketLevel, LevelHeightAccessor levelHeightAccessor, LevelLightEngine lightEngine, ChunkHolder.LevelChangeListener onLevelChange, ChunkHolder.PlayerProvider playerProvider) {
-        throw Unimplemented.forMember("net/minecraft/server/level/ChunkHolder.<init>:(Lnet/minecraft/world/level/ChunkPos;ILnet/minecraft/world/level/LevelHeightAccessor;Lnet/minecraft/world/level/lighting/LevelLightEngine;Lnet/minecraft/server/level/ChunkHolder$LevelChangeListener;Lnet/minecraft/server/level/ChunkHolder$PlayerProvider;)V");
     }
 
     protected void addSaveDependency(CompletableFuture<?> sync) {

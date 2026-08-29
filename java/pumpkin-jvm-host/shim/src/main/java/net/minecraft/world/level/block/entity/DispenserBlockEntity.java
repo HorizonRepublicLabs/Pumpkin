@@ -14,11 +14,9 @@ import dev.pumpkin.shim.Unimplemented;
 public class DispenserBlockEntity extends RandomizableContainerBlockEntity {
 
     protected DispenserBlockEntity(BlockEntityType<?> type, BlockPos worldPosition, BlockState blockState) {
-        throw Unimplemented.forMember("net/minecraft/world/level/block/entity/DispenserBlockEntity.<init>:(Lnet/minecraft/world/level/block/entity/BlockEntityType;Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/state/BlockState;)V");
     }
 
     public DispenserBlockEntity(BlockPos worldPosition, BlockState blockState) {
-        throw Unimplemented.forMember("net/minecraft/world/level/block/entity/DispenserBlockEntity.<init>:(Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/state/BlockState;)V");
     }
 
     public int getContainerSize() {

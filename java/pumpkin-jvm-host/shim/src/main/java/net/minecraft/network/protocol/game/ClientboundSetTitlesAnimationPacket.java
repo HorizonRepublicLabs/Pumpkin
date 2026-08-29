@@ -8,11 +8,9 @@ import dev.pumpkin.shim.Unimplemented;
 public class ClientboundSetTitlesAnimationPacket implements Packet<ClientGamePacketListener> {
 
     public ClientboundSetTitlesAnimationPacket(int fadeIn, int stay, int fadeOut) {
-        throw Unimplemented.forMember("net/minecraft/network/protocol/game/ClientboundSetTitlesAnimationPacket.<init>:(III)V");
     }
 
     private ClientboundSetTitlesAnimationPacket(FriendlyByteBuf input) {
-        throw Unimplemented.forMember("net/minecraft/network/protocol/game/ClientboundSetTitlesAnimationPacket.<init>:(Lnet/minecraft/network/FriendlyByteBuf;)V");
     }
 
     private void write(FriendlyByteBuf output) {

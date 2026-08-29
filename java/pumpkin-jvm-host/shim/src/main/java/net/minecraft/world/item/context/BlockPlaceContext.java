@@ -12,15 +12,12 @@ import dev.pumpkin.shim.Unimplemented;
 public class BlockPlaceContext extends UseOnContext {
 
     public BlockPlaceContext(Player player, InteractionHand hand, ItemStack itemInHand, BlockHitResult hitResult) {
-        throw Unimplemented.forMember("net/minecraft/world/item/context/BlockPlaceContext.<init>:(Lnet/minecraft/world/entity/player/Player;Lnet/minecraft/world/InteractionHand;Lnet/minecraft/world/item/ItemStack;Lnet/minecraft/world/phys/BlockHitResult;)V");
     }
 
     public BlockPlaceContext(UseOnContext context) {
-        throw Unimplemented.forMember("net/minecraft/world/item/context/BlockPlaceContext.<init>:(Lnet/minecraft/world/item/context/UseOnContext;)V");
     }
 
     public BlockPlaceContext(Level level, Player player, InteractionHand hand, ItemStack itemStackInHand, BlockHitResult hitResult) {
-        throw Unimplemented.forMember("net/minecraft/world/item/context/BlockPlaceContext.<init>:(Lnet/minecraft/world/level/Level;Lnet/minecraft/world/entity/player/Player;Lnet/minecraft/world/InteractionHand;Lnet/minecraft/world/item/ItemStack;Lnet/minecraft/world/phys/BlockHitResult;)V");
     }
 
     public static BlockPlaceContext at(BlockPlaceContext context, BlockPos pos, Direction direction) {

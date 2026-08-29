@@ -7,7 +7,6 @@ import dev.pumpkin.shim.Unimplemented;
 public class PacketProcessor implements AutoCloseable {
 
     public PacketProcessor(Thread runningThread) {
-        throw Unimplemented.forMember("net/minecraft/network/PacketProcessor.<init>:(Ljava/lang/Thread;)V");
     }
 
     public void close() {

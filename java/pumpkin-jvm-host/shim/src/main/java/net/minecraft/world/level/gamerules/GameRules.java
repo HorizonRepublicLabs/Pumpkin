@@ -10,15 +10,12 @@ public class GameRules {
     public static final GameRule<Boolean> MOB_DROPS = null;
 
     public GameRules(FeatureFlagSet enabledFeatures, GameRuleMap map) {
-        throw Unimplemented.forMember("net/minecraft/world/level/gamerules/GameRules.<init>:(Lnet/minecraft/world/flag/FeatureFlagSet;Lnet/minecraft/world/level/gamerules/GameRuleMap;)V");
     }
 
     public GameRules(FeatureFlagSet enabledFeatures) {
-        throw Unimplemented.forMember("net/minecraft/world/level/gamerules/GameRules.<init>:(Lnet/minecraft/world/flag/FeatureFlagSet;)V");
     }
 
     public GameRules(List<GameRule<?>> rules) {
-        throw Unimplemented.forMember("net/minecraft/world/level/gamerules/GameRules.<init>:(Ljava/util/List;)V");
     }
 
     public <T> T get(GameRule<T> gameRule) {

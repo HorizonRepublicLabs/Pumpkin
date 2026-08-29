@@ -35,7 +35,6 @@ public class StructureTemplate {
     public static final class Palette {
 
         private Palette(List<StructureTemplate.StructureBlockInfo> blocks) {
-            throw Unimplemented.forMember("net/minecraft/world/level/levelgen/structure/templatesystem/StructureTemplate$Palette.<init>:(Ljava/util/List;)V");
         }
 
         public Palette() {
@@ -62,7 +61,6 @@ public class StructureTemplate {
     public static class StructureEntityInfo {
 
         public StructureEntityInfo(Vec3 pos, BlockPos blockPos, CompoundTag nbt) {
-            throw Unimplemented.forMember("net/minecraft/world/level/levelgen/structure/templatesystem/StructureTemplate$StructureEntityInfo.<init>:(Lnet/minecraft/world/phys/Vec3;Lnet/minecraft/core/BlockPos;Lnet/minecraft/nbt/CompoundTag;)V");
         }
 
         public StructureEntityInfo() {

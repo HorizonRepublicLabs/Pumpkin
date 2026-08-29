@@ -9,7 +9,6 @@ public record ServerboundChunkBatchReceivedPacket(float desiredChunksPerTick) im
 
     private ServerboundChunkBatchReceivedPacket(FriendlyByteBuf input) {
         this((float) 0.0F);
-        throw Unimplemented.forMember("net/minecraft/network/protocol/game/ServerboundChunkBatchReceivedPacket.<init>:(Lnet/minecraft/network/FriendlyByteBuf;)V");
     }
 
     private void write(FriendlyByteBuf output) {

@@ -10,7 +10,6 @@ public record ClientboundDeleteChatPacket(MessageSignature.Packed messageSignatu
 
     private ClientboundDeleteChatPacket(FriendlyByteBuf input) {
         this((MessageSignature.Packed) null);
-        throw Unimplemented.forMember("net/minecraft/network/protocol/game/ClientboundDeleteChatPacket.<init>:(Lnet/minecraft/network/FriendlyByteBuf;)V");
     }
 
     private void write(FriendlyByteBuf output) {

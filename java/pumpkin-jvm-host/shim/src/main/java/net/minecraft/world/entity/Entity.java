@@ -55,7 +55,6 @@ public abstract class Entity extends net.neoforged.neoforge.attachment.Attachmen
     private boolean onGround;
 
     public Entity(EntityType<?> type, Level level) {
-        throw Unimplemented.forMember("net/minecraft/world/entity/Entity.<init>:(Lnet/minecraft/world/entity/EntityType;Lnet/minecraft/world/level/Level;)V");
     }
 
     public boolean isSpectator() {
@@ -483,12 +482,10 @@ public abstract class Entity extends net.neoforged.neoforge.attachment.Attachmen
 
         public Movement(Vec3 from, Vec3 to, Vec3 axisDependentOriginalMovement) {
             this((Vec3) null, (Vec3) null, (Optional<Vec3>) null);
-            throw Unimplemented.forMember("net/minecraft/world/entity/Entity$Movement.<init>:(Lnet/minecraft/world/phys/Vec3;Lnet/minecraft/world/phys/Vec3;Lnet/minecraft/world/phys/Vec3;)V");
         }
 
         public Movement(Vec3 from, Vec3 to) {
             this((Vec3) null, (Vec3) null, (Optional<Vec3>) null);
-            throw Unimplemented.forMember("net/minecraft/world/entity/Entity$Movement.<init>:(Lnet/minecraft/world/phys/Vec3;Lnet/minecraft/world/phys/Vec3;)V");
         }
     }
 

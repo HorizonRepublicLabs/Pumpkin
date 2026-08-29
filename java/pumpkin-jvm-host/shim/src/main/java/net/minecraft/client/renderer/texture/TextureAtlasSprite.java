@@ -6,7 +6,6 @@ import dev.pumpkin.shim.Unimplemented;
 public class TextureAtlasSprite implements AutoCloseable {
 
     protected TextureAtlasSprite(Identifier atlasLocation, SpriteContents contents, int atlasWidth, int atlasHeight, int x, int y, int padding) {
-        throw Unimplemented.forMember("net/minecraft/client/renderer/texture/TextureAtlasSprite.<init>:(Lnet/minecraft/resources/Identifier;Lnet/minecraft/client/renderer/texture/SpriteContents;IIIII)V");
     }
 
     public int getX() {

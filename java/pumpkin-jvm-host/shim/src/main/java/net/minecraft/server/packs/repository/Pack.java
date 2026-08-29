@@ -12,11 +12,9 @@ import dev.pumpkin.shim.Unimplemented;
 public class Pack {
 
     public Pack(PackLocationInfo location, Pack.ResourcesSupplier resources, Pack.Metadata metadata, PackSelectionConfig selectionConfig) {
-        throw Unimplemented.forMember("net/minecraft/server/packs/repository/Pack.<init>:(Lnet/minecraft/server/packs/PackLocationInfo;Lnet/minecraft/server/packs/repository/Pack$ResourcesSupplier;Lnet/minecraft/server/packs/repository/Pack$Metadata;Lnet/minecraft/server/packs/PackSelectionConfig;)V");
     }
 
     private Pack(PackLocationInfo location, Pack.ResourcesSupplier resources, Pack.Metadata metadata, PackSelectionConfig selectionConfig, List<Pack> children) {
-        throw Unimplemented.forMember("net/minecraft/server/packs/repository/Pack.<init>:(Lnet/minecraft/server/packs/PackLocationInfo;Lnet/minecraft/server/packs/repository/Pack$ResourcesSupplier;Lnet/minecraft/server/packs/repository/Pack$Metadata;Lnet/minecraft/server/packs/PackSelectionConfig;Ljava/util/List;)V");
     }
 
     public PackLocationInfo location() {
@@ -43,7 +41,6 @@ public class Pack {
 
         public Metadata(Component description, PackCompatibility compatibility, FeatureFlagSet requestedFeatures, List<String> overlays) {
             this((Component) null, (PackCompatibility) null, (FeatureFlagSet) null, (List<String>) null, (boolean) false);
-            throw Unimplemented.forMember("net/minecraft/server/packs/repository/Pack$Metadata.<init>:(Lnet/minecraft/network/chat/Component;Lnet/minecraft/server/packs/repository/PackCompatibility;Lnet/minecraft/world/flag/FeatureFlagSet;Ljava/util/List;)V");
         }
     }
 

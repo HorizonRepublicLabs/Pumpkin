@@ -34,7 +34,6 @@ import dev.pumpkin.shim.Unimplemented;
 public class Parrot extends ShoulderRidingEntity {
 
     public Parrot(EntityType<? extends Parrot> type, Level level) {
-        throw Unimplemented.forMember("net/minecraft/world/entity/animal/parrot/Parrot.<init>:(Lnet/minecraft/world/entity/EntityType;Lnet/minecraft/world/level/Level;)V");
     }
 
     public SpawnGroupData finalizeSpawn(ServerLevelAccessor level, DifficultyInstance difficulty, EntitySpawnReason spawnReason, SpawnGroupData groupData) {
@@ -164,7 +163,6 @@ public class Parrot extends ShoulderRidingEntity {
     private static class ParrotWanderGoal extends WaterAvoidingRandomFlyingGoal {
 
         public ParrotWanderGoal(PathfinderMob mob, double speedModifier) {
-            throw Unimplemented.forMember("net/minecraft/world/entity/animal/parrot/Parrot$ParrotWanderGoal.<init>:(Lnet/minecraft/world/entity/PathfinderMob;D)V");
         }
 
         protected Vec3 getPosition() {

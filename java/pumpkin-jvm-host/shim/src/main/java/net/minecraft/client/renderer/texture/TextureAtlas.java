@@ -10,7 +10,6 @@ public class TextureAtlas extends AbstractTexture implements TickableTexture, Du
     public static final Identifier LOCATION_BLOCKS = null;
 
     public TextureAtlas(Identifier location) {
-        throw Unimplemented.forMember("net/minecraft/client/renderer/texture/TextureAtlas.<init>:(Lnet/minecraft/resources/Identifier;)V");
     }
 
     public void dumpContents(Identifier selfId, Path dir) throws IOException {

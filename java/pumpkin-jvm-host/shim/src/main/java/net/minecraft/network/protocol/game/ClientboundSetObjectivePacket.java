@@ -10,11 +10,9 @@ import dev.pumpkin.shim.Unimplemented;
 public class ClientboundSetObjectivePacket implements Packet<ClientGamePacketListener> {
 
     public ClientboundSetObjectivePacket(Objective objective, int method) {
-        throw Unimplemented.forMember("net/minecraft/network/protocol/game/ClientboundSetObjectivePacket.<init>:(Lnet/minecraft/world/scores/Objective;I)V");
     }
 
     private ClientboundSetObjectivePacket(RegistryFriendlyByteBuf input) {
-        throw Unimplemented.forMember("net/minecraft/network/protocol/game/ClientboundSetObjectivePacket.<init>:(Lnet/minecraft/network/RegistryFriendlyByteBuf;)V");
     }
 
     private void write(RegistryFriendlyByteBuf output) {

@@ -10,7 +10,6 @@ public record ClientboundForgetLevelChunkPacket(ChunkPos pos) implements Packet<
 
     private ClientboundForgetLevelChunkPacket(FriendlyByteBuf input) {
         this((ChunkPos) null);
-        throw Unimplemented.forMember("net/minecraft/network/protocol/game/ClientboundForgetLevelChunkPacket.<init>:(Lnet/minecraft/network/FriendlyByteBuf;)V");
     }
 
     private void write(FriendlyByteBuf output) {

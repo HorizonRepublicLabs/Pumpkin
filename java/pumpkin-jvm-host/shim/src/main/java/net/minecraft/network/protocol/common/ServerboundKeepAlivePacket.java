@@ -8,11 +8,9 @@ import dev.pumpkin.shim.Unimplemented;
 public class ServerboundKeepAlivePacket implements Packet<ServerCommonPacketListener> {
 
     public ServerboundKeepAlivePacket(long id) {
-        throw Unimplemented.forMember("net/minecraft/network/protocol/common/ServerboundKeepAlivePacket.<init>:(J)V");
     }
 
     private ServerboundKeepAlivePacket(FriendlyByteBuf input) {
-        throw Unimplemented.forMember("net/minecraft/network/protocol/common/ServerboundKeepAlivePacket.<init>:(Lnet/minecraft/network/FriendlyByteBuf;)V");
     }
 
     private void write(FriendlyByteBuf output) {

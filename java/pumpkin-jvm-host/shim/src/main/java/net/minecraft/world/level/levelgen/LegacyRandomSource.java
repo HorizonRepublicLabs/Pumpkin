@@ -6,7 +6,6 @@ import dev.pumpkin.shim.Unimplemented;
 public class LegacyRandomSource implements BitRandomSource {
 
     public LegacyRandomSource(long seed) {
-        throw Unimplemented.forMember("net/minecraft/world/level/levelgen/LegacyRandomSource.<init>:(J)V");
     }
 
     public RandomSource fork() {
@@ -32,7 +31,6 @@ public class LegacyRandomSource implements BitRandomSource {
     public static class LegacyPositionalRandomFactory implements PositionalRandomFactory {
 
         public LegacyPositionalRandomFactory(long seed) {
-            throw Unimplemented.forMember("net/minecraft/world/level/levelgen/LegacyRandomSource$LegacyPositionalRandomFactory.<init>:(J)V");
         }
 
         public RandomSource at(int x, int y, int z) {

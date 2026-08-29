@@ -11,7 +11,6 @@ import dev.pumpkin.shim.Unimplemented;
 public class CommandBlockEntity extends BlockEntity {
 
     public CommandBlockEntity(BlockPos worldPosition, BlockState blockState) {
-        throw Unimplemented.forMember("net/minecraft/world/level/block/entity/CommandBlockEntity.<init>:(Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/state/BlockState;)V");
     }
 
     protected void saveAdditional(ValueOutput output) {

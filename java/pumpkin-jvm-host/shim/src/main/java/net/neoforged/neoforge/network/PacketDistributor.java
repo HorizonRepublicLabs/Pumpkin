@@ -7,7 +7,6 @@ import dev.pumpkin.shim.Unimplemented;
 public final class PacketDistributor {
 
     protected PacketDistributor() {
-        throw Unimplemented.forMember("net/neoforged/neoforge/network/PacketDistributor.<init>:()V");
     }
 
     public static void sendToPlayer(ServerPlayer player, CustomPacketPayload payload, CustomPacketPayload... payloads) {

@@ -4,16 +4,13 @@ import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
 import java.util.List;
 import net.minecraft.server.level.Ticket;
 import net.minecraft.world.level.saveddata.SavedData;
-import dev.pumpkin.shim.Unimplemented;
 
 public class TicketStorage extends SavedData {
 
     private TicketStorage(Long2ObjectOpenHashMap<List<Ticket>> tickets, Long2ObjectOpenHashMap<List<Ticket>> deactivatedTickets) {
-        throw Unimplemented.forMember("net/minecraft/world/level/TicketStorage.<init>:(Lit/unimi/dsi/fastutil/longs/Long2ObjectOpenHashMap;Lit/unimi/dsi/fastutil/longs/Long2ObjectOpenHashMap;)V");
     }
 
     public TicketStorage() {
-        throw Unimplemented.forMember("net/minecraft/world/level/TicketStorage.<init>:()V");
     }
 
     public interface ChunkUpdated {

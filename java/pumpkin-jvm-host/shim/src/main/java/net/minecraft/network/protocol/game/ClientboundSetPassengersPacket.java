@@ -9,11 +9,9 @@ import dev.pumpkin.shim.Unimplemented;
 public class ClientboundSetPassengersPacket implements Packet<ClientGamePacketListener> {
 
     public ClientboundSetPassengersPacket(Entity vehicle) {
-        throw Unimplemented.forMember("net/minecraft/network/protocol/game/ClientboundSetPassengersPacket.<init>:(Lnet/minecraft/world/entity/Entity;)V");
     }
 
     private ClientboundSetPassengersPacket(FriendlyByteBuf input) {
-        throw Unimplemented.forMember("net/minecraft/network/protocol/game/ClientboundSetPassengersPacket.<init>:(Lnet/minecraft/network/FriendlyByteBuf;)V");
     }
 
     private void write(FriendlyByteBuf output) {

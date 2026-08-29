@@ -6,11 +6,9 @@ import dev.pumpkin.shim.Unimplemented;
 public class ObjectiveCriteria {
 
     protected ObjectiveCriteria(String name) {
-        throw Unimplemented.forMember("net/minecraft/world/scores/criteria/ObjectiveCriteria.<init>:(Ljava/lang/String;)V");
     }
 
     protected ObjectiveCriteria(String name, boolean readOnly, ObjectiveCriteria.RenderType renderType) {
-        throw Unimplemented.forMember("net/minecraft/world/scores/criteria/ObjectiveCriteria.<init>:(Ljava/lang/String;ZLnet/minecraft/world/scores/criteria/ObjectiveCriteria$RenderType;)V");
     }
 
     public String getName() {

@@ -23,37 +23,30 @@ public record ItemStackTemplate(Holder<Item> item, int count, DataComponentPatch
 
     public ItemStackTemplate(Item item) {
         this((Holder<Item>) null, (int) 0, (DataComponentPatch) null);
-        throw Unimplemented.forMember("net/minecraft/world/item/ItemStackTemplate.<init>:(Lnet/minecraft/world/item/Item;)V");
     }
 
     public ItemStackTemplate(Item item, int count) {
         this((Holder<Item>) null, (int) 0, (DataComponentPatch) null);
-        throw Unimplemented.forMember("net/minecraft/world/item/ItemStackTemplate.<init>:(Lnet/minecraft/world/item/Item;I)V");
     }
 
     public ItemStackTemplate(Item item, DataComponentPatch patch) {
         this((Holder<Item>) null, (int) 0, (DataComponentPatch) null);
-        throw Unimplemented.forMember("net/minecraft/world/item/ItemStackTemplate.<init>:(Lnet/minecraft/world/item/Item;Lnet/minecraft/core/component/DataComponentPatch;)V");
     }
 
     public ItemStackTemplate(Item item, int count, DataComponentPatch patch) {
         this((Holder<Item>) null, (int) 0, (DataComponentPatch) null);
-        throw Unimplemented.forMember("net/minecraft/world/item/ItemStackTemplate.<init>:(Lnet/minecraft/world/item/Item;ILnet/minecraft/core/component/DataComponentPatch;)V");
     }
 
     public ItemStackTemplate(Holder<Item> item) {
         this((Holder<Item>) null, (int) 0, (DataComponentPatch) null);
-        throw Unimplemented.forMember("net/minecraft/world/item/ItemStackTemplate.<init>:(Lnet/minecraft/core/Holder;)V");
     }
 
     public ItemStackTemplate(Holder<Item> item, int count) {
         this((Holder<Item>) null, (int) 0, (DataComponentPatch) null);
-        throw Unimplemented.forMember("net/minecraft/world/item/ItemStackTemplate.<init>:(Lnet/minecraft/core/Holder;I)V");
     }
 
     public ItemStackTemplate(Holder<Item> item, DataComponentPatch patch) {
         this((Holder<Item>) null, (int) 0, (DataComponentPatch) null);
-        throw Unimplemented.forMember("net/minecraft/world/item/ItemStackTemplate.<init>:(Lnet/minecraft/core/Holder;Lnet/minecraft/core/component/DataComponentPatch;)V");
     }
 
     public static ItemStackTemplate fromNonEmptyStack(ItemStack itemStack) {

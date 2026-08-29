@@ -9,11 +9,9 @@ import dev.pumpkin.shim.Unimplemented;
 public class ClientboundSetBorderWarningDelayPacket implements Packet<ClientGamePacketListener> {
 
     public ClientboundSetBorderWarningDelayPacket(WorldBorder border) {
-        throw Unimplemented.forMember("net/minecraft/network/protocol/game/ClientboundSetBorderWarningDelayPacket.<init>:(Lnet/minecraft/world/level/border/WorldBorder;)V");
     }
 
     private ClientboundSetBorderWarningDelayPacket(FriendlyByteBuf input) {
-        throw Unimplemented.forMember("net/minecraft/network/protocol/game/ClientboundSetBorderWarningDelayPacket.<init>:(Lnet/minecraft/network/FriendlyByteBuf;)V");
     }
 
     private void write(FriendlyByteBuf output) {

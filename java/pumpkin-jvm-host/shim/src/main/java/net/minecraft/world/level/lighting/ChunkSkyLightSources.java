@@ -7,7 +7,6 @@ import dev.pumpkin.shim.Unimplemented;
 public class ChunkSkyLightSources {
 
     public ChunkSkyLightSources(LevelHeightAccessor level) {
-        throw Unimplemented.forMember("net/minecraft/world/level/lighting/ChunkSkyLightSources.<init>:(Lnet/minecraft/world/level/LevelHeightAccessor;)V");
     }
 
     public boolean update(BlockGetter level, int x, int y, int z) {

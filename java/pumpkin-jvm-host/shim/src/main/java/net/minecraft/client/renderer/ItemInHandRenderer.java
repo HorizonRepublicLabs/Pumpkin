@@ -8,7 +8,6 @@ import dev.pumpkin.shim.Unimplemented;
 public class ItemInHandRenderer {
 
     public ItemInHandRenderer(Minecraft minecraft, EntityRenderDispatcher entityRenderDispatcher, ItemModelResolver itemModelResolver) {
-        throw Unimplemented.forMember("net/minecraft/client/renderer/ItemInHandRenderer.<init>:(Lnet/minecraft/client/Minecraft;Lnet/minecraft/client/renderer/entity/EntityRenderDispatcher;Lnet/minecraft/client/renderer/item/ItemModelResolver;)V");
     }
 
     public void tick() {

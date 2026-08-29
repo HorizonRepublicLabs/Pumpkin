@@ -12,11 +12,9 @@ import dev.pumpkin.shim.Unimplemented;
 public class RenderPipeline {
 
     protected RenderPipeline(Identifier location, Identifier vertexShader, Identifier fragmentShader, ShaderDefines shaderDefines, List<BindGroupLayout> bindGroupLayouts, ColorTargetState[] colorTargetStates, DepthStencilState depthStencilState, PolygonMode polygonMode, boolean cull, VertexFormat[] vertexFormatPerBuffer, PrimitiveTopology primitiveTopology, int sortKey) {
-        throw Unimplemented.forMember("com/mojang/blaze3d/pipeline/RenderPipeline.<init>:(Lnet/minecraft/resources/Identifier;Lnet/minecraft/resources/Identifier;Lnet/minecraft/resources/Identifier;Lnet/minecraft/client/renderer/ShaderDefines;Ljava/util/List;[Lcom/mojang/blaze3d/pipeline/ColorTargetState;Lcom/mojang/blaze3d/pipeline/DepthStencilState;Lcom/mojang/blaze3d/platform/PolygonMode;Z[Lcom/mojang/blaze3d/vertex/VertexFormat;Lcom/mojang/blaze3d/PrimitiveTopology;I)V");
     }
 
     protected RenderPipeline(Identifier location, Identifier vertexShader, Identifier fragmentShader, ShaderDefines shaderDefines, List<BindGroupLayout> bindGroupLayouts, ColorTargetState[] colorTargetStates, DepthStencilState depthStencilState, PolygonMode polygonMode, boolean cull, VertexFormat[] vertexFormatPerBuffer, PrimitiveTopology primitiveTopology, Optional<net.neoforged.neoforge.client.stencil.StencilTest> stencilTest, int sortKey) {
-        throw Unimplemented.forMember("com/mojang/blaze3d/pipeline/RenderPipeline.<init>:(Lnet/minecraft/resources/Identifier;Lnet/minecraft/resources/Identifier;Lnet/minecraft/resources/Identifier;Lnet/minecraft/client/renderer/ShaderDefines;Ljava/util/List;[Lcom/mojang/blaze3d/pipeline/ColorTargetState;Lcom/mojang/blaze3d/pipeline/DepthStencilState;Lcom/mojang/blaze3d/platform/PolygonMode;Z[Lcom/mojang/blaze3d/vertex/VertexFormat;Lcom/mojang/blaze3d/PrimitiveTopology;Ljava/util/Optional;I)V");
     }
 
     public String toString() {
@@ -30,7 +28,6 @@ public class RenderPipeline {
     public static class Builder {
 
         protected Builder() {
-            throw Unimplemented.forMember("com/mojang/blaze3d/pipeline/RenderPipeline$Builder.<init>:()V");
         }
 
         public RenderPipeline.Builder withLocation(String location) {
@@ -86,7 +83,6 @@ public class RenderPipeline {
 
         public Snippet(Optional<Identifier> vertexShader, Optional<Identifier> fragmentShader, Optional<ShaderDefines> shaderDefines, Optional<List<BindGroupLayout>> bindGroupLayouts, ColorTargetState[] colorTargetStates, int activeColorTargetStateCount, Optional<DepthStencilState> depthStencilState, Optional<PolygonMode> polygonMode, Optional<Boolean> cull, VertexFormat[] vertexFormatPerBuffer, Optional<PrimitiveTopology> vertexFormatMode) {
             this((Optional<Identifier>) null, (Optional<Identifier>) null, (Optional<ShaderDefines>) null, (Optional<List<BindGroupLayout>>) null, (ColorTargetState[]) null, (int) 0, (Optional<DepthStencilState>) null, (Optional<PolygonMode>) null, (Optional<Boolean>) null, (VertexFormat[]) null, (Optional<PrimitiveTopology>) null, (Optional<net.neoforged.neoforge.client.stencil.StencilTest>) null);
-            throw Unimplemented.forMember("com/mojang/blaze3d/pipeline/RenderPipeline$Snippet.<init>:(Ljava/util/Optional;Ljava/util/Optional;Ljava/util/Optional;Ljava/util/Optional;[Lcom/mojang/blaze3d/pipeline/ColorTargetState;ILjava/util/Optional;Ljava/util/Optional;Ljava/util/Optional;[Lcom/mojang/blaze3d/vertex/VertexFormat;Ljava/util/Optional;)V");
         }
     }
 

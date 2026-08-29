@@ -9,11 +9,9 @@ import dev.pumpkin.shim.Unimplemented;
 public class ClientboundOpenSignEditorPacket implements Packet<ClientGamePacketListener> {
 
     public ClientboundOpenSignEditorPacket(BlockPos pos, boolean isFrontText) {
-        throw Unimplemented.forMember("net/minecraft/network/protocol/game/ClientboundOpenSignEditorPacket.<init>:(Lnet/minecraft/core/BlockPos;Z)V");
     }
 
     private ClientboundOpenSignEditorPacket(FriendlyByteBuf input) {
-        throw Unimplemented.forMember("net/minecraft/network/protocol/game/ClientboundOpenSignEditorPacket.<init>:(Lnet/minecraft/network/FriendlyByteBuf;)V");
     }
 
     private void write(FriendlyByteBuf output) {

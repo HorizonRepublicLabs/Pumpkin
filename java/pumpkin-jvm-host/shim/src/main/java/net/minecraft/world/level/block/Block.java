@@ -53,8 +53,12 @@ public class Block extends BlockBehaviour implements ItemLike, IBlockExtension {
         throw Unimplemented.forMember("net/minecraft/world/level/block/Block.byItem:(Lnet/minecraft/world/item/Item;)Lnet/minecraft/world/level/block/Block;");
     }
 
+    // Pumpkin divergence: real-enough body. A collision shape is geometry Pumpkin never
+    // consults -- the server's own collision runs in Rust. Mods build these in statics and
+    // hand them back from getShape; an inert instance satisfies both, and its one abstract
+    // member throws with a name if anything ever reads the geometry.
     public static VoxelShape box(double minX, double minY, double minZ, double maxX, double maxY, double maxZ) {
-        throw Unimplemented.forMember("net/minecraft/world/level/block/Block.box:(DDDDDD)Lnet/minecraft/world/phys/shapes/VoxelShape;");
+        return VoxelShape.pumpkinInert();
     }
 
     // Pumpkin divergence: real body. Vanilla's constructor builds a state definition and a
@@ -120,8 +124,16 @@ public class Block extends BlockBehaviour implements ItemLike, IBlockExtension {
         throw Unimplemented.forMember("net/minecraft/world/level/block/Block.registerDefaultState:(Lnet/minecraft/world/level/block/state/BlockState;)V");
     }
 
+    // Pumpkin divergence: real body. One BlockState per Block, built lazily. The state
+    // object is a stub whose methods throw on use -- what a mod needs at registration is
+    // for the object to exist and be identity-stable, which this gives it. Wiring states
+    // to Pumpkin's real per-state ids is the binding step still ahead.
     public final BlockState defaultBlockState() {
-        throw Unimplemented.forMember("net/minecraft/world/level/block/Block.defaultBlockState:()Lnet/minecraft/world/level/block/state/BlockState;");
+        if (defaultBlockState == null) {
+            defaultBlockState = new BlockState();
+            defaultBlockState.pumpkinOwner = this;
+        }
+        return defaultBlockState;
     }
 
     public Item asItem() {

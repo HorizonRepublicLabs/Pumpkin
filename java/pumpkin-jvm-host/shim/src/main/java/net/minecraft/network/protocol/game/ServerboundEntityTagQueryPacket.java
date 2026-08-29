@@ -8,11 +8,9 @@ import dev.pumpkin.shim.Unimplemented;
 public class ServerboundEntityTagQueryPacket implements Packet<ServerGamePacketListener> {
 
     public ServerboundEntityTagQueryPacket(int transactionId, int entityId) {
-        throw Unimplemented.forMember("net/minecraft/network/protocol/game/ServerboundEntityTagQueryPacket.<init>:(II)V");
     }
 
     private ServerboundEntityTagQueryPacket(FriendlyByteBuf input) {
-        throw Unimplemented.forMember("net/minecraft/network/protocol/game/ServerboundEntityTagQueryPacket.<init>:(Lnet/minecraft/network/FriendlyByteBuf;)V");
     }
 
     private void write(FriendlyByteBuf output) {

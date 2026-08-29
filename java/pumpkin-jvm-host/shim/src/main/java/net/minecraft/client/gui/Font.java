@@ -14,7 +14,6 @@ import dev.pumpkin.shim.Unimplemented;
 public class Font implements IFontExtension {
 
     public Font(Font.Provider provider) {
-        throw Unimplemented.forMember("net/minecraft/client/gui/Font.<init>:(Lnet/minecraft/client/gui/Font$Provider;)V");
     }
 
     public int width(String str) {
@@ -47,11 +46,9 @@ public class Font implements IFontExtension {
     private class PreparedTextBuilder implements Font.PreparedText, FormattedCharSink {
 
         public PreparedTextBuilder(float x, float y, int color, boolean drawShadow, boolean includeEmpty) {
-            throw Unimplemented.forMember("net/minecraft/client/gui/Font$PreparedTextBuilder.<init>:(FFIZZ)V");
         }
 
         public PreparedTextBuilder(float x, float y, int color, int backgroundColor, boolean drawShadow, boolean includeEmpty) {
-            throw Unimplemented.forMember("net/minecraft/client/gui/Font$PreparedTextBuilder.<init>:(FFIIZZ)V");
         }
 
         public boolean accept(int position, Style style, int c) {

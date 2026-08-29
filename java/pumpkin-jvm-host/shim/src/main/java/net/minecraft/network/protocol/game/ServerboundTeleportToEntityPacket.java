@@ -11,11 +11,9 @@ import dev.pumpkin.shim.Unimplemented;
 public class ServerboundTeleportToEntityPacket implements Packet<ServerGamePacketListener> {
 
     public ServerboundTeleportToEntityPacket(UUID uuid) {
-        throw Unimplemented.forMember("net/minecraft/network/protocol/game/ServerboundTeleportToEntityPacket.<init>:(Ljava/util/UUID;)V");
     }
 
     private ServerboundTeleportToEntityPacket(FriendlyByteBuf input) {
-        throw Unimplemented.forMember("net/minecraft/network/protocol/game/ServerboundTeleportToEntityPacket.<init>:(Lnet/minecraft/network/FriendlyByteBuf;)V");
     }
 
     private void write(FriendlyByteBuf output) {

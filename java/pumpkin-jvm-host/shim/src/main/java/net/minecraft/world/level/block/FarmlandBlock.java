@@ -29,7 +29,6 @@ public class FarmlandBlock extends Block {
     }
 
     public FarmlandBlock(BlockBehaviour.Properties properties) {
-        throw Unimplemented.forMember("net/minecraft/world/level/block/FarmlandBlock.<init>:(Lnet/minecraft/world/level/block/state/BlockBehaviour$Properties;)V");
     }
 
     protected BlockState updateShape(BlockState state, LevelReader level, ScheduledTickAccess ticks, BlockPos pos, Direction directionToNeighbour, BlockPos neighbourPos, BlockState neighbourState, RandomSource random) {

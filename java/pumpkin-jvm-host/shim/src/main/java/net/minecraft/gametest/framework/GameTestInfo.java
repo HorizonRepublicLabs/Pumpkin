@@ -9,7 +9,6 @@ import dev.pumpkin.shim.Unimplemented;
 public class GameTestInfo {
 
     public GameTestInfo(Holder.Reference<GameTestInstance> test, Rotation extraRotation, ServerLevel level, RetryOptions retryOptions) {
-        throw Unimplemented.forMember("net/minecraft/gametest/framework/GameTestInfo.<init>:(Lnet/minecraft/core/Holder$Reference;Lnet/minecraft/world/level/block/Rotation;Lnet/minecraft/server/level/ServerLevel;Lnet/minecraft/gametest/framework/RetryOptions;)V");
     }
 
     public Identifier id() {

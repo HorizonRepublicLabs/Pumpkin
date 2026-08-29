@@ -8,7 +8,6 @@ import dev.pumpkin.shim.Unimplemented;
 public final class UnbakedMutator {
 
     private UnbakedMutator(Map<Class<?>, Handler<?>> handlers) {
-        throw Unimplemented.forMember("net/neoforged/neoforge/client/model/generators/blockstate/UnbakedMutator.<init>:(Ljava/util/Map;)V");
     }
 
     public <T extends BlockStateModel.Unbaked> T apply(T unbaked) {
@@ -18,7 +17,6 @@ public final class UnbakedMutator {
     public static final class Builder {
 
         protected Builder() {
-            throw Unimplemented.forMember("net/neoforged/neoforge/client/model/generators/blockstate/UnbakedMutator$Builder.<init>:()V");
         }
 
         public <T extends BlockStateModel.Unbaked> Builder add(Class<T> supportedClass, UnaryOperator<T> operator) {

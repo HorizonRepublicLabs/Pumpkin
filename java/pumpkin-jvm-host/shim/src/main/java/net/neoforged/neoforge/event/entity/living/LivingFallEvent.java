@@ -7,7 +7,6 @@ import dev.pumpkin.shim.Unimplemented;
 public class LivingFallEvent extends LivingEvent implements ICancellableEvent {
 
     public LivingFallEvent(LivingEntity entity, double distance, float damageMultiplier) {
-        throw Unimplemented.forMember("net/neoforged/neoforge/event/entity/living/LivingFallEvent.<init>:(Lnet/minecraft/world/entity/LivingEntity;DF)V");
     }
 
     public void setDamageMultiplier(float damageMultiplier) {

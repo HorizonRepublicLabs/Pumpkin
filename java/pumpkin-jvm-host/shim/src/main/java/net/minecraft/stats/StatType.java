@@ -10,7 +10,6 @@ import dev.pumpkin.shim.Unimplemented;
 public class StatType<T> implements Iterable<Stat<T>> {
 
     public StatType(Registry<T> registry, Component displayName) {
-        throw Unimplemented.forMember("net/minecraft/stats/StatType.<init>:(Lnet/minecraft/core/Registry;Lnet/minecraft/network/chat/Component;)V");
     }
 
     public StreamCodec<RegistryFriendlyByteBuf, Stat<T>> streamCodec() {

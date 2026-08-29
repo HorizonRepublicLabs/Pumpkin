@@ -8,7 +8,6 @@ import dev.pumpkin.shim.Unimplemented;
 public class SpriteLoader {
 
     public SpriteLoader(Identifier location, int maxSupportedTextureSize) {
-        throw Unimplemented.forMember("net/minecraft/client/renderer/texture/SpriteLoader.<init>:(Lnet/minecraft/resources/Identifier;I)V");
     }
 
     public static SpriteLoader create(TextureAtlas atlas) {

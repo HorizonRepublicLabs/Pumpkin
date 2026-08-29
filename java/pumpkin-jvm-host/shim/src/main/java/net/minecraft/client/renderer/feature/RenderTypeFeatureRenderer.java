@@ -24,7 +24,6 @@ public abstract class RenderTypeFeatureRenderer<Submit extends SubmitNode> imple
     private static class Group {
 
         private Group(StagedVertexBuffer stagedBuffer, boolean canReorder) {
-            throw Unimplemented.forMember("net/minecraft/client/renderer/feature/RenderTypeFeatureRenderer$Group.<init>:(Lnet/minecraft/client/renderer/StagedVertexBuffer;Z)V");
         }
 
         protected Group() {

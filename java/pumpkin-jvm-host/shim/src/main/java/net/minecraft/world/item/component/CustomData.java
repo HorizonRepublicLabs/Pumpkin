@@ -9,7 +9,6 @@ import dev.pumpkin.shim.Unimplemented;
 public final class CustomData {
 
     private CustomData(CompoundTag tag) {
-        throw Unimplemented.forMember("net/minecraft/world/item/component/CustomData.<init>:(Lnet/minecraft/nbt/CompoundTag;)V");
     }
 
     public static CustomData of(CompoundTag tag) {

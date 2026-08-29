@@ -5,15 +5,12 @@ import dev.pumpkin.shim.Unimplemented;
 public class DataLayer {
 
     public DataLayer() {
-        throw Unimplemented.forMember("net/minecraft/world/level/chunk/DataLayer.<init>:()V");
     }
 
     public DataLayer(int defaultValue) {
-        throw Unimplemented.forMember("net/minecraft/world/level/chunk/DataLayer.<init>:(I)V");
     }
 
     public DataLayer(byte[] data) {
-        throw Unimplemented.forMember("net/minecraft/world/level/chunk/DataLayer.<init>:([B)V");
     }
 
     public int get(int x, int y, int z) {

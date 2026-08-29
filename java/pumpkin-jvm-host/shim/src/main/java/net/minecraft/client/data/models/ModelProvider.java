@@ -20,11 +20,9 @@ import dev.pumpkin.shim.Unimplemented;
 public class ModelProvider implements DataProvider, IModelProviderExtension {
 
     public ModelProvider(PackOutput output) {
-        throw Unimplemented.forMember("net/minecraft/client/data/models/ModelProvider.<init>:(Lnet/minecraft/data/PackOutput;)V");
     }
 
     public ModelProvider(PackOutput output, String modId) {
-        throw Unimplemented.forMember("net/minecraft/client/data/models/ModelProvider.<init>:(Lnet/minecraft/data/PackOutput;Ljava/lang/String;)V");
     }
 
     public CompletableFuture<?> run(CachedOutput cache) {
@@ -38,11 +36,9 @@ public class ModelProvider implements DataProvider, IModelProviderExtension {
     private static class BlockStateGeneratorCollector implements Consumer<BlockModelDefinitionGenerator> {
 
         public BlockStateGeneratorCollector(Supplier<java.util.stream.Stream<? extends net.minecraft.core.Holder<Block>>> knownBlocks) {
-            throw Unimplemented.forMember("net/minecraft/client/data/models/ModelProvider$BlockStateGeneratorCollector.<init>:(Ljava/util/function/Supplier;)V");
         }
 
         public BlockStateGeneratorCollector() {
-            throw Unimplemented.forMember("net/minecraft/client/data/models/ModelProvider$BlockStateGeneratorCollector.<init>:()V");
         }
 
         public void accept(BlockModelDefinitionGenerator generator) {
@@ -57,11 +53,9 @@ public class ModelProvider implements DataProvider, IModelProviderExtension {
     private static class ItemInfoCollector implements ItemModelOutput {
 
         public ItemInfoCollector(Supplier<java.util.stream.Stream<? extends net.minecraft.core.Holder<Item>>> knownItems) {
-            throw Unimplemented.forMember("net/minecraft/client/data/models/ModelProvider$ItemInfoCollector.<init>:(Ljava/util/function/Supplier;)V");
         }
 
         public ItemInfoCollector() {
-            throw Unimplemented.forMember("net/minecraft/client/data/models/ModelProvider$ItemInfoCollector.<init>:()V");
         }
 
         public void accept(Item item, ItemModel.Unbaked model, ClientItem.Properties properties) {

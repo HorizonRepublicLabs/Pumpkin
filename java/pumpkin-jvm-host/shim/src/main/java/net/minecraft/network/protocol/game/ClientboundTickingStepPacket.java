@@ -9,7 +9,6 @@ public record ClientboundTickingStepPacket(int tickSteps) implements Packet<Clie
 
     private ClientboundTickingStepPacket(FriendlyByteBuf input) {
         this((int) 0);
-        throw Unimplemented.forMember("net/minecraft/network/protocol/game/ClientboundTickingStepPacket.<init>:(Lnet/minecraft/network/FriendlyByteBuf;)V");
     }
 
     private void write(FriendlyByteBuf output) {

@@ -12,11 +12,9 @@ import dev.pumpkin.shim.Unimplemented;
 public class ClientboundUpdateTagsPacket implements Packet<ClientCommonPacketListener> {
 
     public ClientboundUpdateTagsPacket(Map<ResourceKey<? extends Registry<?>>, TagNetworkSerialization.NetworkPayload> tags) {
-        throw Unimplemented.forMember("net/minecraft/network/protocol/common/ClientboundUpdateTagsPacket.<init>:(Ljava/util/Map;)V");
     }
 
     private ClientboundUpdateTagsPacket(FriendlyByteBuf input) {
-        throw Unimplemented.forMember("net/minecraft/network/protocol/common/ClientboundUpdateTagsPacket.<init>:(Lnet/minecraft/network/FriendlyByteBuf;)V");
     }
 
     private void write(FriendlyByteBuf output) {

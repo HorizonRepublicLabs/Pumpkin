@@ -45,7 +45,6 @@ public interface WaypointTransmitter extends Waypoint {
     class EntityAzimuthConnection implements WaypointTransmitter.Connection {
 
         public EntityAzimuthConnection(LivingEntity source, Waypoint.Icon icon, ServerPlayer receiver) {
-            throw Unimplemented.forMember("net/minecraft/world/waypoints/WaypointTransmitter$EntityAzimuthConnection.<init>:(Lnet/minecraft/world/entity/LivingEntity;Lnet/minecraft/world/waypoints/Waypoint$Icon;Lnet/minecraft/server/level/ServerPlayer;)V");
         }
 
         public boolean isBroken() {
@@ -71,7 +70,6 @@ public interface WaypointTransmitter extends Waypoint {
     class EntityBlockConnection implements WaypointTransmitter.BlockConnection {
 
         public EntityBlockConnection(LivingEntity source, Waypoint.Icon icon, ServerPlayer receiver) {
-            throw Unimplemented.forMember("net/minecraft/world/waypoints/WaypointTransmitter$EntityBlockConnection.<init>:(Lnet/minecraft/world/entity/LivingEntity;Lnet/minecraft/world/waypoints/Waypoint$Icon;Lnet/minecraft/server/level/ServerPlayer;)V");
         }
 
         public void connect() {
@@ -101,7 +99,6 @@ public interface WaypointTransmitter extends Waypoint {
     class EntityChunkConnection implements WaypointTransmitter.ChunkConnection {
 
         public EntityChunkConnection(LivingEntity source, Waypoint.Icon icon, ServerPlayer receiver) {
-            throw Unimplemented.forMember("net/minecraft/world/waypoints/WaypointTransmitter$EntityChunkConnection.<init>:(Lnet/minecraft/world/entity/LivingEntity;Lnet/minecraft/world/waypoints/Waypoint$Icon;Lnet/minecraft/server/level/ServerPlayer;)V");
         }
 
         public int distanceChessboard() {

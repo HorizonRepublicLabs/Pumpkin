@@ -7,7 +7,6 @@ import dev.pumpkin.shim.Unimplemented;
 public class AxeItem extends Item {
 
     public AxeItem(ToolMaterial material, float attackDamageBaseline, float attackSpeedBaseline, Item.Properties properties) {
-        throw Unimplemented.forMember("net/minecraft/world/item/AxeItem.<init>:(Lnet/minecraft/world/item/ToolMaterial;FFLnet/minecraft/world/item/Item$Properties;)V");
     }
 
     public InteractionResult useOn(UseOnContext context) {

@@ -21,11 +21,9 @@ import dev.pumpkin.shim.Unimplemented;
 public final class OptionInstance<T> {
 
     public OptionInstance(String captionId, OptionInstance.TooltipSupplier<T> tooltip, OptionInstance.CaptionBasedToString<T> toString, OptionInstance.ValueSet<T> values, T initialValue, OptionInstance.ValueUpdateListener<? super T> onValueUpdate) {
-        throw Unimplemented.forMember("net/minecraft/client/OptionInstance.<init>:(Ljava/lang/String;Lnet/minecraft/client/OptionInstance$TooltipSupplier;Lnet/minecraft/client/OptionInstance$CaptionBasedToString;Lnet/minecraft/client/OptionInstance$ValueSet;Ljava/lang/Object;Lnet/minecraft/client/OptionInstance$ValueUpdateListener;)V");
     }
 
     public OptionInstance(String captionId, OptionInstance.TooltipSupplier<T> tooltip, OptionInstance.CaptionBasedToString<T> toString, OptionInstance.ValueSet<T> values, Codec<T> codec, T initialValue, OptionInstance.ValueUpdateListener<? super T> onValueUpdate) {
-        throw Unimplemented.forMember("net/minecraft/client/OptionInstance.<init>:(Ljava/lang/String;Lnet/minecraft/client/OptionInstance$TooltipSupplier;Lnet/minecraft/client/OptionInstance$CaptionBasedToString;Lnet/minecraft/client/OptionInstance$ValueSet;Lcom/mojang/serialization/Codec;Ljava/lang/Object;Lnet/minecraft/client/OptionInstance$ValueUpdateListener;)V");
     }
 
     public T get() {
@@ -112,7 +110,6 @@ public final class OptionInstance<T> {
 
         public IntRange(int minInclusive, int maxInclusive) {
             this((int) 0, (int) 0, (boolean) false);
-            throw Unimplemented.forMember("net/minecraft/client/OptionInstance$IntRange.<init>:(II)V");
         }
 
         public Optional<Integer> validateValue(Integer value) {
@@ -157,7 +154,6 @@ public final class OptionInstance<T> {
     public static final class OptionInstanceSliderButton<N> extends AbstractOptionSliderButton implements ResettableOptionWidget {
 
         private OptionInstanceSliderButton(Options options, int x, int y, int width, int height, OptionInstance<N> instance, OptionInstance.SliderableValueSet<N> values, OptionInstance.TooltipSupplier<N> tooltipSupplier, OptionInstance.ValueUpdateListener<? super N> onValueChanged, boolean applyValueImmediately) {
-            throw Unimplemented.forMember("net/minecraft/client/OptionInstance$OptionInstanceSliderButton.<init>:(Lnet/minecraft/client/Options;IIIILnet/minecraft/client/OptionInstance;Lnet/minecraft/client/OptionInstance$SliderableValueSet;Lnet/minecraft/client/OptionInstance$TooltipSupplier;Lnet/minecraft/client/OptionInstance$ValueUpdateListener;Z)V");
         }
 
         protected void updateMessage() {

@@ -7,15 +7,26 @@ import dev.pumpkin.shim.Unimplemented;
 
 public class Blocks {
 
-    public static final Block AIR = null;
+    // Pumpkin divergence: real values. Measured over both mods, every use of these is
+    // reference identity -- `state.getBlock() == Blocks.FARMLAND` compiles to if_acmpeq --
+    // or passing the object into shim code that reads its template. A canonical singleton
+    // per vanilla block satisfies both: the shim is the only source of these objects, so
+    // identity holds by construction, and the template ties each one to the Pumpkin block
+    // it stands for. When shim state and Pumpkin's registry meet properly (a design step
+    // still ahead), these are the objects that binding will hang off.
+    public static final Block AIR = pumpkinVanilla("air");
 
-    public static final Block WHEAT = null;
+    public static final Block WHEAT = pumpkinVanilla("wheat");
 
-    public static final Block FARMLAND = null;
+    public static final Block FARMLAND = pumpkinVanilla("farmland");
 
-    public static final Block MYCELIUM = null;
+    public static final Block MYCELIUM = pumpkinVanilla("mycelium");
 
-    public static final Block CHORUS_FLOWER = null;
+    public static final Block CHORUS_FLOWER = pumpkinVanilla("chorus_flower");
+
+    private static Block pumpkinVanilla(String name) {
+        return new Block(BlockBehaviour.Properties.of().pumpkinTemplate(name));
+    }
 
     private static Block register(BlockItemId id, BlockBehaviour.Properties properties) {
         throw Unimplemented.forMember("net/minecraft/world/level/block/Blocks.register:(Lnet/minecraft/references/BlockItemId;Lnet/minecraft/world/level/block/state/BlockBehaviour$Properties;)Lnet/minecraft/world/level/block/Block;");
@@ -28,9 +39,4 @@ public class Blocks {
     public Blocks() {
     }
 
-    static {
-        if (true) {
-            throw Unimplemented.forMember("net/minecraft/world/level/block/Blocks");
-        }
-    }
 }

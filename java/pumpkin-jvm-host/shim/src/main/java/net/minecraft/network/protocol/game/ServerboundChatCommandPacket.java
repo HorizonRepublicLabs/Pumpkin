@@ -9,7 +9,6 @@ public record ServerboundChatCommandPacket(String command) implements Packet<Ser
 
     private ServerboundChatCommandPacket(FriendlyByteBuf input) {
         this((String) null);
-        throw Unimplemented.forMember("net/minecraft/network/protocol/game/ServerboundChatCommandPacket.<init>:(Lnet/minecraft/network/FriendlyByteBuf;)V");
     }
 
     private void write(FriendlyByteBuf output) {

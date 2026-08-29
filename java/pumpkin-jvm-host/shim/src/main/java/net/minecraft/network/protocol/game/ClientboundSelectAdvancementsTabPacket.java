@@ -9,11 +9,9 @@ import dev.pumpkin.shim.Unimplemented;
 public class ClientboundSelectAdvancementsTabPacket implements Packet<ClientGamePacketListener> {
 
     public ClientboundSelectAdvancementsTabPacket(Identifier tab) {
-        throw Unimplemented.forMember("net/minecraft/network/protocol/game/ClientboundSelectAdvancementsTabPacket.<init>:(Lnet/minecraft/resources/Identifier;)V");
     }
 
     private ClientboundSelectAdvancementsTabPacket(FriendlyByteBuf input) {
-        throw Unimplemented.forMember("net/minecraft/network/protocol/game/ClientboundSelectAdvancementsTabPacket.<init>:(Lnet/minecraft/network/FriendlyByteBuf;)V");
     }
 
     private void write(FriendlyByteBuf output) {

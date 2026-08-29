@@ -8,7 +8,6 @@ import dev.pumpkin.shim.Unimplemented;
 public abstract class Avatar extends LivingEntity {
 
     protected Avatar(EntityType<? extends LivingEntity> type, Level level) {
-        throw Unimplemented.forMember("net/minecraft/world/entity/Avatar.<init>:(Lnet/minecraft/world/entity/EntityType;Lnet/minecraft/world/level/Level;)V");
     }
 
     protected void defineSynchedData(SynchedEntityData.Builder entityData) {

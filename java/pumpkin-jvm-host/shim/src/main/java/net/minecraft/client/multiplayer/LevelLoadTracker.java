@@ -11,11 +11,9 @@ import dev.pumpkin.shim.Unimplemented;
 public class LevelLoadTracker implements LevelLoadListener {
 
     public LevelLoadTracker() {
-        throw Unimplemented.forMember("net/minecraft/client/multiplayer/LevelLoadTracker.<init>:()V");
     }
 
     public LevelLoadTracker(long closeDelayMs) {
-        throw Unimplemented.forMember("net/minecraft/client/multiplayer/LevelLoadTracker.<init>:(J)V");
     }
 
     public void start(LevelLoadListener.Stage stage, int totalChunks) {

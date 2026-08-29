@@ -21,7 +21,6 @@ import dev.pumpkin.shim.Unimplemented;
 public class EnderDragon extends Mob implements Enemy {
 
     public EnderDragon(EntityType<? extends EnderDragon> type, Level level) {
-        throw Unimplemented.forMember("net/minecraft/world/entity/boss/enderdragon/EnderDragon.<init>:(Lnet/minecraft/world/entity/EntityType;Lnet/minecraft/world/level/Level;)V");
     }
 
     public boolean isFlapping() {

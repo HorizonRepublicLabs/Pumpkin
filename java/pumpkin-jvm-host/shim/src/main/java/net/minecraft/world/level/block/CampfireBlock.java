@@ -40,7 +40,6 @@ public class CampfireBlock extends BaseEntityBlock implements SimpleWaterloggedB
     }
 
     public CampfireBlock(boolean spawnParticles, int fireDamage, BlockBehaviour.Properties properties) {
-        throw Unimplemented.forMember("net/minecraft/world/level/block/CampfireBlock.<init>:(ZILnet/minecraft/world/level/block/state/BlockBehaviour$Properties;)V");
     }
 
     protected InteractionResult useItemOn(ItemStack itemStack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hitResult) {

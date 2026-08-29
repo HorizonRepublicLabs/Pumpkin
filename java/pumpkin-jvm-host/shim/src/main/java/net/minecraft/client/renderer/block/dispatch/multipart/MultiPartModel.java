@@ -15,7 +15,6 @@ import dev.pumpkin.shim.Unimplemented;
 public class MultiPartModel implements BlockStateModel, DynamicBlockStateModel {
 
     private MultiPartModel(MultiPartModel.SharedBakedState shared, BlockState blockState) {
-        throw Unimplemented.forMember("net/minecraft/client/renderer/block/dispatch/multipart/MultiPartModel.<init>:(Lnet/minecraft/client/renderer/block/dispatch/multipart/MultiPartModel$SharedBakedState;Lnet/minecraft/world/level/block/state/BlockState;)V");
     }
 
     public Material.Baked particleMaterial() {
@@ -55,7 +54,6 @@ public class MultiPartModel implements BlockStateModel, DynamicBlockStateModel {
     private static final class SharedBakedState {
 
         public SharedBakedState(List<MultiPartModel.Selector<BlockStateModel>> selectors) {
-            throw Unimplemented.forMember("net/minecraft/client/renderer/block/dispatch/multipart/MultiPartModel$SharedBakedState.<init>:(Ljava/util/List;)V");
         }
 
         protected SharedBakedState() {
@@ -65,7 +63,6 @@ public class MultiPartModel implements BlockStateModel, DynamicBlockStateModel {
     public static class Unbaked implements BlockStateModel.UnbakedRoot {
 
         public Unbaked(List<MultiPartModel.Selector<BlockStateModel.Unbaked>> selectors) {
-            throw Unimplemented.forMember("net/minecraft/client/renderer/block/dispatch/multipart/MultiPartModel$Unbaked.<init>:(Ljava/util/List;)V");
         }
 
         public Object visualEqualityGroup(BlockState blockState) {

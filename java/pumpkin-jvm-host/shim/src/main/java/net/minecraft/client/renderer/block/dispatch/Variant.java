@@ -10,7 +10,6 @@ public record Variant(Identifier modelLocation, Variant.SimpleModelState modelSt
 
     public Variant(Identifier modelLocation) {
         this((Identifier) null, (Variant.SimpleModelState) null);
-        throw Unimplemented.forMember("net/minecraft/client/renderer/block/dispatch/Variant.<init>:(Lnet/minecraft/resources/Identifier;)V");
     }
 
     public Variant with(VariantMutator mutator) {

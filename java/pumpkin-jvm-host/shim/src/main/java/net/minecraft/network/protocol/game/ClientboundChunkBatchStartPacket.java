@@ -7,7 +7,6 @@ import dev.pumpkin.shim.Unimplemented;
 public class ClientboundChunkBatchStartPacket implements Packet<ClientGamePacketListener> {
 
     protected ClientboundChunkBatchStartPacket() {
-        throw Unimplemented.forMember("net/minecraft/network/protocol/game/ClientboundChunkBatchStartPacket.<init>:()V");
     }
 
     public PacketType<ClientboundChunkBatchStartPacket> type() {

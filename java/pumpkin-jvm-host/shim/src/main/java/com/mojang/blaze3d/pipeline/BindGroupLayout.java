@@ -8,13 +8,11 @@ import dev.pumpkin.shim.Unimplemented;
 public class BindGroupLayout {
 
     private BindGroupLayout(List<String> samplers, List<BindGroupLayout.UniformDescription> uniforms) {
-        throw Unimplemented.forMember("com/mojang/blaze3d/pipeline/BindGroupLayout.<init>:(Ljava/util/List;Ljava/util/List;)V");
     }
 
     public static class Builder {
 
         protected Builder() {
-            throw Unimplemented.forMember("com/mojang/blaze3d/pipeline/BindGroupLayout$Builder.<init>:()V");
         }
 
         public BindGroupLayout build() {
@@ -26,12 +24,10 @@ public class BindGroupLayout {
 
         public UniformDescription(String name, UniformType type) {
             this((String) null, (UniformType) null, (GpuFormat) null);
-            throw Unimplemented.forMember("com/mojang/blaze3d/pipeline/BindGroupLayout$UniformDescription.<init>:(Ljava/lang/String;Lcom/mojang/blaze3d/shaders/UniformType;)V");
         }
 
         public UniformDescription(String name, GpuFormat gpuFormat) {
             this((String) null, (UniformType) null, (GpuFormat) null);
-            throw Unimplemented.forMember("com/mojang/blaze3d/pipeline/BindGroupLayout$UniformDescription.<init>:(Ljava/lang/String;Lcom/mojang/blaze3d/GpuFormat;)V");
         }
     }
 

@@ -8,11 +8,9 @@ import dev.pumpkin.shim.Unimplemented;
 public class ClientboundTakeItemEntityPacket implements Packet<ClientGamePacketListener> {
 
     public ClientboundTakeItemEntityPacket(int itemId, int playerId, int amount) {
-        throw Unimplemented.forMember("net/minecraft/network/protocol/game/ClientboundTakeItemEntityPacket.<init>:(III)V");
     }
 
     private ClientboundTakeItemEntityPacket(FriendlyByteBuf input) {
-        throw Unimplemented.forMember("net/minecraft/network/protocol/game/ClientboundTakeItemEntityPacket.<init>:(Lnet/minecraft/network/FriendlyByteBuf;)V");
     }
 
     private void write(FriendlyByteBuf output) {

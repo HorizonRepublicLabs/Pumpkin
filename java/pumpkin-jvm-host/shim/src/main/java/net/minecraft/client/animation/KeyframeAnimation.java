@@ -9,7 +9,6 @@ import dev.pumpkin.shim.Unimplemented;
 public class KeyframeAnimation {
 
     private KeyframeAnimation(AnimationDefinition definition, List<KeyframeAnimation.Entry> entries) {
-        throw Unimplemented.forMember("net/minecraft/client/animation/KeyframeAnimation.<init>:(Lnet/minecraft/client/animation/AnimationDefinition;Ljava/util/List;)V");
     }
 
     static KeyframeAnimation bake(ModelPart root, AnimationDefinition definition) {

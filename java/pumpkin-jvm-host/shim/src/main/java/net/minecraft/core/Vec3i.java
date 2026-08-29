@@ -5,7 +5,6 @@ import dev.pumpkin.shim.Unimplemented;
 public class Vec3i implements Comparable<Vec3i> {
 
     public Vec3i(int x, int y, int z) {
-        throw Unimplemented.forMember("net/minecraft/core/Vec3i.<init>:(III)V");
     }
 
     public boolean equals(Object o) {

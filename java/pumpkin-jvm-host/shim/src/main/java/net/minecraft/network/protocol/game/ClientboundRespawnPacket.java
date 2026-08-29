@@ -9,7 +9,6 @@ public record ClientboundRespawnPacket(CommonPlayerSpawnInfo commonPlayerSpawnIn
 
     private ClientboundRespawnPacket(RegistryFriendlyByteBuf input) {
         this((CommonPlayerSpawnInfo) null, (byte) 0);
-        throw Unimplemented.forMember("net/minecraft/network/protocol/game/ClientboundRespawnPacket.<init>:(Lnet/minecraft/network/RegistryFriendlyByteBuf;)V");
     }
 
     private void write(RegistryFriendlyByteBuf output) {

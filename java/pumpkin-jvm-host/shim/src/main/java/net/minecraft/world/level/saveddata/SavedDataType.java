@@ -10,17 +10,14 @@ public record SavedDataType<T extends SavedData>(Identifier id, Factory<T> facto
 
     public SavedDataType(Identifier id, Supplier<T> constructor, Codec<T> codec, DataFixTypes dataFixType) {
         this((Identifier) null, (Factory<T>) null, (Factory<Codec<T>>) null, (DataFixTypes) null);
-        throw Unimplemented.forMember("net/minecraft/world/level/saveddata/SavedDataType.<init>:(Lnet/minecraft/resources/Identifier;Ljava/util/function/Supplier;Lcom/mojang/serialization/Codec;Lnet/minecraft/util/datafix/DataFixTypes;)V");
     }
 
     public SavedDataType(Identifier id, Supplier<T> constructor, Codec<T> codec) {
         this((Identifier) null, (Factory<T>) null, (Factory<Codec<T>>) null, (DataFixTypes) null);
-        throw Unimplemented.forMember("net/minecraft/world/level/saveddata/SavedDataType.<init>:(Lnet/minecraft/resources/Identifier;Ljava/util/function/Supplier;Lcom/mojang/serialization/Codec;)V");
     }
 
     public SavedDataType(Identifier id, Factory<T> constructor, Factory<Codec<T>> codec) {
         this((Identifier) null, (Factory<T>) null, (Factory<Codec<T>>) null, (DataFixTypes) null);
-        throw Unimplemented.forMember("net/minecraft/world/level/saveddata/SavedDataType.<init>:(Lnet/minecraft/resources/Identifier;Lnet/minecraft/world/level/saveddata/SavedDataType$Factory;Lnet/minecraft/world/level/saveddata/SavedDataType$Factory;)V");
     }
 
     public Codec<T> codec() {

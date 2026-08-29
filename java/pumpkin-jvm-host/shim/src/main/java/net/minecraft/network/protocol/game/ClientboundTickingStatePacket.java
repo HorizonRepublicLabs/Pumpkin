@@ -9,7 +9,6 @@ public record ClientboundTickingStatePacket(float tickRate, boolean isFrozen) im
 
     private ClientboundTickingStatePacket(FriendlyByteBuf input) {
         this((float) 0.0F, (boolean) false);
-        throw Unimplemented.forMember("net/minecraft/network/protocol/game/ClientboundTickingStatePacket.<init>:(Lnet/minecraft/network/FriendlyByteBuf;)V");
     }
 
     private void write(FriendlyByteBuf output) {

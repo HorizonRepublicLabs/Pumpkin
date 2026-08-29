@@ -15,7 +15,6 @@ import dev.pumpkin.shim.Unimplemented;
 public class AvatarRenderer<AvatarlikeEntity extends Avatar & ClientAvatarEntity> extends LivingEntityRenderer<AvatarlikeEntity, AvatarRenderState, PlayerModel> {
 
     public AvatarRenderer(EntityRendererProvider.Context context, boolean slimSteve) {
-        throw Unimplemented.forMember("net/minecraft/client/renderer/entity/player/AvatarRenderer.<init>:(Lnet/minecraft/client/renderer/entity/EntityRendererProvider$Context;Z)V");
     }
 
     public Identifier getTextureLocation(AvatarRenderState state) {

@@ -16,7 +16,6 @@ import dev.pumpkin.shim.Unimplemented;
 public abstract class Monster extends PathfinderMob implements Enemy {
 
     protected Monster(EntityType<? extends Monster> type, Level level) {
-        throw Unimplemented.forMember("net/minecraft/world/entity/monster/Monster.<init>:(Lnet/minecraft/world/entity/EntityType;Lnet/minecraft/world/level/Level;)V");
     }
 
     public SoundSource getSoundSource() {

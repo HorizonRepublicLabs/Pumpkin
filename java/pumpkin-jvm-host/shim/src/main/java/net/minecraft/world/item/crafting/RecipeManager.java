@@ -17,7 +17,6 @@ public class RecipeManager extends SimplePreparableReloadListener<RecipeMap> imp
     private final HolderLookup.Provider registries = null;
 
     public RecipeManager(HolderLookup.Provider registries) {
-        throw Unimplemented.forMember("net/minecraft/world/item/crafting/RecipeManager.<init>:(Lnet/minecraft/core/HolderLookup$Provider;)V");
     }
 
     protected RecipeMap prepare(ResourceManager manager, ProfilerFiller profiler) {
@@ -60,7 +59,6 @@ public class RecipeManager extends SimplePreparableReloadListener<RecipeMap> imp
     public static class IngredientCollector implements Consumer<Recipe<?>> {
 
         protected IngredientCollector(ResourceKey<RecipePropertySet> key, RecipeManager.IngredientExtractor extractor) {
-            throw Unimplemented.forMember("net/minecraft/world/item/crafting/RecipeManager$IngredientCollector.<init>:(Lnet/minecraft/resources/ResourceKey;Lnet/minecraft/world/item/crafting/RecipeManager$IngredientExtractor;)V");
         }
 
         public void accept(Recipe<?> recipe) {

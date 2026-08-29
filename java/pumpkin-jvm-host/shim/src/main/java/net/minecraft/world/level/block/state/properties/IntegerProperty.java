@@ -7,7 +7,6 @@ import dev.pumpkin.shim.Unimplemented;
 public final class IntegerProperty extends Property<Integer> {
 
     private IntegerProperty(String name, int min, int max) {
-        throw Unimplemented.forMember("net/minecraft/world/level/block/state/properties/IntegerProperty.<init>:(Ljava/lang/String;II)V");
     }
 
     public List<Integer> getPossibleValues() {

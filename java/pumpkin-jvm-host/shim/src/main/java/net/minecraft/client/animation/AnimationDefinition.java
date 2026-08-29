@@ -14,7 +14,6 @@ public record AnimationDefinition(float lengthInSeconds, boolean looping, Map<St
     public static class Builder {
 
         private Builder(float length) {
-            throw Unimplemented.forMember("net/minecraft/client/animation/AnimationDefinition$Builder.<init>:(F)V");
         }
 
         public AnimationDefinition build() {

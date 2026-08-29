@@ -12,7 +12,6 @@ import dev.pumpkin.shim.Unimplemented;
 public class ServerScoreboard extends Scoreboard {
 
     public ServerScoreboard(MinecraftServer server) {
-        throw Unimplemented.forMember("net/minecraft/server/ServerScoreboard.<init>:(Lnet/minecraft/server/MinecraftServer;)V");
     }
 
     public void load(ScoreboardSaveData.Packed data) {

@@ -10,7 +10,6 @@ public record ServerboundCookieResponsePacket(Identifier key, byte[] payload) im
 
     private ServerboundCookieResponsePacket(FriendlyByteBuf input) {
         this((Identifier) null, (byte[]) null);
-        throw Unimplemented.forMember("net/minecraft/network/protocol/cookie/ServerboundCookieResponsePacket.<init>:(Lnet/minecraft/network/FriendlyByteBuf;)V");
     }
 
     private void write(FriendlyByteBuf output) {

@@ -12,7 +12,6 @@ import dev.pumpkin.shim.Unimplemented;
 public final class GameRule<T> implements FeatureElement {
 
     public GameRule(GameRuleCategory category, GameRuleType gameRuleType, ArgumentType<T> argument, GameRules.VisitorCaller<T> visitorCaller, Codec<T> valueCodec, ToIntFunction<T> commandResultFunction, T defaultValue, FeatureFlagSet requiredFeatures) {
-        throw Unimplemented.forMember("net/minecraft/world/level/gamerules/GameRule.<init>:(Lnet/minecraft/world/level/gamerules/GameRuleCategory;Lnet/minecraft/world/level/gamerules/GameRuleType;Lcom/mojang/brigadier/arguments/ArgumentType;Lnet/minecraft/world/level/gamerules/GameRules$VisitorCaller;Lcom/mojang/serialization/Codec;Ljava/util/function/ToIntFunction;Ljava/lang/Object;Lnet/minecraft/world/flag/FeatureFlagSet;)V");
     }
 
     public String toString() {

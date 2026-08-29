@@ -13,7 +13,6 @@ import dev.pumpkin.shim.Unimplemented;
 public abstract class PlayerList implements IPlayerListExtension {
 
     public PlayerList(MinecraftServer server, LayeredRegistryAccess<RegistryLayer> registries, PlayerDataStorage playerIo, NotificationService notificationService) {
-        throw Unimplemented.forMember("net/minecraft/server/players/PlayerList.<init>:(Lnet/minecraft/server/MinecraftServer;Lnet/minecraft/core/LayeredRegistryAccess;Lnet/minecraft/world/level/storage/PlayerDataStorage;Lnet/minecraft/server/notifications/NotificationService;)V");
     }
 
     public void remove(ServerPlayer player) {

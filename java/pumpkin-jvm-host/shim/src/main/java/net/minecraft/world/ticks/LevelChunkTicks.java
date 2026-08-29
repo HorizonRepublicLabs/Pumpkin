@@ -8,11 +8,9 @@ import dev.pumpkin.shim.Unimplemented;
 public class LevelChunkTicks<T> implements TickContainerAccess<T>, SerializableTickContainer<T> {
 
     public LevelChunkTicks() {
-        throw Unimplemented.forMember("net/minecraft/world/ticks/LevelChunkTicks.<init>:()V");
     }
 
     public LevelChunkTicks(List<SavedTick<T>> pendingTicks) {
-        throw Unimplemented.forMember("net/minecraft/world/ticks/LevelChunkTicks.<init>:(Ljava/util/List;)V");
     }
 
     public void schedule(ScheduledTick<T> tick) {

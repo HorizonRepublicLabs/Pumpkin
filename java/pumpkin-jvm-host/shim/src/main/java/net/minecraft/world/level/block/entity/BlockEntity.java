@@ -23,7 +23,6 @@ public abstract class BlockEntity extends net.neoforged.neoforge.attachment.Atta
     protected Level level;
 
     public BlockEntity(BlockEntityType<?> type, BlockPos worldPosition, BlockState blockState) {
-        throw Unimplemented.forMember("net/minecraft/world/level/block/entity/BlockEntity.<init>:(Lnet/minecraft/world/level/block/entity/BlockEntityType;Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/state/BlockState;)V");
     }
 
     public Level getLevel() {

@@ -8,11 +8,9 @@ import dev.pumpkin.shim.Unimplemented;
 public class ServerboundLockDifficultyPacket implements Packet<ServerGamePacketListener> {
 
     public ServerboundLockDifficultyPacket(boolean locked) {
-        throw Unimplemented.forMember("net/minecraft/network/protocol/game/ServerboundLockDifficultyPacket.<init>:(Z)V");
     }
 
     private ServerboundLockDifficultyPacket(FriendlyByteBuf input) {
-        throw Unimplemented.forMember("net/minecraft/network/protocol/game/ServerboundLockDifficultyPacket.<init>:(Lnet/minecraft/network/FriendlyByteBuf;)V");
     }
 
     private void write(FriendlyByteBuf output) {

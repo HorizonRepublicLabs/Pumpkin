@@ -9,11 +9,9 @@ import dev.pumpkin.shim.Unimplemented;
 public final class PatchedDataComponentMap implements DataComponentMap {
 
     public PatchedDataComponentMap(DataComponentMap prototype) {
-        throw Unimplemented.forMember("net/minecraft/core/component/PatchedDataComponentMap.<init>:(Lnet/minecraft/core/component/DataComponentMap;)V");
     }
 
     private PatchedDataComponentMap(DataComponentMap prototype, Reference2ObjectMap<DataComponentType<?>, Optional<?>> patch, boolean copyOnWrite) {
-        throw Unimplemented.forMember("net/minecraft/core/component/PatchedDataComponentMap.<init>:(Lnet/minecraft/core/component/DataComponentMap;Lit/unimi/dsi/fastutil/objects/Reference2ObjectMap;Z)V");
     }
 
     public <T> T get(DataComponentType<? extends T> type) {

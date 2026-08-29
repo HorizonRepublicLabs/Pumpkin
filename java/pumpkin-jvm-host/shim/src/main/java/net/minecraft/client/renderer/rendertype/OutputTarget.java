@@ -7,7 +7,6 @@ import dev.pumpkin.shim.Unimplemented;
 public class OutputTarget {
 
     public OutputTarget(String name, Supplier<RenderTarget> renderTargetSupplier) {
-        throw Unimplemented.forMember("net/minecraft/client/renderer/rendertype/OutputTarget.<init>:(Ljava/lang/String;Ljava/util/function/Supplier;)V");
     }
 
     public String toString() {

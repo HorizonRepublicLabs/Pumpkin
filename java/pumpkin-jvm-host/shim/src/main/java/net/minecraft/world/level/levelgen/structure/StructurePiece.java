@@ -14,11 +14,9 @@ import dev.pumpkin.shim.Unimplemented;
 public abstract class StructurePiece {
 
     protected StructurePiece(StructurePieceType type, int genDepth, BoundingBox boundingBox) {
-        throw Unimplemented.forMember("net/minecraft/world/level/levelgen/structure/StructurePiece.<init>:(Lnet/minecraft/world/level/levelgen/structure/pieces/StructurePieceType;ILnet/minecraft/world/level/levelgen/structure/BoundingBox;)V");
     }
 
     public StructurePiece(StructurePieceType type, CompoundTag tag) {
-        throw Unimplemented.forMember("net/minecraft/world/level/levelgen/structure/StructurePiece.<init>:(Lnet/minecraft/world/level/levelgen/structure/pieces/StructurePieceType;Lnet/minecraft/nbt/CompoundTag;)V");
     }
 
     public final CompoundTag createTag(StructurePieceSerializationContext context) {

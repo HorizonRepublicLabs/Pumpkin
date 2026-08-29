@@ -6,7 +6,6 @@ import dev.pumpkin.shim.Unimplemented;
 public class Stat<T> extends ObjectiveCriteria {
 
     protected Stat(StatType<T> type, T value, StatFormatter formatter) {
-        throw Unimplemented.forMember("net/minecraft/stats/Stat.<init>:(Lnet/minecraft/stats/StatType;Ljava/lang/Object;Lnet/minecraft/stats/StatFormatter;)V");
     }
 
     public StatType<T> getType() {

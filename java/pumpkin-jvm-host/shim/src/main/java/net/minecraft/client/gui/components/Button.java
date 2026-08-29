@@ -13,11 +13,9 @@ public abstract class Button extends AbstractButton {
     protected static final Button.CreateNarration DEFAULT_NARRATION = null;
 
     protected Button(int x, int y, int width, int height, Component message, Button.OnPress onPress, Button.CreateNarration createNarration) {
-        throw Unimplemented.forMember("net/minecraft/client/gui/components/Button.<init>:(IIIILnet/minecraft/network/chat/Component;Lnet/minecraft/client/gui/components/Button$OnPress;Lnet/minecraft/client/gui/components/Button$CreateNarration;)V");
     }
 
     protected Button(Builder builder) {
-        throw Unimplemented.forMember("net/minecraft/client/gui/components/Button.<init>:(Lnet/minecraft/client/gui/components/Button$Builder;)V");
     }
 
     public void onPress(InputWithModifiers input) {
@@ -35,7 +33,6 @@ public abstract class Button extends AbstractButton {
     public static class Builder {
 
         public Builder(Component message, Button.OnPress onPress) {
-            throw Unimplemented.forMember("net/minecraft/client/gui/components/Button$Builder.<init>:(Lnet/minecraft/network/chat/Component;Lnet/minecraft/client/gui/components/Button$OnPress;)V");
         }
 
         public Button build() {
@@ -59,11 +56,9 @@ public abstract class Button extends AbstractButton {
     public static class Plain extends Button {
 
         protected Plain(int x, int y, int width, int height, Component message, Button.OnPress onPress, Button.CreateNarration createNarration) {
-            throw Unimplemented.forMember("net/minecraft/client/gui/components/Button$Plain.<init>:(IIIILnet/minecraft/network/chat/Component;Lnet/minecraft/client/gui/components/Button$OnPress;Lnet/minecraft/client/gui/components/Button$CreateNarration;)V");
         }
 
         protected Plain(Builder builder) {
-            throw Unimplemented.forMember("net/minecraft/client/gui/components/Button$Plain.<init>:(Lnet/minecraft/client/gui/components/Button$Builder;)V");
         }
 
         protected void extractContents(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float a) {

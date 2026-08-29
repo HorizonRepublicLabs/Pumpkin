@@ -28,11 +28,9 @@ public final class Ingredient implements Predicate<ItemStack>, StackedContents.I
     public static final Codec<Ingredient> CODEC = dev.pumpkin.shim.Stubs.throwingCodec("net/minecraft/world/item/crafting/Ingredient.CODEC");
 
     private Ingredient(HolderSet<Item> values) {
-        throw Unimplemented.forMember("net/minecraft/world/item/crafting/Ingredient.<init>:(Lnet/minecraft/core/HolderSet;)V");
     }
 
     public Ingredient(net.neoforged.neoforge.common.crafting.ICustomIngredient customIngredient) {
-        throw Unimplemented.forMember("net/minecraft/world/item/crafting/Ingredient.<init>:(Lnet/neoforged/neoforge/common/crafting/ICustomIngredient;)V");
     }
 
     public Stream<Holder<Item>> items() {

@@ -12,7 +12,6 @@ import dev.pumpkin.shim.Unimplemented;
 public class TransparentBlock extends HalfTransparentBlock {
 
     public TransparentBlock(BlockBehaviour.Properties properties) {
-        throw Unimplemented.forMember("net/minecraft/world/level/block/TransparentBlock.<init>:(Lnet/minecraft/world/level/block/state/BlockBehaviour$Properties;)V");
     }
 
     protected MapCodec<? extends TransparentBlock> codec() {

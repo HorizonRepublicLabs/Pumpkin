@@ -9,11 +9,9 @@ import dev.pumpkin.shim.Unimplemented;
 public class ClientboundTagQueryPacket implements Packet<ClientGamePacketListener> {
 
     public ClientboundTagQueryPacket(int transactionId, CompoundTag tag) {
-        throw Unimplemented.forMember("net/minecraft/network/protocol/game/ClientboundTagQueryPacket.<init>:(ILnet/minecraft/nbt/CompoundTag;)V");
     }
 
     private ClientboundTagQueryPacket(FriendlyByteBuf input) {
-        throw Unimplemented.forMember("net/minecraft/network/protocol/game/ClientboundTagQueryPacket.<init>:(Lnet/minecraft/network/FriendlyByteBuf;)V");
     }
 
     private void write(FriendlyByteBuf output) {

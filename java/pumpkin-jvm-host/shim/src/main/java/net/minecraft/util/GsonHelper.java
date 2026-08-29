@@ -22,7 +22,6 @@ public class GsonHelper {
     private static class CountedAppendable implements Appendable {
 
         public CountedAppendable(int limit) {
-            throw Unimplemented.forMember("net/minecraft/util/GsonHelper$CountedAppendable.<init>:(I)V");
         }
 
         public Appendable append(CharSequence csq) {

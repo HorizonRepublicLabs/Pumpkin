@@ -46,7 +46,6 @@ public abstract class Player extends Avatar implements ContainerUser, IPlayerExt
     public float experienceProgress;
 
     public Player(Level level, GameProfile gameProfile) {
-        throw Unimplemented.forMember("net/minecraft/world/entity/player/Player.<init>:(Lnet/minecraft/world/level/Level;Lcom/mojang/authlib/GameProfile;)V");
     }
 
     protected EntityEquipment createEquipment() {

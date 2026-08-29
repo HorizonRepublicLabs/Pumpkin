@@ -44,7 +44,6 @@ import dev.pumpkin.shim.Unimplemented;
 public class WorldGenRegion implements WorldGenLevel {
 
     public WorldGenRegion(ServerLevel level, StaticCache2D<GenerationChunkHolder> cache, ChunkStep generatingStep, ChunkAccess center) {
-        throw Unimplemented.forMember("net/minecraft/server/level/WorldGenRegion.<init>:(Lnet/minecraft/server/level/ServerLevel;Lnet/minecraft/util/StaticCache2D;Lnet/minecraft/world/level/chunk/status/ChunkStep;Lnet/minecraft/world/level/chunk/ChunkAccess;)V");
     }
 
     public void setCurrentlyGenerating(Supplier<String> currentlyGenerating) {

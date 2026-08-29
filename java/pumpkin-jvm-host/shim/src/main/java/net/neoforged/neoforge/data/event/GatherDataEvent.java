@@ -21,7 +21,6 @@ import dev.pumpkin.shim.Unimplemented;
 public abstract class GatherDataEvent extends Event implements IModBusEvent {
 
     public GatherDataEvent(final ModContainer mc, final DataGenerator dataGenerator, final DataGeneratorConfig dataGeneratorConfig) {
-        throw Unimplemented.forMember("net/neoforged/neoforge/data/event/GatherDataEvent.<init>:(Lnet/neoforged/fml/ModContainer;Lnet/minecraft/data/DataGenerator;Lnet/neoforged/neoforge/data/event/GatherDataEvent$DataGeneratorConfig;)V");
     }
 
     public DataGenerator getGenerator() {
@@ -35,7 +34,6 @@ public abstract class GatherDataEvent extends Event implements IModBusEvent {
     public static class Server extends GatherDataEvent {
 
         public Server(ModContainer mc, DataGenerator dataGenerator, DataGeneratorConfig dataGeneratorConfig) {
-            throw Unimplemented.forMember("net/neoforged/neoforge/data/event/GatherDataEvent$Server.<init>:(Lnet/neoforged/fml/ModContainer;Lnet/minecraft/data/DataGenerator;Lnet/neoforged/neoforge/data/event/GatherDataEvent$DataGeneratorConfig;)V");
         }
 
         public Server() {
@@ -45,7 +43,6 @@ public abstract class GatherDataEvent extends Event implements IModBusEvent {
     public static class Client extends GatherDataEvent {
 
         public Client(ModContainer mc, DataGenerator dataGenerator, DataGeneratorConfig dataGeneratorConfig) {
-            throw Unimplemented.forMember("net/neoforged/neoforge/data/event/GatherDataEvent$Client.<init>:(Lnet/neoforged/fml/ModContainer;Lnet/minecraft/data/DataGenerator;Lnet/neoforged/neoforge/data/event/GatherDataEvent$DataGeneratorConfig;)V");
         }
 
         public Client() {
@@ -55,7 +52,6 @@ public abstract class GatherDataEvent extends Event implements IModBusEvent {
     public static class DataGeneratorConfig {
 
         public DataGeneratorConfig(final Set<String> mods, final Path path, final Collection<Path> inputs, final CompletableFuture<HolderLookup.Provider> lookupProvider, final boolean dev, final boolean reports, final boolean validate, final boolean flat, final DataGenerator vanillaGenerator, Collection<Path> existingPacks, Consumer<Consumer<PackResources>> vanillaClientAssets) {
-            throw Unimplemented.forMember("net/neoforged/neoforge/data/event/GatherDataEvent$DataGeneratorConfig.<init>:(Ljava/util/Set;Ljava/nio/file/Path;Ljava/util/Collection;Ljava/util/concurrent/CompletableFuture;ZZZZLnet/minecraft/data/DataGenerator;Ljava/util/Collection;Ljava/util/function/Consumer;)V");
         }
 
         public DataGeneratorConfig() {

@@ -10,7 +10,6 @@ public record ClientboundDebugSamplePacket(long[] sample, RemoteDebugSampleType 
 
     private ClientboundDebugSamplePacket(FriendlyByteBuf input) {
         this((long[]) null, (RemoteDebugSampleType) null);
-        throw Unimplemented.forMember("net/minecraft/network/protocol/game/ClientboundDebugSamplePacket.<init>:(Lnet/minecraft/network/FriendlyByteBuf;)V");
     }
 
     private void write(FriendlyByteBuf output) {

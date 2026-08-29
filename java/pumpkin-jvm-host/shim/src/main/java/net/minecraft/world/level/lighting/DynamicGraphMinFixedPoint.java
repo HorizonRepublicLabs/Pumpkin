@@ -5,7 +5,6 @@ import dev.pumpkin.shim.Unimplemented;
 public abstract class DynamicGraphMinFixedPoint {
 
     protected DynamicGraphMinFixedPoint(int levelCount, int minQueueSize, int minMapSize) {
-        throw Unimplemented.forMember("net/minecraft/world/level/lighting/DynamicGraphMinFixedPoint.<init>:(III)V");
     }
 
     protected boolean isSource(long node) {

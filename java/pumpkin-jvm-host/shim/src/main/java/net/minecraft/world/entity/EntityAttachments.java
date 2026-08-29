@@ -8,7 +8,6 @@ import dev.pumpkin.shim.Unimplemented;
 public class EntityAttachments {
 
     private EntityAttachments(Map<EntityAttachment, List<Vec3>> attachments) {
-        throw Unimplemented.forMember("net/minecraft/world/entity/EntityAttachments.<init>:(Ljava/util/Map;)V");
     }
 
     public Vec3 get(EntityAttachment attachment, int index, float rotY) {
@@ -18,7 +17,6 @@ public class EntityAttachments {
     public static class Builder {
 
         protected Builder() {
-            throw Unimplemented.forMember("net/minecraft/world/entity/EntityAttachments$Builder.<init>:()V");
         }
 
         public EntityAttachments build(float width, float height) {

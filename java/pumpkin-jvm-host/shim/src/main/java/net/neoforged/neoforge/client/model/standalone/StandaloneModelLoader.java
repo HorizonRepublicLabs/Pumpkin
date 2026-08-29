@@ -9,7 +9,6 @@ import dev.pumpkin.shim.Unimplemented;
 public final class StandaloneModelLoader {
 
     protected StandaloneModelLoader() {
-        throw Unimplemented.forMember("net/neoforged/neoforge/client/model/standalone/StandaloneModelLoader.<init>:()V");
     }
 
     public static CompletableFuture<LoadedModels> load(Executor executor) {

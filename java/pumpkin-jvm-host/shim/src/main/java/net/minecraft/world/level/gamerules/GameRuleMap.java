@@ -8,7 +8,6 @@ import dev.pumpkin.shim.Unimplemented;
 public final class GameRuleMap extends SavedData {
 
     private GameRuleMap(Reference2ObjectMap<GameRule<?>, Object> map) {
-        throw Unimplemented.forMember("net/minecraft/world/level/gamerules/GameRuleMap.<init>:(Lit/unimi/dsi/fastutil/objects/Reference2ObjectMap;)V");
     }
 
     public static GameRuleMap copyOf(GameRuleMap gameRuleMap) {

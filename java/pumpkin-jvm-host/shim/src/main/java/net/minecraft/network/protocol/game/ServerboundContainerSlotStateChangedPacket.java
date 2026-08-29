@@ -9,7 +9,6 @@ public record ServerboundContainerSlotStateChangedPacket(int slotId, int contain
 
     private ServerboundContainerSlotStateChangedPacket(FriendlyByteBuf input) {
         this((int) 0, (int) 0, (boolean) false);
-        throw Unimplemented.forMember("net/minecraft/network/protocol/game/ServerboundContainerSlotStateChangedPacket.<init>:(Lnet/minecraft/network/FriendlyByteBuf;)V");
     }
 
     private void write(FriendlyByteBuf output) {

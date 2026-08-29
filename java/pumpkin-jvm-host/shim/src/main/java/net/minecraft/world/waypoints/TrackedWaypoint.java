@@ -14,7 +14,6 @@ import dev.pumpkin.shim.Unimplemented;
 public abstract class TrackedWaypoint implements Waypoint {
 
     private TrackedWaypoint(Either<UUID, String> identifier, Waypoint.Icon icon, TrackedWaypoint.Type type) {
-        throw Unimplemented.forMember("net/minecraft/world/waypoints/TrackedWaypoint.<init>:(Lcom/mojang/datafixers/util/Either;Lnet/minecraft/world/waypoints/Waypoint$Icon;Lnet/minecraft/world/waypoints/TrackedWaypoint$Type;)V");
     }
 
     public Either<UUID, String> id() {
@@ -42,11 +41,9 @@ public abstract class TrackedWaypoint implements Waypoint {
     private static class AzimuthWaypoint extends TrackedWaypoint {
 
         public AzimuthWaypoint(UUID identifier, Waypoint.Icon icon, float angle) {
-            throw Unimplemented.forMember("net/minecraft/world/waypoints/TrackedWaypoint$AzimuthWaypoint.<init>:(Ljava/util/UUID;Lnet/minecraft/world/waypoints/Waypoint$Icon;F)V");
         }
 
         public AzimuthWaypoint(Either<UUID, String> identifier, Waypoint.Icon icon, FriendlyByteBuf byteBuf) {
-            throw Unimplemented.forMember("net/minecraft/world/waypoints/TrackedWaypoint$AzimuthWaypoint.<init>:(Lcom/mojang/datafixers/util/Either;Lnet/minecraft/world/waypoints/Waypoint$Icon;Lnet/minecraft/network/FriendlyByteBuf;)V");
         }
 
         public void update(TrackedWaypoint other) {
@@ -83,11 +80,9 @@ public abstract class TrackedWaypoint implements Waypoint {
     private static class ChunkWaypoint extends TrackedWaypoint {
 
         public ChunkWaypoint(UUID identifier, Waypoint.Icon icon, ChunkPos chunkPos) {
-            throw Unimplemented.forMember("net/minecraft/world/waypoints/TrackedWaypoint$ChunkWaypoint.<init>:(Ljava/util/UUID;Lnet/minecraft/world/waypoints/Waypoint$Icon;Lnet/minecraft/world/level/ChunkPos;)V");
         }
 
         public ChunkWaypoint(Either<UUID, String> identifier, Waypoint.Icon icon, FriendlyByteBuf byteBuf) {
-            throw Unimplemented.forMember("net/minecraft/world/waypoints/TrackedWaypoint$ChunkWaypoint.<init>:(Lcom/mojang/datafixers/util/Either;Lnet/minecraft/world/waypoints/Waypoint$Icon;Lnet/minecraft/network/FriendlyByteBuf;)V");
         }
 
         public void update(TrackedWaypoint other) {
@@ -117,11 +112,9 @@ public abstract class TrackedWaypoint implements Waypoint {
     private static class EmptyWaypoint extends TrackedWaypoint {
 
         private EmptyWaypoint(Either<UUID, String> identifier, Waypoint.Icon icon, FriendlyByteBuf byteBuf) {
-            throw Unimplemented.forMember("net/minecraft/world/waypoints/TrackedWaypoint$EmptyWaypoint.<init>:(Lcom/mojang/datafixers/util/Either;Lnet/minecraft/world/waypoints/Waypoint$Icon;Lnet/minecraft/network/FriendlyByteBuf;)V");
         }
 
         private EmptyWaypoint(UUID identifier) {
-            throw Unimplemented.forMember("net/minecraft/world/waypoints/TrackedWaypoint$EmptyWaypoint.<init>:(Ljava/util/UUID;)V");
         }
 
         public void update(TrackedWaypoint other) {
@@ -168,11 +161,9 @@ public abstract class TrackedWaypoint implements Waypoint {
     private static class Vec3iWaypoint extends TrackedWaypoint {
 
         public Vec3iWaypoint(UUID identifier, Waypoint.Icon icon, Vec3i vector) {
-            throw Unimplemented.forMember("net/minecraft/world/waypoints/TrackedWaypoint$Vec3iWaypoint.<init>:(Ljava/util/UUID;Lnet/minecraft/world/waypoints/Waypoint$Icon;Lnet/minecraft/core/Vec3i;)V");
         }
 
         public Vec3iWaypoint(Either<UUID, String> identifier, Waypoint.Icon icon, FriendlyByteBuf byteBuf) {
-            throw Unimplemented.forMember("net/minecraft/world/waypoints/TrackedWaypoint$Vec3iWaypoint.<init>:(Lcom/mojang/datafixers/util/Either;Lnet/minecraft/world/waypoints/Waypoint$Icon;Lnet/minecraft/network/FriendlyByteBuf;)V");
         }
 
         public void update(TrackedWaypoint other) {

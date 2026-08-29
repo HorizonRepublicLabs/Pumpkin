@@ -6,11 +6,9 @@ import dev.pumpkin.shim.Unimplemented;
 public class BackendCreationException extends Exception {
 
     public BackendCreationException(String message, BackendCreationException.Reason reason, List<String> missingCapabilities) {
-        throw Unimplemented.forMember("com/mojang/blaze3d/systems/BackendCreationException.<init>:(Ljava/lang/String;Lcom/mojang/blaze3d/systems/BackendCreationException$Reason;Ljava/util/List;)V");
     }
 
     public BackendCreationException(String message, BackendCreationException.Reason reason) {
-        throw Unimplemented.forMember("com/mojang/blaze3d/systems/BackendCreationException.<init>:(Ljava/lang/String;Lcom/mojang/blaze3d/systems/BackendCreationException$Reason;)V");
     }
 
     public BackendCreationException.Reason getReason() {

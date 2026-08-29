@@ -13,7 +13,6 @@ public interface LootContextArg<R> {
     final class ArgCodecBuilder<R> {
 
         protected ArgCodecBuilder() {
-            throw Unimplemented.forMember("net/minecraft/world/level/storage/loot/LootContextArg$ArgCodecBuilder.<init>:()V");
         }
 
         private Codec<LootContextArg<R>> build() {

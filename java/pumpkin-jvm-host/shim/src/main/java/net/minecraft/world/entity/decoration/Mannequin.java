@@ -15,11 +15,9 @@ import dev.pumpkin.shim.Unimplemented;
 public class Mannequin extends Avatar {
 
     public Mannequin(EntityType<Mannequin> type, Level level) {
-        throw Unimplemented.forMember("net/minecraft/world/entity/decoration/Mannequin.<init>:(Lnet/minecraft/world/entity/EntityType;Lnet/minecraft/world/level/Level;)V");
     }
 
     protected Mannequin(Level level) {
-        throw Unimplemented.forMember("net/minecraft/world/entity/decoration/Mannequin.<init>:(Lnet/minecraft/world/level/Level;)V");
     }
 
     public static Mannequin create(EntityType<Mannequin> type, Level level) {

@@ -9,15 +9,12 @@ import dev.pumpkin.shim.Unimplemented;
 public class PanicGoal extends Goal {
 
     public PanicGoal(PathfinderMob mob, double speedModifier) {
-        throw Unimplemented.forMember("net/minecraft/world/entity/ai/goal/PanicGoal.<init>:(Lnet/minecraft/world/entity/PathfinderMob;D)V");
     }
 
     public PanicGoal(PathfinderMob mob, double speedModifier, TagKey<DamageType> panicCausingDamageTypes) {
-        throw Unimplemented.forMember("net/minecraft/world/entity/ai/goal/PanicGoal.<init>:(Lnet/minecraft/world/entity/PathfinderMob;DLnet/minecraft/tags/TagKey;)V");
     }
 
     public PanicGoal(PathfinderMob mob, double speedModifier, Function<PathfinderMob, TagKey<DamageType>> panicCausingDamageTypes) {
-        throw Unimplemented.forMember("net/minecraft/world/entity/ai/goal/PanicGoal.<init>:(Lnet/minecraft/world/entity/PathfinderMob;DLjava/util/function/Function;)V");
     }
 
     public boolean canUse() {

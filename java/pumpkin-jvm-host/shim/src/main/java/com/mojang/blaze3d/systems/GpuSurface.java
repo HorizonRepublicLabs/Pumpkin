@@ -7,7 +7,6 @@ import dev.pumpkin.shim.Unimplemented;
 public class GpuSurface implements AutoCloseable {
 
     public GpuSurface(GpuSurfaceBackend backend) {
-        throw Unimplemented.forMember("com/mojang/blaze3d/systems/GpuSurface.<init>:(Lcom/mojang/blaze3d/systems/GpuSurfaceBackend;)V");
     }
 
     public void close() {

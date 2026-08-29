@@ -9,11 +9,9 @@ import dev.pumpkin.shim.Unimplemented;
 public class ClientboundAnimatePacket implements Packet<ClientGamePacketListener> {
 
     public ClientboundAnimatePacket(Entity entity, int action) {
-        throw Unimplemented.forMember("net/minecraft/network/protocol/game/ClientboundAnimatePacket.<init>:(Lnet/minecraft/world/entity/Entity;I)V");
     }
 
     private ClientboundAnimatePacket(FriendlyByteBuf input) {
-        throw Unimplemented.forMember("net/minecraft/network/protocol/game/ClientboundAnimatePacket.<init>:(Lnet/minecraft/network/FriendlyByteBuf;)V");
     }
 
     private void write(FriendlyByteBuf output) {

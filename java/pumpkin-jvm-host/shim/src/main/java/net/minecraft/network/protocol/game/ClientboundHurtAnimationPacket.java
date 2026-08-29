@@ -10,12 +10,10 @@ public record ClientboundHurtAnimationPacket(int id, float yaw) implements Packe
 
     public ClientboundHurtAnimationPacket(LivingEntity entity) {
         this((int) 0, (float) 0.0F);
-        throw Unimplemented.forMember("net/minecraft/network/protocol/game/ClientboundHurtAnimationPacket.<init>:(Lnet/minecraft/world/entity/LivingEntity;)V");
     }
 
     private ClientboundHurtAnimationPacket(FriendlyByteBuf input) {
         this((int) 0, (float) 0.0F);
-        throw Unimplemented.forMember("net/minecraft/network/protocol/game/ClientboundHurtAnimationPacket.<init>:(Lnet/minecraft/network/FriendlyByteBuf;)V");
     }
 
     private void write(FriendlyByteBuf output) {

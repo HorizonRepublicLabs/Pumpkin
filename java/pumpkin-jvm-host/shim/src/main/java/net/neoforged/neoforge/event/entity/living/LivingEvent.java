@@ -8,7 +8,6 @@ import dev.pumpkin.shim.Unimplemented;
 public abstract class LivingEvent extends EntityEvent {
 
     public LivingEvent(LivingEntity entity) {
-        throw Unimplemented.forMember("net/neoforged/neoforge/event/entity/living/LivingEvent.<init>:(Lnet/minecraft/world/entity/LivingEntity;)V");
     }
 
     public LivingEntity getEntity() {
@@ -18,7 +17,6 @@ public abstract class LivingEvent extends EntityEvent {
     public static class LivingJumpEvent extends LivingEvent {
 
         public LivingJumpEvent(LivingEntity e) {
-            throw Unimplemented.forMember("net/neoforged/neoforge/event/entity/living/LivingEvent$LivingJumpEvent.<init>:(Lnet/minecraft/world/entity/LivingEntity;)V");
         }
 
         public LivingJumpEvent() {
@@ -28,7 +26,6 @@ public abstract class LivingEvent extends EntityEvent {
     public static class LivingVisibilityEvent extends LivingEvent {
 
         public LivingVisibilityEvent(LivingEntity livingEntity, Entity lookingEntity, double originalMultiplier) {
-            throw Unimplemented.forMember("net/neoforged/neoforge/event/entity/living/LivingEvent$LivingVisibilityEvent.<init>:(Lnet/minecraft/world/entity/LivingEntity;Lnet/minecraft/world/entity/Entity;D)V");
         }
 
         public LivingVisibilityEvent() {

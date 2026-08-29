@@ -7,11 +7,9 @@ import dev.pumpkin.shim.Unimplemented;
 public class ServerOpListEntry extends StoredUserEntry<NameAndId> {
 
     public ServerOpListEntry(NameAndId user, LevelBasedPermissionSet permissions, boolean bypassesPlayerLimit) {
-        throw Unimplemented.forMember("net/minecraft/server/players/ServerOpListEntry.<init>:(Lnet/minecraft/server/players/NameAndId;Lnet/minecraft/server/permissions/LevelBasedPermissionSet;Z)V");
     }
 
     public ServerOpListEntry(JsonObject object) {
-        throw Unimplemented.forMember("net/minecraft/server/players/ServerOpListEntry.<init>:(Lcom/google/gson/JsonObject;)V");
     }
 
     public LevelBasedPermissionSet permissions() {

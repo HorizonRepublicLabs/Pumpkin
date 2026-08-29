@@ -85,7 +85,6 @@ import dev.pumpkin.shim.Unimplemented;
 public class FakePlayer extends ServerPlayer {
 
     public FakePlayer(ServerLevel level, GameProfile name) {
-        throw Unimplemented.forMember("net/neoforged/neoforge/common/util/FakePlayer.<init>:(Lnet/minecraft/server/level/ServerLevel;Lcom/mojang/authlib/GameProfile;)V");
     }
 
     public void sendSystemMessage(Component chatComponent, boolean actionBar) {
@@ -131,7 +130,6 @@ public class FakePlayer extends ServerPlayer {
     public static class FakePlayerAdvancements extends PlayerAdvancements {
 
         public FakePlayerAdvancements(DataFixer fixer, PlayerList playerList, ServerAdvancementManager manager, Path path, ServerPlayer player) {
-            throw Unimplemented.forMember("net/neoforged/neoforge/common/util/FakePlayer$FakePlayerAdvancements.<init>:(Lcom/mojang/datafixers/DataFixer;Lnet/minecraft/server/players/PlayerList;Lnet/minecraft/server/ServerAdvancementManager;Ljava/nio/file/Path;Lnet/minecraft/server/level/ServerPlayer;)V");
         }
 
         protected void load(ServerAdvancementManager manager) {
@@ -181,7 +179,6 @@ public class FakePlayer extends ServerPlayer {
     private static class FakePlayerNetHandler extends ServerGamePacketListenerImpl {
 
         public FakePlayerNetHandler(MinecraftServer server, ServerPlayer player) {
-            throw Unimplemented.forMember("net/neoforged/neoforge/common/util/FakePlayer$FakePlayerNetHandler.<init>:(Lnet/minecraft/server/MinecraftServer;Lnet/minecraft/server/level/ServerPlayer;)V");
         }
 
         public void tick() {
@@ -423,7 +420,6 @@ public class FakePlayer extends ServerPlayer {
     private static final class FakeConnection extends net.minecraft.network.Connection {
 
         public FakeConnection() {
-            throw Unimplemented.forMember("net/neoforged/neoforge/common/util/FakePlayer$FakeConnection.<init>:()V");
         }
 
         public void setListenerForServerboundHandshake(PacketListener listener) {

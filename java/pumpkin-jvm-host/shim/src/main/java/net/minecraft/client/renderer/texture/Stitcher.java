@@ -6,7 +6,6 @@ import dev.pumpkin.shim.Unimplemented;
 public class Stitcher<T extends Stitcher.Entry> {
 
     public Stitcher(int maxWidth, int maxHeight, int mipLevel, int anisotropyBit) {
-        throw Unimplemented.forMember("net/minecraft/client/renderer/texture/Stitcher.<init>:(IIII)V");
     }
 
     public int getWidth() {
@@ -32,7 +31,6 @@ public class Stitcher<T extends Stitcher.Entry> {
     public static class Region<T extends Stitcher.Entry> {
 
         public Region(int originX, int originY, int width, int height) {
-            throw Unimplemented.forMember("net/minecraft/client/renderer/texture/Stitcher$Region.<init>:(IIII)V");
         }
 
         public int getX() {

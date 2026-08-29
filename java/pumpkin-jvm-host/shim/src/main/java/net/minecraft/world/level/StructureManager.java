@@ -8,7 +8,6 @@ import dev.pumpkin.shim.Unimplemented;
 public class StructureManager {
 
     public StructureManager(LevelAccessor level, WorldOptions worldOptions, StructureCheck structureCheck) {
-        throw Unimplemented.forMember("net/minecraft/world/level/StructureManager.<init>:(Lnet/minecraft/world/level/LevelAccessor;Lnet/minecraft/world/level/levelgen/WorldOptions;Lnet/minecraft/world/level/levelgen/structure/StructureCheck;)V");
     }
 
     public RegistryAccess registryAccess() {

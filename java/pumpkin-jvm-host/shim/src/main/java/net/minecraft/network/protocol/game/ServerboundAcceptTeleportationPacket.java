@@ -8,11 +8,9 @@ import dev.pumpkin.shim.Unimplemented;
 public class ServerboundAcceptTeleportationPacket implements Packet<ServerGamePacketListener> {
 
     public ServerboundAcceptTeleportationPacket(int id) {
-        throw Unimplemented.forMember("net/minecraft/network/protocol/game/ServerboundAcceptTeleportationPacket.<init>:(I)V");
     }
 
     private ServerboundAcceptTeleportationPacket(FriendlyByteBuf input) {
-        throw Unimplemented.forMember("net/minecraft/network/protocol/game/ServerboundAcceptTeleportationPacket.<init>:(Lnet/minecraft/network/FriendlyByteBuf;)V");
     }
 
     private void write(FriendlyByteBuf output) {

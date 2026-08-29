@@ -11,11 +11,9 @@ import dev.pumpkin.shim.Unimplemented;
 public class ServerboundSetJigsawBlockPacket implements Packet<ServerGamePacketListener> {
 
     public ServerboundSetJigsawBlockPacket(BlockPos blockPos, Identifier name, Identifier target, Identifier pool, String finalState, JigsawBlockEntity.JointType joint, int selectionPriority, int placementPriority) {
-        throw Unimplemented.forMember("net/minecraft/network/protocol/game/ServerboundSetJigsawBlockPacket.<init>:(Lnet/minecraft/core/BlockPos;Lnet/minecraft/resources/Identifier;Lnet/minecraft/resources/Identifier;Lnet/minecraft/resources/Identifier;Ljava/lang/String;Lnet/minecraft/world/level/block/entity/JigsawBlockEntity$JointType;II)V");
     }
 
     private ServerboundSetJigsawBlockPacket(FriendlyByteBuf input) {
-        throw Unimplemented.forMember("net/minecraft/network/protocol/game/ServerboundSetJigsawBlockPacket.<init>:(Lnet/minecraft/network/FriendlyByteBuf;)V");
     }
 
     private void write(FriendlyByteBuf output) {

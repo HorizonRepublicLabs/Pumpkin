@@ -13,7 +13,6 @@ import dev.pumpkin.shim.Unimplemented;
 public final class WeightedList<E> {
 
     private WeightedList(List<? extends Weighted<E>> items) {
-        throw Unimplemented.forMember("net/minecraft/util/random/WeightedList.<init>:(Ljava/util/List;)V");
     }
 
     public boolean isEmpty() {
@@ -89,7 +88,6 @@ public final class WeightedList<E> {
     private static class Compact<E> implements WeightedList.Selector<E> {
 
         private Compact(List<Weighted<E>> entries) {
-            throw Unimplemented.forMember("net/minecraft/util/random/WeightedList$Compact.<init>:(Ljava/util/List;)V");
         }
 
         public E get(int selection) {
@@ -103,7 +101,6 @@ public final class WeightedList<E> {
     private static class Flat<E> implements WeightedList.Selector<E> {
 
         private Flat(List<Weighted<E>> entries, int totalWeight) {
-            throw Unimplemented.forMember("net/minecraft/util/random/WeightedList$Flat.<init>:(Ljava/util/List;I)V");
         }
 
         public E get(int selection) {

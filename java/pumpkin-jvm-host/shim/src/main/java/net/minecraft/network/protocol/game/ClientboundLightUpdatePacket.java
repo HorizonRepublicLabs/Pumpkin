@@ -11,11 +11,9 @@ import dev.pumpkin.shim.Unimplemented;
 public class ClientboundLightUpdatePacket implements Packet<ClientGamePacketListener> {
 
     public ClientboundLightUpdatePacket(ChunkPos pos, LevelLightEngine lightEngine, BitSet skyChangedLightSectionFilter, BitSet blockChangedLightSectionFilter) {
-        throw Unimplemented.forMember("net/minecraft/network/protocol/game/ClientboundLightUpdatePacket.<init>:(Lnet/minecraft/world/level/ChunkPos;Lnet/minecraft/world/level/lighting/LevelLightEngine;Ljava/util/BitSet;Ljava/util/BitSet;)V");
     }
 
     private ClientboundLightUpdatePacket(FriendlyByteBuf input) {
-        throw Unimplemented.forMember("net/minecraft/network/protocol/game/ClientboundLightUpdatePacket.<init>:(Lnet/minecraft/network/FriendlyByteBuf;)V");
     }
 
     private void write(FriendlyByteBuf output) {

@@ -9,11 +9,9 @@ import dev.pumpkin.shim.Unimplemented;
 public class ClientboundPlayerAbilitiesPacket implements Packet<ClientGamePacketListener> {
 
     public ClientboundPlayerAbilitiesPacket(Abilities abilities) {
-        throw Unimplemented.forMember("net/minecraft/network/protocol/game/ClientboundPlayerAbilitiesPacket.<init>:(Lnet/minecraft/world/entity/player/Abilities;)V");
     }
 
     private ClientboundPlayerAbilitiesPacket(FriendlyByteBuf input) {
-        throw Unimplemented.forMember("net/minecraft/network/protocol/game/ClientboundPlayerAbilitiesPacket.<init>:(Lnet/minecraft/network/FriendlyByteBuf;)V");
     }
 
     private void write(FriendlyByteBuf output) {

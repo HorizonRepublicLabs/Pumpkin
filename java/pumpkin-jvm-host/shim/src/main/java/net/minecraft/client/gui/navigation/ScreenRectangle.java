@@ -6,7 +6,6 @@ public record ScreenRectangle(ScreenPosition position, int width, int height) {
 
     public ScreenRectangle(int x, int y, int width, int height) {
         this((ScreenPosition) null, (int) 0, (int) 0);
-        throw Unimplemented.forMember("net/minecraft/client/gui/navigation/ScreenRectangle.<init>:(IIII)V");
     }
 
     public int top() {

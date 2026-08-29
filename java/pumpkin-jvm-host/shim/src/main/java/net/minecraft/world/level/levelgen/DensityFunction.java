@@ -39,7 +39,6 @@ public interface DensityFunction {
 
         public NoiseHolder(Holder<NormalNoise.NoiseParameters> noiseData) {
             this((Holder<NormalNoise.NoiseParameters>) null, (NormalNoise) null);
-            throw Unimplemented.forMember("net/minecraft/world/level/levelgen/DensityFunction$NoiseHolder.<init>:(Lnet/minecraft/core/Holder;)V");
         }
 
         public double getValue(double x, double y, double z) {

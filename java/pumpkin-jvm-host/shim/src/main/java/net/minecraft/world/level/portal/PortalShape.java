@@ -7,7 +7,6 @@ import dev.pumpkin.shim.Unimplemented;
 public class PortalShape {
 
     private PortalShape(Direction.Axis axis, int portalBlockCount, Direction rightDir, BlockPos bottomLeft, int width, int height) {
-        throw Unimplemented.forMember("net/minecraft/world/level/portal/PortalShape.<init>:(Lnet/minecraft/core/Direction$Axis;ILnet/minecraft/core/Direction;Lnet/minecraft/core/BlockPos;II)V");
     }
 
     public boolean isValid() {

@@ -13,7 +13,6 @@ import dev.pumpkin.shim.Unimplemented;
 public class Timeline {
 
     private Timeline(Holder<WorldClock> clock, Optional<Integer> periodTicks, Map<EnvironmentAttribute<?>, AttributeTrack<?, ?>> tracks, Map<ResourceKey<ClockTimeMarker>, Timeline.TimeMarkerInfo> timeMarkers) {
-        throw Unimplemented.forMember("net/minecraft/world/timeline/Timeline.<init>:(Lnet/minecraft/core/Holder;Ljava/util/Optional;Ljava/util/Map;Ljava/util/Map;)V");
     }
 
     public long getTotalTicks(ClockManager clockManager) {
@@ -23,7 +22,6 @@ public class Timeline {
     public static class Builder {
 
         private Builder(Holder<WorldClock> clock) {
-            throw Unimplemented.forMember("net/minecraft/world/timeline/Timeline$Builder.<init>:(Lnet/minecraft/core/Holder;)V");
         }
 
         public Timeline build() {

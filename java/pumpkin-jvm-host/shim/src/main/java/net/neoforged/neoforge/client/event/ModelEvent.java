@@ -16,13 +16,11 @@ import dev.pumpkin.shim.Unimplemented;
 public abstract class ModelEvent extends Event {
 
     protected ModelEvent() {
-        throw Unimplemented.forMember("net/neoforged/neoforge/client/event/ModelEvent.<init>:()V");
     }
 
     public static class ModifyBakingResult extends ModelEvent implements IModBusEvent {
 
         public ModifyBakingResult(ModelBakery.BakingResult bakingResult, Function<Identifier, TextureAtlasSprite> textureGetter, ModelBakery modelBakery) {
-            throw Unimplemented.forMember("net/neoforged/neoforge/client/event/ModelEvent$ModifyBakingResult.<init>:(Lnet/minecraft/client/resources/model/ModelBakery$BakingResult;Ljava/util/function/Function;Lnet/minecraft/client/resources/model/ModelBakery;)V");
         }
 
         public ModelBakery.BakingResult getBakingResult() {
@@ -36,7 +34,6 @@ public abstract class ModelEvent extends Event {
     public static class BakingCompleted extends ModelEvent implements IModBusEvent {
 
         public BakingCompleted(ModelManager modelManager, ModelBakery.BakingResult bakingResult, ModelBakery modelBakery) {
-            throw Unimplemented.forMember("net/neoforged/neoforge/client/event/ModelEvent$BakingCompleted.<init>:(Lnet/minecraft/client/resources/model/ModelManager;Lnet/minecraft/client/resources/model/ModelBakery$BakingResult;Lnet/minecraft/client/resources/model/ModelBakery;)V");
         }
 
         public BakingCompleted() {
@@ -46,7 +43,6 @@ public abstract class ModelEvent extends Event {
     public static class RegisterStandalone extends ModelEvent implements IModBusEvent {
 
         public RegisterStandalone(Map<StandaloneModelKey<?>, UnbakedStandaloneModel<?>> modelMap) {
-            throw Unimplemented.forMember("net/neoforged/neoforge/client/event/ModelEvent$RegisterStandalone.<init>:(Ljava/util/Map;)V");
         }
 
         public <T> void register(StandaloneModelKey<T> modelKey, UnbakedStandaloneModel<T> baker) {
@@ -60,7 +56,6 @@ public abstract class ModelEvent extends Event {
     public static class RegisterLoaders extends ModelEvent implements IModBusEvent {
 
         public RegisterLoaders(Map<Identifier, UnbakedModelLoader<?>> loaders) {
-            throw Unimplemented.forMember("net/neoforged/neoforge/client/event/ModelEvent$RegisterLoaders.<init>:(Ljava/util/Map;)V");
         }
 
         public void register(Identifier key, UnbakedModelLoader<?> loader) {

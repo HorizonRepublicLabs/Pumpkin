@@ -8,11 +8,9 @@ import dev.pumpkin.shim.Unimplemented;
 public class ClientboundHelloPacket implements Packet<ClientLoginPacketListener> {
 
     public ClientboundHelloPacket(String serverId, byte[] publicKey, byte[] challenge, boolean shouldAuthenticate) {
-        throw Unimplemented.forMember("net/minecraft/network/protocol/login/ClientboundHelloPacket.<init>:(Ljava/lang/String;[B[BZ)V");
     }
 
     private ClientboundHelloPacket(FriendlyByteBuf input) {
-        throw Unimplemented.forMember("net/minecraft/network/protocol/login/ClientboundHelloPacket.<init>:(Lnet/minecraft/network/FriendlyByteBuf;)V");
     }
 
     private void write(FriendlyByteBuf output) {

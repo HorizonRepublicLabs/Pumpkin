@@ -6,7 +6,6 @@ import dev.pumpkin.shim.Unimplemented;
 public class TelemetryPropertyMap {
 
     private TelemetryPropertyMap(Map<TelemetryProperty<?>, Object> entries) {
-        throw Unimplemented.forMember("net/minecraft/client/telemetry/TelemetryPropertyMap.<init>:(Ljava/util/Map;)V");
     }
 
     public <T> T get(TelemetryProperty<T> property) {
@@ -20,7 +19,6 @@ public class TelemetryPropertyMap {
     public static class Builder {
 
         protected Builder() {
-            throw Unimplemented.forMember("net/minecraft/client/telemetry/TelemetryPropertyMap$Builder.<init>:()V");
         }
 
         public TelemetryPropertyMap build() {

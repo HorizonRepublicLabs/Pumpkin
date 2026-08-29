@@ -7,7 +7,6 @@ import dev.pumpkin.shim.Unimplemented;
 public final class NoiseColumn implements BlockColumn {
 
     public NoiseColumn(int minY, BlockState[] column) {
-        throw Unimplemented.forMember("net/minecraft/world/level/NoiseColumn.<init>:(I[Lnet/minecraft/world/level/block/state/BlockState;)V");
     }
 
     public BlockState getBlock(int blockY) {

@@ -13,7 +13,6 @@ import dev.pumpkin.shim.Unimplemented;
 public class BucketItem extends Item implements DispensibleContainerItem {
 
     public BucketItem(Fluid content, Item.Properties properties) {
-        throw Unimplemented.forMember("net/minecraft/world/item/BucketItem.<init>:(Lnet/minecraft/world/level/material/Fluid;Lnet/minecraft/world/item/Item$Properties;)V");
     }
 
     public InteractionResult use(Level level, Player player, InteractionHand hand) {

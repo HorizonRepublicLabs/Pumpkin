@@ -16,7 +16,6 @@ public interface StrictQueue<T extends Runnable> {
     final class FixedPriorityQueue implements StrictQueue<StrictQueue.RunnableWithPriority> {
 
         public FixedPriorityQueue(int size) {
-            throw Unimplemented.forMember("net/minecraft/util/thread/StrictQueue$FixedPriorityQueue.<init>:(I)V");
         }
 
         public Runnable pop() {
@@ -42,7 +41,6 @@ public interface StrictQueue<T extends Runnable> {
     final class QueueStrictQueue implements StrictQueue<Runnable> {
 
         public QueueStrictQueue(Queue<Runnable> queue) {
-            throw Unimplemented.forMember("net/minecraft/util/thread/StrictQueue$QueueStrictQueue.<init>:(Ljava/util/Queue;)V");
         }
 
         public Runnable pop() {

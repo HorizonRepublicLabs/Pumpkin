@@ -7,7 +7,6 @@ import dev.pumpkin.shim.Unimplemented;
 public class ClientboundPlayerCombatEnterPacket implements Packet<ClientGamePacketListener> {
 
     protected ClientboundPlayerCombatEnterPacket() {
-        throw Unimplemented.forMember("net/minecraft/network/protocol/game/ClientboundPlayerCombatEnterPacket.<init>:()V");
     }
 
     public PacketType<ClientboundPlayerCombatEnterPacket> type() {

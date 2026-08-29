@@ -6,7 +6,6 @@ import dev.pumpkin.shim.Unimplemented;
 public class VertexFormat {
 
     private VertexFormat(List<VertexFormatElement> elements, int vertexSize, int stepRate) {
-        throw Unimplemented.forMember("com/mojang/blaze3d/vertex/VertexFormat.<init>:(Ljava/util/List;II)V");
     }
 
     public String toString() {
@@ -28,7 +27,6 @@ public class VertexFormat {
     public static class Builder {
 
         private Builder(int stepRate) {
-            throw Unimplemented.forMember("com/mojang/blaze3d/vertex/VertexFormat$Builder.<init>:(I)V");
         }
 
         public VertexFormat build() {

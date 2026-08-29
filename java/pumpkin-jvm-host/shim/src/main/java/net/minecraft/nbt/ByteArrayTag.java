@@ -8,7 +8,6 @@ import dev.pumpkin.shim.Unimplemented;
 public final class ByteArrayTag implements CollectionTag {
 
     public ByteArrayTag(byte[] data) {
-        throw Unimplemented.forMember("net/minecraft/nbt/ByteArrayTag.<init>:([B)V");
     }
 
     public void write(DataOutput output) throws IOException {

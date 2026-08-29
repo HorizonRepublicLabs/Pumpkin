@@ -5,7 +5,6 @@ import dev.pumpkin.shim.Unimplemented;
 public abstract class ReentrantBlockableEventLoop<R extends Runnable> extends BlockableEventLoop<R> {
 
     public ReentrantBlockableEventLoop(String name, boolean propagatesCrashes) {
-        throw Unimplemented.forMember("net/minecraft/util/thread/ReentrantBlockableEventLoop.<init>:(Ljava/lang/String;Z)V");
     }
 
     protected boolean scheduleExecutables() {

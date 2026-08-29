@@ -27,7 +27,6 @@ public class SlabBlock extends Block implements SimpleWaterloggedBlock {
     }
 
     public SlabBlock(BlockBehaviour.Properties properties) {
-        throw Unimplemented.forMember("net/minecraft/world/level/block/SlabBlock.<init>:(Lnet/minecraft/world/level/block/state/BlockBehaviour$Properties;)V");
     }
 
     protected boolean useShapeForLightOcclusion(BlockState state) {

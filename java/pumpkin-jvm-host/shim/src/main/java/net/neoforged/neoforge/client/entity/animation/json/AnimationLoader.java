@@ -12,7 +12,6 @@ import dev.pumpkin.shim.Unimplemented;
 public final class AnimationLoader extends ContextAwareReloadListener implements PreparableReloadListener {
 
     protected AnimationLoader() {
-        throw Unimplemented.forMember("net/neoforged/neoforge/client/entity/animation/json/AnimationLoader.<init>:()V");
     }
 
     public void prepareSharedState(SharedState sharedState) {
@@ -30,7 +29,6 @@ public final class AnimationLoader extends ContextAwareReloadListener implements
     public static final class PendingAnimations {
 
         protected PendingAnimations() {
-            throw Unimplemented.forMember("net/neoforged/neoforge/client/entity/animation/json/AnimationLoader$PendingAnimations.<init>:()V");
         }
 
         public AnimationDefinition get(Identifier id) {

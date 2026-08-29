@@ -6,7 +6,6 @@ import dev.pumpkin.shim.Unimplemented;
 public class ServerPlayerGameMode {
 
     public ServerPlayerGameMode(ServerPlayer player) {
-        throw Unimplemented.forMember("net/minecraft/server/level/ServerPlayerGameMode.<init>:(Lnet/minecraft/server/level/ServerPlayer;)V");
     }
 
     public GameType getGameModeForPlayer() {

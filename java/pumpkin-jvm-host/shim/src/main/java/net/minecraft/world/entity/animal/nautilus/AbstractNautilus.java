@@ -35,7 +35,6 @@ import dev.pumpkin.shim.Unimplemented;
 public abstract class AbstractNautilus extends TamableAnimal implements PlayerRideableJumping, HasCustomInventoryScreen {
 
     protected AbstractNautilus(EntityType<? extends AbstractNautilus> type, Level level) {
-        throw Unimplemented.forMember("net/minecraft/world/entity/animal/nautilus/AbstractNautilus.<init>:(Lnet/minecraft/world/entity/EntityType;Lnet/minecraft/world/level/Level;)V");
     }
 
     public boolean isFood(ItemStack itemStack) {

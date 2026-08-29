@@ -9,7 +9,6 @@ public final class BlockTags {
     public static final TagKey<Block> CROPS = null;
 
     protected BlockTags() {
-        throw Unimplemented.forMember("net/minecraft/tags/BlockTags.<init>:()V");
     }
 
     private static TagKey<Block> create(String name) {

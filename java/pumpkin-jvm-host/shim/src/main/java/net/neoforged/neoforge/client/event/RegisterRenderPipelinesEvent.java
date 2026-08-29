@@ -9,7 +9,6 @@ import dev.pumpkin.shim.Unimplemented;
 public class RegisterRenderPipelinesEvent extends Event implements IModBusEvent {
 
     public RegisterRenderPipelinesEvent(Consumer<RenderPipeline> registrar) {
-        throw Unimplemented.forMember("net/neoforged/neoforge/client/event/RegisterRenderPipelinesEvent.<init>:(Ljava/util/function/Consumer;)V");
     }
 
     public void registerPipeline(RenderPipeline pipeline) {

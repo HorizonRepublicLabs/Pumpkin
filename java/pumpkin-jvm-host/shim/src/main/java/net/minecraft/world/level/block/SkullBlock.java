@@ -19,7 +19,6 @@ public class SkullBlock extends AbstractSkullBlock {
     }
 
     public SkullBlock(SkullBlock.Type type, BlockBehaviour.Properties properties) {
-        throw Unimplemented.forMember("net/minecraft/world/level/block/SkullBlock.<init>:(Lnet/minecraft/world/level/block/SkullBlock$Type;Lnet/minecraft/world/level/block/state/BlockBehaviour$Properties;)V");
     }
 
     protected VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {

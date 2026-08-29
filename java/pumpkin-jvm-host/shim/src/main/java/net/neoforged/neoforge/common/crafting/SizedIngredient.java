@@ -25,7 +25,6 @@ public final class SizedIngredient {
     private final int count = 0;
 
     public SizedIngredient(Ingredient ingredient, int count) {
-        throw Unimplemented.forMember("net/neoforged/neoforge/common/crafting/SizedIngredient.<init>:(Lnet/minecraft/world/item/crafting/Ingredient;I)V");
     }
 
     public Ingredient ingredient() {

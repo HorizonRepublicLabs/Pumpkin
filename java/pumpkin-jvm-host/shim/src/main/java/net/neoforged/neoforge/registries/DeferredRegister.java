@@ -107,6 +107,9 @@ public class DeferredRegister<T> {
         DeferredHolder<T, I> holder =
                 new DeferredHolder<>(Identifier.fromNamespaceAndPath(pumpkinNamespace, name), sup::get);
         pumpkinPending.add(holder);
+        // This is the one place that knows both the registry and the holder; see
+        // DeferredHolder.pumpkinRecord for why the key needs both.
+        DeferredHolder.pumpkinRecord(pumpkinRegistryKey.identifier().toString(), holder);
         return holder;
     }
 
@@ -144,7 +147,6 @@ public class DeferredRegister<T> {
     public static class Blocks extends DeferredRegister<Block> {
 
         protected Blocks(String namespace) {
-            throw Unimplemented.forMember("net/neoforged/neoforge/registries/DeferredRegister$Blocks.<init>:(Ljava/lang/String;)V");
         }
 
         public <B extends Block> DeferredBlock<B> register(String name, Function<Identifier, ? extends B> func) {
@@ -166,7 +168,6 @@ public class DeferredRegister<T> {
     public static class Items extends DeferredRegister<Item> {
 
         protected Items(String namespace) {
-            throw Unimplemented.forMember("net/neoforged/neoforge/registries/DeferredRegister$Items.<init>:(Ljava/lang/String;)V");
         }
 
         public <I extends Item> DeferredItem<I> register(String name, Function<Identifier, ? extends I> func) {
@@ -188,7 +189,6 @@ public class DeferredRegister<T> {
     public static class DataComponents extends DeferredRegister<DataComponentType<?>> {
 
         protected DataComponents(ResourceKey<Registry<DataComponentType<?>>> registryKey, String namespace) {
-            throw Unimplemented.forMember("net/neoforged/neoforge/registries/DeferredRegister$DataComponents.<init>:(Lnet/minecraft/resources/ResourceKey;Ljava/lang/String;)V");
         }
 
         public DataComponents() {
@@ -198,7 +198,6 @@ public class DeferredRegister<T> {
     public static class Entities extends DeferredRegister<EntityType<?>> {
 
         protected Entities(String namespace) {
-            throw Unimplemented.forMember("net/neoforged/neoforge/registries/DeferredRegister$Entities.<init>:(Ljava/lang/String;)V");
         }
 
         public Entities() {
@@ -208,7 +207,6 @@ public class DeferredRegister<T> {
     private static class RegistryHolder<V> implements Supplier<Registry<V>> {
 
         private RegistryHolder(ResourceKey<? extends Registry<V>> registryKey) {
-            throw Unimplemented.forMember("net/neoforged/neoforge/registries/DeferredRegister$RegistryHolder.<init>:(Lnet/minecraft/resources/ResourceKey;)V");
         }
 
         public Registry<V> get() {

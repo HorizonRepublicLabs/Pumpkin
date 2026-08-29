@@ -11,7 +11,6 @@ public final class ListenerKey<T extends PreparableReloadListener> {
     }
 
     private ListenerKey(Identifier listenerId) {
-        throw Unimplemented.forMember("net/neoforged/neoforge/resource/ListenerKey.<init>:(Lnet/minecraft/resources/Identifier;)V");
     }
 
     public String toString() {

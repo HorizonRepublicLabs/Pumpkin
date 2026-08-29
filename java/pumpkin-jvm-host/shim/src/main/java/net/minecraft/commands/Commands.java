@@ -11,7 +11,6 @@ import dev.pumpkin.shim.Unimplemented;
 public class Commands {
 
     public Commands(Commands.CommandSelection commandSelection, CommandBuildContext context) {
-        throw Unimplemented.forMember("net/minecraft/commands/Commands.<init>:(Lnet/minecraft/commands/Commands$CommandSelection;Lnet/minecraft/commands/CommandBuildContext;)V");
     }
 
     public static LiteralArgumentBuilder<CommandSourceStack> literal(String literal) {

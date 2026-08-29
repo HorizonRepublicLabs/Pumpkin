@@ -19,7 +19,6 @@ import dev.pumpkin.shim.Unimplemented;
 public class GpuDevice {
 
     public GpuDevice(GpuDeviceBackend backend, Runnable criticalShaderLoader) {
-        throw Unimplemented.forMember("com/mojang/blaze3d/systems/GpuDevice.<init>:(Lcom/mojang/blaze3d/systems/GpuDeviceBackend;Ljava/lang/Runnable;)V");
     }
 
     public GpuSurface createSurface(long windowHandle) {

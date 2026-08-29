@@ -19,7 +19,6 @@ import dev.pumpkin.shim.Unimplemented;
 public class TestInstanceBlockEntity extends BlockEntity implements BoundingBoxRenderable, BeaconBeamOwner {
 
     public TestInstanceBlockEntity(BlockPos worldPosition, BlockState blockState) {
-        throw Unimplemented.forMember("net/minecraft/world/level/block/entity/TestInstanceBlockEntity.<init>:(Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/state/BlockState;)V");
     }
 
     public void set(TestInstanceBlockEntity.Data data) {

@@ -12,7 +12,6 @@ public record ItemTransforms(ItemTransform thirdPersonLeftHand, ItemTransform th
 
     public ItemTransforms(ItemTransform thirdPersonLeftHand, ItemTransform thirdPersonRightHand, ItemTransform firstPersonLeftHand, ItemTransform firstPersonRightHand, ItemTransform head, ItemTransform gui, ItemTransform ground, ItemTransform fixed, ItemTransform fixedFromBottom) {
         this((ItemTransform) null, (ItemTransform) null, (ItemTransform) null, (ItemTransform) null, (ItemTransform) null, (ItemTransform) null, (ItemTransform) null, (ItemTransform) null, (ItemTransform) null, (com.google.common.collect.ImmutableMap<ItemDisplayContext, ItemTransform>) null);
-        throw Unimplemented.forMember("net/minecraft/client/resources/model/cuboid/ItemTransforms.<init>:(Lnet/minecraft/client/resources/model/cuboid/ItemTransform;Lnet/minecraft/client/resources/model/cuboid/ItemTransform;Lnet/minecraft/client/resources/model/cuboid/ItemTransform;Lnet/minecraft/client/resources/model/cuboid/ItemTransform;Lnet/minecraft/client/resources/model/cuboid/ItemTransform;Lnet/minecraft/client/resources/model/cuboid/ItemTransform;Lnet/minecraft/client/resources/model/cuboid/ItemTransform;Lnet/minecraft/client/resources/model/cuboid/ItemTransform;Lnet/minecraft/client/resources/model/cuboid/ItemTransform;)V");
     }
 
     public static class Deserializer implements JsonDeserializer<ItemTransforms> {

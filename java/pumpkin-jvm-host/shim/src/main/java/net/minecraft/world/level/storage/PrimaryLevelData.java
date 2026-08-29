@@ -15,11 +15,9 @@ import dev.pumpkin.shim.Unimplemented;
 public class PrimaryLevelData implements ServerLevelData, WorldData {
 
     private PrimaryLevelData(UUID singlePlayerUUID, boolean wasModded, LevelData.RespawnData respawnData, long gameTime, int version, boolean initialized, Set<String> knownServerBrands, Set<String> removedFeatureFlags, LevelSettings settings, PrimaryLevelData.SpecialWorldProperty specialWorldProperty, Lifecycle worldGenSettingsLifecycle) {
-        throw Unimplemented.forMember("net/minecraft/world/level/storage/PrimaryLevelData.<init>:(Ljava/util/UUID;ZLnet/minecraft/world/level/storage/LevelData$RespawnData;JIZLjava/util/Set;Ljava/util/Set;Lnet/minecraft/world/level/LevelSettings;Lnet/minecraft/world/level/storage/PrimaryLevelData$SpecialWorldProperty;Lcom/mojang/serialization/Lifecycle;)V");
     }
 
     public PrimaryLevelData(LevelSettings levelSettings, PrimaryLevelData.SpecialWorldProperty specialWorldProperty, Lifecycle lifecycle) {
-        throw Unimplemented.forMember("net/minecraft/world/level/storage/PrimaryLevelData.<init>:(Lnet/minecraft/world/level/LevelSettings;Lnet/minecraft/world/level/storage/PrimaryLevelData$SpecialWorldProperty;Lcom/mojang/serialization/Lifecycle;)V");
     }
 
     public CompoundTag createTag(UUID singlePlayerUUID) {

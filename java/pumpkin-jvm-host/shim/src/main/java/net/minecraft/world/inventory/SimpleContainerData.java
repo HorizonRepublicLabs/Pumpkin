@@ -5,7 +5,6 @@ import dev.pumpkin.shim.Unimplemented;
 public class SimpleContainerData implements ContainerData {
 
     public SimpleContainerData(int count) {
-        throw Unimplemented.forMember("net/minecraft/world/inventory/SimpleContainerData.<init>:(I)V");
     }
 
     public int get(int dataId) {

@@ -8,11 +8,9 @@ import dev.pumpkin.shim.Unimplemented;
 public class ClientboundContainerClosePacket implements Packet<ClientGamePacketListener> {
 
     public ClientboundContainerClosePacket(int containerId) {
-        throw Unimplemented.forMember("net/minecraft/network/protocol/game/ClientboundContainerClosePacket.<init>:(I)V");
     }
 
     private ClientboundContainerClosePacket(FriendlyByteBuf input) {
-        throw Unimplemented.forMember("net/minecraft/network/protocol/game/ClientboundContainerClosePacket.<init>:(Lnet/minecraft/network/FriendlyByteBuf;)V");
     }
 
     private void write(FriendlyByteBuf output) {

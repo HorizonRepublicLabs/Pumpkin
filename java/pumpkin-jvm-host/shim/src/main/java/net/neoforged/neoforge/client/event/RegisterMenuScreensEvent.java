@@ -13,7 +13,6 @@ import dev.pumpkin.shim.Unimplemented;
 public class RegisterMenuScreensEvent extends Event implements IModBusEvent {
 
     public RegisterMenuScreensEvent(Map<MenuType<?>, MenuScreens.ScreenConstructor<?, ?>> registeredScreens) {
-        throw Unimplemented.forMember("net/neoforged/neoforge/client/event/RegisterMenuScreensEvent.<init>:(Ljava/util/Map;)V");
     }
 
     public <M extends AbstractContainerMenu, U extends Screen & MenuAccess<M>> void register(MenuType<? extends M> menuType, MenuScreens.ScreenConstructor<M, U> screenConstructor) {

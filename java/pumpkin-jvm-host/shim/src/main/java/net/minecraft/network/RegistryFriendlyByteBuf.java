@@ -7,11 +7,9 @@ import dev.pumpkin.shim.Unimplemented;
 public class RegistryFriendlyByteBuf extends FriendlyByteBuf {
 
     public RegistryFriendlyByteBuf(ByteBuf source, RegistryAccess registryAccess) {
-        throw Unimplemented.forMember("net/minecraft/network/RegistryFriendlyByteBuf.<init>:(Lio/netty/buffer/ByteBuf;Lnet/minecraft/core/RegistryAccess;)V");
     }
 
     public RegistryFriendlyByteBuf(ByteBuf source, RegistryAccess registryAccess, net.neoforged.neoforge.network.connection.ConnectionType connectionType) {
-        throw Unimplemented.forMember("net/minecraft/network/RegistryFriendlyByteBuf.<init>:(Lio/netty/buffer/ByteBuf;Lnet/minecraft/core/RegistryAccess;Lnet/neoforged/neoforge/network/connection/ConnectionType;)V");
     }
 
     public net.neoforged.neoforge.network.connection.ConnectionType getConnectionType() {

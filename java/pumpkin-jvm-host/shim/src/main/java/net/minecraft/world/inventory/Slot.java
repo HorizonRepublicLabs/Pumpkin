@@ -17,7 +17,6 @@ public class Slot {
     public final int y = 0;
 
     public Slot(Container container, int slot, int x, int y) {
-        throw Unimplemented.forMember("net/minecraft/world/inventory/Slot.<init>:(Lnet/minecraft/world/Container;III)V");
     }
 
     public void onQuickCraft(ItemStack picked, ItemStack original) {

@@ -13,7 +13,6 @@ import dev.pumpkin.shim.Unimplemented;
 public class JigsawBlockEntity extends BlockEntity {
 
     public JigsawBlockEntity(BlockPos worldPosition, BlockState blockState) {
-        throw Unimplemented.forMember("net/minecraft/world/level/block/entity/JigsawBlockEntity.<init>:(Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/state/BlockState;)V");
     }
 
     public Identifier getName() {

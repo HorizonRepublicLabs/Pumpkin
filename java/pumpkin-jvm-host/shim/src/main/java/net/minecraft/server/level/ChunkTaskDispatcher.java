@@ -10,7 +10,6 @@ import dev.pumpkin.shim.Unimplemented;
 public class ChunkTaskDispatcher implements ChunkHolder.LevelChangeListener, AutoCloseable {
 
     public ChunkTaskDispatcher(TaskScheduler<Runnable> executor, Executor dispatcherExecutor) {
-        throw Unimplemented.forMember("net/minecraft/server/level/ChunkTaskDispatcher.<init>:(Lnet/minecraft/util/thread/TaskScheduler;Ljava/util/concurrent/Executor;)V");
     }
 
     public void onLevelChange(ChunkPos pos, IntSupplier oldLevel, int newLevel, IntConsumer setQueueLevel) {

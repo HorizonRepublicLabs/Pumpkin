@@ -41,7 +41,6 @@ import dev.pumpkin.shim.Unimplemented;
 public abstract class ClientCommonPacketListenerImpl implements ClientCommonPacketListener {
 
     protected ClientCommonPacketListenerImpl(Minecraft minecraft, Connection connection, CommonListenerCookie cookie) {
-        throw Unimplemented.forMember("net/minecraft/client/multiplayer/ClientCommonPacketListenerImpl.<init>:(Lnet/minecraft/client/Minecraft;Lnet/minecraft/network/Connection;Lnet/minecraft/client/multiplayer/CommonListenerCookie;)V");
     }
 
     public ServerLinks serverLinks() {
@@ -156,7 +155,6 @@ public abstract class ClientCommonPacketListenerImpl implements ClientCommonPack
     private class PackConfirmScreen extends ConfirmScreen {
 
         private PackConfirmScreen(Minecraft minecraft, Screen parentScreen, List<ClientCommonPacketListenerImpl.PackConfirmScreen.PendingRequest> requests, boolean required, Component prompt) {
-            throw Unimplemented.forMember("net/minecraft/client/multiplayer/ClientCommonPacketListenerImpl$PackConfirmScreen.<init>:(Lnet/minecraft/client/Minecraft;Lnet/minecraft/client/gui/screens/Screen;Ljava/util/List;ZLnet/minecraft/network/chat/Component;)V");
         }
 
         private record PendingRequest(UUID id, URL url, String hash) {

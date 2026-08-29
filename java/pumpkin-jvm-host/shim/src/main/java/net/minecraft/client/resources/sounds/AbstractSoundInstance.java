@@ -21,11 +21,9 @@ public abstract class AbstractSoundInstance implements SoundInstance {
     protected boolean looping;
 
     protected AbstractSoundInstance(SoundEvent event, SoundSource source, RandomSource random) {
-        throw Unimplemented.forMember("net/minecraft/client/resources/sounds/AbstractSoundInstance.<init>:(Lnet/minecraft/sounds/SoundEvent;Lnet/minecraft/sounds/SoundSource;Lnet/minecraft/util/RandomSource;)V");
     }
 
     protected AbstractSoundInstance(Identifier identifier, SoundSource source, RandomSource random) {
-        throw Unimplemented.forMember("net/minecraft/client/resources/sounds/AbstractSoundInstance.<init>:(Lnet/minecraft/resources/Identifier;Lnet/minecraft/sounds/SoundSource;Lnet/minecraft/util/RandomSource;)V");
     }
 
     public Identifier getIdentifier() {

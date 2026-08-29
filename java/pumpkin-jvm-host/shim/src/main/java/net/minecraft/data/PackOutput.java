@@ -6,7 +6,6 @@ import dev.pumpkin.shim.Unimplemented;
 public class PackOutput {
 
     public PackOutput(Path outputFolder) {
-        throw Unimplemented.forMember("net/minecraft/data/PackOutput.<init>:(Ljava/nio/file/Path;)V");
     }
 
     public Path getOutputFolder() {
@@ -20,7 +19,6 @@ public class PackOutput {
     public static class PathProvider {
 
         private PathProvider(PackOutput output, PackOutput.Target target, String kind) {
-            throw Unimplemented.forMember("net/minecraft/data/PackOutput$PathProvider.<init>:(Lnet/minecraft/data/PackOutput;Lnet/minecraft/data/PackOutput$Target;Ljava/lang/String;)V");
         }
 
         public PathProvider() {

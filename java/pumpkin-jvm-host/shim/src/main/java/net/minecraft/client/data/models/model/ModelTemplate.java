@@ -13,7 +13,6 @@ import dev.pumpkin.shim.Unimplemented;
 public class ModelTemplate {
 
     public ModelTemplate(Optional<Identifier> model, Optional<String> suffix, TextureSlot... requiredSlots) {
-        throw Unimplemented.forMember("net/minecraft/client/data/models/model/ModelTemplate.<init>:(Ljava/util/Optional;Ljava/util/Optional;[Lnet/minecraft/client/data/models/model/TextureSlot;)V");
     }
 
     public Identifier create(Block block, TextureMapping textures, BiConsumer<Identifier, ModelInstance> output) {

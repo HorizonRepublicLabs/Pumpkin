@@ -26,7 +26,6 @@ public interface TestEnvironmentDefinition<SavedDataType> {
     class Activation<T> {
 
         private Activation(T value, TestEnvironmentDefinition<T> definition, ServerLevel level) {
-            throw Unimplemented.forMember("net/minecraft/gametest/framework/TestEnvironmentDefinition$Activation.<init>:(Ljava/lang/Object;Lnet/minecraft/gametest/framework/TestEnvironmentDefinition;Lnet/minecraft/server/level/ServerLevel;)V");
         }
 
         protected Activation() {
@@ -37,7 +36,6 @@ public interface TestEnvironmentDefinition<SavedDataType> {
 
         public AllOf(TestEnvironmentDefinition<?>... defs) {
             this((List<Holder<TestEnvironmentDefinition<?>>>) null);
-            throw Unimplemented.forMember("net/minecraft/gametest/framework/TestEnvironmentDefinition$AllOf.<init>:([Lnet/minecraft/gametest/framework/TestEnvironmentDefinition;)V");
         }
 
         public List<? extends TestEnvironmentDefinition.Activation<?>> setup(ServerLevel level) {

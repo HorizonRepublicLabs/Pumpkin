@@ -8,7 +8,6 @@ import dev.pumpkin.shim.Unimplemented;
 public class EnvironmentAttributeSystem implements EnvironmentAttributeReader {
 
     private EnvironmentAttributeSystem(Map<EnvironmentAttribute<?>, List<EnvironmentAttributeLayer<?>>> layersByAttribute) {
-        throw Unimplemented.forMember("net/minecraft/world/attribute/EnvironmentAttributeSystem.<init>:(Ljava/util/Map;)V");
     }
 
     public <Value> Value getDimensionValue(EnvironmentAttribute<Value> attribute) {
@@ -22,7 +21,6 @@ public class EnvironmentAttributeSystem implements EnvironmentAttributeReader {
     public static class Builder {
 
         protected Builder() {
-            throw Unimplemented.forMember("net/minecraft/world/attribute/EnvironmentAttributeSystem$Builder.<init>:()V");
         }
 
         public EnvironmentAttributeSystem build() {
@@ -33,7 +31,6 @@ public class EnvironmentAttributeSystem implements EnvironmentAttributeReader {
     private static class ValueSampler<Value> {
 
         private ValueSampler(EnvironmentAttribute<Value> attribute, Value baseValue, List<EnvironmentAttributeLayer<Value>> layers, boolean isAffectedByPosition) {
-            throw Unimplemented.forMember("net/minecraft/world/attribute/EnvironmentAttributeSystem$ValueSampler.<init>:(Lnet/minecraft/world/attribute/EnvironmentAttribute;Ljava/lang/Object;Ljava/util/List;Z)V");
         }
 
         protected ValueSampler() {

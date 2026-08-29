@@ -11,11 +11,9 @@ import dev.pumpkin.shim.Unimplemented;
 public class ClientboundBossEventPacket implements Packet<ClientGamePacketListener> {
 
     private ClientboundBossEventPacket(UUID id, ClientboundBossEventPacket.Operation operation) {
-        throw Unimplemented.forMember("net/minecraft/network/protocol/game/ClientboundBossEventPacket.<init>:(Ljava/util/UUID;Lnet/minecraft/network/protocol/game/ClientboundBossEventPacket$Operation;)V");
     }
 
     private ClientboundBossEventPacket(RegistryFriendlyByteBuf input) {
-        throw Unimplemented.forMember("net/minecraft/network/protocol/game/ClientboundBossEventPacket.<init>:(Lnet/minecraft/network/RegistryFriendlyByteBuf;)V");
     }
 
     private void write(RegistryFriendlyByteBuf output) {
@@ -33,11 +31,9 @@ public class ClientboundBossEventPacket implements Packet<ClientGamePacketListen
     private static class AddOperation implements ClientboundBossEventPacket.Operation {
 
         private AddOperation(BossEvent event) {
-            throw Unimplemented.forMember("net/minecraft/network/protocol/game/ClientboundBossEventPacket$AddOperation.<init>:(Lnet/minecraft/world/BossEvent;)V");
         }
 
         private AddOperation(RegistryFriendlyByteBuf input) {
-            throw Unimplemented.forMember("net/minecraft/network/protocol/game/ClientboundBossEventPacket$AddOperation.<init>:(Lnet/minecraft/network/RegistryFriendlyByteBuf;)V");
         }
 
         public ClientboundBossEventPacket.OperationType getType() {
@@ -86,7 +82,6 @@ public class ClientboundBossEventPacket implements Packet<ClientGamePacketListen
 
         private UpdateNameOperation(RegistryFriendlyByteBuf input) {
             this((Component) null);
-            throw Unimplemented.forMember("net/minecraft/network/protocol/game/ClientboundBossEventPacket$UpdateNameOperation.<init>:(Lnet/minecraft/network/RegistryFriendlyByteBuf;)V");
         }
 
         public ClientboundBossEventPacket.OperationType getType() {
@@ -106,7 +101,6 @@ public class ClientboundBossEventPacket implements Packet<ClientGamePacketListen
 
         private UpdateProgressOperation(RegistryFriendlyByteBuf input) {
             this((float) 0.0F);
-            throw Unimplemented.forMember("net/minecraft/network/protocol/game/ClientboundBossEventPacket$UpdateProgressOperation.<init>:(Lnet/minecraft/network/RegistryFriendlyByteBuf;)V");
         }
 
         public ClientboundBossEventPacket.OperationType getType() {
@@ -125,11 +119,9 @@ public class ClientboundBossEventPacket implements Packet<ClientGamePacketListen
     private static class UpdatePropertiesOperation implements ClientboundBossEventPacket.Operation {
 
         private UpdatePropertiesOperation(boolean darkenScreen, boolean playMusic, boolean createWorldFog) {
-            throw Unimplemented.forMember("net/minecraft/network/protocol/game/ClientboundBossEventPacket$UpdatePropertiesOperation.<init>:(ZZZ)V");
         }
 
         private UpdatePropertiesOperation(RegistryFriendlyByteBuf input) {
-            throw Unimplemented.forMember("net/minecraft/network/protocol/game/ClientboundBossEventPacket$UpdatePropertiesOperation.<init>:(Lnet/minecraft/network/RegistryFriendlyByteBuf;)V");
         }
 
         public ClientboundBossEventPacket.OperationType getType() {
@@ -151,11 +143,9 @@ public class ClientboundBossEventPacket implements Packet<ClientGamePacketListen
     private static class UpdateStyleOperation implements ClientboundBossEventPacket.Operation {
 
         private UpdateStyleOperation(BossEvent.BossBarColor color, BossEvent.BossBarOverlay overlay) {
-            throw Unimplemented.forMember("net/minecraft/network/protocol/game/ClientboundBossEventPacket$UpdateStyleOperation.<init>:(Lnet/minecraft/world/BossEvent$BossBarColor;Lnet/minecraft/world/BossEvent$BossBarOverlay;)V");
         }
 
         private UpdateStyleOperation(RegistryFriendlyByteBuf input) {
-            throw Unimplemented.forMember("net/minecraft/network/protocol/game/ClientboundBossEventPacket$UpdateStyleOperation.<init>:(Lnet/minecraft/network/RegistryFriendlyByteBuf;)V");
         }
 
         public ClientboundBossEventPacket.OperationType getType() {

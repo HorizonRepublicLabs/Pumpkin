@@ -18,7 +18,6 @@ import dev.pumpkin.shim.Unimplemented;
 public class DataComponentIngredient implements ICustomIngredient {
 
     public DataComponentIngredient(HolderSet<Item> items, DataComponentPatch components, boolean exhaustive) {
-        throw Unimplemented.forMember("net/neoforged/neoforge/common/crafting/DataComponentIngredient.<init>:(Lnet/minecraft/core/HolderSet;Lnet/minecraft/core/component/DataComponentPatch;Z)V");
     }
 
     public boolean test(ItemStack stack) {

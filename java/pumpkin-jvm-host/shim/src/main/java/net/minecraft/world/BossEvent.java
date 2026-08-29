@@ -8,7 +8,6 @@ import dev.pumpkin.shim.Unimplemented;
 public abstract class BossEvent {
 
     public BossEvent(UUID id, Component name, BossEvent.BossBarColor color, BossEvent.BossBarOverlay overlay) {
-        throw Unimplemented.forMember("net/minecraft/world/BossEvent.<init>:(Ljava/util/UUID;Lnet/minecraft/network/chat/Component;Lnet/minecraft/world/BossEvent$BossBarColor;Lnet/minecraft/world/BossEvent$BossBarOverlay;)V");
     }
 
     public UUID getId() {

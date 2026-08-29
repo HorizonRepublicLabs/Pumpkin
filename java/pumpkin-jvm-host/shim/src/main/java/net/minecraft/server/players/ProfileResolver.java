@@ -15,7 +15,6 @@ public interface ProfileResolver {
     class Cached implements ProfileResolver {
 
         public Cached(MinecraftSessionService sessionService, UserNameToIdResolver nameToIdCache) {
-            throw Unimplemented.forMember("net/minecraft/server/players/ProfileResolver$Cached.<init>:(Lcom/mojang/authlib/minecraft/MinecraftSessionService;Lnet/minecraft/server/players/UserNameToIdResolver;)V");
         }
 
         public Optional<GameProfile> fetchByName(String name) {

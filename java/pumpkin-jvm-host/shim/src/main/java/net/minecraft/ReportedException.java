@@ -5,7 +5,6 @@ import dev.pumpkin.shim.Unimplemented;
 public class ReportedException extends RuntimeException {
 
     public ReportedException(CrashReport report) {
-        throw Unimplemented.forMember("net/minecraft/ReportedException.<init>:(Lnet/minecraft/CrashReport;)V");
     }
 
     public CrashReport getReport() {

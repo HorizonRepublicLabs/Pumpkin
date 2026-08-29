@@ -15,7 +15,6 @@ public record ClientboundPlayerChatPacket(int globalIndex, UUID sender, int inde
 
     private ClientboundPlayerChatPacket(RegistryFriendlyByteBuf input) {
         this((int) 0, (UUID) null, (int) 0, (MessageSignature) null, (SignedMessageBody.Packed) null, (Component) null, (FilterMask) null, (ChatType.Bound) null);
-        throw Unimplemented.forMember("net/minecraft/network/protocol/game/ClientboundPlayerChatPacket.<init>:(Lnet/minecraft/network/RegistryFriendlyByteBuf;)V");
     }
 
     private void write(RegistryFriendlyByteBuf output) {

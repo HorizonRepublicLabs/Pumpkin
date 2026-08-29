@@ -39,7 +39,6 @@ public final class ShapedRecipePattern {
     private final Optional<ShapedRecipePattern.Data> data = null;
 
     public ShapedRecipePattern(int width, int height, List<Optional<Ingredient>> ingredients, Optional<ShapedRecipePattern.Data> data) {
-        throw Unimplemented.forMember("net/minecraft/world/item/crafting/ShapedRecipePattern.<init>:(IILjava/util/List;Ljava/util/Optional;)V");
     }
 
     public static ShapedRecipePattern of(Map<Character, Ingredient> key, String... pattern) {

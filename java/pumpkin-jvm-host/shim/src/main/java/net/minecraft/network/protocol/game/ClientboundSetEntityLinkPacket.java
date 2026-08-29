@@ -9,11 +9,9 @@ import dev.pumpkin.shim.Unimplemented;
 public class ClientboundSetEntityLinkPacket implements Packet<ClientGamePacketListener> {
 
     public ClientboundSetEntityLinkPacket(Entity sourceEntity, Entity destEntity) {
-        throw Unimplemented.forMember("net/minecraft/network/protocol/game/ClientboundSetEntityLinkPacket.<init>:(Lnet/minecraft/world/entity/Entity;Lnet/minecraft/world/entity/Entity;)V");
     }
 
     private ClientboundSetEntityLinkPacket(FriendlyByteBuf input) {
-        throw Unimplemented.forMember("net/minecraft/network/protocol/game/ClientboundSetEntityLinkPacket.<init>:(Lnet/minecraft/network/FriendlyByteBuf;)V");
     }
 
     private void write(FriendlyByteBuf output) {

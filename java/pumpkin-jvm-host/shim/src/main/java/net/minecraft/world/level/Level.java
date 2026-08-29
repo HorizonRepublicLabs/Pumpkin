@@ -57,7 +57,6 @@ public abstract class Level extends net.neoforged.neoforge.attachment.Attachment
     private final DamageSources damageSources = null;
 
     protected Level(WritableLevelData levelData, ResourceKey<Level> dimension, RegistryAccess registryAccess, Holder<DimensionType> dimensionTypeRegistration, boolean isClientSide, boolean isDebug, long biomeZoomSeed, int maxChainedNeighborUpdates) {
-        throw Unimplemented.forMember("net/minecraft/world/level/Level.<init>:(Lnet/minecraft/world/level/storage/WritableLevelData;Lnet/minecraft/resources/ResourceKey;Lnet/minecraft/core/RegistryAccess;Lnet/minecraft/core/Holder;ZZJI)V");
     }
 
     public boolean isClientSide() {

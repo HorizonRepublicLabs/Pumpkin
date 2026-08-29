@@ -31,7 +31,6 @@ import dev.pumpkin.shim.Unimplemented;
 public class ChunkMap extends SimpleRegionStorage implements ChunkHolder.PlayerProvider, GeneratingChunkMap {
 
     public ChunkMap(ServerLevel level, LevelStorageSource.LevelStorageAccess levelStorage, DataFixer dataFixer, StructureTemplateManager structureManager, Executor executor, BlockableEventLoop<Runnable> mainThreadExecutor, LightChunkGetter chunkGetter, ChunkGenerator generator, ChunkStatusUpdateListener chunkStatusListener, Supplier<SavedDataStorage> overworldDataStorage, TicketStorage ticketStorage, int serverViewDistance, boolean syncWrites) {
-        throw Unimplemented.forMember("net/minecraft/server/level/ChunkMap.<init>:(Lnet/minecraft/server/level/ServerLevel;Lnet/minecraft/world/level/storage/LevelStorageSource$LevelStorageAccess;Lcom/mojang/datafixers/DataFixer;Lnet/minecraft/world/level/levelgen/structure/templatesystem/StructureTemplateManager;Ljava/util/concurrent/Executor;Lnet/minecraft/util/thread/BlockableEventLoop;Lnet/minecraft/world/level/chunk/LightChunkGetter;Lnet/minecraft/world/level/chunk/ChunkGenerator;Lnet/minecraft/world/level/entity/ChunkStatusUpdateListener;Ljava/util/function/Supplier;Lnet/minecraft/world/level/TicketStorage;IZ)V");
     }
 
     protected ThreadedLevelLightEngine getLightEngine() {
@@ -89,7 +88,6 @@ public class ChunkMap extends SimpleRegionStorage implements ChunkHolder.PlayerP
     private class DistanceManager extends net.minecraft.server.level.DistanceManager {
 
         protected DistanceManager(TicketStorage ticketStorage, Executor executor, Executor mainThreadExecutor) {
-            throw Unimplemented.forMember("net/minecraft/server/level/ChunkMap$DistanceManager.<init>:(Lnet/minecraft/world/level/TicketStorage;Ljava/util/concurrent/Executor;Ljava/util/concurrent/Executor;)V");
         }
 
         protected boolean isChunkToRemove(long node) {
@@ -111,7 +109,6 @@ public class ChunkMap extends SimpleRegionStorage implements ChunkHolder.PlayerP
     private class TrackedEntity implements ServerEntity.Synchronizer {
 
         public TrackedEntity(Entity entity, int range, int updateInterval, boolean trackDelta) {
-            throw Unimplemented.forMember("net/minecraft/server/level/ChunkMap$TrackedEntity.<init>:(Lnet/minecraft/world/entity/Entity;IIZ)V");
         }
 
         public boolean equals(Object obj) {

@@ -17,7 +17,6 @@ public final class TextureSlot {
     }
 
     private TextureSlot(String id, TextureSlot parent) {
-        throw Unimplemented.forMember("net/minecraft/client/data/models/model/TextureSlot.<init>:(Ljava/lang/String;Lnet/minecraft/client/data/models/model/TextureSlot;)V");
     }
 
     public String getId() {

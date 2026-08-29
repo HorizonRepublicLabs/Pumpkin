@@ -7,7 +7,6 @@ import dev.pumpkin.shim.Unimplemented;
 public class ChunkStatus {
 
     protected ChunkStatus(ChunkStatus parent, EnumSet<Heightmap.Types> heightmapsAfter, ChunkType chunkType) {
-        throw Unimplemented.forMember("net/minecraft/world/level/chunk/status/ChunkStatus.<init>:(Lnet/minecraft/world/level/chunk/status/ChunkStatus;Ljava/util/EnumSet;Lnet/minecraft/world/level/chunk/status/ChunkType;)V");
     }
 
     public String toString() {

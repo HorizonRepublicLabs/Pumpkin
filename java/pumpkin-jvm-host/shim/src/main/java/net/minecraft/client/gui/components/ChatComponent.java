@@ -17,7 +17,6 @@ import dev.pumpkin.shim.Unimplemented;
 public class ChatComponent {
 
     public ChatComponent(Minecraft minecraft) {
-        throw Unimplemented.forMember("net/minecraft/client/gui/components/ChatComponent.<init>:(Lnet/minecraft/client/Minecraft;)V");
     }
 
     public void tick() {
@@ -84,7 +83,6 @@ public class ChatComponent {
     private static class ClickableTextOnlyGraphicsAccess implements ChatComponent.ChatGraphicsAccess {
 
         public ClickableTextOnlyGraphicsAccess(ActiveTextCollector output) {
-            throw Unimplemented.forMember("net/minecraft/client/gui/components/ChatComponent$ClickableTextOnlyGraphicsAccess.<init>:(Lnet/minecraft/client/gui/ActiveTextCollector;)V");
         }
 
         public void updatePose(Consumer<Matrix3x2f> updater) {
@@ -125,7 +123,6 @@ public class ChatComponent {
     private static class DrawingBackgroundGraphicsAccess implements ChatComponent.ChatGraphicsAccess {
 
         public DrawingBackgroundGraphicsAccess(GuiGraphicsExtractor graphics) {
-            throw Unimplemented.forMember("net/minecraft/client/gui/components/ChatComponent$DrawingBackgroundGraphicsAccess.<init>:(Lnet/minecraft/client/gui/GuiGraphicsExtractor;)V");
         }
 
         public void updatePose(Consumer<Matrix3x2f> updater) {
@@ -155,7 +152,6 @@ public class ChatComponent {
     private static class DrawingFocusedGraphicsAccess implements ChatComponent.ChatGraphicsAccess, Consumer<Style> {
 
         public DrawingFocusedGraphicsAccess(GuiGraphicsExtractor graphics, Font font, int mouseX, int mouseY, boolean changeCursorOnInsertions) {
-            throw Unimplemented.forMember("net/minecraft/client/gui/components/ChatComponent$DrawingFocusedGraphicsAccess.<init>:(Lnet/minecraft/client/gui/GuiGraphicsExtractor;Lnet/minecraft/client/gui/Font;IIZ)V");
         }
 
         public void updatePose(Consumer<Matrix3x2f> updater) {
@@ -194,7 +190,6 @@ public class ChatComponent {
     public static class State {
 
         public State(List<GuiMessage> messages, List<String> history, List<ChatComponent.DelayedMessageDeletion> delayedMessageDeletions) {
-            throw Unimplemented.forMember("net/minecraft/client/gui/components/ChatComponent$State.<init>:(Ljava/util/List;Ljava/util/List;Ljava/util/List;)V");
         }
 
         public State() {

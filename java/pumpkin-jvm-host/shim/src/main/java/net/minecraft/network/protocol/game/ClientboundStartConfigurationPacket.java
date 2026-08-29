@@ -7,7 +7,6 @@ import dev.pumpkin.shim.Unimplemented;
 public class ClientboundStartConfigurationPacket implements Packet<ClientGamePacketListener> {
 
     protected ClientboundStartConfigurationPacket() {
-        throw Unimplemented.forMember("net/minecraft/network/protocol/game/ClientboundStartConfigurationPacket.<init>:()V");
     }
 
     public PacketType<ClientboundStartConfigurationPacket> type() {

@@ -9,7 +9,6 @@ public record ClientboundChunkBatchFinishedPacket(int batchSize) implements Pack
 
     private ClientboundChunkBatchFinishedPacket(FriendlyByteBuf input) {
         this((int) 0);
-        throw Unimplemented.forMember("net/minecraft/network/protocol/game/ClientboundChunkBatchFinishedPacket.<init>:(Lnet/minecraft/network/FriendlyByteBuf;)V");
     }
 
     private void write(FriendlyByteBuf output) {

@@ -11,7 +11,6 @@ import dev.pumpkin.shim.Unimplemented;
 public class BlockGrowFeatureEvent extends LevelEvent implements ICancellableEvent {
 
     public BlockGrowFeatureEvent(LevelAccessor level, RandomSource rand, BlockPos pos, Holder<ConfiguredFeature<?, ?>> feature) {
-        throw Unimplemented.forMember("net/neoforged/neoforge/event/level/BlockGrowFeatureEvent.<init>:(Lnet/minecraft/world/level/LevelAccessor;Lnet/minecraft/util/RandomSource;Lnet/minecraft/core/BlockPos;Lnet/minecraft/core/Holder;)V");
     }
 
     public RandomSource getRandom() {

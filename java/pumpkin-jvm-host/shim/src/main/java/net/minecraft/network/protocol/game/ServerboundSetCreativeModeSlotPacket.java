@@ -9,7 +9,6 @@ public record ServerboundSetCreativeModeSlotPacket(short slotNum, ItemStack item
 
     public ServerboundSetCreativeModeSlotPacket(int slotNum, ItemStack itemStack) {
         this((short) 0, (ItemStack) null);
-        throw Unimplemented.forMember("net/minecraft/network/protocol/game/ServerboundSetCreativeModeSlotPacket.<init>:(ILnet/minecraft/world/item/ItemStack;)V");
     }
 
     public PacketType<ServerboundSetCreativeModeSlotPacket> type() {

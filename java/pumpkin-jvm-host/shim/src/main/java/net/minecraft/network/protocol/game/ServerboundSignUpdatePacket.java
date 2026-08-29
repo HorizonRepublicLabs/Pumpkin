@@ -9,11 +9,9 @@ import dev.pumpkin.shim.Unimplemented;
 public class ServerboundSignUpdatePacket implements Packet<ServerGamePacketListener> {
 
     public ServerboundSignUpdatePacket(BlockPos pos, boolean isFrontText, String line0, String line1, String line2, String line3) {
-        throw Unimplemented.forMember("net/minecraft/network/protocol/game/ServerboundSignUpdatePacket.<init>:(Lnet/minecraft/core/BlockPos;ZLjava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V");
     }
 
     private ServerboundSignUpdatePacket(FriendlyByteBuf input) {
-        throw Unimplemented.forMember("net/minecraft/network/protocol/game/ServerboundSignUpdatePacket.<init>:(Lnet/minecraft/network/FriendlyByteBuf;)V");
     }
 
     private void write(FriendlyByteBuf output) {

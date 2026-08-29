@@ -7,7 +7,6 @@ import dev.pumpkin.shim.Unimplemented;
 public class ClientboundClearDialogPacket implements Packet<ClientCommonPacketListener> {
 
     protected ClientboundClearDialogPacket() {
-        throw Unimplemented.forMember("net/minecraft/network/protocol/common/ClientboundClearDialogPacket.<init>:()V");
     }
 
     public PacketType<ClientboundClearDialogPacket> type() {

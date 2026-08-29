@@ -17,16 +17,13 @@ import net.minecraft.world.level.biome.BiomeSource;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.levelgen.RandomState;
 import net.minecraft.world.level.levelgen.blending.Blender;
-import dev.pumpkin.shim.Unimplemented;
 
 public abstract class ChunkGenerator {
 
     public ChunkGenerator(BiomeSource biomeSource) {
-        throw Unimplemented.forMember("net/minecraft/world/level/chunk/ChunkGenerator.<init>:(Lnet/minecraft/world/level/biome/BiomeSource;)V");
     }
 
     public ChunkGenerator(BiomeSource biomeSource, Function<Holder<Biome>, BiomeGenerationSettings> generationSettingsGetter) {
-        throw Unimplemented.forMember("net/minecraft/world/level/chunk/ChunkGenerator.<init>:(Lnet/minecraft/world/level/biome/BiomeSource;Ljava/util/function/Function;)V");
     }
 
     protected abstract MapCodec<? extends ChunkGenerator> codec();

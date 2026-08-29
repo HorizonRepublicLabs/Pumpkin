@@ -14,17 +14,14 @@ import dev.pumpkin.shim.Unimplemented;
 public class MapItemSavedData extends SavedData {
 
     private MapItemSavedData(int centerX, int centerZ, byte scale, boolean trackingPosition, boolean unlimitedTracking, boolean locked, ResourceKey<Level> dimension) {
-        throw Unimplemented.forMember("net/minecraft/world/level/saveddata/maps/MapItemSavedData.<init>:(IIBZZZLnet/minecraft/resources/ResourceKey;)V");
     }
 
     private MapItemSavedData(ResourceKey<Level> dimension, int centerX, int centerZ, byte scale, ByteBuffer colors, boolean trackingPosition, boolean unlimitedTracking, boolean locked, List<MapBanner> banners, List<MapFrame> frames) {
-        throw Unimplemented.forMember("net/minecraft/world/level/saveddata/maps/MapItemSavedData.<init>:(Lnet/minecraft/resources/ResourceKey;IIBLjava/nio/ByteBuffer;ZZZLjava/util/List;Ljava/util/List;)V");
     }
 
     public class HoldingPlayer {
 
         private HoldingPlayer(Player player) {
-            throw Unimplemented.forMember("net/minecraft/world/level/saveddata/maps/MapItemSavedData$HoldingPlayer.<init>:(Lnet/minecraft/world/entity/player/Player;)V");
         }
 
         public HoldingPlayer() {

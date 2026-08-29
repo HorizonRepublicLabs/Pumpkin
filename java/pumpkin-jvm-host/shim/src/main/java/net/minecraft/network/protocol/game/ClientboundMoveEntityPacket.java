@@ -10,7 +10,6 @@ import dev.pumpkin.shim.Unimplemented;
 public abstract class ClientboundMoveEntityPacket implements Packet<ClientGamePacketListener> {
 
     protected ClientboundMoveEntityPacket(int entityId, short xa, short ya, short za, byte yRot, byte xRot, boolean onGround, boolean hasRot, boolean hasPos) {
-        throw Unimplemented.forMember("net/minecraft/network/protocol/game/ClientboundMoveEntityPacket.<init>:(ISSSBBZZZ)V");
     }
 
     public abstract PacketType<? extends ClientboundMoveEntityPacket> type();
@@ -30,7 +29,6 @@ public abstract class ClientboundMoveEntityPacket implements Packet<ClientGamePa
     public static class Pos extends ClientboundMoveEntityPacket {
 
         public Pos(int id, short xa, short ya, short za, boolean onGround) {
-            throw Unimplemented.forMember("net/minecraft/network/protocol/game/ClientboundMoveEntityPacket$Pos.<init>:(ISSSZ)V");
         }
 
         private static ClientboundMoveEntityPacket.Pos read(FriendlyByteBuf input) {
@@ -52,7 +50,6 @@ public abstract class ClientboundMoveEntityPacket implements Packet<ClientGamePa
     public static class PosRot extends ClientboundMoveEntityPacket {
 
         public PosRot(int id, short xa, short ya, short za, byte yRot, byte xRot, boolean onGround) {
-            throw Unimplemented.forMember("net/minecraft/network/protocol/game/ClientboundMoveEntityPacket$PosRot.<init>:(ISSSBBZ)V");
         }
 
         private static ClientboundMoveEntityPacket.PosRot read(FriendlyByteBuf input) {
@@ -74,7 +71,6 @@ public abstract class ClientboundMoveEntityPacket implements Packet<ClientGamePa
     public static class Rot extends ClientboundMoveEntityPacket {
 
         public Rot(int id, byte yRot, byte xRot, boolean onGround) {
-            throw Unimplemented.forMember("net/minecraft/network/protocol/game/ClientboundMoveEntityPacket$Rot.<init>:(IBBZ)V");
         }
 
         private static ClientboundMoveEntityPacket.Rot read(FriendlyByteBuf input) {

@@ -13,7 +13,6 @@ import dev.pumpkin.shim.Unimplemented;
 public class StagedVertexBuffer implements AutoCloseable {
 
     public StagedVertexBuffer(Supplier<String> label, int initialCapacity) {
-        throw Unimplemented.forMember("net/minecraft/client/renderer/StagedVertexBuffer.<init>:(Ljava/util/function/Supplier;I)V");
     }
 
     public void close() {
@@ -23,7 +22,6 @@ public class StagedVertexBuffer implements AutoCloseable {
     public static class Draw {
 
         private Draw(VertexFormat format, PrimitiveTopology primitiveTopology, VertexSorting quadSorting) {
-            throw Unimplemented.forMember("net/minecraft/client/renderer/StagedVertexBuffer$Draw.<init>:(Lcom/mojang/blaze3d/vertex/VertexFormat;Lcom/mojang/blaze3d/PrimitiveTopology;Lcom/mojang/blaze3d/vertex/VertexSorting;)V");
         }
 
         public boolean isEmpty() {
@@ -40,7 +38,6 @@ public class StagedVertexBuffer implements AutoCloseable {
     private static class GpuBufferPool implements AutoCloseable {
 
         private GpuBufferPool(Supplier<String> label, int usage) {
-            throw Unimplemented.forMember("net/minecraft/client/renderer/StagedVertexBuffer$GpuBufferPool.<init>:(Ljava/util/function/Supplier;I)V");
         }
 
         public void close() {

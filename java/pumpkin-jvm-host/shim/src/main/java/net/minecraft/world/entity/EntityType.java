@@ -24,11 +24,9 @@ public class EntityType<T extends Entity> implements EntityTypeTest<Entity, T>, 
     }
 
     public EntityType(EntityType.EntityFactory<T> factory, MobCategory category, boolean serialize, boolean summon, boolean fireImmune, boolean canSpawnFarFromPlayer, TagKey<Block> immuneTo, EntityDimensions dimensions, float spawnDimensionsScale, int clientTrackingRange, int updateInterval, String descriptionId, Optional<ResourceKey<LootTable>> lootTable, FeatureFlagSet requiredFeatures, boolean allowedInPeaceful) {
-        throw Unimplemented.forMember("net/minecraft/world/entity/EntityType.<init>:(Lnet/minecraft/world/entity/EntityType$EntityFactory;Lnet/minecraft/world/entity/MobCategory;ZZZZLnet/minecraft/tags/TagKey;Lnet/minecraft/world/entity/EntityDimensions;FIILjava/lang/String;Ljava/util/Optional;Lnet/minecraft/world/flag/FeatureFlagSet;Z)V");
     }
 
     public EntityType(EntityType.EntityFactory<T> factory, MobCategory category, boolean serialize, boolean summon, boolean fireImmune, boolean canSpawnFarFromPlayer, TagKey<Block> immuneTo, EntityDimensions dimensions, float spawnDimensionsScale, int clientTrackingRange, int updateInterval, String descriptionId, Optional<ResourceKey<LootTable>> lootTable, FeatureFlagSet requiredFeatures, boolean allowedInPeaceful, final java.util.function.Predicate<EntityType<?>> trackDeltasSupplier, final java.util.function.ToIntFunction<EntityType<?>> trackingRangeSupplier, final java.util.function.ToIntFunction<EntityType<?>> updateIntervalSupplier, boolean onlyOpCanSetNbt) {
-        throw Unimplemented.forMember("net/minecraft/world/entity/EntityType.<init>:(Lnet/minecraft/world/entity/EntityType$EntityFactory;Lnet/minecraft/world/entity/MobCategory;ZZZZLnet/minecraft/tags/TagKey;Lnet/minecraft/world/entity/EntityDimensions;FIILjava/lang/String;Ljava/util/Optional;Lnet/minecraft/world/flag/FeatureFlagSet;ZLjava/util/function/Predicate;Ljava/util/function/ToIntFunction;Ljava/util/function/ToIntFunction;Z)V");
     }
 
     public T create(ServerLevel level, PostSpawnProcessor<T> postSpawnConfig, BlockPos spawnPos, EntitySpawnReason spawnReason, boolean tryMoveDown, boolean movedUp) {
@@ -86,7 +84,6 @@ public class EntityType<T extends Entity> implements EntityTypeTest<Entity, T>, 
     public static class Builder<T extends Entity> {
 
         private Builder(EntityType.EntityFactory<T> factory, MobCategory category) {
-            throw Unimplemented.forMember("net/minecraft/world/entity/EntityType$Builder.<init>:(Lnet/minecraft/world/entity/EntityType$EntityFactory;Lnet/minecraft/world/entity/MobCategory;)V");
         }
 
         public Builder() {

@@ -9,15 +9,12 @@ import dev.pumpkin.shim.Unimplemented;
 public class ClientboundPlayerCombatEndPacket implements Packet<ClientGamePacketListener> {
 
     public ClientboundPlayerCombatEndPacket(CombatTracker tracker) {
-        throw Unimplemented.forMember("net/minecraft/network/protocol/game/ClientboundPlayerCombatEndPacket.<init>:(Lnet/minecraft/world/damagesource/CombatTracker;)V");
     }
 
     public ClientboundPlayerCombatEndPacket(int duration) {
-        throw Unimplemented.forMember("net/minecraft/network/protocol/game/ClientboundPlayerCombatEndPacket.<init>:(I)V");
     }
 
     private ClientboundPlayerCombatEndPacket(FriendlyByteBuf input) {
-        throw Unimplemented.forMember("net/minecraft/network/protocol/game/ClientboundPlayerCombatEndPacket.<init>:(Lnet/minecraft/network/FriendlyByteBuf;)V");
     }
 
     private void write(FriendlyByteBuf output) {

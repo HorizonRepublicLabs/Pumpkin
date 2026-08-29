@@ -15,7 +15,6 @@ public class ClimateSettingsBuilder {
     }
 
     private ClimateSettingsBuilder(boolean hasPrecipitation, float temperature, TemperatureModifier temperatureModifier, float downfall) {
-        throw Unimplemented.forMember("net/neoforged/neoforge/common/world/ClimateSettingsBuilder.<init>:(ZFLnet/minecraft/world/level/biome/Biome$TemperatureModifier;F)V");
     }
 
     public ClimateSettings build() {

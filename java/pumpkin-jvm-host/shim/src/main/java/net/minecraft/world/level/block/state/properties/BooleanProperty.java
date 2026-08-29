@@ -7,7 +7,6 @@ import dev.pumpkin.shim.Unimplemented;
 public final class BooleanProperty extends Property<Boolean> {
 
     private BooleanProperty(String name) {
-        throw Unimplemented.forMember("net/minecraft/world/level/block/state/properties/BooleanProperty.<init>:(Ljava/lang/String;)V");
     }
 
     public List<Boolean> getPossibleValues() {

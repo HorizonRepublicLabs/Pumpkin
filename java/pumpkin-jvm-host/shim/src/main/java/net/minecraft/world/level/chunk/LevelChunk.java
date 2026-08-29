@@ -26,15 +26,12 @@ import dev.pumpkin.shim.Unimplemented;
 public class LevelChunk extends ChunkAccess implements DebugValueSource, IAttachmentHolder {
 
     public LevelChunk(Level level, ChunkPos pos) {
-        throw Unimplemented.forMember("net/minecraft/world/level/chunk/LevelChunk.<init>:(Lnet/minecraft/world/level/Level;Lnet/minecraft/world/level/ChunkPos;)V");
     }
 
     public LevelChunk(Level level, ChunkPos pos, UpgradeData upgradeData, LevelChunkTicks<Block> blockTicks, LevelChunkTicks<Fluid> fluidTicks, long inhabitedTime, LevelChunkSection[] sections, LevelChunk.PostLoadProcessor postLoad, BlendingData blendingData) {
-        throw Unimplemented.forMember("net/minecraft/world/level/chunk/LevelChunk.<init>:(Lnet/minecraft/world/level/Level;Lnet/minecraft/world/level/ChunkPos;Lnet/minecraft/world/level/chunk/UpgradeData;Lnet/minecraft/world/ticks/LevelChunkTicks;Lnet/minecraft/world/ticks/LevelChunkTicks;J[Lnet/minecraft/world/level/chunk/LevelChunkSection;Lnet/minecraft/world/level/chunk/LevelChunk$PostLoadProcessor;Lnet/minecraft/world/level/levelgen/blending/BlendingData;)V");
     }
 
     public LevelChunk(ServerLevel level, ProtoChunk protoChunk, LevelChunk.PostLoadProcessor postLoad) {
-        throw Unimplemented.forMember("net/minecraft/world/level/chunk/LevelChunk.<init>:(Lnet/minecraft/server/level/ServerLevel;Lnet/minecraft/world/level/chunk/ProtoChunk;Lnet/minecraft/world/level/chunk/LevelChunk$PostLoadProcessor;)V");
     }
 
     public void markUnsaved() {
@@ -120,7 +117,6 @@ public class LevelChunk extends ChunkAccess implements DebugValueSource, IAttach
     private class BoundTickingBlockEntity<T extends BlockEntity> implements TickingBlockEntity {
 
         private BoundTickingBlockEntity(T blockEntity, BlockEntityTicker<T> ticker) {
-            throw Unimplemented.forMember("net/minecraft/world/level/chunk/LevelChunk$BoundTickingBlockEntity.<init>:(Lnet/minecraft/world/level/block/entity/BlockEntity;Lnet/minecraft/world/level/block/entity/BlockEntityTicker;)V");
         }
 
         public void tick() {
@@ -160,7 +156,6 @@ public class LevelChunk extends ChunkAccess implements DebugValueSource, IAttach
     private static class RebindableTickingBlockEntityWrapper implements TickingBlockEntity {
 
         private RebindableTickingBlockEntityWrapper(TickingBlockEntity ticker) {
-            throw Unimplemented.forMember("net/minecraft/world/level/chunk/LevelChunk$RebindableTickingBlockEntityWrapper.<init>:(Lnet/minecraft/world/level/block/entity/TickingBlockEntity;)V");
         }
 
         public void tick() {

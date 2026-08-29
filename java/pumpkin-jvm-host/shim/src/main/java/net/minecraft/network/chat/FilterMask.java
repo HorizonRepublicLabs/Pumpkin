@@ -9,15 +9,12 @@ import dev.pumpkin.shim.Unimplemented;
 public class FilterMask {
 
     private FilterMask(BitSet mask, FilterMask.Type type) {
-        throw Unimplemented.forMember("net/minecraft/network/chat/FilterMask.<init>:(Ljava/util/BitSet;Lnet/minecraft/network/chat/FilterMask$Type;)V");
     }
 
     private FilterMask(BitSet mask) {
-        throw Unimplemented.forMember("net/minecraft/network/chat/FilterMask.<init>:(Ljava/util/BitSet;)V");
     }
 
     public FilterMask(int length) {
-        throw Unimplemented.forMember("net/minecraft/network/chat/FilterMask.<init>:(I)V");
     }
 
     private FilterMask.Type type() {

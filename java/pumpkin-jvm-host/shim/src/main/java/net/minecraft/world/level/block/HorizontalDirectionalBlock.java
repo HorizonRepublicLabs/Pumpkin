@@ -12,7 +12,6 @@ public abstract class HorizontalDirectionalBlock extends Block {
     public static final EnumProperty<Direction> FACING = null;
 
     public HorizontalDirectionalBlock(BlockBehaviour.Properties properties) {
-        throw Unimplemented.forMember("net/minecraft/world/level/block/HorizontalDirectionalBlock.<init>:(Lnet/minecraft/world/level/block/state/BlockBehaviour$Properties;)V");
     }
 
     protected abstract MapCodec<? extends HorizontalDirectionalBlock> codec();

@@ -11,7 +11,6 @@ import dev.pumpkin.shim.Unimplemented;
 public final class SimpleUnbakedStandaloneModel<T> implements UnbakedStandaloneModel<T> {
 
     public SimpleUnbakedStandaloneModel(Identifier modelId, SimpleBaker<T> bake) {
-        throw Unimplemented.forMember("net/neoforged/neoforge/client/model/standalone/SimpleUnbakedStandaloneModel.<init>:(Lnet/minecraft/resources/Identifier;Lnet/neoforged/neoforge/client/model/standalone/SimpleUnbakedStandaloneModel$SimpleBaker;)V");
     }
 
     public T bake(ModelBaker baker, ModelDebugName name) {

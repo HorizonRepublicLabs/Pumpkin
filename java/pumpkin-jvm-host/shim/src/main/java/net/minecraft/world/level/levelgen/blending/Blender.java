@@ -6,7 +6,6 @@ import dev.pumpkin.shim.Unimplemented;
 public class Blender {
 
     private Blender(Long2ObjectOpenHashMap<BlendingData> heightAndBiomeBlendingData, Long2ObjectOpenHashMap<BlendingData> densityBlendingData) {
-        throw Unimplemented.forMember("net/minecraft/world/level/levelgen/blending/Blender.<init>:(Lit/unimi/dsi/fastutil/longs/Long2ObjectOpenHashMap;Lit/unimi/dsi/fastutil/longs/Long2ObjectOpenHashMap;)V");
     }
 
     public boolean isEmpty() {

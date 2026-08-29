@@ -10,7 +10,6 @@ public record ClientboundCookieRequestPacket(Identifier key) implements Packet<C
 
     private ClientboundCookieRequestPacket(FriendlyByteBuf input) {
         this((Identifier) null);
-        throw Unimplemented.forMember("net/minecraft/network/protocol/cookie/ClientboundCookieRequestPacket.<init>:(Lnet/minecraft/network/FriendlyByteBuf;)V");
     }
 
     private void write(FriendlyByteBuf output) {

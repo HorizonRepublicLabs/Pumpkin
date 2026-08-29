@@ -11,7 +11,6 @@ import dev.pumpkin.shim.Unimplemented;
 public class ServerFunctionLibrary implements PreparableReloadListener {
 
     public ServerFunctionLibrary(PermissionSet functionCompilationPermissions, CommandDispatcher<CommandSourceStack> dispatcher) {
-        throw Unimplemented.forMember("net/minecraft/server/ServerFunctionLibrary.<init>:(Lnet/minecraft/server/permissions/PermissionSet;Lcom/mojang/brigadier/CommandDispatcher;)V");
     }
 
     public CompletableFuture<Void> reload(PreparableReloadListener.SharedState currentReload, Executor taskExecutor, PreparableReloadListener.PreparationBarrier preparationBarrier, Executor reloadExecutor) {

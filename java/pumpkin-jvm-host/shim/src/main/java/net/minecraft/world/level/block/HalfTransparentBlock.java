@@ -13,7 +13,6 @@ public class HalfTransparentBlock extends Block {
     }
 
     public HalfTransparentBlock(BlockBehaviour.Properties properties) {
-        throw Unimplemented.forMember("net/minecraft/world/level/block/HalfTransparentBlock.<init>:(Lnet/minecraft/world/level/block/state/BlockBehaviour$Properties;)V");
     }
 
     protected boolean skipRendering(BlockState state, BlockState neighborState, Direction direction) {

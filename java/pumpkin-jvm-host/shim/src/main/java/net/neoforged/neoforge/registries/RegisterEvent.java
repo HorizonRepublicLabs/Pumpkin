@@ -12,7 +12,6 @@ import dev.pumpkin.shim.Unimplemented;
 public class RegisterEvent extends Event implements IModBusEvent {
 
     RegisterEvent(ResourceKey<? extends Registry<?>> registryKey, Registry<?> registry) {
-        throw Unimplemented.forMember("net/neoforged/neoforge/registries/RegisterEvent.<init>:(Lnet/minecraft/resources/ResourceKey;Lnet/minecraft/core/Registry;)V");
     }
 
     public <T> void register(ResourceKey<? extends Registry<T>> registryKey, Identifier name, Supplier<T> valueSupplier) {
@@ -29,6 +28,7 @@ public class RegisterEvent extends Event implements IModBusEvent {
     // whose content simply is not there, with nothing to say why.
     public <T> void register(ResourceKey<? extends Registry<T>> registryKey, Consumer<RegisterHelper<T>> consumer) {
         consumer.accept((name, value) -> {
+            DeferredHolder.pumpkinRecordValue(registryKey.identifier().toString(), name, value);
             if (value instanceof net.minecraft.world.level.block.Block block) {
                 net.minecraft.world.level.block.state.BlockBehaviour.Properties props = block.pumpkinProperties();
                 DeferredRegister.pumpkinSink().registerBlock(name.toString(), block.pumpkinTemplate(),

@@ -10,11 +10,9 @@ import dev.pumpkin.shim.Unimplemented;
 public class ClientboundBlockEventPacket implements Packet<ClientGamePacketListener> {
 
     public ClientboundBlockEventPacket(BlockPos pos, Block block, int b0, int b1) {
-        throw Unimplemented.forMember("net/minecraft/network/protocol/game/ClientboundBlockEventPacket.<init>:(Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/Block;II)V");
     }
 
     private ClientboundBlockEventPacket(RegistryFriendlyByteBuf input) {
-        throw Unimplemented.forMember("net/minecraft/network/protocol/game/ClientboundBlockEventPacket.<init>:(Lnet/minecraft/network/RegistryFriendlyByteBuf;)V");
     }
 
     private void write(RegistryFriendlyByteBuf output) {

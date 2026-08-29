@@ -10,7 +10,6 @@ public class PlacementInfo {
     public static final PlacementInfo NOT_PLACEABLE = null;
 
     private PlacementInfo(List<Ingredient> ingredients, IntList slotsToIngredientIndex) {
-        throw Unimplemented.forMember("net/minecraft/world/item/crafting/PlacementInfo.<init>:(Ljava/util/List;Lit/unimi/dsi/fastutil/ints/IntList;)V");
     }
 
     public static PlacementInfo create(Ingredient ingredient) {

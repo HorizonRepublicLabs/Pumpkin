@@ -9,7 +9,6 @@ import dev.pumpkin.shim.Unimplemented;
 public class PathfindingContext {
 
     public PathfindingContext(CollisionGetter level, Mob mob) {
-        throw Unimplemented.forMember("net/minecraft/world/level/pathfinder/PathfindingContext.<init>:(Lnet/minecraft/world/level/CollisionGetter;Lnet/minecraft/world/entity/Mob;)V");
     }
 
     public BlockState getBlockState(BlockPos pos) {

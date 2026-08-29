@@ -10,11 +10,9 @@ import dev.pumpkin.shim.Unimplemented;
 public class ServerboundSetCommandBlockPacket implements Packet<ServerGamePacketListener> {
 
     public ServerboundSetCommandBlockPacket(BlockPos pos, String command, CommandBlockEntity.Mode mode, boolean trackOutput, boolean conditional, boolean automatic) {
-        throw Unimplemented.forMember("net/minecraft/network/protocol/game/ServerboundSetCommandBlockPacket.<init>:(Lnet/minecraft/core/BlockPos;Ljava/lang/String;Lnet/minecraft/world/level/block/entity/CommandBlockEntity$Mode;ZZZ)V");
     }
 
     private ServerboundSetCommandBlockPacket(FriendlyByteBuf input) {
-        throw Unimplemented.forMember("net/minecraft/network/protocol/game/ServerboundSetCommandBlockPacket.<init>:(Lnet/minecraft/network/FriendlyByteBuf;)V");
     }
 
     private void write(FriendlyByteBuf output) {

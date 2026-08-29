@@ -24,7 +24,6 @@ import dev.pumpkin.shim.Unimplemented;
 public class WitherBoss extends Monster implements RangedAttackMob {
 
     public WitherBoss(EntityType<? extends WitherBoss> type, Level level) {
-        throw Unimplemented.forMember("net/minecraft/world/entity/boss/wither/WitherBoss.<init>:(Lnet/minecraft/world/entity/EntityType;Lnet/minecraft/world/level/Level;)V");
     }
 
     protected PathNavigation createNavigation(Level level) {
@@ -122,7 +121,6 @@ public class WitherBoss extends Monster implements RangedAttackMob {
     private class WitherDoNothingGoal extends Goal {
 
         public WitherDoNothingGoal() {
-            throw Unimplemented.forMember("net/minecraft/world/entity/boss/wither/WitherBoss$WitherDoNothingGoal.<init>:()V");
         }
 
         public boolean canUse() {

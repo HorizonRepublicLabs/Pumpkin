@@ -10,11 +10,9 @@ import dev.pumpkin.shim.Unimplemented;
 public class ClientboundRotateHeadPacket implements Packet<ClientGamePacketListener> {
 
     public ClientboundRotateHeadPacket(Entity entity, byte yHeadRot) {
-        throw Unimplemented.forMember("net/minecraft/network/protocol/game/ClientboundRotateHeadPacket.<init>:(Lnet/minecraft/world/entity/Entity;B)V");
     }
 
     private ClientboundRotateHeadPacket(FriendlyByteBuf input) {
-        throw Unimplemented.forMember("net/minecraft/network/protocol/game/ClientboundRotateHeadPacket.<init>:(Lnet/minecraft/network/FriendlyByteBuf;)V");
     }
 
     private void write(FriendlyByteBuf output) {

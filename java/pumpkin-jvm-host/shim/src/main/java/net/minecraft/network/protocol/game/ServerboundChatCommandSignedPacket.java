@@ -12,7 +12,6 @@ public record ServerboundChatCommandSignedPacket(String command, Instant timeSta
 
     private ServerboundChatCommandSignedPacket(FriendlyByteBuf input) {
         this((String) null, (Instant) null, (long) 0L, (ArgumentSignatures) null, (LastSeenMessages.Update) null);
-        throw Unimplemented.forMember("net/minecraft/network/protocol/game/ServerboundChatCommandSignedPacket.<init>:(Lnet/minecraft/network/FriendlyByteBuf;)V");
     }
 
     private void write(FriendlyByteBuf output) {

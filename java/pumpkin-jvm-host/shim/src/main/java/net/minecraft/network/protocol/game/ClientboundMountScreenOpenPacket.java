@@ -8,11 +8,9 @@ import dev.pumpkin.shim.Unimplemented;
 public class ClientboundMountScreenOpenPacket implements Packet<ClientGamePacketListener> {
 
     public ClientboundMountScreenOpenPacket(int containerId, int inventoryColumns, int entityId) {
-        throw Unimplemented.forMember("net/minecraft/network/protocol/game/ClientboundMountScreenOpenPacket.<init>:(III)V");
     }
 
     private ClientboundMountScreenOpenPacket(FriendlyByteBuf input) {
-        throw Unimplemented.forMember("net/minecraft/network/protocol/game/ClientboundMountScreenOpenPacket.<init>:(Lnet/minecraft/network/FriendlyByteBuf;)V");
     }
 
     private void write(FriendlyByteBuf output) {

@@ -8,7 +8,6 @@ import dev.pumpkin.shim.Unimplemented;
 public class LivingDeathEvent extends LivingEvent implements ICancellableEvent {
 
     public LivingDeathEvent(LivingEntity entity, DamageSource source) {
-        throw Unimplemented.forMember("net/neoforged/neoforge/event/entity/living/LivingDeathEvent.<init>:(Lnet/minecraft/world/entity/LivingEntity;Lnet/minecraft/world/damagesource/DamageSource;)V");
     }
 
     public DamageSource getSource() {

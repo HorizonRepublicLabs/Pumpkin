@@ -5,7 +5,6 @@ import dev.pumpkin.shim.Unimplemented;
 public class PathFinder {
 
     public PathFinder(NodeEvaluator nodeEvaluator, int maxVisitedNodes) {
-        throw Unimplemented.forMember("net/minecraft/world/level/pathfinder/PathFinder.<init>:(Lnet/minecraft/world/level/pathfinder/NodeEvaluator;I)V");
     }
 
     protected float distance(Node from, Node to) {

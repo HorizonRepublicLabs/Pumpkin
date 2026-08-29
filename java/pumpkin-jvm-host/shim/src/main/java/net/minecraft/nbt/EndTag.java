@@ -7,7 +7,6 @@ import dev.pumpkin.shim.Unimplemented;
 public final class EndTag implements Tag {
 
     protected EndTag() {
-        throw Unimplemented.forMember("net/minecraft/nbt/EndTag.<init>:()V");
     }
 
     public void write(DataOutput output) throws IOException {

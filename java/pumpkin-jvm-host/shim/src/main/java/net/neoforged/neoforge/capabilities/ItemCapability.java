@@ -16,7 +16,6 @@ public final class ItemCapability<T, C extends Object> extends BaseCapability<T,
     }
 
     private ItemCapability(Identifier name, Class<T> typeClass, Class<C> contextClass) {
-        throw Unimplemented.forMember("net/neoforged/neoforge/capabilities/ItemCapability.<init>:(Lnet/minecraft/resources/Identifier;Ljava/lang/Class;Ljava/lang/Class;)V");
     }
 
     public T getCapability(ItemStack stack, C context) {

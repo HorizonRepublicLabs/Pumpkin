@@ -10,7 +10,6 @@ public class StaticCache2D<T> {
     }
 
     private StaticCache2D(int minX, int minZ, int sizeX, int sizeZ, StaticCache2D.Initializer<T> initializer) {
-        throw Unimplemented.forMember("net/minecraft/util/StaticCache2D.<init>:(IIIILnet/minecraft/util/StaticCache2D$Initializer;)V");
     }
 
     public void forEach(Consumer<T> consumer) {

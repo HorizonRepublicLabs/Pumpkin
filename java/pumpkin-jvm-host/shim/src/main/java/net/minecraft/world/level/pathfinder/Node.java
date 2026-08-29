@@ -5,7 +5,6 @@ import dev.pumpkin.shim.Unimplemented;
 public class Node {
 
     public Node(int x, int y, int z) {
-        throw Unimplemented.forMember("net/minecraft/world/level/pathfinder/Node.<init>:(III)V");
     }
 
     public boolean equals(Object o) {

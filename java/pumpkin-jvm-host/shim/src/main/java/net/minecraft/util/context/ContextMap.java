@@ -6,7 +6,6 @@ import dev.pumpkin.shim.Unimplemented;
 public class ContextMap {
 
     private ContextMap(Map<ContextKey<?>, Object> params) {
-        throw Unimplemented.forMember("net/minecraft/util/context/ContextMap.<init>:(Ljava/util/Map;)V");
     }
 
     public static class Builder {

@@ -9,11 +9,9 @@ import dev.pumpkin.shim.Unimplemented;
 public class ClientboundSetBorderSizePacket implements Packet<ClientGamePacketListener> {
 
     public ClientboundSetBorderSizePacket(WorldBorder border) {
-        throw Unimplemented.forMember("net/minecraft/network/protocol/game/ClientboundSetBorderSizePacket.<init>:(Lnet/minecraft/world/level/border/WorldBorder;)V");
     }
 
     private ClientboundSetBorderSizePacket(FriendlyByteBuf input) {
-        throw Unimplemented.forMember("net/minecraft/network/protocol/game/ClientboundSetBorderSizePacket.<init>:(Lnet/minecraft/network/FriendlyByteBuf;)V");
     }
 
     private void write(FriendlyByteBuf output) {

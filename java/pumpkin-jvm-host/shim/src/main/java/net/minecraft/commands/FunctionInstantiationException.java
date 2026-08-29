@@ -6,7 +6,6 @@ import dev.pumpkin.shim.Unimplemented;
 public class FunctionInstantiationException extends Exception {
 
     public FunctionInstantiationException(Component messageComponent) {
-        throw Unimplemented.forMember("net/minecraft/commands/FunctionInstantiationException.<init>:(Lnet/minecraft/network/chat/Component;)V");
     }
 
     public Component messageComponent() {

@@ -9,11 +9,9 @@ import dev.pumpkin.shim.Unimplemented;
 public class PayloadRegistrar {
 
     public PayloadRegistrar(String version) {
-        throw Unimplemented.forMember("net/neoforged/neoforge/network/registration/PayloadRegistrar.<init>:(Ljava/lang/String;)V");
     }
 
     private PayloadRegistrar(PayloadRegistrar source) {
-        throw Unimplemented.forMember("net/neoforged/neoforge/network/registration/PayloadRegistrar.<init>:(Lnet/neoforged/neoforge/network/registration/PayloadRegistrar;)V");
     }
 
     public <T extends CustomPacketPayload> PayloadRegistrar playToClient(CustomPacketPayload.Type<T> type, StreamCodec<? super RegistryFriendlyByteBuf, T> codec, IPayloadHandler<T> handler) {

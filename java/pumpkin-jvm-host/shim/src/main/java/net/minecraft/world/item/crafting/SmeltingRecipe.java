@@ -7,7 +7,6 @@ import dev.pumpkin.shim.Unimplemented;
 public class SmeltingRecipe extends AbstractCookingRecipe {
 
     public SmeltingRecipe(Recipe.CommonInfo commonInfo, AbstractCookingRecipe.CookingBookInfo bookInfo, Ingredient ingredient, ItemStackTemplate result, float experience, int cookingTime) {
-        throw Unimplemented.forMember("net/minecraft/world/item/crafting/SmeltingRecipe.<init>:(Lnet/minecraft/world/item/crafting/Recipe$CommonInfo;Lnet/minecraft/world/item/crafting/AbstractCookingRecipe$CookingBookInfo;Lnet/minecraft/world/item/crafting/Ingredient;Lnet/minecraft/world/item/ItemStackTemplate;FI)V");
     }
 
     protected Item furnaceIcon() {

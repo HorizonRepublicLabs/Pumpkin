@@ -20,11 +20,9 @@ public abstract class StacksResourceHandler<S, T extends Resource> implements Re
     protected final Codec<NonNullList<S>> codec = null;
 
     protected StacksResourceHandler(int size, S emptyStack, Codec<S> stackCodec) {
-        throw Unimplemented.forMember("net/neoforged/neoforge/transfer/StacksResourceHandler.<init>:(ILjava/lang/Object;Lcom/mojang/serialization/Codec;)V");
     }
 
     protected StacksResourceHandler(NonNullList<S> stacks, S emptyStack, Codec<S> stackCodec) {
-        throw Unimplemented.forMember("net/neoforged/neoforge/transfer/StacksResourceHandler.<init>:(Lnet/minecraft/core/NonNullList;Ljava/lang/Object;Lcom/mojang/serialization/Codec;)V");
     }
 
     private NonNullList<S> mutableCopyOf(Collection<S> list) {
@@ -96,7 +94,6 @@ public abstract class StacksResourceHandler<S, T extends Resource> implements Re
     private class StackJournal extends SnapshotJournal<S> {
 
         private StackJournal(int index) {
-            throw Unimplemented.forMember("net/neoforged/neoforge/transfer/StacksResourceHandler$StackJournal.<init>:(I)V");
         }
 
         protected S createSnapshot() {

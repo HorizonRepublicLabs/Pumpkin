@@ -56,7 +56,6 @@ public interface HolderSet<T> extends Iterable<Holder<T>>, IHolderSetExtension<T
     final class Direct<T> extends HolderSet.ListBacked<T> {
 
         private Direct(List<Holder<T>> contents) {
-            throw Unimplemented.forMember("net/minecraft/core/HolderSet$Direct.<init>:(Ljava/util/List;)V");
         }
 
         protected List<Holder<T>> contents() {
@@ -134,7 +133,6 @@ public interface HolderSet<T> extends Iterable<Holder<T>>, IHolderSetExtension<T
     class Named<T> extends HolderSet.ListBacked<T> {
 
         Named(HolderOwner<T> owner, TagKey<T> key) {
-            throw Unimplemented.forMember("net/minecraft/core/HolderSet$Named.<init>:(Lnet/minecraft/core/HolderOwner;Lnet/minecraft/tags/TagKey;)V");
         }
 
         public TagKey<T> key() {

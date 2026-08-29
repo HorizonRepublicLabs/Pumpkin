@@ -10,7 +10,6 @@ public record ClientboundStoreCookiePacket(Identifier key, byte[] payload) imple
 
     private ClientboundStoreCookiePacket(FriendlyByteBuf input) {
         this((Identifier) null, (byte[]) null);
-        throw Unimplemented.forMember("net/minecraft/network/protocol/common/ClientboundStoreCookiePacket.<init>:(Lnet/minecraft/network/FriendlyByteBuf;)V");
     }
 
     private void write(FriendlyByteBuf output) {

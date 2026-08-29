@@ -12,7 +12,6 @@ public record ServerboundChatPacket(String message, Instant timeStamp, long salt
 
     private ServerboundChatPacket(FriendlyByteBuf input) {
         this((String) null, (Instant) null, (long) 0L, (MessageSignature) null, (LastSeenMessages.Update) null);
-        throw Unimplemented.forMember("net/minecraft/network/protocol/game/ServerboundChatPacket.<init>:(Lnet/minecraft/network/FriendlyByteBuf;)V");
     }
 
     private void write(FriendlyByteBuf output) {

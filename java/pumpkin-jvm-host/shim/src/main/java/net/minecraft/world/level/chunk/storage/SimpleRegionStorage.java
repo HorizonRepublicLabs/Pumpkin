@@ -14,7 +14,6 @@ import dev.pumpkin.shim.Unimplemented;
 public class SimpleRegionStorage implements AutoCloseable {
 
     public SimpleRegionStorage(RegionStorageInfo info, Path folder, DataFixer fixerUpper, boolean syncWrites, DataFixTypes dataFixType) {
-        throw Unimplemented.forMember("net/minecraft/world/level/chunk/storage/SimpleRegionStorage.<init>:(Lnet/minecraft/world/level/chunk/storage/RegionStorageInfo;Ljava/nio/file/Path;Lcom/mojang/datafixers/DataFixer;ZLnet/minecraft/util/datafix/DataFixTypes;)V");
     }
 
     public CompletableFuture<Optional<CompoundTag>> read(ChunkPos pos) {

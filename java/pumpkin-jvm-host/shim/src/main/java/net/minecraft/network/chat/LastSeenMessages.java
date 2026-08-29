@@ -16,7 +16,6 @@ public record LastSeenMessages(List<MessageSignature> entries) {
 
         public Packed(FriendlyByteBuf input) {
             this((List<MessageSignature.Packed>) null);
-            throw Unimplemented.forMember("net/minecraft/network/chat/LastSeenMessages$Packed.<init>:(Lnet/minecraft/network/FriendlyByteBuf;)V");
         }
 
         public void write(FriendlyByteBuf output) {
@@ -32,7 +31,6 @@ public record LastSeenMessages(List<MessageSignature> entries) {
 
         public Update(FriendlyByteBuf input) {
             this((int) 0, (BitSet) null, (byte) 0);
-            throw Unimplemented.forMember("net/minecraft/network/chat/LastSeenMessages$Update.<init>:(Lnet/minecraft/network/FriendlyByteBuf;)V");
         }
 
         public void write(FriendlyByteBuf output) {

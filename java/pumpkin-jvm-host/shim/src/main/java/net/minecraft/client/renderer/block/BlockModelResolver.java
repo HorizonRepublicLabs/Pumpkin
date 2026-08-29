@@ -8,7 +8,6 @@ import dev.pumpkin.shim.Unimplemented;
 public class BlockModelResolver {
 
     public BlockModelResolver(ModelManager modelManager) {
-        throw Unimplemented.forMember("net/minecraft/client/renderer/block/BlockModelResolver.<init>:(Lnet/minecraft/client/resources/model/ModelManager;)V");
     }
 
     public void update(BlockModelRenderState renderState, BlockState blockState, BlockDisplayContext displayContext) {

@@ -5,7 +5,6 @@ import dev.pumpkin.shim.Unimplemented;
 public abstract class AbstractSampleLogger implements SampleLogger {
 
     protected AbstractSampleLogger(int dimensions, long[] defaults) {
-        throw Unimplemented.forMember("net/minecraft/util/debugchart/AbstractSampleLogger.<init>:(I[J)V");
     }
 
     public void logFullSample(long[] sample) {

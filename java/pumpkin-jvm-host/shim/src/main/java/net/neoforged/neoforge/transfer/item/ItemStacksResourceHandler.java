@@ -8,11 +8,9 @@ import dev.pumpkin.shim.Unimplemented;
 public class ItemStacksResourceHandler extends StacksResourceHandler<ItemStack, ItemResource> {
 
     public ItemStacksResourceHandler(int size) {
-        throw Unimplemented.forMember("net/neoforged/neoforge/transfer/item/ItemStacksResourceHandler.<init>:(I)V");
     }
 
     public ItemStacksResourceHandler(NonNullList<ItemStack> stacks) {
-        throw Unimplemented.forMember("net/neoforged/neoforge/transfer/item/ItemStacksResourceHandler.<init>:(Lnet/minecraft/core/NonNullList;)V");
     }
 
     public ItemResource getResourceFrom(ItemStack stack) {

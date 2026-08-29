@@ -9,7 +9,6 @@ import dev.pumpkin.shim.Unimplemented;
 public abstract class BlockableEventLoop<R extends Runnable> implements Executor, TaskScheduler<R>, ProfilerMeasured {
 
     protected BlockableEventLoop(String name, boolean propagatesCrashes) {
-        throw Unimplemented.forMember("net/minecraft/util/thread/BlockableEventLoop.<init>:(Ljava/lang/String;Z)V");
     }
 
     protected abstract boolean shouldRun(final R task);

@@ -19,15 +19,12 @@ public class Vec3 implements Position {
     }
 
     public Vec3(double x, double y, double z) {
-        throw Unimplemented.forMember("net/minecraft/world/phys/Vec3.<init>:(DDD)V");
     }
 
     public Vec3(Vector3fc vec) {
-        throw Unimplemented.forMember("net/minecraft/world/phys/Vec3.<init>:(Lorg/joml/Vector3fc;)V");
     }
 
     public Vec3(Vec3i vec) {
-        throw Unimplemented.forMember("net/minecraft/world/phys/Vec3.<init>:(Lnet/minecraft/core/Vec3i;)V");
     }
 
     public Vec3 add(double value) {

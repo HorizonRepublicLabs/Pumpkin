@@ -9,11 +9,9 @@ import dev.pumpkin.shim.Unimplemented;
 public final class Transformation implements ITransformationExtension {
 
     public Transformation(Matrix4fc matrix) {
-        throw Unimplemented.forMember("com/mojang/math/Transformation.<init>:(Lorg/joml/Matrix4fc;)V");
     }
 
     public Transformation(Vector3fc translation, Quaternionfc leftRotation, Vector3fc scale, Quaternionfc rightRotation) {
-        throw Unimplemented.forMember("com/mojang/math/Transformation.<init>:(Lorg/joml/Vector3fc;Lorg/joml/Quaternionfc;Lorg/joml/Vector3fc;Lorg/joml/Quaternionfc;)V");
     }
 
     public Transformation inverse() {

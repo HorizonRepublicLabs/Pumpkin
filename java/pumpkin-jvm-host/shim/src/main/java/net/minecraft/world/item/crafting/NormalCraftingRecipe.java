@@ -9,7 +9,6 @@ public abstract class NormalCraftingRecipe implements CraftingRecipe {
     protected final CraftingRecipe.CraftingBookInfo bookInfo = null;
 
     protected NormalCraftingRecipe(Recipe.CommonInfo commonInfo, CraftingRecipe.CraftingBookInfo bookInfo) {
-        throw Unimplemented.forMember("net/minecraft/world/item/crafting/NormalCraftingRecipe.<init>:(Lnet/minecraft/world/item/crafting/Recipe$CommonInfo;Lnet/minecraft/world/item/crafting/CraftingRecipe$CraftingBookInfo;)V");
     }
 
     public abstract RecipeSerializer<? extends NormalCraftingRecipe> getSerializer();

@@ -8,7 +8,6 @@ import dev.pumpkin.shim.Unimplemented;
 public abstract class GameTestInstance {
 
     protected GameTestInstance(TestData<Holder<TestEnvironmentDefinition<?>>> info) {
-        throw Unimplemented.forMember("net/minecraft/gametest/framework/GameTestInstance.<init>:(Lnet/minecraft/gametest/framework/TestData;)V");
     }
 
     public abstract void run(GameTestHelper helper);

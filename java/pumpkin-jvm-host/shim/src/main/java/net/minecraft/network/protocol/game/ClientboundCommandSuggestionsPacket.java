@@ -12,7 +12,6 @@ public record ClientboundCommandSuggestionsPacket(int id, int start, int length,
 
     public ClientboundCommandSuggestionsPacket(int id, Suggestions suggestions) {
         this((int) 0, (int) 0, (int) 0, (List<ClientboundCommandSuggestionsPacket.Entry>) null);
-        throw Unimplemented.forMember("net/minecraft/network/protocol/game/ClientboundCommandSuggestionsPacket.<init>:(ILcom/mojang/brigadier/suggestion/Suggestions;)V");
     }
 
     public PacketType<ClientboundCommandSuggestionsPacket> type() {

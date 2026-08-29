@@ -7,7 +7,6 @@ import dev.pumpkin.shim.Unimplemented;
 public class MessageSignatureCache {
 
     public MessageSignatureCache(int capacity) {
-        throw Unimplemented.forMember("net/minecraft/network/chat/MessageSignatureCache.<init>:(I)V");
     }
 
     public int pack(MessageSignature signature) {

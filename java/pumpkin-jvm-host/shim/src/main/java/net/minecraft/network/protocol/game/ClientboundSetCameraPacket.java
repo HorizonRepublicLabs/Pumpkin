@@ -10,11 +10,9 @@ import dev.pumpkin.shim.Unimplemented;
 public class ClientboundSetCameraPacket implements Packet<ClientGamePacketListener> {
 
     public ClientboundSetCameraPacket(Entity camera) {
-        throw Unimplemented.forMember("net/minecraft/network/protocol/game/ClientboundSetCameraPacket.<init>:(Lnet/minecraft/world/entity/Entity;)V");
     }
 
     private ClientboundSetCameraPacket(FriendlyByteBuf input) {
-        throw Unimplemented.forMember("net/minecraft/network/protocol/game/ClientboundSetCameraPacket.<init>:(Lnet/minecraft/network/FriendlyByteBuf;)V");
     }
 
     private void write(FriendlyByteBuf output) {

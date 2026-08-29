@@ -15,7 +15,6 @@ public final class BlockCapability<T, C extends Object> extends BaseCapability<T
     }
 
     private BlockCapability(Identifier name, Class<T> typeClass, Class<C> contextClass) {
-        throw Unimplemented.forMember("net/neoforged/neoforge/capabilities/BlockCapability.<init>:(Lnet/minecraft/resources/Identifier;Ljava/lang/Class;Ljava/lang/Class;)V");
     }
 
     public BlockCapability() {

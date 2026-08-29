@@ -8,7 +8,6 @@ import dev.pumpkin.shim.Unimplemented;
 public class SimpleParticleType extends ParticleType<SimpleParticleType> implements ParticleOptions {
 
     public SimpleParticleType(boolean overrideLimiter) {
-        throw Unimplemented.forMember("net/minecraft/core/particles/SimpleParticleType.<init>:(Z)V");
     }
 
     public SimpleParticleType getType() {

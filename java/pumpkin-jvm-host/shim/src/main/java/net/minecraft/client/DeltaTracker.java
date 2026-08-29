@@ -14,7 +14,6 @@ public interface DeltaTracker {
     class DefaultValue implements DeltaTracker {
 
         private DefaultValue(float value) {
-            throw Unimplemented.forMember("net/minecraft/client/DeltaTracker$DefaultValue.<init>:(F)V");
         }
 
         public float getGameTimeDeltaTicks() {
@@ -36,7 +35,6 @@ public interface DeltaTracker {
     class Timer implements DeltaTracker {
 
         public Timer(float ticksPerSecond, long currentMs, FloatUnaryOperator targetMsptProvider) {
-            throw Unimplemented.forMember("net/minecraft/client/DeltaTracker$Timer.<init>:(FJLit/unimi/dsi/fastutil/floats/FloatUnaryOperator;)V");
         }
 
         public float getGameTimeDeltaTicks() {

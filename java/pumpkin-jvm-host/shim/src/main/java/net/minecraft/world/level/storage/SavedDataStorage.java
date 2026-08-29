@@ -10,11 +10,9 @@ import dev.pumpkin.shim.Unimplemented;
 public class SavedDataStorage implements AutoCloseable {
 
     public SavedDataStorage(Path dataFolder, DataFixer fixerUpper, HolderLookup.Provider registries) {
-        throw Unimplemented.forMember("net/minecraft/world/level/storage/SavedDataStorage.<init>:(Ljava/nio/file/Path;Lcom/mojang/datafixers/DataFixer;Lnet/minecraft/core/HolderLookup$Provider;)V");
     }
 
     public SavedDataStorage(net.minecraft.server.level.ServerLevel level, Path dataFolder, DataFixer fixerUpper, HolderLookup.Provider registries) {
-        throw Unimplemented.forMember("net/minecraft/world/level/storage/SavedDataStorage.<init>:(Lnet/minecraft/server/level/ServerLevel;Ljava/nio/file/Path;Lcom/mojang/datafixers/DataFixer;Lnet/minecraft/core/HolderLookup$Provider;)V");
     }
 
     public <T extends SavedData> T get(SavedDataType<T> type) {

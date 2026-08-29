@@ -10,11 +10,9 @@ import dev.pumpkin.shim.Unimplemented;
 public class ClientboundBlockUpdatePacket implements Packet<ClientGamePacketListener> {
 
     public ClientboundBlockUpdatePacket(BlockPos pos, BlockState state) {
-        throw Unimplemented.forMember("net/minecraft/network/protocol/game/ClientboundBlockUpdatePacket.<init>:(Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/state/BlockState;)V");
     }
 
     public ClientboundBlockUpdatePacket(BlockGetter level, BlockPos pos) {
-        throw Unimplemented.forMember("net/minecraft/network/protocol/game/ClientboundBlockUpdatePacket.<init>:(Lnet/minecraft/world/level/BlockGetter;Lnet/minecraft/core/BlockPos;)V");
     }
 
     public PacketType<ClientboundBlockUpdatePacket> type() {

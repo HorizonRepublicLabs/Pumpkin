@@ -36,7 +36,6 @@ public abstract class LivingEntity extends Entity implements Attackable, Waypoin
     public float zza;
 
     protected LivingEntity(EntityType<? extends LivingEntity> type, Level level) {
-        throw Unimplemented.forMember("net/minecraft/world/entity/LivingEntity.<init>:(Lnet/minecraft/world/entity/EntityType;Lnet/minecraft/world/level/Level;)V");
     }
 
     public LivingEntity asLivingEntity() {

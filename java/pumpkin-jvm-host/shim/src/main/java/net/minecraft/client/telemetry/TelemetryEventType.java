@@ -8,7 +8,6 @@ import dev.pumpkin.shim.Unimplemented;
 public class TelemetryEventType {
 
     private TelemetryEventType(String id, String exportKey, List<TelemetryProperty<?>> properties, boolean isOptIn) {
-        throw Unimplemented.forMember("net/minecraft/client/telemetry/TelemetryEventType.<init>:(Ljava/lang/String;Ljava/lang/String;Ljava/util/List;Z)V");
     }
 
     public String id() {
@@ -34,7 +33,6 @@ public class TelemetryEventType {
     public static class Builder {
 
         private Builder(String id, String exportKey) {
-            throw Unimplemented.forMember("net/minecraft/client/telemetry/TelemetryEventType$Builder.<init>:(Ljava/lang/String;Ljava/lang/String;)V");
         }
 
         public Builder() {

@@ -11,11 +11,9 @@ import dev.pumpkin.shim.Unimplemented;
 public class ClientboundSectionBlocksUpdatePacket implements Packet<ClientGamePacketListener> {
 
     public ClientboundSectionBlocksUpdatePacket(SectionPos sectionPos, ShortSet changes, LevelChunkSection section) {
-        throw Unimplemented.forMember("net/minecraft/network/protocol/game/ClientboundSectionBlocksUpdatePacket.<init>:(Lnet/minecraft/core/SectionPos;Lit/unimi/dsi/fastutil/shorts/ShortSet;Lnet/minecraft/world/level/chunk/LevelChunkSection;)V");
     }
 
     private ClientboundSectionBlocksUpdatePacket(FriendlyByteBuf input) {
-        throw Unimplemented.forMember("net/minecraft/network/protocol/game/ClientboundSectionBlocksUpdatePacket.<init>:(Lnet/minecraft/network/FriendlyByteBuf;)V");
     }
 
     private void write(FriendlyByteBuf output) {

@@ -50,7 +50,6 @@ import dev.pumpkin.shim.Unimplemented;
 public class FriendlyByteBuf extends ByteBuf implements IFriendlyByteBufExtension {
 
     public FriendlyByteBuf(ByteBuf source) {
-        throw Unimplemented.forMember("net/minecraft/network/FriendlyByteBuf.<init>:(Lio/netty/buffer/ByteBuf;)V");
     }
 
     public <T> T readWithCodecTrusted(DynamicOps<Tag> ops, Codec<T> codec) {

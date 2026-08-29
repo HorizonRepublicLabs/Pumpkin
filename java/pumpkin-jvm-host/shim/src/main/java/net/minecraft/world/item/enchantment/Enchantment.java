@@ -56,7 +56,6 @@ public record Enchantment(Component description, Enchantment.EnchantmentDefiniti
     public static class Builder {
 
         public Builder(Enchantment.EnchantmentDefinition definition) {
-            throw Unimplemented.forMember("net/minecraft/world/item/enchantment/Enchantment$Builder.<init>:(Lnet/minecraft/world/item/enchantment/Enchantment$EnchantmentDefinition;)V");
         }
 
         public Builder() {

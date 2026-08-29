@@ -11,7 +11,6 @@ import dev.pumpkin.shim.Unimplemented;
 public class LevelStorageSource {
 
     public LevelStorageSource(Path baseDir, Path backupDir, DirectoryValidator worldDirValidator, DataFixer fixerUpper) {
-        throw Unimplemented.forMember("net/minecraft/world/level/storage/LevelStorageSource.<init>:(Ljava/nio/file/Path;Ljava/nio/file/Path;Lnet/minecraft/world/level/validation/DirectoryValidator;Lcom/mojang/datafixers/DataFixer;)V");
     }
 
     public String getName() {
@@ -35,7 +34,6 @@ public class LevelStorageSource {
     public class LevelStorageAccess implements AutoCloseable {
 
         private LevelStorageAccess(String levelId, Path path) throws IOException {
-            throw Unimplemented.forMember("net/minecraft/world/level/storage/LevelStorageSource$LevelStorageAccess.<init>:(Ljava/lang/String;Ljava/nio/file/Path;)V");
         }
 
         public LevelStorageSource parent() {

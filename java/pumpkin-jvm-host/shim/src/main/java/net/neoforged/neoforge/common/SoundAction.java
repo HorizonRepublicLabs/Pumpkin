@@ -9,7 +9,6 @@ public final class SoundAction {
     }
 
     private SoundAction(final String name) {
-        throw Unimplemented.forMember("net/neoforged/neoforge/common/SoundAction.<init>:(Ljava/lang/String;)V");
     }
 
     public String name() {

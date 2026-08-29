@@ -11,7 +11,6 @@ import dev.pumpkin.shim.Unimplemented;
 public class BlockSnapshot {
 
     private BlockSnapshot(ResourceKey<Level> dim, LevelAccessor level, BlockPos pos, BlockState state, CompoundTag nbt, int flags) {
-        throw Unimplemented.forMember("net/neoforged/neoforge/common/util/BlockSnapshot.<init>:(Lnet/minecraft/resources/ResourceKey;Lnet/minecraft/world/level/LevelAccessor;Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/state/BlockState;Lnet/minecraft/nbt/CompoundTag;I)V");
     }
 
     public static BlockSnapshot create(ResourceKey<Level> dim, LevelAccessor level, BlockPos pos, int flag) {

@@ -14,11 +14,9 @@ import dev.pumpkin.shim.Unimplemented;
 public class ServerboundSetStructureBlockPacket implements Packet<ServerGamePacketListener> {
 
     public ServerboundSetStructureBlockPacket(BlockPos pos, StructureBlockEntity.UpdateType updateType, StructureMode mode, String name, BlockPos offset, Vec3i size, Mirror mirror, Rotation rotation, String data, boolean ignoreEntities, boolean strict, boolean showAir, boolean showBoundingBox, float integrity, long seed) {
-        throw Unimplemented.forMember("net/minecraft/network/protocol/game/ServerboundSetStructureBlockPacket.<init>:(Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/entity/StructureBlockEntity$UpdateType;Lnet/minecraft/world/level/block/state/properties/StructureMode;Ljava/lang/String;Lnet/minecraft/core/BlockPos;Lnet/minecraft/core/Vec3i;Lnet/minecraft/world/level/block/Mirror;Lnet/minecraft/world/level/block/Rotation;Ljava/lang/String;ZZZZFJ)V");
     }
 
     private ServerboundSetStructureBlockPacket(FriendlyByteBuf input) {
-        throw Unimplemented.forMember("net/minecraft/network/protocol/game/ServerboundSetStructureBlockPacket.<init>:(Lnet/minecraft/network/FriendlyByteBuf;)V");
     }
 
     private void write(FriendlyByteBuf output) {

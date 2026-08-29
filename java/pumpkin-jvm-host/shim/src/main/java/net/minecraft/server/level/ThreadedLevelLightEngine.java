@@ -13,7 +13,6 @@ import dev.pumpkin.shim.Unimplemented;
 public class ThreadedLevelLightEngine extends LevelLightEngine implements AutoCloseable {
 
     public ThreadedLevelLightEngine(LightChunkGetter lightChunkGetter, ChunkMap chunkMap, boolean hasSkyLight, ConsecutiveExecutor consecutiveExecutor, ChunkTaskDispatcher taskDispatcher) {
-        throw Unimplemented.forMember("net/minecraft/server/level/ThreadedLevelLightEngine.<init>:(Lnet/minecraft/world/level/chunk/LightChunkGetter;Lnet/minecraft/server/level/ChunkMap;ZLnet/minecraft/util/thread/ConsecutiveExecutor;Lnet/minecraft/server/level/ChunkTaskDispatcher;)V");
     }
 
     public void close() {

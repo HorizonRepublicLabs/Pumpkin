@@ -31,7 +31,6 @@ public class NonNullList<E> extends AbstractList<E> {
     }
 
     protected NonNullList(List<E> list, E defaultValue) {
-        throw Unimplemented.forMember("net/minecraft/core/NonNullList.<init>:(Ljava/util/List;Ljava/lang/Object;)V");
     }
 
     public E get(int index) {

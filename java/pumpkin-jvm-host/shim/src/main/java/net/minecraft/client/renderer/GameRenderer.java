@@ -13,7 +13,6 @@ public class GameRenderer implements AutoCloseable, TrackedWaypoint.Projector {
     private final GameRenderState gameRenderState = null;
 
     public GameRenderer(Minecraft minecraft, ItemInHandRenderer itemInHandRenderer, ModelManager modelManager) {
-        throw Unimplemented.forMember("net/minecraft/client/renderer/GameRenderer.<init>:(Lnet/minecraft/client/Minecraft;Lnet/minecraft/client/renderer/ItemInHandRenderer;Lnet/minecraft/client/resources/model/ModelManager;)V");
     }
 
     public void close() {

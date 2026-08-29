@@ -51,31 +51,24 @@ public final class ItemStack implements DataComponentHolder, ItemInstance, IItem
     }
 
     public ItemStack(ItemLike item, int count) {
-        throw Unimplemented.forMember("net/minecraft/world/item/ItemStack.<init>:(Lnet/minecraft/world/level/ItemLike;I)V");
     }
 
     public ItemStack(ItemLike item) {
-        throw Unimplemented.forMember("net/minecraft/world/item/ItemStack.<init>:(Lnet/minecraft/world/level/ItemLike;)V");
     }
 
     public ItemStack(Holder<Item> item, int count) {
-        throw Unimplemented.forMember("net/minecraft/world/item/ItemStack.<init>:(Lnet/minecraft/core/Holder;I)V");
     }
 
     public ItemStack(Holder<Item> item) {
-        throw Unimplemented.forMember("net/minecraft/world/item/ItemStack.<init>:(Lnet/minecraft/core/Holder;)V");
     }
 
     public ItemStack(Holder<Item> item, int count, DataComponentPatch components) {
-        throw Unimplemented.forMember("net/minecraft/world/item/ItemStack.<init>:(Lnet/minecraft/core/Holder;ILnet/minecraft/core/component/DataComponentPatch;)V");
     }
 
     private ItemStack(Holder<Item> item, int count, PatchedDataComponentMap components) {
-        throw Unimplemented.forMember("net/minecraft/world/item/ItemStack.<init>:(Lnet/minecraft/core/Holder;ILnet/minecraft/core/component/PatchedDataComponentMap;)V");
     }
 
     private ItemStack(Void nullMarker) {
-        throw Unimplemented.forMember("net/minecraft/world/item/ItemStack.<init>:(Ljava/lang/Void;)V");
     }
 
     public boolean isEmpty() {

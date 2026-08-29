@@ -6,7 +6,6 @@ import dev.pumpkin.shim.Unimplemented;
 public class RenderType {
 
     private RenderType(String name, RenderSetup state) {
-        throw Unimplemented.forMember("net/minecraft/client/renderer/rendertype/RenderType.<init>:(Ljava/lang/String;Lnet/minecraft/client/renderer/rendertype/RenderSetup;)V");
     }
 
     public static RenderType create(String name, RenderSetup state) {

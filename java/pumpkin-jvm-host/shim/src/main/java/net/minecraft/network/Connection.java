@@ -26,7 +26,6 @@ import dev.pumpkin.shim.Unimplemented;
 public class Connection extends SimpleChannelInboundHandler<Packet<?>> {
 
     public Connection(PacketFlow receiving) {
-        throw Unimplemented.forMember("net/minecraft/network/Connection.<init>:(Lnet/minecraft/network/protocol/PacketFlow;)V");
     }
 
     public void channelActive(ChannelHandlerContext ctx) throws Exception {

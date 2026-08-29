@@ -5,11 +5,9 @@ import dev.pumpkin.shim.Unimplemented;
 public class LocalSampleLogger extends AbstractSampleLogger implements SampleStorage {
 
     public LocalSampleLogger(int dimensions) {
-        throw Unimplemented.forMember("net/minecraft/util/debugchart/LocalSampleLogger.<init>:(I)V");
     }
 
     public LocalSampleLogger(int dimensions, long[] defaults) {
-        throw Unimplemented.forMember("net/minecraft/util/debugchart/LocalSampleLogger.<init>:(I[J)V");
     }
 
     protected void useSample() {

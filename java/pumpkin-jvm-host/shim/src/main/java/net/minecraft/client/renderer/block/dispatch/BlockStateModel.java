@@ -20,7 +20,6 @@ public interface BlockStateModel extends BlockStateModelExtension {
     class SimpleCachedUnbakedRoot implements BlockStateModel.UnbakedRoot {
 
         public SimpleCachedUnbakedRoot(BlockStateModel.Unbaked contents) {
-            throw Unimplemented.forMember("net/minecraft/client/renderer/block/dispatch/BlockStateModel$SimpleCachedUnbakedRoot.<init>:(Lnet/minecraft/client/renderer/block/dispatch/BlockStateModel$Unbaked;)V");
         }
 
         public void resolveDependencies(ResolvableModel.Resolver resolver) {

@@ -7,7 +7,6 @@ import dev.pumpkin.shim.Unimplemented;
 public class ChatAbilities {
 
     private ChatAbilities(Set<ChatRestriction> restrictionReasons) {
-        throw Unimplemented.forMember("net/minecraft/client/multiplayer/chat/ChatAbilities.<init>:(Ljava/util/Set;)V");
     }
 
     public PermissionSet permissions() {

@@ -9,7 +9,6 @@ import dev.pumpkin.shim.Unimplemented;
 public class OnDatapackSyncEvent extends Event {
 
     public OnDatapackSyncEvent(PlayerList playerList, ServerPlayer player) {
-        throw Unimplemented.forMember("net/neoforged/neoforge/event/OnDatapackSyncEvent.<init>:(Lnet/minecraft/server/players/PlayerList;Lnet/minecraft/server/level/ServerPlayer;)V");
     }
 
     public ServerPlayer getPlayer() {

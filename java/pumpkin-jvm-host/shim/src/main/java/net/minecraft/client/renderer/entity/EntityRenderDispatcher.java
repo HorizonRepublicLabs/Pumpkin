@@ -25,7 +25,6 @@ import dev.pumpkin.shim.Unimplemented;
 public class EntityRenderDispatcher implements ResourceManagerReloadListener {
 
     public EntityRenderDispatcher(Minecraft minecraft, TextureManager textureManager, BlockModelResolver blockModelResolver, ItemModelResolver itemModelResolver, MapRenderer mapRenderer, AtlasManager atlasManager, Font font, Options options, Supplier<EntityModelSet> entityModels, EquipmentAssetManager equipmentAssets, PlayerSkinRenderCache playerSkinRenderCache) {
-        throw Unimplemented.forMember("net/minecraft/client/renderer/entity/EntityRenderDispatcher.<init>:(Lnet/minecraft/client/Minecraft;Lnet/minecraft/client/renderer/texture/TextureManager;Lnet/minecraft/client/renderer/block/BlockModelResolver;Lnet/minecraft/client/renderer/item/ItemModelResolver;Lnet/minecraft/client/renderer/MapRenderer;Lnet/minecraft/client/resources/model/sprite/AtlasManager;Lnet/minecraft/client/gui/Font;Lnet/minecraft/client/Options;Ljava/util/function/Supplier;Lnet/minecraft/client/resources/model/EquipmentAssetManager;Lnet/minecraft/client/renderer/PlayerSkinRenderCache;)V");
     }
 
     public void prepare(Camera camera, Entity crosshairPickEntity) {

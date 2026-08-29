@@ -7,7 +7,6 @@ import dev.pumpkin.shim.Unimplemented;
 public class NarrationThunk<T> {
 
     private NarrationThunk(T contents, BiConsumer<Consumer<String>, T> converter) {
-        throw Unimplemented.forMember("net/minecraft/client/gui/narration/NarrationThunk.<init>:(Ljava/lang/Object;Ljava/util/function/BiConsumer;)V");
     }
 
     public boolean equals(Object o) {

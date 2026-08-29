@@ -8,7 +8,6 @@ import dev.pumpkin.shim.Unimplemented;
 public abstract class AbstractTickableSoundInstance extends AbstractSoundInstance implements TickableSoundInstance {
 
     protected AbstractTickableSoundInstance(SoundEvent event, SoundSource source, RandomSource random) {
-        throw Unimplemented.forMember("net/minecraft/client/resources/sounds/AbstractTickableSoundInstance.<init>:(Lnet/minecraft/sounds/SoundEvent;Lnet/minecraft/sounds/SoundSource;Lnet/minecraft/util/RandomSource;)V");
     }
 
     public boolean isStopped() {

@@ -5,7 +5,6 @@ import dev.pumpkin.shim.Unimplemented;
 public class Vec2 {
 
     public Vec2(float x, float y) {
-        throw Unimplemented.forMember("net/minecraft/world/phys/Vec2.<init>:(FF)V");
     }
 
     public Vec2 add(Vec2 rhs) {

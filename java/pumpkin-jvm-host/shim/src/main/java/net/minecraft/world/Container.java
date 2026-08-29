@@ -37,7 +37,6 @@ public interface Container extends Clearable, Iterable<ItemStack>, SlotProvider,
     class ContainerIterator implements Iterator<ItemStack> {
 
         public ContainerIterator(Container container) {
-            throw Unimplemented.forMember("net/minecraft/world/Container$ContainerIterator.<init>:(Lnet/minecraft/world/Container;)V");
         }
 
         public boolean hasNext() {

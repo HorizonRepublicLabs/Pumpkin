@@ -17,11 +17,9 @@ import dev.pumpkin.shim.Unimplemented;
 public class ClientboundCommandsPacket implements Packet<ClientGamePacketListener> {
 
     public <S> ClientboundCommandsPacket(RootCommandNode<S> root, ClientboundCommandsPacket.NodeInspector<S> inspector) {
-        throw Unimplemented.forMember("net/minecraft/network/protocol/game/ClientboundCommandsPacket.<init>:(Lcom/mojang/brigadier/tree/RootCommandNode;Lnet/minecraft/network/protocol/game/ClientboundCommandsPacket$NodeInspector;)V");
     }
 
     private ClientboundCommandsPacket(FriendlyByteBuf input) {
-        throw Unimplemented.forMember("net/minecraft/network/protocol/game/ClientboundCommandsPacket.<init>:(Lnet/minecraft/network/FriendlyByteBuf;)V");
     }
 
     private void write(FriendlyByteBuf output) {
@@ -90,7 +88,6 @@ public class ClientboundCommandsPacket implements Packet<ClientGamePacketListene
     private static class NodeResolver<S> {
 
         private NodeResolver(CommandBuildContext context, ClientboundCommandsPacket.NodeBuilder<S> builder, List<ClientboundCommandsPacket.Entry> entries) {
-            throw Unimplemented.forMember("net/minecraft/network/protocol/game/ClientboundCommandsPacket$NodeResolver.<init>:(Lnet/minecraft/commands/CommandBuildContext;Lnet/minecraft/network/protocol/game/ClientboundCommandsPacket$NodeBuilder;Ljava/util/List;)V");
         }
 
         public CommandNode<S> resolve(int index) {

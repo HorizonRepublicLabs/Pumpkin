@@ -5,7 +5,6 @@ import dev.pumpkin.shim.Unimplemented;
 public final class Scope {
 
     public Scope() {
-        throw Unimplemented.forMember("net/minecraft/util/parsing/packrat/Scope.<init>:()V");
     }
 
     public <T> T get(Atom<T> name) {

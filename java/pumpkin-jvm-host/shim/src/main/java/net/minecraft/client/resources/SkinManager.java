@@ -17,7 +17,6 @@ import dev.pumpkin.shim.Unimplemented;
 public class SkinManager {
 
     public SkinManager(Path skinsDirectory, Services services, SkinTextureDownloader skinTextureDownloader, Executor mainThreadExecutor) {
-        throw Unimplemented.forMember("net/minecraft/client/resources/SkinManager.<init>:(Ljava/nio/file/Path;Lnet/minecraft/server/Services;Lnet/minecraft/client/renderer/texture/SkinTextureDownloader;Ljava/util/concurrent/Executor;)V");
     }
 
     public CompletableFuture<Optional<PlayerSkin>> get(GameProfile profile) {
@@ -30,7 +29,6 @@ public class SkinManager {
     private class TextureCache {
 
         private TextureCache(Path root, Type type) {
-            throw Unimplemented.forMember("net/minecraft/client/resources/SkinManager$TextureCache.<init>:(Ljava/nio/file/Path;Lcom/mojang/authlib/minecraft/MinecraftProfileTexture$Type;)V");
         }
 
         private Identifier getTextureLocation(String textureHash) {

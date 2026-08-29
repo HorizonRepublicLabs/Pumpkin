@@ -8,7 +8,6 @@ import dev.pumpkin.shim.Unimplemented;
 public class BlockStateModelSet {
 
     public BlockStateModelSet(Map<BlockState, BlockStateModel> modelByState, BlockStateModel missingModel) {
-        throw Unimplemented.forMember("net/minecraft/client/renderer/block/BlockStateModelSet.<init>:(Ljava/util/Map;Lnet/minecraft/client/renderer/block/dispatch/BlockStateModel;)V");
     }
 
     public BlockStateModel get(BlockState state) {

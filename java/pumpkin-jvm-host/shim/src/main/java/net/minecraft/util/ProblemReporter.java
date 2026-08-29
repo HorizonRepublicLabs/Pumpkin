@@ -16,15 +16,12 @@ public interface ProblemReporter {
     class Collector implements ProblemReporter {
 
         public Collector() {
-            throw Unimplemented.forMember("net/minecraft/util/ProblemReporter$Collector.<init>:()V");
         }
 
         public Collector(ProblemReporter.PathElement root) {
-            throw Unimplemented.forMember("net/minecraft/util/ProblemReporter$Collector.<init>:(Lnet/minecraft/util/ProblemReporter$PathElement;)V");
         }
 
         private Collector(ProblemReporter.Collector parent, ProblemReporter.PathElement path) {
-            throw Unimplemented.forMember("net/minecraft/util/ProblemReporter$Collector.<init>:(Lnet/minecraft/util/ProblemReporter$Collector;Lnet/minecraft/util/ProblemReporter$PathElement;)V");
         }
 
         public ProblemReporter forChild(ProblemReporter.PathElement path) {
@@ -50,7 +47,6 @@ public interface ProblemReporter {
 
             public ProblemTreeNode(ProblemReporter.PathElement pathElement) {
                 this((ProblemReporter.PathElement) null, (List<ProblemReporter.Problem>) null, (Map<ProblemReporter.PathElement, ProblemReporter.Collector.ProblemTreeNode>) null);
-                throw Unimplemented.forMember("net/minecraft/util/ProblemReporter$Collector$ProblemTreeNode.<init>:(Lnet/minecraft/util/ProblemReporter$PathElement;)V");
             }
 
             public ProblemReporter.Collector.ProblemTreeNode child(ProblemReporter.PathElement id) {
@@ -121,11 +117,9 @@ public interface ProblemReporter {
     class ScopedCollector extends ProblemReporter.Collector implements AutoCloseable {
 
         public ScopedCollector(Logger logger) {
-            throw Unimplemented.forMember("net/minecraft/util/ProblemReporter$ScopedCollector.<init>:(Lorg/slf4j/Logger;)V");
         }
 
         public ScopedCollector(ProblemReporter.PathElement root, Logger logger) {
-            throw Unimplemented.forMember("net/minecraft/util/ProblemReporter$ScopedCollector.<init>:(Lnet/minecraft/util/ProblemReporter$PathElement;Lorg/slf4j/Logger;)V");
         }
 
         public void close() {

@@ -18,7 +18,6 @@ import dev.pumpkin.shim.Unimplemented;
 public class AtlasManager implements AutoCloseable, PreparableReloadListener, SpriteGetter {
 
     public AtlasManager(TextureManager textureManager, int maxMipmapLevels) {
-        throw Unimplemented.forMember("net/minecraft/client/resources/model/sprite/AtlasManager.<init>:(Lnet/minecraft/client/renderer/texture/TextureManager;I)V");
     }
 
     public TextureAtlas getAtlasOrThrow(Identifier atlasId) {
@@ -49,7 +48,6 @@ public class AtlasManager implements AutoCloseable, PreparableReloadListener, Sp
 
         public AtlasConfig(Identifier textureId, Identifier definitionLocation, boolean createMipmaps) {
             this((Identifier) null, (Identifier) null, (boolean) false, (Set<MetadataSectionType<?>>) null);
-            throw Unimplemented.forMember("net/minecraft/client/resources/model/sprite/AtlasManager$AtlasConfig.<init>:(Lnet/minecraft/resources/Identifier;Lnet/minecraft/resources/Identifier;Z)V");
         }
     }
 
@@ -66,7 +64,6 @@ public class AtlasManager implements AutoCloseable, PreparableReloadListener, Sp
     public static class PendingStitchResults {
 
         private PendingStitchResults(List<AtlasManager.PendingStitch> pendingStitches, Map<Identifier, CompletableFuture<SpriteLoader.Preparations>> stitchFuturesById, CompletableFuture<?> allReadyToUpload) {
-            throw Unimplemented.forMember("net/minecraft/client/resources/model/sprite/AtlasManager$PendingStitchResults.<init>:(Ljava/util/List;Ljava/util/Map;Ljava/util/concurrent/CompletableFuture;)V");
         }
 
         public CompletableFuture<SpriteLoader.Preparations> get(Identifier atlasId) {

@@ -7,7 +7,6 @@ import dev.pumpkin.shim.Unimplemented;
 public class ServerClockManager extends SavedData implements ClockManager {
 
     private ServerClockManager(PackedClockStates packedClockStates) {
-        throw Unimplemented.forMember("net/minecraft/world/clock/ServerClockManager.<init>:(Lnet/minecraft/world/clock/PackedClockStates;)V");
     }
 
     public void tick() {
@@ -33,11 +32,9 @@ public class ServerClockManager extends SavedData implements ClockManager {
     private static class ClockInstance {
 
         public ClockInstance(Holder<WorldClock> holder) {
-            throw Unimplemented.forMember("net/minecraft/world/clock/ServerClockManager$ClockInstance.<init>:(Lnet/minecraft/core/Holder;)V");
         }
 
         public ClockInstance() {
-            throw Unimplemented.forMember("net/minecraft/world/clock/ServerClockManager$ClockInstance.<init>:()V");
         }
 
         public void tick() {

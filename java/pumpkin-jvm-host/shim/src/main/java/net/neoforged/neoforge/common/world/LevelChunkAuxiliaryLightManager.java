@@ -7,7 +7,6 @@ import dev.pumpkin.shim.Unimplemented;
 public final class LevelChunkAuxiliaryLightManager implements AuxiliaryLightManager {
 
     public LevelChunkAuxiliaryLightManager(LevelChunk owner) {
-        throw Unimplemented.forMember("net/neoforged/neoforge/common/world/LevelChunkAuxiliaryLightManager.<init>:(Lnet/minecraft/world/level/chunk/LevelChunk;)V");
     }
 
     public void setLightAt(BlockPos pos, int value) {

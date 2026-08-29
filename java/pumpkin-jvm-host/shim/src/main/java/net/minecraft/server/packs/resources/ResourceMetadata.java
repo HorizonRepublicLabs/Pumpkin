@@ -12,7 +12,6 @@ public interface ResourceMetadata {
     class MapBased implements ResourceMetadata {
 
         private MapBased(Map<MetadataSectionType<?>, ?> values) {
-            throw Unimplemented.forMember("net/minecraft/server/packs/resources/ResourceMetadata$MapBased.<init>:(Ljava/util/Map;)V");
         }
 
         public <T> Optional<T> getSection(MetadataSectionType<T> serializer) {

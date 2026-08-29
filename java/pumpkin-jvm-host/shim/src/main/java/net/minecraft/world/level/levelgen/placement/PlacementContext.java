@@ -12,7 +12,6 @@ import dev.pumpkin.shim.Unimplemented;
 public class PlacementContext extends WorldGenerationContext {
 
     public PlacementContext(WorldGenLevel level, ChunkGenerator generator, Optional<PlacedFeature> topFeature) {
-        throw Unimplemented.forMember("net/minecraft/world/level/levelgen/placement/PlacementContext.<init>:(Lnet/minecraft/world/level/WorldGenLevel;Lnet/minecraft/world/level/chunk/ChunkGenerator;Ljava/util/Optional;)V");
     }
 
     public int getHeight(Heightmap.Types type, int x, int z) {

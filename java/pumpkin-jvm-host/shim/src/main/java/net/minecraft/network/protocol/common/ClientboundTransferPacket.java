@@ -9,7 +9,6 @@ public record ClientboundTransferPacket(String host, int port) implements Packet
 
     private ClientboundTransferPacket(FriendlyByteBuf input) {
         this((String) null, (int) 0);
-        throw Unimplemented.forMember("net/minecraft/network/protocol/common/ClientboundTransferPacket.<init>:(Lnet/minecraft/network/FriendlyByteBuf;)V");
     }
 
     private void write(FriendlyByteBuf output) {

@@ -14,7 +14,6 @@ import dev.pumpkin.shim.Unimplemented;
 public class SoundManager extends SimplePreparableReloadListener<SoundManager.Preparations> {
 
     public SoundManager(Options options) {
-        throw Unimplemented.forMember("net/minecraft/client/sounds/SoundManager.<init>:(Lnet/minecraft/client/Options;)V");
     }
 
     protected SoundManager.Preparations prepare(ResourceManager manager, ProfilerFiller profiler) {

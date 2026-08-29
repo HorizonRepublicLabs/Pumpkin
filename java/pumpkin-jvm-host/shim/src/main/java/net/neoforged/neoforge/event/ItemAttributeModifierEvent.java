@@ -13,7 +13,6 @@ import dev.pumpkin.shim.Unimplemented;
 public class ItemAttributeModifierEvent extends Event {
 
     public ItemAttributeModifierEvent(ItemStack stack, ItemAttributeModifiers defaultModifiers) {
-        throw Unimplemented.forMember("net/neoforged/neoforge/event/ItemAttributeModifierEvent.<init>:(Lnet/minecraft/world/item/ItemStack;Lnet/minecraft/world/item/component/ItemAttributeModifiers;)V");
     }
 
     public ItemStack getItemStack() {
@@ -31,7 +30,6 @@ public class ItemAttributeModifierEvent extends Event {
     private static class ItemAttributeModifiersBuilder {
 
         ItemAttributeModifiersBuilder(ItemAttributeModifiers defaultModifiers) {
-            throw Unimplemented.forMember("net/neoforged/neoforge/event/ItemAttributeModifierEvent$ItemAttributeModifiersBuilder.<init>:(Lnet/minecraft/world/item/component/ItemAttributeModifiers;)V");
         }
 
         void clear() {

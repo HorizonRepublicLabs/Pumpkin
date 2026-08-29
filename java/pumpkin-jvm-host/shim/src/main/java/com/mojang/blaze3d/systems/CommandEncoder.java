@@ -11,7 +11,6 @@ import dev.pumpkin.shim.Unimplemented;
 public class CommandEncoder {
 
     public CommandEncoder(TracyGpuProfiler profiler, GpuDeviceBackend device, CommandEncoderBackend backend) {
-        throw Unimplemented.forMember("com/mojang/blaze3d/systems/CommandEncoder.<init>:(Lcom/mojang/blaze3d/systems/TracyGpuProfiler;Lcom/mojang/blaze3d/systems/GpuDeviceBackend;Lcom/mojang/blaze3d/systems/CommandEncoderBackend;)V");
     }
 
     public void submit() {

@@ -6,7 +6,6 @@ import dev.pumpkin.shim.Unimplemented;
 public class SynchedEntityData {
 
     private SynchedEntityData(SyncedDataHolder entity, SynchedEntityData.DataItem<?>[] itemsById) {
-        throw Unimplemented.forMember("net/minecraft/network/syncher/SynchedEntityData.<init>:(Lnet/minecraft/network/syncher/SyncedDataHolder;[Lnet/minecraft/network/syncher/SynchedEntityData$DataItem;)V");
     }
 
     private <T> SynchedEntityData.DataItem<T> getItem(EntityDataAccessor<T> accessor) {
@@ -28,7 +27,6 @@ public class SynchedEntityData {
     public static class Builder {
 
         public Builder(SyncedDataHolder entity) {
-            throw Unimplemented.forMember("net/minecraft/network/syncher/SynchedEntityData$Builder.<init>:(Lnet/minecraft/network/syncher/SyncedDataHolder;)V");
         }
 
         public SynchedEntityData build() {
@@ -42,7 +40,6 @@ public class SynchedEntityData {
     public static class DataItem<T> {
 
         public DataItem(EntityDataAccessor<T> accessor, T initialValue) {
-            throw Unimplemented.forMember("net/minecraft/network/syncher/SynchedEntityData$DataItem.<init>:(Lnet/minecraft/network/syncher/EntityDataAccessor;Ljava/lang/Object;)V");
         }
 
         public SynchedEntityData.DataValue<T> value() {

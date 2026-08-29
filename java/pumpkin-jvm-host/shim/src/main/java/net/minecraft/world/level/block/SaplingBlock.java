@@ -24,7 +24,6 @@ public class SaplingBlock extends VegetationBlock implements BonemealableBlock {
     }
 
     public SaplingBlock(TreeGrower treeGrower, BlockBehaviour.Properties properties) {
-        throw Unimplemented.forMember("net/minecraft/world/level/block/SaplingBlock.<init>:(Lnet/minecraft/world/level/block/grower/TreeGrower;Lnet/minecraft/world/level/block/state/BlockBehaviour$Properties;)V");
     }
 
     protected VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {

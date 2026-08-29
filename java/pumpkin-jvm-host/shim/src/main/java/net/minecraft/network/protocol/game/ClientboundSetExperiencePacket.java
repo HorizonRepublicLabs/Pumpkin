@@ -8,11 +8,9 @@ import dev.pumpkin.shim.Unimplemented;
 public class ClientboundSetExperiencePacket implements Packet<ClientGamePacketListener> {
 
     public ClientboundSetExperiencePacket(float experienceProgress, int totalExperience, int experienceLevel) {
-        throw Unimplemented.forMember("net/minecraft/network/protocol/game/ClientboundSetExperiencePacket.<init>:(FII)V");
     }
 
     private ClientboundSetExperiencePacket(FriendlyByteBuf input) {
-        throw Unimplemented.forMember("net/minecraft/network/protocol/game/ClientboundSetExperiencePacket.<init>:(Lnet/minecraft/network/FriendlyByteBuf;)V");
     }
 
     private void write(FriendlyByteBuf output) {

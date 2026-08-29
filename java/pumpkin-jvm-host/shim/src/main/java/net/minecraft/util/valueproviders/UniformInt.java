@@ -6,8 +6,10 @@ import dev.pumpkin.shim.Unimplemented;
 
 public record UniformInt(int minInclusive, int maxInclusive) implements IntProvider {
 
+    // Pumpkin divergence: real body, copied from vanilla -- a record over two ints and
+    // its own constructor. The ARGB rule.
     public static UniformInt of(int minInclusive, int maxInclusive) {
-        throw Unimplemented.forMember("net/minecraft/util/valueproviders/UniformInt.of:(II)Lnet/minecraft/util/valueproviders/UniformInt;");
+        return new UniformInt(minInclusive, maxInclusive);
     }
 
     public int sample(RandomSource random) {

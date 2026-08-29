@@ -9,7 +9,6 @@ public class Options {
     public boolean advancedItemTooltips;
 
     public Options(Minecraft minecraft, File workingDirectory) {
-        throw Unimplemented.forMember("net/minecraft/client/Options.<init>:(Lnet/minecraft/client/Minecraft;Ljava/io/File;)V");
     }
 
     public void save() {

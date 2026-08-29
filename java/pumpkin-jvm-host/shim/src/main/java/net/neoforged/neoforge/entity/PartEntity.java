@@ -9,7 +9,6 @@ import dev.pumpkin.shim.Unimplemented;
 public abstract class PartEntity<T extends Entity> extends Entity {
 
     public PartEntity(T parent) {
-        throw Unimplemented.forMember("net/neoforged/neoforge/entity/PartEntity.<init>:(Lnet/minecraft/world/entity/Entity;)V");
     }
 
     public Packet<ClientGamePacketListener> getAddEntityPacket(ServerEntity entity) {

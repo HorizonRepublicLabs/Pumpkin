@@ -5,11 +5,9 @@ import dev.pumpkin.shim.Unimplemented;
 public final class TextColor {
 
     private TextColor(int value, String name) {
-        throw Unimplemented.forMember("net/minecraft/network/chat/TextColor.<init>:(ILjava/lang/String;)V");
     }
 
     private TextColor(int value) {
-        throw Unimplemented.forMember("net/minecraft/network/chat/TextColor.<init>:(I)V");
     }
 
     public boolean equals(Object o) {

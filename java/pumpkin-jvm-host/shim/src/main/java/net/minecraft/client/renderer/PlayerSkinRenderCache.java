@@ -14,7 +14,6 @@ import dev.pumpkin.shim.Unimplemented;
 public class PlayerSkinRenderCache {
 
     public PlayerSkinRenderCache(TextureManager textureManager, SkinManager skinManager, ProfileResolver profileResolver) {
-        throw Unimplemented.forMember("net/minecraft/client/renderer/PlayerSkinRenderCache.<init>:(Lnet/minecraft/client/renderer/texture/TextureManager;Lnet/minecraft/client/resources/SkinManager;Lnet/minecraft/server/players/ProfileResolver;)V");
     }
 
     public CompletableFuture<Optional<PlayerSkinRenderCache.RenderInfo>> lookup(ResolvableProfile profile) {
@@ -24,7 +23,6 @@ public class PlayerSkinRenderCache {
     public final class RenderInfo {
 
         public RenderInfo(GameProfile gameProfile, PlayerSkin playerSkin, PlayerSkin.Patch patch) {
-            throw Unimplemented.forMember("net/minecraft/client/renderer/PlayerSkinRenderCache$RenderInfo.<init>:(Lcom/mojang/authlib/GameProfile;Lnet/minecraft/world/entity/player/PlayerSkin;Lnet/minecraft/world/entity/player/PlayerSkin$Patch;)V");
         }
 
         public GpuTextureView textureView() {

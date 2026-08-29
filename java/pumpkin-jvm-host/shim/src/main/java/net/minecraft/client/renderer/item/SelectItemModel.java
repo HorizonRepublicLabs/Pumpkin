@@ -16,7 +16,6 @@ import dev.pumpkin.shim.Unimplemented;
 public class SelectItemModel<T> implements ItemModel {
 
     public SelectItemModel(SelectItemModelProperty<T> property, SelectItemModel.ModelSelector<T> models) {
-        throw Unimplemented.forMember("net/minecraft/client/renderer/item/SelectItemModel.<init>:(Lnet/minecraft/client/renderer/item/properties/select/SelectItemModelProperty;Lnet/minecraft/client/renderer/item/SelectItemModel$ModelSelector;)V");
     }
 
     public void update(ItemStackRenderState output, ItemStack item, ItemModelResolver resolver, ItemDisplayContext displayContext, ClientLevel level, ItemOwner owner, int seed) {

@@ -10,7 +10,6 @@ import dev.pumpkin.shim.Unimplemented;
 public class ContextAwarePredicate implements Validatable {
 
     public ContextAwarePredicate(List<LootItemCondition> conditions) {
-        throw Unimplemented.forMember("net/minecraft/advancements/predicates/ContextAwarePredicate.<init>:(Ljava/util/List;)V");
     }
 
     public static ContextAwarePredicate create(LootItemCondition... conditions) {

@@ -11,7 +11,6 @@ public class RenderPassDescriptor {
     }
 
     private RenderPassDescriptor(Supplier<String> label) {
-        throw Unimplemented.forMember("com/mojang/blaze3d/systems/RenderPassDescriptor.<init>:(Ljava/util/function/Supplier;)V");
     }
 
     public record Attachment<T>(GpuTextureView textureView, T clearValue) {

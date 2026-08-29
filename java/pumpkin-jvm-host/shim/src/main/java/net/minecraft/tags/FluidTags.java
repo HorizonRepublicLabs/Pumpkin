@@ -9,7 +9,6 @@ public final class FluidTags {
     public static final TagKey<Fluid> WATER = null;
 
     protected FluidTags() {
-        throw Unimplemented.forMember("net/minecraft/tags/FluidTags.<init>:()V");
     }
 
     private static TagKey<Fluid> create(String name) {

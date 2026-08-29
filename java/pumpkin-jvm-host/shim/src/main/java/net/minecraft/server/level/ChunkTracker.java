@@ -6,7 +6,6 @@ import dev.pumpkin.shim.Unimplemented;
 public abstract class ChunkTracker extends DynamicGraphMinFixedPoint {
 
     protected ChunkTracker(int levelCount, int minQueueSize, int minMapSize) {
-        throw Unimplemented.forMember("net/minecraft/server/level/ChunkTracker.<init>:(III)V");
     }
 
     protected boolean isSource(long node) {

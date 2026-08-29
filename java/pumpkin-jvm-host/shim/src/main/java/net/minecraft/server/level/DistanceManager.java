@@ -7,7 +7,6 @@ import dev.pumpkin.shim.Unimplemented;
 public abstract class DistanceManager {
 
     protected DistanceManager(TicketStorage ticketStorage, Executor executor, Executor mainThreadExecutor) {
-        throw Unimplemented.forMember("net/minecraft/server/level/DistanceManager.<init>:(Lnet/minecraft/world/level/TicketStorage;Ljava/util/concurrent/Executor;Ljava/util/concurrent/Executor;)V");
     }
 
     protected abstract boolean isChunkToRemove(final long node);
@@ -19,7 +18,6 @@ public abstract class DistanceManager {
     private class FixedPlayerDistanceChunkTracker extends ChunkTracker {
 
         protected FixedPlayerDistanceChunkTracker(int maxDistance) {
-            throw Unimplemented.forMember("net/minecraft/server/level/DistanceManager$FixedPlayerDistanceChunkTracker.<init>:(I)V");
         }
 
         protected int getLevel(long node) {
@@ -41,7 +39,6 @@ public abstract class DistanceManager {
     private class PlayerTicketTracker extends DistanceManager.FixedPlayerDistanceChunkTracker {
 
         protected PlayerTicketTracker(int maxDistance) {
-            throw Unimplemented.forMember("net/minecraft/server/level/DistanceManager$PlayerTicketTracker.<init>:(I)V");
         }
 
         protected void onLevelChange(long node, int oldLevel, int level) {

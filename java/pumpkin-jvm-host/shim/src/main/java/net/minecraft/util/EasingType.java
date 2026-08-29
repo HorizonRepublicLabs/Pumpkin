@@ -9,7 +9,6 @@ public interface EasingType {
     final class CubicBezier implements EasingType {
 
         public CubicBezier(EasingType.CubicBezierControls controls) {
-            throw Unimplemented.forMember("net/minecraft/util/EasingType$CubicBezier.<init>:(Lnet/minecraft/util/EasingType$CubicBezierControls;)V");
         }
 
         public float apply(float x) {

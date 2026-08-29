@@ -10,7 +10,6 @@ import dev.pumpkin.shim.Unimplemented;
 public class Sound implements Weighted<Sound> {
 
     public Sound(Identifier location, SampledFloat volume, SampledFloat pitch, int weight, Sound.Type type, boolean stream, boolean preload, int attenuationDistance) {
-        throw Unimplemented.forMember("net/minecraft/client/resources/sounds/Sound.<init>:(Lnet/minecraft/resources/Identifier;Lnet/minecraft/util/valueproviders/SampledFloat;Lnet/minecraft/util/valueproviders/SampledFloat;ILnet/minecraft/client/resources/sounds/Sound$Type;ZZI)V");
     }
 
     public SampledFloat getVolume() {

@@ -14,15 +14,12 @@ public class PalettedContainer<T> implements PaletteResize<T>, PalettedContainer
     }
 
     private PalettedContainer(Strategy<T> strategy, Configuration dataConfiguration, BitStorage storage, Palette<T> palette) {
-        throw Unimplemented.forMember("net/minecraft/world/level/chunk/PalettedContainer.<init>:(Lnet/minecraft/world/level/chunk/Strategy;Lnet/minecraft/world/level/chunk/Configuration;Lnet/minecraft/util/BitStorage;Lnet/minecraft/world/level/chunk/Palette;)V");
     }
 
     private PalettedContainer(PalettedContainer<T> source) {
-        throw Unimplemented.forMember("net/minecraft/world/level/chunk/PalettedContainer.<init>:(Lnet/minecraft/world/level/chunk/PalettedContainer;)V");
     }
 
     public PalettedContainer(T initialValue, Strategy<T> strategy) {
-        throw Unimplemented.forMember("net/minecraft/world/level/chunk/PalettedContainer.<init>:(Ljava/lang/Object;Lnet/minecraft/world/level/chunk/Strategy;)V");
     }
 
     public int onResize(int bits, T lastAddedValue) {

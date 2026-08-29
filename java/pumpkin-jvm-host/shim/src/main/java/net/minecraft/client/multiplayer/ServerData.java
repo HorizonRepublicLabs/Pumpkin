@@ -7,7 +7,6 @@ import dev.pumpkin.shim.Unimplemented;
 public class ServerData {
 
     public ServerData(String name, String ip, ServerData.Type type) {
-        throw Unimplemented.forMember("net/minecraft/client/multiplayer/ServerData.<init>:(Ljava/lang/String;Ljava/lang/String;Lnet/minecraft/client/multiplayer/ServerData$Type;)V");
     }
 
     public static ServerData read(CompoundTag tag) {

@@ -19,7 +19,6 @@ import dev.pumpkin.shim.Unimplemented;
 public class RenderPass implements AutoCloseable {
 
     public RenderPass(RenderPassBackend backend, GpuDeviceBackend device, List<RenderPassDescriptor.Attachment<Optional<Vector4fc>>> colorAttachments, Runnable onFinish, RenderPass.RenderArea renderArea) {
-        throw Unimplemented.forMember("com/mojang/blaze3d/systems/RenderPass.<init>:(Lcom/mojang/blaze3d/systems/RenderPassBackend;Lcom/mojang/blaze3d/systems/GpuDeviceBackend;Ljava/util/List;Ljava/lang/Runnable;Lcom/mojang/blaze3d/systems/RenderPass$RenderArea;)V");
     }
 
     public void pushDebugGroup(Supplier<String> label) {
@@ -114,7 +113,6 @@ public class RenderPass implements AutoCloseable {
 
         public Draw(int slot, GpuBuffer vertexBuffer, GpuBuffer indexBuffer, IndexType indexType, int firstIndex, int indexCount, int baseVertex) {
             this((int) 0, (GpuBuffer) null, (GpuBuffer) null, (IndexType) null, (int) 0, (int) 0, (int) 0, (BiConsumer<T, RenderPass.UniformUploader>) null);
-            throw Unimplemented.forMember("com/mojang/blaze3d/systems/RenderPass$Draw.<init>:(ILcom/mojang/blaze3d/buffers/GpuBuffer;Lcom/mojang/blaze3d/buffers/GpuBuffer;Lcom/mojang/blaze3d/IndexType;III)V");
         }
     }
 

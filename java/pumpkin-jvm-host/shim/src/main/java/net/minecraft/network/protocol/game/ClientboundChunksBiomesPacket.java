@@ -12,7 +12,6 @@ public record ClientboundChunksBiomesPacket(List<ClientboundChunksBiomesPacket.C
 
     private ClientboundChunksBiomesPacket(FriendlyByteBuf input) {
         this((List<ClientboundChunksBiomesPacket.ChunkBiomeData>) null);
-        throw Unimplemented.forMember("net/minecraft/network/protocol/game/ClientboundChunksBiomesPacket.<init>:(Lnet/minecraft/network/FriendlyByteBuf;)V");
     }
 
     private void write(FriendlyByteBuf output) {
@@ -31,12 +30,10 @@ public record ClientboundChunksBiomesPacket(List<ClientboundChunksBiomesPacket.C
 
         public ChunkBiomeData(LevelChunk chunk) {
             this((ChunkPos) null, (byte[]) null);
-            throw Unimplemented.forMember("net/minecraft/network/protocol/game/ClientboundChunksBiomesPacket$ChunkBiomeData.<init>:(Lnet/minecraft/world/level/chunk/LevelChunk;)V");
         }
 
         public ChunkBiomeData(FriendlyByteBuf input) {
             this((ChunkPos) null, (byte[]) null);
-            throw Unimplemented.forMember("net/minecraft/network/protocol/game/ClientboundChunksBiomesPacket$ChunkBiomeData.<init>:(Lnet/minecraft/network/FriendlyByteBuf;)V");
         }
 
         public void write(FriendlyByteBuf output) {

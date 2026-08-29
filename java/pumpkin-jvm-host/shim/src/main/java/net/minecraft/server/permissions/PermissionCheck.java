@@ -12,7 +12,6 @@ public interface PermissionCheck {
     class AlwaysPass implements PermissionCheck {
 
         protected AlwaysPass() {
-            throw Unimplemented.forMember("net/minecraft/server/permissions/PermissionCheck$AlwaysPass.<init>:()V");
         }
 
         public boolean check(PermissionSet source) {

@@ -12,11 +12,9 @@ import dev.pumpkin.shim.Unimplemented;
 public class UseOnContext {
 
     public UseOnContext(Player player, InteractionHand hand, BlockHitResult hitResult) {
-        throw Unimplemented.forMember("net/minecraft/world/item/context/UseOnContext.<init>:(Lnet/minecraft/world/entity/player/Player;Lnet/minecraft/world/InteractionHand;Lnet/minecraft/world/phys/BlockHitResult;)V");
     }
 
     public UseOnContext(Level level, Player player, InteractionHand hand, ItemStack itemStack, BlockHitResult hitResult) {
-        throw Unimplemented.forMember("net/minecraft/world/item/context/UseOnContext.<init>:(Lnet/minecraft/world/level/Level;Lnet/minecraft/world/entity/player/Player;Lnet/minecraft/world/InteractionHand;Lnet/minecraft/world/item/ItemStack;Lnet/minecraft/world/phys/BlockHitResult;)V");
     }
 
     public BlockPos getClickedPos() {

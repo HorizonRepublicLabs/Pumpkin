@@ -13,15 +13,12 @@ import dev.pumpkin.shim.Unimplemented;
 public class MobEffect implements FeatureElement, IMobEffectExtension {
 
     protected MobEffect(MobEffectCategory category, int color) {
-        throw Unimplemented.forMember("net/minecraft/world/effect/MobEffect.<init>:(Lnet/minecraft/world/effect/MobEffectCategory;I)V");
     }
 
     protected MobEffect(MobEffectCategory category, int color, ParticleOptions particleOptions) {
-        throw Unimplemented.forMember("net/minecraft/world/effect/MobEffect.<init>:(Lnet/minecraft/world/effect/MobEffectCategory;ILnet/minecraft/core/particles/ParticleOptions;)V");
     }
 
     protected MobEffect(MobEffectCategory category, int color, Function<MobEffectInstance, ParticleOptions> particleFactory) {
-        throw Unimplemented.forMember("net/minecraft/world/effect/MobEffect.<init>:(Lnet/minecraft/world/effect/MobEffectCategory;ILjava/util/function/Function;)V");
     }
 
     public Component getDisplayName() {
@@ -40,7 +37,6 @@ public class MobEffect implements FeatureElement, IMobEffectExtension {
 
         public AttributeTemplate(Identifier id, double amount, AttributeModifier.Operation operation) {
             this((Identifier) null, (double) 0.0, (AttributeModifier.Operation) null, (it.unimi.dsi.fastutil.ints.Int2DoubleFunction) null);
-            throw Unimplemented.forMember("net/minecraft/world/effect/MobEffect$AttributeTemplate.<init>:(Lnet/minecraft/resources/Identifier;DLnet/minecraft/world/entity/ai/attributes/AttributeModifier$Operation;)V");
         }
 
         public AttributeModifier create(int amplifier) {

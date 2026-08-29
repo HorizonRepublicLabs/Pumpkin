@@ -10,7 +10,6 @@ public record ClientboundCustomQueryPacket(int transactionId, CustomQueryPayload
 
     private ClientboundCustomQueryPacket(FriendlyByteBuf input) {
         this((int) 0, (CustomQueryPayload) null);
-        throw Unimplemented.forMember("net/minecraft/network/protocol/login/ClientboundCustomQueryPacket.<init>:(Lnet/minecraft/network/FriendlyByteBuf;)V");
     }
 
     private void write(FriendlyByteBuf output) {

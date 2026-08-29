@@ -7,7 +7,6 @@ import dev.pumpkin.shim.Unimplemented;
 public class PlayerInfo {
 
     public PlayerInfo(GameProfile profile, boolean enforcesSecureChat) {
-        throw Unimplemented.forMember("net/minecraft/client/multiplayer/PlayerInfo.<init>:(Lcom/mojang/authlib/GameProfile;Z)V");
     }
 
     public GameProfile getProfile() {

@@ -9,7 +9,6 @@ import dev.pumpkin.shim.Unimplemented;
 public final class MutableComponent implements Component {
 
     MutableComponent(ComponentContents contents, List<Component> siblings, Style style) {
-        throw Unimplemented.forMember("net/minecraft/network/chat/MutableComponent.<init>:(Lnet/minecraft/network/chat/ComponentContents;Ljava/util/List;Lnet/minecraft/network/chat/Style;)V");
     }
 
     public static MutableComponent create(ComponentContents contents) {

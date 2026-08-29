@@ -8,15 +8,12 @@ public class AABB {
     public static final AABB INFINITE = null;
 
     public AABB(double minX, double minY, double minZ, double maxX, double maxY, double maxZ) {
-        throw Unimplemented.forMember("net/minecraft/world/phys/AABB.<init>:(DDDDDD)V");
     }
 
     public AABB(BlockPos pos) {
-        throw Unimplemented.forMember("net/minecraft/world/phys/AABB.<init>:(Lnet/minecraft/core/BlockPos;)V");
     }
 
     public AABB(Vec3 begin, Vec3 end) {
-        throw Unimplemented.forMember("net/minecraft/world/phys/AABB.<init>:(Lnet/minecraft/world/phys/Vec3;Lnet/minecraft/world/phys/Vec3;)V");
     }
 
     public boolean equals(Object o) {

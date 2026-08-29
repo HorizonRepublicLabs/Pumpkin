@@ -24,7 +24,6 @@ public class StairBlock extends Block implements SimpleWaterloggedBlock {
     }
 
     public StairBlock(BlockState baseState, BlockBehaviour.Properties properties) {
-        throw Unimplemented.forMember("net/minecraft/world/level/block/StairBlock.<init>:(Lnet/minecraft/world/level/block/state/BlockState;Lnet/minecraft/world/level/block/state/BlockBehaviour$Properties;)V");
     }
 
     protected boolean useShapeForLightOcclusion(BlockState state) {

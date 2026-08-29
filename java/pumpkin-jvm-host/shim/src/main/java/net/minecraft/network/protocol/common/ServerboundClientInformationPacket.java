@@ -10,7 +10,6 @@ public record ServerboundClientInformationPacket(ClientInformation information) 
 
     private ServerboundClientInformationPacket(FriendlyByteBuf input) {
         this((ClientInformation) null);
-        throw Unimplemented.forMember("net/minecraft/network/protocol/common/ServerboundClientInformationPacket.<init>:(Lnet/minecraft/network/FriendlyByteBuf;)V");
     }
 
     private void write(FriendlyByteBuf output) {

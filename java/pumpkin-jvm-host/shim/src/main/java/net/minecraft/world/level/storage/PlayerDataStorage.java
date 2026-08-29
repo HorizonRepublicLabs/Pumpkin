@@ -9,7 +9,6 @@ import dev.pumpkin.shim.Unimplemented;
 public class PlayerDataStorage {
 
     public PlayerDataStorage(LevelStorageSource.LevelStorageAccess levelAccess, DataFixer fixerUpper) {
-        throw Unimplemented.forMember("net/minecraft/world/level/storage/PlayerDataStorage.<init>:(Lnet/minecraft/world/level/storage/LevelStorageSource$LevelStorageAccess;Lcom/mojang/datafixers/DataFixer;)V");
     }
 
     private Optional<CompoundTag> load(NameAndId nameAndId, String suffix) {

@@ -11,7 +11,6 @@ public class RecipeMap {
     private Multimap<RecipeType<?>, RecipeHolder<?>> byType;
 
     private RecipeMap(Multimap<RecipeType<?>, RecipeHolder<?>> byType, Map<ResourceKey<Recipe<?>>, RecipeHolder<?>> byKey) {
-        throw Unimplemented.forMember("net/minecraft/world/item/crafting/RecipeMap.<init>:(Lcom/google/common/collect/Multimap;Ljava/util/Map;)V");
     }
 
     public static RecipeMap create(Iterable<RecipeHolder<?>> recipes) {

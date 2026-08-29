@@ -12,7 +12,6 @@ import dev.pumpkin.shim.Unimplemented;
 public class LevelExtractor implements ResourceManagerReloadListener {
 
     public LevelExtractor(Minecraft minecraft, LevelRenderState levelRenderState, LevelRenderer levelRenderer) {
-        throw Unimplemented.forMember("net/minecraft/client/renderer/extract/LevelExtractor.<init>:(Lnet/minecraft/client/Minecraft;Lnet/minecraft/client/renderer/state/level/LevelRenderState;Lnet/minecraft/client/renderer/LevelRenderer;)V");
     }
 
     public void extract(DeltaTracker deltaTracker, Camera camera, float deltaPartialTick) {

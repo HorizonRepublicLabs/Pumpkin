@@ -6,7 +6,6 @@ import dev.pumpkin.shim.Unimplemented;
 public class ServerTickRateManager extends TickRateManager {
 
     public ServerTickRateManager(MinecraftServer server) {
-        throw Unimplemented.forMember("net/minecraft/server/ServerTickRateManager.<init>:(Lnet/minecraft/server/MinecraftServer;)V");
     }
 
     public void setFrozen(boolean frozen) {

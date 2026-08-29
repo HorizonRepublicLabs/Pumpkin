@@ -17,7 +17,6 @@ import dev.pumpkin.shim.Unimplemented;
 public abstract class RenderTooltipEvent extends Event {
 
     protected RenderTooltipEvent(ItemStack itemStack, GuiGraphicsExtractor graphics, int x, int y, Font font, List<ClientTooltipComponent> components) {
-        throw Unimplemented.forMember("net/neoforged/neoforge/client/event/RenderTooltipEvent.<init>:(Lnet/minecraft/world/item/ItemStack;Lnet/minecraft/client/gui/GuiGraphicsExtractor;IILnet/minecraft/client/gui/Font;Ljava/util/List;)V");
     }
 
     public List<ClientTooltipComponent> getComponents() {
@@ -35,7 +34,6 @@ public abstract class RenderTooltipEvent extends Event {
     public static class GatherComponents extends Event implements ICancellableEvent {
 
         public GatherComponents(ItemStack itemStack, int screenWidth, int screenHeight, List<Either<FormattedText, TooltipComponent>> tooltipElements, int maxWidth) {
-            throw Unimplemented.forMember("net/neoforged/neoforge/client/event/RenderTooltipEvent$GatherComponents.<init>:(Lnet/minecraft/world/item/ItemStack;IILjava/util/List;I)V");
         }
 
         public ItemStack getItemStack() {
@@ -53,7 +51,6 @@ public abstract class RenderTooltipEvent extends Event {
     public static class Pre extends RenderTooltipEvent implements ICancellableEvent {
 
         public Pre(ItemStack stack, GuiGraphicsExtractor graphics, int x, int y, int screenWidth, int screenHeight, Font font, List<ClientTooltipComponent> components, ClientTooltipPositioner positioner) {
-            throw Unimplemented.forMember("net/neoforged/neoforge/client/event/RenderTooltipEvent$Pre.<init>:(Lnet/minecraft/world/item/ItemStack;Lnet/minecraft/client/gui/GuiGraphicsExtractor;IIIILnet/minecraft/client/gui/Font;Ljava/util/List;Lnet/minecraft/client/gui/screens/inventory/tooltip/ClientTooltipPositioner;)V");
         }
 
         public void setX(int x) {
@@ -71,7 +68,6 @@ public abstract class RenderTooltipEvent extends Event {
     public static class Texture extends RenderTooltipEvent {
 
         public Texture(ItemStack stack, GuiGraphicsExtractor graphics, int x, int y, Font font, List<ClientTooltipComponent> components, Identifier texture) {
-            throw Unimplemented.forMember("net/neoforged/neoforge/client/event/RenderTooltipEvent$Texture.<init>:(Lnet/minecraft/world/item/ItemStack;Lnet/minecraft/client/gui/GuiGraphicsExtractor;IILnet/minecraft/client/gui/Font;Ljava/util/List;Lnet/minecraft/resources/Identifier;)V");
         }
 
         public Texture() {

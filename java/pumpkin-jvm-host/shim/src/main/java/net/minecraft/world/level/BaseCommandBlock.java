@@ -26,7 +26,6 @@ public abstract class BaseCommandBlock {
     protected class CloseableCommandBlockSource implements CommandSource, AutoCloseable {
 
         protected CloseableCommandBlockSource(ServerLevel level) {
-            throw Unimplemented.forMember("net/minecraft/world/level/BaseCommandBlock$CloseableCommandBlockSource.<init>:(Lnet/minecraft/server/level/ServerLevel;)V");
         }
 
         public boolean acceptsSuccess() {

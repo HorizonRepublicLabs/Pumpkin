@@ -12,19 +12,15 @@ public class SimpleEnergyHandler implements EnergyHandler, ValueIOSerializable {
     protected int capacity;
 
     public SimpleEnergyHandler(int capacity) {
-        throw Unimplemented.forMember("net/neoforged/neoforge/transfer/energy/SimpleEnergyHandler.<init>:(I)V");
     }
 
     public SimpleEnergyHandler(int capacity, int maxTransfer) {
-        throw Unimplemented.forMember("net/neoforged/neoforge/transfer/energy/SimpleEnergyHandler.<init>:(II)V");
     }
 
     public SimpleEnergyHandler(int capacity, int maxInsert, int maxExtract) {
-        throw Unimplemented.forMember("net/neoforged/neoforge/transfer/energy/SimpleEnergyHandler.<init>:(III)V");
     }
 
     public SimpleEnergyHandler(int capacity, int maxInsert, int maxExtract, int energy) {
-        throw Unimplemented.forMember("net/neoforged/neoforge/transfer/energy/SimpleEnergyHandler.<init>:(IIII)V");
     }
 
     public void serialize(ValueOutput output) {

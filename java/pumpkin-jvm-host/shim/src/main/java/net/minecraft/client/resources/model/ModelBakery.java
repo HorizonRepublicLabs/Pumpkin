@@ -21,18 +21,15 @@ import dev.pumpkin.shim.Unimplemented;
 public class ModelBakery {
 
     public ModelBakery(EntityModelSet entityModelSet, SpriteGetter sprites, PlayerSkinRenderCache playerSkinRenderCache, Map<BlockState, BlockStateModel.UnbakedRoot> unbakedBlockStateModels, Map<Identifier, ClientItem> clientInfos, Map<Identifier, ResolvedModel> resolvedModels, ResolvedModel missingModel) {
-        throw Unimplemented.forMember("net/minecraft/client/resources/model/ModelBakery.<init>:(Lnet/minecraft/client/model/geom/EntityModelSet;Lnet/minecraft/client/resources/model/sprite/SpriteGetter;Lnet/minecraft/client/renderer/PlayerSkinRenderCache;Ljava/util/Map;Ljava/util/Map;Ljava/util/Map;Lnet/minecraft/client/resources/model/ResolvedModel;)V");
     }
 
     public ModelBakery(EntityModelSet entityModelSet, SpriteGetter sprites, PlayerSkinRenderCache playerSkinRenderCache, Map<BlockState, BlockStateModel.UnbakedRoot> unbakedBlockStateModels, Map<Identifier, ClientItem> clientInfos, Map<Identifier, ResolvedModel> resolvedModels, ResolvedModel missingModel, net.neoforged.neoforge.client.model.standalone.StandaloneModelLoader.LoadedModels standaloneModels, net.neoforged.neoforge.client.entity.animation.json.AnimationLoader.PendingAnimations pendingAnimations) {
-        throw Unimplemented.forMember("net/minecraft/client/resources/model/ModelBakery.<init>:(Lnet/minecraft/client/model/geom/EntityModelSet;Lnet/minecraft/client/resources/model/sprite/SpriteGetter;Lnet/minecraft/client/renderer/PlayerSkinRenderCache;Ljava/util/Map;Ljava/util/Map;Ljava/util/Map;Lnet/minecraft/client/resources/model/ResolvedModel;Lnet/neoforged/neoforge/client/model/standalone/StandaloneModelLoader$LoadedModels;Lnet/neoforged/neoforge/client/entity/animation/json/AnimationLoader$PendingAnimations;)V");
     }
 
     public record BakingResult(ModelBakery.MissingModels missingModels, Map<BlockState, BlockStateModel> blockStateModels, Map<Identifier, ItemModel> itemStackModels, Map<Identifier, ClientItem.Properties> itemProperties, net.neoforged.neoforge.client.model.standalone.StandaloneModelLoader.BakedModels standaloneModels) {
 
         public BakingResult(ModelBakery.MissingModels missingModels, Map<BlockState, BlockStateModel> blockStateModels, Map<Identifier, ItemModel> itemStackModels, Map<Identifier, ClientItem.Properties> itemProperties) {
             this((ModelBakery.MissingModels) null, (Map<BlockState, BlockStateModel>) null, (Map<Identifier, ItemModel>) null, (Map<Identifier, ClientItem.Properties>) null, (net.neoforged.neoforge.client.model.standalone.StandaloneModelLoader.BakedModels) null);
-            throw Unimplemented.forMember("net/minecraft/client/resources/model/ModelBakery$BakingResult.<init>:(Lnet/minecraft/client/resources/model/ModelBakery$MissingModels;Ljava/util/Map;Ljava/util/Map;Ljava/util/Map;)V");
         }
 
         public BlockStateModel getBlockStateModel(BlockState blockState) {
@@ -72,7 +69,6 @@ public class ModelBakery {
     private class ModelBakerImpl implements ModelBaker {
 
         private ModelBakerImpl(MaterialBaker materials, ModelBaker.Interner interner, ModelBakery.MissingModels missingModels) {
-            throw Unimplemented.forMember("net/minecraft/client/resources/model/ModelBakery$ModelBakerImpl.<init>:(Lnet/minecraft/client/resources/model/sprite/MaterialBaker;Lnet/minecraft/client/resources/model/ModelBaker$Interner;Lnet/minecraft/client/resources/model/ModelBakery$MissingModels;)V");
         }
 
         public BlockStateModelPart missingBlockModelPart() {

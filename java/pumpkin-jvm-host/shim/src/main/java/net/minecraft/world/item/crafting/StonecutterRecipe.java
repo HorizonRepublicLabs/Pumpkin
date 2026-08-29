@@ -8,7 +8,6 @@ import dev.pumpkin.shim.Unimplemented;
 public class StonecutterRecipe extends SingleItemRecipe {
 
     public StonecutterRecipe(Recipe.CommonInfo commonInfo, Ingredient ingredient, ItemStackTemplate result) {
-        throw Unimplemented.forMember("net/minecraft/world/item/crafting/StonecutterRecipe.<init>:(Lnet/minecraft/world/item/crafting/Recipe$CommonInfo;Lnet/minecraft/world/item/crafting/Ingredient;Lnet/minecraft/world/item/ItemStackTemplate;)V");
     }
 
     public RecipeType<StonecutterRecipe> getType() {

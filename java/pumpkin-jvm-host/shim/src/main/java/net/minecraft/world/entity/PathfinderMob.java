@@ -7,7 +7,6 @@ import dev.pumpkin.shim.Unimplemented;
 public abstract class PathfinderMob extends Mob {
 
     protected PathfinderMob(EntityType<? extends PathfinderMob> type, Level level) {
-        throw Unimplemented.forMember("net/minecraft/world/entity/PathfinderMob.<init>:(Lnet/minecraft/world/entity/EntityType;Lnet/minecraft/world/level/Level;)V");
     }
 
     public boolean checkSpawnRules(LevelAccessor level, EntitySpawnReason spawnReason) {

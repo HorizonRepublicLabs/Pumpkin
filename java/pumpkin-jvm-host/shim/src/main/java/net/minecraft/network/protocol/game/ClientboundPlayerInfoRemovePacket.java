@@ -11,7 +11,6 @@ public record ClientboundPlayerInfoRemovePacket(List<UUID> profileIds) implement
 
     private ClientboundPlayerInfoRemovePacket(FriendlyByteBuf input) {
         this((List<UUID>) null);
-        throw Unimplemented.forMember("net/minecraft/network/protocol/game/ClientboundPlayerInfoRemovePacket.<init>:(Lnet/minecraft/network/FriendlyByteBuf;)V");
     }
 
     private void write(FriendlyByteBuf output) {

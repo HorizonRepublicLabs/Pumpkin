@@ -10,7 +10,6 @@ import dev.pumpkin.shim.Unimplemented;
 public abstract class EntityRenderer<T extends Entity, S extends EntityRenderState> {
 
     protected EntityRenderer(EntityRendererProvider.Context context) {
-        throw Unimplemented.forMember("net/minecraft/client/renderer/entity/EntityRenderer.<init>:(Lnet/minecraft/client/renderer/entity/EntityRendererProvider$Context;)V");
     }
 
     public void submit(S state, PoseStack poseStack, SubmitNodeCollector submitNodeCollector, CameraRenderState camera) {

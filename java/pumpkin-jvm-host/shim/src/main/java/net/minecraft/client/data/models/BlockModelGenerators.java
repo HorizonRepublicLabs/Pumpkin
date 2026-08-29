@@ -26,7 +26,6 @@ public class BlockModelGenerators {
     }
 
     public BlockModelGenerators(Consumer<BlockModelDefinitionGenerator> blockStateOutput, ItemModelOutput itemModelOutput, BiConsumer<Identifier, ModelInstance> modelOutput) {
-        throw Unimplemented.forMember("net/minecraft/client/data/models/BlockModelGenerators.<init>:(Ljava/util/function/Consumer;Lnet/minecraft/client/data/models/ItemModelOutput;Ljava/util/function/BiConsumer;)V");
     }
 
     public void run() {
@@ -36,7 +35,6 @@ public class BlockModelGenerators {
     public class BlockFamilyProvider {
 
         public BlockFamilyProvider(TextureMapping mapping) {
-            throw Unimplemented.forMember("net/minecraft/client/data/models/BlockModelGenerators$BlockFamilyProvider.<init>:(Lnet/minecraft/client/data/models/model/TextureMapping;)V");
         }
 
         public BlockModelGenerators.BlockFamilyProvider sign(Block sign) {
@@ -63,7 +61,6 @@ public class BlockModelGenerators {
     public class WoodProvider {
 
         public WoodProvider(TextureMapping logMapping) {
-            throw Unimplemented.forMember("net/minecraft/client/data/models/BlockModelGenerators$WoodProvider.<init>:(Lnet/minecraft/client/data/models/model/TextureMapping;)V");
         }
 
         public WoodProvider() {

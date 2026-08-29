@@ -10,11 +10,9 @@ import dev.pumpkin.shim.Unimplemented;
 public class ClientboundStopSoundPacket implements Packet<ClientGamePacketListener> {
 
     public ClientboundStopSoundPacket(Identifier name, SoundSource source) {
-        throw Unimplemented.forMember("net/minecraft/network/protocol/game/ClientboundStopSoundPacket.<init>:(Lnet/minecraft/resources/Identifier;Lnet/minecraft/sounds/SoundSource;)V");
     }
 
     private ClientboundStopSoundPacket(FriendlyByteBuf input) {
-        throw Unimplemented.forMember("net/minecraft/network/protocol/game/ClientboundStopSoundPacket.<init>:(Lnet/minecraft/network/FriendlyByteBuf;)V");
     }
 
     private void write(FriendlyByteBuf output) {

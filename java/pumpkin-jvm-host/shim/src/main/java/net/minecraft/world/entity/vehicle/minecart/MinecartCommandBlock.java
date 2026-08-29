@@ -22,7 +22,6 @@ import dev.pumpkin.shim.Unimplemented;
 public class MinecartCommandBlock extends AbstractMinecart {
 
     public MinecartCommandBlock(EntityType<? extends MinecartCommandBlock> type, Level level) {
-        throw Unimplemented.forMember("net/minecraft/world/entity/vehicle/minecart/MinecartCommandBlock.<init>:(Lnet/minecraft/world/entity/EntityType;Lnet/minecraft/world/level/Level;)V");
     }
 
     protected Item getDropItem() {

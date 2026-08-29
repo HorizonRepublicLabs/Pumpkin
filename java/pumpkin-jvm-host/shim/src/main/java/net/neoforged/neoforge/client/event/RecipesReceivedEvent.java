@@ -9,7 +9,6 @@ import dev.pumpkin.shim.Unimplemented;
 public class RecipesReceivedEvent extends Event {
 
     public RecipesReceivedEvent(Set<RecipeType<?>> recipeTypes, RecipeMap recipeMap) {
-        throw Unimplemented.forMember("net/neoforged/neoforge/client/event/RecipesReceivedEvent.<init>:(Ljava/util/Set;Lnet/minecraft/world/item/crafting/RecipeMap;)V");
     }
 
     public RecipeMap getRecipeMap() {

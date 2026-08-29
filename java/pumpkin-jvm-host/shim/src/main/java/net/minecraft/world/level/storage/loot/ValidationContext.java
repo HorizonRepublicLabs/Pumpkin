@@ -12,15 +12,12 @@ import dev.pumpkin.shim.Unimplemented;
 public class ValidationContext {
 
     public ValidationContext(ProblemReporter reporter, ContextKeySet contextKeySet, HolderGetter.Provider resolver) {
-        throw Unimplemented.forMember("net/minecraft/world/level/storage/loot/ValidationContext.<init>:(Lnet/minecraft/util/ProblemReporter;Lnet/minecraft/util/context/ContextKeySet;Lnet/minecraft/core/HolderGetter$Provider;)V");
     }
 
     public ValidationContext(ProblemReporter reporter, ContextKeySet contextKeySet) {
-        throw Unimplemented.forMember("net/minecraft/world/level/storage/loot/ValidationContext.<init>:(Lnet/minecraft/util/ProblemReporter;Lnet/minecraft/util/context/ContextKeySet;)V");
     }
 
     private ValidationContext(ProblemReporter reporter, ContextKeySet contextKeySet, Optional<HolderGetter.Provider> resolver, Set<ResourceKey<?>> visitedElements) {
-        throw Unimplemented.forMember("net/minecraft/world/level/storage/loot/ValidationContext.<init>:(Lnet/minecraft/util/ProblemReporter;Lnet/minecraft/util/context/ContextKeySet;Ljava/util/Optional;Ljava/util/Set;)V");
     }
 
     public ValidationContext forChild(ProblemReporter.PathElement subContext) {

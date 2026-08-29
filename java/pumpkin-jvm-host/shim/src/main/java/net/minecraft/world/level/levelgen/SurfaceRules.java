@@ -63,7 +63,6 @@ public class SurfaceRules {
 
         private BlockRuleSource(BlockState state) {
             this((BlockState) null, (SurfaceRules.StateRule) null);
-            throw Unimplemented.forMember("net/minecraft/world/level/levelgen/SurfaceRules$BlockRuleSource.<init>:(Lnet/minecraft/world/level/block/state/BlockState;)V");
         }
 
         public MapCodec<SurfaceRules.BlockRuleSource> codec() {
@@ -88,7 +87,6 @@ public class SurfaceRules {
     protected static final class Context {
 
         protected Context(SurfaceSystem system, RandomState randomState, ChunkAccess chunk, NoiseChunk noiseChunk, Function<BlockPos, Holder<Biome>> biomeGetter, WorldGenerationContext context, Set<Holder<Biome>> possibleBiomes) {
-            throw Unimplemented.forMember("net/minecraft/world/level/levelgen/SurfaceRules$Context.<init>:(Lnet/minecraft/world/level/levelgen/SurfaceSystem;Lnet/minecraft/world/level/levelgen/RandomState;Lnet/minecraft/world/level/chunk/ChunkAccess;Lnet/minecraft/world/level/levelgen/NoiseChunk;Ljava/util/function/Function;Lnet/minecraft/world/level/levelgen/WorldGenerationContext;Ljava/util/Set;)V");
         }
 
         public int getSeaLevel() {
@@ -108,7 +106,6 @@ public class SurfaceRules {
         private static final class HoleCondition extends SurfaceRules.LazyXZCondition {
 
             private HoleCondition(SurfaceRules.Context context) {
-                throw Unimplemented.forMember("net/minecraft/world/level/levelgen/SurfaceRules$Context$HoleCondition.<init>:(Lnet/minecraft/world/level/levelgen/SurfaceRules$Context;)V");
             }
 
             protected boolean compute() {
@@ -122,7 +119,6 @@ public class SurfaceRules {
         private static class SteepMaterialCondition extends SurfaceRules.LazyXZCondition {
 
             private SteepMaterialCondition(SurfaceRules.Context context) {
-                throw Unimplemented.forMember("net/minecraft/world/level/levelgen/SurfaceRules$Context$SteepMaterialCondition.<init>:(Lnet/minecraft/world/level/levelgen/SurfaceRules$Context;)V");
             }
 
             protected boolean compute() {
@@ -136,7 +132,6 @@ public class SurfaceRules {
         private static class TemperatureHelperCondition extends SurfaceRules.LazyYCondition {
 
             private TemperatureHelperCondition(SurfaceRules.Context context) {
-                throw Unimplemented.forMember("net/minecraft/world/level/levelgen/SurfaceRules$Context$TemperatureHelperCondition.<init>:(Lnet/minecraft/world/level/levelgen/SurfaceRules$Context;)V");
             }
 
             protected boolean compute() {
@@ -167,7 +162,6 @@ public class SurfaceRules {
     private abstract static class LazyCondition implements SurfaceRules.Condition {
 
         protected LazyCondition(SurfaceRules.Context context) {
-            throw Unimplemented.forMember("net/minecraft/world/level/levelgen/SurfaceRules$LazyCondition.<init>:(Lnet/minecraft/world/level/levelgen/SurfaceRules$Context;)V");
         }
 
         public boolean test() {
@@ -185,7 +179,6 @@ public class SurfaceRules {
     private abstract static class LazyXZCondition extends SurfaceRules.LazyCondition {
 
         protected LazyXZCondition(SurfaceRules.Context context) {
-            throw Unimplemented.forMember("net/minecraft/world/level/levelgen/SurfaceRules$LazyXZCondition.<init>:(Lnet/minecraft/world/level/levelgen/SurfaceRules$Context;)V");
         }
 
         protected long getContextLastUpdate() {
@@ -199,7 +192,6 @@ public class SurfaceRules {
     private abstract static class LazyYCondition extends SurfaceRules.LazyCondition {
 
         protected LazyYCondition(SurfaceRules.Context context) {
-            throw Unimplemented.forMember("net/minecraft/world/level/levelgen/SurfaceRules$LazyYCondition.<init>:(Lnet/minecraft/world/level/levelgen/SurfaceRules$Context;)V");
         }
 
         protected long getContextLastUpdate() {

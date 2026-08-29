@@ -23,7 +23,6 @@ import dev.pumpkin.shim.Unimplemented;
 public class ModelManager implements PreparableReloadListener {
 
     public ModelManager(BlockColors blockColors, AtlasManager atlasManager, PlayerSkinRenderCache playerSkinRenderCache) {
-        throw Unimplemented.forMember("net/minecraft/client/resources/model/ModelManager.<init>:(Lnet/minecraft/client/color/block/BlockColors;Lnet/minecraft/client/resources/model/sprite/AtlasManager;Lnet/minecraft/client/renderer/PlayerSkinRenderCache;)V");
     }
 
     public final CompletableFuture<Void> reload(PreparableReloadListener.SharedState currentReload, Executor taskExecutor, PreparableReloadListener.PreparationBarrier preparationBarrier, Executor reloadExecutor) {
@@ -37,7 +36,6 @@ public class ModelManager implements PreparableReloadListener {
     private static class BlockOnlyMaterialBaker extends MaterialBaker {
 
         public BlockOnlyMaterialBaker(SpriteLoader.Preparations blockAtlas) {
-            throw Unimplemented.forMember("net/minecraft/client/resources/model/ModelManager$BlockOnlyMaterialBaker.<init>:(Lnet/minecraft/client/renderer/texture/SpriteLoader$Preparations;)V");
         }
 
         protected Material.Baked bake(Material material) {
@@ -51,7 +49,6 @@ public class ModelManager implements PreparableReloadListener {
     private static class CombinedBlockItemMaterialBaker extends MaterialBaker {
 
         public CombinedBlockItemMaterialBaker(SpriteLoader.Preparations blockAtlas, SpriteLoader.Preparations itemAtlas) {
-            throw Unimplemented.forMember("net/minecraft/client/resources/model/ModelManager$CombinedBlockItemMaterialBaker.<init>:(Lnet/minecraft/client/renderer/texture/SpriteLoader$Preparations;Lnet/minecraft/client/renderer/texture/SpriteLoader$Preparations;)V");
         }
 
         protected Material.Baked bake(Material material) {

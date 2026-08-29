@@ -15,7 +15,6 @@ import dev.pumpkin.shim.Unimplemented;
 public abstract class TamableAnimal extends Animal implements OwnableEntity {
 
     protected TamableAnimal(EntityType<? extends TamableAnimal> type, Level level) {
-        throw Unimplemented.forMember("net/minecraft/world/entity/TamableAnimal.<init>:(Lnet/minecraft/world/entity/EntityType;Lnet/minecraft/world/level/Level;)V");
     }
 
     protected void defineSynchedData(SynchedEntityData.Builder entityData) {
@@ -61,11 +60,9 @@ public abstract class TamableAnimal extends Animal implements OwnableEntity {
     public class TamableAnimalPanicGoal extends PanicGoal {
 
         public TamableAnimalPanicGoal(double speedModifier, TagKey<DamageType> panicCausingDamageTypes) {
-            throw Unimplemented.forMember("net/minecraft/world/entity/TamableAnimal$TamableAnimalPanicGoal.<init>:(DLnet/minecraft/tags/TagKey;)V");
         }
 
         public TamableAnimalPanicGoal(double speedModifier) {
-            throw Unimplemented.forMember("net/minecraft/world/entity/TamableAnimal$TamableAnimalPanicGoal.<init>:(D)V");
         }
 
         public void tick() {

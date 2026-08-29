@@ -13,31 +13,24 @@ public class KeyMapping implements Comparable<KeyMapping>, IKeyMappingExtension 
     }
 
     public KeyMapping(String name, int keysym, KeyMapping.Category category) {
-        throw Unimplemented.forMember("net/minecraft/client/KeyMapping.<init>:(Ljava/lang/String;ILnet/minecraft/client/KeyMapping$Category;)V");
     }
 
     public KeyMapping(String name, InputConstants.Type type, int value, KeyMapping.Category category) {
-        throw Unimplemented.forMember("net/minecraft/client/KeyMapping.<init>:(Ljava/lang/String;Lcom/mojang/blaze3d/platform/InputConstants$Type;ILnet/minecraft/client/KeyMapping$Category;)V");
     }
 
     public KeyMapping(String name, InputConstants.Type type, int value, KeyMapping.Category category, int order) {
-        throw Unimplemented.forMember("net/minecraft/client/KeyMapping.<init>:(Ljava/lang/String;Lcom/mojang/blaze3d/platform/InputConstants$Type;ILnet/minecraft/client/KeyMapping$Category;I)V");
     }
 
     public KeyMapping(String name, net.neoforged.neoforge.client.settings.IKeyConflictContext keyConflictContext, InputConstants.Type inputType, int keyCode, KeyMapping.Category category) {
-        throw Unimplemented.forMember("net/minecraft/client/KeyMapping.<init>:(Ljava/lang/String;Lnet/neoforged/neoforge/client/settings/IKeyConflictContext;Lcom/mojang/blaze3d/platform/InputConstants$Type;ILnet/minecraft/client/KeyMapping$Category;)V");
     }
 
     public KeyMapping(String name, net.neoforged.neoforge.client.settings.IKeyConflictContext keyConflictContext, InputConstants.Key keyCode, KeyMapping.Category category) {
-        throw Unimplemented.forMember("net/minecraft/client/KeyMapping.<init>:(Ljava/lang/String;Lnet/neoforged/neoforge/client/settings/IKeyConflictContext;Lcom/mojang/blaze3d/platform/InputConstants$Key;Lnet/minecraft/client/KeyMapping$Category;)V");
     }
 
     public KeyMapping(String name, net.neoforged.neoforge.client.settings.IKeyConflictContext keyConflictContext, net.neoforged.neoforge.client.settings.KeyModifier keyModifier, InputConstants.Type inputType, int keyCode, KeyMapping.Category category) {
-        throw Unimplemented.forMember("net/minecraft/client/KeyMapping.<init>:(Ljava/lang/String;Lnet/neoforged/neoforge/client/settings/IKeyConflictContext;Lnet/neoforged/neoforge/client/settings/KeyModifier;Lcom/mojang/blaze3d/platform/InputConstants$Type;ILnet/minecraft/client/KeyMapping$Category;)V");
     }
 
     public KeyMapping(String name, net.neoforged.neoforge.client.settings.IKeyConflictContext keyConflictContext, net.neoforged.neoforge.client.settings.KeyModifier keyModifier, InputConstants.Key keyCode, KeyMapping.Category category) {
-        throw Unimplemented.forMember("net/minecraft/client/KeyMapping.<init>:(Ljava/lang/String;Lnet/neoforged/neoforge/client/settings/IKeyConflictContext;Lnet/neoforged/neoforge/client/settings/KeyModifier;Lcom/mojang/blaze3d/platform/InputConstants$Key;Lnet/minecraft/client/KeyMapping$Category;)V");
     }
 
     public InputConstants.Key getKey() {

@@ -10,7 +10,6 @@ import dev.pumpkin.shim.Unimplemented;
 public class RegisterCommandsEvent extends Event {
 
     public RegisterCommandsEvent(CommandDispatcher<CommandSourceStack> dispatcher, Commands.CommandSelection environment, CommandBuildContext context) {
-        throw Unimplemented.forMember("net/neoforged/neoforge/event/RegisterCommandsEvent.<init>:(Lcom/mojang/brigadier/CommandDispatcher;Lnet/minecraft/commands/Commands$CommandSelection;Lnet/minecraft/commands/CommandBuildContext;)V");
     }
 
     public CommandDispatcher<CommandSourceStack> getDispatcher() {

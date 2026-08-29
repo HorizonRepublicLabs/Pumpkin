@@ -12,11 +12,9 @@ import dev.pumpkin.shim.Unimplemented;
 public class ClientboundSetEquipmentPacket implements Packet<ClientGamePacketListener> {
 
     public ClientboundSetEquipmentPacket(int entity, List<Pair<EquipmentSlot, ItemStack>> slots) {
-        throw Unimplemented.forMember("net/minecraft/network/protocol/game/ClientboundSetEquipmentPacket.<init>:(ILjava/util/List;)V");
     }
 
     private ClientboundSetEquipmentPacket(RegistryFriendlyByteBuf input) {
-        throw Unimplemented.forMember("net/minecraft/network/protocol/game/ClientboundSetEquipmentPacket.<init>:(Lnet/minecraft/network/RegistryFriendlyByteBuf;)V");
     }
 
     private void write(RegistryFriendlyByteBuf output) {

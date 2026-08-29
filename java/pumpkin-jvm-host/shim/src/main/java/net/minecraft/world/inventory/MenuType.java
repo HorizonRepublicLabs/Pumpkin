@@ -13,7 +13,6 @@ public class MenuType<T extends AbstractContainerMenu> implements FeatureElement
     }
 
     public MenuType(MenuType.MenuSupplier<T> constructor, FeatureFlagSet requiredFeatures) {
-        throw Unimplemented.forMember("net/minecraft/world/inventory/MenuType.<init>:(Lnet/minecraft/world/inventory/MenuType$MenuSupplier;Lnet/minecraft/world/flag/FeatureFlagSet;)V");
     }
 
     public T create(int containerId, Inventory inventory) {

@@ -14,11 +14,9 @@ import dev.pumpkin.shim.Unimplemented;
 public class ClientboundUpdateAdvancementsPacket implements Packet<ClientGamePacketListener> {
 
     public ClientboundUpdateAdvancementsPacket(boolean reset, Collection<AdvancementHolder> newAdvancements, Set<Identifier> removedAdvancements, Map<Identifier, AdvancementProgress> progress, boolean showAdvancements) {
-        throw Unimplemented.forMember("net/minecraft/network/protocol/game/ClientboundUpdateAdvancementsPacket.<init>:(ZLjava/util/Collection;Ljava/util/Set;Ljava/util/Map;Z)V");
     }
 
     private ClientboundUpdateAdvancementsPacket(RegistryFriendlyByteBuf input) {
-        throw Unimplemented.forMember("net/minecraft/network/protocol/game/ClientboundUpdateAdvancementsPacket.<init>:(Lnet/minecraft/network/RegistryFriendlyByteBuf;)V");
     }
 
     private void write(RegistryFriendlyByteBuf output) {

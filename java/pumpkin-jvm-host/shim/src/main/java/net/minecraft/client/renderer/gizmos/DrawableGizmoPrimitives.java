@@ -32,7 +32,6 @@ public class DrawableGizmoPrimitives implements GizmoPrimitives {
 
         private Group(boolean opaque) {
             this((boolean) false, (List<DrawableGizmoPrimitives.Line>) null, (List<DrawableGizmoPrimitives.Quad>) null, (List<DrawableGizmoPrimitives.TriangleFan>) null, (List<DrawableGizmoPrimitives.Text>) null, (List<DrawableGizmoPrimitives.Point>) null);
-            throw Unimplemented.forMember("net/minecraft/client/renderer/gizmos/DrawableGizmoPrimitives$Group.<init>:(Z)V");
         }
     }
 

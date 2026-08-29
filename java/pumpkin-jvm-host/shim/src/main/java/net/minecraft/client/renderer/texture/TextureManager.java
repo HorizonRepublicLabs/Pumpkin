@@ -10,7 +10,6 @@ import dev.pumpkin.shim.Unimplemented;
 public class TextureManager implements PreparableReloadListener, AutoCloseable {
 
     public TextureManager(ResourceManager resourceManager) {
-        throw Unimplemented.forMember("net/minecraft/client/renderer/texture/TextureManager.<init>:(Lnet/minecraft/server/packs/resources/ResourceManager;)V");
     }
 
     public void register(Identifier location, AbstractTexture texture) {

@@ -9,7 +9,6 @@ import dev.pumpkin.shim.Unimplemented;
 public abstract class ClientPlayerNetworkEvent extends Event {
 
     protected ClientPlayerNetworkEvent(final MultiPlayerGameMode multiPlayerGameMode, final LocalPlayer player, final Connection connection) {
-        throw Unimplemented.forMember("net/neoforged/neoforge/client/event/ClientPlayerNetworkEvent.<init>:(Lnet/minecraft/client/multiplayer/MultiPlayerGameMode;Lnet/minecraft/client/player/LocalPlayer;Lnet/minecraft/network/Connection;)V");
     }
 
     public LocalPlayer getPlayer() {
@@ -23,7 +22,6 @@ public abstract class ClientPlayerNetworkEvent extends Event {
     public static class LoggingIn extends ClientPlayerNetworkEvent {
 
         public LoggingIn(final MultiPlayerGameMode controller, final LocalPlayer player, final Connection networkManager) {
-            throw Unimplemented.forMember("net/neoforged/neoforge/client/event/ClientPlayerNetworkEvent$LoggingIn.<init>:(Lnet/minecraft/client/multiplayer/MultiPlayerGameMode;Lnet/minecraft/client/player/LocalPlayer;Lnet/minecraft/network/Connection;)V");
         }
 
         public LoggingIn() {
@@ -33,7 +31,6 @@ public abstract class ClientPlayerNetworkEvent extends Event {
     public static class LoggingOut extends ClientPlayerNetworkEvent {
 
         public LoggingOut(final MultiPlayerGameMode controller, final LocalPlayer player, final Connection networkManager) {
-            throw Unimplemented.forMember("net/neoforged/neoforge/client/event/ClientPlayerNetworkEvent$LoggingOut.<init>:(Lnet/minecraft/client/multiplayer/MultiPlayerGameMode;Lnet/minecraft/client/player/LocalPlayer;Lnet/minecraft/network/Connection;)V");
         }
 
         public MultiPlayerGameMode getMultiPlayerGameMode() {
@@ -55,7 +52,6 @@ public abstract class ClientPlayerNetworkEvent extends Event {
     public static class Clone extends ClientPlayerNetworkEvent {
 
         public Clone(final MultiPlayerGameMode pc, final LocalPlayer oldPlayer, final LocalPlayer newPlayer, final Connection networkManager) {
-            throw Unimplemented.forMember("net/neoforged/neoforge/client/event/ClientPlayerNetworkEvent$Clone.<init>:(Lnet/minecraft/client/multiplayer/MultiPlayerGameMode;Lnet/minecraft/client/player/LocalPlayer;Lnet/minecraft/client/player/LocalPlayer;Lnet/minecraft/network/Connection;)V");
         }
 
         public LocalPlayer getPlayer() {

@@ -9,11 +9,9 @@ import dev.pumpkin.shim.Unimplemented;
 public class ClientboundSetBorderWarningDistancePacket implements Packet<ClientGamePacketListener> {
 
     public ClientboundSetBorderWarningDistancePacket(WorldBorder border) {
-        throw Unimplemented.forMember("net/minecraft/network/protocol/game/ClientboundSetBorderWarningDistancePacket.<init>:(Lnet/minecraft/world/level/border/WorldBorder;)V");
     }
 
     private ClientboundSetBorderWarningDistancePacket(FriendlyByteBuf input) {
-        throw Unimplemented.forMember("net/minecraft/network/protocol/game/ClientboundSetBorderWarningDistancePacket.<init>:(Lnet/minecraft/network/FriendlyByteBuf;)V");
     }
 
     private void write(FriendlyByteBuf output) {

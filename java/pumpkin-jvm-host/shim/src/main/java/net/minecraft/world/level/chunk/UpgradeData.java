@@ -11,15 +11,12 @@ import dev.pumpkin.shim.Unimplemented;
 public class UpgradeData {
 
     private UpgradeData(LevelHeightAccessor levelHeightAccessor) {
-        throw Unimplemented.forMember("net/minecraft/world/level/chunk/UpgradeData.<init>:(Lnet/minecraft/world/level/LevelHeightAccessor;)V");
     }
 
     public UpgradeData(CompoundTag tag, LevelHeightAccessor levelHeightAccessor) {
-        throw Unimplemented.forMember("net/minecraft/world/level/chunk/UpgradeData.<init>:(Lnet/minecraft/nbt/CompoundTag;Lnet/minecraft/world/level/LevelHeightAccessor;)V");
     }
 
     private UpgradeData(UpgradeData source) {
-        throw Unimplemented.forMember("net/minecraft/world/level/chunk/UpgradeData.<init>:(Lnet/minecraft/world/level/chunk/UpgradeData;)V");
     }
 
     public boolean isEmpty() {

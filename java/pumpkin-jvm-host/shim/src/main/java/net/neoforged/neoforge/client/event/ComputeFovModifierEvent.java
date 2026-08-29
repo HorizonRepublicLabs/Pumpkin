@@ -7,7 +7,6 @@ import dev.pumpkin.shim.Unimplemented;
 public class ComputeFovModifierEvent extends Event {
 
     public ComputeFovModifierEvent(Player player, float fovModifier, float fovScale) {
-        throw Unimplemented.forMember("net/neoforged/neoforge/client/event/ComputeFovModifierEvent.<init>:(Lnet/minecraft/world/entity/player/Player;FF)V");
     }
 
     public Player getPlayer() {

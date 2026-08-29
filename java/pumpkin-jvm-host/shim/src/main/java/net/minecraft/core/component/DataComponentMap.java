@@ -37,7 +37,6 @@ public interface DataComponentMap extends Iterable<TypedDataComponent<?>>, DataC
     class Builder implements IDataComponentMapBuilderExtensions {
 
         protected Builder() {
-            throw Unimplemented.forMember("net/minecraft/core/component/DataComponentMap$Builder.<init>:()V");
         }
 
         public <T> T get(DataComponentType<? extends T> type) {

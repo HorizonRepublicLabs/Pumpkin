@@ -7,7 +7,6 @@ import dev.pumpkin.shim.Unimplemented;
 public class ShovelItem extends Item {
 
     public ShovelItem(ToolMaterial material, float attackDamageBaseline, float attackSpeedBaseline, Item.Properties properties) {
-        throw Unimplemented.forMember("net/minecraft/world/item/ShovelItem.<init>:(Lnet/minecraft/world/item/ToolMaterial;FFLnet/minecraft/world/item/Item$Properties;)V");
     }
 
     public InteractionResult useOn(UseOnContext context) {

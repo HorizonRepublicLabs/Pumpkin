@@ -11,7 +11,6 @@ import dev.pumpkin.shim.Unimplemented;
 public abstract class ProjectileWeaponItem extends Item {
 
     public ProjectileWeaponItem(Item.Properties properties) {
-        throw Unimplemented.forMember("net/minecraft/world/item/ProjectileWeaponItem.<init>:(Lnet/minecraft/world/item/Item$Properties;)V");
     }
 
     public abstract Predicate<ItemStack> getAllSupportedProjectiles();

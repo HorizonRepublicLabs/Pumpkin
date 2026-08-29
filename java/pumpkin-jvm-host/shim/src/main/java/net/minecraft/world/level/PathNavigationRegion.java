@@ -15,7 +15,6 @@ import dev.pumpkin.shim.Unimplemented;
 public class PathNavigationRegion implements CollisionGetter {
 
     public PathNavigationRegion(Level level, BlockPos start, BlockPos end) {
-        throw Unimplemented.forMember("net/minecraft/world/level/PathNavigationRegion.<init>:(Lnet/minecraft/world/level/Level;Lnet/minecraft/core/BlockPos;Lnet/minecraft/core/BlockPos;)V");
     }
 
     private ChunkAccess getChunk(BlockPos pos) {

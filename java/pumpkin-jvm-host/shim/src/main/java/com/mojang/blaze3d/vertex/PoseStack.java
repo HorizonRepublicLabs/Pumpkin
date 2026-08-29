@@ -9,7 +9,6 @@ import dev.pumpkin.shim.Unimplemented;
 public class PoseStack {
 
     public PoseStack() {
-        throw Unimplemented.forMember("com/mojang/blaze3d/vertex/PoseStack.<init>:()V");
     }
 
     public void translate(double xo, double yo, double zo) {

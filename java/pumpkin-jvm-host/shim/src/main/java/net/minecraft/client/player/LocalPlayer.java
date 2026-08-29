@@ -31,7 +31,6 @@ import dev.pumpkin.shim.Unimplemented;
 public class LocalPlayer extends AbstractClientPlayer {
 
     public LocalPlayer(Minecraft minecraft, ClientLevel level, ClientPacketListener connection, StatsCounter stats, ClientRecipeBook recipeBook, Input lastSentInput, boolean wasSprinting, ChatAbilities chatAbilities) {
-        throw Unimplemented.forMember("net/minecraft/client/player/LocalPlayer.<init>:(Lnet/minecraft/client/Minecraft;Lnet/minecraft/client/multiplayer/ClientLevel;Lnet/minecraft/client/multiplayer/ClientPacketListener;Lnet/minecraft/stats/StatsCounter;Lnet/minecraft/client/ClientRecipeBook;Lnet/minecraft/world/entity/player/Input;ZLnet/minecraft/client/multiplayer/chat/ChatAbilities;)V");
     }
 
     public void heal(float heal) {

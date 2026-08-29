@@ -16,7 +16,6 @@ public class CraftingInput implements RecipeInput {
     private final int ingredientCount = 0;
 
     private CraftingInput(int width, int height, List<ItemStack> items) {
-        throw Unimplemented.forMember("net/minecraft/world/item/crafting/CraftingInput.<init>:(IILjava/util/List;)V");
     }
 
     public static CraftingInput of(int width, int height, List<ItemStack> items) {

@@ -5,7 +5,6 @@ import dev.pumpkin.shim.Unimplemented;
 public class DifficultyInstance {
 
     public DifficultyInstance(Difficulty base, long totalGameTime, long localGameTime, float moonBrightness) {
-        throw Unimplemented.forMember("net/minecraft/world/DifficultyInstance.<init>:(Lnet/minecraft/world/Difficulty;JJF)V");
     }
 
     public Difficulty getDifficulty() {

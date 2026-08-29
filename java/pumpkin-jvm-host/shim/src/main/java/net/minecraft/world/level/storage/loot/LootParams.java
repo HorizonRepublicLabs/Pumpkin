@@ -13,7 +13,6 @@ import dev.pumpkin.shim.Unimplemented;
 public class LootParams {
 
     public LootParams(ServerLevel level, ContextMap params, Map<Identifier, LootParams.DynamicDrop> dynamicDrops, float luck) {
-        throw Unimplemented.forMember("net/minecraft/world/level/storage/loot/LootParams.<init>:(Lnet/minecraft/server/level/ServerLevel;Lnet/minecraft/util/context/ContextMap;Ljava/util/Map;F)V");
     }
 
     public ServerLevel getLevel() {
@@ -23,7 +22,6 @@ public class LootParams {
     public static class Builder {
 
         public Builder(ServerLevel level) {
-            throw Unimplemented.forMember("net/minecraft/world/level/storage/loot/LootParams$Builder.<init>:(Lnet/minecraft/server/level/ServerLevel;)V");
         }
 
         public ServerLevel getLevel() {

@@ -14,7 +14,6 @@ import dev.pumpkin.shim.Unimplemented;
 public class PlayerTeam extends Team {
 
     public PlayerTeam(Scoreboard scoreboard, String name) {
-        throw Unimplemented.forMember("net/minecraft/world/scores/PlayerTeam.<init>:(Lnet/minecraft/world/scores/Scoreboard;Ljava/lang/String;)V");
     }
 
     public Scoreboard getScoreboard() {

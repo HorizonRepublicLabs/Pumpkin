@@ -6,15 +6,12 @@ import dev.pumpkin.shim.Unimplemented;
 public class RandomStrollGoal extends Goal {
 
     public RandomStrollGoal(PathfinderMob mob, double speedModifier) {
-        throw Unimplemented.forMember("net/minecraft/world/entity/ai/goal/RandomStrollGoal.<init>:(Lnet/minecraft/world/entity/PathfinderMob;D)V");
     }
 
     public RandomStrollGoal(PathfinderMob mob, double speedModifier, int interval) {
-        throw Unimplemented.forMember("net/minecraft/world/entity/ai/goal/RandomStrollGoal.<init>:(Lnet/minecraft/world/entity/PathfinderMob;DI)V");
     }
 
     public RandomStrollGoal(PathfinderMob mob, double speedModifier, int interval, boolean checkNoActionTime) {
-        throw Unimplemented.forMember("net/minecraft/world/entity/ai/goal/RandomStrollGoal.<init>:(Lnet/minecraft/world/entity/PathfinderMob;DIZ)V");
     }
 
     public boolean canUse() {

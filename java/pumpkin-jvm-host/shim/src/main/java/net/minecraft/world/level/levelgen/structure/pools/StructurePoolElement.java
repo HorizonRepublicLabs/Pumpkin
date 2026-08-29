@@ -12,12 +12,10 @@ import net.minecraft.world.level.levelgen.structure.BoundingBox;
 import net.minecraft.world.level.levelgen.structure.templatesystem.LiquidSettings;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplateManager;
-import dev.pumpkin.shim.Unimplemented;
 
 public abstract class StructurePoolElement {
 
     protected StructurePoolElement(StructureTemplatePool.Projection projection) {
-        throw Unimplemented.forMember("net/minecraft/world/level/levelgen/structure/pools/StructurePoolElement.<init>:(Lnet/minecraft/world/level/levelgen/structure/pools/StructureTemplatePool$Projection;)V");
     }
 
     public abstract Vec3i getSize(StructureTemplateManager structureTemplateManager, Rotation rotation);

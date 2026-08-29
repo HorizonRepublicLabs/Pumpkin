@@ -6,7 +6,6 @@ import dev.pumpkin.shim.Unimplemented;
 public final class WorldGenSettings extends SavedData {
 
     public WorldGenSettings(WorldOptions options, WorldDimensions dimensions) {
-        throw Unimplemented.forMember("net/minecraft/world/level/levelgen/WorldGenSettings.<init>:(Lnet/minecraft/world/level/levelgen/WorldOptions;Lnet/minecraft/world/level/levelgen/WorldDimensions;)V");
     }
 
     public int hashCode() {

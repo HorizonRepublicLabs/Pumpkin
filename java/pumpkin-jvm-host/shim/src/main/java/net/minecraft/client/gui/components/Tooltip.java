@@ -11,7 +11,6 @@ import dev.pumpkin.shim.Unimplemented;
 public class Tooltip implements NarrationSupplier {
 
     private Tooltip(Component message, Component narration, Optional<TooltipComponent> component, Identifier style) {
-        throw Unimplemented.forMember("net/minecraft/client/gui/components/Tooltip.<init>:(Lnet/minecraft/network/chat/Component;Lnet/minecraft/network/chat/Component;Ljava/util/Optional;Lnet/minecraft/resources/Identifier;)V");
     }
 
     public static Tooltip create(Component message) {

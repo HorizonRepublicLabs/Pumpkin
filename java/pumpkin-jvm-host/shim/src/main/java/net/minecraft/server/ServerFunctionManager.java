@@ -9,7 +9,6 @@ import dev.pumpkin.shim.Unimplemented;
 public class ServerFunctionManager {
 
     public ServerFunctionManager(MinecraftServer server, ServerFunctionLibrary library) {
-        throw Unimplemented.forMember("net/minecraft/server/ServerFunctionManager.<init>:(Lnet/minecraft/server/MinecraftServer;Lnet/minecraft/server/ServerFunctionLibrary;)V");
     }
 
     public void tick() {

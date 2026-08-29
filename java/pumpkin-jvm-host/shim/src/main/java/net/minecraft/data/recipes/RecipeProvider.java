@@ -17,7 +17,6 @@ public abstract class RecipeProvider {
     protected final RecipeOutput output = Stubs.of(RecipeOutput.class, "net/minecraft/data/recipes/RecipeOutput");
 
     protected RecipeProvider(HolderLookup.Provider registries, RecipeOutput output) {
-        throw Unimplemented.forMember("net/minecraft/data/recipes/RecipeProvider.<init>:(Lnet/minecraft/core/HolderLookup$Provider;Lnet/minecraft/data/recipes/RecipeOutput;)V");
     }
 
     protected abstract void buildRecipes();
@@ -39,7 +38,6 @@ public abstract class RecipeProvider {
     public abstract static class Runner implements DataProvider {
 
         protected Runner(PackOutput packOutput, CompletableFuture<HolderLookup.Provider> registries) {
-            throw Unimplemented.forMember("net/minecraft/data/recipes/RecipeProvider$Runner.<init>:(Lnet/minecraft/data/PackOutput;Ljava/util/concurrent/CompletableFuture;)V");
         }
 
         public final CompletableFuture<?> run(CachedOutput cache) {

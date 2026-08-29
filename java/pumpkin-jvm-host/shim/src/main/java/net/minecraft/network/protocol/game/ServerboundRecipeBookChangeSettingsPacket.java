@@ -9,11 +9,9 @@ import dev.pumpkin.shim.Unimplemented;
 public class ServerboundRecipeBookChangeSettingsPacket implements Packet<ServerGamePacketListener> {
 
     public ServerboundRecipeBookChangeSettingsPacket(RecipeBookType bookType, boolean isOpen, boolean isFiltering) {
-        throw Unimplemented.forMember("net/minecraft/network/protocol/game/ServerboundRecipeBookChangeSettingsPacket.<init>:(Lnet/minecraft/world/inventory/RecipeBookType;ZZ)V");
     }
 
     private ServerboundRecipeBookChangeSettingsPacket(FriendlyByteBuf input) {
-        throw Unimplemented.forMember("net/minecraft/network/protocol/game/ServerboundRecipeBookChangeSettingsPacket.<init>:(Lnet/minecraft/network/FriendlyByteBuf;)V");
     }
 
     private void write(FriendlyByteBuf output) {

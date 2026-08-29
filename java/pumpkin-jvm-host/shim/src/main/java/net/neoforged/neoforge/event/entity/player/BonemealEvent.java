@@ -12,7 +12,6 @@ import dev.pumpkin.shim.Unimplemented;
 public class BonemealEvent extends Event implements ICancellableEvent {
 
     public BonemealEvent(Player player, Level level, BlockPos pos, BlockState state, ItemStack stack) {
-        throw Unimplemented.forMember("net/neoforged/neoforge/event/entity/player/BonemealEvent.<init>:(Lnet/minecraft/world/entity/player/Player;Lnet/minecraft/world/level/Level;Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/state/BlockState;Lnet/minecraft/world/item/ItemStack;)V");
     }
 
     public Player getPlayer() {

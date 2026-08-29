@@ -12,7 +12,6 @@ import dev.pumpkin.shim.Unimplemented;
 public class ClientMannequin extends Mannequin implements ClientAvatarEntity {
 
     public ClientMannequin(Level level, PlayerSkinRenderCache skinRenderCache) {
-        throw Unimplemented.forMember("net/minecraft/client/entity/ClientMannequin.<init>:(Lnet/minecraft/world/level/Level;Lnet/minecraft/client/renderer/PlayerSkinRenderCache;)V");
     }
 
     public void tick() {

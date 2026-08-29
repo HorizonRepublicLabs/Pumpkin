@@ -8,11 +8,9 @@ import dev.pumpkin.shim.Unimplemented;
 public abstract class BanListEntry<T> extends StoredUserEntry<T> {
 
     public BanListEntry(T user, Date created, String source, Date expires, String reason) {
-        throw Unimplemented.forMember("net/minecraft/server/players/BanListEntry.<init>:(Ljava/lang/Object;Ljava/util/Date;Ljava/lang/String;Ljava/util/Date;Ljava/lang/String;)V");
     }
 
     protected BanListEntry(T user, JsonObject object) {
-        throw Unimplemented.forMember("net/minecraft/server/players/BanListEntry.<init>:(Ljava/lang/Object;Lcom/google/gson/JsonObject;)V");
     }
 
     public String getSource() {

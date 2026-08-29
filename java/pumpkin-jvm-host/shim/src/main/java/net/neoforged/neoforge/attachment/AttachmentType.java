@@ -7,13 +7,11 @@ import dev.pumpkin.shim.Unimplemented;
 public final class AttachmentType<T> {
 
     private AttachmentType(Builder<T> builder) {
-        throw Unimplemented.forMember("net/neoforged/neoforge/attachment/AttachmentType.<init>:(Lnet/neoforged/neoforge/attachment/AttachmentType$Builder;)V");
     }
 
     public static class Builder<T> {
 
         private Builder(Function<IAttachmentHolder, T> defaultValueSupplier) {
-            throw Unimplemented.forMember("net/neoforged/neoforge/attachment/AttachmentType$Builder.<init>:(Ljava/util/function/Function;)V");
         }
 
         public Builder<T> serialize(IAttachmentSerializer<T> serializer) {

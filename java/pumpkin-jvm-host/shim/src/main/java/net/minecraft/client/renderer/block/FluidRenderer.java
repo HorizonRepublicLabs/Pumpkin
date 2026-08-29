@@ -9,7 +9,6 @@ import dev.pumpkin.shim.Unimplemented;
 public class FluidRenderer {
 
     public FluidRenderer(FluidStateModelSet fluidModels) {
-        throw Unimplemented.forMember("net/minecraft/client/renderer/block/FluidRenderer.<init>:(Lnet/minecraft/client/renderer/block/FluidStateModelSet;)V");
     }
 
     private float getHeight(BlockAndTintGetter level, Fluid fluidType, BlockPos pos) {

@@ -18,7 +18,6 @@ import dev.pumpkin.shim.Unimplemented;
 public abstract class Fluid implements IFluidExtension {
 
     protected Fluid() {
-        throw Unimplemented.forMember("net/minecraft/world/level/material/Fluid.<init>:()V");
     }
 
     public abstract Item getBucket();

@@ -11,7 +11,6 @@ import dev.pumpkin.shim.Unimplemented;
 public abstract class BaseEntityBlock extends Block implements EntityBlock {
 
     public BaseEntityBlock(BlockBehaviour.Properties properties) {
-        throw Unimplemented.forMember("net/minecraft/world/level/block/BaseEntityBlock.<init>:(Lnet/minecraft/world/level/block/state/BlockBehaviour$Properties;)V");
     }
 
     protected abstract MapCodec<? extends BaseEntityBlock> codec();

@@ -8,7 +8,6 @@ import dev.pumpkin.shim.Unimplemented;
 public class WeighedSoundEvents implements Weighted<Sound> {
 
     public WeighedSoundEvents(Identifier location, String subtitle) {
-        throw Unimplemented.forMember("net/minecraft/client/sounds/WeighedSoundEvents.<init>:(Lnet/minecraft/resources/Identifier;Ljava/lang/String;)V");
     }
 
     public int getWeight() {

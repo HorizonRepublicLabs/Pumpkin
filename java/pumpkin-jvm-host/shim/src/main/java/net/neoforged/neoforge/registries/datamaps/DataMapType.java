@@ -9,7 +9,6 @@ import dev.pumpkin.shim.Unimplemented;
 public class DataMapType<R, T> {
 
     DataMapType(ResourceKey<Registry<R>> registryKey, Identifier id, Codec<T> codec, Codec<T> networkCodec, boolean mandatorySync) {
-        throw Unimplemented.forMember("net/neoforged/neoforge/registries/datamaps/DataMapType.<init>:(Lnet/minecraft/resources/ResourceKey;Lnet/minecraft/resources/Identifier;Lcom/mojang/serialization/Codec;Lcom/mojang/serialization/Codec;Z)V");
     }
 
     public Identifier id() {
@@ -23,7 +22,6 @@ public class DataMapType<R, T> {
     public static class Builder<T, R> {
 
         Builder(ResourceKey<Registry<R>> registryKey, Identifier id, Codec<T> codec) {
-            throw Unimplemented.forMember("net/neoforged/neoforge/registries/datamaps/DataMapType$Builder.<init>:(Lnet/minecraft/resources/ResourceKey;Lnet/minecraft/resources/Identifier;Lcom/mojang/serialization/Codec;)V");
         }
 
         public DataMapType<R, T> build() {

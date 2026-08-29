@@ -10,7 +10,6 @@ import dev.pumpkin.shim.Unimplemented;
 public class PlayerModel extends HumanoidModel<AvatarRenderState> {
 
     public PlayerModel(ModelPart root, boolean slim) {
-        throw Unimplemented.forMember("net/minecraft/client/model/player/PlayerModel.<init>:(Lnet/minecraft/client/model/geom/ModelPart;Z)V");
     }
 
     public void translateToHand(AvatarRenderState state, HumanoidArm arm, PoseStack poseStack) {

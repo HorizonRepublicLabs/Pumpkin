@@ -7,11 +7,9 @@ import dev.pumpkin.shim.Unimplemented;
 public class WaterAvoidingRandomStrollGoal extends RandomStrollGoal {
 
     public WaterAvoidingRandomStrollGoal(PathfinderMob mob, double speedModifier) {
-        throw Unimplemented.forMember("net/minecraft/world/entity/ai/goal/WaterAvoidingRandomStrollGoal.<init>:(Lnet/minecraft/world/entity/PathfinderMob;D)V");
     }
 
     public WaterAvoidingRandomStrollGoal(PathfinderMob mob, double speedModifier, float probability) {
-        throw Unimplemented.forMember("net/minecraft/world/entity/ai/goal/WaterAvoidingRandomStrollGoal.<init>:(Lnet/minecraft/world/entity/PathfinderMob;DF)V");
     }
 
     protected Vec3 getPosition() {

@@ -38,7 +38,6 @@ import dev.pumpkin.shim.Unimplemented;
 public abstract class AbstractHorse extends Animal implements PlayerRideableJumping, HasCustomInventoryScreen, OwnableEntity {
 
     protected AbstractHorse(EntityType<? extends AbstractHorse> type, Level level) {
-        throw Unimplemented.forMember("net/minecraft/world/entity/animal/equine/AbstractHorse.<init>:(Lnet/minecraft/world/entity/EntityType;Lnet/minecraft/world/level/Level;)V");
     }
 
     protected void registerGoals() {
@@ -216,7 +215,6 @@ public abstract class AbstractHorse extends Animal implements PlayerRideableJump
     private class MountPanicGoal extends PanicGoal {
 
         public MountPanicGoal(double speedModifier) {
-            throw Unimplemented.forMember("net/minecraft/world/entity/animal/equine/AbstractHorse$MountPanicGoal.<init>:(D)V");
         }
 
         public boolean shouldPanic() {

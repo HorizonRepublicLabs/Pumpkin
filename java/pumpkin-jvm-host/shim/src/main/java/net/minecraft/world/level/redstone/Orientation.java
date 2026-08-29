@@ -6,7 +6,6 @@ import dev.pumpkin.shim.Unimplemented;
 public class Orientation {
 
     private Orientation(Direction up, Direction front, Orientation.SideBias sideBias) {
-        throw Unimplemented.forMember("net/minecraft/world/level/redstone/Orientation.<init>:(Lnet/minecraft/core/Direction;Lnet/minecraft/core/Direction;Lnet/minecraft/world/level/redstone/Orientation$SideBias;)V");
     }
 
     public String toString() {

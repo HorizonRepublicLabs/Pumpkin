@@ -16,13 +16,11 @@ import dev.pumpkin.shim.Unimplemented;
 public abstract class RegisterColorHandlersEvent extends Event implements IModBusEvent {
 
     protected RegisterColorHandlersEvent() {
-        throw Unimplemented.forMember("net/neoforged/neoforge/client/event/RegisterColorHandlersEvent.<init>:()V");
     }
 
     public static class BlockTintSources extends RegisterColorHandlersEvent {
 
         public BlockTintSources(BlockColors blockColors) {
-            throw Unimplemented.forMember("net/neoforged/neoforge/client/event/RegisterColorHandlersEvent$BlockTintSources.<init>:(Lnet/minecraft/client/color/block/BlockColors;)V");
         }
 
         public void register(List<BlockTintSource> tintSources, net.minecraft.world.level.block.Block... blocks) {
@@ -36,7 +34,6 @@ public abstract class RegisterColorHandlersEvent extends Event implements IModBu
     public static class ColorResolvers extends RegisterColorHandlersEvent {
 
         public ColorResolvers(ImmutableList.Builder<ColorResolver> builder) {
-            throw Unimplemented.forMember("net/neoforged/neoforge/client/event/RegisterColorHandlersEvent$ColorResolvers.<init>:(Lcom/google/common/collect/ImmutableList$Builder;)V");
         }
 
         public void register(ColorResolver resolver) {
@@ -50,7 +47,6 @@ public abstract class RegisterColorHandlersEvent extends Event implements IModBu
     public static class ItemTintSources extends RegisterColorHandlersEvent {
 
         public ItemTintSources(ExtraCodecs.LateBoundIdMapper<Identifier, MapCodec<? extends ItemTintSource>> idMapper) {
-            throw Unimplemented.forMember("net/neoforged/neoforge/client/event/RegisterColorHandlersEvent$ItemTintSources.<init>:(Lnet/minecraft/util/ExtraCodecs$LateBoundIdMapper;)V");
         }
 
         public void register(Identifier location, MapCodec<? extends ItemTintSource> source) {

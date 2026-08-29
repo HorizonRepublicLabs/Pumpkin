@@ -10,7 +10,6 @@ import dev.pumpkin.shim.Unimplemented;
 public class LivingDropsEvent extends LivingEvent implements ICancellableEvent {
 
     public LivingDropsEvent(LivingEntity entity, DamageSource source, Collection<ItemEntity> drops, boolean recentlyHit) {
-        throw Unimplemented.forMember("net/neoforged/neoforge/event/entity/living/LivingDropsEvent.<init>:(Lnet/minecraft/world/entity/LivingEntity;Lnet/minecraft/world/damagesource/DamageSource;Ljava/util/Collection;Z)V");
     }
 
     public DamageSource getSource() {

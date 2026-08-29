@@ -12,15 +12,12 @@ import dev.pumpkin.shim.Unimplemented;
 public class ClientboundPlayerLookAtPacket implements Packet<ClientGamePacketListener> {
 
     public ClientboundPlayerLookAtPacket(EntityAnchorArgument.Anchor fromAnchor, double x, double y, double z) {
-        throw Unimplemented.forMember("net/minecraft/network/protocol/game/ClientboundPlayerLookAtPacket.<init>:(Lnet/minecraft/commands/arguments/EntityAnchorArgument$Anchor;DDD)V");
     }
 
     public ClientboundPlayerLookAtPacket(EntityAnchorArgument.Anchor fromAnchor, Entity entity, EntityAnchorArgument.Anchor toAnchor) {
-        throw Unimplemented.forMember("net/minecraft/network/protocol/game/ClientboundPlayerLookAtPacket.<init>:(Lnet/minecraft/commands/arguments/EntityAnchorArgument$Anchor;Lnet/minecraft/world/entity/Entity;Lnet/minecraft/commands/arguments/EntityAnchorArgument$Anchor;)V");
     }
 
     private ClientboundPlayerLookAtPacket(FriendlyByteBuf input) {
-        throw Unimplemented.forMember("net/minecraft/network/protocol/game/ClientboundPlayerLookAtPacket.<init>:(Lnet/minecraft/network/FriendlyByteBuf;)V");
     }
 
     private void write(FriendlyByteBuf output) {

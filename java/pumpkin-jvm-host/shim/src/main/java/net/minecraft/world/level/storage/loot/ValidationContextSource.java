@@ -8,7 +8,6 @@ import dev.pumpkin.shim.Unimplemented;
 public class ValidationContextSource {
 
     public ValidationContextSource(ProblemReporter reporter, HolderGetter.Provider lootData) {
-        throw Unimplemented.forMember("net/minecraft/world/level/storage/loot/ValidationContextSource.<init>:(Lnet/minecraft/util/ProblemReporter;Lnet/minecraft/core/HolderGetter$Provider;)V");
     }
 
     public ValidationContext context(ContextKeySet params) {

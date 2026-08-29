@@ -16,11 +16,9 @@ import dev.pumpkin.shim.Unimplemented;
 public class SpriteContents implements AutoCloseable, Stitcher.Entry {
 
     public SpriteContents(Identifier name, FrameSize frameSize, NativeImage image) {
-        throw Unimplemented.forMember("net/minecraft/client/renderer/texture/SpriteContents.<init>:(Lnet/minecraft/resources/Identifier;Lnet/minecraft/client/resources/metadata/animation/FrameSize;Lcom/mojang/blaze3d/platform/NativeImage;)V");
     }
 
     public SpriteContents(Identifier name, FrameSize frameSize, NativeImage image, Optional<AnimationMetadataSection> animationInfo, List<MetadataSectionType.WithValue<?>> additionalMetadata, Optional<TextureMetadataSection> textureInfo) {
-        throw Unimplemented.forMember("net/minecraft/client/renderer/texture/SpriteContents.<init>:(Lnet/minecraft/resources/Identifier;Lnet/minecraft/client/resources/metadata/animation/FrameSize;Lcom/mojang/blaze3d/platform/NativeImage;Ljava/util/Optional;Ljava/util/List;Ljava/util/Optional;)V");
     }
 
     public int width() {
@@ -46,7 +44,6 @@ public class SpriteContents implements AutoCloseable, Stitcher.Entry {
     class AnimatedTexture {
 
         private AnimatedTexture(List<SpriteContents.FrameInfo> frames, int frameRowSize, boolean interpolateFrames) {
-            throw Unimplemented.forMember("net/minecraft/client/renderer/texture/SpriteContents$AnimatedTexture.<init>:(Ljava/util/List;IZ)V");
         }
 
         protected AnimatedTexture() {
@@ -56,7 +53,6 @@ public class SpriteContents implements AutoCloseable, Stitcher.Entry {
     public class AnimationState implements AutoCloseable {
 
         private AnimationState(SpriteContents.AnimatedTexture animationInfo, Int2ObjectMap<GpuTextureView> frameTexturesByIndex, GpuBufferSlice[] spriteUbosByMip) {
-            throw Unimplemented.forMember("net/minecraft/client/renderer/texture/SpriteContents$AnimationState.<init>:(Lnet/minecraft/client/renderer/texture/SpriteContents$AnimatedTexture;Lit/unimi/dsi/fastutil/ints/Int2ObjectMap;[Lcom/mojang/blaze3d/buffers/GpuBufferSlice;)V");
         }
 
         public void tick() {

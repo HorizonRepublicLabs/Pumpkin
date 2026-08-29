@@ -8,7 +8,6 @@ import dev.pumpkin.shim.Unimplemented;
 public abstract class VoxelShape {
 
     protected VoxelShape(DiscreteVoxelShape shape) {
-        throw Unimplemented.forMember("net/minecraft/world/phys/shapes/VoxelShape.<init>:(Lnet/minecraft/world/phys/shapes/DiscreteVoxelShape;)V");
     }
 
     public AABB bounds() {
@@ -31,6 +30,18 @@ public abstract class VoxelShape {
 
     public String toString() {
         throw Unimplemented.forMember("net/minecraft/world/phys/shapes/VoxelShape.toString:()Ljava/lang/String;");
+    }
+
+    // Pumpkin divergence: no vanilla counterpart. The inert shape every shape-building
+    // helper returns -- geometry Pumpkin never consults, whose one abstract member throws
+    // with a name if anything ever reads it.
+    public static VoxelShape pumpkinInert() {
+        return new VoxelShape() {
+            @Override
+            public DoubleList getCoords(Direction.Axis axis) {
+                throw dev.pumpkin.shim.Unimplemented.forMember("net/minecraft/world/phys/shapes/VoxelShape.getCoords:(Lnet/minecraft/core/Direction$Axis;)Lit/unimi/dsi/fastutil/doubles/DoubleList;");
+            }
+        };
     }
 
     public VoxelShape() {

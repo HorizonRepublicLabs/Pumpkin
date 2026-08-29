@@ -8,11 +8,9 @@ import dev.pumpkin.shim.Unimplemented;
 public class ServerboundPingRequestPacket implements Packet<ServerPingPacketListener> {
 
     public ServerboundPingRequestPacket(long time) {
-        throw Unimplemented.forMember("net/minecraft/network/protocol/ping/ServerboundPingRequestPacket.<init>:(J)V");
     }
 
     private ServerboundPingRequestPacket(ByteBuf input) {
-        throw Unimplemented.forMember("net/minecraft/network/protocol/ping/ServerboundPingRequestPacket.<init>:(Lio/netty/buffer/ByteBuf;)V");
     }
 
     private void write(ByteBuf output) {

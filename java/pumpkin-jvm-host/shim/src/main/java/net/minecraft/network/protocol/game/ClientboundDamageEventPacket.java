@@ -15,12 +15,10 @@ public record ClientboundDamageEventPacket(int entityId, Holder<DamageType> sour
 
     public ClientboundDamageEventPacket(Entity entity, DamageSource source) {
         this((int) 0, (Holder<DamageType>) null, (int) 0, (int) 0, (Optional<Vec3>) null);
-        throw Unimplemented.forMember("net/minecraft/network/protocol/game/ClientboundDamageEventPacket.<init>:(Lnet/minecraft/world/entity/Entity;Lnet/minecraft/world/damagesource/DamageSource;)V");
     }
 
     private ClientboundDamageEventPacket(RegistryFriendlyByteBuf input) {
         this((int) 0, (Holder<DamageType>) null, (int) 0, (int) 0, (Optional<Vec3>) null);
-        throw Unimplemented.forMember("net/minecraft/network/protocol/game/ClientboundDamageEventPacket.<init>:(Lnet/minecraft/network/RegistryFriendlyByteBuf;)V");
     }
 
     private void write(RegistryFriendlyByteBuf output) {

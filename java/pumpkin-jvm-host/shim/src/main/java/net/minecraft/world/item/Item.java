@@ -54,7 +54,6 @@ public class Item implements ItemLike, FeatureElement, IItemExtension {
     }
 
     public Item(Item.Properties properties) {
-        throw Unimplemented.forMember("net/minecraft/world/item/Item.<init>:(Lnet/minecraft/world/item/Item$Properties;)V");
     }
 
     public Holder.Reference<Item> builtInRegistryHolder() {

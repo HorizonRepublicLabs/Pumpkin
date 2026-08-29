@@ -15,7 +15,6 @@ public record SignedMessageBody(String content, Instant timeStamp, long salt, La
 
         public Packed(FriendlyByteBuf input) {
             this((String) null, (Instant) null, (long) 0L, (LastSeenMessages.Packed) null);
-            throw Unimplemented.forMember("net/minecraft/network/chat/SignedMessageBody$Packed.<init>:(Lnet/minecraft/network/FriendlyByteBuf;)V");
         }
 
         public void write(FriendlyByteBuf output) {

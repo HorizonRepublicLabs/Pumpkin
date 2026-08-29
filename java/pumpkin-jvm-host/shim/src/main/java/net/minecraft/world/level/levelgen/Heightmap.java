@@ -8,7 +8,6 @@ import dev.pumpkin.shim.Unimplemented;
 public class Heightmap {
 
     public Heightmap(ChunkAccess chunk, Heightmap.Types heightmapType) {
-        throw Unimplemented.forMember("net/minecraft/world/level/levelgen/Heightmap.<init>:(Lnet/minecraft/world/level/chunk/ChunkAccess;Lnet/minecraft/world/level/levelgen/Heightmap$Types;)V");
     }
 
     public boolean update(int localX, int localY, int localZ, BlockState state) {

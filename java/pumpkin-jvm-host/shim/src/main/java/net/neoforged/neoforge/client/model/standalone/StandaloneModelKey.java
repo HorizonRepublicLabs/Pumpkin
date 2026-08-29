@@ -6,7 +6,6 @@ import dev.pumpkin.shim.Unimplemented;
 public final class StandaloneModelKey<T> {
 
     public StandaloneModelKey(ModelDebugName name) {
-        throw Unimplemented.forMember("net/neoforged/neoforge/client/model/standalone/StandaloneModelKey.<init>:(Lnet/minecraft/client/resources/model/ModelDebugName;)V");
     }
 
     public String getName() {

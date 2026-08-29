@@ -21,11 +21,9 @@ public final class EntityReference<StoredEntityType extends UniquelyIdentifyable
     }
 
     private EntityReference(StoredEntityType entity) {
-        throw Unimplemented.forMember("net/minecraft/world/entity/EntityReference.<init>:(Lnet/minecraft/world/level/entity/UniquelyIdentifyable;)V");
     }
 
     private EntityReference(UUID uuid) {
-        throw Unimplemented.forMember("net/minecraft/world/entity/EntityReference.<init>:(Ljava/util/UUID;)V");
     }
 
     public UUID getUUID() {

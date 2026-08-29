@@ -9,11 +9,9 @@ import dev.pumpkin.shim.Unimplemented;
 public class ClientboundOpenBookPacket implements Packet<ClientGamePacketListener> {
 
     public ClientboundOpenBookPacket(InteractionHand hand) {
-        throw Unimplemented.forMember("net/minecraft/network/protocol/game/ClientboundOpenBookPacket.<init>:(Lnet/minecraft/world/InteractionHand;)V");
     }
 
     private ClientboundOpenBookPacket(FriendlyByteBuf input) {
-        throw Unimplemented.forMember("net/minecraft/network/protocol/game/ClientboundOpenBookPacket.<init>:(Lnet/minecraft/network/FriendlyByteBuf;)V");
     }
 
     private void write(FriendlyByteBuf output) {

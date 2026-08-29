@@ -9,7 +9,6 @@ import dev.pumpkin.shim.Unimplemented;
 public abstract class PathNavigation {
 
     public PathNavigation(Mob mob, Level level) {
-        throw Unimplemented.forMember("net/minecraft/world/entity/ai/navigation/PathNavigation.<init>:(Lnet/minecraft/world/entity/Mob;Lnet/minecraft/world/level/Level;)V");
     }
 
     protected abstract PathFinder createPathFinder(final int maxVisitedNodes);

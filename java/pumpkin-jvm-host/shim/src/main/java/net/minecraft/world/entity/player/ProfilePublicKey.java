@@ -13,7 +13,6 @@ public record ProfilePublicKey(ProfilePublicKey.Data data) {
 
         public Data(FriendlyByteBuf input) {
             this((Instant) null, (PublicKey) null, (byte[]) null);
-            throw Unimplemented.forMember("net/minecraft/world/entity/player/ProfilePublicKey$Data.<init>:(Lnet/minecraft/network/FriendlyByteBuf;)V");
         }
 
         public void write(FriendlyByteBuf output) {
@@ -28,7 +27,6 @@ public record ProfilePublicKey(ProfilePublicKey.Data data) {
     public static class ValidationException extends ThrowingComponent {
 
         public ValidationException(Component component) {
-            throw Unimplemented.forMember("net/minecraft/world/entity/player/ProfilePublicKey$ValidationException.<init>:(Lnet/minecraft/network/chat/Component;)V");
         }
 
         public ValidationException() {

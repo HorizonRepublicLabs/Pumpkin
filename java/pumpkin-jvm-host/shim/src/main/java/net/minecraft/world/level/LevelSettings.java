@@ -7,7 +7,6 @@ public record LevelSettings(String levelName, GameType gameType, LevelSettings.D
 
     public LevelSettings(String levelName, GameType gameType, DifficultySettings difficultySettings, boolean allowCommands, WorldDataConfiguration dataConfiguration) {
         this((String) null, (GameType) null, (LevelSettings.DifficultySettings) null, (boolean) false, (WorldDataConfiguration) null, (com.mojang.serialization.Lifecycle) null);
-        throw Unimplemented.forMember("net/minecraft/world/level/LevelSettings.<init>:(Ljava/lang/String;Lnet/minecraft/world/level/GameType;Lnet/minecraft/world/level/LevelSettings$DifficultySettings;ZLnet/minecraft/world/level/WorldDataConfiguration;)V");
     }
 
     public LevelSettings copy() {

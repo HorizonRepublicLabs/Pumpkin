@@ -8,15 +8,12 @@ import dev.pumpkin.shim.Unimplemented;
 public class MerchantOffers extends ArrayList<MerchantOffer> {
 
     public MerchantOffers() {
-        throw Unimplemented.forMember("net/minecraft/world/item/trading/MerchantOffers.<init>:()V");
     }
 
     private MerchantOffers(int initialCapacity) {
-        throw Unimplemented.forMember("net/minecraft/world/item/trading/MerchantOffers.<init>:(I)V");
     }
 
     private MerchantOffers(Collection<MerchantOffer> offers) {
-        throw Unimplemented.forMember("net/minecraft/world/item/trading/MerchantOffers.<init>:(Ljava/util/Collection;)V");
     }
 
     public MerchantOffer getRecipeFor(ItemStack buyA, ItemStack buyB, int selectionHint) {

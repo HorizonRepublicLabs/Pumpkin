@@ -12,7 +12,6 @@ public record AdvancementRequirements(List<List<String>> requirements) {
 
     public AdvancementRequirements(FriendlyByteBuf input) {
         this((List<List<String>>) null);
-        throw Unimplemented.forMember("net/minecraft/advancements/AdvancementRequirements.<init>:(Lnet/minecraft/network/FriendlyByteBuf;)V");
     }
 
     public void write(FriendlyByteBuf output) {

@@ -15,15 +15,12 @@ import dev.pumpkin.shim.Unimplemented;
 public final class CompoundTag implements Tag {
 
     CompoundTag(Map<String, Tag> tags) {
-        throw Unimplemented.forMember("net/minecraft/nbt/CompoundTag.<init>:(Ljava/util/Map;)V");
     }
 
     public CompoundTag() {
-        throw Unimplemented.forMember("net/minecraft/nbt/CompoundTag.<init>:()V");
     }
 
     public CompoundTag(int expectedEntries) {
-        throw Unimplemented.forMember("net/minecraft/nbt/CompoundTag.<init>:(I)V");
     }
 
     public void write(DataOutput output) throws IOException {

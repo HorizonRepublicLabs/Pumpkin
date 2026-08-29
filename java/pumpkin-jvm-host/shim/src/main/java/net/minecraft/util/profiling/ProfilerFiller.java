@@ -29,7 +29,6 @@ public interface ProfilerFiller {
     class CombinedProfileFiller implements ProfilerFiller {
 
         public CombinedProfileFiller(ProfilerFiller first, ProfilerFiller second) {
-            throw Unimplemented.forMember("net/minecraft/util/profiling/ProfilerFiller$CombinedProfileFiller.<init>:(Lnet/minecraft/util/profiling/ProfilerFiller;Lnet/minecraft/util/profiling/ProfilerFiller;)V");
         }
 
         public void startTick() {

@@ -8,7 +8,6 @@ import dev.pumpkin.shim.Unimplemented;
 public final class EnvironmentAttributeMap {
 
     private EnvironmentAttributeMap(Map<EnvironmentAttribute<?>, EnvironmentAttributeMap.Entry<?, ?>> entries) {
-        throw Unimplemented.forMember("net/minecraft/world/attribute/EnvironmentAttributeMap.<init>:(Ljava/util/Map;)V");
     }
 
     public <Value> EnvironmentAttributeMap.Entry<Value, ?> get(EnvironmentAttribute<Value> attribute) {
@@ -38,7 +37,6 @@ public final class EnvironmentAttributeMap {
     public static class Builder {
 
         protected Builder() {
-            throw Unimplemented.forMember("net/minecraft/world/attribute/EnvironmentAttributeMap$Builder.<init>:()V");
         }
 
         public <Value, Parameter> EnvironmentAttributeMap.Builder modify(EnvironmentAttribute<Value> attribute, AttributeModifier<Value, Parameter> modifier, Parameter value) {

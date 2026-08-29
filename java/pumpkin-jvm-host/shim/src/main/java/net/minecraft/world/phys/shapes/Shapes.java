@@ -5,28 +5,52 @@ import dev.pumpkin.shim.Unimplemented;
 
 public final class Shapes {
 
+    // Pumpkin divergence: real-enough body -- see VoxelShape.pumpkinInert.
+
     public static VoxelShape block() {
-        throw Unimplemented.forMember("net/minecraft/world/phys/shapes/Shapes.block:()Lnet/minecraft/world/phys/shapes/VoxelShape;");
+
+        return VoxelShape.pumpkinInert();
+
     }
+
+    // Pumpkin divergence: real-enough body -- see VoxelShape.pumpkinInert.
 
     public static VoxelShape box(double minX, double minY, double minZ, double maxX, double maxY, double maxZ) {
-        throw Unimplemented.forMember("net/minecraft/world/phys/shapes/Shapes.box:(DDDDDD)Lnet/minecraft/world/phys/shapes/VoxelShape;");
+
+        return VoxelShape.pumpkinInert();
+
     }
+
+    // Pumpkin divergence: real-enough body -- see VoxelShape.pumpkinInert.
 
     public static VoxelShape create(double minX, double minY, double minZ, double maxX, double maxY, double maxZ) {
-        throw Unimplemented.forMember("net/minecraft/world/phys/shapes/Shapes.create:(DDDDDD)Lnet/minecraft/world/phys/shapes/VoxelShape;");
+
+        return VoxelShape.pumpkinInert();
+
     }
+
+    // Pumpkin divergence: real-enough body -- see VoxelShape.pumpkinInert.
 
     public static VoxelShape create(AABB aabb) {
-        throw Unimplemented.forMember("net/minecraft/world/phys/shapes/Shapes.create:(Lnet/minecraft/world/phys/AABB;)Lnet/minecraft/world/phys/shapes/VoxelShape;");
+
+        return VoxelShape.pumpkinInert();
+
     }
+
+    // Pumpkin divergence: real-enough body -- see VoxelShape.pumpkinInert.
 
     public static VoxelShape or(VoxelShape first, VoxelShape second) {
-        throw Unimplemented.forMember("net/minecraft/world/phys/shapes/Shapes.or:(Lnet/minecraft/world/phys/shapes/VoxelShape;Lnet/minecraft/world/phys/shapes/VoxelShape;)Lnet/minecraft/world/phys/shapes/VoxelShape;");
+
+        return VoxelShape.pumpkinInert();
+
     }
 
+    // Pumpkin divergence: real-enough body -- see VoxelShape.pumpkinInert.
+
     public static VoxelShape or(VoxelShape first, VoxelShape... tail) {
-        throw Unimplemented.forMember("net/minecraft/world/phys/shapes/Shapes.or:(Lnet/minecraft/world/phys/shapes/VoxelShape;[Lnet/minecraft/world/phys/shapes/VoxelShape;)Lnet/minecraft/world/phys/shapes/VoxelShape;");
+
+        return VoxelShape.pumpkinInert();
+
     }
 
     public interface DoubleLineConsumer {

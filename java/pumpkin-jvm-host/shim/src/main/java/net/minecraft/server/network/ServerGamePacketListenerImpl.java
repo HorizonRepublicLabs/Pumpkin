@@ -75,7 +75,6 @@ import dev.pumpkin.shim.Unimplemented;
 public class ServerGamePacketListenerImpl extends ServerCommonPacketListenerImpl implements ServerGamePacketListener, ServerPlayerConnection, TickablePacketListener, GameProtocols.Context {
 
     public ServerGamePacketListenerImpl(MinecraftServer server, Connection connection, ServerPlayer player, CommonListenerCookie cookie) {
-        throw Unimplemented.forMember("net/minecraft/server/network/ServerGamePacketListenerImpl.<init>:(Lnet/minecraft/server/MinecraftServer;Lnet/minecraft/network/Connection;Lnet/minecraft/server/level/ServerPlayer;Lnet/minecraft/server/network/CommonListenerCookie;)V");
     }
 
     public void tick() {

@@ -9,7 +9,6 @@ import dev.pumpkin.shim.Unimplemented;
 public class StateDefinition<O, S extends StateHolder<O, S>> {
 
     protected StateDefinition(Function<O, S> defaultState, O owner, StateDefinition.Factory<O, S> factory, Map<String, Property<?>> properties) {
-        throw Unimplemented.forMember("net/minecraft/world/level/block/state/StateDefinition.<init>:(Ljava/util/function/Function;Ljava/lang/Object;Lnet/minecraft/world/level/block/state/StateDefinition$Factory;Ljava/util/Map;)V");
     }
 
     public S any() {
@@ -27,7 +26,6 @@ public class StateDefinition<O, S extends StateHolder<O, S>> {
     public static class Builder<O, S extends StateHolder<O, S>> {
 
         public Builder(O owner) {
-            throw Unimplemented.forMember("net/minecraft/world/level/block/state/StateDefinition$Builder.<init>:(Ljava/lang/Object;)V");
         }
 
         public StateDefinition.Builder<O, S> add(Property<?>... properties) {

@@ -28,7 +28,6 @@ import dev.pumpkin.shim.Unimplemented;
 public class ServerChunkCache extends ChunkSource implements IServerChunkCacheExtension {
 
     public ServerChunkCache(ServerLevel level, LevelStorageSource.LevelStorageAccess levelStorage, DataFixer fixerUpper, StructureTemplateManager structureTemplateManager, Executor executor, ChunkGenerator generator, int viewDistance, int simulationDistance, boolean syncWrites, ChunkStatusUpdateListener chunkStatusListener, Supplier<SavedDataStorage> overworldDataStorage) {
-        throw Unimplemented.forMember("net/minecraft/server/level/ServerChunkCache.<init>:(Lnet/minecraft/server/level/ServerLevel;Lnet/minecraft/world/level/storage/LevelStorageSource$LevelStorageAccess;Lcom/mojang/datafixers/DataFixer;Lnet/minecraft/world/level/levelgen/structure/templatesystem/StructureTemplateManager;Ljava/util/concurrent/Executor;Lnet/minecraft/world/level/chunk/ChunkGenerator;IIZLnet/minecraft/world/level/entity/ChunkStatusUpdateListener;Ljava/util/function/Supplier;)V");
     }
 
     public ThreadedLevelLightEngine getLightEngine() {
@@ -98,7 +97,6 @@ public class ServerChunkCache extends ChunkSource implements IServerChunkCacheEx
     private final class MainThreadExecutor extends BlockableEventLoop<Runnable> {
 
         private MainThreadExecutor(Level level) {
-            throw Unimplemented.forMember("net/minecraft/server/level/ServerChunkCache$MainThreadExecutor.<init>:(Lnet/minecraft/world/level/Level;)V");
         }
 
         public Runnable wrapRunnable(Runnable runnable) {

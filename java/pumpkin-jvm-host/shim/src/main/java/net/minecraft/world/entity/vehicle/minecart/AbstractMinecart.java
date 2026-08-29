@@ -22,11 +22,9 @@ import dev.pumpkin.shim.Unimplemented;
 public abstract class AbstractMinecart extends VehicleEntity {
 
     protected AbstractMinecart(EntityType<?> type, Level level) {
-        throw Unimplemented.forMember("net/minecraft/world/entity/vehicle/minecart/AbstractMinecart.<init>:(Lnet/minecraft/world/entity/EntityType;Lnet/minecraft/world/level/Level;)V");
     }
 
     protected AbstractMinecart(EntityType<?> type, Level level, double x, double y, double z) {
-        throw Unimplemented.forMember("net/minecraft/world/entity/vehicle/minecart/AbstractMinecart.<init>:(Lnet/minecraft/world/entity/EntityType;Lnet/minecraft/world/level/Level;DDD)V");
     }
 
     protected Entity.MovementEmission getMovementEmission() {

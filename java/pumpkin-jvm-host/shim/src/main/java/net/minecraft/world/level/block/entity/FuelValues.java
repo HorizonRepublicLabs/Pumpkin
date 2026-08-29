@@ -12,7 +12,6 @@ import dev.pumpkin.shim.Unimplemented;
 public class FuelValues {
 
     private FuelValues(Object2IntSortedMap<Item> values) {
-        throw Unimplemented.forMember("net/minecraft/world/level/block/entity/FuelValues.<init>:(Lit/unimi/dsi/fastutil/objects/Object2IntSortedMap;)V");
     }
 
     public boolean isFuel(ItemStack itemStack) {
@@ -22,7 +21,6 @@ public class FuelValues {
     public static class Builder {
 
         public Builder(HolderLookup.Provider registries, FeatureFlagSet enabledFeatures) {
-            throw Unimplemented.forMember("net/minecraft/world/level/block/entity/FuelValues$Builder.<init>:(Lnet/minecraft/core/HolderLookup$Provider;Lnet/minecraft/world/flag/FeatureFlagSet;)V");
         }
 
         public FuelValues build() {

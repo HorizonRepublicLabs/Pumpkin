@@ -8,11 +8,9 @@ import dev.pumpkin.shim.Unimplemented;
 public class ClientboundClearTitlesPacket implements Packet<ClientGamePacketListener> {
 
     public ClientboundClearTitlesPacket(boolean resetTimes) {
-        throw Unimplemented.forMember("net/minecraft/network/protocol/game/ClientboundClearTitlesPacket.<init>:(Z)V");
     }
 
     private ClientboundClearTitlesPacket(FriendlyByteBuf input) {
-        throw Unimplemented.forMember("net/minecraft/network/protocol/game/ClientboundClearTitlesPacket.<init>:(Lnet/minecraft/network/FriendlyByteBuf;)V");
     }
 
     private void write(FriendlyByteBuf output) {

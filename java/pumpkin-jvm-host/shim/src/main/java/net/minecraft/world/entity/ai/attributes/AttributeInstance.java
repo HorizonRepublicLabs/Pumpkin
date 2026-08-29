@@ -9,7 +9,6 @@ import dev.pumpkin.shim.Unimplemented;
 public class AttributeInstance {
 
     public AttributeInstance(Holder<Attribute> attribute, Consumer<AttributeInstance> onDirty) {
-        throw Unimplemented.forMember("net/minecraft/world/entity/ai/attributes/AttributeInstance.<init>:(Lnet/minecraft/core/Holder;Ljava/util/function/Consumer;)V");
     }
 
     public AttributeModifier getModifier(Identifier id) {

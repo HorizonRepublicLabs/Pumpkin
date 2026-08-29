@@ -9,7 +9,6 @@ import dev.pumpkin.shim.Unimplemented;
 public class RegisterCapabilitiesEvent extends Event implements IModBusEvent {
 
     RegisterCapabilitiesEvent() {
-        throw Unimplemented.forMember("net/neoforged/neoforge/capabilities/RegisterCapabilitiesEvent.<init>:()V");
     }
 
     public <T, C extends Object, BE extends BlockEntity> void registerBlockEntity(BlockCapability<T, C> capability, BlockEntityType<BE> blockEntityType, ICapabilityProvider<? super BE, C, T> provider) {

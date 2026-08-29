@@ -26,27 +26,21 @@ public final class FluidStack implements MutableDataComponentHolder, FluidInstan
     }
 
     public FluidStack(Fluid fluid, int amount, DataComponentPatch patch) {
-        throw Unimplemented.forMember("net/neoforged/neoforge/fluids/FluidStack.<init>:(Lnet/minecraft/world/level/material/Fluid;ILnet/minecraft/core/component/DataComponentPatch;)V");
     }
 
     public FluidStack(Fluid fluid, int amount) {
-        throw Unimplemented.forMember("net/neoforged/neoforge/fluids/FluidStack.<init>:(Lnet/minecraft/world/level/material/Fluid;I)V");
     }
 
     public FluidStack(Holder<Fluid> fluid, int amount) {
-        throw Unimplemented.forMember("net/neoforged/neoforge/fluids/FluidStack.<init>:(Lnet/minecraft/core/Holder;I)V");
     }
 
     public FluidStack(Holder<Fluid> fluid, int amount, DataComponentPatch patch) {
-        throw Unimplemented.forMember("net/neoforged/neoforge/fluids/FluidStack.<init>:(Lnet/minecraft/core/Holder;ILnet/minecraft/core/component/DataComponentPatch;)V");
     }
 
     private FluidStack(Holder<Fluid> fluid, int amount, PatchedDataComponentMap components) {
-        throw Unimplemented.forMember("net/neoforged/neoforge/fluids/FluidStack.<init>:(Lnet/minecraft/core/Holder;ILnet/minecraft/core/component/PatchedDataComponentMap;)V");
     }
 
     private FluidStack(Void unused) {
-        throw Unimplemented.forMember("net/neoforged/neoforge/fluids/FluidStack.<init>:(Ljava/lang/Void;)V");
     }
 
     public boolean isEmpty() {

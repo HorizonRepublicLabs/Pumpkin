@@ -12,7 +12,6 @@ import dev.pumpkin.shim.Unimplemented;
 public class BowItem extends ProjectileWeaponItem {
 
     public BowItem(Item.Properties properties) {
-        throw Unimplemented.forMember("net/minecraft/world/item/BowItem.<init>:(Lnet/minecraft/world/item/Item$Properties;)V");
     }
 
     public boolean releaseUsing(ItemStack itemStack, Level level, LivingEntity entity, int remainingTime) {

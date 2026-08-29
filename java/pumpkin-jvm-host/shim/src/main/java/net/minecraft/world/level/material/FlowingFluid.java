@@ -70,7 +70,6 @@ public abstract class FlowingFluid extends Fluid {
     protected class SpreadContext {
 
         private SpreadContext(BlockGetter level, BlockPos origin) {
-            throw Unimplemented.forMember("net/minecraft/world/level/material/FlowingFluid$SpreadContext.<init>:(Lnet/minecraft/world/level/BlockGetter;Lnet/minecraft/core/BlockPos;)V");
         }
 
         public BlockState getBlockState(BlockPos pos) {

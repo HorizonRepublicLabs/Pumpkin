@@ -9,7 +9,6 @@ import dev.pumpkin.shim.Unimplemented;
 public class CacheableFunction {
 
     public CacheableFunction(Identifier id) {
-        throw Unimplemented.forMember("net/minecraft/commands/CacheableFunction.<init>:(Lnet/minecraft/resources/Identifier;)V");
     }
 
     public Optional<CommandFunction<CommandSourceStack>> get(ServerFunctionManager manager) {

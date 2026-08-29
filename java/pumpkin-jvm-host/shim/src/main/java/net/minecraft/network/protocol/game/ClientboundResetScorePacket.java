@@ -9,7 +9,6 @@ public record ClientboundResetScorePacket(String owner, String objectiveName) im
 
     private ClientboundResetScorePacket(FriendlyByteBuf input) {
         this((String) null, (String) null);
-        throw Unimplemented.forMember("net/minecraft/network/protocol/game/ClientboundResetScorePacket.<init>:(Lnet/minecraft/network/FriendlyByteBuf;)V");
     }
 
     private void write(FriendlyByteBuf output) {

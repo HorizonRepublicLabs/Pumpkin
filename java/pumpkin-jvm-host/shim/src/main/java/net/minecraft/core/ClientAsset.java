@@ -18,7 +18,6 @@ public interface ClientAsset {
 
         public ResourceTexture(Identifier texture) {
             this((Identifier) null, (Identifier) null);
-            throw Unimplemented.forMember("net/minecraft/core/ClientAsset$ResourceTexture.<init>:(Lnet/minecraft/resources/Identifier;)V");
         }
     }
 

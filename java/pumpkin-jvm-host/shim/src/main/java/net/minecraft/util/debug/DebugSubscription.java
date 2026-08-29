@@ -8,11 +8,9 @@ import dev.pumpkin.shim.Unimplemented;
 public class DebugSubscription<T> {
 
     public DebugSubscription(StreamCodec<? super RegistryFriendlyByteBuf, T> valueStreamCodec, int expireAfterTicks) {
-        throw Unimplemented.forMember("net/minecraft/util/debug/DebugSubscription.<init>:(Lnet/minecraft/network/codec/StreamCodec;I)V");
     }
 
     public DebugSubscription(StreamCodec<? super RegistryFriendlyByteBuf, T> valueStreamCodec) {
-        throw Unimplemented.forMember("net/minecraft/util/debug/DebugSubscription.<init>:(Lnet/minecraft/network/codec/StreamCodec;)V");
     }
 
     public String toString() {

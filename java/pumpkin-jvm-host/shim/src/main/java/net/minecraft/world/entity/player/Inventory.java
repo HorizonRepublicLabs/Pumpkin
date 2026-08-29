@@ -22,7 +22,6 @@ public class Inventory implements Container, Nameable {
     public final Player player = null;
 
     public Inventory(Player player, EntityEquipment equipment) {
-        throw Unimplemented.forMember("net/minecraft/world/entity/player/Inventory.<init>:(Lnet/minecraft/world/entity/player/Player;Lnet/minecraft/world/entity/EntityEquipment;)V");
     }
 
     public ItemStack getSelectedItem() {

@@ -11,7 +11,6 @@ import dev.pumpkin.shim.Unimplemented;
 public class RegisterRangeSelectItemModelPropertyEvent extends Event implements IModBusEvent {
 
     public RegisterRangeSelectItemModelPropertyEvent(ExtraCodecs.LateBoundIdMapper<Identifier, MapCodec<? extends RangeSelectItemModelProperty>> idMapper) {
-        throw Unimplemented.forMember("net/neoforged/neoforge/client/event/RegisterRangeSelectItemModelPropertyEvent.<init>:(Lnet/minecraft/util/ExtraCodecs$LateBoundIdMapper;)V");
     }
 
     public void register(Identifier location, MapCodec<? extends RangeSelectItemModelProperty> source) {

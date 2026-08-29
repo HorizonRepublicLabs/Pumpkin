@@ -9,11 +9,9 @@ import dev.pumpkin.shim.Unimplemented;
 public class ServerboundJigsawGeneratePacket implements Packet<ServerGamePacketListener> {
 
     public ServerboundJigsawGeneratePacket(BlockPos blockPos, int levels, boolean keepJigsaws) {
-        throw Unimplemented.forMember("net/minecraft/network/protocol/game/ServerboundJigsawGeneratePacket.<init>:(Lnet/minecraft/core/BlockPos;IZ)V");
     }
 
     private ServerboundJigsawGeneratePacket(FriendlyByteBuf input) {
-        throw Unimplemented.forMember("net/minecraft/network/protocol/game/ServerboundJigsawGeneratePacket.<init>:(Lnet/minecraft/network/FriendlyByteBuf;)V");
     }
 
     private void write(FriendlyByteBuf output) {

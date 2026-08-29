@@ -18,7 +18,6 @@ import dev.pumpkin.shim.Unimplemented;
 public class CuboidItemModelWrapper implements ItemModel {
 
     public CuboidItemModelWrapper(List<ItemTintSource> tints, QuadCollection quads, ModelRenderProperties properties, Matrix4fc transformation) {
-        throw Unimplemented.forMember("net/minecraft/client/renderer/item/CuboidItemModelWrapper.<init>:(Ljava/util/List;Lnet/minecraft/client/resources/model/geometry/QuadCollection;Lnet/minecraft/client/renderer/item/ModelRenderProperties;Lorg/joml/Matrix4fc;)V");
     }
 
     public void update(ItemStackRenderState output, ItemStack item, ItemModelResolver resolver, ItemDisplayContext displayContext, ClientLevel level, ItemOwner owner, int seed) {

@@ -12,7 +12,6 @@ import dev.pumpkin.shim.Unimplemented;
 public abstract class LivingEntityRenderer<T extends LivingEntity, S extends LivingEntityRenderState, M extends EntityModel<? super S>> extends EntityRenderer<T, S> implements RenderLayerParent<S, M> {
 
     public LivingEntityRenderer(EntityRendererProvider.Context context, M model, float shadow) {
-        throw Unimplemented.forMember("net/minecraft/client/renderer/entity/LivingEntityRenderer.<init>:(Lnet/minecraft/client/renderer/entity/EntityRendererProvider$Context;Lnet/minecraft/client/model/EntityModel;F)V");
     }
 
     public M getModel() {

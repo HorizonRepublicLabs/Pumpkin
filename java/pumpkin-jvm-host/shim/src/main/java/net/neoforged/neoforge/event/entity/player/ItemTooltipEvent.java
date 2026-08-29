@@ -12,7 +12,6 @@ import dev.pumpkin.shim.Unimplemented;
 public class ItemTooltipEvent extends PlayerEvent {
 
     public ItemTooltipEvent(ItemStack itemStack, Player player, List<Component> list, TooltipFlag flags, TooltipContext context, TooltipDisplay display) {
-        throw Unimplemented.forMember("net/neoforged/neoforge/event/entity/player/ItemTooltipEvent.<init>:(Lnet/minecraft/world/item/ItemStack;Lnet/minecraft/world/entity/player/Player;Ljava/util/List;Lnet/minecraft/world/item/TooltipFlag;Lnet/minecraft/world/item/Item$TooltipContext;Lnet/minecraft/world/item/component/TooltipDisplay;)V");
     }
 
     public TooltipFlag getFlags() {

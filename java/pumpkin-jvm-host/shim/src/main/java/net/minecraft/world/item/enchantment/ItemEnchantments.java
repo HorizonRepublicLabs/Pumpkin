@@ -17,7 +17,6 @@ public class ItemEnchantments implements TooltipProvider {
     public static final ItemEnchantments EMPTY = null;
 
     private ItemEnchantments(Object2IntOpenHashMap<Holder<Enchantment>> enchantments) {
-        throw Unimplemented.forMember("net/minecraft/world/item/enchantment/ItemEnchantments.<init>:(Lit/unimi/dsi/fastutil/objects/Object2IntOpenHashMap;)V");
     }
 
     public int getLevel(Holder<Enchantment> enchantment) {
@@ -59,7 +58,6 @@ public class ItemEnchantments implements TooltipProvider {
     public static class Mutable {
 
         public Mutable(ItemEnchantments enchantments) {
-            throw Unimplemented.forMember("net/minecraft/world/item/enchantment/ItemEnchantments$Mutable.<init>:(Lnet/minecraft/world/item/enchantment/ItemEnchantments;)V");
         }
 
         public void set(Holder<Enchantment> enchantment, int level) {

@@ -19,7 +19,6 @@ public abstract class WorldCarver<C extends CarverConfiguration> {
     }
 
     public WorldCarver(Codec<C> codec) {
-        throw Unimplemented.forMember("net/minecraft/world/level/levelgen/carver/WorldCarver.<init>:(Lcom/mojang/serialization/Codec;)V");
     }
 
     public abstract boolean carve(final CarvingContext context, final C configuration, final ChunkAccess chunk, final Function<BlockPos, Holder<Biome>> biomeGetter, final RandomSource random, final Aquifer aquifer, final ChunkPos sourceChunkPos, CarvingMask mask);

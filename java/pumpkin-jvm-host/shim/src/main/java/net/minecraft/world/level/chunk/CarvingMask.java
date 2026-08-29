@@ -5,11 +5,9 @@ import dev.pumpkin.shim.Unimplemented;
 public class CarvingMask {
 
     public CarvingMask(int height, int minY) {
-        throw Unimplemented.forMember("net/minecraft/world/level/chunk/CarvingMask.<init>:(II)V");
     }
 
     public CarvingMask(long[] array, int minY) {
-        throw Unimplemented.forMember("net/minecraft/world/level/chunk/CarvingMask.<init>:([JI)V");
     }
 
     public void set(int x, int y, int z) {

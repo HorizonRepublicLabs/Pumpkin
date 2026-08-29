@@ -14,7 +14,6 @@ import dev.pumpkin.shim.Unimplemented;
 public abstract class VegetationBlock extends Block {
 
     public VegetationBlock(BlockBehaviour.Properties properties) {
-        throw Unimplemented.forMember("net/minecraft/world/level/block/VegetationBlock.<init>:(Lnet/minecraft/world/level/block/state/BlockBehaviour$Properties;)V");
     }
 
     protected abstract MapCodec<? extends VegetationBlock> codec();

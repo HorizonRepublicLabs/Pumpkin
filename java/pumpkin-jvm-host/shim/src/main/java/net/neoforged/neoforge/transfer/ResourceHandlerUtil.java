@@ -6,7 +6,6 @@ import dev.pumpkin.shim.Unimplemented;
 public final class ResourceHandlerUtil {
 
     protected ResourceHandlerUtil() {
-        throw Unimplemented.forMember("net/neoforged/neoforge/transfer/ResourceHandlerUtil.<init>:()V");
     }
 
     public static <T extends Resource> boolean isValid(ResourceHandler<T> handler, T resource) {

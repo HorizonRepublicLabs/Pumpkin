@@ -11,7 +11,6 @@ import dev.pumpkin.shim.Unimplemented;
 public abstract class LootPoolEntryContainer implements ComposableEntryContainer, Validatable {
 
     protected LootPoolEntryContainer(List<LootItemCondition> conditions) {
-        throw Unimplemented.forMember("net/minecraft/world/level/storage/loot/entries/LootPoolEntryContainer.<init>:(Ljava/util/List;)V");
     }
 
     public void validate(ValidationContext output) {

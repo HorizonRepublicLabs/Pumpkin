@@ -11,11 +11,9 @@ import dev.pumpkin.shim.Unimplemented;
 public class ClipContext {
 
     public ClipContext(Vec3 from, Vec3 to, ClipContext.Block block, ClipContext.Fluid fluid, Entity entity) {
-        throw Unimplemented.forMember("net/minecraft/world/level/ClipContext.<init>:(Lnet/minecraft/world/phys/Vec3;Lnet/minecraft/world/phys/Vec3;Lnet/minecraft/world/level/ClipContext$Block;Lnet/minecraft/world/level/ClipContext$Fluid;Lnet/minecraft/world/entity/Entity;)V");
     }
 
     public ClipContext(Vec3 from, Vec3 to, ClipContext.Block block, ClipContext.Fluid fluid, CollisionContext collisionContext) {
-        throw Unimplemented.forMember("net/minecraft/world/level/ClipContext.<init>:(Lnet/minecraft/world/phys/Vec3;Lnet/minecraft/world/phys/Vec3;Lnet/minecraft/world/level/ClipContext$Block;Lnet/minecraft/world/level/ClipContext$Fluid;Lnet/minecraft/world/phys/shapes/CollisionContext;)V");
     }
 
     public enum Block implements ClipContext.ShapeGetter {

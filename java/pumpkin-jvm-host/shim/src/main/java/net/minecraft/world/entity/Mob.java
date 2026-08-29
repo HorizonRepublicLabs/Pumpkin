@@ -26,7 +26,6 @@ import dev.pumpkin.shim.Unimplemented;
 public abstract class Mob extends LivingEntity implements Targeting, EquipmentUser, Leashable {
 
     protected Mob(EntityType<? extends Mob> type, Level level) {
-        throw Unimplemented.forMember("net/minecraft/world/entity/Mob.<init>:(Lnet/minecraft/world/entity/EntityType;Lnet/minecraft/world/level/Level;)V");
     }
 
     public LivingEntity getControllingPassenger() {

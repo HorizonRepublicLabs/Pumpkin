@@ -15,7 +15,6 @@ public record ServerboundTestInstanceBlockActionPacket(BlockPos pos, Serverbound
 
     public ServerboundTestInstanceBlockActionPacket(BlockPos pos, ServerboundTestInstanceBlockActionPacket.Action action, Optional<ResourceKey<GameTestInstance>> test, Vec3i size, Rotation rotation, boolean ignoreEntities) {
         this((BlockPos) null, (ServerboundTestInstanceBlockActionPacket.Action) null, (TestInstanceBlockEntity.Data) null);
-        throw Unimplemented.forMember("net/minecraft/network/protocol/game/ServerboundTestInstanceBlockActionPacket.<init>:(Lnet/minecraft/core/BlockPos;Lnet/minecraft/network/protocol/game/ServerboundTestInstanceBlockActionPacket$Action;Ljava/util/Optional;Lnet/minecraft/core/Vec3i;Lnet/minecraft/world/level/block/Rotation;Z)V");
     }
 
     public PacketType<ServerboundTestInstanceBlockActionPacket> type() {

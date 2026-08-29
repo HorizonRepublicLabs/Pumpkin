@@ -16,7 +16,6 @@ public class ItemModelGenerators {
     public final BiConsumer<Identifier, ModelInstance> modelOutput = null;
 
     public ItemModelGenerators(ItemModelOutput itemModelOutput, BiConsumer<Identifier, ModelInstance> modelOutput) {
-        throw Unimplemented.forMember("net/minecraft/client/data/models/ItemModelGenerators.<init>:(Lnet/minecraft/client/data/models/ItemModelOutput;Ljava/util/function/BiConsumer;)V");
     }
 
     public void run() {

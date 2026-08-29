@@ -8,11 +8,9 @@ import dev.pumpkin.shim.Unimplemented;
 public class IpBanListEntry extends BanListEntry<String> {
 
     public IpBanListEntry(String address) {
-        throw Unimplemented.forMember("net/minecraft/server/players/IpBanListEntry.<init>:(Ljava/lang/String;)V");
     }
 
     public IpBanListEntry(String address, Date created, String source, Date expires, String reason) {
-        throw Unimplemented.forMember("net/minecraft/server/players/IpBanListEntry.<init>:(Ljava/lang/String;Ljava/util/Date;Ljava/lang/String;Ljava/util/Date;Ljava/lang/String;)V");
     }
 
     public Component getDisplayName() {
@@ -20,7 +18,6 @@ public class IpBanListEntry extends BanListEntry<String> {
     }
 
     public IpBanListEntry(JsonObject object) {
-        throw Unimplemented.forMember("net/minecraft/server/players/IpBanListEntry.<init>:(Lcom/google/gson/JsonObject;)V");
     }
 
     protected void serialize(JsonObject object) {

@@ -15,12 +15,10 @@ public record BlockStateModelDispatcher(Optional<BlockStateModelDispatcher.Simpl
 
     public BlockStateModelDispatcher(Optional<BlockStateModelDispatcher.SimpleModelSelectors> simpleModels, Optional<BlockStateModelDispatcher.MultiPartDefinition> multiPart) {
         this((Optional<BlockStateModelDispatcher.SimpleModelSelectors>) null, (Optional<BlockStateModelDispatcher.MultiPartDefinition>) null, (Optional<net.neoforged.neoforge.client.model.block.CustomBlockModelDefinition>) null);
-        throw Unimplemented.forMember("net/minecraft/client/renderer/block/dispatch/BlockStateModelDispatcher.<init>:(Ljava/util/Optional;Ljava/util/Optional;)V");
     }
 
     public BlockStateModelDispatcher(net.neoforged.neoforge.client.model.block.CustomBlockModelDefinition customDefinition) {
         this((Optional<BlockStateModelDispatcher.SimpleModelSelectors>) null, (Optional<BlockStateModelDispatcher.MultiPartDefinition>) null, (Optional<net.neoforged.neoforge.client.model.block.CustomBlockModelDefinition>) null);
-        throw Unimplemented.forMember("net/minecraft/client/renderer/block/dispatch/BlockStateModelDispatcher.<init>:(Lnet/neoforged/neoforge/client/model/block/CustomBlockModelDefinition;)V");
     }
 
     public Map<BlockState, BlockStateModel.UnbakedRoot> instantiate(StateDefinition<Block, BlockState> stateDefinition, Supplier<String> source) {

@@ -7,7 +7,6 @@ import dev.pumpkin.shim.Unimplemented;
 public class CompactVectorArray {
 
     public CompactVectorArray(int count) {
-        throw Unimplemented.forMember("com/mojang/blaze3d/vertex/CompactVectorArray.<init>:(I)V");
     }
 
     public int size() {

@@ -12,7 +12,6 @@ import dev.pumpkin.shim.Unimplemented;
 public final class DensityFunctions {
 
     protected DensityFunctions() {
-        throw Unimplemented.forMember("net/minecraft/world/level/levelgen/DensityFunctions.<init>:()V");
     }
 
     public static DensityFunction add(DensityFunction f1, DensityFunction f2) {
@@ -153,7 +152,6 @@ public final class DensityFunctions {
     protected static final class EndIslandDensityFunction implements DensityFunction.SimpleFunction {
 
         public EndIslandDensityFunction(long seed) {
-            throw Unimplemented.forMember("net/minecraft/world/level/levelgen/DensityFunctions$EndIslandDensityFunction.<init>:(J)V");
         }
 
         public double compute(DensityFunction.FunctionContext context) {
@@ -532,7 +530,6 @@ public final class DensityFunctions {
     public static final class Spline implements DensityFunction {
 
         public Spline(CubicSpline<DensityFunctions.Spline.Coordinate> spline) {
-            throw Unimplemented.forMember("net/minecraft/world/level/levelgen/DensityFunctions$Spline.<init>:(Lnet/minecraft/util/CubicSpline;)V");
         }
 
         public double compute(DensityFunction.FunctionContext context) {

@@ -6,11 +6,9 @@ import dev.pumpkin.shim.Unimplemented;
 public class AdvancementProgress implements Comparable<AdvancementProgress> {
 
     private AdvancementProgress(Map<String, CriterionProgress> criteria) {
-        throw Unimplemented.forMember("net/minecraft/advancements/AdvancementProgress.<init>:(Ljava/util/Map;)V");
     }
 
     public AdvancementProgress() {
-        throw Unimplemented.forMember("net/minecraft/advancements/AdvancementProgress.<init>:()V");
     }
 
     public void update(AdvancementRequirements requirements) {

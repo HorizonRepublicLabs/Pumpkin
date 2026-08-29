@@ -61,12 +61,10 @@ public interface ClickEvent {
 
         public OpenFile(File file) {
             this((String) null);
-            throw Unimplemented.forMember("net/minecraft/network/chat/ClickEvent$OpenFile.<init>:(Ljava/io/File;)V");
         }
 
         public OpenFile(Path path) {
             this((String) null);
-            throw Unimplemented.forMember("net/minecraft/network/chat/ClickEvent$OpenFile.<init>:(Ljava/nio/file/Path;)V");
         }
 
         public ClickEvent.Action action() {

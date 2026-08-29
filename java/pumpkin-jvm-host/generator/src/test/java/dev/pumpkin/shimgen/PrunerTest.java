@@ -524,7 +524,12 @@ class PrunerTest {
         assertFalse(out.contains("super("),
                 "the super call goes, and with it the argument expressions that named arbitrary members");
         assertFalse(out.contains("name.length()"), "no decompiled expression may survive into the shim");
-        assertTrue(out.contains("Unimplemented"));
+        // Deliberately NOT asserting a throw: constructors are empty, not throwing. Mods
+        // subclass vanilla blocks as a matter of course, and a throwing constructor stopped
+        // the first real mod's InfusedFarmlandBlock from ever existing. Constructing is
+        // storage; every method still throws on use.
+        assertTrue(out.contains("public BlockItem(int id, String name) {\n    }"),
+                "the kept constructor's body is empty");
         assertTrue(out.contains("public BlockItem() {"),
                 "a synthesised no-arg constructor is what the dropped super call now binds to");
     }

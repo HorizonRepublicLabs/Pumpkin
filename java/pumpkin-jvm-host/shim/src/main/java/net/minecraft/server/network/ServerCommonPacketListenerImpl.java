@@ -20,7 +20,6 @@ import dev.pumpkin.shim.Unimplemented;
 public abstract class ServerCommonPacketListenerImpl implements ServerCommonPacketListener {
 
     public ServerCommonPacketListenerImpl(MinecraftServer server, Connection connection, CommonListenerCookie cookie) {
-        throw Unimplemented.forMember("net/minecraft/server/network/ServerCommonPacketListenerImpl.<init>:(Lnet/minecraft/server/MinecraftServer;Lnet/minecraft/network/Connection;Lnet/minecraft/server/network/CommonListenerCookie;)V");
     }
 
     private void close() {

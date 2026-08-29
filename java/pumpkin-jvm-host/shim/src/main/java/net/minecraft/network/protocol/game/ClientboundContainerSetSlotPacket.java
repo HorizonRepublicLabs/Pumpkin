@@ -9,11 +9,9 @@ import dev.pumpkin.shim.Unimplemented;
 public class ClientboundContainerSetSlotPacket implements Packet<ClientGamePacketListener> {
 
     public ClientboundContainerSetSlotPacket(int containerId, int stateId, int slot, ItemStack itemStack) {
-        throw Unimplemented.forMember("net/minecraft/network/protocol/game/ClientboundContainerSetSlotPacket.<init>:(IIILnet/minecraft/world/item/ItemStack;)V");
     }
 
     private ClientboundContainerSetSlotPacket(RegistryFriendlyByteBuf input) {
-        throw Unimplemented.forMember("net/minecraft/network/protocol/game/ClientboundContainerSetSlotPacket.<init>:(Lnet/minecraft/network/RegistryFriendlyByteBuf;)V");
     }
 
     private void write(RegistryFriendlyByteBuf output) {

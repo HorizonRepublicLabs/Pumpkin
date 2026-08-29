@@ -8,11 +8,9 @@ import dev.pumpkin.shim.Unimplemented;
 public class ClientboundLoginCompressionPacket implements Packet<ClientLoginPacketListener> {
 
     public ClientboundLoginCompressionPacket(int compressionThreshold) {
-        throw Unimplemented.forMember("net/minecraft/network/protocol/login/ClientboundLoginCompressionPacket.<init>:(I)V");
     }
 
     private ClientboundLoginCompressionPacket(FriendlyByteBuf input) {
-        throw Unimplemented.forMember("net/minecraft/network/protocol/login/ClientboundLoginCompressionPacket.<init>:(Lnet/minecraft/network/FriendlyByteBuf;)V");
     }
 
     private void write(FriendlyByteBuf output) {

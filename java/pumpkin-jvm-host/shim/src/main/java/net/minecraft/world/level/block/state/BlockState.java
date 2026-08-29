@@ -8,7 +8,6 @@ import dev.pumpkin.shim.Unimplemented;
 public class BlockState extends BlockBehaviour.BlockStateBase implements IBlockStateExtension {
 
     public BlockState(Block owner, Property<?>[] propertyKeys, Comparable<?>[] propertyValues) {
-        throw Unimplemented.forMember("net/minecraft/world/level/block/state/BlockState.<init>:(Lnet/minecraft/world/level/block/Block;[Lnet/minecraft/world/level/block/state/properties/Property;[Ljava/lang/Comparable;)V");
     }
 
     protected BlockState asState() {

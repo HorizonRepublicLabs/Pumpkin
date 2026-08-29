@@ -32,7 +32,6 @@ import dev.pumpkin.shim.Unimplemented;
 public abstract class BlockBehaviour implements FeatureElement {
 
     public BlockBehaviour(BlockBehaviour.Properties properties) {
-        throw Unimplemented.forMember("net/minecraft/world/level/block/state/BlockBehaviour.<init>:(Lnet/minecraft/world/level/block/state/BlockBehaviour$Properties;)V");
     }
 
     protected abstract MapCodec<? extends Block> codec();
@@ -74,11 +73,20 @@ public abstract class BlockBehaviour implements FeatureElement {
         private final boolean canOcclude = false;
 
         protected BlockStateBase(Block owner, Property<?>[] propertyKeys, Comparable<?>[] propertyValues) {
-            throw Unimplemented.forMember("net/minecraft/world/level/block/state/BlockBehaviour$BlockStateBase.<init>:(Lnet/minecraft/world/level/block/Block;[Lnet/minecraft/world/level/block/state/properties/Property;[Ljava/lang/Comparable;)V");
         }
 
+        // Pumpkin divergence: real body. A state answers which block it belongs to --
+        // set by Block.defaultBlockState, the only place states are built. A state with
+        // no owner still fails loudly, naming this member, rather than returning null.
+        // pumpkinOwner is public because Block sets it from another package; it is a
+        // Pumpkin seam, not vanilla API a mod could compile against.
+        public Block pumpkinOwner;
+
         public Block getBlock() {
-            throw Unimplemented.forMember("net/minecraft/world/level/block/state/BlockBehaviour$BlockStateBase.getBlock:()Lnet/minecraft/world/level/block/Block;");
+            if (pumpkinOwner == null) {
+                throw Unimplemented.forMember("net/minecraft/world/level/block/state/BlockBehaviour$BlockStateBase.getBlock:()Lnet/minecraft/world/level/block/Block;");
+            }
+            return pumpkinOwner;
         }
 
         public Holder<Block> typeHolder() {
@@ -130,7 +138,6 @@ public abstract class BlockBehaviour implements FeatureElement {
         private static final class Cache {
 
             private Cache(BlockState state) {
-                throw Unimplemented.forMember("net/minecraft/world/level/block/state/BlockBehaviour$BlockStateBase$Cache.<init>:(Lnet/minecraft/world/level/block/state/BlockState;)V");
             }
 
             protected Cache() {
@@ -257,20 +264,44 @@ public abstract class BlockBehaviour implements FeatureElement {
             return strength(destroyTime, destroyTime);
         }
 
+        // Pumpkin divergence: real body. A spawn/render predicate Pumpkin does not
+
+        // consult; accepted and dropped, chain returns `this`.
+
         public BlockBehaviour.Properties isValidSpawn(BlockBehaviour.StateArgumentPredicate<EntityType<?>> isValidSpawn) {
-            throw Unimplemented.forMember("net/minecraft/world/level/block/state/BlockBehaviour$Properties.isValidSpawn:(Lnet/minecraft/world/level/block/state/BlockBehaviour$StateArgumentPredicate;)Lnet/minecraft/world/level/block/state/BlockBehaviour$Properties;");
+
+            return this;
+
         }
+
+        // Pumpkin divergence: real body. A spawn/render predicate Pumpkin does not
+
+        // consult; accepted and dropped, chain returns `this`.
 
         public BlockBehaviour.Properties isRedstoneConductor(BlockBehaviour.StatePredicate isRedstoneConductor) {
-            throw Unimplemented.forMember("net/minecraft/world/level/block/state/BlockBehaviour$Properties.isRedstoneConductor:(Lnet/minecraft/world/level/block/state/BlockBehaviour$StatePredicate;)Lnet/minecraft/world/level/block/state/BlockBehaviour$Properties;");
+
+            return this;
+
         }
+
+        // Pumpkin divergence: real body. A spawn/render predicate Pumpkin does not
+
+        // consult; accepted and dropped, chain returns `this`.
 
         public BlockBehaviour.Properties isSuffocating(BlockBehaviour.StatePredicate isSuffocating) {
-            throw Unimplemented.forMember("net/minecraft/world/level/block/state/BlockBehaviour$Properties.isSuffocating:(Lnet/minecraft/world/level/block/state/BlockBehaviour$StatePredicate;)Lnet/minecraft/world/level/block/state/BlockBehaviour$Properties;");
+
+            return this;
+
         }
 
+        // Pumpkin divergence: real body. A spawn/render predicate Pumpkin does not
+
+        // consult; accepted and dropped, chain returns `this`.
+
         public BlockBehaviour.Properties isViewBlocking(BlockBehaviour.StatePredicate isViewBlocking) {
-            throw Unimplemented.forMember("net/minecraft/world/level/block/state/BlockBehaviour$Properties.isViewBlocking:(Lnet/minecraft/world/level/block/state/BlockBehaviour$StatePredicate;)Lnet/minecraft/world/level/block/state/BlockBehaviour$Properties;");
+
+            return this;
+
         }
 
         // Pumpkin divergence: real body. Recorded, and dropped at the sink for the same

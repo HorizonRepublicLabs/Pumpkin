@@ -9,11 +9,9 @@ import dev.pumpkin.shim.Unimplemented;
 public class ServerboundUseItemPacket implements Packet<ServerGamePacketListener> {
 
     public ServerboundUseItemPacket(InteractionHand hand, int sequence, float yRot, float xRot) {
-        throw Unimplemented.forMember("net/minecraft/network/protocol/game/ServerboundUseItemPacket.<init>:(Lnet/minecraft/world/InteractionHand;IFF)V");
     }
 
     private ServerboundUseItemPacket(FriendlyByteBuf input) {
-        throw Unimplemented.forMember("net/minecraft/network/protocol/game/ServerboundUseItemPacket.<init>:(Lnet/minecraft/network/FriendlyByteBuf;)V");
     }
 
     private void write(FriendlyByteBuf output) {

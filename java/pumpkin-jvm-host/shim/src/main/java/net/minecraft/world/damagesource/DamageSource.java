@@ -14,23 +14,18 @@ public class DamageSource {
     }
 
     public DamageSource(Holder<DamageType> type, Entity directEntity, Entity causingEntity, Vec3 damageSourcePosition) {
-        throw Unimplemented.forMember("net/minecraft/world/damagesource/DamageSource.<init>:(Lnet/minecraft/core/Holder;Lnet/minecraft/world/entity/Entity;Lnet/minecraft/world/entity/Entity;Lnet/minecraft/world/phys/Vec3;)V");
     }
 
     public DamageSource(Holder<DamageType> type, Entity directEntity, Entity causingEntity) {
-        throw Unimplemented.forMember("net/minecraft/world/damagesource/DamageSource.<init>:(Lnet/minecraft/core/Holder;Lnet/minecraft/world/entity/Entity;Lnet/minecraft/world/entity/Entity;)V");
     }
 
     public DamageSource(Holder<DamageType> type, Vec3 damageSourcePosition) {
-        throw Unimplemented.forMember("net/minecraft/world/damagesource/DamageSource.<init>:(Lnet/minecraft/core/Holder;Lnet/minecraft/world/phys/Vec3;)V");
     }
 
     public DamageSource(Holder<DamageType> type, Entity causingEntity) {
-        throw Unimplemented.forMember("net/minecraft/world/damagesource/DamageSource.<init>:(Lnet/minecraft/core/Holder;Lnet/minecraft/world/entity/Entity;)V");
     }
 
     public DamageSource(Holder<DamageType> type) {
-        throw Unimplemented.forMember("net/minecraft/world/damagesource/DamageSource.<init>:(Lnet/minecraft/core/Holder;)V");
     }
 
     public Entity getEntity() {

@@ -8,7 +8,6 @@ public record ClientboundStatusResponsePacket(ServerStatus status, String cached
 
     public ClientboundStatusResponsePacket(ServerStatus status) {
         this((ServerStatus) null, (String) null);
-        throw Unimplemented.forMember("net/minecraft/network/protocol/status/ClientboundStatusResponsePacket.<init>:(Lnet/minecraft/network/protocol/status/ServerStatus;)V");
     }
 
     public PacketType<ClientboundStatusResponsePacket> type() {

@@ -38,7 +38,6 @@ public abstract class PropertyDispatch<V> {
     public static class C1<V, T1 extends Comparable<T1>> extends PropertyDispatch<V> {
 
         private C1(Property<T1> property1) {
-            throw Unimplemented.forMember("net/minecraft/client/data/models/blockstates/PropertyDispatch$C1.<init>:(Lnet/minecraft/world/level/block/state/properties/Property;)V");
         }
 
         public List<Property<?>> getDefinedProperties() {
@@ -60,7 +59,6 @@ public abstract class PropertyDispatch<V> {
     public static class C2<V, T1 extends Comparable<T1>, T2 extends Comparable<T2>> extends PropertyDispatch<V> {
 
         private C2(Property<T1> property1, Property<T2> property2) {
-            throw Unimplemented.forMember("net/minecraft/client/data/models/blockstates/PropertyDispatch$C2.<init>:(Lnet/minecraft/world/level/block/state/properties/Property;Lnet/minecraft/world/level/block/state/properties/Property;)V");
         }
 
         public List<Property<?>> getDefinedProperties() {
@@ -74,7 +72,6 @@ public abstract class PropertyDispatch<V> {
     public static class C3<V, T1 extends Comparable<T1>, T2 extends Comparable<T2>, T3 extends Comparable<T3>> extends PropertyDispatch<V> {
 
         private C3(Property<T1> property1, Property<T2> property2, Property<T3> property3) {
-            throw Unimplemented.forMember("net/minecraft/client/data/models/blockstates/PropertyDispatch$C3.<init>:(Lnet/minecraft/world/level/block/state/properties/Property;Lnet/minecraft/world/level/block/state/properties/Property;Lnet/minecraft/world/level/block/state/properties/Property;)V");
         }
 
         public List<Property<?>> getDefinedProperties() {
@@ -88,7 +85,6 @@ public abstract class PropertyDispatch<V> {
     public static class C4<V, T1 extends Comparable<T1>, T2 extends Comparable<T2>, T3 extends Comparable<T3>, T4 extends Comparable<T4>> extends PropertyDispatch<V> {
 
         private C4(Property<T1> property1, Property<T2> property2, Property<T3> property3, Property<T4> property4) {
-            throw Unimplemented.forMember("net/minecraft/client/data/models/blockstates/PropertyDispatch$C4.<init>:(Lnet/minecraft/world/level/block/state/properties/Property;Lnet/minecraft/world/level/block/state/properties/Property;Lnet/minecraft/world/level/block/state/properties/Property;Lnet/minecraft/world/level/block/state/properties/Property;)V");
         }
 
         public List<Property<?>> getDefinedProperties() {
@@ -102,7 +98,6 @@ public abstract class PropertyDispatch<V> {
     public static class C5<V, T1 extends Comparable<T1>, T2 extends Comparable<T2>, T3 extends Comparable<T3>, T4 extends Comparable<T4>, T5 extends Comparable<T5>> extends PropertyDispatch<V> {
 
         private C5(Property<T1> property1, Property<T2> property2, Property<T3> property3, Property<T4> property4, Property<T5> property5) {
-            throw Unimplemented.forMember("net/minecraft/client/data/models/blockstates/PropertyDispatch$C5.<init>:(Lnet/minecraft/world/level/block/state/properties/Property;Lnet/minecraft/world/level/block/state/properties/Property;Lnet/minecraft/world/level/block/state/properties/Property;Lnet/minecraft/world/level/block/state/properties/Property;Lnet/minecraft/world/level/block/state/properties/Property;)V");
         }
 
         public List<Property<?>> getDefinedProperties() {

@@ -5,7 +5,6 @@ import dev.pumpkin.shim.Unimplemented;
 public class TransferPreconditions {
 
     protected TransferPreconditions() {
-        throw Unimplemented.forMember("net/neoforged/neoforge/transfer/TransferPreconditions.<init>:()V");
     }
 
     public static void checkNonNegative(int value) {

@@ -13,7 +13,6 @@ import dev.pumpkin.shim.Unimplemented;
 public abstract class VehicleEntity extends Entity {
 
     public VehicleEntity(EntityType<?> type, Level level) {
-        throw Unimplemented.forMember("net/minecraft/world/entity/vehicle/VehicleEntity.<init>:(Lnet/minecraft/world/entity/EntityType;Lnet/minecraft/world/level/Level;)V");
     }
 
     public boolean hurtClient(DamageSource source) {

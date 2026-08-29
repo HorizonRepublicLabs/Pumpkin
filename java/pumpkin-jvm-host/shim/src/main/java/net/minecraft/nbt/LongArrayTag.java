@@ -8,7 +8,6 @@ import dev.pumpkin.shim.Unimplemented;
 public final class LongArrayTag implements CollectionTag {
 
     public LongArrayTag(long[] data) {
-        throw Unimplemented.forMember("net/minecraft/nbt/LongArrayTag.<init>:([J)V");
     }
 
     public void write(DataOutput output) throws IOException {

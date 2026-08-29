@@ -20,7 +20,6 @@ public interface PreparableReloadListener {
     final class SharedState {
 
         public SharedState(ResourceManager manager) {
-            throw Unimplemented.forMember("net/minecraft/server/packs/resources/PreparableReloadListener$SharedState.<init>:(Lnet/minecraft/server/packs/resources/ResourceManager;)V");
         }
 
         public ResourceManager resourceManager() {

@@ -10,7 +10,6 @@ public record ServerboundChatSessionUpdatePacket(RemoteChatSession.Data chatSess
 
     private ServerboundChatSessionUpdatePacket(FriendlyByteBuf input) {
         this((RemoteChatSession.Data) null);
-        throw Unimplemented.forMember("net/minecraft/network/protocol/game/ServerboundChatSessionUpdatePacket.<init>:(Lnet/minecraft/network/FriendlyByteBuf;)V");
     }
 
     private void write(FriendlyByteBuf output) {

@@ -972,7 +972,13 @@ public final class Pruner {
      * must delegate explicitly, and its canonical one is known exactly.
      */
     private static void replaceConstructorBody(ConstructorDeclaration c, String key) {
-        c.setBody(new BlockStmt(NodeList.nodeList(throwStatement(key))));
+        // Empty, not throwing -- a deliberate reversal, forced by the first real mod.
+        // Mods subclass vanilla blocks as a matter of course (InfusedFarmlandBlock extends
+        // FarmlandBlock), and a throwing constructor stops the subclass from ever existing.
+        // Constructing is storage, not behaviour: every method on the object still throws
+        // on use, so nothing silently works that should not. The implicit super() binds to
+        // the accessible no-arg constructor ensureNoArgConstructor guarantees.
+        c.setBody(new BlockStmt());
     }
 
     /**

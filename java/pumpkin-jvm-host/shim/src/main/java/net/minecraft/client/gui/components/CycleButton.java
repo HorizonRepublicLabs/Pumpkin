@@ -17,7 +17,6 @@ import dev.pumpkin.shim.Unimplemented;
 public class CycleButton<T> extends AbstractButton implements ResettableOptionWidget {
 
     private CycleButton(int x, int y, int width, int height, Component message, Component name, int index, T value, Supplier<T> defaultValueSupplier, CycleButton.ValueListSupplier<T> values, Function<T, Component> valueStringifier, Function<CycleButton<T>, MutableComponent> narrationProvider, CycleButton.OnValueChange<T> onValueChange, OptionInstance.TooltipSupplier<T> tooltipSupplier, CycleButton.DisplayState displayState, CycleButton.SpriteSupplier<T> spriteSupplier) {
-        throw Unimplemented.forMember("net/minecraft/client/gui/components/CycleButton.<init>:(IIIILnet/minecraft/network/chat/Component;Lnet/minecraft/network/chat/Component;ILjava/lang/Object;Ljava/util/function/Supplier;Lnet/minecraft/client/gui/components/CycleButton$ValueListSupplier;Ljava/util/function/Function;Ljava/util/function/Function;Lnet/minecraft/client/gui/components/CycleButton$OnValueChange;Lnet/minecraft/client/OptionInstance$TooltipSupplier;Lnet/minecraft/client/gui/components/CycleButton$DisplayState;Lnet/minecraft/client/gui/components/CycleButton$SpriteSupplier;)V");
     }
 
     protected void extractContents(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float a) {
@@ -47,7 +46,6 @@ public class CycleButton<T> extends AbstractButton implements ResettableOptionWi
     public static class Builder<T> {
 
         public Builder(Function<T, Component> valueStringifier, Supplier<T> defaultValueSupplier) {
-            throw Unimplemented.forMember("net/minecraft/client/gui/components/CycleButton$Builder.<init>:(Ljava/util/function/Function;Ljava/util/function/Supplier;)V");
         }
 
         public CycleButton<T> create(Component name, CycleButton.OnValueChange<T> valueChangeListener) {

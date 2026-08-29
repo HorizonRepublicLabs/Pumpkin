@@ -8,11 +8,9 @@ import dev.pumpkin.shim.Unimplemented;
 public class ClientboundSetHealthPacket implements Packet<ClientGamePacketListener> {
 
     public ClientboundSetHealthPacket(float health, int food, float saturation) {
-        throw Unimplemented.forMember("net/minecraft/network/protocol/game/ClientboundSetHealthPacket.<init>:(FIF)V");
     }
 
     private ClientboundSetHealthPacket(FriendlyByteBuf input) {
-        throw Unimplemented.forMember("net/minecraft/network/protocol/game/ClientboundSetHealthPacket.<init>:(Lnet/minecraft/network/FriendlyByteBuf;)V");
     }
 
     private void write(FriendlyByteBuf output) {

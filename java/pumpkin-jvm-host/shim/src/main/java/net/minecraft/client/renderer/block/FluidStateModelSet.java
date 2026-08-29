@@ -9,7 +9,6 @@ import dev.pumpkin.shim.Unimplemented;
 public class FluidStateModelSet {
 
     public FluidStateModelSet(Map<Fluid, FluidModel> modelByFluid, FluidModel missingModel) {
-        throw Unimplemented.forMember("net/minecraft/client/renderer/block/FluidStateModelSet.<init>:(Ljava/util/Map;Lnet/minecraft/client/renderer/block/FluidModel;)V");
     }
 
     public static Map<Fluid, FluidModel> bake(MaterialBaker materials) {

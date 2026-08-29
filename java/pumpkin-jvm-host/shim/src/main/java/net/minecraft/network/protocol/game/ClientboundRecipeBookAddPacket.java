@@ -20,7 +20,6 @@ public record ClientboundRecipeBookAddPacket(List<ClientboundRecipeBookAddPacket
 
         public Entry(RecipeDisplayEntry contents, boolean notification, boolean highlight) {
             this((RecipeDisplayEntry) null, (byte) 0);
-            throw Unimplemented.forMember("net/minecraft/network/protocol/game/ClientboundRecipeBookAddPacket$Entry.<init>:(Lnet/minecraft/world/item/crafting/display/RecipeDisplayEntry;ZZ)V");
         }
     }
 }

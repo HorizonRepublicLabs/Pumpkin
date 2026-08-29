@@ -10,7 +10,6 @@ import dev.pumpkin.shim.Unimplemented;
 public abstract class GpuTexture implements AutoCloseable {
 
     public GpuTexture(int usage, String label, GpuFormat format, int width, int height, int depthOrLayers, int mipLevels) {
-        throw Unimplemented.forMember("com/mojang/blaze3d/textures/GpuTexture.<init>:(ILjava/lang/String;Lcom/mojang/blaze3d/GpuFormat;IIII)V");
     }
 
     public int getWidth(int mipLevel) {

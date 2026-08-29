@@ -24,7 +24,6 @@ public abstract class ResolvableProfile implements TooltipProvider {
     protected abstract Either<GameProfile, ResolvableProfile.Partial> unpack();
 
     protected ResolvableProfile(GameProfile partialProfile, PlayerSkin.Patch skinPatch) {
-        throw Unimplemented.forMember("net/minecraft/world/item/component/ResolvableProfile.<init>:(Lcom/mojang/authlib/GameProfile;Lnet/minecraft/world/entity/player/PlayerSkin$Patch;)V");
     }
 
     public abstract CompletableFuture<GameProfile> resolveProfile(ProfileResolver profileResolver);
@@ -34,7 +33,6 @@ public abstract class ResolvableProfile implements TooltipProvider {
     public static final class Dynamic extends ResolvableProfile {
 
         private Dynamic(Either<String, UUID> nameOrId, PlayerSkin.Patch skinPatch) {
-            throw Unimplemented.forMember("net/minecraft/world/item/component/ResolvableProfile$Dynamic.<init>:(Lcom/mojang/datafixers/util/Either;Lnet/minecraft/world/entity/player/PlayerSkin$Patch;)V");
         }
 
         public Optional<String> name() {
@@ -71,7 +69,6 @@ public abstract class ResolvableProfile implements TooltipProvider {
     public static final class Static extends ResolvableProfile {
 
         private Static(Either<GameProfile, ResolvableProfile.Partial> contents, PlayerSkin.Patch skinPatch) {
-            throw Unimplemented.forMember("net/minecraft/world/item/component/ResolvableProfile$Static.<init>:(Lcom/mojang/datafixers/util/Either;Lnet/minecraft/world/entity/player/PlayerSkin$Patch;)V");
         }
 
         public CompletableFuture<GameProfile> resolveProfile(ProfileResolver profileResolver) {

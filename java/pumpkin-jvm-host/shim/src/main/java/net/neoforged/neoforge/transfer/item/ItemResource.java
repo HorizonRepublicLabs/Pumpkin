@@ -43,7 +43,6 @@ public final class ItemResource implements DataComponentHolderResource<Item> {
     }
 
     private ItemResource(ItemStack stack) {
-        throw Unimplemented.forMember("net/neoforged/neoforge/transfer/item/ItemResource.<init>:(Lnet/minecraft/world/item/ItemStack;)V");
     }
 
     public Item value() {

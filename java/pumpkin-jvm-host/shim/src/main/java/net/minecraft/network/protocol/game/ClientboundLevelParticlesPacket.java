@@ -9,11 +9,9 @@ import dev.pumpkin.shim.Unimplemented;
 public class ClientboundLevelParticlesPacket implements Packet<ClientGamePacketListener> {
 
     public <T extends ParticleOptions> ClientboundLevelParticlesPacket(T particle, boolean overrideLimiter, boolean alwaysShow, double x, double y, double z, float xDist, float yDist, float zDist, float maxSpeed, int count) {
-        throw Unimplemented.forMember("net/minecraft/network/protocol/game/ClientboundLevelParticlesPacket.<init>:(Lnet/minecraft/core/particles/ParticleOptions;ZZDDDFFFFI)V");
     }
 
     private ClientboundLevelParticlesPacket(RegistryFriendlyByteBuf input) {
-        throw Unimplemented.forMember("net/minecraft/network/protocol/game/ClientboundLevelParticlesPacket.<init>:(Lnet/minecraft/network/RegistryFriendlyByteBuf;)V");
     }
 
     private void write(RegistryFriendlyByteBuf output) {

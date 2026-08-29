@@ -20,7 +20,6 @@ public class CrossbowItem extends ProjectileWeaponItem {
     private boolean midLoadSoundPlayed;
 
     public CrossbowItem(Item.Properties properties) {
-        throw Unimplemented.forMember("net/minecraft/world/item/CrossbowItem.<init>:(Lnet/minecraft/world/item/Item$Properties;)V");
     }
 
     public Predicate<ItemStack> getSupportedHeldProjectiles() {

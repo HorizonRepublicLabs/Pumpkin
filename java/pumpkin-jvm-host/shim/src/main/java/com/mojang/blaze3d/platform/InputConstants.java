@@ -25,7 +25,6 @@ public class InputConstants {
     public static final class Key {
 
         private Key(String name, InputConstants.Type type, int value) {
-            throw Unimplemented.forMember("com/mojang/blaze3d/platform/InputConstants$Key.<init>:(Ljava/lang/String;Lcom/mojang/blaze3d/platform/InputConstants$Type;I)V");
         }
 
         public InputConstants.Type getType() {

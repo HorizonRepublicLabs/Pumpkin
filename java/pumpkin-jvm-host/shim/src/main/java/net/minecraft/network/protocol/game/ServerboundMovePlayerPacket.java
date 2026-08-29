@@ -9,7 +9,6 @@ import dev.pumpkin.shim.Unimplemented;
 public abstract class ServerboundMovePlayerPacket implements Packet<ServerGamePacketListener> {
 
     protected ServerboundMovePlayerPacket(double x, double y, double z, float yRot, float xRot, boolean onGround, boolean horizontalCollision, boolean hasPos, boolean hasRot) {
-        throw Unimplemented.forMember("net/minecraft/network/protocol/game/ServerboundMovePlayerPacket.<init>:(DDDFFZZZZ)V");
     }
 
     public abstract PacketType<? extends ServerboundMovePlayerPacket> type();
@@ -21,11 +20,9 @@ public abstract class ServerboundMovePlayerPacket implements Packet<ServerGamePa
     public static class Pos extends ServerboundMovePlayerPacket {
 
         public Pos(Vec3 pos, boolean onGround, boolean horizontalCollision) {
-            throw Unimplemented.forMember("net/minecraft/network/protocol/game/ServerboundMovePlayerPacket$Pos.<init>:(Lnet/minecraft/world/phys/Vec3;ZZ)V");
         }
 
         public Pos(double x, double y, double z, boolean onGround, boolean horizontalCollision) {
-            throw Unimplemented.forMember("net/minecraft/network/protocol/game/ServerboundMovePlayerPacket$Pos.<init>:(DDDZZ)V");
         }
 
         private static ServerboundMovePlayerPacket.Pos read(FriendlyByteBuf input) {
@@ -47,11 +44,9 @@ public abstract class ServerboundMovePlayerPacket implements Packet<ServerGamePa
     public static class PosRot extends ServerboundMovePlayerPacket {
 
         public PosRot(Vec3 pos, float yRot, float xRot, boolean onGround, boolean horizontalCollision) {
-            throw Unimplemented.forMember("net/minecraft/network/protocol/game/ServerboundMovePlayerPacket$PosRot.<init>:(Lnet/minecraft/world/phys/Vec3;FFZZ)V");
         }
 
         public PosRot(double x, double y, double z, float yRot, float xRot, boolean onGround, boolean horizontalCollision) {
-            throw Unimplemented.forMember("net/minecraft/network/protocol/game/ServerboundMovePlayerPacket$PosRot.<init>:(DDDFFZZ)V");
         }
 
         private static ServerboundMovePlayerPacket.PosRot read(FriendlyByteBuf input) {
@@ -73,7 +68,6 @@ public abstract class ServerboundMovePlayerPacket implements Packet<ServerGamePa
     public static class Rot extends ServerboundMovePlayerPacket {
 
         public Rot(float yRot, float xRot, boolean onGround, boolean horizontalCollision) {
-            throw Unimplemented.forMember("net/minecraft/network/protocol/game/ServerboundMovePlayerPacket$Rot.<init>:(FFZZ)V");
         }
 
         private static ServerboundMovePlayerPacket.Rot read(FriendlyByteBuf input) {
@@ -95,7 +89,6 @@ public abstract class ServerboundMovePlayerPacket implements Packet<ServerGamePa
     public static class StatusOnly extends ServerboundMovePlayerPacket {
 
         public StatusOnly(boolean onGround, boolean horizontalCollision) {
-            throw Unimplemented.forMember("net/minecraft/network/protocol/game/ServerboundMovePlayerPacket$StatusOnly.<init>:(ZZ)V");
         }
 
         private static ServerboundMovePlayerPacket.StatusOnly read(FriendlyByteBuf input) {

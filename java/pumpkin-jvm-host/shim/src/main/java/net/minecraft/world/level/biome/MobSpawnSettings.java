@@ -9,7 +9,6 @@ import dev.pumpkin.shim.Unimplemented;
 public class MobSpawnSettings {
 
     private MobSpawnSettings(float creatureGenerationProbability, Map<MobCategory, WeightedList<MobSpawnSettings.SpawnerData>> spawners, Map<EntityType<?>, MobSpawnSettings.MobSpawnCost> mobSpawnCosts) {
-        throw Unimplemented.forMember("net/minecraft/world/level/biome/MobSpawnSettings.<init>:(FLjava/util/Map;Ljava/util/Map;)V");
     }
 
     public static class Builder {

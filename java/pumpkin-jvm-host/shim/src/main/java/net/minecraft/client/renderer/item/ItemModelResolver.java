@@ -10,7 +10,6 @@ import dev.pumpkin.shim.Unimplemented;
 public class ItemModelResolver {
 
     public ItemModelResolver(ModelManager modelManager) {
-        throw Unimplemented.forMember("net/minecraft/client/renderer/item/ItemModelResolver.<init>:(Lnet/minecraft/client/resources/model/ModelManager;)V");
     }
 
     public void updateForTopItem(ItemStackRenderState output, ItemStack item, ItemDisplayContext displayContext, Level level, ItemOwner owner, int seed) {

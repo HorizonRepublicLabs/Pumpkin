@@ -10,11 +10,9 @@ import dev.pumpkin.shim.Unimplemented;
 public class ClientboundEntityEventPacket implements Packet<ClientGamePacketListener> {
 
     public ClientboundEntityEventPacket(Entity entity, byte eventId) {
-        throw Unimplemented.forMember("net/minecraft/network/protocol/game/ClientboundEntityEventPacket.<init>:(Lnet/minecraft/world/entity/Entity;B)V");
     }
 
     private ClientboundEntityEventPacket(FriendlyByteBuf input) {
-        throw Unimplemented.forMember("net/minecraft/network/protocol/game/ClientboundEntityEventPacket.<init>:(Lnet/minecraft/network/FriendlyByteBuf;)V");
     }
 
     private void write(FriendlyByteBuf output) {

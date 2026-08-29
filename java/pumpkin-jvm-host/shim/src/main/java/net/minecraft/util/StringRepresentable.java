@@ -25,7 +25,6 @@ public interface StringRepresentable {
     class EnumCodec<E extends Enum<E> & StringRepresentable> extends StringRepresentable.StringRepresentableCodec<E> {
 
         public EnumCodec(E[] valueArray, Function<String, E> nameResolver) {
-            throw Unimplemented.forMember("net/minecraft/util/StringRepresentable$EnumCodec.<init>:([Ljava/lang/Enum;Ljava/util/function/Function;)V");
         }
 
         protected EnumCodec() {
@@ -35,7 +34,6 @@ public interface StringRepresentable {
     class StringRepresentableCodec<S extends StringRepresentable> implements Codec<S> {
 
         public StringRepresentableCodec(S[] valueArray, Function<String, S> nameResolver, ToIntFunction<S> idResolver) {
-            throw Unimplemented.forMember("net/minecraft/util/StringRepresentable$StringRepresentableCodec.<init>:([Lnet/minecraft/util/StringRepresentable;Ljava/util/function/Function;Ljava/util/function/ToIntFunction;)V");
         }
 
         public <T> DataResult<Pair<S, T>> decode(DynamicOps<T> ops, T input) {

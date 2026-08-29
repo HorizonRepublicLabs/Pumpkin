@@ -8,7 +8,6 @@ import dev.pumpkin.shim.Unimplemented;
 public class TagParser<T> {
 
     private TagParser(DynamicOps<T> ops, Grammar<T> grammar) {
-        throw Unimplemented.forMember("net/minecraft/nbt/TagParser.<init>:(Lcom/mojang/serialization/DynamicOps;Lnet/minecraft/util/parsing/packrat/commands/Grammar;)V");
     }
 
     public static <T> TagParser<T> create(DynamicOps<T> ops) {

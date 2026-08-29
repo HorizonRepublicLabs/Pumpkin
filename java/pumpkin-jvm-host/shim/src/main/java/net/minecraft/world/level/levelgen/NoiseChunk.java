@@ -8,7 +8,6 @@ import dev.pumpkin.shim.Unimplemented;
 public class NoiseChunk implements DensityFunction.FunctionContext, DensityFunction.ContextProvider {
 
     public NoiseChunk(int cellCountXZ, RandomState randomState, int chunkMinBlockX, int chunkMinBlockZ, NoiseSettings noiseSettings, DensityFunctions.BeardifierOrMarker beardifier, NoiseGeneratorSettings settings, Aquifer.FluidPicker globalFluidPicker, Blender blender) {
-        throw Unimplemented.forMember("net/minecraft/world/level/levelgen/NoiseChunk.<init>:(ILnet/minecraft/world/level/levelgen/RandomState;IILnet/minecraft/world/level/levelgen/NoiseSettings;Lnet/minecraft/world/level/levelgen/DensityFunctions$BeardifierOrMarker;Lnet/minecraft/world/level/levelgen/NoiseGeneratorSettings;Lnet/minecraft/world/level/levelgen/Aquifer$FluidPicker;Lnet/minecraft/world/level/levelgen/blending/Blender;)V");
     }
 
     public int blockX() {
@@ -68,7 +67,6 @@ public class NoiseChunk implements DensityFunction.FunctionContext, DensityFunct
     private class BlendDensity implements NoiseChunk.NoiseChunkDensityFunction, DensityFunctions.MarkerOrMarked {
 
         private BlendDensity(DensityFunction input) {
-            throw Unimplemented.forMember("net/minecraft/world/level/levelgen/NoiseChunk$BlendDensity.<init>:(Lnet/minecraft/world/level/levelgen/DensityFunction;)V");
         }
 
         public double compute(DensityFunction.FunctionContext context) {
@@ -141,7 +139,6 @@ public class NoiseChunk implements DensityFunction.FunctionContext, DensityFunct
     private static class Cache2D implements NoiseChunk.NoiseChunkDensityFunction, DensityFunctions.MarkerOrMarked {
 
         private Cache2D(DensityFunction function) {
-            throw Unimplemented.forMember("net/minecraft/world/level/levelgen/NoiseChunk$Cache2D.<init>:(Lnet/minecraft/world/level/levelgen/DensityFunction;)V");
         }
 
         public double compute(DensityFunction.FunctionContext context) {
@@ -167,7 +164,6 @@ public class NoiseChunk implements DensityFunction.FunctionContext, DensityFunct
     private class CacheAllInCell implements NoiseChunk.NoiseChunkDensityFunction, DensityFunctions.MarkerOrMarked {
 
         private CacheAllInCell(DensityFunction noiseFiller) {
-            throw Unimplemented.forMember("net/minecraft/world/level/levelgen/NoiseChunk$CacheAllInCell.<init>:(Lnet/minecraft/world/level/levelgen/DensityFunction;)V");
         }
 
         public double compute(DensityFunction.FunctionContext context) {
@@ -193,7 +189,6 @@ public class NoiseChunk implements DensityFunction.FunctionContext, DensityFunct
     private class CacheOnce implements NoiseChunk.NoiseChunkDensityFunction, DensityFunctions.MarkerOrMarked {
 
         private CacheOnce(DensityFunction function) {
-            throw Unimplemented.forMember("net/minecraft/world/level/levelgen/NoiseChunk$CacheOnce.<init>:(Lnet/minecraft/world/level/levelgen/DensityFunction;)V");
         }
 
         public double compute(DensityFunction.FunctionContext context) {
@@ -219,7 +214,6 @@ public class NoiseChunk implements DensityFunction.FunctionContext, DensityFunct
     private class FlatCache implements NoiseChunk.NoiseChunkDensityFunction, DensityFunctions.MarkerOrMarked {
 
         private FlatCache(DensityFunction noiseFiller, boolean fill) {
-            throw Unimplemented.forMember("net/minecraft/world/level/levelgen/NoiseChunk$FlatCache.<init>:(Lnet/minecraft/world/level/levelgen/DensityFunction;Z)V");
         }
 
         public double compute(DensityFunction.FunctionContext context) {
@@ -258,7 +252,6 @@ public class NoiseChunk implements DensityFunction.FunctionContext, DensityFunct
     public class NoiseInterpolator implements NoiseChunk.NoiseChunkDensityFunction, DensityFunctions.MarkerOrMarked {
 
         private NoiseInterpolator(DensityFunction noiseFiller) {
-            throw Unimplemented.forMember("net/minecraft/world/level/levelgen/NoiseChunk$NoiseInterpolator.<init>:(Lnet/minecraft/world/level/levelgen/DensityFunction;)V");
         }
 
         public double compute(DensityFunction.FunctionContext context) {

@@ -21,7 +21,6 @@ import dev.pumpkin.shim.Unimplemented;
 public class GameTestHelper implements GameTestHelperExtension {
 
     public GameTestHelper(GameTestInfo testInfo) {
-        throw Unimplemented.forMember("net/minecraft/gametest/framework/GameTestHelper.<init>:(Lnet/minecraft/gametest/framework/GameTestInfo;)V");
     }
 
     public ServerLevel getLevel() {
@@ -67,7 +66,6 @@ public class GameTestHelper implements GameTestHelperExtension {
     private class TestBlockPlaceContext extends BlockPlaceContext {
 
         public TestBlockPlaceContext(Level level, InteractionHand hand, ItemStack itemStackInHand, BlockHitResult hitResult, Direction placeDirection) {
-            throw Unimplemented.forMember("net/minecraft/gametest/framework/GameTestHelper$TestBlockPlaceContext.<init>:(Lnet/minecraft/world/level/Level;Lnet/minecraft/world/InteractionHand;Lnet/minecraft/world/item/ItemStack;Lnet/minecraft/world/phys/BlockHitResult;Lnet/minecraft/core/Direction;)V");
         }
 
         public Direction getNearestLookingDirection() {

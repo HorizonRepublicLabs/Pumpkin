@@ -9,11 +9,9 @@ import dev.pumpkin.shim.Unimplemented;
 public class ServerboundSeenAdvancementsPacket implements Packet<ServerGamePacketListener> {
 
     public ServerboundSeenAdvancementsPacket(ServerboundSeenAdvancementsPacket.Action action, Identifier tab) {
-        throw Unimplemented.forMember("net/minecraft/network/protocol/game/ServerboundSeenAdvancementsPacket.<init>:(Lnet/minecraft/network/protocol/game/ServerboundSeenAdvancementsPacket$Action;Lnet/minecraft/resources/Identifier;)V");
     }
 
     private ServerboundSeenAdvancementsPacket(FriendlyByteBuf input) {
-        throw Unimplemented.forMember("net/minecraft/network/protocol/game/ServerboundSeenAdvancementsPacket.<init>:(Lnet/minecraft/network/FriendlyByteBuf;)V");
     }
 
     private void write(FriendlyByteBuf output) {

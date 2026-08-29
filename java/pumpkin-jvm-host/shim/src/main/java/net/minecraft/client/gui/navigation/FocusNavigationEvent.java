@@ -10,7 +10,6 @@ public interface FocusNavigationEvent {
 
         public ArrowNavigation(ScreenDirection direction) {
             this((ScreenDirection) null, (ScreenRectangle) null);
-            throw Unimplemented.forMember("net/minecraft/client/gui/navigation/FocusNavigationEvent$ArrowNavigation.<init>:(Lnet/minecraft/client/gui/navigation/ScreenDirection;)V");
         }
 
         public ScreenDirection getVerticalDirectionForInitialFocus() {

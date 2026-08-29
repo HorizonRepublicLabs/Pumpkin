@@ -8,7 +8,6 @@ import dev.pumpkin.shim.Unimplemented;
 public abstract class Property<T extends Comparable<T>> {
 
     protected Property(String name, Class<T> clazz) {
-        throw Unimplemented.forMember("net/minecraft/world/level/block/state/properties/Property.<init>:(Ljava/lang/String;Ljava/lang/Class;)V");
     }
 
     public Codec<T> codec() {

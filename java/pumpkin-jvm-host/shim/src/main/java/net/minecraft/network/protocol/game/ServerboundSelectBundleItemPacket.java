@@ -9,7 +9,6 @@ public record ServerboundSelectBundleItemPacket(int slotId, int selectedItemInde
 
     private ServerboundSelectBundleItemPacket(FriendlyByteBuf input) {
         this((int) 0, (int) 0);
-        throw Unimplemented.forMember("net/minecraft/network/protocol/game/ServerboundSelectBundleItemPacket.<init>:(Lnet/minecraft/network/FriendlyByteBuf;)V");
     }
 
     private void write(FriendlyByteBuf output) {

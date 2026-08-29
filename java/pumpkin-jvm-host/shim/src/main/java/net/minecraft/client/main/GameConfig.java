@@ -10,13 +10,11 @@ import dev.pumpkin.shim.Unimplemented;
 public class GameConfig {
 
     public GameConfig(GameConfig.UserData userData, DisplayData displayData, GameConfig.FolderData folderData, GameConfig.GameData gameData, GameConfig.QuickPlayData quickPlayData) {
-        throw Unimplemented.forMember("net/minecraft/client/main/GameConfig.<init>:(Lnet/minecraft/client/main/GameConfig$UserData;Lcom/mojang/blaze3d/platform/DisplayData;Lnet/minecraft/client/main/GameConfig$FolderData;Lnet/minecraft/client/main/GameConfig$GameData;Lnet/minecraft/client/main/GameConfig$QuickPlayData;)V");
     }
 
     public static class FolderData {
 
         public FolderData(File gameDirectory, File resourcePackDirectory, File assetDirectory, String assetIndex) {
-            throw Unimplemented.forMember("net/minecraft/client/main/GameConfig$FolderData.<init>:(Ljava/io/File;Ljava/io/File;Ljava/io/File;Ljava/lang/String;)V");
         }
 
         public FolderData() {
@@ -26,7 +24,6 @@ public class GameConfig {
     public static class GameData {
 
         public GameData(boolean demo, String launchVersion, String versionType, boolean disableMultiplayer, boolean disableChat, boolean captureTracyImages, boolean vulkanValidation, boolean renderDebugLabels, PreferredGraphicsApi forcedGraphicsApi, boolean offlineDeveloperMode) {
-            throw Unimplemented.forMember("net/minecraft/client/main/GameConfig$GameData.<init>:(ZLjava/lang/String;Ljava/lang/String;ZZZZZLnet/minecraft/client/PreferredGraphicsApi;Z)V");
         }
 
         public GameData() {
@@ -76,7 +73,6 @@ public class GameConfig {
     public static class UserData {
 
         public UserData(User user, Proxy proxy) {
-            throw Unimplemented.forMember("net/minecraft/client/main/GameConfig$UserData.<init>:(Lnet/minecraft/client/User;Ljava/net/Proxy;)V");
         }
 
         public UserData() {

@@ -6,11 +6,9 @@ import dev.pumpkin.shim.Unimplemented;
 public final class FeatureFlagSet {
 
     private FeatureFlagSet(FeatureFlagUniverse universe, long mask) {
-        throw Unimplemented.forMember("net/minecraft/world/flag/FeatureFlagSet.<init>:(Lnet/minecraft/world/flag/FeatureFlagUniverse;J)V");
     }
 
     private FeatureFlagSet(FeatureFlagUniverse universe, long mask, long[] extendedMask) {
-        throw Unimplemented.forMember("net/minecraft/world/flag/FeatureFlagSet.<init>:(Lnet/minecraft/world/flag/FeatureFlagUniverse;J[J)V");
     }
 
     static FeatureFlagSet create(FeatureFlagUniverse universe, Collection<FeatureFlag> flags) {

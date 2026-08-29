@@ -8,7 +8,6 @@ public class Dictionary<S> {
     private static class Entry<S, T> implements NamedRule<S, T>, Supplier<String> {
 
         private Entry(Atom<T> name) {
-            throw Unimplemented.forMember("net/minecraft/util/parsing/packrat/Dictionary$Entry.<init>:(Lnet/minecraft/util/parsing/packrat/Atom;)V");
         }
 
         public Atom<T> name() {

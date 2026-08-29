@@ -11,11 +11,9 @@ import dev.pumpkin.shim.Unimplemented;
 public class ClientboundSoundPacket implements Packet<ClientGamePacketListener> {
 
     public ClientboundSoundPacket(Holder<SoundEvent> sound, SoundSource source, double x, double y, double z, float volume, float pitch, long seed) {
-        throw Unimplemented.forMember("net/minecraft/network/protocol/game/ClientboundSoundPacket.<init>:(Lnet/minecraft/core/Holder;Lnet/minecraft/sounds/SoundSource;DDDFFJ)V");
     }
 
     private ClientboundSoundPacket(RegistryFriendlyByteBuf input) {
-        throw Unimplemented.forMember("net/minecraft/network/protocol/game/ClientboundSoundPacket.<init>:(Lnet/minecraft/network/RegistryFriendlyByteBuf;)V");
     }
 
     private void write(RegistryFriendlyByteBuf output) {

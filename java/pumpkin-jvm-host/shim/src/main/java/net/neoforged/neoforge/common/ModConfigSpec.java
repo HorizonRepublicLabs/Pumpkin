@@ -21,7 +21,6 @@ import dev.pumpkin.shim.Unimplemented;
 public class ModConfigSpec implements IConfigSpec {
 
     private ModConfigSpec(UnmodifiableConfig spec, UnmodifiableConfig values, Map<List<String>, String> levelComments, Map<List<String>, String> levelTranslationKeys) {
-        throw Unimplemented.forMember("net/neoforged/neoforge/common/ModConfigSpec.<init>:(Lcom/electronwill/nightconfig/core/UnmodifiableConfig;Lcom/electronwill/nightconfig/core/UnmodifiableConfig;Ljava/util/Map;Ljava/util/Map;)V");
     }
 
     public boolean isEmpty() {
@@ -228,7 +227,6 @@ public class ModConfigSpec implements IConfigSpec {
     public static class Range<V extends Comparable<? super V>> implements Predicate<Object> {
 
         private Range(Class<V> clazz, V min, V max) {
-            throw Unimplemented.forMember("net/neoforged/neoforge/common/ModConfigSpec$Range.<init>:(Ljava/lang/Class;Ljava/lang/Comparable;Ljava/lang/Comparable;)V");
         }
 
         public boolean test(Object t) {
@@ -246,7 +244,6 @@ public class ModConfigSpec implements IConfigSpec {
     public static class ValueSpec {
 
         private ValueSpec(Supplier<?> supplier, Predicate<Object> validator, BuilderContext context, List<String> path) {
-            throw Unimplemented.forMember("net/neoforged/neoforge/common/ModConfigSpec$ValueSpec.<init>:(Ljava/util/function/Supplier;Ljava/util/function/Predicate;Lnet/neoforged/neoforge/common/ModConfigSpec$BuilderContext;Ljava/util/List;)V");
         }
 
         public boolean test(Object value) {
@@ -260,7 +257,6 @@ public class ModConfigSpec implements IConfigSpec {
     public static class ListValueSpec extends ValueSpec {
 
         private ListValueSpec(Supplier<?> supplier, Supplier<?> newElementSupplier, Predicate<Object> listValidator, Predicate<Object> elementValidator, BuilderContext context, List<String> path, Range<Integer> sizeRange) {
-            throw Unimplemented.forMember("net/neoforged/neoforge/common/ModConfigSpec$ListValueSpec.<init>:(Ljava/util/function/Supplier;Ljava/util/function/Supplier;Ljava/util/function/Predicate;Ljava/util/function/Predicate;Lnet/neoforged/neoforge/common/ModConfigSpec$BuilderContext;Ljava/util/List;Lnet/neoforged/neoforge/common/ModConfigSpec$Range;)V");
         }
 
         public ListValueSpec() {
@@ -321,7 +317,6 @@ public class ModConfigSpec implements IConfigSpec {
         }
 
         BooleanValue(Builder parent, List<String> path, Supplier<Boolean> defaultSupplier) {
-            throw Unimplemented.forMember("net/neoforged/neoforge/common/ModConfigSpec$BooleanValue.<init>:(Lnet/neoforged/neoforge/common/ModConfigSpec$Builder;Ljava/util/List;Ljava/util/function/Supplier;)V");
         }
 
         public boolean getAsBoolean() {
@@ -340,7 +335,6 @@ public class ModConfigSpec implements IConfigSpec {
         }
 
         IntValue(Builder parent, List<String> path, Supplier<Integer> defaultSupplier) {
-            throw Unimplemented.forMember("net/neoforged/neoforge/common/ModConfigSpec$IntValue.<init>:(Lnet/neoforged/neoforge/common/ModConfigSpec$Builder;Ljava/util/List;Ljava/util/function/Supplier;)V");
         }
 
         public Integer getRaw(Config config, List<String> path, Supplier<Integer> defaultSupplier) {
@@ -358,7 +352,6 @@ public class ModConfigSpec implements IConfigSpec {
     public static class LongValue extends ConfigValue<Long> implements LongSupplier {
 
         LongValue(Builder parent, List<String> path, Supplier<Long> defaultSupplier) {
-            throw Unimplemented.forMember("net/neoforged/neoforge/common/ModConfigSpec$LongValue.<init>:(Lnet/neoforged/neoforge/common/ModConfigSpec$Builder;Ljava/util/List;Ljava/util/function/Supplier;)V");
         }
 
         public Long getRaw(Config config, List<String> path, Supplier<Long> defaultSupplier) {
@@ -381,7 +374,6 @@ public class ModConfigSpec implements IConfigSpec {
         }
 
         DoubleValue(Builder parent, List<String> path, Supplier<Double> defaultSupplier) {
-            throw Unimplemented.forMember("net/neoforged/neoforge/common/ModConfigSpec$DoubleValue.<init>:(Lnet/neoforged/neoforge/common/ModConfigSpec$Builder;Ljava/util/List;Ljava/util/function/Supplier;)V");
         }
 
         public Double getRaw(Config config, List<String> path, Supplier<Double> defaultSupplier) {
@@ -399,7 +391,6 @@ public class ModConfigSpec implements IConfigSpec {
     public static class EnumValue<T extends Enum<T>> extends ConfigValue<T> {
 
         EnumValue(Builder parent, List<String> path, Supplier<T> defaultSupplier, EnumGetMethod converter, Class<T> clazz) {
-            throw Unimplemented.forMember("net/neoforged/neoforge/common/ModConfigSpec$EnumValue.<init>:(Lnet/neoforged/neoforge/common/ModConfigSpec$Builder;Ljava/util/List;Ljava/util/function/Supplier;Lcom/electronwill/nightconfig/core/EnumGetMethod;Ljava/lang/Class;)V");
         }
 
         public T getRaw(Config config, List<String> path, Supplier<T> defaultSupplier) {

@@ -29,15 +29,12 @@ public interface RegistryAccess extends HolderLookup.Provider {
     class ImmutableRegistryAccess implements RegistryAccess {
 
         public ImmutableRegistryAccess(List<? extends Registry<?>> registries) {
-            throw Unimplemented.forMember("net/minecraft/core/RegistryAccess$ImmutableRegistryAccess.<init>:(Ljava/util/List;)V");
         }
 
         public ImmutableRegistryAccess(Map<? extends ResourceKey<? extends Registry<?>>, ? extends Registry<?>> registries) {
-            throw Unimplemented.forMember("net/minecraft/core/RegistryAccess$ImmutableRegistryAccess.<init>:(Ljava/util/Map;)V");
         }
 
         public ImmutableRegistryAccess(Stream<RegistryAccess.RegistryEntry<?>> entries) {
-            throw Unimplemented.forMember("net/minecraft/core/RegistryAccess$ImmutableRegistryAccess.<init>:(Ljava/util/stream/Stream;)V");
         }
 
         public <E> Optional<Registry<E>> lookup(ResourceKey<? extends Registry<? extends E>> registryKey) {

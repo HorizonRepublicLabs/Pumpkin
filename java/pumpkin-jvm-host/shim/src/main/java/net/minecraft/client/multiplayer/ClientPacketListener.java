@@ -145,7 +145,6 @@ import dev.pumpkin.shim.Unimplemented;
 public class ClientPacketListener extends ClientCommonPacketListenerImpl implements ClientGamePacketListener, TickablePacketListener {
 
     public ClientPacketListener(Minecraft minecraft, Connection connection, CommonListenerCookie cookie) {
-        throw Unimplemented.forMember("net/minecraft/client/multiplayer/ClientPacketListener.<init>:(Lnet/minecraft/client/Minecraft;Lnet/minecraft/network/Connection;Lnet/minecraft/client/multiplayer/CommonListenerCookie;)V");
     }
 
     public void close() {

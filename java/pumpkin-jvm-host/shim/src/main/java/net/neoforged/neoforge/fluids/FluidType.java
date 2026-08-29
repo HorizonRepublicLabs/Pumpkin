@@ -10,7 +10,6 @@ import dev.pumpkin.shim.Unimplemented;
 public class FluidType {
 
     public FluidType(final Properties properties) {
-        throw Unimplemented.forMember("net/neoforged/neoforge/fluids/FluidType.<init>:(Lnet/neoforged/neoforge/fluids/FluidType$Properties;)V");
     }
 
     public Component getDescription() {
@@ -32,7 +31,6 @@ public class FluidType {
     public static final class Properties {
 
         protected Properties() {
-            throw Unimplemented.forMember("net/neoforged/neoforge/fluids/FluidType$Properties.<init>:()V");
         }
 
         public static Properties create() {

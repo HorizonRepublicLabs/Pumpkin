@@ -13,7 +13,6 @@ import dev.pumpkin.shim.Unimplemented;
 public abstract class LevelEvent extends Event {
 
     public LevelEvent(LevelAccessor level) {
-        throw Unimplemented.forMember("net/neoforged/neoforge/event/level/LevelEvent.<init>:(Lnet/minecraft/world/level/LevelAccessor;)V");
     }
 
     public LevelAccessor getLevel() {
@@ -23,7 +22,6 @@ public abstract class LevelEvent extends Event {
     public static class Load extends LevelEvent {
 
         public Load(LevelAccessor level) {
-            throw Unimplemented.forMember("net/neoforged/neoforge/event/level/LevelEvent$Load.<init>:(Lnet/minecraft/world/level/LevelAccessor;)V");
         }
 
         public Load() {
@@ -33,7 +31,6 @@ public abstract class LevelEvent extends Event {
     public static class Unload extends LevelEvent {
 
         public Unload(LevelAccessor level) {
-            throw Unimplemented.forMember("net/neoforged/neoforge/event/level/LevelEvent$Unload.<init>:(Lnet/minecraft/world/level/LevelAccessor;)V");
         }
 
         public Unload() {
@@ -43,7 +40,6 @@ public abstract class LevelEvent extends Event {
     public static class Save extends LevelEvent {
 
         public Save(LevelAccessor level) {
-            throw Unimplemented.forMember("net/neoforged/neoforge/event/level/LevelEvent$Save.<init>:(Lnet/minecraft/world/level/LevelAccessor;)V");
         }
 
         public Save() {
@@ -53,7 +49,6 @@ public abstract class LevelEvent extends Event {
     public static class CreateSpawnPosition extends LevelEvent implements ICancellableEvent {
 
         public CreateSpawnPosition(LevelAccessor level, ServerLevelData settings) {
-            throw Unimplemented.forMember("net/neoforged/neoforge/event/level/LevelEvent$CreateSpawnPosition.<init>:(Lnet/minecraft/world/level/LevelAccessor;Lnet/minecraft/world/level/storage/ServerLevelData;)V");
         }
 
         public CreateSpawnPosition() {
@@ -63,7 +58,6 @@ public abstract class LevelEvent extends Event {
     public static class PotentialSpawns extends LevelEvent implements ICancellableEvent {
 
         public PotentialSpawns(LevelAccessor level, MobCategory category, BlockPos pos, WeightedList<MobSpawnSettings.SpawnerData> oldList) {
-            throw Unimplemented.forMember("net/neoforged/neoforge/event/level/LevelEvent$PotentialSpawns.<init>:(Lnet/minecraft/world/level/LevelAccessor;Lnet/minecraft/world/entity/MobCategory;Lnet/minecraft/core/BlockPos;Lnet/minecraft/util/random/WeightedList;)V");
         }
 
         public BlockPos getPos() {

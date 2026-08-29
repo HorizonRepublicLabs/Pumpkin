@@ -29,7 +29,6 @@ public interface SlotDisplay {
     class AnyFuel implements SlotDisplay {
 
         protected AnyFuel() {
-            throw Unimplemented.forMember("net/minecraft/world/item/crafting/display/SlotDisplay$AnyFuel.<init>:()V");
         }
 
         public SlotDisplay.Type<SlotDisplay.AnyFuel> type() {
@@ -76,7 +75,6 @@ public interface SlotDisplay {
         public static final SlotDisplay.Empty INSTANCE = null;
 
         protected Empty() {
-            throw Unimplemented.forMember("net/minecraft/world/item/crafting/display/SlotDisplay$Empty.<init>:()V");
         }
 
         public SlotDisplay.Type<SlotDisplay.Empty> type() {
@@ -96,7 +94,6 @@ public interface SlotDisplay {
 
         public ItemSlotDisplay(Item item) {
             this((Holder<Item>) null);
-            throw Unimplemented.forMember("net/minecraft/world/item/crafting/display/SlotDisplay$ItemSlotDisplay.<init>:(Lnet/minecraft/world/item/Item;)V");
         }
 
         public SlotDisplay.Type<SlotDisplay.ItemSlotDisplay> type() {

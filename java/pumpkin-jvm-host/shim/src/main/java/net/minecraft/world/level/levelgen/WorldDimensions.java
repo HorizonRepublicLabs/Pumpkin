@@ -14,7 +14,6 @@ public record WorldDimensions(Map<ResourceKey<LevelStem>, LevelStem> dimensions)
 
     public WorldDimensions(Registry<LevelStem> registry) {
         this((Map<ResourceKey<LevelStem>, LevelStem>) null);
-        throw Unimplemented.forMember("net/minecraft/world/level/levelgen/WorldDimensions.<init>:(Lnet/minecraft/core/Registry;)V");
     }
 
     public Optional<LevelStem> get(ResourceKey<LevelStem> key) {

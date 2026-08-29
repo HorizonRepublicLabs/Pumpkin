@@ -12,7 +12,6 @@ import dev.pumpkin.shim.Unimplemented;
 public class EquipmentAssetManager extends SimpleJsonResourceReloadListener<EquipmentClientInfo> {
 
     public EquipmentAssetManager() {
-        throw Unimplemented.forMember("net/minecraft/client/resources/model/EquipmentAssetManager.<init>:()V");
     }
 
     protected void apply(Map<Identifier, EquipmentClientInfo> preparations, ResourceManager manager, ProfilerFiller profiler) {

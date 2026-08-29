@@ -16,7 +16,6 @@ import dev.pumpkin.shim.Unimplemented;
 public abstract class AgeableMob extends PathfinderMob {
 
     protected AgeableMob(EntityType<? extends AgeableMob> type, Level level) {
-        throw Unimplemented.forMember("net/minecraft/world/entity/AgeableMob.<init>:(Lnet/minecraft/world/entity/EntityType;Lnet/minecraft/world/level/Level;)V");
     }
 
     public SpawnGroupData finalizeSpawn(ServerLevelAccessor level, DifficultyInstance difficulty, EntitySpawnReason spawnReason, SpawnGroupData groupData) {
@@ -60,15 +59,12 @@ public abstract class AgeableMob extends PathfinderMob {
     public static class AgeableMobGroupData implements SpawnGroupData {
 
         public AgeableMobGroupData(boolean shouldSpawnBaby, float babySpawnChance) {
-            throw Unimplemented.forMember("net/minecraft/world/entity/AgeableMob$AgeableMobGroupData.<init>:(ZF)V");
         }
 
         public AgeableMobGroupData(boolean shouldSpawnBaby) {
-            throw Unimplemented.forMember("net/minecraft/world/entity/AgeableMob$AgeableMobGroupData.<init>:(Z)V");
         }
 
         public AgeableMobGroupData(float babySpawnChance) {
-            throw Unimplemented.forMember("net/minecraft/world/entity/AgeableMob$AgeableMobGroupData.<init>:(F)V");
         }
 
         public AgeableMobGroupData() {

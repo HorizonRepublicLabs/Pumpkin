@@ -8,11 +8,9 @@ import dev.pumpkin.shim.Unimplemented;
 public class ServerboundSetCommandMinecartPacket implements Packet<ServerGamePacketListener> {
 
     public ServerboundSetCommandMinecartPacket(int entity, String command, boolean trackOutput) {
-        throw Unimplemented.forMember("net/minecraft/network/protocol/game/ServerboundSetCommandMinecartPacket.<init>:(ILjava/lang/String;Z)V");
     }
 
     private ServerboundSetCommandMinecartPacket(FriendlyByteBuf input) {
-        throw Unimplemented.forMember("net/minecraft/network/protocol/game/ServerboundSetCommandMinecartPacket.<init>:(Lnet/minecraft/network/FriendlyByteBuf;)V");
     }
 
     private void write(FriendlyByteBuf output) {

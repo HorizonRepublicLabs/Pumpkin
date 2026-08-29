@@ -15,7 +15,6 @@ public record ChatType(ChatTypeDecoration chat, ChatTypeDecoration narration) {
 
         private Bound(Holder<ChatType> chatType, Component name) {
             this((Holder<ChatType>) null, (Component) null, (Optional<Component>) null);
-            throw Unimplemented.forMember("net/minecraft/network/chat/ChatType$Bound.<init>:(Lnet/minecraft/core/Holder;Lnet/minecraft/network/chat/Component;)V");
         }
 
         public Component decorate(Component content) {

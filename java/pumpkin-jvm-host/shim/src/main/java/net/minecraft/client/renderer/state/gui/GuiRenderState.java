@@ -5,7 +5,6 @@ import dev.pumpkin.shim.Unimplemented;
 public class GuiRenderState {
 
     public GuiRenderState() {
-        throw Unimplemented.forMember("net/minecraft/client/renderer/state/gui/GuiRenderState.<init>:()V");
     }
 
     public void reset() {
@@ -15,7 +14,6 @@ public class GuiRenderState {
     private static class Node {
 
         private Node(GuiRenderState.Node parent) {
-            throw Unimplemented.forMember("net/minecraft/client/renderer/state/gui/GuiRenderState$Node.<init>:(Lnet/minecraft/client/renderer/state/gui/GuiRenderState$Node;)V");
         }
 
         protected Node() {

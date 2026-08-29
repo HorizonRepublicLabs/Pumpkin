@@ -18,7 +18,6 @@ public final class Capabilities {
         public static final ItemCapability<EnergyHandler, ItemAccess> ITEM = null;
 
         protected Energy() {
-            throw Unimplemented.forMember("net/neoforged/neoforge/capabilities/Capabilities$Energy.<init>:()V");
         }
 
         static {
@@ -33,7 +32,6 @@ public final class Capabilities {
         public static final ItemCapability<ResourceHandler<FluidResource>, ItemAccess> ITEM = null;
 
         protected Fluid() {
-            throw Unimplemented.forMember("net/neoforged/neoforge/capabilities/Capabilities$Fluid.<init>:()V");
         }
 
         static {
@@ -48,7 +46,6 @@ public final class Capabilities {
         public static final BlockCapability<ResourceHandler<ItemResource>, Direction> BLOCK = null;
 
         protected Item() {
-            throw Unimplemented.forMember("net/neoforged/neoforge/capabilities/Capabilities$Item.<init>:()V");
         }
 
         static {
@@ -63,6 +60,5 @@ public final class Capabilities {
     }
 
     protected Capabilities() {
-        throw Unimplemented.forMember("net/neoforged/neoforge/capabilities/Capabilities.<init>:()V");
     }
 }

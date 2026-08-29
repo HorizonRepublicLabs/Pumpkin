@@ -13,7 +13,6 @@ public record EquipmentClientInfo(Map<EquipmentClientInfo.LayerType, List<Equipm
     public static class Builder {
 
         protected Builder() {
-            throw Unimplemented.forMember("net/minecraft/client/resources/model/EquipmentClientInfo$Builder.<init>:()V");
         }
 
         public EquipmentClientInfo build() {
@@ -28,7 +27,6 @@ public record EquipmentClientInfo(Map<EquipmentClientInfo.LayerType, List<Equipm
 
         public Layer(Identifier textureId) {
             this((Identifier) null, (Optional<EquipmentClientInfo.Dyeable>) null, (boolean) false);
-            throw Unimplemented.forMember("net/minecraft/client/resources/model/EquipmentClientInfo$Layer.<init>:(Lnet/minecraft/resources/Identifier;)V");
         }
 
         public Identifier getTextureLocation(EquipmentClientInfo.LayerType type) {

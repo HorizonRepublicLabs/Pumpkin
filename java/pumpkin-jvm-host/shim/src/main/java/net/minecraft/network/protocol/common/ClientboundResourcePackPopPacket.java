@@ -11,7 +11,6 @@ public record ClientboundResourcePackPopPacket(Optional<UUID> id) implements Pac
 
     private ClientboundResourcePackPopPacket(FriendlyByteBuf input) {
         this((Optional<UUID>) null);
-        throw Unimplemented.forMember("net/minecraft/network/protocol/common/ClientboundResourcePackPopPacket.<init>:(Lnet/minecraft/network/FriendlyByteBuf;)V");
     }
 
     private void write(FriendlyByteBuf output) {

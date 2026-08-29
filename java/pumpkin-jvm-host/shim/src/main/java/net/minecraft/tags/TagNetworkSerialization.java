@@ -12,7 +12,6 @@ public class TagNetworkSerialization {
     public static final class NetworkPayload {
 
         public NetworkPayload(Map<Identifier, IntList> tags) {
-            throw Unimplemented.forMember("net/minecraft/tags/TagNetworkSerialization$NetworkPayload.<init>:(Ljava/util/Map;)V");
         }
 
         public void write(FriendlyByteBuf buf) {

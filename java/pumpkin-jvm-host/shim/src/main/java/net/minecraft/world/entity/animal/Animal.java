@@ -20,7 +20,6 @@ import dev.pumpkin.shim.Unimplemented;
 public abstract class Animal extends AgeableMob {
 
     protected Animal(EntityType<? extends Animal> type, Level level) {
-        throw Unimplemented.forMember("net/minecraft/world/entity/animal/Animal.<init>:(Lnet/minecraft/world/entity/EntityType;Lnet/minecraft/world/level/Level;)V");
     }
 
     protected void customServerAiStep(ServerLevel level) {

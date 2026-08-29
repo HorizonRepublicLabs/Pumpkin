@@ -11,7 +11,6 @@ import dev.pumpkin.shim.Unimplemented;
 public class RegisterClientTooltipComponentFactoriesEvent extends Event implements IModBusEvent {
 
     public RegisterClientTooltipComponentFactoriesEvent(Map<Class<? extends TooltipComponent>, Function<TooltipComponent, ClientTooltipComponent>> factories) {
-        throw Unimplemented.forMember("net/neoforged/neoforge/client/event/RegisterClientTooltipComponentFactoriesEvent.<init>:(Ljava/util/Map;)V");
     }
 
     public <T extends TooltipComponent> void register(Class<T> type, Function<? super T, ? extends ClientTooltipComponent> factory) {

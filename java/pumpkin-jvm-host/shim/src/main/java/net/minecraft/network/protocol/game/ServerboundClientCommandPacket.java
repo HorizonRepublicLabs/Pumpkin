@@ -8,11 +8,9 @@ import dev.pumpkin.shim.Unimplemented;
 public class ServerboundClientCommandPacket implements Packet<ServerGamePacketListener> {
 
     public ServerboundClientCommandPacket(ServerboundClientCommandPacket.Action action) {
-        throw Unimplemented.forMember("net/minecraft/network/protocol/game/ServerboundClientCommandPacket.<init>:(Lnet/minecraft/network/protocol/game/ServerboundClientCommandPacket$Action;)V");
     }
 
     private ServerboundClientCommandPacket(FriendlyByteBuf input) {
-        throw Unimplemented.forMember("net/minecraft/network/protocol/game/ServerboundClientCommandPacket.<init>:(Lnet/minecraft/network/FriendlyByteBuf;)V");
     }
 
     private void write(FriendlyByteBuf output) {

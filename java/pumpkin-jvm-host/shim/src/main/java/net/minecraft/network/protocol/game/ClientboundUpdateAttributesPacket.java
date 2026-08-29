@@ -13,11 +13,9 @@ import dev.pumpkin.shim.Unimplemented;
 public class ClientboundUpdateAttributesPacket implements Packet<ClientGamePacketListener> {
 
     public ClientboundUpdateAttributesPacket(int entityId, Collection<AttributeInstance> values) {
-        throw Unimplemented.forMember("net/minecraft/network/protocol/game/ClientboundUpdateAttributesPacket.<init>:(ILjava/util/Collection;)V");
     }
 
     private ClientboundUpdateAttributesPacket(int entityId, List<ClientboundUpdateAttributesPacket.AttributeSnapshot> attributes) {
-        throw Unimplemented.forMember("net/minecraft/network/protocol/game/ClientboundUpdateAttributesPacket.<init>:(ILjava/util/List;)V");
     }
 
     public PacketType<ClientboundUpdateAttributesPacket> type() {

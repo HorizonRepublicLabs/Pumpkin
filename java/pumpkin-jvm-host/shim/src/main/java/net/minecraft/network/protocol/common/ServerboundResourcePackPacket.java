@@ -10,7 +10,6 @@ public record ServerboundResourcePackPacket(UUID id, ServerboundResourcePackPack
 
     private ServerboundResourcePackPacket(FriendlyByteBuf input) {
         this((UUID) null, (ServerboundResourcePackPacket.Action) null);
-        throw Unimplemented.forMember("net/minecraft/network/protocol/common/ServerboundResourcePackPacket.<init>:(Lnet/minecraft/network/FriendlyByteBuf;)V");
     }
 
     private void write(FriendlyByteBuf output) {

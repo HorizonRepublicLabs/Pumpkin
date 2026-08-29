@@ -9,11 +9,9 @@ import dev.pumpkin.shim.Unimplemented;
 public class BlockPos extends Vec3i {
 
     public BlockPos(int x, int y, int z) {
-        throw Unimplemented.forMember("net/minecraft/core/BlockPos.<init>:(III)V");
     }
 
     public BlockPos(Vec3i vec3i) {
-        throw Unimplemented.forMember("net/minecraft/core/BlockPos.<init>:(Lnet/minecraft/core/Vec3i;)V");
     }
 
     public static long offset(long blockNode, Direction offset) {
@@ -123,15 +121,12 @@ public class BlockPos extends Vec3i {
     public static class MutableBlockPos extends BlockPos {
 
         public MutableBlockPos() {
-            throw Unimplemented.forMember("net/minecraft/core/BlockPos$MutableBlockPos.<init>:()V");
         }
 
         public MutableBlockPos(int x, int y, int z) {
-            throw Unimplemented.forMember("net/minecraft/core/BlockPos$MutableBlockPos.<init>:(III)V");
         }
 
         public MutableBlockPos(double x, double y, double z) {
-            throw Unimplemented.forMember("net/minecraft/core/BlockPos$MutableBlockPos.<init>:(DDD)V");
         }
 
         public BlockPos offset(int x, int y, int z) {

@@ -15,7 +15,6 @@ public record Equippable(EquipmentSlot slot, Holder<SoundEvent> equipSound, Opti
     public static class Builder {
 
         private Builder(EquipmentSlot slot) {
-            throw Unimplemented.forMember("net/minecraft/world/item/equipment/Equippable$Builder.<init>:(Lnet/minecraft/world/entity/EquipmentSlot;)V");
         }
 
         public Equippable build() {

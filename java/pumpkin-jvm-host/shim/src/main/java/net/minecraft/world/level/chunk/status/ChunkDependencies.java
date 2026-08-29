@@ -6,7 +6,6 @@ import dev.pumpkin.shim.Unimplemented;
 public final class ChunkDependencies {
 
     public ChunkDependencies(ImmutableList<ChunkStatus> dependencyByRadius) {
-        throw Unimplemented.forMember("net/minecraft/world/level/chunk/status/ChunkDependencies.<init>:(Lcom/google/common/collect/ImmutableList;)V");
     }
 
     public int size() {

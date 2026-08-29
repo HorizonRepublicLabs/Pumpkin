@@ -10,7 +10,6 @@ import dev.pumpkin.shim.Unimplemented;
 public abstract class SortedReloadListenerEvent extends Event {
 
     protected SortedReloadListenerEvent(List<PreparableReloadListener> vanillaListeners, NameLookup lookup) {
-        throw Unimplemented.forMember("net/neoforged/neoforge/event/SortedReloadListenerEvent.<init>:(Ljava/util/List;Lnet/neoforged/neoforge/event/SortedReloadListenerEvent$NameLookup;)V");
     }
 
     public void addListener(Identifier key, PreparableReloadListener listener) {

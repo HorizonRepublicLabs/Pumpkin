@@ -14,7 +14,6 @@ public class SoundType {
     public static final SoundType DEEPSLATE = null;
 
     public SoundType(float volume, float pitch, SoundEvent breakSound, SoundEvent stepSound, SoundEvent placeSound, SoundEvent hitSound, SoundEvent fallSound) {
-        throw Unimplemented.forMember("net/minecraft/world/level/block/SoundType.<init>:(FFLnet/minecraft/sounds/SoundEvent;Lnet/minecraft/sounds/SoundEvent;Lnet/minecraft/sounds/SoundEvent;Lnet/minecraft/sounds/SoundEvent;Lnet/minecraft/sounds/SoundEvent;)V");
     }
 
     public float getVolume() {

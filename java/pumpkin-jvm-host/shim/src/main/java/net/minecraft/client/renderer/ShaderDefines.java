@@ -13,7 +13,6 @@ public record ShaderDefines(Map<String, String> values, Set<String> flags) {
     public static class Builder {
 
         protected Builder() {
-            throw Unimplemented.forMember("net/minecraft/client/renderer/ShaderDefines$Builder.<init>:()V");
         }
 
         public ShaderDefines build() {

@@ -14,11 +14,9 @@ import dev.pumpkin.shim.Unimplemented;
 public class ClientboundSetPlayerTeamPacket implements Packet<ClientGamePacketListener> {
 
     private ClientboundSetPlayerTeamPacket(String name, int method, Optional<ClientboundSetPlayerTeamPacket.Parameters> parameters, Collection<String> players) {
-        throw Unimplemented.forMember("net/minecraft/network/protocol/game/ClientboundSetPlayerTeamPacket.<init>:(Ljava/lang/String;ILjava/util/Optional;Ljava/util/Collection;)V");
     }
 
     private ClientboundSetPlayerTeamPacket(RegistryFriendlyByteBuf input) {
-        throw Unimplemented.forMember("net/minecraft/network/protocol/game/ClientboundSetPlayerTeamPacket.<init>:(Lnet/minecraft/network/RegistryFriendlyByteBuf;)V");
     }
 
     private void write(RegistryFriendlyByteBuf output) {
@@ -50,7 +48,6 @@ public class ClientboundSetPlayerTeamPacket implements Packet<ClientGamePacketLi
 
         public Parameters(PlayerTeam team) {
             this((Component) null, (Component) null, (Component) null, (Team.Visibility) null, (Team.CollisionRule) null, (Optional<TeamColor>) null, (byte) 0);
-            throw Unimplemented.forMember("net/minecraft/network/protocol/game/ClientboundSetPlayerTeamPacket$Parameters.<init>:(Lnet/minecraft/world/scores/PlayerTeam;)V");
         }
     }
 

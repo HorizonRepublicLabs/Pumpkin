@@ -10,7 +10,6 @@ import dev.pumpkin.shim.Unimplemented;
 public class ShapedRecipe extends NormalCraftingRecipe {
 
     public ShapedRecipe(Recipe.CommonInfo commonInfo, CraftingRecipe.CraftingBookInfo bookInfo, ShapedRecipePattern pattern, ItemStackTemplate result) {
-        throw Unimplemented.forMember("net/minecraft/world/item/crafting/ShapedRecipe.<init>:(Lnet/minecraft/world/item/crafting/Recipe$CommonInfo;Lnet/minecraft/world/item/crafting/CraftingRecipe$CraftingBookInfo;Lnet/minecraft/world/item/crafting/ShapedRecipePattern;Lnet/minecraft/world/item/ItemStackTemplate;)V");
     }
 
     public RecipeSerializer<ShapedRecipe> getSerializer() {

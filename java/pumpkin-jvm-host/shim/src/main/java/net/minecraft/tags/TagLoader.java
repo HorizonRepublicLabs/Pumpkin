@@ -16,7 +16,6 @@ import dev.pumpkin.shim.Unimplemented;
 public class TagLoader<T> {
 
     public TagLoader(TagLoader.ElementLookup<T> elementLookup, String directory) {
-        throw Unimplemented.forMember("net/minecraft/tags/TagLoader.<init>:(Lnet/minecraft/tags/TagLoader$ElementLookup;Ljava/lang/String;)V");
     }
 
     public Map<Identifier, List<TagLoader.EntryWithSource>> load(ResourceManager resourceManager) {
@@ -32,7 +31,6 @@ public class TagLoader<T> {
 
         public EntryWithSource(TagEntry entry, String source) {
             this((TagEntry) null, (String) null, (boolean) false);
-            throw Unimplemented.forMember("net/minecraft/tags/TagLoader$EntryWithSource.<init>:(Lnet/minecraft/tags/TagEntry;Ljava/lang/String;)V");
         }
 
         public String toString() {

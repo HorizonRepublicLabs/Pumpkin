@@ -7,7 +7,6 @@ import dev.pumpkin.shim.Unimplemented;
 public class QuadCollection {
 
     private QuadCollection(List<BakedQuad> all, List<BakedQuad> unculled, List<BakedQuad> north, List<BakedQuad> south, List<BakedQuad> east, List<BakedQuad> west, List<BakedQuad> up, List<BakedQuad> down) {
-        throw Unimplemented.forMember("net/minecraft/client/resources/model/geometry/QuadCollection.<init>:(Ljava/util/List;Ljava/util/List;Ljava/util/List;Ljava/util/List;Ljava/util/List;Ljava/util/List;Ljava/util/List;Ljava/util/List;)V");
     }
 
     public List<BakedQuad> getQuads(Direction direction) {

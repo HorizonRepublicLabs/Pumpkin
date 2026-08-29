@@ -20,7 +20,6 @@ import dev.pumpkin.shim.Unimplemented;
 public abstract class Projectile extends Entity implements TraceableEntity {
 
     protected Projectile(EntityType<? extends Projectile> type, Level level) {
-        throw Unimplemented.forMember("net/minecraft/world/entity/projectile/Projectile.<init>:(Lnet/minecraft/world/entity/EntityType;Lnet/minecraft/world/level/Level;)V");
     }
 
     public Entity getOwner() {

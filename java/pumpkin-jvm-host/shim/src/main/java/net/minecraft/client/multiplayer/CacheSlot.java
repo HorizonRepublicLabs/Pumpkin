@@ -6,7 +6,6 @@ import dev.pumpkin.shim.Unimplemented;
 public class CacheSlot<C extends CacheSlot.Cleaner<C>, D> {
 
     public CacheSlot(Function<C, D> operation) {
-        throw Unimplemented.forMember("net/minecraft/client/multiplayer/CacheSlot.<init>:(Ljava/util/function/Function;)V");
     }
 
     public D compute(C context) {

@@ -7,7 +7,6 @@ import dev.pumpkin.shim.Unimplemented;
 public class LevelTicks<T> implements LevelTickAccess<T> {
 
     public LevelTicks(LongPredicate tickCheck) {
-        throw Unimplemented.forMember("net/minecraft/world/ticks/LevelTicks.<init>:(Ljava/util/function/LongPredicate;)V");
     }
 
     public void schedule(ScheduledTick<T> tick) {

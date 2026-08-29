@@ -19,7 +19,6 @@ import dev.pumpkin.shim.Unimplemented;
 public class NoiseBasedChunkGenerator extends ChunkGenerator {
 
     public NoiseBasedChunkGenerator(BiomeSource biomeSource, Holder<NoiseGeneratorSettings> settings) {
-        throw Unimplemented.forMember("net/minecraft/world/level/levelgen/NoiseBasedChunkGenerator.<init>:(Lnet/minecraft/world/level/biome/BiomeSource;Lnet/minecraft/core/Holder;)V");
     }
 
     public CompletableFuture<ChunkAccess> createBiomes(RandomState randomState, Blender blender, StructureManager structureManager, ChunkAccess protoChunk) {

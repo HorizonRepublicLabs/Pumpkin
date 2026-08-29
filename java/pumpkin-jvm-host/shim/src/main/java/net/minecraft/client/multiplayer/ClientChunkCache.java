@@ -13,7 +13,6 @@ import dev.pumpkin.shim.Unimplemented;
 public class ClientChunkCache extends ChunkSource {
 
     public ClientChunkCache(ClientLevel level, int serverChunkRadius) {
-        throw Unimplemented.forMember("net/minecraft/client/multiplayer/ClientChunkCache.<init>:(Lnet/minecraft/client/multiplayer/ClientLevel;I)V");
     }
 
     public LevelLightEngine getLightEngine() {
@@ -51,7 +50,6 @@ public class ClientChunkCache extends ChunkSource {
     private final class Storage {
 
         private Storage(int chunkRadius) {
-            throw Unimplemented.forMember("net/minecraft/client/multiplayer/ClientChunkCache$Storage.<init>:(I)V");
         }
 
         public LevelChunk getChunk(int index) {

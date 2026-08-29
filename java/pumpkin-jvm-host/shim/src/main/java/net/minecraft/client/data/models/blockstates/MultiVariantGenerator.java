@@ -13,7 +13,6 @@ import dev.pumpkin.shim.Unimplemented;
 public class MultiVariantGenerator implements BlockModelDefinitionGenerator {
 
     private MultiVariantGenerator(Block block, List<MultiVariantGenerator.Entry> entries, Set<Property<?>> seenProperties) {
-        throw Unimplemented.forMember("net/minecraft/client/data/models/blockstates/MultiVariantGenerator.<init>:(Lnet/minecraft/world/level/block/Block;Ljava/util/List;Ljava/util/Set;)V");
     }
 
     public MultiVariantGenerator with(PropertyDispatch<VariantMutator> newStage) {
@@ -43,7 +42,6 @@ public class MultiVariantGenerator implements BlockModelDefinitionGenerator {
     public static class Empty {
 
         public Empty(Block block) {
-            throw Unimplemented.forMember("net/minecraft/client/data/models/blockstates/MultiVariantGenerator$Empty.<init>:(Lnet/minecraft/world/level/block/Block;)V");
         }
 
         public MultiVariantGenerator with(PropertyDispatch<MultiVariant> newStage) {

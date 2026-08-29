@@ -10,11 +10,9 @@ import dev.pumpkin.shim.Unimplemented;
 public class StructureTemplatePool {
 
     public StructureTemplatePool(Holder<StructureTemplatePool> fallback, List<Pair<StructurePoolElement, Integer>> templates) {
-        throw Unimplemented.forMember("net/minecraft/world/level/levelgen/structure/pools/StructureTemplatePool.<init>:(Lnet/minecraft/core/Holder;Ljava/util/List;)V");
     }
 
     public StructureTemplatePool(Holder<StructureTemplatePool> fallback, List<Pair<Function<StructureTemplatePool.Projection, ? extends StructurePoolElement>, Integer>> templates, StructureTemplatePool.Projection projection) {
-        throw Unimplemented.forMember("net/minecraft/world/level/levelgen/structure/pools/StructureTemplatePool.<init>:(Lnet/minecraft/core/Holder;Ljava/util/List;Lnet/minecraft/world/level/levelgen/structure/pools/StructureTemplatePool$Projection;)V");
     }
 
     public int size() {

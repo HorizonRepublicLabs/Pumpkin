@@ -9,11 +9,9 @@ import dev.pumpkin.shim.Unimplemented;
 public class TagEntry {
 
     private TagEntry(Identifier id, boolean tag, boolean required) {
-        throw Unimplemented.forMember("net/minecraft/tags/TagEntry.<init>:(Lnet/minecraft/resources/Identifier;ZZ)V");
     }
 
     private TagEntry(ExtraCodecs.TagOrElementLocation elementOrTag, boolean required) {
-        throw Unimplemented.forMember("net/minecraft/tags/TagEntry.<init>:(Lnet/minecraft/util/ExtraCodecs$TagOrElementLocation;Z)V");
     }
 
     public static TagEntry tag(Identifier id) {

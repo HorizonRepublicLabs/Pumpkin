@@ -11,15 +11,12 @@ import dev.pumpkin.shim.Unimplemented;
 public final class ListTag extends AbstractList<Tag> implements CollectionTag {
 
     public ListTag() {
-        throw Unimplemented.forMember("net/minecraft/nbt/ListTag.<init>:()V");
     }
 
     public ListTag(int initialCapacity) {
-        throw Unimplemented.forMember("net/minecraft/nbt/ListTag.<init>:(I)V");
     }
 
     ListTag(List<Tag> list) {
-        throw Unimplemented.forMember("net/minecraft/nbt/ListTag.<init>:(Ljava/util/List;)V");
     }
 
     private static Tag tryUnwrap(CompoundTag tag) {

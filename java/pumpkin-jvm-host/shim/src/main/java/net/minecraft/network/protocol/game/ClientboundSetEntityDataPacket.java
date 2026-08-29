@@ -11,7 +11,6 @@ public record ClientboundSetEntityDataPacket(int id, List<SynchedEntityData.Data
 
     private ClientboundSetEntityDataPacket(RegistryFriendlyByteBuf input) {
         this((int) 0, (List<SynchedEntityData.DataValue<?>>) null);
-        throw Unimplemented.forMember("net/minecraft/network/protocol/game/ClientboundSetEntityDataPacket.<init>:(Lnet/minecraft/network/RegistryFriendlyByteBuf;)V");
     }
 
     private static List<SynchedEntityData.DataValue<?>> unpack(RegistryFriendlyByteBuf input) {

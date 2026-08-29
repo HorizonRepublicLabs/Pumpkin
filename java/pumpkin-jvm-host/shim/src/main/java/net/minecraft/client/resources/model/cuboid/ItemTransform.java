@@ -13,7 +13,6 @@ public record ItemTransform(Vector3fc rotation, Vector3fc translation, Vector3fc
 
     public ItemTransform(Vector3fc rotation, Vector3fc translation, Vector3fc scale) {
         this((Vector3fc) null, (Vector3fc) null, (Vector3fc) null, (Vector3fc) null);
-        throw Unimplemented.forMember("net/minecraft/client/resources/model/cuboid/ItemTransform.<init>:(Lorg/joml/Vector3fc;Lorg/joml/Vector3fc;Lorg/joml/Vector3fc;)V");
     }
 
     public void apply(boolean applyLeftHandFix, PoseStack.Pose pose) {

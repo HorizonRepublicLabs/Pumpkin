@@ -11,7 +11,6 @@ public abstract class Feature<FC extends FeatureConfiguration> {
     }
 
     public Feature(Codec<FC> codec) {
-        throw Unimplemented.forMember("net/minecraft/world/level/levelgen/feature/Feature.<init>:(Lcom/mojang/serialization/Codec;)V");
     }
 
     public abstract boolean place(final FeaturePlaceContext<FC> context);

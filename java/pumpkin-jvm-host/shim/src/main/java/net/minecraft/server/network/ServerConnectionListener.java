@@ -9,7 +9,6 @@ import dev.pumpkin.shim.Unimplemented;
 public class ServerConnectionListener {
 
     public ServerConnectionListener(MinecraftServer server) {
-        throw Unimplemented.forMember("net/minecraft/server/network/ServerConnectionListener.<init>:(Lnet/minecraft/server/MinecraftServer;)V");
     }
 
     public void tick() {
@@ -23,7 +22,6 @@ public class ServerConnectionListener {
     private static class LatencySimulator extends ChannelInboundHandlerAdapter {
 
         public LatencySimulator(int delay, int jitter) {
-            throw Unimplemented.forMember("net/minecraft/server/network/ServerConnectionListener$LatencySimulator.<init>:(II)V");
         }
 
         public void channelRead(ChannelHandlerContext ctx, Object msg) {

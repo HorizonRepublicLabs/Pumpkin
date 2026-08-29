@@ -10,7 +10,6 @@ import dev.pumpkin.shim.Unimplemented;
 public final class RenderSetup {
 
     private RenderSetup(RenderPipeline pipeline, Map<String, RenderSetup.TextureBinding> textures, boolean useLightmap, boolean useOverlay, LayeringTransform layeringTransform, OutputTarget outputTarget, TextureTransform textureTransform, RenderSetup.OutlineProperty outlineProperty, boolean affectsCrumbling, boolean sortOnUpload) {
-        throw Unimplemented.forMember("net/minecraft/client/renderer/rendertype/RenderSetup.<init>:(Lcom/mojang/blaze3d/pipeline/RenderPipeline;Ljava/util/Map;ZZLnet/minecraft/client/renderer/rendertype/LayeringTransform;Lnet/minecraft/client/renderer/rendertype/OutputTarget;Lnet/minecraft/client/renderer/rendertype/TextureTransform;Lnet/minecraft/client/renderer/rendertype/RenderSetup$OutlineProperty;ZZ)V");
     }
 
     public String toString() {
@@ -39,7 +38,6 @@ public final class RenderSetup {
         private boolean affectsCrumbling;
 
         private RenderSetupBuilder(RenderPipeline pipeline) {
-            throw Unimplemented.forMember("net/minecraft/client/renderer/rendertype/RenderSetup$RenderSetupBuilder.<init>:(Lcom/mojang/blaze3d/pipeline/RenderPipeline;)V");
         }
 
         public RenderSetup.RenderSetupBuilder withTexture(String name, Identifier texture) {

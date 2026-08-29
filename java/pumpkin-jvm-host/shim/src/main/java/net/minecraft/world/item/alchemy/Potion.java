@@ -8,7 +8,6 @@ import dev.pumpkin.shim.Unimplemented;
 public class Potion implements FeatureElement {
 
     public Potion(String name, MobEffectInstance... effects) {
-        throw Unimplemented.forMember("net/minecraft/world/item/alchemy/Potion.<init>:(Ljava/lang/String;[Lnet/minecraft/world/effect/MobEffectInstance;)V");
     }
 
     public FeatureFlagSet requiredFeatures() {

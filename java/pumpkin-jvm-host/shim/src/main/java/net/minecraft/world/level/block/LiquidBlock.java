@@ -34,7 +34,6 @@ public class LiquidBlock extends Block implements BucketPickup {
     }
 
     public LiquidBlock(FlowingFluid fluid, BlockBehaviour.Properties properties) {
-        throw Unimplemented.forMember("net/minecraft/world/level/block/LiquidBlock.<init>:(Lnet/minecraft/world/level/material/FlowingFluid;Lnet/minecraft/world/level/block/state/BlockBehaviour$Properties;)V");
     }
 
     protected VoxelShape getCollisionShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {

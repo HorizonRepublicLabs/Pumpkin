@@ -25,7 +25,6 @@ public final class Transaction implements AutoCloseable, TransactionContext {
     }
 
     Transaction(TransactionManager manager, int depth, Class<?> callerClass) {
-        throw Unimplemented.forMember("net/neoforged/neoforge/transfer/transaction/Transaction.<init>:(Lnet/neoforged/neoforge/transfer/transaction/TransactionManager;ILjava/lang/Class;)V");
     }
 
     private void close(boolean wasAborted) {

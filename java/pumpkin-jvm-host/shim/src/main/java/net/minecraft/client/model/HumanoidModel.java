@@ -15,11 +15,9 @@ import dev.pumpkin.shim.Unimplemented;
 public class HumanoidModel<T extends HumanoidRenderState> extends EntityModel<T> implements ArmedModel<T>, HeadedModel {
 
     public HumanoidModel(ModelPart root) {
-        throw Unimplemented.forMember("net/minecraft/client/model/HumanoidModel.<init>:(Lnet/minecraft/client/model/geom/ModelPart;)V");
     }
 
     public HumanoidModel(ModelPart root, Function<Identifier, RenderType> renderType) {
-        throw Unimplemented.forMember("net/minecraft/client/model/HumanoidModel.<init>:(Lnet/minecraft/client/model/geom/ModelPart;Ljava/util/function/Function;)V");
     }
 
     public void translateToHand(HumanoidRenderState state, HumanoidArm arm, PoseStack poseStack) {

@@ -7,7 +7,6 @@ import dev.pumpkin.shim.Unimplemented;
 public abstract class StackCopySlot extends Slot {
 
     public StackCopySlot(int slot, int x, int y) {
-        throw Unimplemented.forMember("net/neoforged/neoforge/world/inventory/StackCopySlot.<init>:(III)V");
     }
 
     protected abstract ItemStack getStackCopy();

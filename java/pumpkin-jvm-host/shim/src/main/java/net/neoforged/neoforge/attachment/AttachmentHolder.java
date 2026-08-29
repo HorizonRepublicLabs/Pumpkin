@@ -31,7 +31,6 @@ public abstract class AttachmentHolder implements IAttachmentHolder {
     public static class AsField extends AttachmentHolder {
 
         public AsField(IAttachmentHolder exposedHolder) {
-            throw Unimplemented.forMember("net/neoforged/neoforge/attachment/AttachmentHolder$AsField.<init>:(Lnet/neoforged/neoforge/attachment/IAttachmentHolder;)V");
         }
 
         IAttachmentHolder getExposedHolder() {

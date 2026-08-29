@@ -8,11 +8,9 @@ import dev.pumpkin.shim.Unimplemented;
 public class ClientboundGameEventPacket implements Packet<ClientGamePacketListener> {
 
     public ClientboundGameEventPacket(ClientboundGameEventPacket.Type event, float param) {
-        throw Unimplemented.forMember("net/minecraft/network/protocol/game/ClientboundGameEventPacket.<init>:(Lnet/minecraft/network/protocol/game/ClientboundGameEventPacket$Type;F)V");
     }
 
     private ClientboundGameEventPacket(FriendlyByteBuf input) {
-        throw Unimplemented.forMember("net/minecraft/network/protocol/game/ClientboundGameEventPacket.<init>:(Lnet/minecraft/network/FriendlyByteBuf;)V");
     }
 
     private void write(FriendlyByteBuf output) {
@@ -30,7 +28,6 @@ public class ClientboundGameEventPacket implements Packet<ClientGamePacketListen
     public static class Type {
 
         public Type(int id) {
-            throw Unimplemented.forMember("net/minecraft/network/protocol/game/ClientboundGameEventPacket$Type.<init>:(I)V");
         }
 
         public Type() {

@@ -10,7 +10,6 @@ public record ClientboundCustomChatCompletionsPacket(ClientboundCustomChatComple
 
     private ClientboundCustomChatCompletionsPacket(FriendlyByteBuf input) {
         this((ClientboundCustomChatCompletionsPacket.Action) null, (List<String>) null);
-        throw Unimplemented.forMember("net/minecraft/network/protocol/game/ClientboundCustomChatCompletionsPacket.<init>:(Lnet/minecraft/network/FriendlyByteBuf;)V");
     }
 
     private void write(FriendlyByteBuf output) {

@@ -11,7 +11,6 @@ import dev.pumpkin.shim.Unimplemented;
 public class BlockItem extends Item {
 
     public BlockItem(Block block, Item.Properties properties) {
-        throw Unimplemented.forMember("net/minecraft/world/item/BlockItem.<init>:(Lnet/minecraft/world/level/block/Block;Lnet/minecraft/world/item/Item$Properties;)V");
     }
 
     public InteractionResult useOn(UseOnContext context) {

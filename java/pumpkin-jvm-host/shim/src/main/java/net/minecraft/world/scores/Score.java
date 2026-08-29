@@ -8,11 +8,9 @@ import dev.pumpkin.shim.Unimplemented;
 public class Score implements ReadOnlyScoreInfo {
 
     public Score() {
-        throw Unimplemented.forMember("net/minecraft/world/scores/Score.<init>:()V");
     }
 
     public Score(Score.Packed packed) {
-        throw Unimplemented.forMember("net/minecraft/world/scores/Score.<init>:(Lnet/minecraft/world/scores/Score$Packed;)V");
     }
 
     public int value() {

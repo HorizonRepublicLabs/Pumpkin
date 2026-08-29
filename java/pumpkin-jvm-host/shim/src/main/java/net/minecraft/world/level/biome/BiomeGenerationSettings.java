@@ -12,13 +12,11 @@ import dev.pumpkin.shim.Unimplemented;
 public class BiomeGenerationSettings {
 
     public BiomeGenerationSettings(HolderSet<ConfiguredWorldCarver<?>> carvers, List<HolderSet<PlacedFeature>> features) {
-        throw Unimplemented.forMember("net/minecraft/world/level/biome/BiomeGenerationSettings.<init>:(Lnet/minecraft/core/HolderSet;Ljava/util/List;)V");
     }
 
     public static class Builder extends BiomeGenerationSettings.PlainBuilder {
 
         public Builder(HolderGetter<PlacedFeature> placedFeatures, HolderGetter<ConfiguredWorldCarver<?>> worldCarvers) {
-            throw Unimplemented.forMember("net/minecraft/world/level/biome/BiomeGenerationSettings$Builder.<init>:(Lnet/minecraft/core/HolderGetter;Lnet/minecraft/core/HolderGetter;)V");
         }
 
         public Builder() {

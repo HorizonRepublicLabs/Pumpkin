@@ -6,7 +6,6 @@ import dev.pumpkin.shim.Unimplemented;
 public final class ModelData {
 
     private ModelData(Map<ModelProperty<?>, Object> properties) {
-        throw Unimplemented.forMember("net/neoforged/neoforge/model/data/ModelData.<init>:(Ljava/util/Map;)V");
     }
 
     public <T> T get(ModelProperty<T> property) {
@@ -16,7 +15,6 @@ public final class ModelData {
     public static final class Builder {
 
         private Builder(ModelData parent) {
-            throw Unimplemented.forMember("net/neoforged/neoforge/model/data/ModelData$Builder.<init>:(Lnet/neoforged/neoforge/model/data/ModelData;)V");
         }
 
         public <T> Builder with(ModelProperty<T> property, T value) {

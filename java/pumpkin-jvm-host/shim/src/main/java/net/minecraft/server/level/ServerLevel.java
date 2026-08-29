@@ -61,7 +61,6 @@ import dev.pumpkin.shim.Unimplemented;
 public class ServerLevel extends Level implements WorldGenLevel, ServerEntityGetter {
 
     public ServerLevel(MinecraftServer server, Executor executor, LevelStorageSource.LevelStorageAccess levelStorage, ServerLevelData levelData, ResourceKey<Level> dimension, LevelStem levelStem, boolean isDebug, long biomeZoomSeed, List<CustomSpawner> customSpawners, boolean tickTime) {
-        throw Unimplemented.forMember("net/minecraft/server/level/ServerLevel.<init>:(Lnet/minecraft/server/MinecraftServer;Ljava/util/concurrent/Executor;Lnet/minecraft/world/level/storage/LevelStorageSource$LevelStorageAccess;Lnet/minecraft/world/level/storage/ServerLevelData;Lnet/minecraft/resources/ResourceKey;Lnet/minecraft/world/level/dimension/LevelStem;ZJLjava/util/List;Z)V");
     }
 
     public int getNextEntityId() {

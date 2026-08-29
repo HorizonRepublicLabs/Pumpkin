@@ -50,7 +50,6 @@ public interface DataComponentType<T> {
         private static class SimpleType<T> implements DataComponentType<T> {
 
             private SimpleType(Codec<T> codec, StreamCodec<? super RegistryFriendlyByteBuf, T> streamCodec, boolean ignoreSwapAnimation) {
-                throw Unimplemented.forMember("net/minecraft/core/component/DataComponentType$Builder$SimpleType.<init>:(Lcom/mojang/serialization/Codec;Lnet/minecraft/network/codec/StreamCodec;Z)V");
             }
 
             public boolean ignoreSwapAnimation() {

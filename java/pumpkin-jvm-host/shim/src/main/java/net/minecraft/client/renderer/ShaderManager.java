@@ -13,7 +13,6 @@ import dev.pumpkin.shim.Unimplemented;
 public class ShaderManager extends SimplePreparableReloadListener<ShaderManager.Configs> implements AutoCloseable {
 
     public ShaderManager(TextureManager textureManager, Consumer<Exception> recoveryHandler) {
-        throw Unimplemented.forMember("net/minecraft/client/renderer/ShaderManager.<init>:(Lnet/minecraft/client/renderer/texture/TextureManager;Ljava/util/function/Consumer;)V");
     }
 
     protected ShaderManager.Configs prepare(ResourceManager manager, ProfilerFiller profiler) {
@@ -35,7 +34,6 @@ public class ShaderManager extends SimplePreparableReloadListener<ShaderManager.
     private class CompilationCache implements AutoCloseable {
 
         private CompilationCache(ShaderManager.Configs configs) {
-            throw Unimplemented.forMember("net/minecraft/client/renderer/ShaderManager$CompilationCache.<init>:(Lnet/minecraft/client/renderer/ShaderManager$Configs;)V");
         }
 
         public void close() {
@@ -49,7 +47,6 @@ public class ShaderManager extends SimplePreparableReloadListener<ShaderManager.
     public static class CompilationException extends Exception {
 
         public CompilationException(String message) {
-            throw Unimplemented.forMember("net/minecraft/client/renderer/ShaderManager$CompilationException.<init>:(Ljava/lang/String;)V");
         }
 
         public CompilationException() {

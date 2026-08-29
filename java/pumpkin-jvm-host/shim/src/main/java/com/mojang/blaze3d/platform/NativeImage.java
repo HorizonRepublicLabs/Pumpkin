@@ -10,15 +10,12 @@ import dev.pumpkin.shim.Unimplemented;
 public final class NativeImage implements AutoCloseable {
 
     public NativeImage(int width, int height, boolean zero) {
-        throw Unimplemented.forMember("com/mojang/blaze3d/platform/NativeImage.<init>:(IIZ)V");
     }
 
     public NativeImage(NativeImage.Format format, int width, int height, boolean zero) {
-        throw Unimplemented.forMember("com/mojang/blaze3d/platform/NativeImage.<init>:(Lcom/mojang/blaze3d/platform/NativeImage$Format;IIZ)V");
     }
 
     public NativeImage(NativeImage.Format format, int width, int height, boolean useStbFree, long pixels) {
-        throw Unimplemented.forMember("com/mojang/blaze3d/platform/NativeImage.<init>:(Lcom/mojang/blaze3d/platform/NativeImage$Format;IIZJ)V");
     }
 
     public String toString() {
@@ -77,7 +74,6 @@ public final class NativeImage implements AutoCloseable {
     private static class WriteCallback extends STBIWriteCallback {
 
         private WriteCallback(WritableByteChannel output) {
-            throw Unimplemented.forMember("com/mojang/blaze3d/platform/NativeImage$WriteCallback.<init>:(Ljava/nio/channels/WritableByteChannel;)V");
         }
 
         public void invoke(long context, long data, int size) {

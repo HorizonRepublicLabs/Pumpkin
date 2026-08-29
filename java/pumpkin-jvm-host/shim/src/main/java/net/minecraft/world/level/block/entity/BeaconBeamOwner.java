@@ -10,7 +10,6 @@ public interface BeaconBeamOwner {
     class Section {
 
         public Section(int color) {
-            throw Unimplemented.forMember("net/minecraft/world/level/block/entity/BeaconBeamOwner$Section.<init>:(I)V");
         }
 
         public int getColor() {

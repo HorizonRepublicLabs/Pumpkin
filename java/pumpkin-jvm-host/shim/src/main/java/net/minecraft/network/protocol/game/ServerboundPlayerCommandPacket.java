@@ -9,15 +9,12 @@ import dev.pumpkin.shim.Unimplemented;
 public class ServerboundPlayerCommandPacket implements Packet<ServerGamePacketListener> {
 
     public ServerboundPlayerCommandPacket(Entity entity, ServerboundPlayerCommandPacket.Action action) {
-        throw Unimplemented.forMember("net/minecraft/network/protocol/game/ServerboundPlayerCommandPacket.<init>:(Lnet/minecraft/world/entity/Entity;Lnet/minecraft/network/protocol/game/ServerboundPlayerCommandPacket$Action;)V");
     }
 
     public ServerboundPlayerCommandPacket(Entity entity, ServerboundPlayerCommandPacket.Action action, int data) {
-        throw Unimplemented.forMember("net/minecraft/network/protocol/game/ServerboundPlayerCommandPacket.<init>:(Lnet/minecraft/world/entity/Entity;Lnet/minecraft/network/protocol/game/ServerboundPlayerCommandPacket$Action;I)V");
     }
 
     private ServerboundPlayerCommandPacket(FriendlyByteBuf input) {
-        throw Unimplemented.forMember("net/minecraft/network/protocol/game/ServerboundPlayerCommandPacket.<init>:(Lnet/minecraft/network/FriendlyByteBuf;)V");
     }
 
     private void write(FriendlyByteBuf output) {

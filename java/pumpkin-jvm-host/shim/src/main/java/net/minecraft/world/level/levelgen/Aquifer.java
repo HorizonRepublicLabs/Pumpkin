@@ -21,7 +21,6 @@ public interface Aquifer {
     class NoiseBasedAquifer implements Aquifer {
 
         private NoiseBasedAquifer(NoiseChunk noiseChunk, ChunkPos pos, NoiseRouter router, PositionalRandomFactory positionalRandomFactory, int minBlockY, int yBlockSize, Aquifer.FluidPicker globalFluidPicker) {
-            throw Unimplemented.forMember("net/minecraft/world/level/levelgen/Aquifer$NoiseBasedAquifer.<init>:(Lnet/minecraft/world/level/levelgen/NoiseChunk;Lnet/minecraft/world/level/ChunkPos;Lnet/minecraft/world/level/levelgen/NoiseRouter;Lnet/minecraft/world/level/levelgen/PositionalRandomFactory;IILnet/minecraft/world/level/levelgen/Aquifer$FluidPicker;)V");
         }
 
         public BlockState computeSubstance(DensityFunction.FunctionContext context, double density) {

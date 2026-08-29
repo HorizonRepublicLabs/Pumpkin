@@ -9,7 +9,6 @@ import dev.pumpkin.shim.Unimplemented;
 public abstract class RenderGuiEvent extends Event {
 
     protected RenderGuiEvent(GuiGraphicsExtractor guiGraphics, DeltaTracker partialTick) {
-        throw Unimplemented.forMember("net/neoforged/neoforge/client/event/RenderGuiEvent.<init>:(Lnet/minecraft/client/gui/GuiGraphicsExtractor;Lnet/minecraft/client/DeltaTracker;)V");
     }
 
     public GuiGraphicsExtractor getGuiGraphics() {
@@ -19,7 +18,6 @@ public abstract class RenderGuiEvent extends Event {
     public static class Pre extends RenderGuiEvent implements ICancellableEvent {
 
         public Pre(GuiGraphicsExtractor guiGraphics, DeltaTracker partialTick) {
-            throw Unimplemented.forMember("net/neoforged/neoforge/client/event/RenderGuiEvent$Pre.<init>:(Lnet/minecraft/client/gui/GuiGraphicsExtractor;Lnet/minecraft/client/DeltaTracker;)V");
         }
 
         public Pre() {
@@ -29,7 +27,6 @@ public abstract class RenderGuiEvent extends Event {
     public static class Post extends RenderGuiEvent {
 
         public Post(GuiGraphicsExtractor guiGraphics, DeltaTracker partialTick) {
-            throw Unimplemented.forMember("net/neoforged/neoforge/client/event/RenderGuiEvent$Post.<init>:(Lnet/minecraft/client/gui/GuiGraphicsExtractor;Lnet/minecraft/client/DeltaTracker;)V");
         }
 
         public Post() {

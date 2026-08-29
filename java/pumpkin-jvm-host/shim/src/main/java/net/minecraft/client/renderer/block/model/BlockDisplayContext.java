@@ -5,7 +5,6 @@ import dev.pumpkin.shim.Unimplemented;
 public class BlockDisplayContext {
 
     protected BlockDisplayContext() {
-        throw Unimplemented.forMember("net/minecraft/client/renderer/block/model/BlockDisplayContext.<init>:()V");
     }
 
     public static BlockDisplayContext create() {

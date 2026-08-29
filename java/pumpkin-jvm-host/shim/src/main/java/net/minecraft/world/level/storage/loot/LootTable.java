@@ -12,7 +12,6 @@ import dev.pumpkin.shim.Unimplemented;
 public class LootTable implements Validatable {
 
     private LootTable(ContextKeySet paramSet, Optional<Identifier> randomSequence, List<LootPool> pools, List<LootItemFunction> functions) {
-        throw Unimplemented.forMember("net/minecraft/world/level/storage/loot/LootTable.<init>:(Lnet/minecraft/util/context/ContextKeySet;Ljava/util/Optional;Ljava/util/List;Ljava/util/List;)V");
     }
 
     public void validate(ValidationContext context) {

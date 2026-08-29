@@ -8,11 +8,9 @@ import dev.pumpkin.shim.Unimplemented;
 public class ServerboundSetCarriedItemPacket implements Packet<ServerGamePacketListener> {
 
     public ServerboundSetCarriedItemPacket(int slot) {
-        throw Unimplemented.forMember("net/minecraft/network/protocol/game/ServerboundSetCarriedItemPacket.<init>:(I)V");
     }
 
     private ServerboundSetCarriedItemPacket(FriendlyByteBuf input) {
-        throw Unimplemented.forMember("net/minecraft/network/protocol/game/ServerboundSetCarriedItemPacket.<init>:(Lnet/minecraft/network/FriendlyByteBuf;)V");
     }
 
     private void write(FriendlyByteBuf output) {

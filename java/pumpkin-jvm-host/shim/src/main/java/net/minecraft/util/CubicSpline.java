@@ -22,11 +22,9 @@ public interface CubicSpline<I> {
     final class Builder<I extends BoundedFloatFunction<?>> {
 
         private Builder(I coordinate) {
-            throw Unimplemented.forMember("net/minecraft/util/CubicSpline$Builder.<init>:(Lnet/minecraft/util/BoundedFloatFunction;)V");
         }
 
         private Builder(I coordinate, Float2FloatFunction valueTransformer) {
-            throw Unimplemented.forMember("net/minecraft/util/CubicSpline$Builder.<init>:(Lnet/minecraft/util/BoundedFloatFunction;Lit/unimi/dsi/fastutil/floats/Float2FloatFunction;)V");
         }
 
         public CubicSpline.Builder<I> addPoint(float location, float value, float derivative) {
@@ -68,7 +66,6 @@ public interface CubicSpline<I> {
 
         public Multipoint(I coordinate, float[] locations, List<CubicSpline<I>> values, float[] derivatives) {
             this((I) null, (float[]) null, (List<CubicSpline<I>>) null, (float[]) null, (float) 0.0F, (float) 0.0F);
-            throw Unimplemented.forMember("net/minecraft/util/CubicSpline$Multipoint.<init>:(Lnet/minecraft/util/BoundedFloatFunction;[FLjava/util/List;[F)V");
         }
 
         public static <C, I extends BoundedFloatFunction<C>> float sample(CubicSpline.Multipoint<I> sampler, C c) {

@@ -10,11 +10,9 @@ import dev.pumpkin.shim.Unimplemented;
 public class ClientboundSetDisplayObjectivePacket implements Packet<ClientGamePacketListener> {
 
     public ClientboundSetDisplayObjectivePacket(DisplaySlot slot, Objective objective) {
-        throw Unimplemented.forMember("net/minecraft/network/protocol/game/ClientboundSetDisplayObjectivePacket.<init>:(Lnet/minecraft/world/scores/DisplaySlot;Lnet/minecraft/world/scores/Objective;)V");
     }
 
     private ClientboundSetDisplayObjectivePacket(FriendlyByteBuf input) {
-        throw Unimplemented.forMember("net/minecraft/network/protocol/game/ClientboundSetDisplayObjectivePacket.<init>:(Lnet/minecraft/network/FriendlyByteBuf;)V");
     }
 
     private void write(FriendlyByteBuf output) {

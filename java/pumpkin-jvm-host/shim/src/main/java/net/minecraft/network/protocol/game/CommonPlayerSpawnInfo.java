@@ -14,7 +14,6 @@ public record CommonPlayerSpawnInfo(Holder<DimensionType> dimensionType, Resourc
 
     public CommonPlayerSpawnInfo(RegistryFriendlyByteBuf input) {
         this((Holder<DimensionType>) null, (ResourceKey<Level>) null, (long) 0L, (GameType) null, (GameType) null, (boolean) false, (boolean) false, (Optional<GlobalPos>) null, (int) 0, (int) 0);
-        throw Unimplemented.forMember("net/minecraft/network/protocol/game/CommonPlayerSpawnInfo.<init>:(Lnet/minecraft/network/RegistryFriendlyByteBuf;)V");
     }
 
     public void write(RegistryFriendlyByteBuf output) {

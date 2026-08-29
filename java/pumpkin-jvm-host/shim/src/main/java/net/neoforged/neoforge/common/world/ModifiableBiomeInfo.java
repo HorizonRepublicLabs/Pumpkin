@@ -9,7 +9,6 @@ import dev.pumpkin.shim.Unimplemented;
 public class ModifiableBiomeInfo {
 
     public ModifiableBiomeInfo(final BiomeInfo originalBiomeInfo) {
-        throw Unimplemented.forMember("net/neoforged/neoforge/common/world/ModifiableBiomeInfo.<init>:(Lnet/neoforged/neoforge/common/world/ModifiableBiomeInfo$BiomeInfo;)V");
     }
 
     public BiomeInfo get() {
@@ -25,7 +24,6 @@ public class ModifiableBiomeInfo {
             }
 
             private Builder(final ClimateSettingsBuilder climateSettings, final BiomeSpecialEffectsBuilder effects, final BiomeGenerationSettingsBuilder generationSettings, final MobSpawnSettingsBuilder mobSpawnSettings) {
-                throw Unimplemented.forMember("net/neoforged/neoforge/common/world/ModifiableBiomeInfo$BiomeInfo$Builder.<init>:(Lnet/neoforged/neoforge/common/world/ClimateSettingsBuilder;Lnet/neoforged/neoforge/common/world/BiomeSpecialEffectsBuilder;Lnet/neoforged/neoforge/common/world/BiomeGenerationSettingsBuilder;Lnet/neoforged/neoforge/common/world/MobSpawnSettingsBuilder;)V");
             }
 
             public BiomeInfo build() {

@@ -12,7 +12,6 @@ import dev.pumpkin.shim.Unimplemented;
 public class LootPool implements Validatable {
 
     private LootPool(List<LootPoolEntryContainer> entries, List<LootItemCondition> conditions, List<LootItemFunction> functions, NumberProvider rolls, NumberProvider bonusRolls, java.util.Optional<String> name) {
-        throw Unimplemented.forMember("net/minecraft/world/level/storage/loot/LootPool.<init>:(Ljava/util/List;Ljava/util/List;Ljava/util/List;Lnet/minecraft/world/level/storage/loot/providers/number/NumberProvider;Lnet/minecraft/world/level/storage/loot/providers/number/NumberProvider;Ljava/util/Optional;)V");
     }
 
     public void validate(ValidationContext output) {

@@ -16,7 +16,6 @@ public class DamageContainer {
     }
 
     public DamageContainer(DamageSource source, float originalDamage) {
-        throw Unimplemented.forMember("net/neoforged/neoforge/common/damagesource/DamageContainer.<init>:(Lnet/minecraft/world/damagesource/DamageSource;F)V");
     }
 
     public DamageSource getSource() {

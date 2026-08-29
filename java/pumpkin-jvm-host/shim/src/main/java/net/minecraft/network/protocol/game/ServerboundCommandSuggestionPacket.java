@@ -8,11 +8,9 @@ import dev.pumpkin.shim.Unimplemented;
 public class ServerboundCommandSuggestionPacket implements Packet<ServerGamePacketListener> {
 
     public ServerboundCommandSuggestionPacket(int id, String command) {
-        throw Unimplemented.forMember("net/minecraft/network/protocol/game/ServerboundCommandSuggestionPacket.<init>:(ILjava/lang/String;)V");
     }
 
     private ServerboundCommandSuggestionPacket(FriendlyByteBuf input) {
-        throw Unimplemented.forMember("net/minecraft/network/protocol/game/ServerboundCommandSuggestionPacket.<init>:(Lnet/minecraft/network/FriendlyByteBuf;)V");
     }
 
     private void write(FriendlyByteBuf output) {

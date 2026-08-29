@@ -40,7 +40,6 @@ public final class FluidResource implements DataComponentHolderResource<Fluid> {
     }
 
     private FluidResource(FluidStack stack) {
-        throw Unimplemented.forMember("net/neoforged/neoforge/transfer/fluid/FluidResource.<init>:(Lnet/neoforged/neoforge/fluids/FluidStack;)V");
     }
 
     public Fluid value() {

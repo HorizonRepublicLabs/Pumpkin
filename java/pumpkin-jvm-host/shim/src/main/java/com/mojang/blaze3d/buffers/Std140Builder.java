@@ -6,7 +6,6 @@ import dev.pumpkin.shim.Unimplemented;
 public class Std140Builder {
 
     private Std140Builder(ByteBuffer buffer) {
-        throw Unimplemented.forMember("com/mojang/blaze3d/buffers/Std140Builder.<init>:(Ljava/nio/ByteBuffer;)V");
     }
 
     public ByteBuffer get() {

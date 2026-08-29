@@ -7,7 +7,6 @@ import dev.pumpkin.shim.Unimplemented;
 public class WorldGenerationContext {
 
     public WorldGenerationContext(ChunkGenerator generator, LevelHeightAccessor heightAccessor) {
-        throw Unimplemented.forMember("net/minecraft/world/level/levelgen/WorldGenerationContext.<init>:(Lnet/minecraft/world/level/chunk/ChunkGenerator;Lnet/minecraft/world/level/LevelHeightAccessor;)V");
     }
 
     public int getGenDepth() {

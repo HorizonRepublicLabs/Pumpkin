@@ -8,7 +8,6 @@ import dev.pumpkin.shim.Unimplemented;
 public final class Window implements AutoCloseable {
 
     public Window(WindowEventHandler eventHandler, DisplayData displayData, String fullscreenVideoModeString, boolean exclusiveFullscreen, String title, MonitorManager monitorManager, GpuBackend backend) throws BackendCreationException {
-        throw Unimplemented.forMember("com/mojang/blaze3d/platform/Window.<init>:(Lcom/mojang/blaze3d/platform/WindowEventHandler;Lcom/mojang/blaze3d/platform/DisplayData;Ljava/lang/String;ZLjava/lang/String;Lcom/mojang/blaze3d/platform/MonitorManager;Lcom/mojang/blaze3d/systems/GpuBackend;)V");
     }
 
     public void close() {
@@ -50,7 +49,6 @@ public final class Window implements AutoCloseable {
     public static class WindowInitFailed extends SilentInitException {
 
         public WindowInitFailed(String message) {
-            throw Unimplemented.forMember("com/mojang/blaze3d/platform/Window$WindowInitFailed.<init>:(Ljava/lang/String;)V");
         }
 
         public WindowInitFailed() {

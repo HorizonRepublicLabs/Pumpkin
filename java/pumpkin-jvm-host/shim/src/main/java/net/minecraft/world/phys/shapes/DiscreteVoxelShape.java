@@ -6,7 +6,6 @@ import dev.pumpkin.shim.Unimplemented;
 public abstract class DiscreteVoxelShape {
 
     protected DiscreteVoxelShape(int xSize, int ySize, int zSize) {
-        throw Unimplemented.forMember("net/minecraft/world/phys/shapes/DiscreteVoxelShape.<init>:(III)V");
     }
 
     public abstract boolean isFull(final int x, final int y, final int z);

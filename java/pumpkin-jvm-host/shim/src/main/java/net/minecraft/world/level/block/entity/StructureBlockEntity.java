@@ -11,7 +11,6 @@ import dev.pumpkin.shim.Unimplemented;
 public class StructureBlockEntity extends BlockEntity implements BoundingBoxRenderable {
 
     public StructureBlockEntity(BlockPos worldPosition, BlockState blockState) {
-        throw Unimplemented.forMember("net/minecraft/world/level/block/entity/StructureBlockEntity.<init>:(Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/state/BlockState;)V");
     }
 
     protected void saveAdditional(ValueOutput output) {

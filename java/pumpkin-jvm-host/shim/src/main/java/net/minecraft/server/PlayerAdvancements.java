@@ -14,7 +14,6 @@ import dev.pumpkin.shim.Unimplemented;
 public class PlayerAdvancements {
 
     public PlayerAdvancements(DataFixer dataFixer, PlayerList playerList, ServerAdvancementManager manager, Path playerSavePath, ServerPlayer player) {
-        throw Unimplemented.forMember("net/minecraft/server/PlayerAdvancements.<init>:(Lcom/mojang/datafixers/DataFixer;Lnet/minecraft/server/players/PlayerList;Lnet/minecraft/server/ServerAdvancementManager;Ljava/nio/file/Path;Lnet/minecraft/server/level/ServerPlayer;)V");
     }
 
     protected void load(ServerAdvancementManager manager) {

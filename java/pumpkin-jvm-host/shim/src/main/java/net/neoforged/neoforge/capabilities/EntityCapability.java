@@ -16,7 +16,6 @@ public final class EntityCapability<T, C extends Object> extends BaseCapability<
     }
 
     private EntityCapability(Identifier name, Class<T> typeClass, Class<C> contextClass) {
-        throw Unimplemented.forMember("net/neoforged/neoforge/capabilities/EntityCapability.<init>:(Lnet/minecraft/resources/Identifier;Ljava/lang/Class;Ljava/lang/Class;)V");
     }
 
     public T getCapability(Entity entity, C context) {

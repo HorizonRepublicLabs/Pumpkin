@@ -9,7 +9,6 @@ public record ClientboundPongResponsePacket(long time) implements Packet<ClientP
 
     private ClientboundPongResponsePacket(FriendlyByteBuf input) {
         this((long) 0L);
-        throw Unimplemented.forMember("net/minecraft/network/protocol/ping/ClientboundPongResponsePacket.<init>:(Lnet/minecraft/network/FriendlyByteBuf;)V");
     }
 
     private void write(FriendlyByteBuf output) {

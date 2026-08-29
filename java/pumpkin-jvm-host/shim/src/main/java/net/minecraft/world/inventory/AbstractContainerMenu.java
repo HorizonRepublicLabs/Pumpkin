@@ -11,7 +11,6 @@ public abstract class AbstractContainerMenu {
     public final NonNullList<Slot> slots = null;
 
     protected AbstractContainerMenu(MenuType<?> menuType, int containerId) {
-        throw Unimplemented.forMember("net/minecraft/world/inventory/AbstractContainerMenu.<init>:(Lnet/minecraft/world/inventory/MenuType;I)V");
     }
 
     public MenuType<?> getType() {

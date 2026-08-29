@@ -15,15 +15,12 @@ import dev.pumpkin.shim.Unimplemented;
 public class ExperienceOrb extends Entity {
 
     public ExperienceOrb(Level level, double x, double y, double z, int value) {
-        throw Unimplemented.forMember("net/minecraft/world/entity/ExperienceOrb.<init>:(Lnet/minecraft/world/level/Level;DDDI)V");
     }
 
     public ExperienceOrb(Level level, Vec3 pos, Vec3 roughly, int value) {
-        throw Unimplemented.forMember("net/minecraft/world/entity/ExperienceOrb.<init>:(Lnet/minecraft/world/level/Level;Lnet/minecraft/world/phys/Vec3;Lnet/minecraft/world/phys/Vec3;I)V");
     }
 
     public ExperienceOrb(EntityType<? extends ExperienceOrb> type, Level level) {
-        throw Unimplemented.forMember("net/minecraft/world/entity/ExperienceOrb.<init>:(Lnet/minecraft/world/entity/EntityType;Lnet/minecraft/world/level/Level;)V");
     }
 
     protected Entity.MovementEmission getMovementEmission() {

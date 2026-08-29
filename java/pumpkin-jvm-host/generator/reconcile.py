@@ -58,7 +58,6 @@ edit("net/minecraft/resources/Identifier.java", [
     private final String pumpkinPath;
 """),
 ("""    private Identifier(String namespace, String path) {
-        throw Unimplemented.forMember("net/minecraft/resources/Identifier.<init>:(Ljava/lang/String;Ljava/lang/String;)V");
     }""",
 """    // Pumpkin divergence: real body.
     private Identifier(String namespace, String path) {
@@ -182,7 +181,6 @@ edit("net/minecraft/resources/ResourceKey.java", [
         return new ResourceKey<>(Identifier.fromNamespaceAndPath("minecraft", "root"), identifier);
     }"""),
 ("""    private ResourceKey(Identifier registryName, Identifier identifier) {
-        throw Unimplemented.forMember("net/minecraft/resources/ResourceKey.<init>:(Lnet/minecraft/resources/Identifier;Lnet/minecraft/resources/Identifier;)V");
     }""",
 """    // Pumpkin divergence: real body.
     private ResourceKey(Identifier registryName, Identifier identifier) {
@@ -304,7 +302,7 @@ edit("net/neoforged/neoforge/common/ModConfigSpec.java", [
      '        // Pumpkin divergence: real body. The single-String overload, which is the one\n        // both mods call -- the varargs one is a different method and implementing only\n        // that left this still throwing.\n        public Builder comment(String comment) {\n            return this;\n        }'),
     ('    public static class Builder {',
      '    public static class Builder {\n\n        // Pumpkin divergence: no vanilla counterpart. push/pop nest sections, and a value\'s\n        // key is the whole path -- without this, two mods defining "enabled" in different\n        // sections would look like the same setting.\n        private final java.util.List<String> pumpkinPath = new java.util.ArrayList<>();'),
-    ('        ConfigValue(Builder parent, List<String> path, Supplier<T> defaultSupplier) {\n            throw Unimplemented.forMember("net/neoforged/neoforge/common/ModConfigSpec$ConfigValue.<init>:(Lnet/neoforged/neoforge/common/ModConfigSpec$Builder;Ljava/util/List;Ljava/util/function/Supplier;)V");\n        }\n\n        public T get() {\n            throw Unimplemented.forMember("net/neoforged/neoforge/common/ModConfigSpec$ConfigValue.get:()Ljava/lang/Object;");\n        }',
+    ('        ConfigValue(Builder parent, List<String> path, Supplier<T> defaultSupplier) {\n        }\n\n        public T get() {\n            throw Unimplemented.forMember("net/neoforged/neoforge/common/ModConfigSpec$ConfigValue.get:()Ljava/lang/Object;");\n        }',
      "        // Pumpkin divergence: this field, the constructor and get() carry real behaviour.\n        //\n        // The value returned is the default the mod itself declared. That is not a\n        // fabricated zero: absent a config file it is the answer NeoForge gives too, and it\n        // is the mod's own data rather than something invented here. What is missing is the\n        // file -- an operator cannot yet change any of it.\n        //\n        // Not final: the generator synthesises a no-arg constructor for every class that\n        // declares none and cannot initialise a field it does not know about. Nothing calls\n        // that constructor -- a value always comes from define() -- so the only cost is this.\n        private T pumpkinDefault;\n\n        ConfigValue(T defaultValue) {\n            this.pumpkinDefault = defaultValue;\n        }\n\n        ConfigValue(Builder parent, List<String> path, Supplier<T> defaultSupplier) {\n            this(defaultSupplier.get());\n        }\n\n        public T get() {\n            return pumpkinDefault;\n        }"),
     ('    public static class BooleanValue extends ConfigValue<Boolean> implements BooleanSupplier {',
      '    public static class BooleanValue extends ConfigValue<Boolean> implements BooleanSupplier {\n\n        // Pumpkin divergence: real body.\n        BooleanValue(Boolean defaultValue) {\n            super(defaultValue);\n        }'),
@@ -417,7 +415,6 @@ edit("net/minecraft/world/level/block/Block.java", [
     private final BlockBehaviour.Properties pumpkinProperties;
 """),
 ("""    public Block(BlockBehaviour.Properties properties) {
-        throw Unimplemented.forMember("net/minecraft/world/level/block/Block.<init>:(Lnet/minecraft/world/level/block/state/BlockBehaviour$Properties;)V");
     }""",
 """    // Pumpkin divergence: real body. Vanilla's constructor builds a state definition and a
     // registry holder; the shim keeps only the one thing registration reads back.
@@ -467,7 +464,6 @@ edit("net/minecraft/world/level/block/state/BlockBehaviour.java", [
         }
 """),
 ("""        protected Properties() {
-            throw Unimplemented.forMember("net/minecraft/world/level/block/state/BlockBehaviour$Properties.<init>:()V");
         }""",
 """        // Pumpkin divergence: real body. of() below is the only way a mod gets one of
         // these, and it has to return something the builder calls can chain off.
@@ -487,7 +483,7 @@ edit("net/neoforged/neoforge/registries/DeferredHolder.java", [
     ('    public int hashCode() {\n        throw Unimplemented.forMember("net/neoforged/neoforge/registries/DeferredHolder.hashCode:()I");\n    }',
      '    // Pumpkin divergence: real body. A mod keys a map by holder, so this has to answer.\n    // The id is the identity -- two holders naming the same thing are the same handle,\n    // which is what vanilla means by it too, and the resolved value is deliberately not\n    // consulted because reading it would force every deferred registration.\n    @Override\n    public int hashCode() {\n        return pumpkinId.hashCode();\n    }'),
     ('    public static <R, T extends R> DeferredHolder<R, T> create(ResourceKey<? extends Registry<R>> registryKey, Identifier valueName) {\n        throw Unimplemented.forMember("net/neoforged/neoforge/registries/DeferredHolder.create:(Lnet/minecraft/resources/ResourceKey;Lnet/minecraft/resources/Identifier;)Lnet/neoforged/neoforge/registries/DeferredHolder;");\n    }',
-     "    // Pumpkin divergence: real body. A mod builds a holder for something another mod\n    // registered -- MysticalAgriculture does this for its own blocks -- and only the value's\n    // name matters here. Which registry it lives in is carried by the caller's own type, and\n    // the flush that reads this holder resolves by name.\n    //\n    // The factory is null: this holder names something it did not create, so get() would\n    // have nothing to call. A mod that asks for the value gets a NullPointerException rather\n    // than a wrong object, which is the honest failure until cross-registry lookup exists.\n    public static <R, T extends R> DeferredHolder<R, T> create(ResourceKey<? extends Registry<R>> registryKey, Identifier valueName) {\n        return new DeferredHolder<>(valueName, null);\n    }"),
+     "    // Pumpkin divergence: real body. A mod builds a holder for something another mod\n    // registered -- MysticalAgriculture does this for its own blocks -- and only the value's\n    // name matters here. Which registry it lives in is carried by the caller's own type, and\n    // the flush that reads this holder resolves by name.\n    //\n    // The factory is null: this holder names something it did not create, so get() would\n    // have nothing to call. A mod that asks for the value gets a NullPointerException rather\n    // than a wrong object, which is the honest failure until cross-registry lookup exists.\n    @SuppressWarnings(\"unchecked\")\n    public static <R, T extends R> DeferredHolder<R, T> create(ResourceKey<? extends Registry<R>> registryKey, Identifier valueName) {\n        return new DeferredHolder<>(valueName, () -> {\n            DeferredHolder<?, ?> target = PUMPKIN_BY_ID.get(registryKey.identifier() + \"|\" + valueName);\n            if (target == null) {\n                throw new IllegalStateException(valueName + \" was never registered; a holder\"\n                        + \" created by name can only resolve after its target registers\");\n            }\n            return (T) target.get();\n        });\n    }"),
 
 ("""public class DeferredHolder<R, T extends R> implements Holder<R>, Supplier<T> {
 """,
@@ -505,7 +501,6 @@ edit("net/neoforged/neoforge/registries/DeferredHolder.java", [
     private T pumpkinValue;
 """),
 ("""    protected DeferredHolder(ResourceKey<R> key) {
-        throw Unimplemented.forMember("net/neoforged/neoforge/registries/DeferredHolder.<init>:(Lnet/minecraft/resources/ResourceKey;)V");
     }""",
 """    // Pumpkin divergence: real body.
     protected DeferredHolder(ResourceKey<R> key) {
@@ -517,6 +512,26 @@ edit("net/neoforged/neoforge/registries/DeferredHolder.java", [
     DeferredHolder(Identifier id, Supplier<T> factory) {
         this.pumpkinId = id;
         this.pumpkinFactory = factory;
+    }
+
+    // Keyed by registry AND id, not id alone. A mod registers a block and an item under
+    // the same id as a matter of course, and Cucumber registers codecs beside them; keyed
+    // by id alone, whichever registered last won, and a slab asking for its base block got
+    // a RecordCodecBuilder back -- a ClassCastException naming two classes and no cause.
+    private static final java.util.Map<String, DeferredHolder<?, ?>> PUMPKIN_BY_ID =
+            new java.util.concurrent.ConcurrentHashMap<>();
+
+    // Called by DeferredRegister.register, which is the one place that knows both halves.
+    static void pumpkinRecord(String registry, DeferredHolder<?, ?> holder) {
+        PUMPKIN_BY_ID.put(registry + "|" + holder.getId(), holder);
+    }
+
+    // The RegisterEvent path hands over a value, not a supplier: it was built before the
+    // helper ever saw it. Wrapped so holders created by name resolve regardless of which
+    // of the two registration roads the target took -- MysticalAgriculture registers its
+    // blocks on this one and its slabs then ask for them by name.
+    static <V> void pumpkinRecordValue(String registry, Identifier id, V value) {
+        PUMPKIN_BY_ID.put(registry + "|" + id, new DeferredHolder<>(id, () -> value));
     }"""),
 ("""    public T get() {
         throw Unimplemented.forMember("net/neoforged/neoforge/registries/DeferredHolder.get:()Lnet/neoforged/neoforge/registries/R;");
@@ -594,7 +609,6 @@ edit("net/neoforged/neoforge/registries/DeferredRegister.java", [
         return new DeferredRegister<>(key, namespace);
     }"""),
 ("""    protected DeferredRegister(ResourceKey<? extends Registry<T>> registryKey, String namespace) {
-        throw Unimplemented.forMember("net/neoforged/neoforge/registries/DeferredRegister.<init>:(Lnet/minecraft/resources/ResourceKey;Ljava/lang/String;)V");
     }""",
 """    // Pumpkin divergence: real body.
     protected DeferredRegister(ResourceKey<? extends Registry<T>> registryKey, String namespace) {
@@ -610,6 +624,9 @@ edit("net/neoforged/neoforge/registries/DeferredRegister.java", [
         DeferredHolder<T, I> holder =
                 new DeferredHolder<>(Identifier.fromNamespaceAndPath(pumpkinNamespace, name), sup::get);
         pumpkinPending.add(holder);
+        // This is the one place that knows both the registry and the holder; see
+        // DeferredHolder.pumpkinRecord for why the key needs both.
+        DeferredHolder.pumpkinRecord(pumpkinRegistryKey.identifier().toString(), holder);
         return holder;
     }"""),
 ("""    public void register(IEventBus bus) {
@@ -647,7 +664,7 @@ edit("net/neoforged/neoforge/registries/DeferredRegister.java", [
 # -------------------------------------------------------------- RegisterEvent
 edit("net/neoforged/neoforge/registries/RegisterEvent.java", [
     ('    public <T> void register(ResourceKey<? extends Registry<T>> registryKey, Consumer<RegisterHelper<T>> consumer) {\n        throw Unimplemented.forMember("net/neoforged/neoforge/registries/RegisterEvent.register:(Lnet/minecraft/resources/ResourceKey;Ljava/util/function/Consumer;)V");\n    }',
-     '    // Pumpkin divergence: real body. The other way a mod registers content -- straight into\n    // the game during the event, rather than declaring it up front through a\n    // DeferredRegister. MysticalAgriculture uses both.\n    //\n    // The helper routes to the same sink DeferredRegister\'s flush does, so the two paths\n    // cannot drift into registering differently. Only blocks are carried so far, and anything\n    // else stops loudly rather than being dropped -- a silently ignored registration is a mod\n    // whose content simply is not there, with nothing to say why.\n    public <T> void register(ResourceKey<? extends Registry<T>> registryKey, Consumer<RegisterHelper<T>> consumer) {\n        consumer.accept((name, value) -> {\n            if (value instanceof net.minecraft.world.level.block.Block block) {\n                net.minecraft.world.level.block.state.BlockBehaviour.Properties props = block.pumpkinProperties();\n                DeferredRegister.pumpkinSink().registerBlock(name.toString(), block.pumpkinTemplate(),\n                        props.pumpkinDestroyTime(), props.pumpkinExplosionResistance(),\n                        props.pumpkinRequiresTool());\n            } else {\n                DeferredRegister.pumpkinWarnUnsupported(registryKey.identifier().toString(), name.toString());\n            }\n        });\n    }'),
+     '    // Pumpkin divergence: real body. The other way a mod registers content -- straight into\n    // the game during the event, rather than declaring it up front through a\n    // DeferredRegister. MysticalAgriculture uses both.\n    //\n    // The helper routes to the same sink DeferredRegister\'s flush does, so the two paths\n    // cannot drift into registering differently. Only blocks are carried so far, and anything\n    // else stops loudly rather than being dropped -- a silently ignored registration is a mod\n    // whose content simply is not there, with nothing to say why.\n    public <T> void register(ResourceKey<? extends Registry<T>> registryKey, Consumer<RegisterHelper<T>> consumer) {\n        consumer.accept((name, value) -> {\n            DeferredHolder.pumpkinRecordValue(registryKey.identifier().toString(), name, value);\n            if (value instanceof net.minecraft.world.level.block.Block block) {\n                net.minecraft.world.level.block.state.BlockBehaviour.Properties props = block.pumpkinProperties();\n                DeferredRegister.pumpkinSink().registerBlock(name.toString(), block.pumpkinTemplate(),\n                        props.pumpkinDestroyTime(), props.pumpkinExplosionResistance(),\n                        props.pumpkinRequiresTool());\n            } else {\n                DeferredRegister.pumpkinWarnUnsupported(registryKey.identifier().toString(), name.toString());\n            }\n        });\n    }'),
 ("""    public RegisterEvent() {
     }""",
 """    // Pumpkin divergence from the generated shim: public. In NeoForge this event is
@@ -784,6 +801,76 @@ edit('net/neoforged/neoforge/common/crafting/SizedIngredient.java', [
 edit("net/minecraft/network/codec/StreamCodec.java", [
     ('    static <B, V> StreamCodec<B, V> of(StreamEncoder<B, V> encoder, StreamDecoder<B, V> decoder) {\n        throw Unimplemented.forMember("net/minecraft/network/codec/StreamCodec.of:(Lnet/minecraft/network/codec/StreamEncoder;Lnet/minecraft/network/codec/StreamDecoder;)Lnet/minecraft/network/codec/StreamCodec;");\n    }',
      "    // Pumpkin divergence: real body, copied from vanilla. Pure delegation over two shim\n    // interfaces -- the ARGB rule. Static interface methods cannot ride the proxy's\n    // default-method path, so this needs its own body.\n    static <B, V> StreamCodec<B, V> of(StreamEncoder<B, V> encoder, StreamDecoder<B, V> decoder) {\n        return new StreamCodec<B, V>() {\n            @Override\n            public V decode(B input) {\n                return decoder.decode(input);\n            }\n\n            @Override\n            public void encode(B output, V value) {\n                encoder.encode(output, value);\n            }\n        };\n    }"),
+])
+
+# --------------------------------------------------------------------- Blocks
+edit("net/minecraft/world/level/block/Blocks.java", [
+    ('public class Blocks {\n\n    public static final Block AIR = null;\n\n    public static final Block WHEAT = null;\n\n    public static final Block FARMLAND = null;\n\n    public static final Block MYCELIUM = null;\n\n    public static final Block CHORUS_FLOWER = null;',
+     'public class Blocks {\n\n    // Pumpkin divergence: real values. Measured over both mods, every use of these is\n    // reference identity -- `state.getBlock() == Blocks.FARMLAND` compiles to if_acmpeq --\n    // or passing the object into shim code that reads its template. A canonical singleton\n    // per vanilla block satisfies both: the shim is the only source of these objects, so\n    // identity holds by construction, and the template ties each one to the Pumpkin block\n    // it stands for. When shim state and Pumpkin\'s registry meet properly (a design step\n    // still ahead), these are the objects that binding will hang off.\n    public static final Block AIR = pumpkinVanilla("air");\n\n    public static final Block WHEAT = pumpkinVanilla("wheat");\n\n    public static final Block FARMLAND = pumpkinVanilla("farmland");\n\n    public static final Block MYCELIUM = pumpkinVanilla("mycelium");\n\n    public static final Block CHORUS_FLOWER = pumpkinVanilla("chorus_flower");\n\n    private static Block pumpkinVanilla(String name) {\n        return new Block(BlockBehaviour.Properties.of().pumpkinTemplate(name));\n    }'),
+    ('\n    static {\n        if (true) {\n            throw Unimplemented.forMember("net/minecraft/world/level/block/Blocks");\n        }\n    }\n',
+     '\n'),
+])
+
+# ------------------------------------------------------------------ UniformInt
+edit("net/minecraft/util/valueproviders/UniformInt.java", [
+    ('    public static UniformInt of(int minInclusive, int maxInclusive) {\n        throw Unimplemented.forMember("net/minecraft/util/valueproviders/UniformInt.of:(II)Lnet/minecraft/util/valueproviders/UniformInt;");\n    }',
+     '    // Pumpkin divergence: real body, copied from vanilla -- a record over two ints and\n    // its own constructor. The ARGB rule.\n    public static UniformInt of(int minInclusive, int maxInclusive) {\n        return new UniformInt(minInclusive, maxInclusive);\n    }'),
+])
+
+# ------------------------------------------- Properties predicates, accept-and-drop
+edit("net/minecraft/world/level/block/state/BlockBehaviour.java", [
+    ('\n        public BlockBehaviour.Properties isValidSpawn(BlockBehaviour.StateArgumentPredicate<EntityType<?>> isValidSpawn) {\n            throw Unimplemented.forMember("net/minecraft/world/level/block/state/BlockBehaviour$Properties.isValidSpawn:(Lnet/minecraft/world/level/block/state/BlockBehaviour$StateArgumentPredicate;)Lnet/minecraft/world/level/block/state/BlockBehaviour$Properties;");\n        }',
+     '\n        // Pumpkin divergence: real body. A spawn/render predicate Pumpkin does not\n\n        // consult; accepted and dropped, chain returns `this`.\n\n        public BlockBehaviour.Properties isValidSpawn(BlockBehaviour.StateArgumentPredicate<EntityType<?>> isValidSpawn) {\n\n            return this;\n\n        }'),
+    ('\n        public BlockBehaviour.Properties isRedstoneConductor(BlockBehaviour.StatePredicate isRedstoneConductor) {\n            throw Unimplemented.forMember("net/minecraft/world/level/block/state/BlockBehaviour$Properties.isRedstoneConductor:(Lnet/minecraft/world/level/block/state/BlockBehaviour$StatePredicate;)Lnet/minecraft/world/level/block/state/BlockBehaviour$Properties;");\n        }',
+     '\n        // Pumpkin divergence: real body. A spawn/render predicate Pumpkin does not\n\n        // consult; accepted and dropped, chain returns `this`.\n\n        public BlockBehaviour.Properties isRedstoneConductor(BlockBehaviour.StatePredicate isRedstoneConductor) {\n\n            return this;\n\n        }'),
+    ('\n        public BlockBehaviour.Properties isSuffocating(BlockBehaviour.StatePredicate isSuffocating) {\n            throw Unimplemented.forMember("net/minecraft/world/level/block/state/BlockBehaviour$Properties.isSuffocating:(Lnet/minecraft/world/level/block/state/BlockBehaviour$StatePredicate;)Lnet/minecraft/world/level/block/state/BlockBehaviour$Properties;");\n        }',
+     '\n        // Pumpkin divergence: real body. A spawn/render predicate Pumpkin does not\n\n        // consult; accepted and dropped, chain returns `this`.\n\n        public BlockBehaviour.Properties isSuffocating(BlockBehaviour.StatePredicate isSuffocating) {\n\n            return this;\n\n        }'),
+    ('\n        public BlockBehaviour.Properties isViewBlocking(BlockBehaviour.StatePredicate isViewBlocking) {\n            throw Unimplemented.forMember("net/minecraft/world/level/block/state/BlockBehaviour$Properties.isViewBlocking:(Lnet/minecraft/world/level/block/state/BlockBehaviour$StatePredicate;)Lnet/minecraft/world/level/block/state/BlockBehaviour$Properties;");\n        }',
+     '\n        // Pumpkin divergence: real body. A spawn/render predicate Pumpkin does not\n\n        // consult; accepted and dropped, chain returns `this`.\n\n        public BlockBehaviour.Properties isViewBlocking(BlockBehaviour.StatePredicate isViewBlocking) {\n\n            return this;\n\n        }'),
+])
+
+# ------------------------------------------------------- Block.defaultBlockState
+edit("net/minecraft/world/level/block/Block.java", [
+    ('    public final BlockState defaultBlockState() {\n        throw Unimplemented.forMember("net/minecraft/world/level/block/Block.defaultBlockState:()Lnet/minecraft/world/level/block/state/BlockState;");\n    }',
+     "    // Pumpkin divergence: real body. One BlockState per Block, built lazily. The state\n    // object is a stub whose methods throw on use -- what a mod needs at registration is\n    // for the object to exist and be identity-stable, which this gives it. Wiring states\n    // to Pumpkin's real per-state ids is the binding step still ahead.\n    public final BlockState defaultBlockState() {\n        if (defaultBlockState == null) {\n            defaultBlockState = new BlockState();\n        }\n        return defaultBlockState;\n    }"),
+])
+
+# --------------------------------------------------------- BlockState.getBlock
+edit("net/minecraft/world/level/block/state/BlockBehaviour.java", [
+    ('        public Block getBlock() {\n            throw Unimplemented.forMember("net/minecraft/world/level/block/state/BlockBehaviour$BlockStateBase.getBlock:()Lnet/minecraft/world/level/block/Block;");\n        }',
+     '        // Pumpkin divergence: real body. A state answers which block it belongs to --\n        // set by Block.defaultBlockState, the only place states are built. A state with\n        // no owner still fails loudly, naming this member, rather than returning null.\n        // pumpkinOwner is public because Block sets it from another package; it is a\n        // Pumpkin seam, not vanilla API a mod could compile against.\n        public Block pumpkinOwner;\n\n        public Block getBlock() {\n            if (pumpkinOwner == null) {\n                throw Unimplemented.forMember("net/minecraft/world/level/block/state/BlockBehaviour$BlockStateBase.getBlock:()Lnet/minecraft/world/level/block/Block;");\n            }\n            return pumpkinOwner;\n        }'),
+])
+
+edit("net/minecraft/world/level/block/Block.java", [
+    ('        if (defaultBlockState == null) {\n            defaultBlockState = new BlockState();\n        }',
+     '        if (defaultBlockState == null) {\n            defaultBlockState = new BlockState();\n            defaultBlockState.pumpkinOwner = this;\n        }'),
+])
+
+# --------------------------------------------------------------------- Block.box
+edit("net/minecraft/world/level/block/Block.java", [
+    ('    public static VoxelShape box(double minX, double minY, double minZ, double maxX, double maxY, double maxZ) {\n        throw Unimplemented.forMember("net/minecraft/world/level/block/Block.box:(DDDDDD)Lnet/minecraft/world/phys/shapes/VoxelShape;");\n    }',
+     '    // Pumpkin divergence: real-enough body. A collision shape is geometry Pumpkin never\n    // consults -- the server\'s own collision runs in Rust. Mods build these in statics and\n    // hand them back from getShape; an inert instance satisfies both, and its one abstract\n    // member throws with a name if anything ever reads the geometry.\n    public static VoxelShape box(double minX, double minY, double minZ, double maxX, double maxY, double maxZ) {\n        return VoxelShape.pumpkinInert();\n    }'),
+])
+
+# --------------------------------------------------- shapes, category-wide inert
+edit("net/minecraft/world/phys/shapes/VoxelShape.java", [
+    ('    public VoxelShape() {',
+     '    // Pumpkin divergence: no vanilla counterpart. The inert shape every shape-building\n    // helper returns -- geometry Pumpkin never consults, whose one abstract member throws\n    // with a name if anything ever reads it.\n    public static VoxelShape pumpkinInert() {\n        return new VoxelShape() {\n            @Override\n            public DoubleList getCoords(Direction.Axis axis) {\n                throw dev.pumpkin.shim.Unimplemented.forMember("net/minecraft/world/phys/shapes/VoxelShape.getCoords:(Lnet/minecraft/core/Direction$Axis;)Lit/unimi/dsi/fastutil/doubles/DoubleList;");\n            }\n        };\n    }\n\n    public VoxelShape() {'),
+])
+
+edit("net/minecraft/world/phys/shapes/Shapes.java", [
+    ('\n    public static VoxelShape block() {\n        throw Unimplemented.forMember("net/minecraft/world/phys/shapes/Shapes.block:()Lnet/minecraft/world/phys/shapes/VoxelShape;");\n    }',
+     '\n    // Pumpkin divergence: real-enough body -- see VoxelShape.pumpkinInert.\n\n    public static VoxelShape block() {\n\n        return VoxelShape.pumpkinInert();\n\n    }'),
+    ('\n    public static VoxelShape box(double minX, double minY, double minZ, double maxX, double maxY, double maxZ) {\n        throw Unimplemented.forMember("net/minecraft/world/phys/shapes/Shapes.box:(DDDDDD)Lnet/minecraft/world/phys/shapes/VoxelShape;");\n    }',
+     '\n    // Pumpkin divergence: real-enough body -- see VoxelShape.pumpkinInert.\n\n    public static VoxelShape box(double minX, double minY, double minZ, double maxX, double maxY, double maxZ) {\n\n        return VoxelShape.pumpkinInert();\n\n    }'),
+    ('\n    public static VoxelShape create(double minX, double minY, double minZ, double maxX, double maxY, double maxZ) {\n        throw Unimplemented.forMember("net/minecraft/world/phys/shapes/Shapes.create:(DDDDDD)Lnet/minecraft/world/phys/shapes/VoxelShape;");\n    }',
+     '\n    // Pumpkin divergence: real-enough body -- see VoxelShape.pumpkinInert.\n\n    public static VoxelShape create(double minX, double minY, double minZ, double maxX, double maxY, double maxZ) {\n\n        return VoxelShape.pumpkinInert();\n\n    }'),
+    ('\n    public static VoxelShape create(AABB aabb) {\n        throw Unimplemented.forMember("net/minecraft/world/phys/shapes/Shapes.create:(Lnet/minecraft/world/phys/AABB;)Lnet/minecraft/world/phys/shapes/VoxelShape;");\n    }',
+     '\n    // Pumpkin divergence: real-enough body -- see VoxelShape.pumpkinInert.\n\n    public static VoxelShape create(AABB aabb) {\n\n        return VoxelShape.pumpkinInert();\n\n    }'),
+    ('\n    public static VoxelShape or(VoxelShape first, VoxelShape second) {\n        throw Unimplemented.forMember("net/minecraft/world/phys/shapes/Shapes.or:(Lnet/minecraft/world/phys/shapes/VoxelShape;Lnet/minecraft/world/phys/shapes/VoxelShape;)Lnet/minecraft/world/phys/shapes/VoxelShape;");\n    }',
+     '\n    // Pumpkin divergence: real-enough body -- see VoxelShape.pumpkinInert.\n\n    public static VoxelShape or(VoxelShape first, VoxelShape second) {\n\n        return VoxelShape.pumpkinInert();\n\n    }'),
+    ('\n    public static VoxelShape or(VoxelShape first, VoxelShape... tail) {\n        throw Unimplemented.forMember("net/minecraft/world/phys/shapes/Shapes.or:(Lnet/minecraft/world/phys/shapes/VoxelShape;[Lnet/minecraft/world/phys/shapes/VoxelShape;)Lnet/minecraft/world/phys/shapes/VoxelShape;");\n    }',
+     '\n    // Pumpkin divergence: real-enough body -- see VoxelShape.pumpkinInert.\n\n    public static VoxelShape or(VoxelShape first, VoxelShape... tail) {\n\n        return VoxelShape.pumpkinInert();\n\n    }'),
 ])
 
 commit()

@@ -30,11 +30,9 @@ public abstract class AbstractContainerScreen<T extends AbstractContainerMenu> e
     protected int topPos;
 
     public AbstractContainerScreen(T menu, Inventory inventory, Component title) {
-        throw Unimplemented.forMember("net/minecraft/client/gui/screens/inventory/AbstractContainerScreen.<init>:(Lnet/minecraft/world/inventory/AbstractContainerMenu;Lnet/minecraft/world/entity/player/Inventory;Lnet/minecraft/network/chat/Component;)V");
     }
 
     public AbstractContainerScreen(T menu, Inventory inventory, Component title, int imageWidth, int imageHeight) {
-        throw Unimplemented.forMember("net/minecraft/client/gui/screens/inventory/AbstractContainerScreen.<init>:(Lnet/minecraft/world/inventory/AbstractContainerMenu;Lnet/minecraft/world/entity/player/Inventory;Lnet/minecraft/network/chat/Component;II)V");
     }
 
     protected void init() {

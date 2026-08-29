@@ -6,7 +6,6 @@ import dev.pumpkin.shim.Unimplemented;
 public class EnvironmentAttribute<Value> {
 
     private EnvironmentAttribute(AttributeType<Value> type, Value defaultValue, AttributeRange<Value> valueRange, boolean isSyncable, boolean isPositional, boolean isSpatiallyInterpolated) {
-        throw Unimplemented.forMember("net/minecraft/world/attribute/EnvironmentAttribute.<init>:(Lnet/minecraft/world/attribute/AttributeType;Ljava/lang/Object;Lnet/minecraft/world/attribute/AttributeRange;ZZZ)V");
     }
 
     public AttributeType<Value> type() {
@@ -24,7 +23,6 @@ public class EnvironmentAttribute<Value> {
     public static class Builder<Value> {
 
         public Builder(AttributeType<Value> type) {
-            throw Unimplemented.forMember("net/minecraft/world/attribute/EnvironmentAttribute$Builder.<init>:(Lnet/minecraft/world/attribute/AttributeType;)V");
         }
 
         public EnvironmentAttribute<Value> build() {

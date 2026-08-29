@@ -10,7 +10,6 @@ public record MultiVariant(WeightedList<Variant> variants, WeightedList<net.neof
 
     public MultiVariant(WeightedList<Variant> variants) {
         this((WeightedList<Variant>) null, (WeightedList<net.neoforged.neoforge.client.model.generators.blockstate.CustomBlockStateModelBuilder>) null);
-        throw Unimplemented.forMember("net/minecraft/client/data/models/MultiVariant.<init>:(Lnet/minecraft/util/random/WeightedList;)V");
     }
 
     public MultiVariant with(VariantMutator mutator) {

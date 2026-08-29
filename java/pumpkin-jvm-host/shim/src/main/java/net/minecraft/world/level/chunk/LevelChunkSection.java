@@ -10,15 +10,12 @@ import dev.pumpkin.shim.Unimplemented;
 public class LevelChunkSection {
 
     private LevelChunkSection(LevelChunkSection source) {
-        throw Unimplemented.forMember("net/minecraft/world/level/chunk/LevelChunkSection.<init>:(Lnet/minecraft/world/level/chunk/LevelChunkSection;)V");
     }
 
     public LevelChunkSection(PalettedContainer<BlockState> states, PalettedContainerRO<Holder<Biome>> biomes) {
-        throw Unimplemented.forMember("net/minecraft/world/level/chunk/LevelChunkSection.<init>:(Lnet/minecraft/world/level/chunk/PalettedContainer;Lnet/minecraft/world/level/chunk/PalettedContainerRO;)V");
     }
 
     public LevelChunkSection(PalettedContainerFactory containerFactory) {
-        throw Unimplemented.forMember("net/minecraft/world/level/chunk/LevelChunkSection.<init>:(Lnet/minecraft/world/level/chunk/PalettedContainerFactory;)V");
     }
 
     public void release() {

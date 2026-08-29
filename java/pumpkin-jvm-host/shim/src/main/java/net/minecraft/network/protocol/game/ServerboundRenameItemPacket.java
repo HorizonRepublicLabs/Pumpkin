@@ -8,11 +8,9 @@ import dev.pumpkin.shim.Unimplemented;
 public class ServerboundRenameItemPacket implements Packet<ServerGamePacketListener> {
 
     public ServerboundRenameItemPacket(String name) {
-        throw Unimplemented.forMember("net/minecraft/network/protocol/game/ServerboundRenameItemPacket.<init>:(Ljava/lang/String;)V");
     }
 
     private ServerboundRenameItemPacket(FriendlyByteBuf input) {
-        throw Unimplemented.forMember("net/minecraft/network/protocol/game/ServerboundRenameItemPacket.<init>:(Lnet/minecraft/network/FriendlyByteBuf;)V");
     }
 
     private void write(FriendlyByteBuf output) {

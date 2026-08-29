@@ -10,7 +10,6 @@ import dev.pumpkin.shim.Unimplemented;
 public final class FluidState extends StateHolder<Fluid, FluidState> implements TypedInstance<Fluid>, IFluidStateExtension {
 
     public FluidState(Fluid owner, Property<?>[] propertyKeys, Comparable<?>[] propertyValues) {
-        throw Unimplemented.forMember("net/minecraft/world/level/material/FluidState.<init>:(Lnet/minecraft/world/level/material/Fluid;[Lnet/minecraft/world/level/block/state/properties/Property;[Ljava/lang/Comparable;)V");
     }
 
     public Fluid getType() {

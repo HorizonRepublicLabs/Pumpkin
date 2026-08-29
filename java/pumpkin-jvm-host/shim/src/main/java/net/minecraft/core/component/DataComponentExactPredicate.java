@@ -7,7 +7,6 @@ import dev.pumpkin.shim.Unimplemented;
 public final class DataComponentExactPredicate implements Predicate<DataComponentGetter> {
 
     private DataComponentExactPredicate(List<TypedDataComponent<?>> expectedComponents) {
-        throw Unimplemented.forMember("net/minecraft/core/component/DataComponentExactPredicate.<init>:(Ljava/util/List;)V");
     }
 
     public boolean isEmpty() {
@@ -33,7 +32,6 @@ public final class DataComponentExactPredicate implements Predicate<DataComponen
     public static class Builder {
 
         protected Builder() {
-            throw Unimplemented.forMember("net/minecraft/core/component/DataComponentExactPredicate$Builder.<init>:()V");
         }
 
         public DataComponentExactPredicate build() {

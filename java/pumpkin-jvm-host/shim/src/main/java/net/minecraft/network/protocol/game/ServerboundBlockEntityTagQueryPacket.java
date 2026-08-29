@@ -9,11 +9,9 @@ import dev.pumpkin.shim.Unimplemented;
 public class ServerboundBlockEntityTagQueryPacket implements Packet<ServerGamePacketListener> {
 
     public ServerboundBlockEntityTagQueryPacket(int transactionId, BlockPos pos) {
-        throw Unimplemented.forMember("net/minecraft/network/protocol/game/ServerboundBlockEntityTagQueryPacket.<init>:(ILnet/minecraft/core/BlockPos;)V");
     }
 
     private ServerboundBlockEntityTagQueryPacket(FriendlyByteBuf input) {
-        throw Unimplemented.forMember("net/minecraft/network/protocol/game/ServerboundBlockEntityTagQueryPacket.<init>:(Lnet/minecraft/network/FriendlyByteBuf;)V");
     }
 
     private void write(FriendlyByteBuf output) {

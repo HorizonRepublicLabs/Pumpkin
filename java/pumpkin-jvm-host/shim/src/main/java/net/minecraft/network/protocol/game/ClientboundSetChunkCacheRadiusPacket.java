@@ -8,11 +8,9 @@ import dev.pumpkin.shim.Unimplemented;
 public class ClientboundSetChunkCacheRadiusPacket implements Packet<ClientGamePacketListener> {
 
     public ClientboundSetChunkCacheRadiusPacket(int radius) {
-        throw Unimplemented.forMember("net/minecraft/network/protocol/game/ClientboundSetChunkCacheRadiusPacket.<init>:(I)V");
     }
 
     private ClientboundSetChunkCacheRadiusPacket(FriendlyByteBuf input) {
-        throw Unimplemented.forMember("net/minecraft/network/protocol/game/ClientboundSetChunkCacheRadiusPacket.<init>:(Lnet/minecraft/network/FriendlyByteBuf;)V");
     }
 
     private void write(FriendlyByteBuf output) {

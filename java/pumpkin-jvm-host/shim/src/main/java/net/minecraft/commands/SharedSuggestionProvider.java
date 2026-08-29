@@ -14,7 +14,6 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.permissions.PermissionSetSupplier;
 import net.minecraft.world.flag.FeatureFlagSet;
 import net.minecraft.world.level.Level;
-import dev.pumpkin.shim.Unimplemented;
 
 public interface SharedSuggestionProvider extends PermissionSetSupplier {
 
@@ -42,7 +41,6 @@ public interface SharedSuggestionProvider extends PermissionSetSupplier {
     class TextCoordinates {
 
         public TextCoordinates(String x, String y, String z) {
-            throw Unimplemented.forMember("net/minecraft/commands/SharedSuggestionProvider$TextCoordinates.<init>:(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V");
         }
 
         protected TextCoordinates() {

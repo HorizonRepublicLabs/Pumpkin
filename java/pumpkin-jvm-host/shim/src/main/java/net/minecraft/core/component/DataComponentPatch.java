@@ -22,7 +22,6 @@ public final class DataComponentPatch {
     public static final Codec<DataComponentPatch> CODEC = dev.pumpkin.shim.Stubs.throwingCodec("net/minecraft/core/component/DataComponentPatch.CODEC");
 
     DataComponentPatch(Reference2ObjectMap<DataComponentType<?>, Optional<?>> map) {
-        throw Unimplemented.forMember("net/minecraft/core/component/DataComponentPatch.<init>:(Lit/unimi/dsi/fastutil/objects/Reference2ObjectMap;)V");
     }
 
     public static DataComponentPatch.Builder builder() {
@@ -60,7 +59,6 @@ public final class DataComponentPatch {
     public static class Builder {
 
         protected Builder() {
-            throw Unimplemented.forMember("net/minecraft/core/component/DataComponentPatch$Builder.<init>:()V");
         }
 
         public <T> DataComponentPatch.Builder set(DataComponentType<T> type, T value) {

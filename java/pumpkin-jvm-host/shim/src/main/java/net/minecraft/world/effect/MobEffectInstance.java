@@ -7,35 +7,27 @@ import dev.pumpkin.shim.Unimplemented;
 public class MobEffectInstance implements Comparable<MobEffectInstance> {
 
     public MobEffectInstance(Holder<MobEffect> effect) {
-        throw Unimplemented.forMember("net/minecraft/world/effect/MobEffectInstance.<init>:(Lnet/minecraft/core/Holder;)V");
     }
 
     public MobEffectInstance(Holder<MobEffect> effect, int duration) {
-        throw Unimplemented.forMember("net/minecraft/world/effect/MobEffectInstance.<init>:(Lnet/minecraft/core/Holder;I)V");
     }
 
     public MobEffectInstance(Holder<MobEffect> effect, int duration, int amplifier) {
-        throw Unimplemented.forMember("net/minecraft/world/effect/MobEffectInstance.<init>:(Lnet/minecraft/core/Holder;II)V");
     }
 
     public MobEffectInstance(Holder<MobEffect> effect, int duration, int amplifier, boolean ambient, boolean visible) {
-        throw Unimplemented.forMember("net/minecraft/world/effect/MobEffectInstance.<init>:(Lnet/minecraft/core/Holder;IIZZ)V");
     }
 
     public MobEffectInstance(Holder<MobEffect> effect, int duration, int amplifier, boolean ambient, boolean visible, boolean showIcon) {
-        throw Unimplemented.forMember("net/minecraft/world/effect/MobEffectInstance.<init>:(Lnet/minecraft/core/Holder;IIZZZ)V");
     }
 
     public MobEffectInstance(Holder<MobEffect> effect, int duration, int amplifier, boolean ambient, boolean visible, boolean showIcon, MobEffectInstance hiddenEffect) {
-        throw Unimplemented.forMember("net/minecraft/world/effect/MobEffectInstance.<init>:(Lnet/minecraft/core/Holder;IIZZZLnet/minecraft/world/effect/MobEffectInstance;)V");
     }
 
     public MobEffectInstance(MobEffectInstance copy) {
-        throw Unimplemented.forMember("net/minecraft/world/effect/MobEffectInstance.<init>:(Lnet/minecraft/world/effect/MobEffectInstance;)V");
     }
 
     private MobEffectInstance(Holder<MobEffect> effect, MobEffectInstance.Details details) {
-        throw Unimplemented.forMember("net/minecraft/world/effect/MobEffectInstance.<init>:(Lnet/minecraft/core/Holder;Lnet/minecraft/world/effect/MobEffectInstance$Details;)V");
     }
 
     public boolean update(MobEffectInstance takeOver) {

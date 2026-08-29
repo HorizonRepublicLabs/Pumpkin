@@ -8,11 +8,9 @@ import dev.pumpkin.shim.Unimplemented;
 public class ClientboundProjectilePowerPacket implements Packet<ClientGamePacketListener> {
 
     public ClientboundProjectilePowerPacket(int id, double accelerationPower) {
-        throw Unimplemented.forMember("net/minecraft/network/protocol/game/ClientboundProjectilePowerPacket.<init>:(ID)V");
     }
 
     private ClientboundProjectilePowerPacket(FriendlyByteBuf input) {
-        throw Unimplemented.forMember("net/minecraft/network/protocol/game/ClientboundProjectilePowerPacket.<init>:(Lnet/minecraft/network/FriendlyByteBuf;)V");
     }
 
     private void write(FriendlyByteBuf output) {

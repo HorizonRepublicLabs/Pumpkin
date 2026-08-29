@@ -16,19 +16,15 @@ import dev.pumpkin.shim.Unimplemented;
 public abstract class TagsProvider<T> implements DataProvider {
 
     protected TagsProvider(PackOutput output, ResourceKey<? extends Registry<T>> registryKey, CompletableFuture<HolderLookup.Provider> lookupProvider) {
-        throw Unimplemented.forMember("net/minecraft/data/tags/TagsProvider.<init>:(Lnet/minecraft/data/PackOutput;Lnet/minecraft/resources/ResourceKey;Ljava/util/concurrent/CompletableFuture;)V");
     }
 
     protected TagsProvider(PackOutput output, ResourceKey<? extends Registry<T>> registryKey, CompletableFuture<HolderLookup.Provider> lookupProvider, String modId) {
-        throw Unimplemented.forMember("net/minecraft/data/tags/TagsProvider.<init>:(Lnet/minecraft/data/PackOutput;Lnet/minecraft/resources/ResourceKey;Ljava/util/concurrent/CompletableFuture;Ljava/lang/String;)V");
     }
 
     protected TagsProvider(PackOutput output, ResourceKey<? extends Registry<T>> registryKey, CompletableFuture<HolderLookup.Provider> lookupProvider, CompletableFuture<TagsProvider.TagLookup<T>> parentProvider) {
-        throw Unimplemented.forMember("net/minecraft/data/tags/TagsProvider.<init>:(Lnet/minecraft/data/PackOutput;Lnet/minecraft/resources/ResourceKey;Ljava/util/concurrent/CompletableFuture;Ljava/util/concurrent/CompletableFuture;)V");
     }
 
     protected TagsProvider(PackOutput output, ResourceKey<? extends Registry<T>> registryKey, CompletableFuture<HolderLookup.Provider> lookupProvider, CompletableFuture<TagsProvider.TagLookup<T>> parentProvider, String modId) {
-        throw Unimplemented.forMember("net/minecraft/data/tags/TagsProvider.<init>:(Lnet/minecraft/data/PackOutput;Lnet/minecraft/resources/ResourceKey;Ljava/util/concurrent/CompletableFuture;Ljava/util/concurrent/CompletableFuture;Ljava/lang/String;)V");
     }
 
     public String getName() {

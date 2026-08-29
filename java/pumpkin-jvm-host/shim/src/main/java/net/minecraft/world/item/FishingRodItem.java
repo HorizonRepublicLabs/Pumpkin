@@ -9,7 +9,6 @@ import dev.pumpkin.shim.Unimplemented;
 public class FishingRodItem extends Item {
 
     public FishingRodItem(Item.Properties properties) {
-        throw Unimplemented.forMember("net/minecraft/world/item/FishingRodItem.<init>:(Lnet/minecraft/world/item/Item$Properties;)V");
     }
 
     public InteractionResult use(Level level, Player player, InteractionHand hand) {

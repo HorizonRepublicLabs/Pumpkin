@@ -111,7 +111,6 @@ public interface Holder<T> extends IHolderExtension<T> {
         private T value;
 
         protected Reference(Holder.Reference.Type type, HolderOwner<T> owner, ResourceKey<T> key, T value) {
-            throw Unimplemented.forMember("net/minecraft/core/Holder$Reference.<init>:(Lnet/minecraft/core/Holder$Reference$Type;Lnet/minecraft/core/HolderOwner;Lnet/minecraft/resources/ResourceKey;Ljava/lang/Object;)V");
         }
 
         public ResourceKey<T> key() {

@@ -10,7 +10,6 @@ import dev.pumpkin.shim.Unimplemented;
 public abstract class AbstractButton extends AbstractWidget.WithInactiveMessage {
 
     public AbstractButton(int x, int y, int width, int height, Component message) {
-        throw Unimplemented.forMember("net/minecraft/client/gui/components/AbstractButton.<init>:(IIIILnet/minecraft/network/chat/Component;)V");
     }
 
     public abstract void onPress(InputWithModifiers input);

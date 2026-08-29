@@ -23,15 +23,12 @@ import dev.pumpkin.shim.Unimplemented;
 public class ItemEntity extends Entity implements TraceableEntity {
 
     public ItemEntity(EntityType<? extends ItemEntity> type, Level level) {
-        throw Unimplemented.forMember("net/minecraft/world/entity/item/ItemEntity.<init>:(Lnet/minecraft/world/entity/EntityType;Lnet/minecraft/world/level/Level;)V");
     }
 
     public ItemEntity(Level level, double x, double y, double z, ItemStack itemStack) {
-        throw Unimplemented.forMember("net/minecraft/world/entity/item/ItemEntity.<init>:(Lnet/minecraft/world/level/Level;DDDLnet/minecraft/world/item/ItemStack;)V");
     }
 
     public ItemEntity(Level level, double x, double y, double z, ItemStack itemStack, double deltaX, double deltaY, double deltaZ) {
-        throw Unimplemented.forMember("net/minecraft/world/entity/item/ItemEntity.<init>:(Lnet/minecraft/world/level/Level;DDDLnet/minecraft/world/item/ItemStack;DDD)V");
     }
 
     public boolean dampensVibrations() {

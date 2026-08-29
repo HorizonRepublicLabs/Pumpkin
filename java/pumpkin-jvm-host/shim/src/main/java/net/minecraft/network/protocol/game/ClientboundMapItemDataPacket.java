@@ -14,7 +14,6 @@ public record ClientboundMapItemDataPacket(MapId mapId, byte scale, boolean lock
 
     public ClientboundMapItemDataPacket(MapId mapId, byte scale, boolean locked, Collection<MapDecoration> decorations, MapItemSavedData.MapPatch colorPatch) {
         this((MapId) null, (byte) 0, (boolean) false, (Optional<List<MapDecoration>>) null, (Optional<MapItemSavedData.MapPatch>) null);
-        throw Unimplemented.forMember("net/minecraft/network/protocol/game/ClientboundMapItemDataPacket.<init>:(Lnet/minecraft/world/level/saveddata/maps/MapId;BZLjava/util/Collection;Lnet/minecraft/world/level/saveddata/maps/MapItemSavedData$MapPatch;)V");
     }
 
     public PacketType<ClientboundMapItemDataPacket> type() {

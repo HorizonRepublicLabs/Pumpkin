@@ -6,7 +6,6 @@ import dev.pumpkin.shim.Unimplemented;
 public class WorldgenRandom extends LegacyRandomSource {
 
     public WorldgenRandom(RandomSource randomSource) {
-        throw Unimplemented.forMember("net/minecraft/world/level/levelgen/WorldgenRandom.<init>:(Lnet/minecraft/util/RandomSource;)V");
     }
 
     public int getCount() {

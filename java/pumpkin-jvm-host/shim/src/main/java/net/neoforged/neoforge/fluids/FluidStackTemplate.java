@@ -10,17 +10,14 @@ public record FluidStackTemplate(Holder<Fluid> fluid, int amount, DataComponentP
 
     public FluidStackTemplate(Holder<Fluid> fluid, int amount) {
         this((Holder<Fluid>) null, (int) 0, (DataComponentPatch) null);
-        throw Unimplemented.forMember("net/neoforged/neoforge/fluids/FluidStackTemplate.<init>:(Lnet/minecraft/core/Holder;I)V");
     }
 
     public FluidStackTemplate(Fluid fluid, int amount, DataComponentPatch components) {
         this((Holder<Fluid>) null, (int) 0, (DataComponentPatch) null);
-        throw Unimplemented.forMember("net/neoforged/neoforge/fluids/FluidStackTemplate.<init>:(Lnet/minecraft/world/level/material/Fluid;ILnet/minecraft/core/component/DataComponentPatch;)V");
     }
 
     public FluidStackTemplate(Fluid fluid, int amount) {
         this((Holder<Fluid>) null, (int) 0, (DataComponentPatch) null);
-        throw Unimplemented.forMember("net/neoforged/neoforge/fluids/FluidStackTemplate.<init>:(Lnet/minecraft/world/level/material/Fluid;I)V");
     }
 
     public FluidStack create() {

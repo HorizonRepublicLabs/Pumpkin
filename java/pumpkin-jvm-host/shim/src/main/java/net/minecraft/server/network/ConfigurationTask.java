@@ -18,7 +18,6 @@ public interface ConfigurationTask {
 
         public Type(net.minecraft.resources.Identifier location) {
             this((String) null);
-            throw Unimplemented.forMember("net/minecraft/server/network/ConfigurationTask$Type.<init>:(Lnet/minecraft/resources/Identifier;)V");
         }
 
         public String toString() {

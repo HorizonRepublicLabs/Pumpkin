@@ -9,7 +9,6 @@ import dev.pumpkin.shim.Unimplemented;
 public abstract class AbstractConsecutiveExecutor<T extends Runnable> implements Runnable, TaskScheduler<T>, ProfilerMeasured {
 
     public AbstractConsecutiveExecutor(StrictQueue<T> queue, Executor executor, String name) {
-        throw Unimplemented.forMember("net/minecraft/util/thread/AbstractConsecutiveExecutor.<init>:(Lnet/minecraft/util/thread/StrictQueue;Ljava/util/concurrent/Executor;Ljava/lang/String;)V");
     }
 
     public void close() {

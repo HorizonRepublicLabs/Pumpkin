@@ -15,7 +15,6 @@ public record Advancement(Optional<Identifier> parent, Optional<DisplayInfo> dis
 
     public Advancement(Optional<Identifier> parent, Optional<DisplayInfo> display, AdvancementRewards rewards, Map<String, Criterion<?>> criteria, AdvancementRequirements requirements, boolean sendsTelemetryEvent) {
         this((Optional<Identifier>) null, (Optional<DisplayInfo>) null, (AdvancementRewards) null, (Map<String, Criterion<?>>) null, (AdvancementRequirements) null, (boolean) false, (Optional<Component>) null);
-        throw Unimplemented.forMember("net/minecraft/advancements/Advancement.<init>:(Ljava/util/Optional;Ljava/util/Optional;Lnet/minecraft/advancements/AdvancementRewards;Ljava/util/Map;Lnet/minecraft/advancements/AdvancementRequirements;Z)V");
     }
 
     private static DataResult<Advancement> validate(Advancement advancement) {

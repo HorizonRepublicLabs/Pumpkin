@@ -21,11 +21,9 @@ public abstract class Screen extends AbstractContainerEventHandler implements Re
     protected final Font font = null;
 
     protected Screen(Component title) {
-        throw Unimplemented.forMember("net/minecraft/client/gui/screens/Screen.<init>:(Lnet/minecraft/network/chat/Component;)V");
     }
 
     protected Screen(Minecraft minecraft, Font font, Component title) {
-        throw Unimplemented.forMember("net/minecraft/client/gui/screens/Screen.<init>:(Lnet/minecraft/client/Minecraft;Lnet/minecraft/client/gui/Font;Lnet/minecraft/network/chat/Component;)V");
     }
 
     public void extractRenderState(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float a) {

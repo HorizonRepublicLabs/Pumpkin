@@ -13,7 +13,6 @@ import dev.pumpkin.shim.Unimplemented;
 public class ServerAdvancementManager extends SimpleJsonResourceReloadListener<Advancement> {
 
     public ServerAdvancementManager(HolderLookup.Provider registries) {
-        throw Unimplemented.forMember("net/minecraft/server/ServerAdvancementManager.<init>:(Lnet/minecraft/core/HolderLookup$Provider;)V");
     }
 
     protected void apply(Map<Identifier, Advancement> preparations, ResourceManager manager, ProfilerFiller profiler) {

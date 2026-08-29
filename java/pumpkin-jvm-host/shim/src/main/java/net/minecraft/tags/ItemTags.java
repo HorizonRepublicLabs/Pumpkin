@@ -7,7 +7,6 @@ import dev.pumpkin.shim.Unimplemented;
 public final class ItemTags {
 
     protected ItemTags() {
-        throw Unimplemented.forMember("net/minecraft/tags/ItemTags.<init>:()V");
     }
 
     public static TagKey<Item> create(final Identifier name) {

@@ -6,7 +6,6 @@ import dev.pumpkin.shim.Unimplemented;
 public class ContextKeySet {
 
     private ContextKeySet(Set<ContextKey<?>> required, Set<ContextKey<?>> optional) {
-        throw Unimplemented.forMember("net/minecraft/util/context/ContextKeySet.<init>:(Ljava/util/Set;Ljava/util/Set;)V");
     }
 
     public String toString() {

@@ -9,7 +9,6 @@ import dev.pumpkin.shim.Unimplemented;
 public final class RegisterClientExtensionsEvent extends Event implements IModBusEvent {
 
     RegisterClientExtensionsEvent() {
-        throw Unimplemented.forMember("net/neoforged/neoforge/client/extensions/common/RegisterClientExtensionsEvent.<init>:()V");
     }
 
     public void registerItem(IClientItemExtensions extensions, Item... items) {

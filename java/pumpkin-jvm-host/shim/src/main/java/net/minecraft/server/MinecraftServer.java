@@ -39,7 +39,6 @@ import dev.pumpkin.shim.Unimplemented;
 public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTask> implements CommandSource, ServerInfo, ChunkIOErrorReporter {
 
     public MinecraftServer(Thread serverThread, LevelStorageSource.LevelStorageAccess storageSource, PackRepository packRepository, WorldStem worldStem, Optional<GameRules> gameRules, Proxy proxy, DataFixer fixerUpper, Services services, LevelLoadListener levelLoadListener, boolean propagatesCrashes, NotificationManager notificationManager) {
-        throw Unimplemented.forMember("net/minecraft/server/MinecraftServer.<init>:(Ljava/lang/Thread;Lnet/minecraft/world/level/storage/LevelStorageSource$LevelStorageAccess;Lnet/minecraft/server/packs/repository/PackRepository;Lnet/minecraft/server/WorldStem;Ljava/util/Optional;Ljava/net/Proxy;Lcom/mojang/datafixers/DataFixer;Lnet/minecraft/server/Services;Lnet/minecraft/server/level/progress/LevelLoadListener;ZLnet/minecraft/server/notifications/NotificationManager;)V");
     }
 
     protected abstract boolean initServer() throws IOException;
@@ -226,7 +225,6 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
     private static class TimeProfiler {
 
         private TimeProfiler(long startNanos, int startTick) {
-            throw Unimplemented.forMember("net/minecraft/server/MinecraftServer$TimeProfiler.<init>:(JI)V");
         }
 
         protected TimeProfiler() {

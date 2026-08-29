@@ -5,7 +5,6 @@ import dev.pumpkin.shim.Unimplemented;
 public class SectionPos extends Vec3i {
 
     private SectionPos(int x, int y, int z) {
-        throw Unimplemented.forMember("net/minecraft/core/SectionPos.<init>:(III)V");
     }
 
     public int x() {

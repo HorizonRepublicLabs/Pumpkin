@@ -9,7 +9,6 @@ import dev.pumpkin.shim.Unimplemented;
 public final class EnumProperty<T extends Enum<T> & StringRepresentable> extends Property<T> {
 
     private EnumProperty(String name, Class<T> clazz, List<T> values) {
-        throw Unimplemented.forMember("net/minecraft/world/level/block/state/properties/EnumProperty.<init>:(Ljava/lang/String;Ljava/lang/Class;Ljava/util/List;)V");
     }
 
     public List<T> getPossibleValues() {
