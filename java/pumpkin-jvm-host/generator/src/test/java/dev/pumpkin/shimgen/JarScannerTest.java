@@ -34,6 +34,56 @@ class JarScannerTest {
         return cw.toByteArray();
     }
 
+    /// A class that calls a static factory on a NESTED type and reads a static field on
+    /// a class it never otherwise mentions.
+    private static byte[] nestedAndStaticOnlyCaller() {
+        ClassWriter cw = new ClassWriter(0);
+        cw.visit(Opcodes.V21, Opcodes.ACC_PUBLIC, "example/Nested", null, "java/lang/Object", null);
+        MethodVisitor mv = cw.visitMethod(Opcodes.ACC_PUBLIC | Opcodes.ACC_STATIC, "go", "()V", null, null);
+        mv.visitCode();
+        mv.visitMethodInsn(Opcodes.INVOKESTATIC, "net/minecraft/world/level/block/state/BlockBehaviour$Properties",
+                "of", "()Lnet/minecraft/world/level/block/state/BlockBehaviour$Properties;", false);
+        mv.visitInsn(Opcodes.POP);
+        mv.visitFieldInsn(Opcodes.GETSTATIC, "net/minecraft/core/registries/Registries", "BLOCK",
+                "Lnet/minecraft/resources/ResourceKey;");
+        mv.visitInsn(Opcodes.POP);
+        mv.visitInsn(Opcodes.RETURN);
+        mv.visitMaxs(1, 0);
+        mv.visitEnd();
+        cw.visitEnd();
+        return cw.toByteArray();
+    }
+
+    /// A member keeps its real owner, nested suffix included, while the CLASS it implies
+    /// is the file that declares it. Filing `BlockBehaviour$Properties.of` under
+    /// `BlockBehaviour` made the pruner ask `BlockBehaviour$Properties` for its used
+    /// members, get none, and delete every one of them.
+    @Test
+    void aNestedTypesMembersAreFiledUnderTheNestedTypeNotTheFile() throws Exception {
+        UsedSet used = new UsedSet();
+        JarScanner.scan(jarWith("example/Nested.class", nestedAndStaticOnlyCaller()), used);
+
+        assertTrue(used.membersOf("net/minecraft/world/level/block/state/BlockBehaviour$Properties").stream()
+                        .anyMatch(k -> k.startsWith("of:")),
+                "the nested type must be able to find its own members");
+        assertTrue(used.membersOf("net/minecraft/world/level/block/state/BlockBehaviour").isEmpty(),
+                "and the outer class must not be credited with them");
+        assertTrue(used.classes().contains("net/minecraft/world/level/block/state/BlockBehaviour"),
+                "the class recorded is still the file to generate");
+    }
+
+    /// A class touched only through a static member appears in no type instruction at
+    /// all, so recording the member has to record its owner as a class too -- otherwise
+    /// `Registries` is named by the manifest and never generated.
+    @Test
+    void aClassTouchedOnlyThroughAStaticFieldIsStillRecorded() throws Exception {
+        UsedSet used = new UsedSet();
+        JarScanner.scan(jarWith("example/Nested.class", nestedAndStaticOnlyCaller()), used);
+
+        assertTrue(used.classes().contains("net/minecraft/core/registries/Registries"),
+                "GETSTATIC is the only mention of Registries anywhere in this class file");
+    }
+
     private static Path jarWith(byte[] classBytes) throws Exception {
         return jarWith("example/Caller.class", classBytes);
     }

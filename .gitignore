@@ -163,4 +163,5 @@ patchbukkit/
 
 # Gradle (JVM mod host)
 java/pumpkin-jvm-host/.gradle/
+java/pumpkin-jvm-host/build/
 java/pumpkin-jvm-host/*/build/

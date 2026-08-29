@@ -1,6 +1,8 @@
 package dev.pumpkin.shimgen;
 
-import com.github.javaparser.StaticJavaParser;
+import com.github.javaparser.JavaParser;
+import com.github.javaparser.ParseResult;
+import com.github.javaparser.ParserConfiguration;
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.ImportDeclaration;
 import com.github.javaparser.ast.body.TypeDeclaration;
@@ -17,6 +19,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.SortedMap;
+import java.util.TreeMap;
 
 /**
  * Expands a {@link UsedSet} to include every {@code net.minecraft}/{@code net.neoforged}
@@ -36,6 +40,34 @@ import java.util.Set;
 public final class SupertypeCloser {
     private final List<Path> sourceRoots;
     private final Map<String, Optional<CompilationUnit>> cache = new HashMap<>();
+    private final SortedMap<String, String> parseFailures = new TreeMap<>();
+
+    /**
+     * A parser of its own rather than {@link com.github.javaparser.StaticJavaParser},
+     * configured for the language level the decompiled tree is actually written in.
+     * JavaParser defaults to an older level at which a plain {@code record} declaration
+     * or an {@code instanceof} pattern is a parse error, and modern Minecraft source is
+     * full of both; a shared static configuration would also mean this class silently
+     * reconfiguring every other parse in the JVM, tests included.
+     *
+     * <p>Three parsers, tried in order, because no single level parses the whole tree.
+     * {@code JAVA_25} is needed for flexible constructor bodies ({@code
+     * CrashReportCategory}, {@code CubicSpline}) and unnamed variables ({@code
+     * CommonHooks}), but JavaParser 3.28.0's {@code JAVA_25} grammar regresses on {@code
+     * yield} inside a switch expression ({@code Screen}, {@code FilterMask}, {@code
+     * NoiseChunk}) and on {@code Util}, all of which {@code JAVA_24} handles. Falling back
+     * costs a second parse of a handful of files and is strictly better than either level
+     * alone; each of these files is named by other generated ones, so losing any of them
+     * fails the compile.
+     */
+    private static final List<ParserConfiguration.LanguageLevel> LEVELS = List.of(
+            ParserConfiguration.LanguageLevel.JAVA_25,
+            ParserConfiguration.LanguageLevel.JAVA_24,
+            ParserConfiguration.LanguageLevel.JAVA_21);
+
+    private final List<JavaParser> parsers = LEVELS.stream()
+            .map(level -> new JavaParser(new ParserConfiguration().setLanguageLevel(level)))
+            .toList();
 
     public SupertypeCloser(List<Path> sourceRoots) {
         this.sourceRoots = List.copyOf(sourceRoots);
@@ -57,13 +89,38 @@ public final class SupertypeCloser {
             Path file = root.resolve(internalName + ".java");
             if (Files.isRegularFile(file)) {
                 try {
-                    return Optional.of(StaticJavaParser.parse(file));
+                    ParseResult<CompilationUnit> result = null;
+                    for (JavaParser parser : parsers) {
+                        result = parser.parse(file);
+                        if (result.isSuccessful() && result.getResult().isPresent()) {
+                            break;
+                        }
+                    }
+                    if (!result.isSuccessful() || result.getResult().isEmpty()) {
+                        // A partially-parsed unit is worse than none: JavaParser still
+                        // hands back a CompilationUnit, and printing it emits "???" --
+                        // a file that is not Java at all, which then stops javac before
+                        // it reports a single real problem anywhere else in the tree.
+                        // Treat it as sourceless and make the reason visible instead.
+                        parseFailures.put(internalName, String.valueOf(result.getProblems()));
+                        return Optional.empty();
+                    }
+                    return Optional.of(result.getResult().get());
                 } catch (IOException e) {
                     throw new UncheckedIOException(e);
                 }
             }
         }
         return Optional.empty();
+    }
+
+    /**
+     * Every class whose source file exists but could not be parsed, mapped to the parse
+     * problems. Each is a class this generator cannot produce and someone must hand-write
+     * -- or a signal that the language has moved past the parser and it needs upgrading.
+     */
+    public SortedMap<String, String> parseFailures() {
+        return java.util.Collections.unmodifiableSortedMap(parseFailures);
     }
 
     /**
@@ -81,7 +138,7 @@ public final class SupertypeCloser {
                 continue;
             }
             for (String superName : superTypeNames(unit)) {
-                String resolved = resolve(unit, superName);
+                String resolved = resolveScoped(unit, superName);
                 String outer = Shimmed.outerOf(resolved);
                 if (Shimmed.isShimmed(outer) && !used.classes().contains(outer)) {
                     used.addClass(outer, "supertype of " + internalName);
@@ -91,7 +148,18 @@ public final class SupertypeCloser {
         }
     }
 
-    /** The simple names in the primary type's {@code extends} and {@code implements} clauses. */
+    /**
+     * The names in the primary type's {@code extends} and {@code implements} clauses,
+     * each with whatever scope it was written with -- {@code BlockBehaviour.BlockStateBase},
+     * not {@code BlockStateBase}.
+     *
+     * <p>Dropping the scope was wrong, and wrong in a way that hid itself: {@code
+     * BlockStateBase} alone resolves by the same-package guess to the top-level name
+     * {@code net/minecraft/world/level/block/state/BlockStateBase}, which does not exist,
+     * so it silently became a "no source found" entry -- a class someone would then be
+     * asked to hand-write, when the real supertype is a nested class of a file already in
+     * the set.
+     */
     private static List<String> superTypeNames(CompilationUnit unit) {
         List<String> names = new ArrayList<>();
         Optional<TypeDeclaration<?>> primary = unit.getPrimaryType();
@@ -100,10 +168,10 @@ public final class SupertypeCloser {
         }
         var decl = primary.get().asClassOrInterfaceDeclaration();
         for (ClassOrInterfaceType type : decl.getExtendedTypes()) {
-            names.add(type.getNameAsString());
+            names.add(type.getNameWithScope());
         }
         for (ClassOrInterfaceType type : decl.getImplementedTypes()) {
-            names.add(type.getNameAsString());
+            names.add(type.getNameWithScope());
         }
         return names;
     }
@@ -140,7 +208,7 @@ public final class SupertypeCloser {
             }
             String qualified = imp.getNameAsString();
             if (qualified.endsWith("." + simpleName)) {
-                return qualified.replace('.', '/');
+                return internalNameOf(qualified);
             }
         }
         if (JAVA_LANG_SIMPLE_NAMES.contains(simpleName)) {
@@ -151,6 +219,51 @@ public final class SupertypeCloser {
             return pkg.get().replace('.', '/') + "/" + simpleName;
         }
         return "java/lang/" + simpleName;
+    }
+
+    /**
+     * Resolves a possibly-scoped type name -- {@code BlockStateBase}, {@code
+     * BlockBehaviour.BlockStateBase}, or {@code net.minecraft.core.HolderLookup.Provider}
+     * -- to an internal name, nested types joined with {@code $}.
+     *
+     * <p>A leading run of segments starting with a lower-case letter is a package; the
+     * first upper-case segment is the top-level class and everything after it is nested.
+     * That rule is a convention, not a language guarantee, but the input here is one
+     * decompiler's output over one code base, where it holds without exception. When
+     * there is no package prefix the leading segment goes through {@link #resolve}, so an
+     * import or the enclosing package still gets its say.
+     */
+    static String resolveScoped(CompilationUnit unit, String dottedName) {
+        String[] segments = dottedName.split("\\.");
+        if (segments.length == 1 || Character.isLowerCase(segments[0].charAt(0))) {
+            return segments.length == 1 ? resolve(unit, segments[0]) : internalNameOf(dottedName);
+        }
+        StringBuilder sb = new StringBuilder(resolve(unit, segments[0]));
+        for (int i = 1; i < segments.length; i++) {
+            sb.append('$').append(segments[i]);
+        }
+        return sb.toString();
+    }
+
+    /**
+     * Turns a fully-qualified dotted name into an internal name, separating package
+     * segments with {@code /} and nested-class segments with {@code $} by the same
+     * leading-lower-case-is-a-package rule {@link #resolveScoped} uses. {@code
+     * java.util.Map.Entry} becomes {@code java/util/Map$Entry}; a plain {@code
+     * String.replace('.', '/')} would produce {@code java/util/Map/Entry}, whose outer
+     * class is the whole thing and which therefore has no source anywhere.
+     */
+    static String internalNameOf(String dottedName) {
+        StringBuilder sb = new StringBuilder();
+        boolean inClass = false;
+        for (String segment : dottedName.split("\\.")) {
+            if (sb.length() > 0) {
+                sb.append(inClass ? '$' : '/');
+            }
+            sb.append(segment);
+            inClass = inClass || (!segment.isEmpty() && Character.isUpperCase(segment.charAt(0)));
+        }
+        return sb.toString();
     }
 
     /**

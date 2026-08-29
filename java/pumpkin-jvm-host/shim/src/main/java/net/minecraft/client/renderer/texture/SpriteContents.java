@@ -1,0 +1,79 @@
+package net.minecraft.client.renderer.texture;
+
+import com.mojang.blaze3d.buffers.GpuBufferSlice;
+import com.mojang.blaze3d.platform.NativeImage;
+import com.mojang.blaze3d.textures.GpuTextureView;
+import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
+import java.util.List;
+import java.util.Optional;
+import net.minecraft.client.resources.metadata.animation.AnimationMetadataSection;
+import net.minecraft.client.resources.metadata.animation.FrameSize;
+import net.minecraft.client.resources.metadata.texture.TextureMetadataSection;
+import net.minecraft.resources.Identifier;
+import net.minecraft.server.packs.metadata.MetadataSectionType;
+import dev.pumpkin.shim.Unimplemented;
+
+public class SpriteContents implements AutoCloseable, Stitcher.Entry {
+
+    public SpriteContents(Identifier name, FrameSize frameSize, NativeImage image) {
+        throw Unimplemented.forMember("net/minecraft/client/renderer/texture/SpriteContents.<init>:(Lnet/minecraft/resources/Identifier;Lnet/minecraft/client/resources/metadata/animation/FrameSize;Lcom/mojang/blaze3d/platform/NativeImage;)V");
+    }
+
+    public SpriteContents(Identifier name, FrameSize frameSize, NativeImage image, Optional<AnimationMetadataSection> animationInfo, List<MetadataSectionType.WithValue<?>> additionalMetadata, Optional<TextureMetadataSection> textureInfo) {
+        throw Unimplemented.forMember("net/minecraft/client/renderer/texture/SpriteContents.<init>:(Lnet/minecraft/resources/Identifier;Lnet/minecraft/client/resources/metadata/animation/FrameSize;Lcom/mojang/blaze3d/platform/NativeImage;Ljava/util/Optional;Ljava/util/List;Ljava/util/Optional;)V");
+    }
+
+    public int width() {
+        throw Unimplemented.forMember("net/minecraft/client/renderer/texture/SpriteContents.width:()I");
+    }
+
+    public int height() {
+        throw Unimplemented.forMember("net/minecraft/client/renderer/texture/SpriteContents.height:()I");
+    }
+
+    public Identifier name() {
+        throw Unimplemented.forMember("net/minecraft/client/renderer/texture/SpriteContents.name:()Lnet/minecraft/resources/Identifier;");
+    }
+
+    public void close() {
+        throw Unimplemented.forMember("net/minecraft/client/renderer/texture/SpriteContents.close:()V");
+    }
+
+    public String toString() {
+        throw Unimplemented.forMember("net/minecraft/client/renderer/texture/SpriteContents.toString:()Ljava/lang/String;");
+    }
+
+    class AnimatedTexture {
+
+        private AnimatedTexture(List<SpriteContents.FrameInfo> frames, int frameRowSize, boolean interpolateFrames) {
+            throw Unimplemented.forMember("net/minecraft/client/renderer/texture/SpriteContents$AnimatedTexture.<init>:(Ljava/util/List;IZ)V");
+        }
+
+        protected AnimatedTexture() {
+        }
+    }
+
+    public class AnimationState implements AutoCloseable {
+
+        private AnimationState(SpriteContents.AnimatedTexture animationInfo, Int2ObjectMap<GpuTextureView> frameTexturesByIndex, GpuBufferSlice[] spriteUbosByMip) {
+            throw Unimplemented.forMember("net/minecraft/client/renderer/texture/SpriteContents$AnimationState.<init>:(Lnet/minecraft/client/renderer/texture/SpriteContents$AnimatedTexture;Lit/unimi/dsi/fastutil/ints/Int2ObjectMap;[Lcom/mojang/blaze3d/buffers/GpuBufferSlice;)V");
+        }
+
+        public void tick() {
+            throw Unimplemented.forMember("net/minecraft/client/renderer/texture/SpriteContents$AnimationState.tick:()V");
+        }
+
+        public void close() {
+            throw Unimplemented.forMember("net/minecraft/client/renderer/texture/SpriteContents$AnimationState.close:()V");
+        }
+
+        protected AnimationState() {
+        }
+    }
+
+    private record FrameInfo(int index, int time) {
+    }
+
+    protected SpriteContents() {
+    }
+}

@@ -7,7 +7,11 @@ subprojects {
         }
     }
 
-    repositories { mavenCentral() }
+    repositories {
+        mavenCentral()
+        // authlib and a few other Mojang libraries are published here and nowhere else.
+        maven { url = 'https://libraries.minecraft.net' }
+    }
 
     dependencies {
         testImplementation 'org.junit.jupiter:junit-jupiter:5.11.3'
@@ -17,9 +21,46 @@ subprojects {
     test { useJUnitPlatform() }
 }
 
-project(':fml')     { dependencies { api project(':shim') } }
-project(':host')    { dependencies { api project(':fml') } }
-project(':testmod') { dependencies { compileOnly project(':fml') } }
+// The libraries Minecraft itself is built against. The generated shim reproduces real
+// vanilla signatures, and those signatures name these types -- `Codec<ItemStack>`,
+// `ImmutableList<Block>`, `Vector3f`. They are compileOnly on purpose: no generated body
+// ever runs (every one throws), so nothing here is needed at runtime, and the JVM host
+// keeps booting on the shim/fml/host jars alone. Reproducing the real signature is not
+// cosmetic -- a mod's call site links against the descriptor it was compiled with.
+ext.gameLibraries = [
+        'com.mojang:datafixerupper:8.0.16',
+        'com.mojang:brigadier:1.3.10',
+        'com.mojang:authlib:6.0.57',
+        'com.google.code.gson:gson:2.11.0',
+        'com.google.guava:guava:33.3.1-jre',
+        'it.unimi.dsi:fastutil:8.5.15',
+        'io.netty:netty-buffer:4.2.2.Final',
+        'io.netty:netty-transport:4.2.2.Final',
+        'org.joml:joml:1.10.8',
+        'org.slf4j:slf4j-api:2.0.16',
+        'org.apache.commons:commons-lang3:3.17.0',
+        'com.electronwill.night-config:core:3.8.1',
+        'org.lwjgl:lwjgl:3.3.3',
+        'org.lwjgl:lwjgl-glfw:3.3.3',
+        'org.lwjgl:lwjgl-stb:3.3.3',
+]
+
+// `fml` is what NeoForge publishes as separate artifacts and this repo hand-writes -- the
+// event bus, the FML loader API, the dist marker -- plus `Unimplemented`, which everything
+// throws. `shim` is the game, generated. The arrow runs shim -> fml and not the other way
+// because it cannot: the decompiled sources are NeoForge's *patched* Minecraft, so
+// `BlockBehaviour` implements `IBlockExtension` and `Item` implements `IItemExtension`.
+// Generated `net.minecraft` and generated `net.neoforged` are mutually recursive and are
+// one compilation unit; Gradle cannot express a cycle, so both live in `shim`. The plan
+// assumed the split held and it does not -- see the task 7 report.
+project(':shim') {
+    dependencies {
+        api project(':fml')
+        rootProject.ext.gameLibraries.each { compileOnly it }
+    }
+}
+project(':host')    { dependencies { api project(':shim') } }
+project(':testmod') { dependencies { compileOnly project(':shim') } }
 
 project(':host') {
     test {
@@ -33,13 +74,18 @@ project(':host') {
 // and it may not depend on the shim chain: it reads and writes Java as text.
 project(':generator') {
     dependencies {
-        implementation 'com.github.javaparser:javaparser-core:3.26.4'
-        implementation 'org.ow2.asm:asm:9.7'
+        implementation 'com.github.javaparser:javaparser-core:3.28.0'
+        implementation 'org.ow2.asm:asm:9.9'
     }
     tasks.register('generateShim', JavaExec) {
         group = 'shim'
         description = 'Regenerates the shim. Requires the NeoForge and mod checkouts; not run in CI.'
         classpath = sourceSets.main.runtimeClasspath
         mainClass = 'dev.pumpkin.shimgen.Main'
+        // Every path on this task's command line -- the NeoForge and mod checkouts
+        // outside the repo, and the shim/fml output roots inside it -- is written
+        // relative to pumpkin-jvm-host, which is where the command is documented and
+        // run from. JavaExec would otherwise resolve them against generator/.
+        workingDir = rootProject.projectDir
     }
 }

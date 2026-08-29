@@ -46,11 +46,30 @@ public final class JarScanner {
         }
     }
 
+    /**
+     * Records a member under its real owner, and the file that owner lives in as a class.
+     *
+     * <p>The owner keeps its {@code $Nested} suffix. Only the <em>class</em> half is
+     * collapsed with {@link Shimmed#outerOf}, because that names the file to generate.
+     * Collapsing the member half too was a bug with a large blast radius: {@code
+     * BlockBehaviour$Properties.of} was filed under {@code BlockBehaviour}, so when the
+     * pruner asked for {@code BlockBehaviour$Properties}'s used members it got none and
+     * pruned every one of them away. {@code Item$Properties} and {@code
+     * BlockBehaviour$Properties} are among the most-called types in the whole manifest.
+     *
+     * <p>The class half is not redundant either. Nothing else in this visitor sees the
+     * owner of a plain field read or method call: {@code visitTypeInsn} fires for {@code
+     * new}, {@code checkcast} and {@code instanceof}, and a class touched only through a
+     * static member -- {@code Registries.BLOCK} is exactly this -- appears in no type
+     * instruction at all. Recorded as a member but not as a class, it would be listed in
+     * the manifest and never generated.
+     */
     private static void recordMember(UsedSet into, String owner, String name, String descriptor,
             String referencedBy) {
         String outer = Shimmed.outerOf(owner);
         if (Shimmed.isShimmed(outer)) {
-            into.addMember(new UsedSet.MemberRef(outer, name, descriptor), referencedBy);
+            into.addMember(new UsedSet.MemberRef(owner, name, descriptor), referencedBy);
+            into.addClass(outer, referencedBy);
         }
     }
 

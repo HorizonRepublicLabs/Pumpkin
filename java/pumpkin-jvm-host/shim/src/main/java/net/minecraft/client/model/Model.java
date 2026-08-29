@@ -1,0 +1,32 @@
+package net.minecraft.client.model;
+
+import java.util.function.Function;
+import net.minecraft.client.model.geom.ModelPart;
+import net.minecraft.client.renderer.rendertype.RenderType;
+import net.minecraft.resources.Identifier;
+import net.minecraft.util.Unit;
+import dev.pumpkin.shim.Unimplemented;
+
+public abstract class Model<S> {
+
+    public Model(ModelPart root, Function<Identifier, RenderType> renderType) {
+        throw Unimplemented.forMember("net/minecraft/client/model/Model.<init>:(Lnet/minecraft/client/model/geom/ModelPart;Ljava/util/function/Function;)V");
+    }
+
+    public final RenderType renderType(Identifier texture) {
+        throw Unimplemented.forMember("net/minecraft/client/model/Model.renderType:(Lnet/minecraft/resources/Identifier;)Lnet/minecraft/client/renderer/rendertype/RenderType;");
+    }
+
+    public static class Simple extends Model<Unit> {
+
+        public Simple(ModelPart root, Function<Identifier, RenderType> renderType) {
+            throw Unimplemented.forMember("net/minecraft/client/model/Model$Simple.<init>:(Lnet/minecraft/client/model/geom/ModelPart;Ljava/util/function/Function;)V");
+        }
+
+        protected Simple() {
+        }
+    }
+
+    protected Model() {
+    }
+}

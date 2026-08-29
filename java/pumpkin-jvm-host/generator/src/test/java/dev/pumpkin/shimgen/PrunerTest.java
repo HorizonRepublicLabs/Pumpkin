@@ -15,14 +15,21 @@ class PrunerTest {
         Pruner.resetReport();
     }
 
+    /// The fixtures below include records and other post-Java-11 syntax, which
+    /// StaticJavaParser rejects at its default language level.
     private static CompilationUnit parse(String src) {
+        StaticJavaParser.getParserConfiguration()
+                .setLanguageLevel(com.github.javaparser.ParserConfiguration.LanguageLevel.JAVA_21);
         return StaticJavaParser.parse(src);
     }
 
-    /// An enum's constants carry the semantics and its ordinals are serialised, so it
-    /// is copied whole and never pruned.
+    /// An enum's constants carry the semantics and its ordinals are serialised, so every
+    /// constant is kept, in order. Its BODIES are not: a copied-whole enum keeps real
+    /// expressions naming arbitrary types that were never generated, which is the closure
+    /// argument that body-stripping exists to preserve. Constructor arguments go with the
+    /// constructors; a constant is left bare.
     @Test
-    void enumsAreValueTypesAndKeepEveryConstant() {
+    void enumsKeepEveryConstantAndLoseEveryBody() {
         CompilationUnit cu = parse("""
                 package net.minecraft.core;
                 public enum Direction {
@@ -34,11 +41,63 @@ class PrunerTest {
         assertEquals(Treatment.VALUE, Pruner.treatmentOf(cu.getType(0)));
 
         UsedSet used = new UsedSet();
+        used.addMember(new UsedSet.MemberRef("net/minecraft/core/Direction", "getId", "()I"), "mod");
         Pruner.prune(cu, "net/minecraft/core/Direction", used);
         String out = cu.toString();
         assertTrue(out.contains("DOWN") && out.contains("UP") && out.contains("NORTH"),
                 "dropping a constant would shift every ordinal after it");
-        assertFalse(out.contains("Unimplemented"), "a value type keeps its real bodies");
+        assertFalse(out.contains("DOWN(0"), "a constant's constructor arguments are real expressions and go");
+        assertFalse(out.contains("Direction(int id, String name)"),
+                "with no arguments left, the declared constructor would have nothing to match");
+        assertTrue(out.contains("Unimplemented"), "a used method keeps its signature and throws");
+    }
+
+    /// A record's components are its accessors and its canonical constructor, so the header
+    /// is kept whole. Its declared bodies are stripped like anything else, and a
+    /// non-canonical constructor is rewritten to delegate to the canonical one with cast
+    /// defaults -- casts, because a bare `null` would be ambiguous between two constructors
+    /// of the same arity.
+    @Test
+    void recordsKeepTheirComponentsAndLoseTheirBodies() {
+        CompilationUnit cu = parse("""
+                package net.minecraft.world.item;
+                public record ItemCost(Item item, int count) {
+                    public ItemCost(Item item) {
+                        this(item, item.defaultCount());
+                    }
+                }
+                """);
+        assertEquals(Treatment.VALUE, Pruner.treatmentOf(cu.getType(0)));
+        Pruner.prune(cu, "net/minecraft/world/item/ItemCost", new UsedSet());
+        String out = cu.toString();
+        assertTrue(out.contains("record ItemCost(Item item, int count)"), "the header is the record's identity");
+        assertFalse(out.contains("item.defaultCount()"), "no decompiled expression may survive into the shim");
+        assertTrue(out.contains("this((Item) null, (int) 0)"),
+                "a non-canonical constructor must delegate, and its arguments must be unambiguous");
+    }
+
+    /// The pruner strips every comment. A `{@link Foo}` in a doc comment is enough to keep
+    /// an import for a class the closure never generated, and that fails the compile on a
+    /// line that is a comment.
+    @Test
+    void commentsAndTheImportsTheyKeepAliveAreStripped() {
+        CompilationUnit cu = parse("""
+                package net.minecraft.world.level;
+                import net.minecraft.world.entity.Mob;
+                import net.minecraft.world.entity.Player;
+                /** See {@link Mob}. */
+                public class Level {
+                    public Player getPlayer() { return null; }
+                }
+                """);
+        UsedSet used = new UsedSet();
+        used.addMember(new UsedSet.MemberRef("net/minecraft/world/level/Level", "getPlayer",
+                "()Lnet/minecraft/world/entity/Player;"), "mod");
+        Pruner.prune(cu, "net/minecraft/world/level/Level", used);
+        String out = cu.toString();
+        assertFalse(out.contains("Mob"), "an import kept alive only by a doc comment must go with the comment");
+        assertTrue(out.contains("import net.minecraft.world.entity.Player;"),
+                "an import a surviving signature still names must stay");
     }
 
     /// A handle type keeps only what the mods call, and every body throws.
@@ -348,22 +407,69 @@ class PrunerTest {
                 "the constructor the used set does confirm is an exact match and must not be flagged");
     }
 
-    /// A body replaced by throw still gets an implicit super(), which fails when the
-    /// superclass has no no-arg constructor.
+    /// A constructor's explicit `super(...)` used to be preserved, so that the implicit
+    /// `super()` replacing it would not fail against a superclass with no no-arg
+    /// constructor. It is dropped instead, because preserving the call preserved its
+    /// ARGUMENTS -- real expressions calling real methods, the one place decompiled bodies
+    /// survived into the shim. On the real input they produced "cannot find symbol",
+    /// "invalid method reference" and "recursive constructor invocation". What makes
+    /// dropping safe is the synthesised no-arg constructor every generated class now gets,
+    /// which the implicit `super()` always has to bind to.
     @Test
-    void keptConstructorsGetAnExplicitSuperCall() {
+    void constructorBodiesDropTheirSuperCallAndEveryClassGetsANoArgConstructor() {
         CompilationUnit cu = parse("""
                 package net.minecraft.world.item;
                 public class BlockItem extends Item {
-                    public BlockItem(int id, String name) { super(id); }
+                    public BlockItem(int id, String name) { super(id, name.length()); }
                 }
                 """);
         UsedSet used = new UsedSet();
         used.addMember(new UsedSet.MemberRef("net/minecraft/world/item/BlockItem", "<init>", "(ILjava/lang/String;)V"), "mod");
         Pruner.prune(cu, "net/minecraft/world/item/BlockItem", used);
         String out = cu.toString();
-        assertTrue(out.contains("super("), "an explicit super call must precede the throw");
+        assertFalse(out.contains("super("),
+                "the super call goes, and with it the argument expressions that named arbitrary members");
+        assertFalse(out.contains("name.length()"), "no decompiled expression may survive into the shim");
         assertTrue(out.contains("Unimplemented"));
+        assertTrue(out.contains("protected BlockItem() {"),
+                "a synthesised no-arg constructor is what the dropped super call now binds to");
+    }
+
+    /// The synthesised constructor is empty rather than throwing: nothing calls it on
+    /// purpose, and making it throw would mean no generated object could ever be built --
+    /// including by the handful of classes whose real behaviour is re-applied by hand.
+    @Test
+    void theSynthesisedNoArgConstructorDoesNotThrow() {
+        CompilationUnit cu = parse("""
+                package net.minecraft.world.level.block;
+                public class Block {
+                    public Block(int id) {}
+                }
+                """);
+        Pruner.prune(cu, "net/minecraft/world/level/block/Block", new UsedSet());
+        String out = cu.toString();
+        int at = out.indexOf("protected Block() {");
+        assertTrue(at >= 0, "every class gets one");
+        assertEquals("protected Block() {\n    }", out.substring(at, at + "protected Block() {\n    }".length()));
+    }
+
+    /// A class whose superclass is not in the generated set -- Netty's `ByteBuf` under
+    /// `FriendlyByteBuf` -- keeps every method, because nothing here can enumerate the
+    /// abstract members it is obliged to implement.
+    @Test
+    void aClassExtendingSomethingUngeneratedKeepsEveryMethod() {
+        CompilationUnit cu = parse("""
+                package net.minecraft.network;
+                import io.netty.buffer.ByteBuf;
+                public class FriendlyByteBuf extends ByteBuf {
+                    public void writeZero(int length) {}
+                }
+                """);
+        UsedSet used = new UsedSet();
+        used.addClass("net/minecraft/network/FriendlyByteBuf", "mod");
+        Pruner.prune(cu, "net/minecraft/network/FriendlyByteBuf", used);
+        assertTrue(cu.toString().contains("writeZero"),
+                "nothing here knows ByteBuf declares writeZero abstract, so nothing may be pruned");
     }
 
     /// @Override is only valid when the overridden member survived.

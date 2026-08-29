@@ -1,0 +1,263 @@
+package net.minecraft.world.item;
+
+import java.util.function.BiFunction;
+import java.util.function.Consumer;
+import java.util.function.Predicate;
+import java.util.function.UnaryOperator;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Holder;
+import net.minecraft.core.component.DataComponentHolder;
+import net.minecraft.core.component.DataComponentMap;
+import net.minecraft.core.component.DataComponentPatch;
+import net.minecraft.core.component.DataComponentType;
+import net.minecraft.core.component.PatchedDataComponentMap;
+import net.minecraft.core.component.TypedDataComponent;
+import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.component.TooltipDisplay;
+import net.minecraft.world.item.component.TooltipProvider;
+import net.minecraft.world.item.context.UseOnContext;
+import net.minecraft.world.item.enchantment.ItemEnchantments;
+import net.minecraft.world.level.ItemLike;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.state.BlockState;
+import net.neoforged.neoforge.common.MutableDataComponentHolder;
+import net.neoforged.neoforge.common.extensions.IItemStackExtension;
+import dev.pumpkin.shim.Unimplemented;
+
+public final class ItemStack implements DataComponentHolder, ItemInstance, IItemStackExtension, MutableDataComponentHolder {
+
+    public static final ItemStack EMPTY = null;
+
+    private int count;
+
+    public DataComponentMap getComponents() {
+        throw Unimplemented.forMember("net/minecraft/world/item/ItemStack.getComponents:()Lnet/minecraft/core/component/DataComponentMap;");
+    }
+
+    public DataComponentPatch getComponentsPatch() {
+        throw Unimplemented.forMember("net/minecraft/world/item/ItemStack.getComponentsPatch:()Lnet/minecraft/core/component/DataComponentPatch;");
+    }
+
+    public boolean isComponentsPatchEmpty() {
+        throw Unimplemented.forMember("net/minecraft/world/item/ItemStack.isComponentsPatchEmpty:()Z");
+    }
+
+    public ItemStack(ItemLike item, int count) {
+        throw Unimplemented.forMember("net/minecraft/world/item/ItemStack.<init>:(Lnet/minecraft/world/level/ItemLike;I)V");
+    }
+
+    public ItemStack(ItemLike item) {
+        throw Unimplemented.forMember("net/minecraft/world/item/ItemStack.<init>:(Lnet/minecraft/world/level/ItemLike;)V");
+    }
+
+    public ItemStack(Holder<Item> item, int count) {
+        throw Unimplemented.forMember("net/minecraft/world/item/ItemStack.<init>:(Lnet/minecraft/core/Holder;I)V");
+    }
+
+    public ItemStack(Holder<Item> item) {
+        throw Unimplemented.forMember("net/minecraft/world/item/ItemStack.<init>:(Lnet/minecraft/core/Holder;)V");
+    }
+
+    public ItemStack(Holder<Item> item, int count, DataComponentPatch components) {
+        throw Unimplemented.forMember("net/minecraft/world/item/ItemStack.<init>:(Lnet/minecraft/core/Holder;ILnet/minecraft/core/component/DataComponentPatch;)V");
+    }
+
+    private ItemStack(Holder<Item> item, int count, PatchedDataComponentMap components) {
+        throw Unimplemented.forMember("net/minecraft/world/item/ItemStack.<init>:(Lnet/minecraft/core/Holder;ILnet/minecraft/core/component/PatchedDataComponentMap;)V");
+    }
+
+    private ItemStack(Void nullMarker) {
+        throw Unimplemented.forMember("net/minecraft/world/item/ItemStack.<init>:(Ljava/lang/Void;)V");
+    }
+
+    public boolean isEmpty() {
+        throw Unimplemented.forMember("net/minecraft/world/item/ItemStack.isEmpty:()Z");
+    }
+
+    public ItemStack split(int amount) {
+        throw Unimplemented.forMember("net/minecraft/world/item/ItemStack.split:(I)Lnet/minecraft/world/item/ItemStack;");
+    }
+
+    public Item getItem() {
+        throw Unimplemented.forMember("net/minecraft/world/item/ItemStack.getItem:()Lnet/minecraft/world/item/Item;");
+    }
+
+    public Holder<Item> typeHolder() {
+        throw Unimplemented.forMember("net/minecraft/world/item/ItemStack.typeHolder:()Lnet/minecraft/core/Holder;");
+    }
+
+    public boolean is(Predicate<Holder<Item>> item) {
+        throw Unimplemented.forMember("net/minecraft/world/item/ItemStack.is:(Ljava/util/function/Predicate;)Z");
+    }
+
+    public InteractionResult onItemUseFirst(UseOnContext context) {
+        throw Unimplemented.forMember("net/minecraft/world/item/ItemStack.onItemUseFirst:(Lnet/minecraft/world/item/context/UseOnContext;)Lnet/minecraft/world/InteractionResult;");
+    }
+
+    public float getDestroySpeed(BlockState state) {
+        throw Unimplemented.forMember("net/minecraft/world/item/ItemStack.getDestroySpeed:(Lnet/minecraft/world/level/block/state/BlockState;)F");
+    }
+
+    public int getMaxStackSize() {
+        throw Unimplemented.forMember("net/minecraft/world/item/ItemStack.getMaxStackSize:()I");
+    }
+
+    public boolean isDamageableItem() {
+        throw Unimplemented.forMember("net/minecraft/world/item/ItemStack.isDamageableItem:()Z");
+    }
+
+    public int getDamageValue() {
+        throw Unimplemented.forMember("net/minecraft/world/item/ItemStack.getDamageValue:()I");
+    }
+
+    public void setDamageValue(int value) {
+        throw Unimplemented.forMember("net/minecraft/world/item/ItemStack.setDamageValue:(I)V");
+    }
+
+    public int getMaxDamage() {
+        throw Unimplemented.forMember("net/minecraft/world/item/ItemStack.getMaxDamage:()I");
+    }
+
+    public boolean isBroken() {
+        throw Unimplemented.forMember("net/minecraft/world/item/ItemStack.isBroken:()Z");
+    }
+
+    public void hurtAndBreak(int amount, ServerLevel level, ServerPlayer player, Consumer<Item> onBreak) {
+        throw Unimplemented.forMember("net/minecraft/world/item/ItemStack.hurtAndBreak:(ILnet/minecraft/server/level/ServerLevel;Lnet/minecraft/server/level/ServerPlayer;Ljava/util/function/Consumer;)V");
+    }
+
+    public void hurtAndBreak(int amount, ServerLevel level, LivingEntity player, Consumer<Item> onBreak) {
+        throw Unimplemented.forMember("net/minecraft/world/item/ItemStack.hurtAndBreak:(ILnet/minecraft/server/level/ServerLevel;Lnet/minecraft/world/entity/LivingEntity;Ljava/util/function/Consumer;)V");
+    }
+
+    private void applyDamage(int newDamage, ServerPlayer player, Consumer<Item> onBreak) {
+        throw Unimplemented.forMember("net/minecraft/world/item/ItemStack.applyDamage:(ILnet/minecraft/server/level/ServerPlayer;Ljava/util/function/Consumer;)V");
+    }
+
+    private void applyDamage(int newDamage, LivingEntity player, Consumer<Item> onBreak) {
+        throw Unimplemented.forMember("net/minecraft/world/item/ItemStack.applyDamage:(ILnet/minecraft/world/entity/LivingEntity;Ljava/util/function/Consumer;)V");
+    }
+
+    public void hurtAndBreak(int amount, LivingEntity owner, InteractionHand hand) {
+        throw Unimplemented.forMember("net/minecraft/world/item/ItemStack.hurtAndBreak:(ILnet/minecraft/world/entity/LivingEntity;Lnet/minecraft/world/InteractionHand;)V");
+    }
+
+    public void hurtAndBreak(int amount, LivingEntity owner, EquipmentSlot slot) {
+        throw Unimplemented.forMember("net/minecraft/world/item/ItemStack.hurtAndBreak:(ILnet/minecraft/world/entity/LivingEntity;Lnet/minecraft/world/entity/EquipmentSlot;)V");
+    }
+
+    public void mineBlock(Level level, BlockState state, BlockPos pos, Player owner) {
+        throw Unimplemented.forMember("net/minecraft/world/item/ItemStack.mineBlock:(Lnet/minecraft/world/level/Level;Lnet/minecraft/world/level/block/state/BlockState;Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/entity/player/Player;)V");
+    }
+
+    public boolean isCorrectToolForDrops(BlockState state) {
+        throw Unimplemented.forMember("net/minecraft/world/item/ItemStack.isCorrectToolForDrops:(Lnet/minecraft/world/level/block/state/BlockState;)Z");
+    }
+
+    public ItemStack copy() {
+        throw Unimplemented.forMember("net/minecraft/world/item/ItemStack.copy:()Lnet/minecraft/world/item/ItemStack;");
+    }
+
+    public ItemStack copyWithCount(int count) {
+        throw Unimplemented.forMember("net/minecraft/world/item/ItemStack.copyWithCount:(I)Lnet/minecraft/world/item/ItemStack;");
+    }
+
+    public static boolean matches(ItemStack a, ItemStack b) {
+        throw Unimplemented.forMember("net/minecraft/world/item/ItemStack.matches:(Lnet/minecraft/world/item/ItemStack;Lnet/minecraft/world/item/ItemStack;)Z");
+    }
+
+    public static boolean matches(ItemStack a, ItemStackTemplate b) {
+        throw Unimplemented.forMember("net/minecraft/world/item/ItemStack.matches:(Lnet/minecraft/world/item/ItemStack;Lnet/minecraft/world/item/ItemStackTemplate;)Z");
+    }
+
+    public static boolean isSameItemSameComponents(ItemStack a, ItemStack b) {
+        throw Unimplemented.forMember("net/minecraft/world/item/ItemStack.isSameItemSameComponents:(Lnet/minecraft/world/item/ItemStack;Lnet/minecraft/world/item/ItemStack;)Z");
+    }
+
+    public static boolean isSameItemSameComponents(ItemStack a, ItemStackTemplate b) {
+        throw Unimplemented.forMember("net/minecraft/world/item/ItemStack.isSameItemSameComponents:(Lnet/minecraft/world/item/ItemStack;Lnet/minecraft/world/item/ItemStackTemplate;)Z");
+    }
+
+    public String toString() {
+        throw Unimplemented.forMember("net/minecraft/world/item/ItemStack.toString:()Ljava/lang/String;");
+    }
+
+    public int getUseDuration(LivingEntity user) {
+        throw Unimplemented.forMember("net/minecraft/world/item/ItemStack.getUseDuration:(Lnet/minecraft/world/entity/LivingEntity;)I");
+    }
+
+    public <T> T set(DataComponentType<T> type, T value) {
+        throw Unimplemented.forMember("net/minecraft/world/item/ItemStack.set:(Lnet/minecraft/core/component/DataComponentType;Ljava/lang/Object;)Ljava/lang/Object;");
+    }
+
+    public <T> T set(TypedDataComponent<T> value) {
+        throw Unimplemented.forMember("net/minecraft/world/item/ItemStack.set:(Lnet/minecraft/core/component/TypedDataComponent;)Ljava/lang/Object;");
+    }
+
+    public <T, U> T update(DataComponentType<T> type, T defaultValue, U value, BiFunction<T, U, T> combiner) {
+        throw Unimplemented.forMember("net/minecraft/world/item/ItemStack.update:(Lnet/minecraft/core/component/DataComponentType;Ljava/lang/Object;Ljava/lang/Object;Ljava/util/function/BiFunction;)Ljava/lang/Object;");
+    }
+
+    public <T> T update(DataComponentType<T> type, T defaultValue, UnaryOperator<T> function) {
+        throw Unimplemented.forMember("net/minecraft/world/item/ItemStack.update:(Lnet/minecraft/core/component/DataComponentType;Ljava/lang/Object;Ljava/util/function/UnaryOperator;)Ljava/lang/Object;");
+    }
+
+    public <T> T remove(DataComponentType<? extends T> type) {
+        throw Unimplemented.forMember("net/minecraft/world/item/ItemStack.remove:(Lnet/minecraft/core/component/DataComponentType;)Ljava/lang/Object;");
+    }
+
+    public void applyComponents(DataComponentPatch patch) {
+        throw Unimplemented.forMember("net/minecraft/world/item/ItemStack.applyComponents:(Lnet/minecraft/core/component/DataComponentPatch;)V");
+    }
+
+    public void applyComponents(DataComponentMap components) {
+        throw Unimplemented.forMember("net/minecraft/world/item/ItemStack.applyComponents:(Lnet/minecraft/core/component/DataComponentMap;)V");
+    }
+
+    public Component getHoverName() {
+        throw Unimplemented.forMember("net/minecraft/world/item/ItemStack.getHoverName:()Lnet/minecraft/network/chat/Component;");
+    }
+
+    public <T extends TooltipProvider> void addToTooltip(DataComponentType<T> type, Item.TooltipContext context, TooltipDisplay display, Consumer<Component> consumer, TooltipFlag flag) {
+        throw Unimplemented.forMember("net/minecraft/world/item/ItemStack.addToTooltip:(Lnet/minecraft/core/component/DataComponentType;Lnet/minecraft/world/item/Item$TooltipContext;Lnet/minecraft/world/item/component/TooltipDisplay;Ljava/util/function/Consumer;Lnet/minecraft/world/item/TooltipFlag;)V");
+    }
+
+    public ItemEnchantments getTagEnchantments() {
+        throw Unimplemented.forMember("net/minecraft/world/item/ItemStack.getTagEnchantments:()Lnet/minecraft/world/item/enchantment/ItemEnchantments;");
+    }
+
+    public Component getDisplayName() {
+        throw Unimplemented.forMember("net/minecraft/world/item/ItemStack.getDisplayName:()Lnet/minecraft/network/chat/Component;");
+    }
+
+    public int getCount() {
+        throw Unimplemented.forMember("net/minecraft/world/item/ItemStack.getCount:()I");
+    }
+
+    public int count() {
+        throw Unimplemented.forMember("net/minecraft/world/item/ItemStack.count:()I");
+    }
+
+    public void setCount(int count) {
+        throw Unimplemented.forMember("net/minecraft/world/item/ItemStack.setCount:(I)V");
+    }
+
+    public void shrink(int amount) {
+        throw Unimplemented.forMember("net/minecraft/world/item/ItemStack.shrink:(I)V");
+    }
+
+    public void onDestroyed(ItemEntity itemEntity) {
+        throw Unimplemented.forMember("net/minecraft/world/item/ItemStack.onDestroyed:(Lnet/minecraft/world/entity/item/ItemEntity;)V");
+    }
+
+    protected ItemStack() {
+    }
+}

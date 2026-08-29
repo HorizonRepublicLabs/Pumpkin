@@ -2,18 +2,25 @@ package dev.pumpkin.shimgen;
 
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.ImportDeclaration;
+import com.github.javaparser.ast.Node;
 import com.github.javaparser.ast.NodeList;
 import com.github.javaparser.ast.body.BodyDeclaration;
 import com.github.javaparser.ast.body.CallableDeclaration;
 import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
+import com.github.javaparser.ast.body.CompactConstructorDeclaration;
 import com.github.javaparser.ast.body.ConstructorDeclaration;
+import com.github.javaparser.ast.body.EnumConstantDeclaration;
+import com.github.javaparser.ast.body.EnumDeclaration;
 import com.github.javaparser.ast.body.FieldDeclaration;
 import com.github.javaparser.ast.body.InitializerDeclaration;
 import com.github.javaparser.ast.body.MethodDeclaration;
 import com.github.javaparser.ast.body.Parameter;
+import com.github.javaparser.ast.body.RecordDeclaration;
 import com.github.javaparser.ast.body.TypeDeclaration;
 import com.github.javaparser.ast.body.VariableDeclarator;
+import com.github.javaparser.ast.comments.Comment;
 import com.github.javaparser.ast.expr.BooleanLiteralExpr;
+import com.github.javaparser.ast.expr.CastExpr;
 import com.github.javaparser.ast.expr.CharLiteralExpr;
 import com.github.javaparser.ast.expr.DoubleLiteralExpr;
 import com.github.javaparser.ast.expr.Expression;
@@ -24,8 +31,10 @@ import com.github.javaparser.ast.expr.NameExpr;
 import com.github.javaparser.ast.expr.NullLiteralExpr;
 import com.github.javaparser.ast.expr.StringLiteralExpr;
 import com.github.javaparser.ast.nodeTypes.NodeWithAnnotations;
+import com.github.javaparser.ast.nodeTypes.NodeWithTypeParameters;
 import com.github.javaparser.ast.stmt.BlockStmt;
 import com.github.javaparser.ast.stmt.ExplicitConstructorInvocationStmt;
+import com.github.javaparser.ast.stmt.IfStmt;
 import com.github.javaparser.ast.stmt.Statement;
 import com.github.javaparser.ast.stmt.ThrowStmt;
 import com.github.javaparser.ast.type.ArrayType;
@@ -34,13 +43,13 @@ import com.github.javaparser.ast.type.PrimitiveType;
 import com.github.javaparser.ast.type.ReferenceType;
 import com.github.javaparser.ast.type.Type;
 import com.github.javaparser.ast.type.TypeParameter;
+import com.github.javaparser.ast.Modifier;
 import com.github.javaparser.ast.type.WildcardType;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
@@ -70,6 +79,29 @@ import java.util.TreeSet;
  */
 public final class Pruner {
     private Pruner() {}
+
+    /**
+     * Internal names of types that exist in the decompiled sources but in no artifact this
+     * build can put on a classpath -- see {@code --absent-type}. Carried in a thread-local
+     * rather than threaded through fifteen call sites for one flag; the generator is
+     * single-threaded, and {@link #KEPT_BY_FALLBACK} already establishes that this class
+     * keeps per-run state.
+     */
+    private static final ThreadLocal<Set<String>> ABSENT_TYPES = ThreadLocal.withInitial(Set::of);
+
+    /** Whether any of {@code referenced} is an absent type, so the member cannot compile. */
+    private static boolean namesAbsentType(Set<String> referenced) {
+        Set<String> absent = ABSENT_TYPES.get();
+        if (absent.isEmpty()) {
+            return false;
+        }
+        for (String type : referenced) {
+            if (absent.contains(type)) {
+                return true;
+            }
+        }
+        return false;
+    }
 
     private static final SortedSet<String> KEPT_BY_FALLBACK = Collections.synchronizedSortedSet(new TreeSet<>());
     private static final SortedSet<String> MISSING_TYPES = Collections.synchronizedSortedSet(new TreeSet<>());
@@ -101,6 +133,7 @@ public final class Pruner {
     static void resetReport() {
         KEPT_BY_FALLBACK.clear();
         MISSING_TYPES.clear();
+        DROPPED_FOR_ABSENT_TYPE.clear();
     }
 
     /**
@@ -190,11 +223,189 @@ public final class Pruner {
      * Storage} (its file name), which is absent for a unit parsed from a string — as
      * every test here, and every unit handed in by {@link SupertypeCloser#parse}, is.
      */
+    private static final SortedSet<String> DROPPED_FOR_ABSENT_TYPE =
+            Collections.synchronizedSortedSet(new TreeSet<>());
+
+    /**
+     * Every member removed because its signature names a type from {@code absentTypes}.
+     * Empty unless the caller passed {@code --absent-type}.
+     */
+    public static SortedSet<String> droppedForAbsentType() {
+        return Collections.unmodifiableSortedSet(new TreeSet<>(DROPPED_FOR_ABSENT_TYPE));
+    }
+
     public static void prune(CompilationUnit cu, String internalName, UsedSet used) {
+        prune(cu, internalName, used, Set.of(), Set.of());
+    }
+
+    public static void prune(CompilationUnit cu, String internalName, UsedSet used,
+            Set<String> inheritedAbstracts) {
+        prune(cu, internalName, used, inheritedAbstracts, Set.of());
+    }
+
+    /**
+     * As above, plus the set of {@code name/arity} signatures that are declared abstract
+     * somewhere in the generated set. A concrete method matching one of these is kept
+     * whether or not a mod calls it: it may be the only implementation of an abstract
+     * method its class inherits, and dropping it leaves "X is not abstract and does not
+     * override Y" -- 299 of them on the real input, the single largest failure category
+     * after bodies.
+     *
+     * <p>Deliberately keyed on name and arity alone, with no owner. Deciding whether
+     * {@code ServerLevel.clockManager()} really implements {@code Level.clockManager()}
+     * means resolving a supertype chain across files with no classpath, which is the
+     * problem this generator spends most of its guesses on already. Matching by shape
+     * over-keeps -- a {@code get()} anywhere is kept everywhere -- and over-keeping costs
+     * stubbed methods that compile, while under-keeping costs a class that does not.
+     *
+     * <p>The {@code @Override} annotation is not enough on its own, which is why this
+     * exists: the decompiler omits it on covariant returns, and {@code
+     * ServerLevel.clockManager()} returning {@code ServerClockManager} is exactly that
+     * case.
+     */
+    public static void prune(CompilationUnit cu, String internalName, UsedSet used,
+            Set<String> inheritedAbstracts, Set<String> absentTypes) {
         if (cu.getTypes().isEmpty()) {
             return;
         }
-        pruneType(cu, cu.getType(0), internalName, used, Map.of());
+        ABSENT_TYPES.set(absentTypes);
+        pruneType(cu, cu.getType(0), internalName, used, declaredTypes(cu.getType(0), internalName), Map.of(),
+                inheritedAbstracts);
+        stripAnnotations(cu);
+        stripComments(cu);
+        stripUnusedImports(cu);
+    }
+
+    /**
+     * Removes every comment from the unit.
+     *
+     * <p>Two reasons, and the second is the load-bearing one. A stubbed body carrying the
+     * javadoc of the implementation it no longer has is worse than no javadoc. And an
+     * import is kept when its simple name still appears in the printed unit -- a {@code
+     * {@link LivingDamageEvent}} in a doc comment keeps an import for a class the closure
+     * never generated, which fails the compile on a line that is a comment.
+     */
+    private static void stripComments(CompilationUnit cu) {
+        for (Comment comment : List.copyOf(cu.getAllContainedComments())) {
+            comment.remove();
+        }
+        cu.removeComment();
+    }
+
+    /**
+     * Every {@code name/arity} that some type in {@code cu} declares without a body: its
+     * abstract class members and its interface methods. Collected across the whole
+     * generated set, this is the input to the four-argument {@link #prune}.
+     */
+    public static void collectAbstractSignatures(CompilationUnit cu, Set<String> into) {
+        for (MethodDeclaration m : cu.findAll(MethodDeclaration.class)) {
+            if (m.getBody().isEmpty()) {
+                into.add(m.getNameAsString() + "/" + m.getParameters().size());
+            }
+        }
+    }
+
+    /**
+     * Abstract method shapes from outside the generated set: the JDK's functional and
+     * collection interfaces, and the game libraries the shim compiles against.
+     *
+     * <p>The generated set's own abstract methods are collected from source, but a
+     * generated class also implements {@code Comparable}, {@code Iterator}, DataFixerUpper's
+     * {@code Encoder}, Gson's {@code JsonDeserializer} and Netty's {@code
+     * SimpleChannelInboundHandler}, whose abstract methods live in a jar this generator
+     * never reads. Prune the implementation of one of those and the class stops compiling
+     * for a reason nothing in the source tree explains. A fixed list is the crude answer;
+     * the honest alternative is loading the libraries and reflecting over them, which
+     * would make the generator depend on the very classpath it does not have.
+     */
+    private static final Set<String> WELL_KNOWN_ABSTRACTS = Set.of(
+            "compareTo/1", "compare/2", "equals/1", "hashCode/0", "toString/0", "clone/0",
+            "iterator/0", "hasNext/0", "next/0", "remove/0", "forEach/1", "spliterator/0",
+            "run/0", "call/0", "get/0", "get/1", "getAsInt/0", "getAsLong/0", "getAsDouble/0",
+            "apply/1", "apply/2", "applyAsInt/1", "applyAsLong/1", "applyAsDouble/1",
+            "accept/1", "accept/2", "test/1", "test/2", "close/0",
+            "size/0", "isEmpty/0", "contains/1", "add/1", "add/2", "set/2", "clear/0",
+            "length/0", "charAt/1", "subSequence/2",
+            "encode/2", "encode/3", "decode/1", "decode/2", "keys/1",
+            "serialize/3", "deserialize/3",
+            "channelRead0/2", "channelRead/2", "channelActive/1", "channelInactive/1",
+            "exceptionCaught/2", "handlerAdded/1", "handlerRemoved/1",
+            "touch/0", "touch/1", "retain/0", "retain/1", "release/0", "release/1", "refCnt/0",
+            "writeZero/1", "writeBytes/1", "writeBytes/3", "readBytes/1", "readBytes/3");
+
+    /**
+     * The annotations a generated file keeps: the four {@code java.lang.annotation}
+     * meta-annotations, which only ever appear on an {@code @interface} declaration and
+     * are exactly the part of one that carries meaning at runtime.
+     */
+    private static final Set<String> KEPT_ANNOTATIONS =
+            Set.of("Retention", "Target", "Documented", "Inherited", "Repeatable");
+
+    /**
+     * Removes every other annotation from the unit -- {@code @Nullable}, {@code @OnlyIn},
+     * {@code @VisibleForTesting} and the rest.
+     *
+     * <p>None of them carry behaviour the shim needs, and each one is a compile-time
+     * dependency on an artifact that has nothing to do with the game: {@code
+     * org.jspecify}, {@code org.jetbrains.annotations}, {@code javax.annotation.concurrent},
+     * {@code com.google.common.annotations}. Keeping them would mean putting four
+     * annotation libraries on the shim's compile classpath to express nothing.
+     */
+    private static void stripAnnotations(CompilationUnit cu) {
+        for (NodeWithAnnotations<?> annotated : cu.findAll(Node.class).stream()
+                .filter(n -> n instanceof NodeWithAnnotations<?>)
+                .map(n -> (NodeWithAnnotations<?>) n)
+                .toList()) {
+            annotated.getAnnotations().removeIf(a -> !KEPT_ANNOTATIONS.contains(a.getName().getIdentifier()));
+        }
+    }
+
+    /**
+     * Removes every import whose simple name no longer appears anywhere in the unit.
+     *
+     * <p>Not cosmetic. Pruning deletes the members that named most of a decompiled file's
+     * imports, and javac rejects {@code import com.mojang.blaze3d.systems.RenderSystem;}
+     * when that package is not on the classpath whether or not anything uses it. Without
+     * this pass the shim could only compile by putting every library Minecraft has ever
+     * been built against on its classpath, to satisfy imports for code that is gone.
+     *
+     * <p>Matching is textual against the printed unit rather than by resolving names: the
+     * generator has no classpath, and the failure direction is right either way -- a
+     * simple name that shows up only inside a string literal keeps one import too many,
+     * which is what the pass started with.
+     */
+    private static void stripUnusedImports(CompilationUnit cu) {
+        if (cu.getImports().isEmpty()) {
+            return;
+        }
+        CompilationUnit withoutImports = cu.clone();
+        withoutImports.getImports().clear();
+        String body = withoutImports.toString();
+        cu.getImports().removeIf(imp -> !imp.isAsterisk() && !mentions(body, simpleNameOf(imp)));
+    }
+
+    private static String simpleNameOf(ImportDeclaration imp) {
+        String qualified = imp.getNameAsString();
+        int dot = qualified.lastIndexOf('.');
+        return dot < 0 ? qualified : qualified.substring(dot + 1);
+    }
+
+    /** {@code true} if {@code name} appears in {@code text} as a whole identifier. */
+    private static boolean mentions(String text, String name) {
+        int from = 0;
+        while (true) {
+            int at = text.indexOf(name, from);
+            if (at < 0) {
+                return false;
+            }
+            boolean beforeOk = at == 0 || !Character.isJavaIdentifierPart(text.charAt(at - 1));
+            int after = at + name.length();
+            boolean afterOk = after >= text.length() || !Character.isJavaIdentifierPart(text.charAt(after));
+            if (beforeOk && afterOk) {
+                return true;
+            }
+            from = at + 1;
+        }
     }
 
     /**
@@ -204,60 +415,219 @@ public final class Pruner {
      * {@code Item} referenced back from within it — resolves exactly, with no guess.
      */
     private static void pruneType(CompilationUnit cu, TypeDeclaration<?> type, String internalName, UsedSet used,
-            Map<String, String> enclosingTypes) {
-        Treatment treatment = treatmentOf(type);
-        if (treatment == Treatment.VALUE) {
-            return;
-        }
-        if (!type.isClassOrInterfaceDeclaration()) {
-            return;
-        }
-        ClassOrInterfaceDeclaration decl = type.asClassOrInterfaceDeclaration();
+            Map<String, String> enclosingTypes, Map<String, String> enclosingTypeParams,
+            Set<String> inheritedAbstracts) {
         Map<String, String> selfTypes = new HashMap<>(enclosingTypes);
         selfTypes.put(type.getNameAsString(), internalName);
-
-        if (treatment == Treatment.HANDLE) {
-            pruneHandle(cu, decl, internalName, used, selfTypes);
-        } else {
-            pruneHolder(cu, decl, internalName, used, selfTypes);
+        // A nested type sees its enclosing type's type parameters as well as its own, and
+        // a member signature that names one must not have it resolved as a class: an
+        // unknown `T` would otherwise become the top-level name `<this package>/T`, which
+        // exists nowhere and would be reported as a class someone has to hand-write.
+        Map<String, String> typeParams = new HashMap<>(enclosingTypeParams);
+        if (type instanceof NodeWithTypeParameters<?> generic) {
+            for (TypeParameter tp : generic.getTypeParameters()) {
+                typeParams.put(tp.getNameAsString(), boundOf(cu, tp, selfTypes));
+            }
         }
-        for (BodyDeclaration<?> member : decl.getMembers()) {
+
+        if (type.isAnnotationDeclaration()) {
+            // An annotation carries no bodies to strip and no members a mod calls; its
+            // element list *is* its contract. Left exactly as decompiled.
+            return;
+        }
+
+        reportDeclarationTypes(cu, type, internalName, used, selfTypes, typeParams);
+        switch (treatmentOf(type)) {
+            case VALUE -> {
+                pruneValueShape(cu, type, internalName, used, selfTypes, typeParams);
+                pruneMembers(cu, type, internalName, used, selfTypes, typeParams, inheritedAbstracts);
+            }
+            case HANDLE -> pruneMembers(cu, type, internalName, used, selfTypes, typeParams, inheritedAbstracts);
+            case HOLDER -> pruneHolder(cu, type, internalName, used, selfTypes, typeParams);
+        }
+        for (BodyDeclaration<?> member : type.getMembers()) {
             if (member instanceof TypeDeclaration<?> nested) {
-                pruneType(cu, nested, internalName + "$" + nested.getNameAsString(), used, selfTypes);
+                pruneType(cu, nested, internalName + "$" + nested.getNameAsString(), used, selfTypes, typeParams,
+                        inheritedAbstracts);
             }
         }
     }
 
-    private static void pruneHandle(CompilationUnit cu, ClassOrInterfaceDeclaration decl, String internalName,
-            UsedSet used, Map<String, String> selfTypes) {
+    /**
+     * Reports every type named in the declaration line itself -- the type arguments of an
+     * {@code extends} or {@code implements} clause, and the bounds of the type's own type
+     * parameters.
+     *
+     * <p>{@link SupertypeCloser} closes over the raw supertype names, which is what a
+     * class needs to exist at all, but {@code implements Codec<Ingredient>} and {@code
+     * <T extends Recipe<?>>} name types too, and javac needs those just as much.
+     */
+    private static void reportDeclarationTypes(CompilationUnit cu, TypeDeclaration<?> type, String internalName,
+            UsedSet used, Map<String, String> selfTypes, Map<String, String> typeParams) {
+        Set<String> referenced = new TreeSet<>();
+        if (type instanceof NodeWithTypeParameters<?> generic) {
+            for (TypeParameter tp : generic.getTypeParameters()) {
+                for (ClassOrInterfaceType bound : tp.getTypeBound()) {
+                    collectReferencedTypes(cu, bound, typeParams, selfTypes, referenced);
+                }
+            }
+        }
+        if (type instanceof ClassOrInterfaceDeclaration decl) {
+            for (ClassOrInterfaceType parent : decl.getExtendedTypes()) {
+                collectReferencedTypes(cu, parent, typeParams, selfTypes, referenced);
+            }
+            for (ClassOrInterfaceType parent : decl.getImplementedTypes()) {
+                collectReferencedTypes(cu, parent, typeParams, selfTypes, referenced);
+            }
+        }
+        if (type instanceof EnumDeclaration decl) {
+            for (ClassOrInterfaceType parent : decl.getImplementedTypes()) {
+                collectReferencedTypes(cu, parent, typeParams, selfTypes, referenced);
+            }
+        }
+        if (type instanceof RecordDeclaration decl) {
+            for (ClassOrInterfaceType parent : decl.getImplementedTypes()) {
+                collectReferencedTypes(cu, parent, typeParams, selfTypes, referenced);
+            }
+        }
+        reportKept(internalName + ".<declaration>", true, referenced, used);
+    }
+
+    /**
+     * Reduces an enum or a record to its shape, so that {@link #pruneMembers} can then
+     * strip it like anything else.
+     *
+     * <p>These two used to be copied verbatim, bodies and all, on the reasoning that an
+     * enum's ordinals are serialised and a record is a pure data carrier. The shape is
+     * indeed load-bearing and is kept here in full: every constant, in order, and every
+     * record component. The <em>bodies</em> were not, and they were the single largest
+     * source of compile failures in the first real run -- {@code Enchantment} alone
+     * produced 195 errors. A copied-whole body references arbitrary types that were never
+     * generated, which is precisely the closure argument that body-stripping exists to
+     * preserve; an enum or record was simply a hole in it.
+     *
+     * <p>What is dropped: an enum constant's constructor arguments (and with them every
+     * declared enum constructor, so the implicit no-arg one applies), and a record's
+     * explicit canonical constructor (javac regenerates it). A constant's class body is
+     * kept, since a per-constant override may be the only implementation of a method the
+     * enum declares; {@link #pruneMembers} stubs it out like any other body.
+     */
+    private static void pruneValueShape(CompilationUnit cu, TypeDeclaration<?> type, String internalName,
+            UsedSet used, Map<String, String> selfTypes, Map<String, String> typeParams) {
+        if (type instanceof EnumDeclaration decl) {
+            for (EnumConstantDeclaration constant : decl.getEntries()) {
+                constant.getArguments().clear();
+            }
+            decl.getMembers().removeIf(BodyDeclaration::isConstructorDeclaration);
+        }
+        if (type instanceof RecordDeclaration decl) {
+            // The component types are part of the emitted source and of every accessor's
+            // signature, so they belong to the closure just as a method parameter does.
+            Set<String> referenced = new TreeSet<>();
+            for (Parameter component : decl.getParameters()) {
+                collectReferencedTypes(cu, component.getType(), typeParams, selfTypes, referenced);
+            }
+            reportKept(internalName + ".<record components>", true, referenced, used);
+            List<String> componentTypes = decl.getParameters().stream().map(c -> c.getType().toString()).toList();
+            decl.getMembers().removeIf(m -> m instanceof CompactConstructorDeclaration
+                    || (m instanceof ConstructorDeclaration c && componentTypes.equals(
+                            c.getParameters().stream().map(param -> param.getType().toString()).toList())));
+        }
+    }
+
+    /**
+     * Every type declared anywhere in {@code type}, by simple name, mapped to its internal
+     * name -- the top-level type and all its nested types, at any depth.
+     *
+     * <p>Java lets code inside a top-level type name any of its nested types by simple
+     * name, including a sibling's: {@code RegisterEvent}'s own methods refer to {@code
+     * RegisterHelper}, which is {@code RegisterEvent$RegisterHelper}. Tracking only the
+     * enclosing chain missed exactly those, and the same-package guess turned them into
+     * plausible-looking top-level names with no source behind them.
+     */
+    private static Map<String, String> declaredTypes(TypeDeclaration<?> type, String internalName) {
+        Map<String, String> declared = new HashMap<>();
+        collectDeclaredTypes(type, internalName, declared);
+        return declared;
+    }
+
+    private static void collectDeclaredTypes(TypeDeclaration<?> type, String internalName,
+            Map<String, String> into) {
+        into.put(type.getNameAsString(), internalName);
+        for (BodyDeclaration<?> member : type.getMembers()) {
+            if (member instanceof TypeDeclaration<?> nested) {
+                collectDeclaredTypes(nested, internalName + "$" + nested.getNameAsString(), into);
+            }
+        }
+    }
+
+    /**
+     * Strips a type's members to what the mods call: every surviving body becomes a
+     * throw, unused fields and methods go, and every constructor stays.
+     *
+     * <p>Takes a {@link TypeDeclaration}, not a {@link ClassOrInterfaceDeclaration}: an
+     * enum and a record get exactly this treatment too, once {@link #pruneValueShape} has
+     * reduced them to their shape.
+     */
+    private static void pruneMembers(CompilationUnit cu, TypeDeclaration<?> decl, String internalName,
+            UsedSet used, Map<String, String> selfTypes, Map<String, String> classTypeParams,
+            Set<String> inheritedAbstracts) {
         SortedSet<String> usedKeys = used.membersOf(internalName);
         NodeList<BodyDeclaration<?>> members = decl.getMembers();
         List<BodyDeclaration<?>> toRemove = new ArrayList<>();
         boolean[] threw = {false};
+        boolean isInterface = decl instanceof ClassOrInterfaceDeclaration c && c.isInterface();
+        boolean inheritsFromOutside = inheritsFromOutsideTheSet(cu, decl, used, selfTypes, classTypeParams);
 
         for (BodyDeclaration<?> member : members) {
-            if (member.isFieldDeclaration()) {
-                pruneField(member.asFieldDeclaration(), decl.isInterface(), internalName, usedKeys, used, selfTypes,
-                        toRemove);
+            if (member.isInitializerDeclaration()) {
+                // A static or instance initializer block is a body like any other, with no
+                // signature anything can call it by. Kept, it would be the one place real
+                // decompiled code survived into the shim, referencing whatever it liked.
+                toRemove.add(member);
+            } else if (member.isFieldDeclaration()) {
+                pruneField(member.asFieldDeclaration(), isInterface, internalName, usedKeys, used, selfTypes,
+                        classTypeParams, toRemove);
             } else if (member.isMethodDeclaration()) {
                 MethodDeclaration m = member.asMethodDeclaration();
                 if (m.getBody().isEmpty()) {
                     // An abstract method (interface method, or abstract class member)
                     // declared by this very type. There is no body to prune to a
                     // throw, and removing it risks the type no longer satisfying a
-                    // contract it declares, so it is always kept untouched.
+                    // contract it declares, so it is always kept untouched -- but its
+                    // signature is emitted verbatim and therefore belongs to the closure
+                    // exactly as a stubbed method's does. Interfaces are almost entirely
+                    // bodyless methods; skipping them here left whole packages
+                    // (PackType, LootContext, RandomState) named by emitted source and
+                    // never generated.
+                    Set<String> abstractRefs = new TreeSet<>();
+                    methodDescriptor(cu, m, m.getType(), selfTypes, classTypeParams, abstractRefs);
+                    reportKept(internalName + "." + m.getNameAsString(), true, abstractRefs, used);
                     continue;
                 }
                 String name = m.getNameAsString();
                 Set<String> referenced = new TreeSet<>();
-                String descriptor = methodDescriptor(cu, decl, m, m.getType(), selfTypes, referenced);
+                String descriptor = methodDescriptor(cu, m, m.getType(), selfTypes, classTypeParams, referenced);
                 String lookupKey = name + ":" + descriptor;
                 boolean exact = usedKeys.contains(lookupKey);
-                if (exact || matchesByName(usedKeys, name)) {
+                // An @Override method is kept whether or not a mod calls it. Removing one
+                // leaves a concrete class not implementing an abstract method it inherits
+                // -- "X is not abstract and does not override Y" -- and deciding that any
+                // other way needs the supertype's members, which are in another file this
+                // pass cannot see. The decompiler annotates every override, so the
+                // annotation is exactly the cross-file fact needed, already in the source.
+                // Read here, before stripAnnotations removes it.
+                String shape = name + "/" + m.getParameters().size();
+                boolean overrides = inheritsFromOutside || m.getAnnotationByName("Override").isPresent()
+                        || inheritedAbstracts.contains(shape) || WELL_KNOWN_ABSTRACTS.contains(shape);
+                if (namesAbsentType(referenced)) {
+                    DROPPED_FOR_ABSENT_TYPE.add(internalName + "." + lookupKey);
+                    toRemove.add(member);
+                } else if (exact || overrides || matchesByName(usedKeys, name)) {
                     String key = internalName + "." + lookupKey;
                     replaceMethodBody(m, key);
                     threw[0] = true;
-                    reportKept(key, exact, referenced, used);
+                    reportKept(key, exact || overrides, referenced, used);
                 } else {
                     toRemove.add(member);
                 }
@@ -274,7 +644,7 @@ public final class Pruner {
                 // exists to surface.
                 ConstructorDeclaration c = member.asConstructorDeclaration();
                 Set<String> referenced = new TreeSet<>();
-                String descriptor = methodDescriptor(cu, decl, c, null, selfTypes, referenced);
+                String descriptor = methodDescriptor(cu, c, null, selfTypes, classTypeParams, referenced);
                 String lookupKey = "<init>:" + descriptor;
                 // Whether the constructor is *kept* no longer depends on this, but
                 // whether its descriptor is trustworthy still does: the same key is
@@ -282,6 +652,11 @@ public final class Pruner {
                 // descriptor makes that string wrong. Report the real match mode.
                 boolean exact = usedKeys.contains(lookupKey);
                 String key = internalName + "." + lookupKey;
+                if (namesAbsentType(referenced)) {
+                    DROPPED_FOR_ABSENT_TYPE.add(key);
+                    toRemove.add(member);
+                    continue;
+                }
                 replaceConstructorBody(c, key);
                 threw[0] = true;
                 reportKept(key, exact, referenced, used);
@@ -289,23 +664,89 @@ public final class Pruner {
         }
 
         members.removeAll(toRemove);
+        if (decl instanceof EnumDeclaration enumDecl && stubConstantBodies(enumDecl, internalName)) {
+            threw[0] = true;
+        }
+        if (decl instanceof RecordDeclaration record) {
+            delegateToCanonicalConstructor(record);
+        }
+        if (decl instanceof ClassOrInterfaceDeclaration classDecl) {
+            ensureNoArgConstructor(classDecl, internalName);
+            threw[0] = true;
+        }
+        unseal(decl);
         removeOverrideAnnotations(decl);
         if (threw[0]) {
             addUnimplementedImport(cu);
         }
     }
 
-    private static void pruneHolder(CompilationUnit cu, ClassOrInterfaceDeclaration decl, String internalName,
-            UsedSet used, Map<String, String> selfTypes) {
+    /**
+     * Whether this type extends a class that is not being generated -- Netty's {@code
+     * ByteBuf} under {@code FriendlyByteBuf}, say.
+     *
+     * <p>When it does, nothing here can enumerate the abstract methods it must implement,
+     * and every one that gets pruned is an "is not abstract and does not override" error
+     * discovered one at a time. So none of its methods are pruned at all. This is the
+     * whole-class version of {@link #WELL_KNOWN_ABSTRACTS}, and it is bounded: only a
+     * handful of generated classes extend anything outside the set.
+     */
+    private static boolean inheritsFromOutsideTheSet(CompilationUnit cu, TypeDeclaration<?> decl, UsedSet used,
+            Map<String, String> selfTypes, Map<String, String> typeParams) {
+        if (!(decl instanceof ClassOrInterfaceDeclaration type) || type.isInterface()) {
+            return false;
+        }
+        for (ClassOrInterfaceType parent : type.getExtendedTypes()) {
+            String internalName = Shimmed.outerOf(resolveClassOrInterfaceType(cu, parent, typeParams, selfTypes));
+            if (!used.classes().contains(internalName)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Replaces the body of every method a constant declares in its own class body with a
+     * throw, and drops everything else a constant body declares.
+     *
+     * <p>{@code Direction.Axis.X { public int choose(...) { return x; } }} is the shape:
+     * the override is the enum's only implementation of an abstract method, so removing
+     * the constant body outright would leave the enum not implementing its own contract.
+     *
+     * @return whether anything was stubbed, so the caller knows to import {@code Unimplemented}
+     */
+    private static boolean stubConstantBodies(EnumDeclaration decl, String internalName) {
+        boolean stubbed = false;
+        for (EnumConstantDeclaration constant : decl.getEntries()) {
+            List<BodyDeclaration<?>> drop = new ArrayList<>();
+            for (BodyDeclaration<?> member : constant.getClassBody()) {
+                if (member.isMethodDeclaration() && member.asMethodDeclaration().getBody().isPresent()) {
+                    MethodDeclaration m = member.asMethodDeclaration();
+                    replaceMethodBody(m, internalName + "$" + constant.getNameAsString() + "."
+                            + m.getNameAsString() + ":()");
+                    stubbed = true;
+                } else {
+                    drop.add(member);
+                }
+            }
+            constant.getClassBody().removeAll(drop);
+        }
+        return stubbed;
+    }
+
+    private static void pruneHolder(CompilationUnit cu, TypeDeclaration<?> decl, String internalName,
+            UsedSet used, Map<String, String> selfTypes, Map<String, String> classTypeParams) {
         SortedSet<String> usedKeys = used.membersOf(internalName);
         NodeList<BodyDeclaration<?>> members = decl.getMembers();
         List<BodyDeclaration<?>> toRemove = new ArrayList<>();
+        boolean isInterface = decl instanceof ClassOrInterfaceDeclaration c && c.isInterface();
 
         for (BodyDeclaration<?> member : members) {
             if (member.isFieldDeclaration()) {
-                pruneField(member.asFieldDeclaration(), decl.isInterface(), internalName, usedKeys, used, selfTypes,
-                        toRemove);
-            } else if (member.isMethodDeclaration() || member.isConstructorDeclaration()) {
+                pruneField(member.asFieldDeclaration(), isInterface, internalName, usedKeys, used, selfTypes,
+                        classTypeParams, toRemove);
+            } else if (member.isMethodDeclaration() || member.isConstructorDeclaration()
+                    || member.isInitializerDeclaration()) {
                 // Methods and constructors on a holder exist only to build the
                 // registry values its fields used to hold; once those initializers
                 // are gone, nothing outside the class has any business calling them.
@@ -317,9 +758,15 @@ public final class Pruner {
         members.removeAll(toRemove);
         removeOverrideAnnotations(decl);
 
+        // `static { throw ...; }` does not compile: JLS 8.7 requires a static initializer
+        // to be able to complete normally, and one whose only statement is a throw cannot.
+        // Wrapping it in `if (true)` is the standard way out -- an `if` statement is
+        // defined to complete normally whatever its condition, constant or not -- and it
+        // still throws on every real class initialisation.
         String key = internalName;
-        BlockStmt body = new BlockStmt(NodeList.nodeList(throwStatement(key)));
-        members.add(new InitializerDeclaration(true, body));
+        BlockStmt guarded = new BlockStmt(NodeList.nodeList(
+                new IfStmt(new BooleanLiteralExpr(true), new BlockStmt(NodeList.nodeList(throwStatement(key))), null)));
+        members.add(new InitializerDeclaration(true, guarded));
         addUnimplementedImport(cu);
     }
 
@@ -341,7 +788,7 @@ public final class Pruner {
      */
     private static void pruneField(FieldDeclaration f, boolean declaringTypeIsInterface, String internalName,
             SortedSet<String> usedKeys, UsedSet used, Map<String, String> selfTypes,
-            List<BodyDeclaration<?>> toRemove) {
+            Map<String, String> classTypeParams, List<BodyDeclaration<?>> toRemove) {
         boolean isFinal = f.isFinal() || declaringTypeIsInterface;
         CompilationUnit cu = f.findCompilationUnit().orElseThrow();
         NodeList<VariableDeclarator> vars = f.getVariables();
@@ -349,13 +796,16 @@ public final class Pruner {
         List<VariableDeclarator> kept = new ArrayList<>();
         for (VariableDeclarator v : vars) {
             String name = v.getNameAsString();
-            String descriptor = typeDescriptor(cu, v.getType(), Map.of(), selfTypes);
+            String descriptor = typeDescriptor(cu, v.getType(), classTypeParams, selfTypes);
             String lookupKey = name + ":" + descriptor;
             boolean exact = usedKeys.contains(lookupKey);
-            if (exact || matchesByName(usedKeys, name)) {
+            Set<String> referenced = new TreeSet<>();
+            collectReferencedTypes(cu, v.getType(), classTypeParams, selfTypes, referenced);
+            if (namesAbsentType(referenced)) {
+                DROPPED_FOR_ABSENT_TYPE.add(internalName + "." + lookupKey);
+                unused.add(v);
+            } else if (exact || matchesByName(usedKeys, name)) {
                 kept.add(v);
-                Set<String> referenced = new TreeSet<>();
-                collectReferencedTypes(cu, v.getType(), Map.of(), selfTypes, referenced);
                 reportKept(internalName + "." + lookupKey, exact, referenced, used);
             } else {
                 unused.add(v);
@@ -404,25 +854,102 @@ public final class Pruner {
     }
 
     /**
-     * Replaces a constructor's body with a throw, preserving whatever explicit {@code
-     * super(...)}/{@code this(...)} call it already had as the first statement (and
-     * adding nothing when it had none). Deciding whether to *synthesise* a super call
-     * would require resolving the superclass's constructors, which is not available
-     * here; preserving what is already there is well-defined without it.
+     * Replaces a constructor's body with a throw and nothing else.
+     *
+     * <p>The original {@code super(...)}/{@code this(...)} call used to be preserved, on
+     * the reasoning that synthesising one would need the superclass's constructors, which
+     * are in another file. But preserving it keeps its <em>arguments</em>, and those are
+     * real expressions calling real methods on real types -- the one place decompiled
+     * bodies survived into the shim. On the first real run they produced "cannot find
+     * symbol", "invalid method reference" and, where an argument's type no longer matched
+     * an overload, "recursive constructor invocation".
+     *
+     * <p>Dropping it is safe because {@link #ensureNoArgConstructor} gives every generated
+     * class an accessible no-argument constructor, so the implicit {@code super()} this
+     * leaves behind always has something to bind to. A record is the exception and is
+     * handled by {@link #delegateToCanonicalConstructor}: its non-canonical constructors
+     * must delegate explicitly, and its canonical one is known exactly.
      */
     private static void replaceConstructorBody(ConstructorDeclaration c, String key) {
-        NodeList<Statement> original = c.getBody().getStatements();
-        ExplicitConstructorInvocationStmt keep = null;
-        if (!original.isEmpty() && original.get(0) instanceof ExplicitConstructorInvocationStmt eci) {
-            keep = eci;
+        c.setBody(new BlockStmt(NodeList.nodeList(throwStatement(key))));
+    }
+
+    /**
+     * Rewrites a record's surviving constructors to {@code this(<defaults>)} followed by a
+     * throw. Every non-canonical record constructor must begin with an explicit {@code
+     * this(...)}, and the canonical one's parameter types are the component types, so
+     * unlike the general case the delegation target and its argument types are both known
+     * exactly -- a default literal per component is enough.
+     */
+    private static void delegateToCanonicalConstructor(RecordDeclaration decl) {
+        for (BodyDeclaration<?> member : decl.getMembers()) {
+            if (member.isConstructorDeclaration()) {
+                ConstructorDeclaration c = member.asConstructorDeclaration();
+                NodeList<Expression> arguments = new NodeList<>();
+                for (Parameter component : decl.getParameters()) {
+                    // Cast, always. A bare `null` makes the call ambiguous between two
+                    // constructors of the same arity, and a bare `0` for a `byte`
+                    // component is "possible lossy conversion" -- method invocation does
+                    // not narrow. The component's own type is exactly the right cast.
+                    arguments.add(new CastExpr(component.getType().clone(),
+                            defaultLiteralFor(component.getType())));
+                }
+                NodeList<Statement> statements = new NodeList<>();
+                statements.add(new ExplicitConstructorInvocationStmt(true, null, arguments));
+                statements.addAll(c.getBody().getStatements());
+                c.setBody(new BlockStmt(statements));
+            }
         }
-        NodeList<Statement> newStatements = new NodeList<>();
-        if (keep != null) {
-            keep.removeForced();
-            newStatements.add(keep);
+    }
+
+    /**
+     * Gives a class an accessible no-argument constructor when it declares none.
+     *
+     * <p>This is what lets {@link #replaceConstructorBody} drop every explicit {@code
+     * super(...)}: the implicit {@code super()} that replaces it needs a no-argument
+     * constructor on the superclass, and since every generated class gets one, the chain
+     * resolves all the way up to {@code Object}. {@code protected}, not private, because
+     * the subclass doing the implicit call is usually in another package.
+     */
+    private static void ensureNoArgConstructor(ClassOrInterfaceDeclaration decl, String internalName) {
+        if (decl.isInterface()) {
+            return;
         }
-        newStatements.add(throwStatement(key));
-        c.setBody(new BlockStmt(newStatements));
+        for (ConstructorDeclaration existing : decl.getConstructors()) {
+            if (existing.getParameters().isEmpty()) {
+                // A private no-arg constructor is not reachable from the subclass whose
+                // implicit super() now needs it -- LevelLightEngine declares exactly one,
+                // and ThreadedLevelLightEngine sits in a different package. Widen it.
+                if (existing.isPrivate()) {
+                    existing.setModifier(Modifier.Keyword.PRIVATE, false);
+                    existing.setModifier(Modifier.Keyword.PROTECTED, true);
+                }
+                return;
+            }
+        }
+        // Empty, not throwing. This constructor is not a vanilla member and nothing calls
+        // it on purpose: it exists so that a subclass's implicit super() resolves. Making
+        // it throw would mean no generated object could ever be constructed, including by
+        // the few classes whose real behaviour is re-applied by hand -- and the declared
+        // constructor the caller actually named still throws, which is the honest signal.
+        ConstructorDeclaration synthesised = decl.addConstructor(Modifier.Keyword.PROTECTED);
+        synthesised.setBody(new BlockStmt());
+    }
+
+    /**
+     * Drops {@code sealed}, {@code non-sealed} and the {@code permits} clause.
+     *
+     * <p>A permits clause names classes the closure would otherwise have to drag in purely
+     * to satisfy it, and a subclass that survives when its sealed parent's permits list
+     * did not is a hard error. Sealing constrains who may extend a type; the shim has no
+     * stake in that, and mods are not adding subtypes to it either way.
+     */
+    private static void unseal(TypeDeclaration<?> type) {
+        if (type instanceof ClassOrInterfaceDeclaration decl) {
+            decl.getPermittedTypes().clear();
+        }
+        type.getModifiers().removeIf(m -> m.getKeyword() == Modifier.Keyword.SEALED
+                || m.getKeyword() == Modifier.Keyword.NON_SEALED);
     }
 
     private static ThrowStmt throwStatement(String key) {
@@ -431,7 +958,7 @@ public final class Pruner {
         return new ThrowStmt(call);
     }
 
-    private static void removeOverrideAnnotations(ClassOrInterfaceDeclaration decl) {
+    private static void removeOverrideAnnotations(TypeDeclaration<?> decl) {
         for (BodyDeclaration<?> member : decl.getMembers()) {
             if (member instanceof NodeWithAnnotations<?> annotated) {
                 annotated.getAnnotations().removeIf(a -> "Override".equals(a.getNameAsString()));
@@ -501,10 +1028,12 @@ public final class Pruner {
      * generated to compile — erasure hides exactly the thing this check exists to
      * catch.
      */
-    private static String methodDescriptor(CompilationUnit cu, ClassOrInterfaceDeclaration owner,
-            CallableDeclaration<?> callable, Type returnType, Map<String, String> selfTypes,
-            Set<String> referencedTypes) {
-        Map<String, String> typeParams = typeParamBounds(cu, owner, callable);
+    private static String methodDescriptor(CompilationUnit cu, CallableDeclaration<?> callable, Type returnType,
+            Map<String, String> selfTypes, Map<String, String> classTypeParams, Set<String> referencedTypes) {
+        Map<String, String> typeParams = new HashMap<>(classTypeParams);
+        for (TypeParameter tp : callable.getTypeParameters()) {
+            typeParams.put(tp.getNameAsString(), boundOf(cu, tp, selfTypes));
+        }
         StringBuilder sb = new StringBuilder("(");
         for (Parameter p : callable.getParameters()) {
             boolean varargs = p.isVarArgs();
@@ -523,23 +1052,16 @@ public final class Pruner {
         return sb.toString();
     }
 
-    private static Map<String, String> typeParamBounds(CompilationUnit cu, ClassOrInterfaceDeclaration owner,
-            CallableDeclaration<?> callable) {
-        Map<String, String> map = new HashMap<>();
-        for (TypeParameter tp : owner.getTypeParameters()) {
-            map.put(tp.getNameAsString(), boundOf(cu, tp));
-        }
-        for (TypeParameter tp : callable.getTypeParameters()) {
-            map.put(tp.getNameAsString(), boundOf(cu, tp));
-        }
-        return map;
-    }
-
-    private static String boundOf(CompilationUnit cu, TypeParameter tp) {
+    /** A type variable erases to its first bound, or to {@code Object} when it has none. */
+    private static String boundOf(CompilationUnit cu, TypeParameter tp, Map<String, String> selfTypes) {
         if (tp.getTypeBound().isEmpty()) {
             return "java/lang/Object";
         }
-        return SupertypeCloser.resolve(cu, tp.getTypeBound().get(0).getNameAsString());
+        ClassOrInterfaceType bound = tp.getTypeBound().get(0);
+        String self = selfTypes.get(bound.getNameAsString());
+        return self != null && bound.getScope().isEmpty()
+                ? self
+                : SupertypeCloser.resolveScoped(cu, bound.getNameWithScope());
     }
 
     /**
@@ -568,15 +1090,43 @@ public final class Pruner {
         return "Ljava/lang/Object;";
     }
 
+    /**
+     * Resolves a source type reference to an internal name, honouring whatever scope it
+     * was written with: a bare {@code Properties}, an enclosing-class-qualified {@code
+     * Item.Properties}, or a fully-qualified {@code java.util.Map.Entry}. Nested segments
+     * are joined with {@code $}, which is what makes {@link Shimmed#outerOf} able to find
+     * the file that actually declares the type.
+     */
     private static String resolveClassOrInterfaceType(CompilationUnit cu, ClassOrInterfaceType cit,
             Map<String, String> typeParams, Map<String, String> selfTypes) {
-        String simpleName = cit.getNameAsString();
-        String internal = typeParams.get(simpleName);
-        if (internal != null) {
-            return internal;
+        List<String> segments = scopeSegments(cit);
+        String head = segments.get(0);
+        if (segments.size() == 1) {
+            String internal = typeParams.get(head);
+            if (internal != null) {
+                return internal;
+            }
+            String self = selfTypes.get(head);
+            return self != null ? self : SupertypeCloser.resolve(cu, head);
         }
-        String self = selfTypes.get(simpleName);
-        return self != null ? self : qualifiedInternalName(cit).orElseGet(() -> SupertypeCloser.resolve(cu, simpleName));
+        if (Character.isLowerCase(head.charAt(0))) {
+            return SupertypeCloser.internalNameOf(String.join(".", segments));
+        }
+        String self = selfTypes.get(head);
+        StringBuilder sb = new StringBuilder(self != null ? self : SupertypeCloser.resolve(cu, head));
+        for (int i = 1; i < segments.size(); i++) {
+            sb.append('$').append(segments.get(i));
+        }
+        return sb.toString();
+    }
+
+    /** The scope chain of {@code cit}, outermost segment first. */
+    private static List<String> scopeSegments(ClassOrInterfaceType cit) {
+        List<String> segments = new ArrayList<>();
+        for (ClassOrInterfaceType current = cit; current != null; current = current.getScope().orElse(null)) {
+            segments.add(0, current.getNameAsString());
+        }
+        return segments;
     }
 
     /**
@@ -609,26 +1159,5 @@ public final class Pruner {
                 collectReferencedTypes(cu, arg, typeParams, selfTypes, referencedTypes);
             }
         });
-    }
-
-    /**
-     * When a type is written with an explicit scope in source ({@code java.util.List},
-     * not {@code List}), reconstructs the dotted name directly rather than going
-     * through import/package resolution. Best-effort: this also matches an
-     * outer-class-qualified nested type reference like {@code Map.Entry}, which is not
-     * a package path, but real decompiled Minecraft source does not write types that
-     * way, so the ambiguity does not arise in practice.
-     */
-    private static Optional<String> qualifiedInternalName(ClassOrInterfaceType cit) {
-        if (cit.getScope().isEmpty()) {
-            return Optional.empty();
-        }
-        StringBuilder sb = new StringBuilder(cit.getNameAsString());
-        Optional<ClassOrInterfaceType> scope = cit.getScope();
-        while (scope.isPresent()) {
-            sb.insert(0, scope.get().getNameAsString() + "/");
-            scope = scope.get().getScope();
-        }
-        return Optional.of(sb.toString());
     }
 }

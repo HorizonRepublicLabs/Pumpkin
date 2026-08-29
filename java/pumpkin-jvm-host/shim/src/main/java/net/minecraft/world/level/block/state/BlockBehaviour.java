@@ -1,30 +1,200 @@
 package net.minecraft.world.level.block.state;
 
-/**
- * Vanilla's block property builder, reduced to what Pumpkin's registration reads.
- *
- * <p>{@code pumpkinTemplate} has no vanilla counterpart. Pumpkin registers a block by
- * copying a vanilla one, so something has to say which; a mod that never calls it gets
- * stone. This is the one place the shim knowingly diverges from vanilla's API.
- */
-public class BlockBehaviour {
-    public static final class Properties {
-        private String template = "stone";
+import com.mojang.serialization.MapCodec;
+import java.util.Optional;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Holder;
+import net.minecraft.core.TypedInstance;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.util.RandomSource;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.flag.FeatureElement;
+import net.minecraft.world.flag.FeatureFlagSet;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.SoundType;
+import net.minecraft.world.level.block.state.properties.Property;
+import net.minecraft.world.level.material.FluidState;
+import net.minecraft.world.level.storage.loot.LootTable;
+import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.phys.shapes.CollisionContext;
+import net.minecraft.world.phys.shapes.VoxelShape;
+import dev.pumpkin.shim.Unimplemented;
 
-        private Properties() {
+public abstract class BlockBehaviour implements FeatureElement {
+
+    public BlockBehaviour(BlockBehaviour.Properties properties) {
+        throw Unimplemented.forMember("net/minecraft/world/level/block/state/BlockBehaviour.<init>:(Lnet/minecraft/world/level/block/state/BlockBehaviour$Properties;)V");
+    }
+
+    protected abstract MapCodec<? extends Block> codec();
+
+    protected FluidState getFluidState(BlockState state) {
+        throw Unimplemented.forMember("net/minecraft/world/level/block/state/BlockBehaviour.getFluidState:(Lnet/minecraft/world/level/block/state/BlockState;)Lnet/minecraft/world/level/material/FluidState;");
+    }
+
+    public FeatureFlagSet requiredFeatures() {
+        throw Unimplemented.forMember("net/minecraft/world/level/block/state/BlockBehaviour.requiredFeatures:()Lnet/minecraft/world/flag/FeatureFlagSet;");
+    }
+
+    protected void tick(BlockState state, ServerLevel level, BlockPos pos, RandomSource random) {
+        throw Unimplemented.forMember("net/minecraft/world/level/block/state/BlockBehaviour.tick:(Lnet/minecraft/world/level/block/state/BlockState;Lnet/minecraft/server/level/ServerLevel;Lnet/minecraft/core/BlockPos;Lnet/minecraft/util/RandomSource;)V");
+    }
+
+    public final Optional<ResourceKey<LootTable>> getLootTable() {
+        throw Unimplemented.forMember("net/minecraft/world/level/block/state/BlockBehaviour.getLootTable:()Ljava/util/Optional;");
+    }
+
+    public abstract Item asItem();
+
+    protected abstract Block asBlock();
+
+    public abstract static class BlockStateBase extends StateHolder<Block, BlockState> implements TypedInstance<Block> {
+
+        protected BlockStateBase(Block owner, Property<?>[] propertyKeys, Comparable<?>[] propertyValues) {
+            throw Unimplemented.forMember("net/minecraft/world/level/block/state/BlockBehaviour$BlockStateBase.<init>:(Lnet/minecraft/world/level/block/Block;[Lnet/minecraft/world/level/block/state/properties/Property;[Ljava/lang/Comparable;)V");
         }
 
-        public static Properties of() {
-            return new Properties();
+        public Holder<Block> typeHolder() {
+            throw Unimplemented.forMember("net/minecraft/world/level/block/state/BlockBehaviour$BlockStateBase.typeHolder:()Lnet/minecraft/core/Holder;");
         }
 
+        public VoxelShape getShape(BlockGetter level, BlockPos pos, CollisionContext context) {
+            throw Unimplemented.forMember("net/minecraft/world/level/block/state/BlockBehaviour$BlockStateBase.getShape:(Lnet/minecraft/world/level/BlockGetter;Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/phys/shapes/CollisionContext;)Lnet/minecraft/world/phys/shapes/VoxelShape;");
+        }
+
+        public VoxelShape getCollisionShape(BlockGetter level, BlockPos pos, CollisionContext context) {
+            throw Unimplemented.forMember("net/minecraft/world/level/block/state/BlockBehaviour$BlockStateBase.getCollisionShape:(Lnet/minecraft/world/level/BlockGetter;Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/phys/shapes/CollisionContext;)Lnet/minecraft/world/phys/shapes/VoxelShape;");
+        }
+
+        protected abstract BlockState asState();
+
+        private static final class Cache {
+
+            private Cache(BlockState state) {
+                throw Unimplemented.forMember("net/minecraft/world/level/block/state/BlockBehaviour$BlockStateBase$Cache.<init>:(Lnet/minecraft/world/level/block/state/BlockState;)V");
+            }
+
+            protected Cache() {
+            }
+        }
+
+        protected BlockStateBase() {
+        }
+    }
+
+    public interface OffsetFunction {
+
+        Vec3 evaluate(BlockState state, BlockPos pos);
+    }
+
+    public enum OffsetType {
+
+        NONE, XZ, XYZ
+    }
+
+    public interface PostProcess {
+
+        BlockPos getPostProcessPos(BlockState state, BlockGetter level, BlockPos pos);
+    }
+
+    public static class Properties {
+
+        // Pumpkin divergence from the generated shim: this field, pumpkinTemplate(String)
+        // and template() have no vanilla counterpart, and of() below has a real body.
+        // Pumpkin registers a block by copying a vanilla one, so something has to name the
+        // template; a mod that never says gets stone. Re-apply by hand after any
+        // regeneration -- grep for "Pumpkin divergence".
+        private String pumpkinTemplate = "stone";
+
+        // Pumpkin divergence: no vanilla counterpart. Names the vanilla block to copy.
         public Properties pumpkinTemplate(String template) {
-            this.template = template;
+            this.pumpkinTemplate = template;
             return this;
         }
 
+        // Pumpkin divergence: no vanilla counterpart. Read by Block.pumpkinTemplate().
         public String template() {
-            return template;
+            return pumpkinTemplate;
         }
+
+        private boolean requiresCorrectToolForDrops;
+
+        private BlockBehaviour.StateArgumentPredicate<EntityType<?>> isValidSpawn;
+
+        private BlockBehaviour.StatePredicate isRedstoneConductor;
+
+        private BlockBehaviour.StatePredicate isSuffocating;
+
+        private BlockBehaviour.StatePredicate isViewBlocking;
+
+        // Pumpkin divergence: real body. of() below is the only way a mod gets one of
+        // these, and it has to return something the builder calls can chain off.
+        protected Properties() {
+        }
+
+        // Pumpkin divergence: real body.
+        public static BlockBehaviour.Properties of() {
+            return new Properties();
+        }
+
+        public static BlockBehaviour.Properties ofFullCopy(BlockBehaviour block) {
+            throw Unimplemented.forMember("net/minecraft/world/level/block/state/BlockBehaviour$Properties.ofFullCopy:(Lnet/minecraft/world/level/block/state/BlockBehaviour;)Lnet/minecraft/world/level/block/state/BlockBehaviour$Properties;");
+        }
+
+        public BlockBehaviour.Properties noOcclusion() {
+            throw Unimplemented.forMember("net/minecraft/world/level/block/state/BlockBehaviour$Properties.noOcclusion:()Lnet/minecraft/world/level/block/state/BlockBehaviour$Properties;");
+        }
+
+        public BlockBehaviour.Properties sound(SoundType soundType) {
+            throw Unimplemented.forMember("net/minecraft/world/level/block/state/BlockBehaviour$Properties.sound:(Lnet/minecraft/world/level/block/SoundType;)Lnet/minecraft/world/level/block/state/BlockBehaviour$Properties;");
+        }
+
+        public BlockBehaviour.Properties strength(float destroyTime, float explosionResistance) {
+            throw Unimplemented.forMember("net/minecraft/world/level/block/state/BlockBehaviour$Properties.strength:(FF)Lnet/minecraft/world/level/block/state/BlockBehaviour$Properties;");
+        }
+
+        public BlockBehaviour.Properties strength(float destroyTime) {
+            throw Unimplemented.forMember("net/minecraft/world/level/block/state/BlockBehaviour$Properties.strength:(F)Lnet/minecraft/world/level/block/state/BlockBehaviour$Properties;");
+        }
+
+        public BlockBehaviour.Properties isValidSpawn(BlockBehaviour.StateArgumentPredicate<EntityType<?>> isValidSpawn) {
+            throw Unimplemented.forMember("net/minecraft/world/level/block/state/BlockBehaviour$Properties.isValidSpawn:(Lnet/minecraft/world/level/block/state/BlockBehaviour$StateArgumentPredicate;)Lnet/minecraft/world/level/block/state/BlockBehaviour$Properties;");
+        }
+
+        public BlockBehaviour.Properties isRedstoneConductor(BlockBehaviour.StatePredicate isRedstoneConductor) {
+            throw Unimplemented.forMember("net/minecraft/world/level/block/state/BlockBehaviour$Properties.isRedstoneConductor:(Lnet/minecraft/world/level/block/state/BlockBehaviour$StatePredicate;)Lnet/minecraft/world/level/block/state/BlockBehaviour$Properties;");
+        }
+
+        public BlockBehaviour.Properties isSuffocating(BlockBehaviour.StatePredicate isSuffocating) {
+            throw Unimplemented.forMember("net/minecraft/world/level/block/state/BlockBehaviour$Properties.isSuffocating:(Lnet/minecraft/world/level/block/state/BlockBehaviour$StatePredicate;)Lnet/minecraft/world/level/block/state/BlockBehaviour$Properties;");
+        }
+
+        public BlockBehaviour.Properties isViewBlocking(BlockBehaviour.StatePredicate isViewBlocking) {
+            throw Unimplemented.forMember("net/minecraft/world/level/block/state/BlockBehaviour$Properties.isViewBlocking:(Lnet/minecraft/world/level/block/state/BlockBehaviour$StatePredicate;)Lnet/minecraft/world/level/block/state/BlockBehaviour$Properties;");
+        }
+
+        public BlockBehaviour.Properties requiresCorrectToolForDrops() {
+            throw Unimplemented.forMember("net/minecraft/world/level/block/state/BlockBehaviour$Properties.requiresCorrectToolForDrops:()Lnet/minecraft/world/level/block/state/BlockBehaviour$Properties;");
+        }
+
+        public BlockBehaviour.Properties setId(ResourceKey<Block> id) {
+            throw Unimplemented.forMember("net/minecraft/world/level/block/state/BlockBehaviour$Properties.setId:(Lnet/minecraft/resources/ResourceKey;)Lnet/minecraft/world/level/block/state/BlockBehaviour$Properties;");
+        }
+    }
+
+    public interface StateArgumentPredicate<A> {
+
+        boolean test(BlockState state, BlockGetter level, BlockPos pos, A a);
+    }
+
+    public interface StatePredicate {
+
+        boolean test(BlockState state, BlockGetter level, BlockPos pos);
+    }
+
+    protected BlockBehaviour() {
     }
 }

@@ -1,0 +1,6 @@
+package net.minecraft.world.level;
+
+public interface WorldGenLevel extends ServerLevelAccessor {
+
+    long getSeed();
+}

@@ -1,0 +1,32 @@
+package net.minecraft.world.level.pathfinder;
+
+public enum PathType {
+
+    BLOCKED,
+    OPEN,
+    WALKABLE,
+    WALKABLE_DOOR,
+    TRAPDOOR,
+    POWDER_SNOW,
+    ON_TOP_OF_POWDER_SNOW,
+    FENCE,
+    LAVA,
+    WATER,
+    WATER_BORDER,
+    RAIL,
+    UNPASSABLE_RAIL,
+    FIRE_IN_NEIGHBOR,
+    FIRE,
+    DAMAGING_IN_NEIGHBOR,
+    DAMAGING,
+    DOOR_OPEN,
+    DOOR_WOOD_CLOSED,
+    DOOR_IRON_CLOSED,
+    BREACH,
+    LEAVES,
+    STICKY_HONEY,
+    COCOA,
+    DAMAGE_CAUTIOUS,
+    ON_TOP_OF_TRAPDOOR,
+    BIG_MOBS_CLOSE_TO_DANGER
+}
