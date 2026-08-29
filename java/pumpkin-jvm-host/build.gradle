@@ -28,3 +28,18 @@ project(':host') {
                 project(':testmod').tasks.jar.archiveFile.get().asFile.absolutePath
     }
 }
+
+// The generator is one-shot scaffolding. Nothing in the shim chain may depend on it,
+// and it may not depend on the shim chain: it reads and writes Java as text.
+project(':generator') {
+    dependencies {
+        implementation 'com.github.javaparser:javaparser-core:3.26.4'
+        implementation 'org.ow2.asm:asm:9.7'
+    }
+    tasks.register('generateShim', JavaExec) {
+        group = 'shim'
+        description = 'Regenerates the shim. Requires the NeoForge and mod checkouts; not run in CI.'
+        classpath = sourceSets.main.runtimeClasspath
+        mainClass = 'dev.pumpkin.shimgen.Main'
+    }
+}
