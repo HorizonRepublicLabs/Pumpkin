@@ -48,6 +48,26 @@ ext.gameLibraries = [
 // The single library the hand-written `fml` classes name; see project(':fml') below.
 ext.fmlLibraries = 'org.ow2.asm:asm:9.9'
 
+// The shim compiles against the game libraries but does not bundle them, so a JVM booted
+// on shim+fml+host alone cannot load it: the first real mod dies on
+// `NoClassDefFoundError: org/slf4j/LoggerFactory`. Linkage proving every mod reference
+// resolves is a different claim from the shim loading on the classpath Pumpkin builds --
+// this task closes that gap by materialising the libraries the shim genuinely needs.
+project(':shim') {
+    configurations { runtimeLibs }
+    dependencies {
+        rootProject.ext.gameLibraries.each { runtimeLibs it }
+        runtimeLibs rootProject.ext.fmlLibraries
+    }
+    tasks.register('collectRuntimeLibs', Copy) {
+        group = 'shim'
+        description = 'Materialises the game libraries the shim needs at runtime into libs/.'
+        from configurations.runtimeLibs
+        into rootProject.file('libs')
+    }
+}
+
+
 // `fml` is what NeoForge publishes as separate artifacts and this repo hand-writes -- the
 // event bus, the FML loader API, the dist marker -- plus `Unimplemented`, which everything
 // throws. `shim` is the game, generated. The arrow runs shim -> fml and not the other way

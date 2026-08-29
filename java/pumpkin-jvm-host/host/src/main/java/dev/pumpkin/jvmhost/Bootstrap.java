@@ -4,7 +4,10 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.nio.file.Path;
 import dev.pumpkin.shim.PumpkinEventBus;
+import dev.pumpkin.shim.PumpkinModContainer;
+import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.IEventBus;
+import net.neoforged.fml.ModContainer;
 import net.neoforged.neoforge.registries.DeferredRegister;
 import net.neoforged.neoforge.registries.RegisterEvent;
 
@@ -61,9 +64,9 @@ public final class Bootstrap {
         ModLoader.ModCandidate candidate = ModLoader.discover(Path.of(jarPath));
         IEventBus bus = new PumpkinEventBus();
 
-        Constructor<?> constructor = candidate.mainClass().getConstructor(IEventBus.class);
+        Constructor<?> constructor = injectableConstructor(candidate.mainClass());
         try {
-            constructor.newInstance(bus);
+            constructor.newInstance(argumentsFor(constructor, bus, candidate.modId()));
         } catch (InvocationTargetException e) {
             // newInstance wraps whatever the mod's constructor threw. Unwrapped, that surfaces
             // as a bare InvocationTargetException naming neither the mod nor the jar, leaving
@@ -78,5 +81,75 @@ public final class Bootstrap {
 
         bus.post(new RegisterEvent());
         return candidate.modId();
+    }
+
+    /**
+     * Picks the constructor NeoForge would call.
+     *
+     * <p>NeoForge injects a mod constructor's arguments <em>by type</em> rather than
+     * requiring a fixed signature, so assuming one is wrong: of the two real mods measured,
+     * both declare {@code (IEventBus, ModContainer)} and neither declares {@code
+     * (IEventBus)}. Assuming the latter is what made both fail to construct with a
+     * {@code NoSuchMethodException} naming a constructor they never had.
+     *
+     * <p>Prefers the constructor with the most parameters it can supply, so a mod asking for
+     * more context gets it rather than silently taking a barer overload.
+     *
+     * @throws NoSuchMethodException if no declared constructor takes only injectable types,
+     *                               naming what the mod asked for
+     */
+    private static Constructor<?> injectableConstructor(Class<?> modClass)
+            throws NoSuchMethodException {
+        Constructor<?> best = null;
+        for (Constructor<?> candidate : modClass.getConstructors()) {
+            boolean injectable = true;
+            for (Class<?> parameter : candidate.getParameterTypes()) {
+                if (!isInjectable(parameter)) {
+                    injectable = false;
+                    break;
+                }
+            }
+            if (injectable
+                    && (best == null
+                            || candidate.getParameterCount() > best.getParameterCount())) {
+                best = candidate;
+            }
+        }
+        if (best == null) {
+            StringBuilder asked = new StringBuilder();
+            for (Constructor<?> candidate : modClass.getConstructors()) {
+                asked.append("\n  ").append(candidate);
+            }
+            throw new NoSuchMethodException(
+                    modClass.getName()
+                            + " declares no constructor this host can supply. Injectable types"
+                            + " are IEventBus, ModContainer and Dist. It declares:"
+                            + asked);
+        }
+        return best;
+    }
+
+    private static boolean isInjectable(Class<?> parameter) {
+        return parameter == IEventBus.class
+                || parameter == ModContainer.class
+                || parameter == Dist.class;
+    }
+
+    /** Builds the argument list for a constructor {@link #injectableConstructor} accepted. */
+    private static Object[] argumentsFor(Constructor<?> constructor, IEventBus bus, String modId) {
+        Class<?>[] parameters = constructor.getParameterTypes();
+        Object[] arguments = new Object[parameters.length];
+        for (int i = 0; i < parameters.length; i++) {
+            if (parameters[i] == IEventBus.class) {
+                arguments[i] = bus;
+            } else if (parameters[i] == ModContainer.class) {
+                arguments[i] = new PumpkinModContainer(modId);
+            } else {
+                // Dist. Pumpkin is a dedicated server; this is a fact about it, not a
+                // placeholder, which is why it answers rather than throwing.
+                arguments[i] = Dist.DEDICATED_SERVER;
+            }
+        }
+        return arguments;
     }
 }

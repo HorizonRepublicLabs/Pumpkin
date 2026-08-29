@@ -169,3 +169,6 @@ patchbukkit/
 java/pumpkin-jvm-host/.gradle/
 java/pumpkin-jvm-host/build/
 java/pumpkin-jvm-host/*/build/
+
+# Materialised by `./gradlew :shim:collectRuntimeLibs`; resolved from Maven, not authored.
+java/pumpkin-jvm-host/libs/
