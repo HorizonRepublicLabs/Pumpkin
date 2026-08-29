@@ -190,7 +190,7 @@ class PrunerTest {
      * wrong, the clinit only makes the error worse. It fires before any stub can, with a
      * key naming the class and no member, which is how {@code Mth.floor} would become
      * unreachable behind {@code net/minecraft/util/Mth} the moment someone implements it.
-     * Eighteen of the forty holders carrying one were in this shape.
+     * Twenty-five of the forty-seven files carrying one were in this shape.
      */
     @Test
     void aHolderWithNoSurvivingFieldGetsNoStaticInitializer() {

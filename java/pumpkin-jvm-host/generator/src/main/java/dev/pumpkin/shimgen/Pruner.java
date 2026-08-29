@@ -766,8 +766,8 @@ public final class Pruner {
      * itself. Emitting a clinit there buys nothing and costs the accuracy of the error: it
      * fires before any stub can, with a key naming only the class ({@code
      * net/minecraft/util/Mth}) and no member, so the next slice's real {@code Mth.floor}
-     * would be unreachable behind an unhelpful class-initialisation failure. Eighteen of
-     * the forty holders carrying a clinit -- {@code Mth}, {@code Shapes}, {@code ARGB},
+     * would be unreachable behind an unhelpful class-initialisation failure. Twenty-five of
+     * the forty-seven files carrying a clinit -- {@code Mth}, {@code Shapes}, {@code ARGB},
      * {@code ExtraCodecs}, {@code GsonHelper}, {@code StringUtil} and the rest -- are in
      * exactly that shape and no longer get one.
      */

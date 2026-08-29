@@ -89,8 +89,12 @@ to generate**. Client classes are out of scope.
 > 1698 over 8 rounds**, adding **1229**. Against the spec's 353 that is ~4.8x.
 >
 > **Corrected — "353 classes".** **1667 files are emitted**: 1386 `net.minecraft`,
-> 215 `net.neoforged`, 66 `com.mojang`. (1698 classes are in the used set; 31 have no
-> decompiled source and are hand-written under `fml/`.) The 1698-vs-353 gap is the
+> 215 `net.neoforged`, 66 `com.mojang`. (1698 classes are in the used set. **18** have no
+> decompiled source and are hand-written under `fml/`; the remaining 13 have no file
+> anywhere, and 8 of those are closure artifacts the resolver names as classes when
+> they are type variables or nested types -- `.../state/T`, `.../entity/B`,
+> `registries/R`, `registries/Kind` and two distinct `Resolver`s among them. Nothing
+> references them, so linkage is unaffected, but they should not be hand-written.) The 1698-vs-353 gap is the
 > closure correction above and nothing else — no rule was loosened to get there.
 >
 > **Corrected — "client classes are out of scope".** They are generated: **379 of
