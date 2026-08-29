@@ -32,20 +32,27 @@ class UnimplementedTest {
         assertEquals(KEY, thrown.getMessage());
     }
 
-    /// Constructing one records it, so subtracting hits from the manifest gives the
-    /// burndown.
+    /// forMember records, so subtracting hits from the manifest gives the burndown.
     @Test
-    void recordsEveryKeyItWasConstructedWith() {
-        new Unimplemented(KEY);
-        new Unimplemented("net/minecraft/world/level/Level.getBlockState:(Lnet/minecraft/core/BlockPos;)Lnet/minecraft/world/level/block/state/BlockState;");
+    void recordsEveryKeyThrownThroughForMember() {
+        Unimplemented.forMember(KEY);
+        Unimplemented.forMember("net/minecraft/world/level/Level.getBlockState:(Lnet/minecraft/core/BlockPos;)Lnet/minecraft/world/level/block/state/BlockState;");
         assertEquals(2, Unimplemented.hits().size());
         assertTrue(Unimplemented.hits().contains(KEY));
+    }
+
+    /// Recording belongs at the throw site (forMember), not construction, so a key
+    /// merely constructed and never thrown cannot pollute the burndown signal.
+    @Test
+    void constructingDirectlyDoesNotRecord() {
+        new Unimplemented(KEY);
+        assertTrue(Unimplemented.hits().isEmpty());
     }
 
     /// The registry is read from tests and written from many mod threads.
     @Test
     void hitsAreNotMutableByCallers() {
-        new Unimplemented(KEY);
+        Unimplemented.forMember(KEY);
         var hits = Unimplemented.hits();
         try {
             hits.clear();

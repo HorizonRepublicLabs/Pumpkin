@@ -27,7 +27,22 @@ public final class Unimplemented extends RuntimeException {
     public Unimplemented(String memberKey) {
         super(memberKey);
         this.memberKey = memberKey;
+    }
+
+    /**
+     * Records {@code memberKey} as hit and returns an {@code Unimplemented} carrying it.
+     *
+     * <p>Generated shim members must throw this, not {@code new Unimplemented(key)}
+     * directly: recording belongs at the throw site, so a key is only ever counted
+     * when it actually escapes as a thrown exception, never when one is merely
+     * constructed (e.g. by future logging or diagnostic code) and discarded.
+     *
+     * <p>Returns {@code RuntimeException}, not {@code Unimplemented}, so the call site
+     * reads naturally as {@code throw Unimplemented.forMember(key);}.
+     */
+    public static RuntimeException forMember(String memberKey) {
         HITS.add(memberKey);
+        return new Unimplemented(memberKey);
     }
 
     /** The key this was constructed with. Joins against the committed manifest. */
@@ -40,8 +55,8 @@ public final class Unimplemented extends RuntimeException {
         return Collections.unmodifiableSet(HITS);
     }
 
-    /** Clears the registry. For tests; a server never calls this. */
-    public static void resetHits() {
+    /** Clears the registry. Package-private: test-only by visibility, not by request. */
+    static void resetHits() {
         HITS.clear();
     }
 }
