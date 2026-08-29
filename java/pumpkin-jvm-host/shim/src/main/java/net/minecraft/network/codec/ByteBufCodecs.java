@@ -9,15 +9,16 @@ import net.minecraft.core.IdMap;
 import net.minecraft.core.Registry;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.resources.ResourceKey;
+import dev.pumpkin.shim.Stubs;
 import dev.pumpkin.shim.Unimplemented;
 
 public interface ByteBufCodecs {
 
-    StreamCodec<ByteBuf, Boolean> BOOL = null;
+    StreamCodec<ByteBuf, Boolean> BOOL = Stubs.of(StreamCodec.class, "net/minecraft/network/codec/StreamCodec");
 
-    StreamCodec<ByteBuf, Integer> INT = null;
+    StreamCodec<ByteBuf, Integer> INT = Stubs.of(StreamCodec.class, "net/minecraft/network/codec/StreamCodec");
 
-    StreamCodec<ByteBuf, Double> DOUBLE = null;
+    StreamCodec<ByteBuf, Double> DOUBLE = Stubs.of(StreamCodec.class, "net/minecraft/network/codec/StreamCodec");
 
     static <B extends ByteBuf, V> StreamCodec.CodecOperation<B, V, List<V>> list() {
         throw Unimplemented.forMember("net/minecraft/network/codec/ByteBufCodecs.list:()Lnet/minecraft/network/codec/StreamCodec$CodecOperation;");

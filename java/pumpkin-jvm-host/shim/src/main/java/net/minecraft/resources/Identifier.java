@@ -6,6 +6,7 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.network.codec.StreamCodec;
+import dev.pumpkin.shim.Stubs;
 import dev.pumpkin.shim.Unimplemented;
 
 public final class Identifier implements Comparable<Identifier> {
@@ -22,7 +23,7 @@ public final class Identifier implements Comparable<Identifier> {
 
     public static final Codec<Identifier> CODEC = null;
 
-    public static final StreamCodec<ByteBuf, Identifier> STREAM_CODEC = null;
+    public static final StreamCodec<ByteBuf, Identifier> STREAM_CODEC = Stubs.of(StreamCodec.class, "net/minecraft/network/codec/StreamCodec");
 
     // Pumpkin divergence: real body.
     private Identifier(String namespace, String path) {

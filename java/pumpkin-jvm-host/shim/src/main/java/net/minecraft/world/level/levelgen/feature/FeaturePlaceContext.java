@@ -6,13 +6,14 @@ import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.WorldGenLevel;
 import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.levelgen.feature.configurations.FeatureConfiguration;
+import dev.pumpkin.shim.Stubs;
 import dev.pumpkin.shim.Unimplemented;
 
 public class FeaturePlaceContext<FC extends FeatureConfiguration> {
 
-    private final WorldGenLevel level = null;
+    private final WorldGenLevel level = Stubs.of(WorldGenLevel.class, "net/minecraft/world/level/WorldGenLevel");
 
-    private final RandomSource random = null;
+    private final RandomSource random = Stubs.of(RandomSource.class, "net/minecraft/util/RandomSource");
 
     private final BlockPos origin = null;
 

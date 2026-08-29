@@ -1,17 +1,18 @@
 package com.mojang.math;
 
 import org.joml.Quaternionf;
+import dev.pumpkin.shim.Stubs;
 import dev.pumpkin.shim.Unimplemented;
 
 public interface Axis {
 
-    Axis XN = null;
+    Axis XN = Stubs.of(Axis.class, "com/mojang/math/Axis");
 
-    Axis XP = null;
+    Axis XP = Stubs.of(Axis.class, "com/mojang/math/Axis");
 
-    Axis YP = null;
+    Axis YP = Stubs.of(Axis.class, "com/mojang/math/Axis");
 
-    Axis ZP = null;
+    Axis ZP = Stubs.of(Axis.class, "com/mojang/math/Axis");
 
     Quaternionf rotation(float angle);
 

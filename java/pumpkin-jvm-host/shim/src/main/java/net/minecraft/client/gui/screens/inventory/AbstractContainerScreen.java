@@ -8,6 +8,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.AbstractContainerMenu;
+import dev.pumpkin.shim.Stubs;
 import dev.pumpkin.shim.Unimplemented;
 
 public abstract class AbstractContainerScreen<T extends AbstractContainerMenu> extends Screen implements MenuAccess<T> {
@@ -22,7 +23,7 @@ public abstract class AbstractContainerScreen<T extends AbstractContainerMenu> e
 
     protected final T menu = null;
 
-    protected final Component playerInventoryTitle = null;
+    protected final Component playerInventoryTitle = Stubs.of(Component.class, "net/minecraft/network/chat/Component");
 
     protected int leftPos;
 

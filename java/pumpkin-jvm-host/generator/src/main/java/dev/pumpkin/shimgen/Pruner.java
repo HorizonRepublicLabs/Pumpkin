@@ -851,13 +851,79 @@ public final class Pruner {
         for (VariableDeclarator v : kept) {
             boolean hadInitializer = v.getInitializer().isPresent();
             if (isFinal) {
-                v.setInitializer(defaultLiteralFor(v.getType()));
-                strippedFinalInitializer |= hadInitializer;
+                java.util.Optional<Expression> stub = stubFor(cu, v.getType());
+                if (stub.isPresent()) {
+                    // A real value, so nothing was lost and the holder needs no throwing
+                    // class initialiser: the failure moves to the first call on the stub.
+                    v.setInitializer(stub.get());
+                    addStubsImport(cu);
+                } else {
+                    v.setInitializer(defaultLiteralFor(v.getType()));
+                    strippedFinalInitializer |= hadInitializer;
+                }
             } else {
                 v.removeInitializer();
             }
         }
         return strippedFinalInitializer;
+    }
+
+    /**
+     * Answers whether an internal name is a shimmed interface the generator emits.
+     *
+     * <p>Set by the pipeline, which is the only thing holding the parsed sources. Defaults to
+     * "no", so the unit tests -- which have no source tree -- keep the plain
+     * {@code null}-plus-clinit behaviour.
+     */
+    private static java.util.function.Predicate<String> shimmedInterfaces = name -> false;
+
+    /** @see #shimmedInterfaces */
+    static void setShimmedInterfaceOracle(java.util.function.Predicate<String> oracle) {
+        shimmedInterfaces = oracle;
+    }
+
+    /**
+     * A stub instance for a holder field, or empty when one cannot be built.
+     *
+     * <p>A holder's fields are initialised by code the shim does not have, so they are
+     * stripped. Left at {@code null} behind a throwing class initialiser, the holder stops a
+     * mod with a key naming only the holder -- which says it is empty, not which field the
+     * mod wanted or what it tried to do with it. Twenty-two classes were in that shape and
+     * two of them blocked real mods in succession.
+     *
+     * <p>When the field's type is a shimmed interface, a proxy can stand in: it survives
+     * being passed around and throws on the first real call, naming that member. Not a
+     * plausible default -- every call still stops the mod -- only a more precise failure,
+     * and the mod gets far enough that one boot can reveal several missing members.
+     */
+    private static java.util.Optional<Expression> stubFor(CompilationUnit cu, Type type) {
+        if (!type.isClassOrInterfaceType()) {
+            return java.util.Optional.empty();
+        }
+        String simpleName = type.asClassOrInterfaceType().getNameAsString();
+        String owner = SupertypeCloser.resolve(cu, simpleName);
+        if (owner == null || !shimmedInterfaces.test(owner)) {
+            return java.util.Optional.empty();
+        }
+        // Stubs.of(Iface.class, "net/minecraft/...") -- the raw class literal, because the
+        // proxy implements the erased interface and the field's type arguments are not
+        // knowable here.
+        Expression call = new com.github.javaparser.ast.expr.MethodCallExpr(
+                new com.github.javaparser.ast.expr.NameExpr("Stubs"),
+                "of",
+                NodeList.nodeList(
+                        new com.github.javaparser.ast.expr.ClassExpr(
+                                com.github.javaparser.StaticJavaParser.parseType(simpleName)),
+                        new com.github.javaparser.ast.expr.StringLiteralExpr(owner)));
+        return java.util.Optional.of(call);
+    }
+
+    private static void addStubsImport(CompilationUnit cu) {
+        boolean present = cu.getImports().stream()
+                .anyMatch(imp -> "dev.pumpkin.shim.Stubs".equals(imp.getNameAsString()));
+        if (!present) {
+            cu.addImport("dev.pumpkin.shim.Stubs");
+        }
     }
 
     private static Expression defaultLiteralFor(Type type) {

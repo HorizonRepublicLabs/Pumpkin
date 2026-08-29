@@ -6,11 +6,12 @@ import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.item.equipment.trim.MaterialAssetGroup;
 import net.minecraft.world.item.equipment.trim.TrimMaterial;
+import dev.pumpkin.shim.Stubs;
 import dev.pumpkin.shim.Unimplemented;
 
 public class ItemModelGenerators {
 
-    public final ItemModelOutput itemModelOutput = null;
+    public final ItemModelOutput itemModelOutput = Stubs.of(ItemModelOutput.class, "net/minecraft/client/data/models/ItemModelOutput");
 
     public final BiConsumer<Identifier, ModelInstance> modelOutput = null;
 

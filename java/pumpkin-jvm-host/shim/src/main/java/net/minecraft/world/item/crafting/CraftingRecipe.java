@@ -6,6 +6,7 @@ import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.item.ItemStack;
 import dev.pumpkin.shim.Unimplemented;
+import dev.pumpkin.shim.Stubs;
 
 public interface CraftingRecipe extends Recipe<CraftingInput> {
 
@@ -29,6 +30,6 @@ public interface CraftingRecipe extends Recipe<CraftingInput> {
 
         public static final MapCodec<CraftingRecipe.CraftingBookInfo> MAP_CODEC = null;
 
-        public static final StreamCodec<RegistryFriendlyByteBuf, CraftingRecipe.CraftingBookInfo> STREAM_CODEC = null;
+        public static final StreamCodec<RegistryFriendlyByteBuf, CraftingRecipe.CraftingBookInfo> STREAM_CODEC = Stubs.of(StreamCodec.class, "net/minecraft/network/codec/StreamCodec");
     }
 }

@@ -2,11 +2,12 @@ package net.minecraft.sounds;
 
 import net.minecraft.core.Holder;
 import net.minecraft.resources.Identifier;
+import dev.pumpkin.shim.Stubs;
 import dev.pumpkin.shim.Unimplemented;
 
 public class SoundEvents {
 
-    public static final Holder<SoundEvent> ARMOR_EQUIP_GOLD = null;
+    public static final Holder<SoundEvent> ARMOR_EQUIP_GOLD = Stubs.of(Holder.class, "net/minecraft/core/Holder");
 
     public static final SoundEvent ARROW_SHOOT = null;
 

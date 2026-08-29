@@ -45,13 +45,14 @@ import net.minecraft.world.level.storage.WritableLevelData;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.scores.Scoreboard;
 import net.neoforged.neoforge.common.extensions.ILevelExtension;
+import dev.pumpkin.shim.Stubs;
 import dev.pumpkin.shim.Unimplemented;
 
 public abstract class Level extends net.neoforged.neoforge.attachment.AttachmentHolder implements LevelAccessor, AutoCloseable, ILevelExtension {
 
     private final boolean isClientSide = false;
 
-    private final RegistryAccess registryAccess = null;
+    private final RegistryAccess registryAccess = Stubs.of(RegistryAccess.class, "net/minecraft/core/RegistryAccess");
 
     private final DamageSources damageSources = null;
 

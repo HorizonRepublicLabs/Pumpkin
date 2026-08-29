@@ -1,11 +1,12 @@
 package net.minecraft.world.item.crafting;
 
 import net.minecraft.resources.Identifier;
+import dev.pumpkin.shim.Stubs;
 import dev.pumpkin.shim.Unimplemented;
 
 public interface RecipeType<T extends Recipe<?>> {
 
-    RecipeType<SmeltingRecipe> SMELTING = null;
+    RecipeType<SmeltingRecipe> SMELTING = Stubs.of(RecipeType.class, "net/minecraft/world/item/crafting/RecipeType");
 
     static <T extends Recipe<?>> RecipeType<T> register(String name) {
         throw Unimplemented.forMember("net/minecraft/world/item/crafting/RecipeType.register:(Ljava/lang/String;)Lnet/minecraft/world/item/crafting/RecipeType;");

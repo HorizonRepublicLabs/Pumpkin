@@ -9,11 +9,12 @@ import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.level.ItemLike;
+import dev.pumpkin.shim.Stubs;
 import dev.pumpkin.shim.Unimplemented;
 
 public abstract class RecipeProvider {
 
-    protected final RecipeOutput output = null;
+    protected final RecipeOutput output = Stubs.of(RecipeOutput.class, "net/minecraft/data/recipes/RecipeOutput");
 
     protected RecipeProvider(HolderLookup.Provider registries, RecipeOutput output) {
         throw Unimplemented.forMember("net/minecraft/data/recipes/RecipeProvider.<init>:(Lnet/minecraft/core/HolderLookup$Provider;Lnet/minecraft/data/recipes/RecipeOutput;)V");

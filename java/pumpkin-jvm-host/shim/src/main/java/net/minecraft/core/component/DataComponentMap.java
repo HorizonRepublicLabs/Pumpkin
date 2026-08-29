@@ -5,11 +5,12 @@ import java.util.Iterator;
 import java.util.Set;
 import java.util.stream.Stream;
 import net.neoforged.neoforge.common.extensions.IDataComponentMapBuilderExtensions;
+import dev.pumpkin.shim.Stubs;
 import dev.pumpkin.shim.Unimplemented;
 
 public interface DataComponentMap extends Iterable<TypedDataComponent<?>>, DataComponentGetter {
 
-    DataComponentMap EMPTY = null;
+    DataComponentMap EMPTY = Stubs.of(DataComponentMap.class, "net/minecraft/core/component/DataComponentMap");
 
     static DataComponentMap.Builder builder() {
         throw Unimplemented.forMember("net/minecraft/core/component/DataComponentMap.builder:()Lnet/minecraft/core/component/DataComponentMap$Builder;");

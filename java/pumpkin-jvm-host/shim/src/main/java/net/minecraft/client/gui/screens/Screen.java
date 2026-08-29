@@ -11,11 +11,12 @@ import net.minecraft.client.gui.narration.NarratableEntry;
 import net.minecraft.client.gui.navigation.ScreenRectangle;
 import net.minecraft.client.input.KeyEvent;
 import net.minecraft.network.chat.Component;
+import dev.pumpkin.shim.Stubs;
 import dev.pumpkin.shim.Unimplemented;
 
 public abstract class Screen extends AbstractContainerEventHandler implements Renderable {
 
-    protected final Component title = null;
+    protected final Component title = Stubs.of(Component.class, "net/minecraft/network/chat/Component");
 
     protected final Font font = null;
 

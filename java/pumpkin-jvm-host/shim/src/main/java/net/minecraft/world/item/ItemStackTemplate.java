@@ -6,13 +6,14 @@ import net.minecraft.core.component.DataComponentPatch;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
+import dev.pumpkin.shim.Stubs;
 import dev.pumpkin.shim.Unimplemented;
 
 public record ItemStackTemplate(Holder<Item> item, int count, DataComponentPatch components) implements ItemInstance {
 
     public static final Codec<ItemStackTemplate> CODEC = null;
 
-    public static final StreamCodec<RegistryFriendlyByteBuf, ItemStackTemplate> STREAM_CODEC = null;
+    public static final StreamCodec<RegistryFriendlyByteBuf, ItemStackTemplate> STREAM_CODEC = Stubs.of(StreamCodec.class, "net/minecraft/network/codec/StreamCodec");
 
     public ItemStackTemplate(Item item) {
         this((Holder<Item>) null, (int) 0, (DataComponentPatch) null);

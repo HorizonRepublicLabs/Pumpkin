@@ -8,11 +8,12 @@ import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.display.RecipeDisplay;
 import net.minecraft.world.level.Level;
+import dev.pumpkin.shim.Stubs;
 import dev.pumpkin.shim.Unimplemented;
 
 public interface Recipe<T extends RecipeInput> {
 
-    StreamCodec<RegistryFriendlyByteBuf, Recipe<?>> STREAM_CODEC = null;
+    StreamCodec<RegistryFriendlyByteBuf, Recipe<?>> STREAM_CODEC = Stubs.of(StreamCodec.class, "net/minecraft/network/codec/StreamCodec");
 
     boolean matches(T input, Level level);
 
@@ -52,6 +53,6 @@ public interface Recipe<T extends RecipeInput> {
 
         public static final MapCodec<Recipe.CommonInfo> MAP_CODEC = null;
 
-        public static final StreamCodec<RegistryFriendlyByteBuf, Recipe.CommonInfo> STREAM_CODEC = null;
+        public static final StreamCodec<RegistryFriendlyByteBuf, Recipe.CommonInfo> STREAM_CODEC = Stubs.of(StreamCodec.class, "net/minecraft/network/codec/StreamCodec");
     }
 }

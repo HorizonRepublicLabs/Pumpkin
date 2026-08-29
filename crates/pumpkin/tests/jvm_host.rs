@@ -9,14 +9,36 @@ use pumpkin::plugin::loader::jvm::vm::VmError;
 /// The classpath the Gradle build produces. Built by `gradle :host:jar` before tests run.
 fn host_classpath() -> Vec<PathBuf> {
     let root = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../../java/pumpkin-jvm-host");
-    ["shim", "fml", "host"]
+    let mut classpath: Vec<PathBuf> = ["shim", "fml", "host"]
         .iter()
         .map(|project| {
             root.join(project)
                 .join("build/libs")
                 .join(format!("{project}.jar"))
         })
-        .collect()
+        .collect();
+
+    // The three host jars alone are not enough, and were not enough in production either.
+    // A stub for a shimmed interface is a `java.lang.reflect.Proxy`, and building one calls
+    // `getMethods()`, which loads every type named in every signature the interface
+    // declares — `Registry` names `com.mojang.datafixers.util.Function7`. Booting without
+    // these gives `NoClassDefFoundError` from inside proxy construction, which reads as a
+    // shim bug and is not one. Mirrors `jvm_host_classpath` in `plugin/mod.rs`; run
+    // `./gradlew :shim:collectRuntimeLibs` to populate it.
+    if let Ok(entries) = std::fs::read_dir(root.join("libs")) {
+        let mut libs: Vec<PathBuf> = entries
+            .filter_map(Result::ok)
+            .map(|entry| entry.path())
+            .filter(|path| {
+                path.extension()
+                    .is_some_and(|ext| ext.eq_ignore_ascii_case("jar"))
+            })
+            .collect();
+        libs.sort();
+        classpath.extend(libs);
+    }
+
+    classpath
 }
 
 /// `Integer.parseInt(text)`, wrapping every JNI failure as a [`VmError::Java`].

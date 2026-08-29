@@ -48,6 +48,17 @@ public final class Main {
 
         Set<String> inheritedAbstracts = abstractSignatures(closer, used);
         UsedSet keep = keepSet(closer, used);
+
+        // A holder field whose type is a shimmed interface gets a stub rather than null, so
+        // the holder stops naming only itself. Only the pipeline can answer this: it needs
+        // the parsed source of the type being asked about.
+        Pruner.setShimmedInterfaceOracle(internalName -> {
+            CompilationUnit declaring = closer.parse(internalName);
+            return declaring != null
+                    && !declaring.getTypes().isEmpty()
+                    && declaring.getType(0).isClassOrInterfaceDeclaration()
+                    && declaring.getType(0).asClassOrInterfaceDeclaration().isInterface();
+        });
         Pruner.resetReport();
         List<String> noSource = new ArrayList<>();
         int emittedShim = 0;

@@ -5,13 +5,14 @@ import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
+import dev.pumpkin.shim.Stubs;
 import dev.pumpkin.shim.Unimplemented;
 
 public final class SizedIngredient {
 
     public static final Codec<SizedIngredient> NESTED_CODEC = null;
 
-    public static final StreamCodec<RegistryFriendlyByteBuf, SizedIngredient> STREAM_CODEC = null;
+    public static final StreamCodec<RegistryFriendlyByteBuf, SizedIngredient> STREAM_CODEC = Stubs.of(StreamCodec.class, "net/minecraft/network/codec/StreamCodec");
 
     private final Ingredient ingredient = null;
 

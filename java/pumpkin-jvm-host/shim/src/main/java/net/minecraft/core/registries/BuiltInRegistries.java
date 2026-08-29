@@ -8,9 +8,9 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.material.Fluid;
+import dev.pumpkin.shim.Stubs;
 import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
-import dev.pumpkin.shim.Stubs;
 import dev.pumpkin.shim.Unimplemented;
 
 public class BuiltInRegistries {

@@ -3,11 +3,12 @@ package net.minecraft.world.inventory;
 import net.minecraft.world.Container;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import dev.pumpkin.shim.Stubs;
 import dev.pumpkin.shim.Unimplemented;
 
 public class Slot {
 
-    public final Container container = null;
+    public final Container container = Stubs.of(Container.class, "net/minecraft/world/Container");
 
     public int index;
 

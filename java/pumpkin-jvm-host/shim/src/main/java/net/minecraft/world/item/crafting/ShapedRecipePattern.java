@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.Optional;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
+import dev.pumpkin.shim.Stubs;
 import dev.pumpkin.shim.Unimplemented;
 
 public final class ShapedRecipePattern {
@@ -21,7 +22,7 @@ public final class ShapedRecipePattern {
 
     public static final MapCodec<ShapedRecipePattern> MAP_CODEC = null;
 
-    public static final StreamCodec<RegistryFriendlyByteBuf, ShapedRecipePattern> STREAM_CODEC = null;
+    public static final StreamCodec<RegistryFriendlyByteBuf, ShapedRecipePattern> STREAM_CODEC = Stubs.of(StreamCodec.class, "net/minecraft/network/codec/StreamCodec");
 
     private final int width = 0;
 

@@ -221,58 +221,35 @@ edit("net/minecraft/resources/ResourceKey.java", [
 ])
 
 # ------------------------------------------------------- BuiltInRegistries
-# The pruner classifies this a HOLDER: six static-final registries whose real initializers
-# build the game's registry tables, which the shim has no way to run. Stripped and left at
-# `null` behind a throwing clinit, it stops a mod at class-initialisation with a key naming
-# only the holder -- true, but it says nothing about which registry was wanted or what the
-# mod tried to do with it.
-#
-# Both field types are interfaces, so each can hold a stub whose every call throws with its
-# own member key. The mod then fails at the point of use, naming something implementable,
-# and gets far enough in one boot to reveal several missing members instead of one.
+# The pruner already gives every field here a stub, because their types are shimmed
+# interfaces -- that rule is general and lives in the generator. What it cannot know is
+# which registry each field *is*, and DeferredRegister.create(Registry, String) asks
+# exactly that. Upgrading the generated stub with a key() answer is Minecraft knowledge,
+# so it lives here with the other divergences rather than in the pruner.
 p = os.path.join(ROOT, "net/minecraft/core/registries/BuiltInRegistries.java")
 s = open(p).read()
 
-# field -> (interface, the vanilla registry name it identifies as)
-#
-# The key is built inline rather than read from Registries, because the pruner keeps only
-# the Registries fields the mods name and two of these six -- SOUND_EVENT and FLUID -- did
-# not survive. Building from the vanilla name needs nothing to have survived.
-STUBS = {
-    "SOUND_EVENT": ("Registry", "sound_event"),
-    "FLUID": ("DefaultedRegistry", "fluid"),
-    "ENTITY_TYPE": ("DefaultedRegistry", "entity_type"),
-    "ITEM": ("DefaultedRegistry", "item"),
-    "RECIPE_TYPE": ("Registry", "recipe_type"),
-    "RECIPE_SERIALIZER": ("Registry", "recipe_serializer"),
-}
-OWNERS = {
-    "Registry": "net/minecraft/core/Registry",
-    "DefaultedRegistry": "net/minecraft/core/DefaultedRegistry",
+# field -> the vanilla registry name it identifies as. Built inline rather than read from
+# Registries: the pruner keeps only the Registries fields the mods name, and two of these
+# six did not survive.
+IDENTITIES = {
+    "SOUND_EVENT": "sound_event",
+    "FLUID": "fluid",
+    "ENTITY_TYPE": "entity_type",
+    "ITEM": "item",
+    "RECIPE_TYPE": "recipe_type",
+    "RECIPE_SERIALIZER": "recipe_serializer",
 }
 
-for field, (iface, registry_name) in STUBS.items():
-    old = " " + field + " = null;"
-    if old not in s:
-        sys.exit("BuiltInRegistries: no null field " + field)
-    # Answers key() with its own identity and throws for everything else. create(Registry,
-    # String) asks exactly this and nothing more.
-    stub = (' %s = Stubs.of(%s.class, "%s", java.util.Map.of("key",'
-            ' ResourceKey.createRegistryKey('
-            'Identifier.fromNamespaceAndPath("minecraft", "%s"))));'
-            % (field, iface, OWNERS[iface], registry_name))
-    s = s.replace(old, stub, 1)
-
-# Every field now initialises, so the clinit has nothing left to guard.
-clinit = (
-    '\n\n    static {\n        if (true) {\n'
-    '            throw Unimplemented.forMember('
-    '"net/minecraft/core/registries/BuiltInRegistries");\n'
-    '        }\n    }\n'
-)
-if clinit not in s:
-    sys.exit("BuiltInRegistries: clinit not in the expected shape")
-s = s.replace(clinit, "\n", 1)
+for field, registry_name in IDENTITIES.items():
+    match = re.search(r"( " + field + r" = Stubs\.of\((\w+)\.class, \"([^\"]+)\"\));", s)
+    if not match:
+        sys.exit("BuiltInRegistries: no generated stub for " + field)
+    upgraded = (' %s = Stubs.of(%s.class, "%s", java.util.Map.of("key",'
+                ' ResourceKey.createRegistryKey('
+                'Identifier.fromNamespaceAndPath("minecraft", "%s"))));'
+                % (field, match.group(2), match.group(3), registry_name))
+    s = s[:match.start()] + upgraded + s[match.end():]
 
 leftover = re.findall(r"^\s+public static final \w+<[^;]+> (\w+) = null;", s, re.M)
 if leftover:
@@ -281,7 +258,6 @@ if leftover:
 s = s.replace("import dev.pumpkin.shim.Unimplemented;",
               "import net.minecraft.resources.Identifier;\n"
               "import net.minecraft.resources.ResourceKey;\n"
-              "import dev.pumpkin.shim.Stubs;\n"
               "import dev.pumpkin.shim.Unimplemented;", 1)
 PENDING[p] = s
 

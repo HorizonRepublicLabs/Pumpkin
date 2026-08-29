@@ -90,7 +90,12 @@ project(':fml') {
 project(':shim') {
     dependencies {
         api project(':fml')
-        rootProject.ext.gameLibraries.each { compileOnly it }
+        // Not compileOnly. A stub for a shimmed interface is a java.lang.reflect.Proxy, and
+        // building one calls getMethods(), which loads every type named in every signature
+        // the interface declares -- Registry names com.mojang.datafixers.util.Function7. So
+        // the shim needs these on the classpath to be *used*, not merely to compile, and a
+        // consumer that only compiled against it fails at the first stub.
+        rootProject.ext.gameLibraries.each { implementation it }
     }
 }
 project(':host')    { dependencies { api project(':shim') } }
