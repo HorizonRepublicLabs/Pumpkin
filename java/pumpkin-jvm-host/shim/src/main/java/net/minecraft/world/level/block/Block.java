@@ -70,6 +70,12 @@ public class Block extends BlockBehaviour implements ItemLike, IBlockExtension {
         return pumpkinProperties.template();
     }
 
+    // Pumpkin divergence: no vanilla counterpart. The registration sinks read the recorded
+    // strength and tool requirement off this on the way to Pumpkin.
+    public BlockBehaviour.Properties pumpkinProperties() {
+        return pumpkinProperties;
+    }
+
     public void destroy(LevelAccessor level, BlockPos pos, BlockState state) {
         throw Unimplemented.forMember("net/minecraft/world/level/block/Block.destroy:(Lnet/minecraft/world/level/LevelAccessor;Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/state/BlockState;)V");
     }

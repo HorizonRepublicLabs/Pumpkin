@@ -7,7 +7,7 @@
 use jni::{
     JNIEnv, NativeMethod,
     objects::{JClass, JString},
-    sys::jint,
+    sys::{jboolean, jfloat, jint},
 };
 
 use crate::plugin::{
@@ -26,11 +26,18 @@ pub fn bind(env: &mut JNIEnv) -> Result<(), VmError> {
 
     env.register_native_methods(
         &class,
-        &[NativeMethod {
-            name: "registerBlock".into(),
-            sig: "(Ljava/lang/String;Ljava/lang/String;)I".into(),
-            fn_ptr: register_block_native as *mut std::ffi::c_void,
-        }],
+        &[
+            NativeMethod {
+                name: "registerBlock".into(),
+                sig: "(Ljava/lang/String;Ljava/lang/String;)I".into(),
+                fn_ptr: register_block_native as *mut std::ffi::c_void,
+            },
+            NativeMethod {
+                name: "registerBlockWithProperties".into(),
+                sig: "(Ljava/lang/String;Ljava/lang/String;FFZ)I".into(),
+                fn_ptr: register_block_with_properties_native as *mut std::ffi::c_void,
+            },
+        ],
     )
     .map_err(|err| VmError::Java(format!("Failed to bind PumpkinHost natives: {err}")))
 }
@@ -64,26 +71,57 @@ fn throw(env: &mut JNIEnv, message: &str) {
     }
 }
 
+extern "system" fn register_block_with_properties_native(
+    mut env: JNIEnv,
+    _class: JClass,
+    id: JString,
+    template: JString,
+    destroy_time: jfloat,
+    explosion_resistance: jfloat,
+    requires_tool: jboolean,
+) -> jint {
+    register_block_impl(
+        &mut env,
+        &id,
+        &template,
+        // NaN is the Java side's "the mod did not say"; the template's value applies.
+        (!destroy_time.is_nan()).then_some(destroy_time),
+        (!explosion_resistance.is_nan()).then_some(explosion_resistance),
+        Some(requires_tool != 0),
+    )
+}
+
 extern "system" fn register_block_native(
     mut env: JNIEnv,
     _class: JClass,
     id: JString,
     template: JString,
 ) -> jint {
-    let Some(id) = read_string(&mut env, &id, "the block id") else {
+    register_block_impl(&mut env, &id, &template, None, None, None)
+}
+
+fn register_block_impl(
+    env: &mut JNIEnv,
+    id: &JString,
+    template: &JString,
+    hardness: Option<f32>,
+    blast_resistance: Option<f32>,
+    requires_tool: Option<bool>,
+) -> jint {
+    let Some(id) = read_string(env, id, "the block id") else {
         return 0;
     };
-    let Some(template) = read_string(&mut env, &template, "the block template") else {
+    let Some(template) = read_string(env, template, "the block template") else {
         return 0;
     };
 
     let spec = BlockSpec {
         id,
         template,
-        hardness: None,
-        blast_resistance: None,
+        hardness,
+        blast_resistance,
         luminance: None,
-        requires_tool: None,
+        requires_tool,
         properties: Vec::new(),
         default_state: 0,
         item: None,
@@ -103,7 +141,7 @@ extern "system" fn register_block_native(
         // the behaviour against, the way the WASM host already does with `self.server`.
         Ok(registered) => jint::from(registered.block_id.as_u16()),
         Err(message) => {
-            throw(&mut env, &message);
+            throw(env, &message);
             0
         }
     }

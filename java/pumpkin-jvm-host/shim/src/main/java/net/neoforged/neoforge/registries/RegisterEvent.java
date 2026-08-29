@@ -30,7 +30,10 @@ public class RegisterEvent extends Event implements IModBusEvent {
     public <T> void register(ResourceKey<? extends Registry<T>> registryKey, Consumer<RegisterHelper<T>> consumer) {
         consumer.accept((name, value) -> {
             if (value instanceof net.minecraft.world.level.block.Block block) {
-                DeferredRegister.pumpkinSink().registerBlock(name.toString(), block.pumpkinTemplate());
+                net.minecraft.world.level.block.state.BlockBehaviour.Properties props = block.pumpkinProperties();
+                DeferredRegister.pumpkinSink().registerBlock(name.toString(), block.pumpkinTemplate(),
+                        props.pumpkinDestroyTime(), props.pumpkinExplosionResistance(),
+                        props.pumpkinRequiresTool());
             } else {
                 throw new IllegalStateException("registry " + registryKey.identifier()
                         + " is not supported yet: " + name);

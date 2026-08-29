@@ -54,7 +54,8 @@ pub use block_entity_types::{
 pub use blocks::{
     BlockRegistration, base_block_count, base_state_count, block_count, block_from_id,
     block_from_item_id, block_from_name, block_id_from_state_id, block_properties, block_state_for,
-    register_block, registering_block_id, state_count, state_from_id, state_has_random_ticks,
+    register_block, registering_block_hardness, registering_block_id, state_count, state_from_id,
+    state_has_random_ticks,
 };
 #[cfg(feature = "entity_type")]
 pub use entity_types::{

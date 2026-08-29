@@ -772,7 +772,7 @@ impl PluginManager {
                 std::fs::create_dir(mods_dir)?;
             }
             scan_dirs.push(mods_dir.to_path_buf());
-        }
+        };
 
         let mut entries = Vec::new();
         for dir in &scan_dirs {

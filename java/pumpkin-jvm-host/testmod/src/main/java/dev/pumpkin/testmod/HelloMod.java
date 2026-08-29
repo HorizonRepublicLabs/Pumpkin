@@ -24,7 +24,8 @@ public class HelloMod {
 
     static {
         System.setProperty(STATIC_INITIALIZED_PROPERTY, "true");
-        BLOCKS.register("ruby_block", () -> new Block(BlockBehaviour.Properties.of().pumpkinTemplate("stone")));
+        BLOCKS.register("ruby_block", () -> new Block(
+                BlockBehaviour.Properties.of().pumpkinTemplate("stone").strength(4.5F)));
     }
 
     public HelloMod(IEventBus bus) {

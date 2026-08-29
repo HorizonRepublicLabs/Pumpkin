@@ -209,6 +209,14 @@ async fn loading_through_the_plugin_loader_defers_registration_to_on_load() {
     let mod_id = pumpkin::plugin::loader::jvm::load_mod(vm, &jar).expect("construction succeeds");
     assert_eq!(mod_id, "hellomod");
 
+    // 4.5 is HelloMod's own strength(4.5F), not stone's 1.5: the declared value must
+    // survive the trip through the JVM sink, because "registers fine but with the
+    // template's hardness" was a real bug and looks identical from a presence check.
+    assert_eq!(
+        pumpkin_data::dynamic::registering_block_hardness("hellomod:ruby_block"),
+        Some(4.5),
+        "the mod's declared strength arrived, not the template's"
+    );
     assert!(
         pumpkin_data::dynamic::registering_block_id("hellomod:ruby_block").is_some(),
         "the mod's own code registered the block only once construction actually ran"

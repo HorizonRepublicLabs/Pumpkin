@@ -28,7 +28,22 @@ public final class Bootstrap {
      * without a native library bound. Rust calls this once during boot, before loading any mod.
      */
     public static void installDefaultSink() {
-        DeferredRegister.setSink(PumpkinHost::registerBlock);
+        DeferredRegister.setSink(new DeferredRegister.Sink() {
+            @Override
+            public int registerBlock(String id, String template) {
+                return PumpkinHost.registerBlock(id, template);
+            }
+
+            // The wide path. Nulls become NaN, the native's "the mod did not say".
+            @Override
+            public int registerBlock(String id, String template, Float destroyTime,
+                    Float explosionResistance, boolean requiresTool) {
+                return PumpkinHost.registerBlockWithProperties(id, template,
+                        destroyTime == null ? Float.NaN : destroyTime,
+                        explosionResistance == null ? Float.NaN : explosionResistance,
+                        requiresTool);
+            }
+        });
     }
 
     /**

@@ -350,6 +350,28 @@ pub fn registering_block_id(name: &str) -> Option<BlockId> {
         .map(|block| block.id)
 }
 
+/// The hardness a staged or published block carries, by name.
+///
+/// Exists for the same reason as [`registering_block_id`], and for one caller: the test
+/// proving that a mod's declared `strength(...)` survives the trip through the JVM sink
+/// rather than being silently replaced by its template's value — which was a real bug, and
+/// the kind whose regression a green registration test would never notice.
+#[must_use]
+pub fn registering_block_hardness(name: &str) -> Option<f32> {
+    if let Some(block) = block_from_name(name) {
+        return Some(block.hardness);
+    }
+
+    STAGING
+        .lock()
+        .unwrap_or_else(std::sync::PoisonError::into_inner)
+        .as_ref()?
+        .blocks
+        .iter()
+        .find(|block| block.name == name)
+        .map(|block| block.hardness)
+}
+
 #[cfg(test)]
 mod tests {
     use super::registering_block_id;

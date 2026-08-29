@@ -30,6 +30,16 @@ public class DeferredRegister<T> {
     @FunctionalInterface
     public interface Sink {
         int registerBlock(String id, String template);
+
+        // Pumpkin divergence: the wide path. strength() and requiresCorrectToolForDrops()
+        // record onto Properties precisely so these can arrive; a sink that cannot carry
+        // them re-creates the bug where a mod's stone-hard block registers dirt-hard.
+        // Default implementation drops them so the single-method lambda tests keep working
+        // -- but the production sink overrides it.
+        default int registerBlock(String id, String template, Float destroyTime,
+                Float explosionResistance, boolean requiresTool) {
+            return registerBlock(id, template);
+        }
     }
 
     private static Sink pumpkinSink = (id, template) -> {
@@ -104,7 +114,10 @@ public class DeferredRegister<T> {
         for (DeferredHolder<T, ? extends T> holder : pumpkinPending) {
             Object object = holder.get();
             if (object instanceof Block block) {
-                pumpkinSink.registerBlock(holder.getId().toString(), block.pumpkinTemplate());
+                net.minecraft.world.level.block.state.BlockBehaviour.Properties props = block.pumpkinProperties();
+                pumpkinSink.registerBlock(holder.getId().toString(), block.pumpkinTemplate(),
+                        props.pumpkinDestroyTime(), props.pumpkinExplosionResistance(),
+                        props.pumpkinRequiresTool());
             } else {
                 throw new IllegalStateException("registry " + pumpkinRegistryKey.identifier()
                         + " is not supported yet: " + holder.getId());

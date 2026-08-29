@@ -14,7 +14,12 @@ SECONDS_TO_RUN=${SECONDS_TO_RUN:-60}
 cargo build --quiet -p pumpkin --features jvm-plugins
 
 log=$(mktemp -t burndown)
-timeout "$SECONDS_TO_RUN" ./target/debug/pumpkin > "$log" 2>&1 || true
+# Asked of cargo rather than hardcoded: a shared target-dir in ~/.cargo/config.toml moves
+# the binary out of ./target, and a hardcoded path would quietly run a stale copy from
+# before the move -- the exact staleness this script exists to prevent.
+PUMPKIN_BIN=$(cargo metadata --format-version 1 --no-deps 2>/dev/null \
+    | python3 -c "import json,sys; print(json.load(sys.stdin)['target_directory'])")/debug/pumpkin
+timeout "$SECONDS_TO_RUN" "$PUMPKIN_BIN" > "$log" 2>&1 || true
 
 if ! grep -q "JVM burndown" "$log"; then
     echo "No burndown line. The JVM never booted -- are there .jar plugins in plugins/?"
