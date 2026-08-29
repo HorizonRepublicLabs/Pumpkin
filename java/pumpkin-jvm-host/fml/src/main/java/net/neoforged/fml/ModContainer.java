@@ -1,6 +1,5 @@
 package net.neoforged.fml;
 
-import dev.pumpkin.shim.Unimplemented;
 import net.neoforged.fml.config.IConfigSpec;
 import net.neoforged.fml.config.ModConfig;
 
@@ -16,16 +15,34 @@ public abstract class ModContainer {
     protected ModContainer() {
     }
 
+    /**
+     * Accepts a config spec, and says once that nothing will read a file for it.
+     *
+     * <p>The values a mod defined already answer -- each holds the default the mod itself
+     * declared, which is what NeoForge returns too when no file overrides it. What does not
+     * exist is the file: an operator cannot change any of these yet. That is worth saying
+     * out loud exactly once per mod, because it is invisible from the mod's side and a
+     * server owner would otherwise discover it by editing a file that never gets read.
+     *
+     * <p>Throwing instead would stop both real mods in their constructors over settings they
+     * are only declaring, never reading, at that point.
+     */
     public void registerConfig(ModConfig.Type type, IConfigSpec spec) {
-        throw Unimplemented.forMember(
-                "net/neoforged/fml/ModContainer.registerConfig:"
-                        + "(Lnet/neoforged/fml/config/ModConfig$Type;Lnet/neoforged/fml/config/IConfigSpec;)V");
+        pumpkinWarnOnce();
     }
 
     public void registerConfig(ModConfig.Type type, IConfigSpec spec, String fileName) {
-        throw Unimplemented.forMember(
-                "net/neoforged/fml/ModContainer.registerConfig:"
-                        + "(Lnet/neoforged/fml/config/ModConfig$Type;Lnet/neoforged/fml/config/IConfigSpec;"
-                        + "Ljava/lang/String;)V");
+        pumpkinWarnOnce();
     }
+
+    private void pumpkinWarnOnce() {
+        if (PUMPKIN_WARNED.add(toString())) {
+            System.err.println("[pumpkin] " + this + " registered a config. Its values will "
+                    + "answer with the defaults the mod declared; Pumpkin does not read or "
+                    + "write config files yet, so editing one will have no effect.");
+        }
+    }
+
+    private static final java.util.Set<String> PUMPKIN_WARNED =
+            java.util.concurrent.ConcurrentHashMap.newKeySet();
 }

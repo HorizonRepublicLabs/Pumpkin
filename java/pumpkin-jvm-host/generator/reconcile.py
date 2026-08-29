@@ -296,6 +296,43 @@ if "import net.minecraft.resources.ResourceKey;" not in s:
                   "import dev.pumpkin.shim.Stubs;", 1)
 PENDING[p] = s
 
+# ------------------------------------------------------------ ModConfigSpec
+# Both mods build a config in their constructor, so nothing loads until this does.
+# Values answer with the default the mod declared; there is no file behind them yet.
+edit("net/neoforged/neoforge/common/ModConfigSpec.java", [
+    ('        public Builder comment(String comment) {\n            throw Unimplemented.forMember("net/neoforged/neoforge/common/ModConfigSpec$Builder.comment:(Ljava/lang/String;)Lnet/neoforged/neoforge/common/ModConfigSpec$Builder;");\n        }',
+     '        // Pumpkin divergence: real body. The single-String overload, which is the one\n        // both mods call -- the varargs one is a different method and implementing only\n        // that left this still throwing.\n        public Builder comment(String comment) {\n            return this;\n        }'),
+    ('    public static class Builder {',
+     '    public static class Builder {\n\n        // Pumpkin divergence: no vanilla counterpart. push/pop nest sections, and a value\'s\n        // key is the whole path -- without this, two mods defining "enabled" in different\n        // sections would look like the same setting.\n        private final java.util.List<String> pumpkinPath = new java.util.ArrayList<>();'),
+    ('        ConfigValue(Builder parent, List<String> path, Supplier<T> defaultSupplier) {\n            throw Unimplemented.forMember("net/neoforged/neoforge/common/ModConfigSpec$ConfigValue.<init>:(Lnet/neoforged/neoforge/common/ModConfigSpec$Builder;Ljava/util/List;Ljava/util/function/Supplier;)V");\n        }\n\n        public T get() {\n            throw Unimplemented.forMember("net/neoforged/neoforge/common/ModConfigSpec$ConfigValue.get:()Ljava/lang/Object;");\n        }',
+     "        // Pumpkin divergence: this field, the constructor and get() carry real behaviour.\n        //\n        // The value returned is the default the mod itself declared. That is not a\n        // fabricated zero: absent a config file it is the answer NeoForge gives too, and it\n        // is the mod's own data rather than something invented here. What is missing is the\n        // file -- an operator cannot yet change any of it.\n        //\n        // Not final: the generator synthesises a no-arg constructor for every class that\n        // declares none and cannot initialise a field it does not know about. Nothing calls\n        // that constructor -- a value always comes from define() -- so the only cost is this.\n        private T pumpkinDefault;\n\n        ConfigValue(T defaultValue) {\n            this.pumpkinDefault = defaultValue;\n        }\n\n        ConfigValue(Builder parent, List<String> path, Supplier<T> defaultSupplier) {\n            this(defaultSupplier.get());\n        }\n\n        public T get() {\n            return pumpkinDefault;\n        }"),
+    ('    public static class BooleanValue extends ConfigValue<Boolean> implements BooleanSupplier {',
+     '    public static class BooleanValue extends ConfigValue<Boolean> implements BooleanSupplier {\n\n        // Pumpkin divergence: real body.\n        BooleanValue(Boolean defaultValue) {\n            super(defaultValue);\n        }'),
+    ('    public static class IntValue extends ConfigValue<Integer> implements IntSupplier {',
+     '    public static class IntValue extends ConfigValue<Integer> implements IntSupplier {\n\n        // Pumpkin divergence: real body.\n        IntValue(Integer defaultValue) {\n            super(defaultValue);\n        }'),
+    ('    public static class DoubleValue extends ConfigValue<Double> implements DoubleSupplier {',
+     '    public static class DoubleValue extends ConfigValue<Double> implements DoubleSupplier {\n\n        // Pumpkin divergence: real body.\n        DoubleValue(Double defaultValue) {\n            super(defaultValue);\n        }'),
+])
+
+edit("net/neoforged/neoforge/common/ModConfigSpec.java", [
+    ('        public Builder comment(String... comment) {\n            throw Unimplemented.forMember("net/neoforged/neoforge/common/ModConfigSpec$Builder.comment:([Ljava/lang/String;)Lnet/neoforged/neoforge/common/ModConfigSpec$Builder;");\n        }',
+     "        // Pumpkin divergence: real body. A comment is documentation for a config file\n        // nobody writes yet, so it is accepted and dropped -- the builder chain must return\n        // `this` for the mod's next call to land.\n        public Builder comment(String... comment) {\n            return this;\n        }"),
+    ('        public Builder push(String path) {\n            throw Unimplemented.forMember("net/neoforged/neoforge/common/ModConfigSpec$Builder.push:(Ljava/lang/String;)Lnet/neoforged/neoforge/common/ModConfigSpec$Builder;");\n        }',
+     '        // Pumpkin divergence: real body. Sections nest, and a value\'s key is the whole path\n        // -- two mods defining "enabled" under different sections must not collide.\n        public Builder push(String path) {\n            pumpkinPath.add(path);\n            return this;\n        }'),
+    ('        public Builder pop() {\n            throw Unimplemented.forMember("net/neoforged/neoforge/common/ModConfigSpec$Builder.pop:()Lnet/neoforged/neoforge/common/ModConfigSpec$Builder;");\n        }',
+     '        // Pumpkin divergence: real body.\n        public Builder pop() {\n            if (!pumpkinPath.isEmpty()) {\n                pumpkinPath.remove(pumpkinPath.size() - 1);\n            }\n            return this;\n        }'),
+    ('        public ModConfigSpec build() {\n            throw Unimplemented.forMember("net/neoforged/neoforge/common/ModConfigSpec$Builder.build:()Lnet/neoforged/neoforge/common/ModConfigSpec;");\n        }',
+     '        // Pumpkin divergence: real body. The spec carries nothing: every value already\n        // holds its own default, and there is no file to reconcile them against.\n        public ModConfigSpec build() {\n            return new ModConfigSpec();\n        }'),
+    ('        public BooleanValue define(String path, boolean defaultValue) {\n            throw Unimplemented.forMember("net/neoforged/neoforge/common/ModConfigSpec$Builder.define:(Ljava/lang/String;Z)Lnet/neoforged/neoforge/common/ModConfigSpec$BooleanValue;");\n        }',
+     '        // Pumpkin divergence: real body.\n        public BooleanValue define(String path, boolean defaultValue) {\n            return new BooleanValue(defaultValue);\n        }'),
+    ('        public <T> ConfigValue<T> define(String path, T defaultValue) {\n            throw Unimplemented.forMember("net/neoforged/neoforge/common/ModConfigSpec$Builder.define:(Ljava/lang/String;Ljava/lang/Object;)Lnet/neoforged/neoforge/common/ModConfigSpec$ConfigValue;");\n        }',
+     '        // Pumpkin divergence: real body.\n        public <T> ConfigValue<T> define(String path, T defaultValue) {\n            return new ConfigValue<>(defaultValue);\n        }'),
+    ('        public DoubleValue defineInRange(String path, double defaultValue, double min, double max) {\n            throw Unimplemented.forMember("net/neoforged/neoforge/common/ModConfigSpec$Builder.defineInRange:(Ljava/lang/String;DDD)Lnet/neoforged/neoforge/common/ModConfigSpec$DoubleValue;");\n        }',
+     '        // Pumpkin divergence: real body. The range is not enforced: it constrains what an\n        // operator may write in a file, and there is no file.\n        public DoubleValue defineInRange(String path, double defaultValue, double min, double max) {\n            return new DoubleValue(defaultValue);\n        }'),
+    ('        public IntValue defineInRange(String path, int defaultValue, int min, int max) {\n            throw Unimplemented.forMember("net/neoforged/neoforge/common/ModConfigSpec$Builder.defineInRange:(Ljava/lang/String;III)Lnet/neoforged/neoforge/common/ModConfigSpec$IntValue;");\n        }',
+     '        // Pumpkin divergence: real body. See the double overload for the range.\n        public IntValue defineInRange(String path, int defaultValue, int min, int max) {\n            return new IntValue(defaultValue);\n        }'),
+])
+
 # ---------------------------------------------------------------- Registries
 import re
 p = os.path.join(ROOT, "net/minecraft/core/registries/Registries.java")
@@ -431,6 +468,11 @@ edit("net/minecraft/world/level/block/state/BlockBehaviour.java", [
 
 # ------------------------------------------------------------ DeferredHolder
 edit("net/neoforged/neoforge/registries/DeferredHolder.java", [
+    ('    public int hashCode() {\n        throw Unimplemented.forMember("net/neoforged/neoforge/registries/DeferredHolder.hashCode:()I");\n    }',
+     '    // Pumpkin divergence: real body. A mod keys a map by holder, so this has to answer.\n    // The id is the identity -- two holders naming the same thing are the same handle,\n    // which is what vanilla means by it too, and the resolved value is deliberately not\n    // consulted because reading it would force every deferred registration.\n    @Override\n    public int hashCode() {\n        return pumpkinId.hashCode();\n    }'),
+    ('    public static <R, T extends R> DeferredHolder<R, T> create(ResourceKey<? extends Registry<R>> registryKey, Identifier valueName) {\n        throw Unimplemented.forMember("net/neoforged/neoforge/registries/DeferredHolder.create:(Lnet/minecraft/resources/ResourceKey;Lnet/minecraft/resources/Identifier;)Lnet/neoforged/neoforge/registries/DeferredHolder;");\n    }',
+     "    // Pumpkin divergence: real body. A mod builds a holder for something another mod\n    // registered -- MysticalAgriculture does this for its own blocks -- and only the value's\n    // name matters here. Which registry it lives in is carried by the caller's own type, and\n    // the flush that reads this holder resolves by name.\n    //\n    // The factory is null: this holder names something it did not create, so get() would\n    // have nothing to call. A mod that asks for the value gets a NullPointerException rather\n    // than a wrong object, which is the honest failure until cross-registry lookup exists.\n    public static <R, T extends R> DeferredHolder<R, T> create(ResourceKey<? extends Registry<R>> registryKey, Identifier valueName) {\n        return new DeferredHolder<>(valueName, null);\n    }"),
+
 ("""public class DeferredHolder<R, T extends R> implements Holder<R>, Supplier<T> {
 """,
 """public class DeferredHolder<R, T extends R> implements Holder<R>, Supplier<T> {

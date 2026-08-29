@@ -46,8 +46,14 @@ public class ModConfigSpec implements IConfigSpec {
 
     public static class Builder {
 
+        // Pumpkin divergence: no vanilla counterpart. push/pop nest sections, and a value's
+        // key is the whole path -- without this, two mods defining "enabled" in different
+        // sections would look like the same setting.
+        private final java.util.List<String> pumpkinPath = new java.util.ArrayList<>();
+
+        // Pumpkin divergence: real body.
         public <T> ConfigValue<T> define(String path, T defaultValue) {
-            throw Unimplemented.forMember("net/neoforged/neoforge/common/ModConfigSpec$Builder.define:(Ljava/lang/String;Ljava/lang/Object;)Lnet/neoforged/neoforge/common/ModConfigSpec$ConfigValue;");
+            return new ConfigValue<>(defaultValue);
         }
 
         public <T> ConfigValue<T> define(List<String> path, T defaultValue) {
@@ -94,8 +100,9 @@ public class ModConfigSpec implements IConfigSpec {
             throw Unimplemented.forMember("net/neoforged/neoforge/common/ModConfigSpec$Builder.defineInRange:(Ljava/util/List;Ljava/util/function/Supplier;Ljava/lang/Comparable;Ljava/lang/Comparable;Ljava/lang/Class;)Lnet/neoforged/neoforge/common/ModConfigSpec$ConfigValue;");
         }
 
+        // Pumpkin divergence: real body.
         public BooleanValue define(String path, boolean defaultValue) {
-            throw Unimplemented.forMember("net/neoforged/neoforge/common/ModConfigSpec$Builder.define:(Ljava/lang/String;Z)Lnet/neoforged/neoforge/common/ModConfigSpec$BooleanValue;");
+            return new BooleanValue(defaultValue);
         }
 
         public BooleanValue define(List<String> path, boolean defaultValue) {
@@ -110,8 +117,10 @@ public class ModConfigSpec implements IConfigSpec {
             throw Unimplemented.forMember("net/neoforged/neoforge/common/ModConfigSpec$Builder.define:(Ljava/util/List;Ljava/util/function/Supplier;)Lnet/neoforged/neoforge/common/ModConfigSpec$BooleanValue;");
         }
 
+        // Pumpkin divergence: real body. The range is not enforced: it constrains what an
+        // operator may write in a file, and there is no file.
         public DoubleValue defineInRange(String path, double defaultValue, double min, double max) {
-            throw Unimplemented.forMember("net/neoforged/neoforge/common/ModConfigSpec$Builder.defineInRange:(Ljava/lang/String;DDD)Lnet/neoforged/neoforge/common/ModConfigSpec$DoubleValue;");
+            return new DoubleValue(defaultValue);
         }
 
         public DoubleValue defineInRange(List<String> path, double defaultValue, double min, double max) {
@@ -126,8 +135,9 @@ public class ModConfigSpec implements IConfigSpec {
             throw Unimplemented.forMember("net/neoforged/neoforge/common/ModConfigSpec$Builder.defineInRange:(Ljava/util/List;Ljava/util/function/Supplier;DD)Lnet/neoforged/neoforge/common/ModConfigSpec$DoubleValue;");
         }
 
+        // Pumpkin divergence: real body. See the double overload for the range.
         public IntValue defineInRange(String path, int defaultValue, int min, int max) {
-            throw Unimplemented.forMember("net/neoforged/neoforge/common/ModConfigSpec$Builder.defineInRange:(Ljava/lang/String;III)Lnet/neoforged/neoforge/common/ModConfigSpec$IntValue;");
+            return new IntValue(defaultValue);
         }
 
         public IntValue defineInRange(List<String> path, int defaultValue, int min, int max) {
@@ -158,24 +168,37 @@ public class ModConfigSpec implements IConfigSpec {
             throw Unimplemented.forMember("net/neoforged/neoforge/common/ModConfigSpec$Builder.defineInRange:(Ljava/util/List;Ljava/util/function/Supplier;JJ)Lnet/neoforged/neoforge/common/ModConfigSpec$LongValue;");
         }
 
+        // Pumpkin divergence: real body. The single-String overload, which is the one
+        // both mods call -- the varargs one is a different method and implementing only
+        // that left this still throwing.
         public Builder comment(String comment) {
-            throw Unimplemented.forMember("net/neoforged/neoforge/common/ModConfigSpec$Builder.comment:(Ljava/lang/String;)Lnet/neoforged/neoforge/common/ModConfigSpec$Builder;");
+            return this;
         }
 
+        // Pumpkin divergence: real body. A comment is documentation for a config file
+        // nobody writes yet, so it is accepted and dropped -- the builder chain must return
+        // `this` for the mod's next call to land.
         public Builder comment(String... comment) {
-            throw Unimplemented.forMember("net/neoforged/neoforge/common/ModConfigSpec$Builder.comment:([Ljava/lang/String;)Lnet/neoforged/neoforge/common/ModConfigSpec$Builder;");
+            return this;
         }
 
+        // Pumpkin divergence: real body. Sections nest, and a value's key is the whole path
+        // -- two mods defining "enabled" under different sections must not collide.
         public Builder push(String path) {
-            throw Unimplemented.forMember("net/neoforged/neoforge/common/ModConfigSpec$Builder.push:(Ljava/lang/String;)Lnet/neoforged/neoforge/common/ModConfigSpec$Builder;");
+            pumpkinPath.add(path);
+            return this;
         }
 
         public Builder push(List<String> path) {
             throw Unimplemented.forMember("net/neoforged/neoforge/common/ModConfigSpec$Builder.push:(Ljava/util/List;)Lnet/neoforged/neoforge/common/ModConfigSpec$Builder;");
         }
 
+        // Pumpkin divergence: real body.
         public Builder pop() {
-            throw Unimplemented.forMember("net/neoforged/neoforge/common/ModConfigSpec$Builder.pop:()Lnet/neoforged/neoforge/common/ModConfigSpec$Builder;");
+            if (!pumpkinPath.isEmpty()) {
+                pumpkinPath.remove(pumpkinPath.size() - 1);
+            }
+            return this;
         }
 
         public Builder pop(int count) {
@@ -186,8 +209,10 @@ public class ModConfigSpec implements IConfigSpec {
             throw Unimplemented.forMember("net/neoforged/neoforge/common/ModConfigSpec$Builder.configure:(Ljava/util/function/Function;)Lorg/apache/commons/lang3/tuple/Pair;");
         }
 
+        // Pumpkin divergence: real body. The spec carries nothing: every value already
+        // holds its own default, and there is no file to reconcile them against.
         public ModConfigSpec build() {
-            throw Unimplemented.forMember("net/neoforged/neoforge/common/ModConfigSpec$Builder.build:()Lnet/neoforged/neoforge/common/ModConfigSpec;");
+            return new ModConfigSpec();
         }
 
         public Builder() {
@@ -244,12 +269,28 @@ public class ModConfigSpec implements IConfigSpec {
 
     public static class ConfigValue<T> implements Supplier<T> {
 
+        // Pumpkin divergence: this field, the constructor and get() carry real behaviour.
+        //
+        // The value returned is the default the mod itself declared. That is not a
+        // fabricated zero: absent a config file it is the answer NeoForge gives too, and it
+        // is the mod's own data rather than something invented here. What is missing is the
+        // file -- an operator cannot yet change any of it.
+        //
+        // Not final: the generator synthesises a no-arg constructor for every class that
+        // declares none and cannot initialise a field it does not know about. Nothing calls
+        // that constructor -- a value always comes from define() -- so the only cost is this.
+        private T pumpkinDefault;
+
+        ConfigValue(T defaultValue) {
+            this.pumpkinDefault = defaultValue;
+        }
+
         ConfigValue(Builder parent, List<String> path, Supplier<T> defaultSupplier) {
-            throw Unimplemented.forMember("net/neoforged/neoforge/common/ModConfigSpec$ConfigValue.<init>:(Lnet/neoforged/neoforge/common/ModConfigSpec$Builder;Ljava/util/List;Ljava/util/function/Supplier;)V");
+            this(defaultSupplier.get());
         }
 
         public T get() {
-            throw Unimplemented.forMember("net/neoforged/neoforge/common/ModConfigSpec$ConfigValue.get:()Ljava/lang/Object;");
+            return pumpkinDefault;
         }
 
         public T getRaw() {
@@ -274,6 +315,11 @@ public class ModConfigSpec implements IConfigSpec {
 
     public static class BooleanValue extends ConfigValue<Boolean> implements BooleanSupplier {
 
+        // Pumpkin divergence: real body.
+        BooleanValue(Boolean defaultValue) {
+            super(defaultValue);
+        }
+
         BooleanValue(Builder parent, List<String> path, Supplier<Boolean> defaultSupplier) {
             throw Unimplemented.forMember("net/neoforged/neoforge/common/ModConfigSpec$BooleanValue.<init>:(Lnet/neoforged/neoforge/common/ModConfigSpec$Builder;Ljava/util/List;Ljava/util/function/Supplier;)V");
         }
@@ -287,6 +333,11 @@ public class ModConfigSpec implements IConfigSpec {
     }
 
     public static class IntValue extends ConfigValue<Integer> implements IntSupplier {
+
+        // Pumpkin divergence: real body.
+        IntValue(Integer defaultValue) {
+            super(defaultValue);
+        }
 
         IntValue(Builder parent, List<String> path, Supplier<Integer> defaultSupplier) {
             throw Unimplemented.forMember("net/neoforged/neoforge/common/ModConfigSpec$IntValue.<init>:(Lnet/neoforged/neoforge/common/ModConfigSpec$Builder;Ljava/util/List;Ljava/util/function/Supplier;)V");
@@ -323,6 +374,11 @@ public class ModConfigSpec implements IConfigSpec {
     }
 
     public static class DoubleValue extends ConfigValue<Double> implements DoubleSupplier {
+
+        // Pumpkin divergence: real body.
+        DoubleValue(Double defaultValue) {
+            super(defaultValue);
+        }
 
         DoubleValue(Builder parent, List<String> path, Supplier<Double> defaultSupplier) {
             throw Unimplemented.forMember("net/neoforged/neoforge/common/ModConfigSpec$DoubleValue.<init>:(Lnet/neoforged/neoforge/common/ModConfigSpec$Builder;Ljava/util/List;Ljava/util/function/Supplier;)V");

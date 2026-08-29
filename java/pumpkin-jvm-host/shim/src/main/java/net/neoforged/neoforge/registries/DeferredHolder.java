@@ -28,8 +28,16 @@ public class DeferredHolder<R, T extends R> implements Holder<R>, Supplier<T> {
 
     private T pumpkinValue;
 
+    // Pumpkin divergence: real body. A mod builds a holder for something another mod
+    // registered -- MysticalAgriculture does this for its own blocks -- and only the value's
+    // name matters here. Which registry it lives in is carried by the caller's own type, and
+    // the flush that reads this holder resolves by name.
+    //
+    // The factory is null: this holder names something it did not create, so get() would
+    // have nothing to call. A mod that asks for the value gets a NullPointerException rather
+    // than a wrong object, which is the honest failure until cross-registry lookup exists.
     public static <R, T extends R> DeferredHolder<R, T> create(ResourceKey<? extends Registry<R>> registryKey, Identifier valueName) {
-        throw Unimplemented.forMember("net/neoforged/neoforge/registries/DeferredHolder.create:(Lnet/minecraft/resources/ResourceKey;Lnet/minecraft/resources/Identifier;)Lnet/neoforged/neoforge/registries/DeferredHolder;");
+        return new DeferredHolder<>(valueName, null);
     }
 
     public static <R, T extends R> DeferredHolder<R, T> create(Identifier registryName, Identifier valueName) {
@@ -78,8 +86,13 @@ public class DeferredHolder<R, T extends R> implements Holder<R>, Supplier<T> {
         throw Unimplemented.forMember("net/neoforged/neoforge/registries/DeferredHolder.equals:(Ljava/lang/Object;)Z");
     }
 
+    // Pumpkin divergence: real body. A mod keys a map by holder, so this has to answer.
+    // The id is the identity -- two holders naming the same thing are the same handle,
+    // which is what vanilla means by it too, and the resolved value is deliberately not
+    // consulted because reading it would force every deferred registration.
+    @Override
     public int hashCode() {
-        throw Unimplemented.forMember("net/neoforged/neoforge/registries/DeferredHolder.hashCode:()I");
+        return pumpkinId.hashCode();
     }
 
     public String toString() {
