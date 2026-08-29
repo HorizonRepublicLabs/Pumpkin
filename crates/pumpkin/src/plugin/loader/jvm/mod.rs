@@ -83,6 +83,40 @@ pub fn load_mod(vm: &'static ModVm, jar: &str) -> Result<String, VmError> {
     call_bootstrap_string_method(vm, "loadAndRegister", jar)
 }
 
+/// Every stubbed shim member reached so far, one per line, sorted.
+///
+/// The burndown for the next slice: subtract these from the committed manifest and what
+/// remains is untouched. A mod stops at its first missing member, so one boot never
+/// enumerates everything — but hits accumulate across every mod in the run, and each line is
+/// a manifest key, so the result joins mechanically rather than being read by eye.
+///
+/// # Errors
+/// Returns [`VmError::Java`] if the call throws.
+pub fn burndown(vm: &'static ModVm) -> Result<String, VmError> {
+    vm.call(|env| {
+        let returned = env.call_static_method(
+            "dev/pumpkin/jvmhost/Bootstrap",
+            "burndown",
+            "()Ljava/lang/String;",
+            &[],
+        );
+
+        if env.exception_check().unwrap_or(false) {
+            let _ = env.exception_describe();
+            let _ = env.exception_clear();
+            return Err(VmError::Java("collecting the burndown threw".to_owned()));
+        }
+
+        let object = returned
+            .and_then(jni::objects::JValueGen::l)
+            .map_err(|err| VmError::Java(err.to_string()))?;
+
+        env.get_string(&jni::objects::JString::from(object))
+            .map(Into::into)
+            .map_err(|err| VmError::Java(err.to_string()))
+    })
+}
+
 /// A loaded Java mod, seen by Pumpkin as an ordinary plugin.
 struct JvmPlugin {
     mod_id: String,

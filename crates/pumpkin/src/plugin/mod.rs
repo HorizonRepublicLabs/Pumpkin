@@ -242,7 +242,7 @@ impl Default for PluginManager {
 /// Where the JVM host's jars live, relative to the server's working directory.
 ///
 /// The three host jars are not sufficient on their own. The shim compiles against the game
-/// libraries -- slf4j, DataFixerUpper, guava and the rest -- without bundling them, so a JVM
+/// libraries -- slf4j, `DataFixerUpper`, guava and the rest -- without bundling them, so a JVM
 /// booted on shim, fml and host alone loads the shim only until a mod touches a class that
 /// names one, at which point it dies on `NoClassDefFoundError: org/slf4j/LoggerFactory`.
 ///

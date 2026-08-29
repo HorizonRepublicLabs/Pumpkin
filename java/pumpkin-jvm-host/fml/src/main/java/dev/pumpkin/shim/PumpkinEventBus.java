@@ -1,9 +1,13 @@
 package dev.pumpkin.shim;
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 import net.neoforged.bus.api.Event;
+import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.bus.api.IEventBus;
 
 /**
@@ -49,6 +53,67 @@ public final class PumpkinEventBus implements IEventBus {
 
     @Override
     public void register(Object target) {
-        throw Unimplemented.forMember("net/neoforged/bus/api/IEventBus.register:(Ljava/lang/Object;)V");
+        // A Class target subscribes its static methods; an instance subscribes its instance
+        // methods. NeoForge distinguishes the two the same way, and mods use both.
+        boolean staticTarget = target instanceof Class<?>;
+        Class<?> owner = staticTarget ? (Class<?>) target : target.getClass();
+
+        // Walk the hierarchy: a mod may put handlers on a base class and register the
+        // subclass. getDeclaredMethods sees only one level, so climbing is required.
+        for (Class<?> type = owner; type != null && type != Object.class; type = type.getSuperclass()) {
+            for (Method method : type.getDeclaredMethods()) {
+                if (!method.isAnnotationPresent(SubscribeEvent.class)) {
+                    continue;
+                }
+                if (Modifier.isStatic(method.getModifiers()) != staticTarget) {
+                    continue;
+                }
+                subscribe(method, staticTarget ? null : target);
+            }
+        }
+    }
+
+    /**
+     * Wires one {@code @SubscribeEvent} method into the bus.
+     *
+     * <p>Rejects a handler whose shape cannot work rather than skipping it. A method carrying
+     * the annotation is a statement of intent, so one that takes the wrong arguments is a
+     * mistake worth naming — silently ignoring it produces a mod whose events never fire and
+     * nothing to explain why.
+     */
+    private void subscribe(Method method, Object receiver) {
+        if (method.getParameterCount() != 1) {
+            throw new IllegalArgumentException(
+                    "@SubscribeEvent method " + method + " must take exactly one event argument");
+        }
+        Class<?> parameter = method.getParameterTypes()[0];
+        if (!Event.class.isAssignableFrom(parameter)) {
+            throw new IllegalArgumentException(
+                    "@SubscribeEvent method " + method + " takes " + parameter.getName()
+                            + ", which is not an Event");
+        }
+
+        method.setAccessible(true);
+        @SuppressWarnings("unchecked")
+        Class<Event> eventType = (Class<Event>) parameter;
+        addListener(eventType, event -> invoke(method, receiver, event));
+    }
+
+    /** Invokes a handler, unwrapping the reflection layer so the mod's own failure surfaces. */
+    private static void invoke(Method method, Object receiver, Event event) {
+        try {
+            method.invoke(receiver, event);
+        } catch (InvocationTargetException e) {
+            Throwable cause = e.getCause() != null ? e.getCause() : e;
+            if (cause instanceof RuntimeException runtime) {
+                throw runtime;
+            }
+            if (cause instanceof Error error) {
+                throw error;
+            }
+            throw new IllegalStateException("handler " + method + " failed", cause);
+        } catch (IllegalAccessException e) {
+            throw new IllegalStateException("handler " + method + " is not callable", e);
+        }
     }
 }

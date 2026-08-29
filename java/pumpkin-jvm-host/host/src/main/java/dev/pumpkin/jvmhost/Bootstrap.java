@@ -4,6 +4,7 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.nio.file.Path;
 import dev.pumpkin.shim.PumpkinEventBus;
+import dev.pumpkin.shim.Unimplemented;
 import dev.pumpkin.shim.PumpkinModContainer;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.IEventBus;
@@ -151,5 +152,20 @@ public final class Bootstrap {
             }
         }
         return arguments;
+    }
+
+    /**
+     * Every stubbed member reached so far in this JVM, newline-separated, sorted.
+     *
+     * <p>Rust calls this after loading every mod. A mod that throws stops at its first
+     * missing member, so no single boot enumerates everything it needs -- but hits
+     * accumulate across all mods in the run, and each entry is a manifest key, so the
+     * result is a worklist rather than a stack trace to read by eye.
+     *
+     * <p>Empty is the interesting answer: it means nothing reached a stub, and whatever went
+     * wrong was not a missing shim member.
+     */
+    public static String burndown() {
+        return String.join("\n", new java.util.TreeSet<>(Unimplemented.hits()));
     }
 }

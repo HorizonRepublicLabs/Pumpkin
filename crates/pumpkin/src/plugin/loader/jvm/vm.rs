@@ -268,6 +268,15 @@ fn install_default_sink(env: &mut JNIEnv) -> Result<(), VmError> {
         .map_err(|err| VmError::Java(err.to_string()))
 }
 
+/// Whether a VM has been started in this process.
+///
+/// Lets a caller report on the JVM without starting one: [`boot`] would create a VM as a
+/// side effect of asking, which is wrong for a server that loaded no Java mods at all.
+#[must_use]
+pub fn is_running() -> bool {
+    VM.get().is_some()
+}
+
 impl ModVm {
     /// Runs `work` and waits for its result.
     ///

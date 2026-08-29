@@ -406,6 +406,9 @@ impl PumpkinServer {
             }
         };
 
+        #[cfg(feature = "jvm-plugins")]
+        report_jvm_burndown();
+
         // Plugins get their registration window while they load; from here on ids are fixed
         // and every lookup can read the tables without synchronising. That window does not
         // reopen, so a hot-reloaded plugin cannot register content — renumbering a registry
@@ -823,4 +826,31 @@ fn scrub_address(ip: &str) -> String {
     ip.chars()
         .map(|ch| if ch == '.' || ch == ':' { ch } else { 'x' })
         .collect()
+}
+
+/// Logs which stubbed shim members the Java mods actually reached this boot.
+///
+/// Only meaningful once a mod has run, and only reported when a VM exists -- asking would
+/// otherwise start one on a server that loaded no Java mods. Each line is a manifest key, so
+/// the output subtracts directly from the committed used-set.
+#[cfg(feature = "jvm-plugins")]
+fn report_jvm_burndown() {
+    use crate::plugin::loader::jvm::{burndown, vm};
+
+    if !vm::is_running() {
+        return;
+    }
+    let Ok(vm) = vm::boot(&[]) else {
+        return;
+    };
+    match burndown(vm) {
+        Ok(hits) if hits.is_empty() => {
+            tracing::info!("JVM burndown: no stubbed shim member was reached this boot");
+        }
+        Ok(hits) => {
+            let count = hits.lines().count();
+            tracing::info!("JVM burndown: {count} stubbed shim member(s) reached:\n{hits}");
+        }
+        Err(err) => tracing::warn!("Could not collect the JVM burndown: {err}"),
+    }
 }
