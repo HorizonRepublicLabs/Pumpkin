@@ -9,6 +9,7 @@ import dev.pumpkin.shim.PumpkinModContainer;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.ModContainer;
+import net.neoforged.fml.ModList;
 import net.neoforged.neoforge.registries.DeferredRegister;
 import net.neoforged.neoforge.registries.RegisterEvent;
 
@@ -81,6 +82,10 @@ public final class Bootstrap {
         }
 
         bus.post(new RegisterEvent());
+        // Told after construction, not before: a mod that failed to construct is not loaded,
+        // and claiming otherwise would have the next mod take an integration path against
+        // something that is not there.
+        ModList.pumpkinMarkLoaded(candidate.modId());
         return candidate.modId();
     }
 
