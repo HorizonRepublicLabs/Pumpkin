@@ -16,6 +16,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 
 /**
  * Expands a {@link UsedSet} to include every {@code net.minecraft}/{@code net.neoforged}
@@ -109,14 +110,24 @@ public final class SupertypeCloser {
 
     /**
      * Resolves a simple type name to an internal name, in order: an import that ends
-     * in {@code .<simpleName>} (a single-type import, never {@code .*}); then the
-     * compilation unit's own package; then {@code java.lang}. Matches Java's actual
-     * resolution rules for an unqualified type name — no other package is ever
-     * consulted. In a tree this size several simple names (e.g. {@code
-     * BlockPredicate}, {@code Main}) exist in multiple packages; guessing beyond
-     * these three rules risks silently binding to the wrong one. A supertype that
-     * genuinely cannot be resolved this way should fail loudly downstream (a missing
-     * class at {@code :shim:compileJava}) rather than be silently mis-resolved here.
+     * in {@code .<simpleName>} (a single-type import, never {@code .*}); then a known
+     * {@code java.lang} simple name; then the compilation unit's own package; then
+     * {@code java.lang} again as a last resort for anything left. In a tree this size
+     * several simple names (e.g. {@code BlockPredicate}, {@code Main}) exist in
+     * multiple packages; guessing beyond these rules risks silently binding to the
+     * wrong one. A supertype that genuinely cannot be resolved this way should fail
+     * loudly downstream (a missing class at {@code :shim:compileJava}) rather than be
+     * silently mis-resolved here.
+     *
+     * <p>The {@code java.lang} check is placed before the package guess, not after:
+     * unlike "does this file's own package contain a class of this name" (which this
+     * method never actually verifies — there is no classpath to check it against, so
+     * it is always just a guess), "is this simple name one of the fixed, small set of
+     * public {@code java.lang} types" is exact, decidable knowledge that needs no
+     * lookup at all. A decompiled file also essentially never imports {@code
+     * java.lang} explicitly, so without checking it here, first, every unqualified
+     * {@code String} or {@code Object} would be silently mis-resolved into this file's
+     * own package by the guess below it.
      *
      * <p>Package-private, not private: {@link Pruner} faces the exact same
      * name-resolution problem for parameter and field types, and reuses this method
@@ -132,10 +143,37 @@ public final class SupertypeCloser {
                 return qualified.replace('.', '/');
             }
         }
+        if (JAVA_LANG_SIMPLE_NAMES.contains(simpleName)) {
+            return "java/lang/" + simpleName;
+        }
         Optional<String> pkg = unit.getPackageDeclaration().map(pd -> pd.getNameAsString());
         if (pkg.isPresent()) {
             return pkg.get().replace('.', '/') + "/" + simpleName;
         }
         return "java/lang/" + simpleName;
     }
+
+    /**
+     * The public top-level {@code java.lang} simple names that plausibly appear
+     * unqualified in Minecraft/NeoForge source: the common boxed types, the exception
+     * and error hierarchy actually thrown/caught in game code, and the handful of
+     * utility and reflection classes real decompiled source refers to by simple name.
+     * Not exhaustive — {@code java.lang} has a fixed, small membership, but growing
+     * this list only ever makes resolution more accurate, never less, so it is safe to
+     * extend as a real miss turns up.
+     */
+    private static final Set<String> JAVA_LANG_SIMPLE_NAMES = Set.of(
+            "Object", "String", "Integer", "Long", "Short", "Byte", "Double", "Float", "Boolean", "Character",
+            "Void", "Number", "Comparable", "CharSequence", "Iterable", "Runnable", "Class", "ClassLoader", "Enum",
+            "Record", "Throwable", "Exception", "RuntimeException", "Error", "StringBuilder", "StringBuffer",
+            "Math", "StrictMath", "System", "Thread", "ThreadLocal", "ThreadGroup", "Cloneable", "AutoCloseable",
+            "Deprecated", "Override", "SuppressWarnings", "FunctionalInterface", "SafeVarargs",
+            "IllegalArgumentException", "IllegalStateException", "UnsupportedOperationException",
+            "NullPointerException", "IndexOutOfBoundsException", "ArrayIndexOutOfBoundsException",
+            "StringIndexOutOfBoundsException", "ArithmeticException", "ClassCastException",
+            "NumberFormatException", "NegativeArraySizeException", "SecurityException", "InterruptedException",
+            "CloneNotSupportedException", "StackOverflowError", "OutOfMemoryError", "AssertionError",
+            "ExceptionInInitializerError", "NoSuchFieldException", "NoSuchMethodException", "ClassNotFoundException",
+            "NoClassDefFoundError", "LinkageError", "VirtualMachineError", "Process", "ProcessBuilder", "Package",
+            "Module", "Appendable", "Readable");
 }

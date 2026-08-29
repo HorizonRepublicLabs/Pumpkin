@@ -34,11 +34,14 @@ import com.github.javaparser.ast.type.PrimitiveType;
 import com.github.javaparser.ast.type.Type;
 import com.github.javaparser.ast.type.TypeParameter;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.SortedSet;
+import java.util.TreeSet;
 
 /**
  * Decides each {@code net.minecraft}/{@code net.neoforged} type's {@link Treatment}
@@ -48,22 +51,52 @@ import java.util.SortedSet;
  * reuses {@link SupertypeCloser#resolve}: there is no classpath available while
  * generating, so both classes face exactly the same problem, and this one shares that
  * solution rather than carrying a second, independently-drifting guess at the same
- * rules (import, then the compilation unit's own package, then {@code java.lang}).
+ * rules (import, a known {@code java.lang} name, the compilation unit's own package,
+ * then {@code java.lang} again as a last resort). A self-reference — a nested type's
+ * own unqualified name, or an enclosing type's — is resolved without any lookup at
+ * all, from the nesting context {@link #prune} already tracks while recursing.
  *
- * <p>That resolution is still a guess — a decompiled file essentially never imports
- * {@code java.lang} explicitly, so an unqualified {@code String} resolves (wrongly) into
- * this file's own package by that algorithm's own rules, and a self-referential nested
- * type name (a builder returning its own enclosing-qualified type) resolves without the
- * {@code Outer$} prefix a real descriptor would carry. Rather than trying to special-case
- * every such miss, every used-member lookup here fails toward keeping: if the exact
- * {@code name:descriptor} is not found, any other member of that name at that owner —
- * regardless of descriptor — is enough to keep it. Over-keeping costs a harmless extra
- * stubbed overload; under-keeping silently deletes a member the mods actually call, which
- * only surfaces later as a link failure naming a method with no pointer to why it
- * vanished.
+ * <p>Even so, resolution can still miss (a cross-package Minecraft type used without an
+ * import has no signal here to resolve correctly). Every used-member lookup therefore
+ * fails toward keeping: if the exact {@code name:descriptor} is not found, any other
+ * member of that name at that owner — regardless of descriptor — is enough to keep it.
+ * That is not free, though: a member kept this way can carry parameter/return types
+ * that were never part of the closure {@link UsedSet} was built from, and those will
+ * not have been generated — an eventual {@code :shim:compileJava} failure with no
+ * pointer back to why. {@link #keptByFallback()} and {@link #missingTypesInKeptSignatures()}
+ * exist so that blast radius is visible at generation time instead.
  */
 public final class Pruner {
     private Pruner() {}
+
+    private static final SortedSet<String> KEPT_BY_FALLBACK = Collections.synchronizedSortedSet(new TreeSet<>());
+    private static final SortedSet<String> MISSING_TYPES = Collections.synchronizedSortedSet(new TreeSet<>());
+
+    /**
+     * Every member key (in {@link Unimplemented#forMember} form, {@code
+     * Owner.name:descriptor}) that was kept by the by-name fallback rather than an
+     * exact descriptor match — i.e. every member whose descriptor this generator is
+     * not confident it reproduced correctly.
+     */
+    public static SortedSet<String> keptByFallback() {
+        return Collections.unmodifiableSortedSet(new TreeSet<>(KEPT_BY_FALLBACK));
+    }
+
+    /**
+     * Every shimmed ({@code net/minecraft/**} or {@code net/neoforged/**}) outer class
+     * named in some kept member's signature that is absent from the {@link UsedSet}
+     * this generator run was given — these will not have a generated file to compile
+     * against.
+     */
+    public static SortedSet<String> missingTypesInKeptSignatures() {
+        return Collections.unmodifiableSortedSet(new TreeSet<>(MISSING_TYPES));
+    }
+
+    /** Clears both reports. Package-private: test-only by visibility, not by request. */
+    static void resetReport() {
+        KEPT_BY_FALLBACK.clear();
+        MISSING_TYPES.clear();
+    }
 
     /**
      * VALUE for an enum or a record, and — vanishingly rarely on real Minecraft source
@@ -173,10 +206,17 @@ public final class Pruner {
         if (cu.getTypes().isEmpty()) {
             return;
         }
-        pruneType(cu, cu.getType(0), internalName, used);
+        pruneType(cu, cu.getType(0), internalName, used, Map.of());
     }
 
-    private static void pruneType(CompilationUnit cu, TypeDeclaration<?> type, String internalName, UsedSet used) {
+    /**
+     * {@code enclosingTypes} maps every ancestor type's simple name (this type's own
+     * enclosing chain, built up while recursing) to its already-known internal name,
+     * so a self-reference — {@code Properties} inside {@code Item.Properties}, or
+     * {@code Item} referenced back from within it — resolves exactly, with no guess.
+     */
+    private static void pruneType(CompilationUnit cu, TypeDeclaration<?> type, String internalName, UsedSet used,
+            Map<String, String> enclosingTypes) {
         Treatment treatment = treatmentOf(type);
         if (treatment == Treatment.VALUE) {
             return;
@@ -185,20 +225,23 @@ public final class Pruner {
             return;
         }
         ClassOrInterfaceDeclaration decl = type.asClassOrInterfaceDeclaration();
+        Map<String, String> selfTypes = new HashMap<>(enclosingTypes);
+        selfTypes.put(type.getNameAsString(), internalName);
+
         if (treatment == Treatment.HANDLE) {
-            pruneHandle(cu, decl, internalName, used);
+            pruneHandle(cu, decl, internalName, used, selfTypes);
         } else {
-            pruneHolder(cu, decl, internalName, used);
+            pruneHolder(cu, decl, internalName, used, selfTypes);
         }
         for (BodyDeclaration<?> member : decl.getMembers()) {
             if (member instanceof TypeDeclaration<?> nested) {
-                pruneType(cu, nested, internalName + "$" + nested.getNameAsString(), used);
+                pruneType(cu, nested, internalName + "$" + nested.getNameAsString(), used, selfTypes);
             }
         }
     }
 
     private static void pruneHandle(CompilationUnit cu, ClassOrInterfaceDeclaration decl, String internalName,
-            UsedSet used) {
+            UsedSet used, Map<String, String> selfTypes) {
         SortedSet<String> usedKeys = used.membersOf(internalName);
         NodeList<BodyDeclaration<?>> members = decl.getMembers();
         List<BodyDeclaration<?>> toRemove = new ArrayList<>();
@@ -206,7 +249,7 @@ public final class Pruner {
 
         for (BodyDeclaration<?> member : members) {
             if (member.isFieldDeclaration()) {
-                pruneField(member.asFieldDeclaration(), usedKeys, toRemove);
+                pruneField(member.asFieldDeclaration(), internalName, usedKeys, used, selfTypes, toRemove);
             } else if (member.isMethodDeclaration()) {
                 MethodDeclaration m = member.asMethodDeclaration();
                 if (m.getBody().isEmpty()) {
@@ -217,21 +260,29 @@ public final class Pruner {
                     continue;
                 }
                 String name = m.getNameAsString();
-                String lookupKey = name + ":" + methodDescriptor(cu, decl, m, m.getType());
-                if (matchesUsed(usedKeys, name, lookupKey)) {
+                Set<String> referenced = new TreeSet<>();
+                String descriptor = methodDescriptor(cu, decl, m, m.getType(), selfTypes, referenced);
+                String lookupKey = name + ":" + descriptor;
+                boolean exact = usedKeys.contains(lookupKey);
+                if (exact || matchesByName(usedKeys, name)) {
                     String key = internalName + "." + lookupKey;
                     replaceMethodBody(m, key);
                     threw[0] = true;
+                    reportKept(key, exact, referenced, used);
                 } else {
                     toRemove.add(member);
                 }
             } else if (member.isConstructorDeclaration()) {
                 ConstructorDeclaration c = member.asConstructorDeclaration();
-                String lookupKey = "<init>:" + methodDescriptor(cu, decl, c, null);
-                if (matchesUsed(usedKeys, "<init>", lookupKey)) {
+                Set<String> referenced = new TreeSet<>();
+                String descriptor = methodDescriptor(cu, decl, c, null, selfTypes, referenced);
+                String lookupKey = "<init>:" + descriptor;
+                boolean exact = usedKeys.contains(lookupKey);
+                if (exact || matchesByName(usedKeys, "<init>")) {
                     String key = internalName + "." + lookupKey;
                     replaceConstructorBody(c, key);
                     threw[0] = true;
+                    reportKept(key, exact, referenced, used);
                 } else {
                     toRemove.add(member);
                 }
@@ -246,14 +297,14 @@ public final class Pruner {
     }
 
     private static void pruneHolder(CompilationUnit cu, ClassOrInterfaceDeclaration decl, String internalName,
-            UsedSet used) {
+            UsedSet used, Map<String, String> selfTypes) {
         SortedSet<String> usedKeys = used.membersOf(internalName);
         NodeList<BodyDeclaration<?>> members = decl.getMembers();
         List<BodyDeclaration<?>> toRemove = new ArrayList<>();
 
         for (BodyDeclaration<?> member : members) {
             if (member.isFieldDeclaration()) {
-                pruneField(member.asFieldDeclaration(), usedKeys, toRemove);
+                pruneField(member.asFieldDeclaration(), internalName, usedKeys, used, selfTypes, toRemove);
             } else if (member.isMethodDeclaration() || member.isConstructorDeclaration()) {
                 // Methods and constructors on a holder exist only to build the
                 // registry values its fields used to hold; once those initializers
@@ -274,23 +325,29 @@ public final class Pruner {
 
     /**
      * Keeps only the {@link VariableDeclarator}s of {@code f} whose {@code
-     * name:descriptor} is in {@code usedKeys}, strips every surviving one's
+     * name:descriptor} is in {@code usedKeys} (or, failing that, whose name alone
+     * matches some used member of {@code internalName}), strips every surviving one's
      * initializer, and replaces it with a default literal when the field is {@code
      * final} (blank finals must be definitely assigned; a non-final field is simply
      * left uninitialized, defaulting to zero/{@code null} per the JVM). Queues {@code
      * f} itself for removal when no variable survives.
      */
-    private static void pruneField(FieldDeclaration f, SortedSet<String> usedKeys, List<BodyDeclaration<?>> toRemove) {
+    private static void pruneField(FieldDeclaration f, String internalName, SortedSet<String> usedKeys,
+            UsedSet used, Map<String, String> selfTypes, List<BodyDeclaration<?>> toRemove) {
         boolean isFinal = f.isFinal();
+        CompilationUnit cu = f.findCompilationUnit().orElseThrow();
         NodeList<VariableDeclarator> vars = f.getVariables();
         List<VariableDeclarator> unused = new ArrayList<>();
         List<VariableDeclarator> kept = new ArrayList<>();
         for (VariableDeclarator v : vars) {
             String name = v.getNameAsString();
-            String descriptor = typeDescriptor(f.findCompilationUnit().orElseThrow(), v.getType(), Map.of());
+            Set<String> referenced = new TreeSet<>();
+            String descriptor = typeDescriptor(cu, v.getType(), Map.of(), selfTypes, referenced);
             String lookupKey = name + ":" + descriptor;
-            if (matchesUsed(usedKeys, name, lookupKey)) {
+            boolean exact = usedKeys.contains(lookupKey);
+            if (exact || matchesByName(usedKeys, name)) {
                 kept.add(v);
+                reportKept(internalName + "." + lookupKey, exact, referenced, used);
             } else {
                 unused.add(v);
             }
@@ -363,19 +420,14 @@ public final class Pruner {
     }
 
     /**
-     * {@code true} if {@code usedKeys} contains {@code exactLookupKey} exactly, or —
-     * failing that — contains any key at all for {@code name}. The exact match is
-     * always tried first and is exact whenever type resolution happened to get every
-     * parameter/return/field type right; the by-name fallback is what keeps a member
-     * safe when it did not. It deliberately does not try to pick out "the right"
-     * overload once it falls back: with the descriptor already shown untrustworthy for
-     * this name, keeping every overload declared under it is the failure-toward-keeping
-     * choice, not a guess at which one is which.
+     * {@code true} if {@code usedKeys} contains any key at all for {@code name}. Used
+     * only once the exact {@code name:descriptor} lookup has already missed; it
+     * deliberately does not try to pick out "the right" overload once it fires: with
+     * the descriptor already shown untrustworthy for this name, keeping every overload
+     * declared under it is the failure-toward-keeping choice, not a guess at which one
+     * is which.
      */
-    private static boolean matchesUsed(SortedSet<String> usedKeys, String name, String exactLookupKey) {
-        if (usedKeys.contains(exactLookupKey)) {
-            return true;
-        }
+    private static boolean matchesByName(SortedSet<String> usedKeys, String name) {
         String prefix = name + ":";
         for (String key : usedKeys) {
             if (key.startsWith(prefix)) {
@@ -383,6 +435,27 @@ public final class Pruner {
             }
         }
         return false;
+    }
+
+    /**
+     * Records a kept member in {@link #KEPT_BY_FALLBACK} when it was only kept via the
+     * by-name fallback (never for an exact match — that descriptor is trusted), and
+     * checks every shimmed type {@code referenced} in its signature against {@code
+     * used}'s closed class set, recording any that are missing in {@link
+     * #MISSING_TYPES}. Missing-type reporting applies to every kept member, not only
+     * fallback ones: an exact match is exact about the *member*, not proof that every
+     * type in its signature was part of the closure {@link SupertypeCloser} built.
+     */
+    private static void reportKept(String key, boolean exact, Set<String> referencedTypes, UsedSet used) {
+        if (!exact) {
+            KEPT_BY_FALLBACK.add(key);
+        }
+        for (String referenced : referencedTypes) {
+            String outer = Shimmed.outerOf(referenced);
+            if (Shimmed.isShimmed(outer) && !used.classes().contains(outer)) {
+                MISSING_TYPES.add(outer);
+            }
+        }
     }
 
     private static void addUnimplementedImport(CompilationUnit cu) {
@@ -398,18 +471,19 @@ public final class Pruner {
     // --- Descriptor synthesis -------------------------------------------------
 
     private static String methodDescriptor(CompilationUnit cu, ClassOrInterfaceDeclaration owner,
-            CallableDeclaration<?> callable, Type returnType) {
+            CallableDeclaration<?> callable, Type returnType, Map<String, String> selfTypes,
+            Set<String> referencedTypes) {
         Map<String, String> typeParams = typeParamBounds(cu, owner, callable);
         StringBuilder sb = new StringBuilder("(");
         List<Parameter> params = callable.getParameters();
         for (int i = 0; i < params.size(); i++) {
             Parameter p = params.get(i);
             boolean varargs = p.isVarArgs();
-            String descriptor = typeDescriptor(cu, p.getType(), typeParams);
+            String descriptor = typeDescriptor(cu, p.getType(), typeParams, selfTypes, referencedTypes);
             sb.append(varargs ? "[" + descriptor : descriptor);
         }
         sb.append(")");
-        sb.append(returnType == null ? "V" : typeDescriptor(cu, returnType, typeParams));
+        sb.append(returnType == null ? "V" : typeDescriptor(cu, returnType, typeParams, selfTypes, referencedTypes));
         return sb.toString();
     }
 
@@ -432,7 +506,16 @@ public final class Pruner {
         return SupertypeCloser.resolve(cu, tp.getTypeBound().get(0).getNameAsString());
     }
 
-    private static String typeDescriptor(CompilationUnit cu, Type type, Map<String, String> typeParams) {
+    /**
+     * {@code selfTypes} maps the pruned type's own simple name and every enclosing
+     * type's simple name to its already-known internal name; checked before any
+     * lookup-based resolution, since a self- or enclosing-reference needs no guess.
+     * {@code referencedTypes}, when non-null, collects the internal name of every
+     * object type resolved along the way, for {@link #reportKept} to check for gaps in
+     * the used set afterward.
+     */
+    private static String typeDescriptor(CompilationUnit cu, Type type, Map<String, String> typeParams,
+            Map<String, String> selfTypes, Set<String> referencedTypes) {
         if (type.isPrimitiveType()) {
             return type.asPrimitiveType().getType().toDescriptor();
         }
@@ -441,16 +524,20 @@ public final class Pruner {
         }
         if (type.isArrayType()) {
             ArrayType at = type.asArrayType();
-            return "[" + typeDescriptor(cu, at.getComponentType(), typeParams);
+            return "[" + typeDescriptor(cu, at.getComponentType(), typeParams, selfTypes, referencedTypes);
         }
         if (type.isClassOrInterfaceType()) {
             ClassOrInterfaceType cit = type.asClassOrInterfaceType();
             String simpleName = cit.getNameAsString();
-            String bound = typeParams.get(simpleName);
-            if (bound != null) {
-                return "L" + bound + ";";
+            String internal = typeParams.get(simpleName);
+            if (internal == null) {
+                String self = selfTypes.get(simpleName);
+                internal = self != null ? self
+                        : qualifiedInternalName(cit).orElseGet(() -> SupertypeCloser.resolve(cu, simpleName));
             }
-            String internal = qualifiedInternalName(cit).orElseGet(() -> SupertypeCloser.resolve(cu, simpleName));
+            if (referencedTypes != null) {
+                referencedTypes.add(internal);
+            }
             return "L" + internal + ";";
         }
         return "Ljava/lang/Object;";

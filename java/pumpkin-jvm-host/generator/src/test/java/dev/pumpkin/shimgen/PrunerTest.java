@@ -6,9 +6,15 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.github.javaparser.StaticJavaParser;
 import com.github.javaparser.ast.CompilationUnit;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 class PrunerTest {
+    @BeforeEach
+    void resetReport() {
+        Pruner.resetReport();
+    }
+
     private static CompilationUnit parse(String src) {
         return StaticJavaParser.parse(src);
     }
@@ -54,6 +60,8 @@ class PrunerTest {
         assertFalse(out.contains("neverCalled"), "an uncalled member is pruned");
         assertTrue(out.contains("Unimplemented"), "the kept body throws");
         assertFalse(out.contains("\"real\""), "the original body is gone");
+        assertTrue(Pruner.keptByFallback().isEmpty(),
+                "String is a known java.lang name and resolves exactly; no fallback needed");
     }
 
     /// A holder's initializers call registry code that cannot exist. Assigning null
@@ -104,11 +112,10 @@ class PrunerTest {
     /// ~7000 (stripping bodies to signature-level references is what stops the
     /// reference graph from spreading further) collapses for every class that has one.
     ///
-    /// This also exercises the by-name fallback: `Properties` is a self-reference with
-    /// no import, so `SupertypeCloser`'s resolution order (import, then package, then
-    /// `java.lang`) misresolves it to `net/minecraft/world/item/Properties`, missing
-    /// the `Item$` prefix a real descriptor carries. The exact `name:descriptor` lookup
-    /// therefore misses even for the used method, and only the by-name fallback saves it.
+    /// `Properties` naming itself in its own return type is a self-reference, resolved
+    /// from the nesting context `prune` tracks while recursing — `Item$Properties` is
+    /// known outright, with no lookup and so no chance for the by-name fallback to be
+    /// needed here at all.
     @Test
     void nestedTypesArePrunedRecursivelyAndUnusedNestedMembersAreDropped() {
         CompilationUnit cu = parse("""
@@ -130,6 +137,38 @@ class PrunerTest {
         assertFalse(out.contains("neverCalled"),
                 "an unused member of a nested type is pruned, not left whole with the type");
         assertTrue(out.contains("Unimplemented"), "the nested type's surviving body throws too");
+        assertTrue(Pruner.keptByFallback().isEmpty(),
+                "a nested type's self-reference is known outright, not guessed at");
+    }
+
+    /// When resolution genuinely cannot know the answer — a cross-package Minecraft
+    /// type used with no import to say where it really lives — the by-name fallback is
+    /// what keeps the member, and it must say so: the descriptor it guessed names a
+    /// type that was never part of the closure `UsedSet` was built from, so that type
+    /// will not have a generated file to compile against. That gap has to be visible
+    /// at generation time, not discovered later as an opaque `:shim:compileJava` miss.
+    @Test
+    void fallbackKeptMembersReportThemselvesAndAnyMissingSignatureType() {
+        CompilationUnit cu = parse("""
+                package net.minecraft.world.level;
+                public class Level {
+                    public BlockPos getSpawnPos() { return null; }
+                }
+                """);
+        UsedSet used = new UsedSet();
+        // The real BlockPos lives in net.minecraft.core; nothing in this file says so
+        // (no import), so resolution can only guess net/minecraft/world/level/BlockPos
+        // — wrong, and a case the by-name fallback exists to keep safely anyway.
+        used.addMember(new UsedSet.MemberRef("net/minecraft/world/level/Level", "getSpawnPos",
+                "()Lnet/minecraft/core/BlockPos;"), "mod");
+
+        Pruner.prune(cu, "net/minecraft/world/level/Level", used);
+
+        String fallbackKey = "net/minecraft/world/level/Level.getSpawnPos:()Lnet/minecraft/world/level/BlockPos;";
+        assertTrue(Pruner.keptByFallback().contains(fallbackKey),
+                "the exact descriptor guess misses, so this member was only kept by the by-name fallback");
+        assertTrue(Pruner.missingTypesInKeptSignatures().contains("net/minecraft/world/level/BlockPos"),
+                "the guessed return type was never added to the used set and will not be generated");
     }
 
     /// A body replaced by throw still gets an implicit super(), which fails when the
