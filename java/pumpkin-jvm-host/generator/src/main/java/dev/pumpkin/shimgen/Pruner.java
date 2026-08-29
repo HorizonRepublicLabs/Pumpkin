@@ -44,40 +44,26 @@ import java.util.SortedSet;
  * Decides each {@code net.minecraft}/{@code net.neoforged} type's {@link Treatment}
  * and, given a {@link UsedSet}, prunes it down to that treatment's shape.
  *
- * <p>Resolution of parameter/field/return types to internal names is syntactic, in the
- * same spirit as {@link SupertypeCloser}: there is no classpath available while
- * generating, so a type name is resolved via this file's own imports, a small table of
- * {@code java.lang} names (checked before the package fallback, since a decompiled file
- * essentially never imports {@code java.lang} explicitly but very often refers to it),
- * the compilation unit's own package, and finally {@code java.lang} itself. A method or
- * field whose descriptor cannot be reproduced this way simply will not match anything
- * in {@link UsedSet#membersOf}, and is pruned as unused — a miss here fails loudly as a
- * missing member downstream, never silently.
+ * <p>Resolution of parameter/field/return types to internal names is syntactic and
+ * reuses {@link SupertypeCloser#resolve}: there is no classpath available while
+ * generating, so both classes face exactly the same problem, and this one shares that
+ * solution rather than carrying a second, independently-drifting guess at the same
+ * rules (import, then the compilation unit's own package, then {@code java.lang}).
+ *
+ * <p>That resolution is still a guess — a decompiled file essentially never imports
+ * {@code java.lang} explicitly, so an unqualified {@code String} resolves (wrongly) into
+ * this file's own package by that algorithm's own rules, and a self-referential nested
+ * type name (a builder returning its own enclosing-qualified type) resolves without the
+ * {@code Outer$} prefix a real descriptor would carry. Rather than trying to special-case
+ * every such miss, every used-member lookup here fails toward keeping: if the exact
+ * {@code name:descriptor} is not found, any other member of that name at that owner —
+ * regardless of descriptor — is enough to keep it. Over-keeping costs a harmless extra
+ * stubbed overload; under-keeping silently deletes a member the mods actually call, which
+ * only surfaces later as a link failure naming a method with no pointer to why it
+ * vanished.
  */
 public final class Pruner {
     private Pruner() {}
-
-    private static final Map<String, String> JAVA_LANG_TYPES = buildJavaLangTypes();
-
-    private static Map<String, String> buildJavaLangTypes() {
-        Map<String, String> m = new HashMap<>();
-        String[] names = {
-            "Object", "String", "Integer", "Long", "Short", "Byte", "Double", "Float", "Boolean",
-            "Character", "Void", "Number", "Comparable", "CharSequence", "Iterable", "Runnable",
-            "Class", "Enum", "Record", "Throwable", "Exception", "RuntimeException", "Error",
-            "StringBuilder", "StringBuffer", "Math", "System", "Thread", "ThreadLocal", "Cloneable",
-            "AutoCloseable", "Deprecated", "Override", "SuppressWarnings", "FunctionalInterface",
-            "IllegalArgumentException", "IllegalStateException", "UnsupportedOperationException",
-            "NullPointerException", "IndexOutOfBoundsException", "ArrayIndexOutOfBoundsException",
-            "StringIndexOutOfBoundsException", "ArithmeticException", "ClassCastException",
-            "NumberFormatException", "StackOverflowError", "OutOfMemoryError", "AssertionError",
-            "Iterable", "Process", "ProcessBuilder", "Package", "Module"
-        };
-        for (String n : names) {
-            m.put(n, "java/lang/" + n);
-        }
-        return m;
-    }
 
     /**
      * VALUE for an enum or a record, and — vanishingly rarely on real Minecraft source
@@ -163,8 +149,20 @@ public final class Pruner {
 
     /**
      * Prunes the compilation unit's top-level type in place according to its {@link
-     * Treatment}. VALUE types are left untouched. Nested types are not independently
-     * re-treated; the top-level type is what the generator emits a file for.
+     * Treatment}, then recurses into every nested member type and prunes it the same
+     * way, keyed on its JVM-style {@code Outer$Nested} internal name.
+     *
+     * <p>Recursion is not optional: the closure argument behind emitting only 353
+     * classes instead of all ~7000 is that stripping bodies down to signature-level
+     * references is what stops the reference graph from spreading arbitrarily further
+     * — a nested type left whole keeps its real bodies, which reference arbitrary types
+     * outside the emitted set, and the closure argument collapses for every class that
+     * has one. {@code Item$Properties} is not a hypothetical: it is a heavily-used
+     * nested type on real input.
+     *
+     * <p>A VALUE type is copied whole, nested types included — an enum's ordinals are
+     * serialised and a record is a pure data carrier, so nothing under it is safe to
+     * touch, let alone recurse into.
      *
      * <p>Deliberately {@code cu.getType(0)}, not {@link CompilationUnit#getPrimaryType()}:
      * the latter matches the type's name against the compilation unit's {@code
@@ -172,19 +170,30 @@ public final class Pruner {
      * every test here, and every unit handed in by {@link SupertypeCloser#parse}, is.
      */
     public static void prune(CompilationUnit cu, String internalName, UsedSet used) {
-        if (cu.getTypes().isEmpty() || !cu.getType(0).isClassOrInterfaceDeclaration()) {
+        if (cu.getTypes().isEmpty()) {
             return;
         }
-        TypeDeclaration<?> top = cu.getType(0);
-        ClassOrInterfaceDeclaration decl = top.asClassOrInterfaceDeclaration();
-        Treatment treatment = treatmentOf(top);
-        switch (treatment) {
-            case VALUE -> {
-                // Copied whole: an enum's ordinals are serialised and a record is a
-                // pure data carrier, so nothing here is safe to drop.
+        pruneType(cu, cu.getType(0), internalName, used);
+    }
+
+    private static void pruneType(CompilationUnit cu, TypeDeclaration<?> type, String internalName, UsedSet used) {
+        Treatment treatment = treatmentOf(type);
+        if (treatment == Treatment.VALUE) {
+            return;
+        }
+        if (!type.isClassOrInterfaceDeclaration()) {
+            return;
+        }
+        ClassOrInterfaceDeclaration decl = type.asClassOrInterfaceDeclaration();
+        if (treatment == Treatment.HANDLE) {
+            pruneHandle(cu, decl, internalName, used);
+        } else {
+            pruneHolder(cu, decl, internalName, used);
+        }
+        for (BodyDeclaration<?> member : decl.getMembers()) {
+            if (member instanceof TypeDeclaration<?> nested) {
+                pruneType(cu, nested, internalName + "$" + nested.getNameAsString(), used);
             }
-            case HANDLE -> pruneHandle(cu, decl, internalName, used);
-            case HOLDER -> pruneHolder(cu, decl, internalName, used);
         }
     }
 
@@ -207,8 +216,9 @@ public final class Pruner {
                     // contract it declares, so it is always kept untouched.
                     continue;
                 }
-                String lookupKey = m.getNameAsString() + ":" + methodDescriptor(cu, decl, m, m.getType());
-                if (usedKeys.contains(lookupKey)) {
+                String name = m.getNameAsString();
+                String lookupKey = name + ":" + methodDescriptor(cu, decl, m, m.getType());
+                if (matchesUsed(usedKeys, name, lookupKey)) {
                     String key = internalName + "." + lookupKey;
                     replaceMethodBody(m, key);
                     threw[0] = true;
@@ -218,7 +228,7 @@ public final class Pruner {
             } else if (member.isConstructorDeclaration()) {
                 ConstructorDeclaration c = member.asConstructorDeclaration();
                 String lookupKey = "<init>:" + methodDescriptor(cu, decl, c, null);
-                if (usedKeys.contains(lookupKey)) {
+                if (matchesUsed(usedKeys, "<init>", lookupKey)) {
                     String key = internalName + "." + lookupKey;
                     replaceConstructorBody(c, key);
                     threw[0] = true;
@@ -244,10 +254,12 @@ public final class Pruner {
         for (BodyDeclaration<?> member : members) {
             if (member.isFieldDeclaration()) {
                 pruneField(member.asFieldDeclaration(), usedKeys, toRemove);
-            } else {
+            } else if (member.isMethodDeclaration() || member.isConstructorDeclaration()) {
                 // Methods and constructors on a holder exist only to build the
                 // registry values its fields used to hold; once those initializers
                 // are gone, nothing outside the class has any business calling them.
+                // Nested member types are left alone here — pruneType recurses into
+                // them separately once this level is done.
                 toRemove.add(member);
             }
         }
@@ -274,9 +286,10 @@ public final class Pruner {
         List<VariableDeclarator> unused = new ArrayList<>();
         List<VariableDeclarator> kept = new ArrayList<>();
         for (VariableDeclarator v : vars) {
+            String name = v.getNameAsString();
             String descriptor = typeDescriptor(f.findCompilationUnit().orElseThrow(), v.getType(), Map.of());
-            String lookupKey = v.getNameAsString() + ":" + descriptor;
-            if (usedKeys.contains(lookupKey)) {
+            String lookupKey = name + ":" + descriptor;
+            if (matchesUsed(usedKeys, name, lookupKey)) {
                 kept.add(v);
             } else {
                 unused.add(v);
@@ -349,6 +362,29 @@ public final class Pruner {
         }
     }
 
+    /**
+     * {@code true} if {@code usedKeys} contains {@code exactLookupKey} exactly, or —
+     * failing that — contains any key at all for {@code name}. The exact match is
+     * always tried first and is exact whenever type resolution happened to get every
+     * parameter/return/field type right; the by-name fallback is what keeps a member
+     * safe when it did not. It deliberately does not try to pick out "the right"
+     * overload once it falls back: with the descriptor already shown untrustworthy for
+     * this name, keeping every overload declared under it is the failure-toward-keeping
+     * choice, not a guess at which one is which.
+     */
+    private static boolean matchesUsed(SortedSet<String> usedKeys, String name, String exactLookupKey) {
+        if (usedKeys.contains(exactLookupKey)) {
+            return true;
+        }
+        String prefix = name + ":";
+        for (String key : usedKeys) {
+            if (key.startsWith(prefix)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     private static void addUnimplementedImport(CompilationUnit cu) {
         String qualifiedName = "dev.pumpkin.shim.Unimplemented";
         for (ImportDeclaration imp : cu.getImports()) {
@@ -393,7 +429,7 @@ public final class Pruner {
         if (tp.getTypeBound().isEmpty()) {
             return "java/lang/Object";
         }
-        return resolveObjectType(cu, tp.getTypeBound().get(0).getNameAsString());
+        return SupertypeCloser.resolve(cu, tp.getTypeBound().get(0).getNameAsString());
     }
 
     private static String typeDescriptor(CompilationUnit cu, Type type, Map<String, String> typeParams) {
@@ -414,7 +450,7 @@ public final class Pruner {
             if (bound != null) {
                 return "L" + bound + ";";
             }
-            String internal = qualifiedInternalName(cit).orElseGet(() -> resolveObjectType(cu, simpleName));
+            String internal = qualifiedInternalName(cit).orElseGet(() -> SupertypeCloser.resolve(cu, simpleName));
             return "L" + internal + ";";
         }
         return "Ljava/lang/Object;";
@@ -439,34 +475,5 @@ public final class Pruner {
             scope = scope.get().getScope();
         }
         return Optional.of(sb.toString());
-    }
-
-    /**
-     * Resolves a simple type name to an internal name: a single-type import first;
-     * then a small table of common {@code java.lang} names (checked here, before the
-     * package fallback, because a decompiled file practically never imports {@code
-     * java.lang} explicitly, so without this step every unqualified {@code String} or
-     * {@code Object} would be misresolved into this file's own package); then the
-     * compilation unit's own package; then {@code java.lang} itself for anything left.
-     */
-    private static String resolveObjectType(CompilationUnit cu, String simpleName) {
-        for (ImportDeclaration imp : cu.getImports()) {
-            if (imp.isStatic() || imp.isAsterisk()) {
-                continue;
-            }
-            String qualified = imp.getNameAsString();
-            if (qualified.endsWith("." + simpleName)) {
-                return qualified.replace('.', '/');
-            }
-        }
-        String wellKnown = JAVA_LANG_TYPES.get(simpleName);
-        if (wellKnown != null) {
-            return wellKnown;
-        }
-        Optional<String> pkg = cu.getPackageDeclaration().map(pd -> pd.getNameAsString());
-        if (pkg.isPresent()) {
-            return pkg.get().replace('.', '/') + "/" + simpleName;
-        }
-        return "java/lang/" + simpleName;
     }
 }

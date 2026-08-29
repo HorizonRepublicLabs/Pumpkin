@@ -97,6 +97,41 @@ class PrunerTest {
                 "an instance method disqualifies HOLDER regardless of the field shape");
     }
 
+    /// A nested member type (the `Item$Properties` shape: a heavily-used nested class
+    /// on real input) must be pruned recursively, exactly like a top-level type — not
+    /// left whole. Left whole, its real bodies could reference arbitrary types outside
+    /// the emitted set, and the closure argument for emitting 353 classes instead of
+    /// ~7000 (stripping bodies to signature-level references is what stops the
+    /// reference graph from spreading further) collapses for every class that has one.
+    ///
+    /// This also exercises the by-name fallback: `Properties` is a self-reference with
+    /// no import, so `SupertypeCloser`'s resolution order (import, then package, then
+    /// `java.lang`) misresolves it to `net/minecraft/world/item/Properties`, missing
+    /// the `Item$` prefix a real descriptor carries. The exact `name:descriptor` lookup
+    /// therefore misses even for the used method, and only the by-name fallback saves it.
+    @Test
+    void nestedTypesArePrunedRecursivelyAndUnusedNestedMembersAreDropped() {
+        CompilationUnit cu = parse("""
+                package net.minecraft.world.item;
+                public class Item {
+                    public static class Properties {
+                        public Properties stacksTo(int n) { return this; }
+                        public Properties neverCalled() { return this; }
+                    }
+                }
+                """);
+        UsedSet used = new UsedSet();
+        used.addMember(new UsedSet.MemberRef("net/minecraft/world/item/Item$Properties", "stacksTo",
+                "(I)Lnet/minecraft/world/item/Item$Properties;"), "mod");
+
+        Pruner.prune(cu, "net/minecraft/world/item/Item", used);
+        String out = cu.toString();
+        assertTrue(out.contains("stacksTo"), "a used member of a nested type must survive");
+        assertFalse(out.contains("neverCalled"),
+                "an unused member of a nested type is pruned, not left whole with the type");
+        assertTrue(out.contains("Unimplemented"), "the nested type's surviving body throws too");
+    }
+
     /// A body replaced by throw still gets an implicit super(), which fails when the
     /// superclass has no no-arg constructor.
     @Test

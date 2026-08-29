@@ -117,8 +117,12 @@ public final class SupertypeCloser {
      * these three rules risks silently binding to the wrong one. A supertype that
      * genuinely cannot be resolved this way should fail loudly downstream (a missing
      * class at {@code :shim:compileJava}) rather than be silently mis-resolved here.
+     *
+     * <p>Package-private, not private: {@link Pruner} faces the exact same
+     * name-resolution problem for parameter and field types, and reuses this method
+     * rather than carrying a second, independently-drifting guess at the same rules.
      */
-    private static String resolve(CompilationUnit unit, String simpleName) {
+    static String resolve(CompilationUnit unit, String simpleName) {
         for (ImportDeclaration imp : unit.getImports()) {
             if (imp.isStatic() || imp.isAsterisk()) {
                 continue;
