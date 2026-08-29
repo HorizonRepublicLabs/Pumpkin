@@ -13,6 +13,13 @@ public class Attributes {
 
     public static final Holder<Attribute> STEP_HEIGHT = null;
 
+    private static Holder<Attribute> register(String name, Attribute attribute) {
+        throw Unimplemented.forMember("net/minecraft/world/entity/ai/attributes/Attributes.register:(Ljava/lang/String;Lnet/minecraft/world/entity/ai/attributes/Attribute;)Lnet/minecraft/core/Holder;");
+    }
+
+    protected Attributes() {
+    }
+
     static {
         if (true) {
             throw Unimplemented.forMember("net/minecraft/world/entity/ai/attributes/Attributes");

@@ -29,6 +29,10 @@ public abstract class StateHolder<O, S> {
         throw Unimplemented.forMember("net/minecraft/world/level/block/state/StateHolder.getValue:(Lnet/minecraft/world/level/block/state/properties/Property;)Ljava/lang/Comparable;");
     }
 
+    public <T extends Comparable<T>, V extends T> S setValue(Property<T> property, V value) {
+        throw Unimplemented.forMember("net/minecraft/world/level/block/state/StateHolder.setValue:(Lnet/minecraft/world/level/block/state/properties/Property;Lnet/minecraft/world/level/block/state/T;)Ljava/lang/Object;");
+    }
+
     protected StateHolder() {
     }
 }

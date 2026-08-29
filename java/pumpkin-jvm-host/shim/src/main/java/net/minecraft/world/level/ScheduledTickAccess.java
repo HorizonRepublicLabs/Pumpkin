@@ -6,6 +6,7 @@ import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.ticks.LevelTickAccess;
 import net.minecraft.world.ticks.ScheduledTick;
 import net.minecraft.world.ticks.TickPriority;
+import dev.pumpkin.shim.Unimplemented;
 
 public interface ScheduledTickAccess {
 
@@ -15,5 +16,21 @@ public interface ScheduledTickAccess {
 
     LevelTickAccess<Block> getBlockTicks();
 
+    default void scheduleTick(BlockPos pos, Block type, int tickDelay, TickPriority priority) {
+        throw Unimplemented.forMember("net/minecraft/world/level/ScheduledTickAccess.scheduleTick:(Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/Block;ILnet/minecraft/world/ticks/TickPriority;)V");
+    }
+
+    default void scheduleTick(BlockPos pos, Block type, int tickDelay) {
+        throw Unimplemented.forMember("net/minecraft/world/level/ScheduledTickAccess.scheduleTick:(Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/Block;I)V");
+    }
+
     LevelTickAccess<Fluid> getFluidTicks();
+
+    default void scheduleTick(BlockPos pos, Fluid type, int tickDelay, TickPriority priority) {
+        throw Unimplemented.forMember("net/minecraft/world/level/ScheduledTickAccess.scheduleTick:(Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/material/Fluid;ILnet/minecraft/world/ticks/TickPriority;)V");
+    }
+
+    default void scheduleTick(BlockPos pos, Fluid type, int tickDelay) {
+        throw Unimplemented.forMember("net/minecraft/world/level/ScheduledTickAccess.scheduleTick:(Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/material/Fluid;I)V");
+    }
 }

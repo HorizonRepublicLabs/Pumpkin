@@ -1,6 +1,7 @@
 package net.minecraft.sounds;
 
 import net.minecraft.core.Holder;
+import net.minecraft.resources.Identifier;
 import dev.pumpkin.shim.Unimplemented;
 
 public class SoundEvents {
@@ -30,6 +31,21 @@ public class SoundEvents {
     public static final SoundEvent SAND_BREAK = null;
 
     public static final SoundEvent SHOVEL_FLATTEN = null;
+
+    private static SoundEvent register(String id) {
+        throw Unimplemented.forMember("net/minecraft/sounds/SoundEvents.register:(Ljava/lang/String;)Lnet/minecraft/sounds/SoundEvent;");
+    }
+
+    private static SoundEvent register(Identifier id) {
+        throw Unimplemented.forMember("net/minecraft/sounds/SoundEvents.register:(Lnet/minecraft/resources/Identifier;)Lnet/minecraft/sounds/SoundEvent;");
+    }
+
+    private static SoundEvent register(Identifier id, Identifier soundId) {
+        throw Unimplemented.forMember("net/minecraft/sounds/SoundEvents.register:(Lnet/minecraft/resources/Identifier;Lnet/minecraft/resources/Identifier;)Lnet/minecraft/sounds/SoundEvent;");
+    }
+
+    protected SoundEvents() {
+    }
 
     static {
         if (true) {

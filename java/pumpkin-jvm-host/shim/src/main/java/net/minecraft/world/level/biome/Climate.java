@@ -118,6 +118,9 @@ public class Climate {
     public record TargetPoint(long temperature, long humidity, long continentalness, long erosion, long depth, long weirdness) {
     }
 
+    protected Climate() {
+    }
+
     static {
         if (true) {
             throw Unimplemented.forMember("net/minecraft/world/level/biome/Climate");

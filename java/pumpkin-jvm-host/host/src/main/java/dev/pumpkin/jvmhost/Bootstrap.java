@@ -3,6 +3,7 @@ package dev.pumpkin.jvmhost;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.nio.file.Path;
+import dev.pumpkin.shim.PumpkinEventBus;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.registries.DeferredRegister;
 import net.neoforged.neoforge.registries.RegisterEvent;
@@ -58,7 +59,7 @@ public final class Bootstrap {
      */
     public static String loadAndRegister(String jarPath) throws Exception {
         ModLoader.ModCandidate candidate = ModLoader.discover(Path.of(jarPath));
-        IEventBus bus = new IEventBus();
+        IEventBus bus = new PumpkinEventBus();
 
         Constructor<?> constructor = candidate.mainClass().getConstructor(IEventBus.class);
         try {

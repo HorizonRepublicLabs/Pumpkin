@@ -44,6 +44,9 @@ public class Items {
 
     public static final Item CROSSBOW = null;
 
+    protected Items() {
+    }
+
     static {
         if (true) {
             throw Unimplemented.forMember("net/minecraft/world/item/Items");

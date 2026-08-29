@@ -14,6 +14,13 @@ public class ParticleTypes {
 
     public static final SimpleParticleType SMOKE = null;
 
+    private static SimpleParticleType register(String name, boolean overrideLimiter) {
+        throw Unimplemented.forMember("net/minecraft/core/particles/ParticleTypes.register:(Ljava/lang/String;Z)Lnet/minecraft/core/particles/SimpleParticleType;");
+    }
+
+    protected ParticleTypes() {
+    }
+
     static {
         if (true) {
             throw Unimplemented.forMember("net/minecraft/core/particles/ParticleTypes");

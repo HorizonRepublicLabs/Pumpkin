@@ -22,9 +22,17 @@ public interface LevelReader extends BlockAndLightGetter, CollisionGetter, Signa
 
     int getHeight(Heightmap.Types type, int x, int z);
 
+    default int getHeight(Heightmap.Types type, BlockPos pos) {
+        throw Unimplemented.forMember("net/minecraft/world/level/LevelReader.getHeight:(Lnet/minecraft/world/level/levelgen/Heightmap$Types;Lnet/minecraft/core/BlockPos;)I");
+    }
+
     int getSkyDarken();
 
     BiomeManager getBiomeManager();
+
+    default Holder<Biome> getBiome(BlockPos pos) {
+        throw Unimplemented.forMember("net/minecraft/world/level/LevelReader.getBiome:(Lnet/minecraft/core/BlockPos;)Lnet/minecraft/core/Holder;");
+    }
 
     default Holder<Biome> getNoiseBiome(int quartX, int quartY, int quartZ) {
         throw Unimplemented.forMember("net/minecraft/world/level/LevelReader.getNoiseBiome:(III)Lnet/minecraft/core/Holder;");
@@ -48,6 +56,10 @@ public interface LevelReader extends BlockAndLightGetter, CollisionGetter, Signa
 
     default BlockPos getHeightmapPos(Heightmap.Types type, BlockPos pos) {
         throw Unimplemented.forMember("net/minecraft/world/level/LevelReader.getHeightmapPos:(Lnet/minecraft/world/level/levelgen/Heightmap$Types;Lnet/minecraft/core/BlockPos;)Lnet/minecraft/core/BlockPos;");
+    }
+
+    default boolean isEmptyBlock(BlockPos pos) {
+        throw Unimplemented.forMember("net/minecraft/world/level/LevelReader.isEmptyBlock:(Lnet/minecraft/core/BlockPos;)Z");
     }
 
     default ChunkAccess getChunk(BlockPos pos) {

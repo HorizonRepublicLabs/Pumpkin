@@ -12,6 +12,10 @@ public interface ResourceHandler<T extends Resource> {
 
     long getAmountAsLong(int index);
 
+    default int getAmountAsInt(int index) {
+        throw Unimplemented.forMember("net/neoforged/neoforge/transfer/ResourceHandler.getAmountAsInt:(I)I");
+    }
+
     long getCapacityAsLong(int index, T resource);
 
     boolean isValid(int index, T resource);

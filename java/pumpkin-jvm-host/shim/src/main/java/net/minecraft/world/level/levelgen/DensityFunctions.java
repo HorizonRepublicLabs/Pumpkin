@@ -11,6 +11,14 @@ import dev.pumpkin.shim.Unimplemented;
 
 public final class DensityFunctions {
 
+    protected DensityFunctions() {
+        throw Unimplemented.forMember("net/minecraft/world/level/levelgen/DensityFunctions.<init>:()V");
+    }
+
+    public static DensityFunction add(DensityFunction f1, DensityFunction f2) {
+        throw Unimplemented.forMember("net/minecraft/world/level/levelgen/DensityFunctions.add:(Lnet/minecraft/world/level/levelgen/DensityFunction;Lnet/minecraft/world/level/levelgen/DensityFunction;)Lnet/minecraft/world/level/levelgen/DensityFunction;");
+    }
+
     private record Ap2(DensityFunctions.TwoArgumentSimpleFunction.Type type, DensityFunction argument1, DensityFunction argument2, double minValue, double maxValue) implements DensityFunctions.TwoArgumentSimpleFunction {
 
         public double compute(DensityFunction.FunctionContext context) {

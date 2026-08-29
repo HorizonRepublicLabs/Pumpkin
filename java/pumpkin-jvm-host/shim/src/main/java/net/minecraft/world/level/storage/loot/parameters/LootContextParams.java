@@ -8,6 +8,9 @@ public class LootContextParams {
 
     public static final ContextKey<Vec3> ORIGIN = null;
 
+    protected LootContextParams() {
+    }
+
     static {
         if (true) {
             throw Unimplemented.forMember("net/minecraft/world/level/storage/loot/parameters/LootContextParams");

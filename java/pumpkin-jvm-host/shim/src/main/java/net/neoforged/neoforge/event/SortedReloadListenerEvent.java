@@ -13,6 +13,10 @@ public abstract class SortedReloadListenerEvent extends Event {
         throw Unimplemented.forMember("net/neoforged/neoforge/event/SortedReloadListenerEvent.<init>:(Ljava/util/List;Lnet/neoforged/neoforge/event/SortedReloadListenerEvent$NameLookup;)V");
     }
 
+    public void addListener(Identifier key, PreparableReloadListener listener) {
+        throw Unimplemented.forMember("net/neoforged/neoforge/event/SortedReloadListenerEvent.addListener:(Lnet/minecraft/resources/Identifier;Lnet/minecraft/server/packs/resources/PreparableReloadListener;)V");
+    }
+
     public interface NameLookup extends Function<PreparableReloadListener, Identifier> {
 
         Identifier apply(PreparableReloadListener t);

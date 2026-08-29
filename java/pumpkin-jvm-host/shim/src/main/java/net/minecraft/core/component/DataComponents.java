@@ -1,5 +1,6 @@
 package net.minecraft.core.component;
 
+import java.util.function.UnaryOperator;
 import net.minecraft.util.Unit;
 import net.minecraft.world.item.component.CustomData;
 import net.minecraft.world.item.component.Tool;
@@ -17,6 +18,13 @@ public class DataComponents {
     public static final DataComponentType<ItemEnchantments> ENCHANTMENTS = null;
 
     public static final DataComponentType<Tool> TOOL = null;
+
+    private static <T> DataComponentType<T> register(String id, UnaryOperator<DataComponentType.Builder<T>> builder) {
+        throw Unimplemented.forMember("net/minecraft/core/component/DataComponents.register:(Ljava/lang/String;Ljava/util/function/UnaryOperator;)Lnet/minecraft/core/component/DataComponentType;");
+    }
+
+    protected DataComponents() {
+    }
 
     static {
         if (true) {

@@ -40,6 +40,42 @@ public class Vec3i implements Comparable<Vec3i> {
         throw Unimplemented.forMember("net/minecraft/core/Vec3i.setY:(I)Lnet/minecraft/core/Vec3i;");
     }
 
+    public Vec3i offset(int x, int y, int z) {
+        throw Unimplemented.forMember("net/minecraft/core/Vec3i.offset:(III)Lnet/minecraft/core/Vec3i;");
+    }
+
+    public Vec3i offset(Vec3i vec) {
+        throw Unimplemented.forMember("net/minecraft/core/Vec3i.offset:(Lnet/minecraft/core/Vec3i;)Lnet/minecraft/core/Vec3i;");
+    }
+
+    public Vec3i above() {
+        throw Unimplemented.forMember("net/minecraft/core/Vec3i.above:()Lnet/minecraft/core/Vec3i;");
+    }
+
+    public Vec3i above(int steps) {
+        throw Unimplemented.forMember("net/minecraft/core/Vec3i.above:(I)Lnet/minecraft/core/Vec3i;");
+    }
+
+    public Vec3i below() {
+        throw Unimplemented.forMember("net/minecraft/core/Vec3i.below:()Lnet/minecraft/core/Vec3i;");
+    }
+
+    public Vec3i below(int steps) {
+        throw Unimplemented.forMember("net/minecraft/core/Vec3i.below:(I)Lnet/minecraft/core/Vec3i;");
+    }
+
+    public Vec3i relative(Direction direction) {
+        throw Unimplemented.forMember("net/minecraft/core/Vec3i.relative:(Lnet/minecraft/core/Direction;)Lnet/minecraft/core/Vec3i;");
+    }
+
+    public Vec3i relative(Direction direction, int steps) {
+        throw Unimplemented.forMember("net/minecraft/core/Vec3i.relative:(Lnet/minecraft/core/Direction;I)Lnet/minecraft/core/Vec3i;");
+    }
+
+    public Vec3i relative(Direction.Axis axis, int steps) {
+        throw Unimplemented.forMember("net/minecraft/core/Vec3i.relative:(Lnet/minecraft/core/Direction$Axis;I)Lnet/minecraft/core/Vec3i;");
+    }
+
     public int get(Direction.Axis axis) {
         throw Unimplemented.forMember("net/minecraft/core/Vec3i.get:(Lnet/minecraft/core/Direction$Axis;)I");
     }

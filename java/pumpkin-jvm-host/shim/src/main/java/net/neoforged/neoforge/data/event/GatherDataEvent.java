@@ -24,6 +24,14 @@ public abstract class GatherDataEvent extends Event implements IModBusEvent {
         throw Unimplemented.forMember("net/neoforged/neoforge/data/event/GatherDataEvent.<init>:(Lnet/neoforged/fml/ModContainer;Lnet/minecraft/data/DataGenerator;Lnet/neoforged/neoforge/data/event/GatherDataEvent$DataGeneratorConfig;)V");
     }
 
+    public DataGenerator getGenerator() {
+        throw Unimplemented.forMember("net/neoforged/neoforge/data/event/GatherDataEvent.getGenerator:()Lnet/minecraft/data/DataGenerator;");
+    }
+
+    public CompletableFuture<HolderLookup.Provider> getLookupProvider() {
+        throw Unimplemented.forMember("net/neoforged/neoforge/data/event/GatherDataEvent.getLookupProvider:()Ljava/util/concurrent/CompletableFuture;");
+    }
+
     public static class Server extends GatherDataEvent {
 
         public Server(ModContainer mc, DataGenerator dataGenerator, DataGeneratorConfig dataGeneratorConfig) {
@@ -52,6 +60,10 @@ public abstract class GatherDataEvent extends Event implements IModBusEvent {
 
         protected DataGeneratorConfig() {
         }
+    }
+
+    public <T extends DataProvider> T addProvider(T provider) {
+        throw Unimplemented.forMember("net/neoforged/neoforge/data/event/GatherDataEvent.addProvider:(Lnet/minecraft/data/DataProvider;)Lnet/minecraft/data/DataProvider;");
     }
 
     public interface DataProviderFromOutput<T extends DataProvider> {

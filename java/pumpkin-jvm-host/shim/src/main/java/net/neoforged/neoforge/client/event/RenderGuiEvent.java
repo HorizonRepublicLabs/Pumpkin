@@ -12,6 +12,10 @@ public abstract class RenderGuiEvent extends Event {
         throw Unimplemented.forMember("net/neoforged/neoforge/client/event/RenderGuiEvent.<init>:(Lnet/minecraft/client/gui/GuiGraphicsExtractor;Lnet/minecraft/client/DeltaTracker;)V");
     }
 
+    public GuiGraphicsExtractor getGuiGraphics() {
+        throw Unimplemented.forMember("net/neoforged/neoforge/client/event/RenderGuiEvent.getGuiGraphics:()Lnet/minecraft/client/gui/GuiGraphicsExtractor;");
+    }
+
     public static class Pre extends RenderGuiEvent implements ICancellableEvent {
 
         public Pre(GuiGraphicsExtractor guiGraphics, DeltaTracker partialTick) {

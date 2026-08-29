@@ -8,6 +8,7 @@ import java.lang.reflect.Constructor;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import dev.pumpkin.shim.PumpkinEventBus;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.registries.DeferredRegister;
 import org.junit.jupiter.api.Test;
@@ -57,7 +58,7 @@ class ModLoaderTest {
                     "HelloMod's static initializer ran while merely discovering it");
 
             Constructor<?> constructor = candidate.mainClass().getConstructor(IEventBus.class);
-            constructor.newInstance(new IEventBus());
+            constructor.newInstance(new PumpkinEventBus());
 
             assertEquals("true", System.getProperty(HELLOMOD_STATIC_INITIALIZED_PROPERTY));
         } finally {

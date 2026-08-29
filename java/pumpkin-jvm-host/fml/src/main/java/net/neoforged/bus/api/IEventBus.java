@@ -1,32 +1,39 @@
 package net.neoforged.bus.api;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.function.Consumer;
 
 /**
  * The mod event bus.
  *
- * <p>A class in vanilla NeoForge, an interface here would need a second implementation for
- * no gain. Dispatch is by runtime type and is not thread-safe: everything on it runs on the
- * mod thread.
+ * <p>Hand-written, not generated: the event bus is published as a separate NeoForge
+ * artifact whose sources are not in the decompiled tree. On the generator's "no source
+ * found" list; do not delete it as un-regenerable.
+ *
+ * <p>An interface, as in NeoForge, and that is load-bearing rather than stylistic. It was
+ * a class here for one slice, on the reasoning that a second implementation would be dead
+ * weight. But a mod's call site carries the shape it was compiled against: every call the
+ * two real mods make on the bus is an {@code invokeinterface}, and an {@code
+ * invokeinterface} whose owner turns out to be a class is an {@code
+ * IncompatibleClassChangeError} at the first call -- which for {@code bus.register(this)}
+ * is the first line of a mod's constructor. Linkage resolves either way, so nothing but a
+ * check for the mismatch would have found it. The implementation is {@link
+ * dev.pumpkin.shim.PumpkinEventBus}.
  */
-public class IEventBus {
-    private record Listener<T extends Event>(Class<?> type, Consumer<T> handler) {
-    }
+public interface IEventBus {
+    /**
+     * Registers {@code handler} for events of exactly {@code type} or a subtype.
+     *
+     * <p>NeoForge's own overload, and the one Pumpkin's code and the test mod call: it
+     * says the event type outright instead of recovering it from a lambda.
+     */
+    <T extends Event> void addListener(Class<T> type, Consumer<T> handler);
 
-    private final List<Listener<? extends Event>> listeners = new ArrayList<>();
+    /** NeoForge's one-argument form, which infers the event type from the consumer. */
+    <T extends Event> void addListener(Consumer<T> handler);
 
-    public <T extends Event> void addListener(Class<T> type, Consumer<T> handler) {
-        listeners.add(new Listener<>(type, handler));
-    }
+    /** Dispatches {@code event} to every matching listener and returns it. */
+    <T extends Event> T post(T event);
 
-    @SuppressWarnings("unchecked")
-    public void post(Event event) {
-        for (Listener<? extends Event> listener : List.copyOf(listeners)) {
-            if (listener.type().isInstance(event)) {
-                ((Consumer<Event>) listener.handler()).accept(event);
-            }
-        }
-    }
+    /** Registers every {@code @SubscribeEvent} method on {@code target} as a listener. */
+    void register(Object target);
 }

@@ -44,6 +44,7 @@ public final class Main {
         writeManifest(used, parsed.manifest);
 
         Set<String> inheritedAbstracts = abstractSignatures(closer, used);
+        UsedSet keep = keepSet(closer, used);
         Pruner.resetReport();
         List<String> noSource = new ArrayList<>();
         int emittedShim = 0;
@@ -54,7 +55,7 @@ public final class Main {
                 noSource.add(internalName);
                 continue;
             }
-            Pruner.prune(cu, internalName, used, inheritedAbstracts, parsed.absentTypes);
+            Pruner.prune(cu, internalName, keep, inheritedAbstracts, parsed.absentTypes);
             if (internalName.startsWith("net/neoforged/")) {
                 Emitter.emit(cu, internalName, parsed.outFml);
                 emittedFml++;
@@ -125,11 +126,16 @@ public final class Main {
         for (int round = 1; round <= maxRounds; round++) {
             closer.close(used);
             Set<String> inheritedAbstracts = abstractSignatures(closer, used);
+            // The clones are pruned against the keep set, not the used set, for the same
+            // reason the real emission is: a member kept only because a subtype's call
+            // site named it still has a signature, and that signature's types have to be
+            // closed over or the emitted file will not compile.
+            UsedSet keep = keepSet(closer, used);
             Pruner.resetReport();
             for (String internalName : used.classes()) {
                 CompilationUnit cu = closer.parse(internalName);
                 if (cu != null) {
-                    Pruner.prune(cu.clone(), internalName, used, inheritedAbstracts, absentTypes);
+                    Pruner.prune(cu.clone(), internalName, keep, inheritedAbstracts, absentTypes);
                 }
             }
             SortedSet<String> missing = Pruner.missingTypesInKeptSignatures();
@@ -141,6 +147,46 @@ public final class Main {
             }
         }
         throw new IllegalStateException("closure did not reach a fixpoint in " + maxRounds + " rounds");
+    }
+
+    /**
+     * The used set, plus every member re-filed under each shimmed supertype of its owner.
+     * What {@link Pruner} decides against; never what gets written to the manifest.
+     *
+     * <p>A mod's call site names the class it was compiled against, not the class that
+     * declares the member: {@code Player.getHealth()} is a {@code Methodref} on {@code
+     * Player}, and {@code getHealth} is declared on {@code LivingEntity}. Pruning {@code
+     * LivingEntity} against its own used-member set therefore deletes exactly the method
+     * the mod calls, and the shim compiles perfectly while linking against nothing. The
+     * linkage check found 124 of these in the two real mods -- {@code Player} alone
+     * accounted for 30 -- and every one of them looked, from inside the generator, like a
+     * member nobody wanted.
+     *
+     * <p>Re-filing rather than resolving: this does not work out which supertype declares
+     * the member, it offers the same {@code name:descriptor} to all of them and lets
+     * whichever one actually declares it match. Resolving properly would need overload
+     * resolution across files with no classpath. Over-offering costs nothing -- a
+     * supertype that does not declare the signature keeps nothing extra -- while
+     * under-offering costs a mod that cannot link.
+     *
+     * <p>Kept out of the manifest deliberately. The manifest says what the mods reference,
+     * and {@code LivingEntity.getInventory} is not something anything references; it is an
+     * artifact of not knowing where {@code getInventory} lives. Writing these into the
+     * committed file would multiply it several-fold with entries that are mostly phantom
+     * and would make {@code Unimplemented}'s keys unjoinable against it.
+     */
+    private static UsedSet keepSet(SupertypeCloser closer, UsedSet used) {
+        UsedSet keep = new UsedSet();
+        for (String internalName : used.classes()) {
+            keep.addClass(internalName, "used");
+        }
+        for (UsedSet.MemberRef ref : used.members()) {
+            keep.addMember(ref, "used");
+            for (String supertype : closer.supertypesOf(ref.owner())) {
+                keep.addMember(new UsedSet.MemberRef(supertype, ref.name(), ref.descriptor()), "used");
+            }
+        }
+        return keep;
     }
 
     /**

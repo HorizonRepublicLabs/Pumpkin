@@ -9,6 +9,9 @@ public class GameProtocols {
         boolean hasInfiniteMaterials();
     }
 
+    protected GameProtocols() {
+    }
+
     static {
         if (true) {
             throw Unimplemented.forMember("net/minecraft/network/protocol/game/GameProtocols");

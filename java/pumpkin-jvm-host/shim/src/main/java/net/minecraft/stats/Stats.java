@@ -7,6 +7,9 @@ public class Stats {
 
     public static final StatType<Item> ITEM_USED = null;
 
+    protected Stats() {
+    }
+
     static {
         if (true) {
             throw Unimplemented.forMember("net/minecraft/stats/Stats");

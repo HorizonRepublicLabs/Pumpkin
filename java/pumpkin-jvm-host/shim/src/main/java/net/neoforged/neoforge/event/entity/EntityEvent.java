@@ -12,6 +12,10 @@ public abstract class EntityEvent extends Event {
         throw Unimplemented.forMember("net/neoforged/neoforge/event/entity/EntityEvent.<init>:(Lnet/minecraft/world/entity/Entity;)V");
     }
 
+    public Entity getEntity() {
+        throw Unimplemented.forMember("net/neoforged/neoforge/event/entity/EntityEvent.getEntity:()Lnet/minecraft/world/entity/Entity;");
+    }
+
     public static class EntityConstructing extends EntityEvent {
 
         public EntityConstructing(Entity entity) {

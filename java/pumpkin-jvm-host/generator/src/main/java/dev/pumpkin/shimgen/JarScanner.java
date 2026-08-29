@@ -9,6 +9,7 @@ import java.util.jar.JarInputStream;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.FieldVisitor;
+import org.objectweb.asm.Handle;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
@@ -201,6 +202,34 @@ public final class JarScanner {
                 public void visitTypeInsn(int opcode, String type) {
                     Type t = Type.getObjectType(type);
                     recordObjectType(into, t, className);
+                }
+
+                /**
+                 * A lambda or method reference. The target it captures is a {@code
+                 * MethodHandle} in the {@code BootstrapMethods} attribute, not a {@code
+                 * Methodref} in an instruction, so {@link #visitMethodInsn} never sees
+                 * it: {@code entity::isAlive} and {@code BlockEntity::saveWithFullMetadata}
+                 * were both invisible to this scanner until the linkage check found the
+                 * mods calling members no manifest entry had ever asked for.
+                 */
+                @Override
+                public void visitInvokeDynamicInsn(String name, String descriptor, Handle bootstrap,
+                        Object... arguments) {
+                    recordDescriptorTypes(into, descriptor, className);
+                    for (Object argument : arguments) {
+                        if (argument instanceof Handle handle) {
+                            if (!handle.getOwner().startsWith("[")) {
+                                recordMember(into, handle.getOwner(), handle.getName(), handle.getDesc(), className);
+                            }
+                            recordDescriptorTypes(into, handle.getDesc(), className);
+                        } else if (argument instanceof Type type) {
+                            if (type.getSort() == Type.METHOD) {
+                                recordDescriptorTypes(into, type.getDescriptor(), className);
+                            } else {
+                                recordObjectType(into, type, className);
+                            }
+                        }
+                    }
                 }
 
                 @Override

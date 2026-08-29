@@ -116,6 +116,22 @@ jobs:
         with:
           distribution: temurin
           java-version: "25"
+      # `./gradlew build` is the whole of what CI can check here, and that is a
+      # deliberate boundary rather than an omission. It compiles the generated shim and
+      # runs every Java test, including ManifestConsistencyTest (the committed manifest
+      # and the committed source tree still agree, both directions) and
+      # MixinMembersPresentTest (the four members only the mixin scanner can see are
+      # still in the manifest) -- both of which read only files that live in this repo.
+      #
+      # Two gates are local-only and are run by hand:
+      #   * regeneration (`./regen.sh`) needs the decompiled NeoForge tree, and
+      #   * the linkage check (`:generator:linkageCheck`) needs the MysticalAgriculture
+      #     and Cucumber jars, which prove a real mod resolves against the shim.
+      # Both inputs are large third-party checkouts that live beside this repository and
+      # are not vendored. Committing the mod jars to make CI run the linkage check would
+      # put redistributable-licensed binaries in the tree for a check whose result is
+      # already recorded in the task report; the consistency tests above are what stands
+      # in for it on every push.
       - name: Build and test the JVM host jars (Gradle)
         working-directory: java/pumpkin-jvm-host
         run: ./gradlew build

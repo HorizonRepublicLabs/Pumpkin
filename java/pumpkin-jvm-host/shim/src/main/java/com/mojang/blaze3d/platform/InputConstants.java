@@ -4,10 +4,23 @@ import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
+import net.minecraft.client.input.KeyEvent;
 import net.minecraft.network.chat.Component;
 import dev.pumpkin.shim.Unimplemented;
 
 public class InputConstants {
+
+    public static InputConstants.Key getKey(KeyEvent event) {
+        throw Unimplemented.forMember("com/mojang/blaze3d/platform/InputConstants.getKey:(Lnet/minecraft/client/input/KeyEvent;)Lcom/mojang/blaze3d/platform/InputConstants$Key;");
+    }
+
+    public static InputConstants.Key getKey(String name) {
+        throw Unimplemented.forMember("com/mojang/blaze3d/platform/InputConstants.getKey:(Ljava/lang/String;)Lcom/mojang/blaze3d/platform/InputConstants$Key;");
+    }
+
+    public static boolean isKeyDown(Window window, int key) {
+        throw Unimplemented.forMember("com/mojang/blaze3d/platform/InputConstants.isKeyDown:(Lcom/mojang/blaze3d/platform/Window;I)Z");
+    }
 
     public static final class Key {
 
@@ -51,6 +64,9 @@ public class InputConstants {
     @Retention(RetentionPolicy.CLASS)
     @Target(ElementType.TYPE_USE)
     public @interface Value {
+    }
+
+    protected InputConstants() {
     }
 
     static {

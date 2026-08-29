@@ -24,9 +24,20 @@ public class BuiltInRegistries {
 
     public static final Registry<RecipeSerializer<?>> RECIPE_SERIALIZER = null;
 
+    private static void freeze() {
+        throw Unimplemented.forMember("net/minecraft/core/registries/BuiltInRegistries.freeze:()V");
+    }
+
+    private static <T extends Registry<?>> void validate(Registry<T> registry) {
+        throw Unimplemented.forMember("net/minecraft/core/registries/BuiltInRegistries.validate:(Lnet/minecraft/core/Registry;)V");
+    }
+
     private interface RegistryBootstrap<T> {
 
         Object run(Registry<T> registry);
+    }
+
+    protected BuiltInRegistries() {
     }
 
     static {

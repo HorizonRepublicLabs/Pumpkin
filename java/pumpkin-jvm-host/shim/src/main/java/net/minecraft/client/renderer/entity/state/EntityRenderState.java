@@ -4,6 +4,8 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 
 public class EntityRenderState extends net.neoforged.neoforge.client.renderstate.BaseRenderState {
 
+    public float boundingBoxWidth;
+
     public float boundingBoxHeight;
 
     public int lightCoords;

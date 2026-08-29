@@ -7,6 +7,9 @@ public class NeoForge {
 
     public static final IEventBus EVENT_BUS = null;
 
+    protected NeoForge() {
+    }
+
     static {
         if (true) {
             throw Unimplemented.forMember("net/neoforged/neoforge/common/NeoForge");

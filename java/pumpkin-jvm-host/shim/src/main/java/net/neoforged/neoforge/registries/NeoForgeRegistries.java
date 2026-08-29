@@ -17,11 +17,17 @@ public class NeoForgeRegistries {
 
     public static final class Keys {
 
+        protected Keys() {
+        }
+
         static {
             if (true) {
                 throw Unimplemented.forMember("net/neoforged/neoforge/registries/NeoForgeRegistries$Keys");
             }
         }
+    }
+
+    protected NeoForgeRegistries() {
     }
 
     static {

@@ -9,6 +9,9 @@ public class Enchantments {
 
     public static final ResourceKey<Enchantment> UNBREAKING = null;
 
+    protected Enchantments() {
+    }
+
     static {
         if (true) {
             throw Unimplemented.forMember("net/minecraft/world/item/enchantment/Enchantments");

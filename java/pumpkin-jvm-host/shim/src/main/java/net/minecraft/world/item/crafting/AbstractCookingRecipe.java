@@ -8,6 +8,8 @@ import dev.pumpkin.shim.Unimplemented;
 
 public abstract class AbstractCookingRecipe extends SingleItemRecipe {
 
+    private final int cookingTime = 0;
+
     public AbstractCookingRecipe(Recipe.CommonInfo commonInfo, AbstractCookingRecipe.CookingBookInfo bookInfo, Ingredient ingredient, ItemStackTemplate result, float experience, int cookingTime) {
         throw Unimplemented.forMember("net/minecraft/world/item/crafting/AbstractCookingRecipe.<init>:(Lnet/minecraft/world/item/crafting/Recipe$CommonInfo;Lnet/minecraft/world/item/crafting/AbstractCookingRecipe$CookingBookInfo;Lnet/minecraft/world/item/crafting/Ingredient;Lnet/minecraft/world/item/ItemStackTemplate;FI)V");
     }
@@ -15,6 +17,10 @@ public abstract class AbstractCookingRecipe extends SingleItemRecipe {
     public abstract RecipeSerializer<? extends AbstractCookingRecipe> getSerializer();
 
     public abstract RecipeType<? extends AbstractCookingRecipe> getType();
+
+    public int cookingTime() {
+        throw Unimplemented.forMember("net/minecraft/world/item/crafting/AbstractCookingRecipe.cookingTime:()I");
+    }
 
     public CookingBookCategory category() {
         throw Unimplemented.forMember("net/minecraft/world/item/crafting/AbstractCookingRecipe.category:()Lnet/minecraft/world/item/crafting/CookingBookCategory;");

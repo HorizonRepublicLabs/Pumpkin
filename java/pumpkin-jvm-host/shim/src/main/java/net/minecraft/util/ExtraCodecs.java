@@ -7,10 +7,19 @@ import com.mojang.serialization.DynamicOps;
 import com.mojang.serialization.MapLike;
 import com.mojang.serialization.codecs.BaseMapCodec;
 import java.util.Map;
+import java.util.Optional;
 import net.minecraft.resources.Identifier;
 import dev.pumpkin.shim.Unimplemented;
 
 public class ExtraCodecs {
+
+    public static <K, V> ExtraCodecs.StrictUnboundedMapCodec<K, V> strictUnboundedMap(Codec<K> keyCodec, Codec<V> elementCodec) {
+        throw Unimplemented.forMember("net/minecraft/util/ExtraCodecs.strictUnboundedMap:(Lcom/mojang/serialization/Codec;Lcom/mojang/serialization/Codec;)Lnet/minecraft/util/ExtraCodecs$StrictUnboundedMapCodec;");
+    }
+
+    public static <A> Codec<Optional<A>> optionalEmptyMap(Codec<A> codec) {
+        throw Unimplemented.forMember("net/minecraft/util/ExtraCodecs.optionalEmptyMap:(Lcom/mojang/serialization/Codec;)Lcom/mojang/serialization/Codec;");
+    }
 
     public static class LateBoundIdMapper<I, V> {
 
@@ -46,6 +55,9 @@ public class ExtraCodecs {
         public String toString() {
             throw Unimplemented.forMember("net/minecraft/util/ExtraCodecs$TagOrElementLocation.toString:()Ljava/lang/String;");
         }
+    }
+
+    protected ExtraCodecs() {
     }
 
     static {

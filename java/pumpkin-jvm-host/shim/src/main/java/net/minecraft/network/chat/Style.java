@@ -30,6 +30,9 @@ public final class Style {
 
     public static class Serializer {
 
+        protected Serializer() {
+        }
+
         static {
             if (true) {
                 throw Unimplemented.forMember("net/minecraft/network/chat/Style$Serializer");

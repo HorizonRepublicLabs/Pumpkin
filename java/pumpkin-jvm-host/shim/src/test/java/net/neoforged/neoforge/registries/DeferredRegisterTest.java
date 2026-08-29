@@ -8,6 +8,7 @@ import java.util.List;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockBehaviour;
+import dev.pumpkin.shim.PumpkinEventBus;
 import net.neoforged.bus.api.IEventBus;
 import org.junit.jupiter.api.Test;
 
@@ -20,7 +21,7 @@ class DeferredRegisterTest {
             return registered.size();
         });
 
-        IEventBus bus = new IEventBus();
+        IEventBus bus = new PumpkinEventBus();
         DeferredRegister<Block> blocks = DeferredRegister.create(Registries.BLOCK, "testmod");
         DeferredHolder<Block, Block> ruby =
                 blocks.register("ruby_block", () -> new Block(BlockBehaviour.Properties.of().pumpkinTemplate("stone")));

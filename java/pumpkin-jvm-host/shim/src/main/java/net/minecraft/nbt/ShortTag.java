@@ -68,6 +68,9 @@ public record ShortTag(short value) implements NumericTag {
 
     private static class Cache {
 
+        protected Cache() {
+        }
+
         static {
             if (true) {
                 throw Unimplemented.forMember("net/minecraft/nbt/ShortTag$Cache");

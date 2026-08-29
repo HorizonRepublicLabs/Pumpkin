@@ -207,6 +207,10 @@ public abstract class Level extends net.neoforged.neoforge.attachment.Attachment
 
     public abstract TickRateManager tickRateManager();
 
+    public boolean isRainingAt(BlockPos pos) {
+        throw Unimplemented.forMember("net/minecraft/world/level/Level.isRainingAt:(Lnet/minecraft/core/BlockPos;)Z");
+    }
+
     public abstract MapItemSavedData getMapData(MapId id);
 
     public abstract void destroyBlockProgress(final int id, final BlockPos blockPos, final int progress);

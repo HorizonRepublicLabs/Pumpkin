@@ -10,6 +10,7 @@ import java.util.jar.JarEntry;
 import java.util.jar.JarOutputStream;
 import org.junit.jupiter.api.Test;
 import org.objectweb.asm.ClassWriter;
+import org.objectweb.asm.Handle;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
@@ -146,6 +147,36 @@ class JarScannerTest {
         return cw.toByteArray();
     }
 
+    /**
+     * {@code Predicate<Entity> p = Entity::isAlive;} -- an {@code invokedynamic} against
+     * {@code LambdaMetafactory} whose second bootstrap argument is a handle on {@code
+     * Entity.isAlive}. Written out by hand rather than compiled, so the test states the
+     * exact shape it is guarding.
+     */
+    private static byte[] methodReferenceClass() {
+        ClassWriter cw = new ClassWriter(0);
+        cw.visit(Opcodes.V21, Opcodes.ACC_PUBLIC, "example/HasMethodRef", null, "java/lang/Object", null);
+        MethodVisitor mv = cw.visitMethod(Opcodes.ACC_PUBLIC | Opcodes.ACC_STATIC, "go", "()V", null, null);
+        Handle metafactory = new Handle(Opcodes.H_INVOKESTATIC, "java/lang/invoke/LambdaMetafactory",
+                "metafactory",
+                "(Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;Ljava/lang/invoke/MethodType;"
+                        + "Ljava/lang/invoke/MethodType;Ljava/lang/invoke/MethodHandle;"
+                        + "Ljava/lang/invoke/MethodType;)Ljava/lang/invoke/CallSite;",
+                false);
+        Handle target = new Handle(Opcodes.H_INVOKEVIRTUAL, "net/minecraft/world/entity/Entity", "isAlive", "()Z",
+                false);
+        mv.visitCode();
+        mv.visitInvokeDynamicInsn("test", "()Ljava/util/function/Predicate;", metafactory,
+                Type.getMethodType("(Ljava/lang/Object;)Z"), target,
+                Type.getMethodType("(Lnet/minecraft/world/entity/Entity;)Z"));
+        mv.visitInsn(Opcodes.POP);
+        mv.visitInsn(Opcodes.RETURN);
+        mv.visitMaxs(1, 0);
+        mv.visitEnd();
+        cw.visitEnd();
+        return cw.toByteArray();
+    }
+
     /** A multi-dimensional array allocation naming a type nowhere else. */
     private static byte[] multiANewArrayClass() {
         ClassWriter cw = new ClassWriter(0);
@@ -217,6 +248,24 @@ class JarScannerTest {
         UsedSet used = new UsedSet();
         JarScanner.scan(jarWith("example/HasClassLiteral.class", classLiteralClass()), used);
         assertTrue(used.classes().contains("net/minecraft/world/entity/Entity"));
+    }
+
+    /**
+     * A method reference is a member reference, even though no instruction names it.
+     *
+     * <p>{@code entity::isAlive} compiles to an {@code invokedynamic} whose target is a
+     * {@code MethodHandle} in the {@code BootstrapMethods} attribute. {@code
+     * visitMethodInsn} never fires for it, so this scanner recorded nothing, the pruner
+     * deleted {@code isAlive} as uncalled, and the mod linked against a class that no
+     * longer had it. Both real mods do this; {@code Entity.isAlive} and {@code
+     * BlockEntity.saveWithFullMetadata} were exactly this case.
+     */
+    @Test
+    void findsMembersReferencedOnlyByAMethodReference() throws Exception {
+        UsedSet used = new UsedSet();
+        JarScanner.scan(jarWith("example/HasMethodRef.class", methodReferenceClass()), used);
+        assertTrue(used.classes().contains("net/minecraft/world/entity/Entity"));
+        assertTrue(used.membersOf("net/minecraft/world/entity/Entity").contains("isAlive:()Z"));
     }
 
     /// A MULTIANEWARRAY instruction's element type is a real reference too.

@@ -2,6 +2,7 @@ package net.minecraft.world.level.block.entity;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.core.TypedInstance;
 import net.minecraft.core.component.DataComponentMap;
 import net.minecraft.nbt.CompoundTag;
@@ -12,6 +13,7 @@ import net.minecraft.util.ProblemReporter;
 import net.minecraft.util.debug.DebugValueSource;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.storage.ValueOutput;
 import net.neoforged.neoforge.common.extensions.IBlockEntityExtension;
 import dev.pumpkin.shim.Unimplemented;
 
@@ -23,6 +25,14 @@ public abstract class BlockEntity extends net.neoforged.neoforge.attachment.Atta
 
     public Level getLevel() {
         throw Unimplemented.forMember("net/minecraft/world/level/block/entity/BlockEntity.getLevel:()Lnet/minecraft/world/level/Level;");
+    }
+
+    public final CompoundTag saveWithFullMetadata(HolderLookup.Provider registries) {
+        throw Unimplemented.forMember("net/minecraft/world/level/block/entity/BlockEntity.saveWithFullMetadata:(Lnet/minecraft/core/HolderLookup$Provider;)Lnet/minecraft/nbt/CompoundTag;");
+    }
+
+    public void saveWithFullMetadata(ValueOutput output) {
+        throw Unimplemented.forMember("net/minecraft/world/level/block/entity/BlockEntity.saveWithFullMetadata:(Lnet/minecraft/world/level/storage/ValueOutput;)V");
     }
 
     public void setChanged() {

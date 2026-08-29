@@ -1,8 +1,23 @@
 package net.minecraft.util;
 
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import java.io.Reader;
 import dev.pumpkin.shim.Unimplemented;
 
 public class GsonHelper {
+
+    public static String convertToString(JsonElement element, String name) {
+        throw Unimplemented.forMember("net/minecraft/util/GsonHelper.convertToString:(Lcom/google/gson/JsonElement;Ljava/lang/String;)Ljava/lang/String;");
+    }
+
+    public static JsonObject parse(String string) {
+        throw Unimplemented.forMember("net/minecraft/util/GsonHelper.parse:(Ljava/lang/String;)Lcom/google/gson/JsonObject;");
+    }
+
+    public static JsonObject parse(Reader reader) {
+        throw Unimplemented.forMember("net/minecraft/util/GsonHelper.parse:(Ljava/io/Reader;)Lcom/google/gson/JsonObject;");
+    }
 
     private static class CountedAppendable implements Appendable {
 
@@ -24,6 +39,9 @@ public class GsonHelper {
 
         protected CountedAppendable() {
         }
+    }
+
+    protected GsonHelper() {
     }
 
     static {

@@ -19,6 +19,9 @@ public class ItemAbilities {
 
     public static final Set<ItemAbility> DEFAULT_SHOVEL_ACTIONS = null;
 
+    protected ItemAbilities() {
+    }
+
     static {
         if (true) {
             throw Unimplemented.forMember("net/neoforged/neoforge/common/ItemAbilities");

@@ -7,6 +7,8 @@ import dev.pumpkin.shim.Unimplemented;
 
 public abstract class SingleItemRecipe implements Recipe<SingleRecipeInput> {
 
+    private final Ingredient input = null;
+
     public SingleItemRecipe(Recipe.CommonInfo commonInfo, Ingredient input, ItemStackTemplate result) {
         throw Unimplemented.forMember("net/minecraft/world/item/crafting/SingleItemRecipe.<init>:(Lnet/minecraft/world/item/crafting/Recipe$CommonInfo;Lnet/minecraft/world/item/crafting/Ingredient;Lnet/minecraft/world/item/ItemStackTemplate;)V");
     }

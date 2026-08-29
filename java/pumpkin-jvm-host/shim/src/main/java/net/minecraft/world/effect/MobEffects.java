@@ -37,6 +37,13 @@ public class MobEffects {
 
     public static final Holder<MobEffect> SLOW_FALLING = null;
 
+    private static Holder<MobEffect> register(String name, MobEffect mobEffect) {
+        throw Unimplemented.forMember("net/minecraft/world/effect/MobEffects.register:(Ljava/lang/String;Lnet/minecraft/world/effect/MobEffect;)Lnet/minecraft/core/Holder;");
+    }
+
+    protected MobEffects() {
+    }
+
     static {
         if (true) {
             throw Unimplemented.forMember("net/minecraft/world/effect/MobEffects");

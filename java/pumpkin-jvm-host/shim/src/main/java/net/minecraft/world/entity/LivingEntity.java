@@ -4,6 +4,7 @@ import java.util.Optional;
 import net.minecraft.commands.arguments.EntityAnchorArgument;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.Holder;
 import net.minecraft.network.protocol.game.ClientboundAddEntityPacket;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.SynchedEntityData;
@@ -11,7 +12,12 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.util.BlockUtil;
+import net.minecraft.world.InteractionHand;
 import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.effect.MobEffect;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.entity.ai.attributes.Attribute;
+import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
@@ -24,6 +30,10 @@ import net.neoforged.neoforge.common.extensions.ILivingEntityExtension;
 import dev.pumpkin.shim.Unimplemented;
 
 public abstract class LivingEntity extends Entity implements Attackable, WaypointTransmitter, ILivingEntityExtension {
+
+    public float xxa;
+
+    public float zza;
 
     protected LivingEntity(EntityType<? extends LivingEntity> type, Level level) {
         throw Unimplemented.forMember("net/minecraft/world/entity/LivingEntity.<init>:(Lnet/minecraft/world/entity/EntityType;Lnet/minecraft/world/level/Level;)V");
@@ -77,6 +87,34 @@ public abstract class LivingEntity extends Entity implements Attackable, Waypoin
         throw Unimplemented.forMember("net/minecraft/world/entity/LivingEntity.updateDataBeforeSync:()V");
     }
 
+    public boolean hasEffect(Holder<MobEffect> effect) {
+        throw Unimplemented.forMember("net/minecraft/world/entity/LivingEntity.hasEffect:(Lnet/minecraft/core/Holder;)Z");
+    }
+
+    public final boolean addEffect(MobEffectInstance newEffect) {
+        throw Unimplemented.forMember("net/minecraft/world/entity/LivingEntity.addEffect:(Lnet/minecraft/world/effect/MobEffectInstance;)Z");
+    }
+
+    public boolean addEffect(MobEffectInstance newEffect, Entity source) {
+        throw Unimplemented.forMember("net/minecraft/world/entity/LivingEntity.addEffect:(Lnet/minecraft/world/effect/MobEffectInstance;Lnet/minecraft/world/entity/Entity;)Z");
+    }
+
+    public boolean removeEffect(Holder<MobEffect> effect) {
+        throw Unimplemented.forMember("net/minecraft/world/entity/LivingEntity.removeEffect:(Lnet/minecraft/core/Holder;)Z");
+    }
+
+    public float getHealth() {
+        throw Unimplemented.forMember("net/minecraft/world/entity/LivingEntity.getHealth:()F");
+    }
+
+    public void setHealth(float health) {
+        throw Unimplemented.forMember("net/minecraft/world/entity/LivingEntity.setHealth:(F)V");
+    }
+
+    public boolean isDeadOrDying() {
+        throw Unimplemented.forMember("net/minecraft/world/entity/LivingEntity.isDeadOrDying:()Z");
+    }
+
     public boolean hurtServer(ServerLevel level, DamageSource source, float damage) {
         throw Unimplemented.forMember("net/minecraft/world/entity/LivingEntity.hurtServer:(Lnet/minecraft/server/level/ServerLevel;Lnet/minecraft/world/damagesource/DamageSource;F)Z");
     }
@@ -109,6 +147,10 @@ public abstract class LivingEntity extends Entity implements Attackable, Waypoin
         throw Unimplemented.forMember("net/minecraft/world/entity/LivingEntity.animateHurt:(F)V");
     }
 
+    public final float getMaxHealth() {
+        throw Unimplemented.forMember("net/minecraft/world/entity/LivingEntity.getMaxHealth:()F");
+    }
+
     public void handleDamageEvent(DamageSource source) {
         throw Unimplemented.forMember("net/minecraft/world/entity/LivingEntity.handleDamageEvent:(Lnet/minecraft/world/damagesource/DamageSource;)V");
     }
@@ -125,8 +167,28 @@ public abstract class LivingEntity extends Entity implements Attackable, Waypoin
         throw Unimplemented.forMember("net/minecraft/world/entity/LivingEntity.getEntityBounciness:()D");
     }
 
+    public AttributeInstance getAttribute(Holder<Attribute> attribute) {
+        throw Unimplemented.forMember("net/minecraft/world/entity/LivingEntity.getAttribute:(Lnet/minecraft/core/Holder;)Lnet/minecraft/world/entity/ai/attributes/AttributeInstance;");
+    }
+
+    public ItemStack getMainHandItem() {
+        throw Unimplemented.forMember("net/minecraft/world/entity/LivingEntity.getMainHandItem:()Lnet/minecraft/world/item/ItemStack;");
+    }
+
+    public ItemStack getOffhandItem() {
+        throw Unimplemented.forMember("net/minecraft/world/entity/LivingEntity.getOffhandItem:()Lnet/minecraft/world/item/ItemStack;");
+    }
+
     public ItemStack getWeaponItem() {
         throw Unimplemented.forMember("net/minecraft/world/entity/LivingEntity.getWeaponItem:()Lnet/minecraft/world/item/ItemStack;");
+    }
+
+    public ItemStack getItemInHand(InteractionHand hand) {
+        throw Unimplemented.forMember("net/minecraft/world/entity/LivingEntity.getItemInHand:(Lnet/minecraft/world/InteractionHand;)Lnet/minecraft/world/item/ItemStack;");
+    }
+
+    public void setItemInHand(InteractionHand hand, ItemStack itemStack) {
+        throw Unimplemented.forMember("net/minecraft/world/entity/LivingEntity.setItemInHand:(Lnet/minecraft/world/InteractionHand;Lnet/minecraft/world/item/ItemStack;)V");
     }
 
     public ItemStack getItemBySlot(EquipmentSlot slot) {
@@ -211,6 +273,18 @@ public abstract class LivingEntity extends Entity implements Attackable, Waypoin
 
     public abstract HumanoidArm getMainArm();
 
+    public boolean isUsingItem() {
+        throw Unimplemented.forMember("net/minecraft/world/entity/LivingEntity.isUsingItem:()Z");
+    }
+
+    public InteractionHand getUsedItemHand() {
+        throw Unimplemented.forMember("net/minecraft/world/entity/LivingEntity.getUsedItemHand:()Lnet/minecraft/world/InteractionHand;");
+    }
+
+    public void startUsingItem(InteractionHand hand) {
+        throw Unimplemented.forMember("net/minecraft/world/entity/LivingEntity.startUsingItem:(Lnet/minecraft/world/InteractionHand;)V");
+    }
+
     public void onSyncedDataUpdated(EntityDataAccessor<?> accessor) {
         throw Unimplemented.forMember("net/minecraft/world/entity/LivingEntity.onSyncedDataUpdated:(Lnet/minecraft/network/syncher/EntityDataAccessor;)V");
     }
@@ -249,6 +323,10 @@ public abstract class LivingEntity extends Entity implements Attackable, Waypoin
 
     public boolean isInWall() {
         throw Unimplemented.forMember("net/minecraft/world/entity/LivingEntity.isInWall:()Z");
+    }
+
+    public ItemStack getProjectile(ItemStack heldWeapon) {
+        throw Unimplemented.forMember("net/minecraft/world/entity/LivingEntity.getProjectile:(Lnet/minecraft/world/item/ItemStack;)Lnet/minecraft/world/item/ItemStack;");
     }
 
     public SlotAccess getSlot(int slot) {

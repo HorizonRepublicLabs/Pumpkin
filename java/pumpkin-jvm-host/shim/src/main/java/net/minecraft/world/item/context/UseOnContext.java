@@ -43,6 +43,10 @@ public class UseOnContext {
         throw Unimplemented.forMember("net/minecraft/world/item/context/UseOnContext.getLevel:()Lnet/minecraft/world/level/Level;");
     }
 
+    public Direction getHorizontalDirection() {
+        throw Unimplemented.forMember("net/minecraft/world/item/context/UseOnContext.getHorizontalDirection:()Lnet/minecraft/core/Direction;");
+    }
+
     protected UseOnContext() {
     }
 }

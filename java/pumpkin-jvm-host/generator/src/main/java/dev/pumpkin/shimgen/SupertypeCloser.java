@@ -20,7 +20,9 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.SortedMap;
+import java.util.SortedSet;
 import java.util.TreeMap;
+import java.util.TreeSet;
 
 /**
  * Expands a {@link UsedSet} to include every {@code net.minecraft}/{@code net.neoforged}
@@ -146,6 +148,83 @@ public final class SupertypeCloser {
                 }
             }
         }
+    }
+
+    /**
+     * Every shimmed supertype of {@code internalName}, transitively, superclasses and
+     * interfaces alike, nested types included. Empty when the class has no source.
+     *
+     * <p>{@link #close} answers a different question -- which classes must exist -- and
+     * only ever looks at a file's primary type. This one is asked about a <em>member</em>
+     * owner, which is routinely a nested type ({@code BlockBehaviour$BlockStateBase},
+     * {@code Item$Properties}), so it resolves the declaration inside the file rather
+     * than assuming the primary one.
+     *
+     * <p>Why anything needs it: a mod's call site names the owner it was compiled against,
+     * not the class that declares the method. {@code Player.getHealth()} is a
+     * {@code Methodref} on {@code Player}, but {@code getHealth} is declared on {@code
+     * LivingEntity}, so pruning {@code LivingEntity} against its own used-member set
+     * deletes the very method the mod calls, and the shim links against nothing. See
+     * {@link Main#keepSet}.
+     */
+    public SortedSet<String> supertypesOf(String internalName) {
+        SortedSet<String> found = new TreeSet<>();
+        collectSupertypes(internalName, found);
+        return found;
+    }
+
+    private void collectSupertypes(String internalName, SortedSet<String> found) {
+        CompilationUnit unit = parse(Shimmed.outerOf(internalName));
+        if (unit == null) {
+            return;
+        }
+        TypeDeclaration<?> decl = typeDeclarationOf(unit, internalName);
+        if (decl == null || !decl.isClassOrInterfaceDeclaration()) {
+            return;
+        }
+        var classOrInterface = decl.asClassOrInterfaceDeclaration();
+        List<ClassOrInterfaceType> supertypes = new ArrayList<>(classOrInterface.getExtendedTypes());
+        supertypes.addAll(classOrInterface.getImplementedTypes());
+        for (ClassOrInterfaceType supertype : supertypes) {
+            String resolved = resolveScoped(unit, supertype.getNameWithScope());
+            if (!Shimmed.isShimmed(Shimmed.outerOf(resolved))) {
+                continue;
+            }
+            // found.add is the cycle guard as well as the result: a name already seen has
+            // already had its own supertypes walked.
+            if (found.add(resolved)) {
+                collectSupertypes(resolved, found);
+            }
+        }
+    }
+
+    /**
+     * The declaration {@code internalName} names inside {@code unit}: the top-level type
+     * whose name matches, then one nested member type per {@code $} segment. {@code null}
+     * when the file does not declare it, which happens whenever a nested supertype name
+     * was written unqualified and {@link #resolve}'s same-package guess turned it into a
+     * top-level name that exists nowhere.
+     */
+    private static TypeDeclaration<?> typeDeclarationOf(CompilationUnit unit, String internalName) {
+        String[] segments = internalName.substring(internalName.lastIndexOf('/') + 1).split("\\$");
+        TypeDeclaration<?> current = null;
+        for (TypeDeclaration<?> type : unit.getTypes()) {
+            if (type.getNameAsString().equals(segments[0])) {
+                current = type;
+                break;
+            }
+        }
+        for (int i = 1; i < segments.length && current != null; i++) {
+            TypeDeclaration<?> next = null;
+            for (var member : current.getMembers()) {
+                if (member instanceof TypeDeclaration<?> nested && nested.getNameAsString().equals(segments[i])) {
+                    next = nested;
+                    break;
+                }
+            }
+            current = next;
+        }
+        return current;
     }
 
     /**

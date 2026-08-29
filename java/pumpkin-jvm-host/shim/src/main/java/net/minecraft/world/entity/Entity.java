@@ -11,6 +11,7 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Stream;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.core.Holder;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.core.TypedInstance;
@@ -22,6 +23,8 @@ import net.minecraft.network.syncher.SyncedDataHolder;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.ProblemReporter;
 import net.minecraft.util.RandomSource;
 import net.minecraft.util.debug.DebugValueSource;
@@ -39,13 +42,24 @@ import net.minecraft.world.level.storage.loot.LootTable;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.scores.ScoreHolder;
+import net.minecraft.world.scores.Team;
 import net.neoforged.neoforge.common.extensions.IEntityExtension;
 import dev.pumpkin.shim.Unimplemented;
 
 public abstract class Entity extends net.neoforged.neoforge.attachment.AttachmentHolder implements Nameable, EntityAccess, ScoreHolder, SyncedDataHolder, DataComponentGetter, ItemOwner, SlotProvider, DebugValueSource, TypedInstance<EntityType<?>>, IEntityExtension {
 
+    private Level level;
+
+    private Vec3 position;
+
+    private boolean onGround;
+
     public Entity(EntityType<?> type, Level level) {
         throw Unimplemented.forMember("net/minecraft/world/entity/Entity.<init>:(Lnet/minecraft/world/entity/EntityType;Lnet/minecraft/world/level/Level;)V");
+    }
+
+    public boolean isSpectator() {
+        throw Unimplemented.forMember("net/minecraft/world/entity/Entity.isSpectator:()Z");
     }
 
     public EntityType<?> getType() {
@@ -86,12 +100,56 @@ public abstract class Entity extends net.neoforged.neoforge.attachment.Attachmen
         throw Unimplemented.forMember("net/minecraft/world/entity/Entity.tick:()V");
     }
 
+    public void clearFire() {
+        throw Unimplemented.forMember("net/minecraft/world/entity/Entity.clearFire:()V");
+    }
+
+    public boolean onGround() {
+        throw Unimplemented.forMember("net/minecraft/world/entity/Entity.onGround:()Z");
+    }
+
+    public BlockPos getOnPos() {
+        throw Unimplemented.forMember("net/minecraft/world/entity/Entity.getOnPos:()Lnet/minecraft/core/BlockPos;");
+    }
+
+    protected BlockPos getOnPos(float offset) {
+        throw Unimplemented.forMember("net/minecraft/world/entity/Entity.getOnPos:(F)Lnet/minecraft/core/BlockPos;");
+    }
+
+    public void playSound(SoundEvent sound, float volume, float pitch) {
+        throw Unimplemented.forMember("net/minecraft/world/entity/Entity.playSound:(Lnet/minecraft/sounds/SoundEvent;FF)V");
+    }
+
+    public void playSound(SoundEvent sound) {
+        throw Unimplemented.forMember("net/minecraft/world/entity/Entity.playSound:(Lnet/minecraft/sounds/SoundEvent;)V");
+    }
+
     public boolean isSilent() {
         throw Unimplemented.forMember("net/minecraft/world/entity/Entity.isSilent:()Z");
     }
 
     public boolean causeFallDamage(double fallDistance, float damageModifier, DamageSource damageSource) {
         throw Unimplemented.forMember("net/minecraft/world/entity/Entity.causeFallDamage:(DFLnet/minecraft/world/damagesource/DamageSource;)Z");
+    }
+
+    public boolean isInWater() {
+        throw Unimplemented.forMember("net/minecraft/world/entity/Entity.isInWater:()Z");
+    }
+
+    public void moveRelative(float speed, Vec3 input) {
+        throw Unimplemented.forMember("net/minecraft/world/entity/Entity.moveRelative:(FLnet/minecraft/world/phys/Vec3;)V");
+    }
+
+    public double distanceToSqr(double x2, double y2, double z2) {
+        throw Unimplemented.forMember("net/minecraft/world/entity/Entity.distanceToSqr:(DDD)D");
+    }
+
+    public double distanceToSqr(Entity entity) {
+        throw Unimplemented.forMember("net/minecraft/world/entity/Entity.distanceToSqr:(Lnet/minecraft/world/entity/Entity;)D");
+    }
+
+    public double distanceToSqr(Vec3 pos) {
+        throw Unimplemented.forMember("net/minecraft/world/entity/Entity.distanceToSqr:(Lnet/minecraft/world/phys/Vec3;)D");
     }
 
     public void push(Entity entity) {
@@ -102,7 +160,27 @@ public abstract class Entity extends net.neoforged.neoforge.attachment.Attachmen
         throw Unimplemented.forMember("net/minecraft/world/entity/Entity.push:(Lnet/minecraft/world/phys/Vec3;)V");
     }
 
+    public final void hurt(DamageSource source, float damage) {
+        throw Unimplemented.forMember("net/minecraft/world/entity/Entity.hurt:(Lnet/minecraft/world/damagesource/DamageSource;F)V");
+    }
+
     public abstract boolean hurtServer(ServerLevel level, DamageSource source, float damage);
+
+    public float getXRot(float partialTicks) {
+        throw Unimplemented.forMember("net/minecraft/world/entity/Entity.getXRot:(F)F");
+    }
+
+    public float getYRot(float partialTicks) {
+        throw Unimplemented.forMember("net/minecraft/world/entity/Entity.getYRot:(F)F");
+    }
+
+    public final Vec3 getEyePosition() {
+        throw Unimplemented.forMember("net/minecraft/world/entity/Entity.getEyePosition:()Lnet/minecraft/world/phys/Vec3;");
+    }
+
+    public final Vec3 getEyePosition(float partialTickTime) {
+        throw Unimplemented.forMember("net/minecraft/world/entity/Entity.getEyePosition:(F)Lnet/minecraft/world/phys/Vec3;");
+    }
 
     public final Vec3 getPosition(float partialTickTime) {
         throw Unimplemented.forMember("net/minecraft/world/entity/Entity.getPosition:(F)Lnet/minecraft/world/phys/Vec3;");
@@ -116,6 +194,10 @@ public abstract class Entity extends net.neoforged.neoforge.attachment.Attachmen
 
     protected abstract void addAdditionalSaveData(ValueOutput output);
 
+    public boolean isAlive() {
+        throw Unimplemented.forMember("net/minecraft/world/entity/Entity.isAlive:()Z");
+    }
+
     public void handleDamageEvent(DamageSource source) {
         throw Unimplemented.forMember("net/minecraft/world/entity/Entity.handleDamageEvent:(Lnet/minecraft/world/damagesource/DamageSource;)V");
     }
@@ -124,8 +206,36 @@ public abstract class Entity extends net.neoforged.neoforge.attachment.Attachmen
         throw Unimplemented.forMember("net/minecraft/world/entity/Entity.handleEntityEvent:(B)V");
     }
 
+    public boolean isOnFire() {
+        throw Unimplemented.forMember("net/minecraft/world/entity/Entity.isOnFire:()Z");
+    }
+
+    public boolean isShiftKeyDown() {
+        throw Unimplemented.forMember("net/minecraft/world/entity/Entity.isShiftKeyDown:()Z");
+    }
+
     public boolean isDescending() {
         throw Unimplemented.forMember("net/minecraft/world/entity/Entity.isDescending:()Z");
+    }
+
+    public boolean isCrouching() {
+        throw Unimplemented.forMember("net/minecraft/world/entity/Entity.isCrouching:()Z");
+    }
+
+    public boolean isSprinting() {
+        throw Unimplemented.forMember("net/minecraft/world/entity/Entity.isSprinting:()Z");
+    }
+
+    public boolean isSwimming() {
+        throw Unimplemented.forMember("net/minecraft/world/entity/Entity.isSwimming:()Z");
+    }
+
+    public final boolean isAlliedTo(Entity other) {
+        throw Unimplemented.forMember("net/minecraft/world/entity/Entity.isAlliedTo:(Lnet/minecraft/world/entity/Entity;)Z");
+    }
+
+    public boolean isAlliedTo(Team other) {
+        throw Unimplemented.forMember("net/minecraft/world/entity/Entity.isAlliedTo:(Lnet/minecraft/world/scores/Team;)Z");
     }
 
     public Component getName() {
@@ -184,6 +294,10 @@ public abstract class Entity extends net.neoforged.neoforge.attachment.Attachmen
         throw Unimplemented.forMember("net/minecraft/world/entity/Entity.onSyncedDataUpdated:(Lnet/minecraft/network/syncher/EntityDataAccessor;)V");
     }
 
+    public Direction getDirection() {
+        throw Unimplemented.forMember("net/minecraft/world/entity/Entity.getDirection:()Lnet/minecraft/core/Direction;");
+    }
+
     public final AABB getBoundingBox() {
         throw Unimplemented.forMember("net/minecraft/world/entity/Entity.getBoundingBox:()Lnet/minecraft/world/phys/AABB;");
     }
@@ -198,6 +312,10 @@ public abstract class Entity extends net.neoforged.neoforge.attachment.Attachmen
 
     public Stream<Entity> getPassengersAndSelf() {
         throw Unimplemented.forMember("net/minecraft/world/entity/Entity.getPassengersAndSelf:()Ljava/util/stream/Stream;");
+    }
+
+    public SoundSource getSoundSource() {
+        throw Unimplemented.forMember("net/minecraft/world/entity/Entity.getSoundSource:()Lnet/minecraft/sounds/SoundSource;");
     }
 
     public final float getBbWidth() {
@@ -220,20 +338,40 @@ public abstract class Entity extends net.neoforged.neoforge.attachment.Attachmen
         throw Unimplemented.forMember("net/minecraft/world/entity/Entity.getX:()D");
     }
 
+    public double getX(double progress) {
+        throw Unimplemented.forMember("net/minecraft/world/entity/Entity.getX:(D)D");
+    }
+
     public final double getY() {
         throw Unimplemented.forMember("net/minecraft/world/entity/Entity.getY:()D");
+    }
+
+    public double getY(double progress) {
+        throw Unimplemented.forMember("net/minecraft/world/entity/Entity.getY:(D)D");
     }
 
     public final double getZ() {
         throw Unimplemented.forMember("net/minecraft/world/entity/Entity.getZ:()D");
     }
 
+    public double getZ(double progress) {
+        throw Unimplemented.forMember("net/minecraft/world/entity/Entity.getZ:(D)D");
+    }
+
     public ItemStack getPickResult() {
         throw Unimplemented.forMember("net/minecraft/world/entity/Entity.getPickResult:()Lnet/minecraft/world/item/ItemStack;");
     }
 
+    public float getYRot() {
+        throw Unimplemented.forMember("net/minecraft/world/entity/Entity.getYRot:()F");
+    }
+
     public float getVisualRotationYInDegrees() {
         throw Unimplemented.forMember("net/minecraft/world/entity/Entity.getVisualRotationYInDegrees:()F");
+    }
+
+    public float getXRot() {
+        throw Unimplemented.forMember("net/minecraft/world/entity/Entity.getXRot:()F");
     }
 
     public final boolean isRemoved() {

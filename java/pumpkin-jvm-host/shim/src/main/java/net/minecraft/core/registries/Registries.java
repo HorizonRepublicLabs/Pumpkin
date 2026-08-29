@@ -42,6 +42,9 @@ public class Registries {
 
     public static final ResourceKey<Registry<Recipe<?>>> RECIPE = pumpkinRegistryKey("recipe");
 
+    protected Registries() {
+    }
+
     // Pumpkin divergence from the generated shim: every key above is initialised, and the
     // throwing static initializer the pruner writes for a constants-holder is gone.
     //

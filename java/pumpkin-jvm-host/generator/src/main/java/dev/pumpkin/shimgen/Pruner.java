@@ -443,7 +443,7 @@ public final class Pruner {
                 pruneMembers(cu, type, internalName, used, selfTypes, typeParams, inheritedAbstracts);
             }
             case HANDLE -> pruneMembers(cu, type, internalName, used, selfTypes, typeParams, inheritedAbstracts);
-            case HOLDER -> pruneHolder(cu, type, internalName, used, selfTypes, typeParams);
+            case HOLDER -> pruneHolder(cu, type, internalName, used, selfTypes, typeParams, inheritedAbstracts);
         }
         for (BodyDeclaration<?> member : type.getMembers()) {
             if (member instanceof TypeDeclaration<?> nested) {
@@ -734,29 +734,29 @@ public final class Pruner {
         return stubbed;
     }
 
+    /**
+     * A holder is pruned exactly like a HANDLE type -- its fields lose their initializers,
+     * its methods are kept only when something calls them, and every kept body throws --
+     * and then gains a static initializer that throws too.
+     *
+     * <p>Methods used to be removed here wholesale, on the reasoning that a holder's
+     * methods exist only to build the registry values its fields held. That reasoning does
+     * not survive contact with the classification: {@code isHolder} matches any class of
+     * constants with no instance methods, which is {@code Registries} and {@code
+     * BlockTags} but is equally {@code Mth}, {@code Shapes}, {@code ARGB} and {@code
+     * ExtraCodecs} -- pure static utilities whose methods the mods call constantly and
+     * which vanished from the shim entirely, leaving {@code Mth.floor} to link against a
+     * file holding nothing but a throwing static block. The linkage check surfaced 20 of
+     * these. Keeping the used ones as throwing stubs costs nothing: the class still cannot
+     * be touched without the static initializer firing first.
+     */
     private static void pruneHolder(CompilationUnit cu, TypeDeclaration<?> decl, String internalName,
-            UsedSet used, Map<String, String> selfTypes, Map<String, String> classTypeParams) {
-        SortedSet<String> usedKeys = used.membersOf(internalName);
+            UsedSet used, Map<String, String> selfTypes, Map<String, String> classTypeParams,
+            Set<String> inheritedAbstracts) {
+        // Nested member types are left alone here -- pruneType recurses into them
+        // separately once this level is done.
+        pruneMembers(cu, decl, internalName, used, selfTypes, classTypeParams, inheritedAbstracts);
         NodeList<BodyDeclaration<?>> members = decl.getMembers();
-        List<BodyDeclaration<?>> toRemove = new ArrayList<>();
-        boolean isInterface = decl instanceof ClassOrInterfaceDeclaration c && c.isInterface();
-
-        for (BodyDeclaration<?> member : members) {
-            if (member.isFieldDeclaration()) {
-                pruneField(member.asFieldDeclaration(), isInterface, internalName, usedKeys, used, selfTypes,
-                        classTypeParams, toRemove);
-            } else if (member.isMethodDeclaration() || member.isConstructorDeclaration()
-                    || member.isInitializerDeclaration()) {
-                // Methods and constructors on a holder exist only to build the
-                // registry values its fields used to hold; once those initializers
-                // are gone, nothing outside the class has any business calling them.
-                // Nested member types are left alone here — pruneType recurses into
-                // them separately once this level is done.
-                toRemove.add(member);
-            }
-        }
-        members.removeAll(toRemove);
-        removeOverrideAnnotations(decl);
 
         // `static { throw ...; }` does not compile: JLS 8.7 requires a static initializer
         // to be able to complete normally, and one whose only statement is a throw cannot.

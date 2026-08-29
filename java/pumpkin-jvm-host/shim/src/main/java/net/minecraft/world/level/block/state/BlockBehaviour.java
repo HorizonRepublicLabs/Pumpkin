@@ -1,22 +1,28 @@
 package net.minecraft.world.level.block.state;
 
 import com.mojang.serialization.MapCodec;
+import java.util.List;
 import java.util.Optional;
+import java.util.function.Predicate;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.core.TypedInstance;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.tags.TagKey;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.flag.FeatureElement;
 import net.minecraft.world.flag.FeatureFlagSet;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.state.properties.Property;
 import net.minecraft.world.level.material.FluidState;
+import net.minecraft.world.level.storage.loot.LootParams;
 import net.minecraft.world.level.storage.loot.LootTable;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.CollisionContext;
@@ -39,6 +45,14 @@ public abstract class BlockBehaviour implements FeatureElement {
         throw Unimplemented.forMember("net/minecraft/world/level/block/state/BlockBehaviour.requiredFeatures:()Lnet/minecraft/world/flag/FeatureFlagSet;");
     }
 
+    protected List<ItemStack> getDrops(BlockState state, LootParams.Builder params) {
+        throw Unimplemented.forMember("net/minecraft/world/level/block/state/BlockBehaviour.getDrops:(Lnet/minecraft/world/level/block/state/BlockState;Lnet/minecraft/world/level/storage/loot/LootParams$Builder;)Ljava/util/List;");
+    }
+
+    protected void randomTick(BlockState state, ServerLevel level, BlockPos pos, RandomSource random) {
+        throw Unimplemented.forMember("net/minecraft/world/level/block/state/BlockBehaviour.randomTick:(Lnet/minecraft/world/level/block/state/BlockState;Lnet/minecraft/server/level/ServerLevel;Lnet/minecraft/core/BlockPos;Lnet/minecraft/util/RandomSource;)V");
+    }
+
     protected void tick(BlockState state, ServerLevel level, BlockPos pos, RandomSource random) {
         throw Unimplemented.forMember("net/minecraft/world/level/block/state/BlockBehaviour.tick:(Lnet/minecraft/world/level/block/state/BlockState;Lnet/minecraft/server/level/ServerLevel;Lnet/minecraft/core/BlockPos;Lnet/minecraft/util/RandomSource;)V");
     }
@@ -53,12 +67,38 @@ public abstract class BlockBehaviour implements FeatureElement {
 
     public abstract static class BlockStateBase extends StateHolder<Block, BlockState> implements TypedInstance<Block> {
 
+        private final boolean isAir = false;
+
+        private final boolean requiresCorrectToolForDrops = false;
+
+        private final boolean canOcclude = false;
+
         protected BlockStateBase(Block owner, Property<?>[] propertyKeys, Comparable<?>[] propertyValues) {
             throw Unimplemented.forMember("net/minecraft/world/level/block/state/BlockBehaviour$BlockStateBase.<init>:(Lnet/minecraft/world/level/block/Block;[Lnet/minecraft/world/level/block/state/properties/Property;[Ljava/lang/Comparable;)V");
         }
 
+        public Block getBlock() {
+            throw Unimplemented.forMember("net/minecraft/world/level/block/state/BlockBehaviour$BlockStateBase.getBlock:()Lnet/minecraft/world/level/block/Block;");
+        }
+
         public Holder<Block> typeHolder() {
             throw Unimplemented.forMember("net/minecraft/world/level/block/state/BlockBehaviour$BlockStateBase.typeHolder:()Lnet/minecraft/core/Holder;");
+        }
+
+        public boolean isAir() {
+            throw Unimplemented.forMember("net/minecraft/world/level/block/state/BlockBehaviour$BlockStateBase.isAir:()Z");
+        }
+
+        public BlockState rotate(Rotation rotation) {
+            throw Unimplemented.forMember("net/minecraft/world/level/block/state/BlockBehaviour$BlockStateBase.rotate:(Lnet/minecraft/world/level/block/Rotation;)Lnet/minecraft/world/level/block/state/BlockState;");
+        }
+
+        public float getDestroySpeed(BlockGetter level, BlockPos pos) {
+            throw Unimplemented.forMember("net/minecraft/world/level/block/state/BlockBehaviour$BlockStateBase.getDestroySpeed:(Lnet/minecraft/world/level/BlockGetter;Lnet/minecraft/core/BlockPos;)F");
+        }
+
+        public boolean canOcclude() {
+            throw Unimplemented.forMember("net/minecraft/world/level/block/state/BlockBehaviour$BlockStateBase.canOcclude:()Z");
         }
 
         public VoxelShape getShape(BlockGetter level, BlockPos pos, CollisionContext context) {
@@ -69,7 +109,23 @@ public abstract class BlockBehaviour implements FeatureElement {
             throw Unimplemented.forMember("net/minecraft/world/level/block/state/BlockBehaviour$BlockStateBase.getCollisionShape:(Lnet/minecraft/world/level/BlockGetter;Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/phys/shapes/CollisionContext;)Lnet/minecraft/world/phys/shapes/VoxelShape;");
         }
 
+        public void randomTick(ServerLevel level, BlockPos pos, RandomSource random) {
+            throw Unimplemented.forMember("net/minecraft/world/level/block/state/BlockBehaviour$BlockStateBase.randomTick:(Lnet/minecraft/server/level/ServerLevel;Lnet/minecraft/core/BlockPos;Lnet/minecraft/util/RandomSource;)V");
+        }
+
+        public boolean is(TagKey<Block> tag, Predicate<BlockBehaviour.BlockStateBase> predicate) {
+            throw Unimplemented.forMember("net/minecraft/world/level/block/state/BlockBehaviour$BlockStateBase.is:(Lnet/minecraft/tags/TagKey;Ljava/util/function/Predicate;)Z");
+        }
+
+        public boolean hasBlockEntity() {
+            throw Unimplemented.forMember("net/minecraft/world/level/block/state/BlockBehaviour$BlockStateBase.hasBlockEntity:()Z");
+        }
+
         protected abstract BlockState asState();
+
+        public boolean requiresCorrectToolForDrops() {
+            throw Unimplemented.forMember("net/minecraft/world/level/block/state/BlockBehaviour$BlockStateBase.requiresCorrectToolForDrops:()Z");
+        }
 
         private static final class Cache {
 

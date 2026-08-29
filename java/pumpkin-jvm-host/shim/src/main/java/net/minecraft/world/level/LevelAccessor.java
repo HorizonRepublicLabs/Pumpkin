@@ -50,11 +50,19 @@ public interface LevelAccessor extends CommonLevelAccessor, ScheduledTickAccess 
 
     RandomSource getRandom();
 
+    default void playSound(Entity except, BlockPos pos, SoundEvent soundEvent, SoundSource source) {
+        throw Unimplemented.forMember("net/minecraft/world/level/LevelAccessor.playSound:(Lnet/minecraft/world/entity/Entity;Lnet/minecraft/core/BlockPos;Lnet/minecraft/sounds/SoundEvent;Lnet/minecraft/sounds/SoundSource;)V");
+    }
+
     void playSound(final Entity except, final BlockPos pos, final SoundEvent sound, final SoundSource source, final float volume, final float pitch);
 
     void addParticle(final ParticleOptions particle, final double x, final double y, final double z, final double xd, final double yd, final double zd);
 
     void levelEvent(final Entity source, final int type, final BlockPos pos, final int data);
+
+    default void levelEvent(int type, BlockPos pos, int data) {
+        throw Unimplemented.forMember("net/minecraft/world/level/LevelAccessor.levelEvent:(ILnet/minecraft/core/BlockPos;I)V");
+    }
 
     void gameEvent(Holder<GameEvent> gameEvent, Vec3 position, GameEvent.Context context);
 

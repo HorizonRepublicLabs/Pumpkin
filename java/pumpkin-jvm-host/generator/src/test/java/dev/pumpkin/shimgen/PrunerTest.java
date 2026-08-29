@@ -147,6 +147,41 @@ class PrunerTest {
                 "touching the class fails loudly rather than yielding null");
     }
 
+    /**
+     * A holder keeps the static methods something actually calls, stubbed.
+     *
+     * <p>They used to be removed wholesale. {@code isHolder} matches any class of
+     * constants with no instance methods, which is {@code Registries} but is equally
+     * {@code Mth}, {@code Shapes} and {@code ARGB} -- static utilities the mods call
+     * constantly. Removing their methods left {@code Mth.floor} to link against a file
+     * containing nothing but a throwing static block, and the shim compiled perfectly
+     * while the mods could not link. The static initializer still throws, so keeping the
+     * method concedes nothing: the class cannot be touched at all.
+     */
+    @Test
+    void holderClassesKeepTheStaticMethodsSomethingCalls() {
+        CompilationUnit cu = parse("""
+                package net.minecraft.util;
+                public class Mth {
+                    public static final float PI = 3.14F;
+                    public static int floor(double value) { return (int) Math.floor(value); }
+                    public static int unused(double value) { return 0; }
+                }
+                """);
+        assertEquals(Treatment.HOLDER, Pruner.treatmentOf(cu.getType(0)));
+
+        UsedSet used = new UsedSet();
+        used.addMember(new UsedSet.MemberRef("net/minecraft/util/Mth", "floor", "(D)I"), "mod");
+        Pruner.prune(cu, "net/minecraft/util/Mth", used);
+        String out = cu.toString();
+
+        assertTrue(out.contains("floor"), "a called static method must survive so the mod can link");
+        assertFalse(out.contains("Math.floor"), "but its real body must not");
+        assertFalse(out.contains("unused"), "a method nothing calls is still pruned");
+        assertTrue(out.contains("static {") && out.contains("Unimplemented"),
+                "the class still fails loudly on initialisation");
+    }
+
     /// A class that merely declares its properties as static final constants but also
     /// declares an instance method (the `HorizontalDirectionalBlock`/`RuleTest` shape)
     /// is not a holder: it is behaviour-bearing, and mods extend it. Giving it a

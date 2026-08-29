@@ -1,5 +1,6 @@
 package net.minecraft.core;
 
+import com.mojang.serialization.Codec;
 import com.mojang.serialization.DynamicOps;
 import com.mojang.serialization.Keyable;
 import java.util.Optional;
@@ -9,6 +10,7 @@ import java.util.stream.Stream;
 import net.minecraft.core.component.DataComponentLookup;
 import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.tags.TagKey;
 import net.minecraft.tags.TagLoader;
 import net.minecraft.util.RandomSource;
 import net.neoforged.neoforge.common.extensions.PendingTagsExtension;
@@ -18,6 +20,10 @@ import dev.pumpkin.shim.Unimplemented;
 public interface Registry<T> extends IdMap<T>, Keyable, HolderLookup.RegistryLookup<T>, IRegistryExtension<T> {
 
     ResourceKey<? extends Registry<T>> key();
+
+    default Codec<T> byNameCodec() {
+        throw Unimplemented.forMember("net/minecraft/core/Registry.byNameCodec:()Lcom/mojang/serialization/Codec;");
+    }
 
     <A> java.util.Map<ResourceKey<T>, A> getDataMap(net.neoforged.neoforge.registries.datamaps.DataMapType<T, A> type);
 
@@ -36,6 +42,14 @@ public interface Registry<T> extends IdMap<T>, Keyable, HolderLookup.RegistryLoo
     T getValue(Identifier key);
 
     Optional<RegistrationInfo> registrationInfo(ResourceKey<T> element);
+
+    default Optional<T> getOptional(Identifier key) {
+        throw Unimplemented.forMember("net/minecraft/core/Registry.getOptional:(Lnet/minecraft/resources/Identifier;)Ljava/util/Optional;");
+    }
+
+    default Optional<T> getOptional(ResourceKey<T> key) {
+        throw Unimplemented.forMember("net/minecraft/core/Registry.getOptional:(Lnet/minecraft/resources/ResourceKey;)Ljava/util/Optional;");
+    }
 
     Optional<Holder.Reference<T>> getAny();
 
@@ -64,6 +78,10 @@ public interface Registry<T> extends IdMap<T>, Keyable, HolderLookup.RegistryLoo
     Optional<Holder.Reference<T>> get(Identifier id);
 
     Holder<T> wrapAsHolder(T value);
+
+    default Iterable<Holder<T>> getTagOrEmpty(TagKey<T> id) {
+        throw Unimplemented.forMember("net/minecraft/core/Registry.getTagOrEmpty:(Lnet/minecraft/tags/TagKey;)Ljava/lang/Iterable;");
+    }
 
     Stream<HolderSet.Named<T>> getTags();
 

@@ -29,6 +29,49 @@ class SupertypeCloserTest {
         Files.writeString(p, body);
     }
 
+    /**
+     * The keep set is built from this, and it is what makes an inherited member survive:
+     * a mod calling {@code Player.getHealth()} names {@code Player} in its constant pool,
+     * while {@code getHealth} is declared on {@code LivingEntity}.
+     */
+    @Test
+    void supertypesOfWalksTransitivelyThroughClassesAndInterfaces() throws Exception {
+        SupertypeCloser closer = new SupertypeCloser(List.of(tree()));
+        assertEquals(
+                List.of("net/minecraft/world/Nameable",
+                        "net/minecraft/world/entity/Entity",
+                        "net/minecraft/world/entity/LivingEntity"),
+                List.copyOf(closer.supertypesOf("net/minecraft/world/entity/player/Player")));
+    }
+
+    /**
+     * Member owners are routinely nested types -- {@code BlockBehaviour$Properties},
+     * {@code BlockBehaviour$BlockStateBase} -- which have no file of their own, so the
+     * declaration has to be found inside the enclosing unit. {@link
+     * SupertypeCloser#close} never faces this, because it only ever reads a file's
+     * primary type.
+     */
+    @Test
+    void supertypesOfResolvesANestedTypesOwnSupertypes() throws Exception {
+        Path root = tree();
+        write(root, "net/minecraft/world/level/block/state/BlockBehaviour.java",
+                "package net.minecraft.world.level.block.state; import net.minecraft.world.Nameable; "
+                        + "public abstract class BlockBehaviour { "
+                        + "public abstract static class BlockStateBase implements Nameable {} }");
+        SupertypeCloser closer = new SupertypeCloser(List.of(root));
+        assertEquals(
+                List.of("net/minecraft/world/Nameable"),
+                List.copyOf(closer.supertypesOf(
+                        "net/minecraft/world/level/block/state/BlockBehaviour$BlockStateBase")));
+    }
+
+    /// A class with no source has no known supertypes, and that is not an error.
+    @Test
+    void supertypesOfIsEmptyForAClassWithNoSource() throws Exception {
+        SupertypeCloser closer = new SupertypeCloser(List.of(tree()));
+        assertTrue(closer.supertypesOf("net/neoforged/bus/api/IEventBus").isEmpty());
+    }
+
     @Test
     void pullsInEveryTransitiveSupertype() throws Exception {
         UsedSet used = new UsedSet();

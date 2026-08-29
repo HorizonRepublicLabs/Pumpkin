@@ -53,6 +53,10 @@ public abstract class Player extends Avatar implements ContainerUser, IPlayerExt
         throw Unimplemented.forMember("net/minecraft/world/entity/player/Player.createEquipment:()Lnet/minecraft/world/entity/EntityEquipment;");
     }
 
+    public boolean blockActionRestricted(Level level, BlockPos pos, GameType gameType) {
+        throw Unimplemented.forMember("net/minecraft/world/entity/player/Player.blockActionRestricted:(Lnet/minecraft/world/level/Level;Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/GameType;)Z");
+    }
+
     protected void defineSynchedData(SynchedEntityData.Builder entityData) {
         throw Unimplemented.forMember("net/minecraft/world/entity/player/Player.defineSynchedData:(Lnet/minecraft/network/syncher/SynchedEntityData$Builder;)V");
     }
@@ -331,6 +335,10 @@ public abstract class Player extends Avatar implements ContainerUser, IPlayerExt
 
     protected Entity.MovementEmission getMovementEmission() {
         throw Unimplemented.forMember("net/minecraft/world/entity/player/Player.getMovementEmission:()Lnet/minecraft/world/entity/Entity$MovementEmission;");
+    }
+
+    public void onUpdateAbilities() {
+        throw Unimplemented.forMember("net/minecraft/world/entity/player/Player.onUpdateAbilities:()V");
     }
 
     public Component getName() {

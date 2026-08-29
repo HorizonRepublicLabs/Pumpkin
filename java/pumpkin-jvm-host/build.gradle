@@ -45,6 +45,9 @@ ext.gameLibraries = [
         'org.lwjgl:lwjgl-stb:3.3.3',
 ]
 
+// The single library the hand-written `fml` classes name; see project(':fml') below.
+ext.fmlLibraries = 'org.ow2.asm:asm:9.9'
+
 // `fml` is what NeoForge publishes as separate artifacts and this repo hand-writes -- the
 // event bus, the FML loader API, the dist marker -- plus `Unimplemented`, which everything
 // throws. `shim` is the game, generated. The arrow runs shim -> fml and not the other way
@@ -53,6 +56,17 @@ ext.gameLibraries = [
 // Generated `net.minecraft` and generated `net.neoforged` are mutually recursive and are
 // one compilation unit; Gradle cannot express a cycle, so both live in `shim`. The plan
 // assumed the split held and it does not -- see the task 7 report.
+
+// The one library `fml` needs to compile. NeoForge's classpath scanner reports its
+// findings in ASM's vocabulary -- `ModFileScanData.AnnotationData.annotationType()`
+// returns `org.objectweb.asm.Type` -- so a hand-written class reproducing that signature
+// needs ASM on the compile path. compileOnly, for the same reason as the game libraries:
+// every body here throws, so nothing is needed at run time.
+project(':fml') {
+    dependencies {
+        compileOnly rootProject.ext.fmlLibraries
+    }
+}
 project(':shim') {
     dependencies {
         api project(':fml')
@@ -87,5 +101,32 @@ project(':generator') {
         // relative to pumpkin-jvm-host, which is where the command is documented and
         // run from. JavaExec would otherwise resolve them against generator/.
         workingDir = rootProject.projectDir
+    }
+
+    // The game libraries the shim compiles against, resolved so the linkage check can put
+    // them on the classloader it builds. A shim signature naming `Codec<ItemStack>` needs
+    // `Codec` present to resolve at all, exactly as at runtime, where NeoForge supplies
+    // them. They are not a `generator` dependency: the generator reads and writes Java as
+    // text and must not link against the game.
+    configurations { linkageLibraries }
+    dependencies {
+        rootProject.ext.gameLibraries.each { linkageLibraries it }
+        // ASM as well: the mods call `AnnotationData.annotationType()`, whose return type
+        // has to be loadable for the member to resolve at all.
+        linkageLibraries rootProject.ext.fmlLibraries
+    }
+
+    tasks.register('linkageCheck', JavaExec) {
+        group = 'shim'
+        description = 'Resolves every mod reference against the built shim. Needs the mod jars; not run in CI.'
+        classpath = sourceSets.main.runtimeClasspath
+        mainClass = 'dev.pumpkin.shimgen.LinkageCheck'
+        dependsOn ':shim:classes', ':fml:classes'
+        // Same reason as generateShim: the documented invocation writes every path
+        // relative to pumpkin-jvm-host, not to generator/.
+        workingDir = rootProject.projectDir
+        doFirst {
+            systemProperty 'pumpkin.linkage.libraries', configurations.linkageLibraries.asPath
+        }
     }
 }

@@ -13,6 +13,9 @@ public record AnimationChannel(AnimationChannel.Target target, Keyframe... keyfr
 
     public static class Interpolations {
 
+        protected Interpolations() {
+        }
+
         static {
             if (true) {
                 throw Unimplemented.forMember("net/minecraft/client/animation/AnimationChannel$Interpolations");
@@ -26,6 +29,9 @@ public record AnimationChannel(AnimationChannel.Target target, Keyframe... keyfr
     }
 
     public static class Targets {
+
+        protected Targets() {
+        }
 
         static {
             if (true) {

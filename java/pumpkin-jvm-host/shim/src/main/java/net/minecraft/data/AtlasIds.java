@@ -7,6 +7,9 @@ public class AtlasIds {
 
     public static final Identifier BLOCKS = null;
 
+    protected AtlasIds() {
+    }
+
     static {
         if (true) {
             throw Unimplemented.forMember("net/minecraft/data/AtlasIds");

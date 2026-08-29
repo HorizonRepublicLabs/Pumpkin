@@ -39,6 +39,10 @@ public abstract class Screen extends AbstractContainerEventHandler implements Re
         throw Unimplemented.forMember("net/minecraft/client/gui/screens/Screen.tick:()V");
     }
 
+    public void extractBackground(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float a) {
+        throw Unimplemented.forMember("net/minecraft/client/gui/screens/Screen.extractBackground:(Lnet/minecraft/client/gui/GuiGraphicsExtractor;IIF)V");
+    }
+
     public boolean isMouseOver(double mouseX, double mouseY) {
         throw Unimplemented.forMember("net/minecraft/client/gui/screens/Screen.isMouseOver:(DD)Z");
     }
