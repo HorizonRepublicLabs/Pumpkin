@@ -12,6 +12,8 @@ import org.objectweb.asm.FieldVisitor;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
+import org.objectweb.asm.signature.SignatureReader;
+import org.objectweb.asm.signature.SignatureVisitor;
 
 /**
  * Reads a mod jar's bytecode and records every {@code net.minecraft} and {@code
@@ -99,6 +101,45 @@ public final class JarScanner {
         return List.of(Type.getType(descriptor));
     }
 
+    /**
+     * A {@link SignatureVisitor} that records every class type it visits. Every
+     * method on {@link SignatureVisitor} that returns a nested visitor defaults to
+     * returning {@code this}, so overriding only {@code visitClassType} is enough to
+     * see every class type anywhere in the signature: type arguments, bounds, array
+     * element types, and superclass/interfaces alike.
+     */
+    private static SignatureVisitor classTypeRecorder(UsedSet into, String referencedBy) {
+        return new SignatureVisitor(Opcodes.ASM9) {
+            @Override
+            public void visitClassType(String name) {
+                recordClass(into, name, referencedBy);
+            }
+        };
+    }
+
+    /**
+     * Records the class types named in a class or method generic signature (the
+     * {@code signature} parameter of {@code visit}/{@code visitMethod}). Erasure
+     * discards a type argument like {@code ItemStack} in {@code List<ItemStack>};
+     * the signature is the only place that type is still spelled out, so a
+     * descriptor-only scan misses it entirely.
+     */
+    private static void recordSignatureTypes(UsedSet into, String signature, String referencedBy) {
+        if (signature != null) {
+            new SignatureReader(signature).accept(classTypeRecorder(into, referencedBy));
+        }
+    }
+
+    /**
+     * Same as {@link #recordSignatureTypes}, but for a field's generic signature,
+     * which is a single field-type-signature rather than the class/method grammar.
+     */
+    private static void recordFieldSignatureTypes(UsedSet into, String signature, String referencedBy) {
+        if (signature != null) {
+            new SignatureReader(signature).acceptType(classTypeRecorder(into, referencedBy));
+        }
+    }
+
     private static final class Visitor extends ClassVisitor {
         private final UsedSet into;
         private String className;
@@ -120,6 +161,7 @@ public final class JarScanner {
                     recordClass(into, itf, className);
                 }
             }
+            recordSignatureTypes(into, signature, className);
             super.visit(version, access, name, signature, superName, interfaces);
         }
 
@@ -127,6 +169,7 @@ public final class JarScanner {
         public FieldVisitor visitField(int access, String name, String descriptor, String signature,
                 Object value) {
             recordDescriptorTypes(into, descriptor, className);
+            recordFieldSignatureTypes(into, signature, className);
             return super.visitField(access, name, descriptor, signature, value);
         }
 
@@ -134,6 +177,7 @@ public final class JarScanner {
         public MethodVisitor visitMethod(int access, String name, String descriptor, String signature,
                 String[] exceptions) {
             recordDescriptorTypes(into, descriptor, className);
+            recordSignatureTypes(into, signature, className);
             return new MethodVisitor(Opcodes.ASM9) {
                 @Override
                 public void visitMethodInsn(int opcode, String owner, String name, String descriptor,
@@ -152,6 +196,18 @@ public final class JarScanner {
                 public void visitTypeInsn(int opcode, String type) {
                     Type t = Type.getObjectType(type);
                     recordObjectType(into, t, className);
+                }
+
+                @Override
+                public void visitLdcInsn(Object value) {
+                    if (value instanceof Type t) {
+                        recordObjectType(into, t, className);
+                    }
+                }
+
+                @Override
+                public void visitMultiANewArrayInsn(String descriptor, int numDimensions) {
+                    recordObjectType(into, Type.getType(descriptor), className);
                 }
             };
         }
