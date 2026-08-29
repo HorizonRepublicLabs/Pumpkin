@@ -49,7 +49,7 @@ ext.gameLibraries = [
 // event bus, the FML loader API, the dist marker -- plus `Unimplemented`, which everything
 // throws. `shim` is the game, generated. The arrow runs shim -> fml and not the other way
 // because it cannot: the decompiled sources are NeoForge's *patched* Minecraft, so
-// `BlockBehaviour` implements `IBlockExtension` and `Item` implements `IItemExtension`.
+// `Block` implements `IBlockExtension` and `Item` implements `IItemExtension`.
 // Generated `net.minecraft` and generated `net.neoforged` are mutually recursive and are
 // one compilation unit; Gradle cannot express a cycle, so both live in `shim`. The plan
 // assumed the split held and it does not -- see the task 7 report.

@@ -5,6 +5,23 @@
 set -e
 cd "$(dirname "$0")"
 ./gradlew :testmod:jar
+
+# Clear the generated roots first. Per-file emission is deterministic, but overwriting in
+# place is not the same as regenerating: a class that leaves the used set leaves an orphan
+# .java behind, which still compiles and never shows up in a diff of a later run. The
+# committed tree has to be a function of the inputs, not of every run that ever happened.
+#
+# Only these three, and only under shim/. They are exactly the packages Shimmed.isShimmed
+# accepts -- net/minecraft, net/neoforged and the three decompiled com/mojang ones -- and
+# `find shim/src/main/java -name '*.java'` outside them is empty, so nothing hand-written
+# lives here. fml/ is never touched: it holds the classes NeoForge publishes elsewhere and
+# this repo writes by hand, plus Unimplemented, and the generator could not put any of them
+# back.
+for generated in shim/src/main/java/net/minecraft \
+                 shim/src/main/java/net/neoforged \
+                 shim/src/main/java/com/mojang; do
+    rm -rf "$generated"
+done
 ./gradlew :generator:generateShim --args="\
  --mc-sources ../../../NeoForge/projects/neoforge/src/main/java \
  --mc-sources ../../../NeoForge/projects/neoforge/src/client/java \

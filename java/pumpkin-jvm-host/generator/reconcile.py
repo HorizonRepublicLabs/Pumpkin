@@ -15,17 +15,31 @@ import os, sys
 
 ROOT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "shim", "src", "main", "java")
 
+# Every edit is staged here and written only once all of them have succeeded. Applying
+# them one file at a time left a half-reconciled tree behind on any failure, and that tree
+# does not compile -- which blocks the very regen.sh run that would repair it, since it
+# builds the testmod jar it scans from these sources.
+PENDING = {}
+
+
 def edit(path, pairs, drop_imports=()):
     p = os.path.join(ROOT, path)
-    s = open(p).read()
+    s = PENDING.get(p, None)
+    if s is None:
+        s = open(p).read()
     for a, b in pairs:
         if a not in s:
             sys.exit("MISSING in %s:\n%s" % (path, a[:200]))
         s = s.replace(a, b, 1)
     for imp in drop_imports:
         s = s.replace(imp, "", 1)
-    open(p, "w").write(s)
-    print("reconciled", path)
+    PENDING[p] = s
+
+
+def commit():
+    for p, s in PENDING.items():
+        open(p, "w").write(s)
+        print("reconciled", os.path.relpath(p, ROOT))
 
 # ---------------------------------------------------------------- Identifier
 edit("net/minecraft/resources/Identifier.java", [
@@ -223,6 +237,16 @@ for field, name in NAMES.items():
     if s2 == s:
         sys.exit("Registries: no field " + field)
     s = s2
+# Every key the pruner emitted must have been claimed above. An unclaimed one is left as
+# `= null`, and once the throwing static initializer below is removed, reading it hands a
+# mod a null instead of failing -- an NPE at registration, in the mod's code, naming
+# nothing. That is the silent-wrong-value failure this shim exists to avoid, so a new
+# registry key appearing in the used set has to stop this script rather than pass it.
+unclaimed = re.findall(r"ResourceKey<Registry<[^;]*?>> ([A-Z_0-9]+) = null;", s)
+if unclaimed:
+    sys.exit("Registries: no name known for " + ", ".join(unclaimed)
+             + " -- add it to NAMES with its vanilla registry name")
+
 old = """    static {
         if (true) {
             throw Unimplemented.forMember("net/minecraft/core/registries/Registries");
@@ -250,8 +274,7 @@ s = s.replace(old, new, 1)
 s = s.replace("import net.minecraft.resources.ResourceKey;",
               "import net.minecraft.resources.Identifier;\nimport net.minecraft.resources.ResourceKey;", 1)
 s = s.replace("import dev.pumpkin.shim.Unimplemented;\n", "", 1)
-open(p, "w").write(s)
-print("reconciled net/minecraft/core/registries/Registries.java")
+PENDING[p] = s
 
 # --------------------------------------------------------------------- Block
 edit("net/minecraft/world/level/block/Block.java", [
@@ -488,3 +511,5 @@ edit("net/neoforged/neoforge/registries/RegisterEvent.java", [
     public RegisterEvent() {
     }"""),
 ])
+
+commit()
