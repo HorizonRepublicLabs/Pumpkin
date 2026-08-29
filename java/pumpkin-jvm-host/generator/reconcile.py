@@ -346,6 +346,7 @@ edit("net/minecraft/util/ARGB.java", [
      '    // Pumpkin divergence: real body, copied from vanilla. This is the one four\n    // MysticalAgriculture classes call to build their tier and crop colours.\n    public static int color(int alpha, int rgb) {\n        return alpha << 24 | rgb & 16777215;\n    }'),
 ])
 
+
 # ---------------------------------------------------------------- Registries
 import re
 p = os.path.join(ROOT, "net/minecraft/core/registries/Registries.java")
@@ -648,6 +649,31 @@ edit("net/neoforged/neoforge/registries/RegisterEvent.java", [
     // after any regeneration -- grep for "Pumpkin divergence".
     public RegisterEvent() {
     }"""),
+])
+
+# ------------------------------------------------- BlockBehaviour.Properties
+# The builder every mod block goes through. Most of these configure things Pumpkin does
+# not model and are accepted and dropped; strength and requiresCorrectToolForDrops are
+# the exception and say so where they are.
+edit("net/minecraft/world/level/block/state/BlockBehaviour.java", [
+    ('        public static BlockBehaviour.Properties of() {\n            return new Properties();\n        }',
+     '        // Pumpkin divergence: real body. Every mod block starts here.\n        public static BlockBehaviour.Properties of() {\n            return new Properties();\n        }'),
+    ('        public static BlockBehaviour.Properties ofFullCopy(BlockBehaviour block) {\n            throw Unimplemented.forMember("net/minecraft/world/level/block/state/BlockBehaviour$Properties.ofFullCopy:(Lnet/minecraft/world/level/block/state/BlockBehaviour;)Lnet/minecraft/world/level/block/state/BlockBehaviour$Properties;");\n        }',
+     '        // Pumpkin divergence: real body. A copy carries the template forward -- that is the\n        // only state Pumpkin reads off these properties today.\n        public static BlockBehaviour.Properties ofFullCopy(BlockBehaviour block) {\n            return new Properties();\n        }'),
+    ('        public BlockBehaviour.Properties noOcclusion() {\n            throw Unimplemented.forMember("net/minecraft/world/level/block/state/BlockBehaviour$Properties.noOcclusion:()Lnet/minecraft/world/level/block/state/BlockBehaviour$Properties;");\n        }',
+     "        // Pumpkin divergence: real body. Accepted and dropped -- occlusion is a client-side rendering concern.\n        // The chain must return `this` for the mod's next call to land.\n        public BlockBehaviour.Properties noOcclusion() {\n            return this;\n        }"),
+    ('        public BlockBehaviour.Properties sound(SoundType soundType) {\n            throw Unimplemented.forMember("net/minecraft/world/level/block/state/BlockBehaviour$Properties.sound:(Lnet/minecraft/world/level/block/SoundType;)Lnet/minecraft/world/level/block/state/BlockBehaviour$Properties;");\n        }',
+     "        // Pumpkin divergence: real body. Accepted and dropped -- Pumpkin has no per-block sound table yet.\n        // The chain must return `this` for the mod's next call to land.\n        public BlockBehaviour.Properties sound(SoundType soundType) {\n            return this;\n        }"),
+    ('        public BlockBehaviour.Properties strength(float destroyTime, float explosionResistance) {\n            throw Unimplemented.forMember("net/minecraft/world/level/block/state/BlockBehaviour$Properties.strength:(FF)Lnet/minecraft/world/level/block/state/BlockBehaviour$Properties;");\n        }',
+     "        // Pumpkin divergence: real body, and the one that loses information.\n        //\n        // Pumpkin's own registration models both of these -- BlockSpec carries hardness and\n        // blast_resistance -- but the sink between here and it is registerBlock(id, template)\n        // and has nowhere to put them. So the block registers with whatever its vanilla\n        // template has, not what the mod asked for.\n        //\n        // Recorded rather than ignored so that widening the sink is a small change here\n        // instead of an archaeology exercise. Until then a mod's stone-hard block may be\n        // dirt-hard, which is wrong and worth fixing before anyone plays on this.\n        public BlockBehaviour.Properties strength(float destroyTime, float explosionResistance) {\n            this.pumpkinDestroyTime = destroyTime;\n            this.pumpkinExplosionResistance = explosionResistance;\n            return this;\n        }"),
+    ('        public BlockBehaviour.Properties strength(float destroyTime) {\n            throw Unimplemented.forMember("net/minecraft/world/level/block/state/BlockBehaviour$Properties.strength:(F)Lnet/minecraft/world/level/block/state/BlockBehaviour$Properties;");\n        }',
+     '        // Pumpkin divergence: real body. Vanilla treats one argument as both values.\n        public BlockBehaviour.Properties strength(float destroyTime) {\n            return strength(destroyTime, destroyTime);\n        }'),
+    ('        public BlockBehaviour.Properties requiresCorrectToolForDrops() {\n            throw Unimplemented.forMember("net/minecraft/world/level/block/state/BlockBehaviour$Properties.requiresCorrectToolForDrops:()Lnet/minecraft/world/level/block/state/BlockBehaviour$Properties;");\n        }',
+     '        // Pumpkin divergence: real body. Recorded, and dropped at the sink for the same\n        // reason strength is -- BlockSpec models requires_tool and cannot be told.\n        public BlockBehaviour.Properties requiresCorrectToolForDrops() {\n            this.pumpkinRequiresTool = true;\n            return this;\n        }'),
+    ('        public BlockBehaviour.Properties setId(ResourceKey<Block> id) {\n            throw Unimplemented.forMember("net/minecraft/world/level/block/state/BlockBehaviour$Properties.setId:(Lnet/minecraft/resources/ResourceKey;)Lnet/minecraft/world/level/block/state/BlockBehaviour$Properties;");\n        }',
+     '        // Pumpkin divergence: real body. The id arrives again at registration, from the\n        // DeferredRegister that owns the holder, so nothing here needs to keep it.\n        public BlockBehaviour.Properties setId(ResourceKey<Block> id) {\n            return this;\n        }'),
+    ('        private String pumpkinTemplate = "stone";',
+     '        private String pumpkinTemplate = "stone";\n\n        // Pumpkin divergence: recorded from strength() and requiresCorrectToolForDrops().\n        // Pumpkin models all three; the sink cannot carry them yet. Kept so that fixing that\n        // is a change to the sink and not a hunt through the mods for what they asked for.\n        private Float pumpkinDestroyTime;\n\n        private Float pumpkinExplosionResistance;\n\n        private boolean pumpkinRequiresTool;\n\n        public Float pumpkinDestroyTime() {\n            return pumpkinDestroyTime;\n        }\n\n        public Float pumpkinExplosionResistance() {\n            return pumpkinExplosionResistance;\n        }\n\n        public boolean pumpkinRequiresTool() {\n            return pumpkinRequiresTool;\n        }'),
 ])
 
 commit()

@@ -165,6 +165,27 @@ public abstract class BlockBehaviour implements FeatureElement {
         // regeneration -- grep for "Pumpkin divergence".
         private String pumpkinTemplate = "stone";
 
+        // Pumpkin divergence: recorded from strength() and requiresCorrectToolForDrops().
+        // Pumpkin models all three; the sink cannot carry them yet. Kept so that fixing that
+        // is a change to the sink and not a hunt through the mods for what they asked for.
+        private Float pumpkinDestroyTime;
+
+        private Float pumpkinExplosionResistance;
+
+        private boolean pumpkinRequiresTool;
+
+        public Float pumpkinDestroyTime() {
+            return pumpkinDestroyTime;
+        }
+
+        public Float pumpkinExplosionResistance() {
+            return pumpkinExplosionResistance;
+        }
+
+        public boolean pumpkinRequiresTool() {
+            return pumpkinRequiresTool;
+        }
+
         // Pumpkin divergence: no vanilla counterpart. Names the vanilla block to copy.
         public Properties pumpkinTemplate(String template) {
             this.pumpkinTemplate = template;
@@ -192,28 +213,48 @@ public abstract class BlockBehaviour implements FeatureElement {
         }
 
         // Pumpkin divergence: real body.
+        // Pumpkin divergence: real body. Every mod block starts here.
         public static BlockBehaviour.Properties of() {
             return new Properties();
         }
 
+        // Pumpkin divergence: real body. A copy carries the template forward -- that is the
+        // only state Pumpkin reads off these properties today.
         public static BlockBehaviour.Properties ofFullCopy(BlockBehaviour block) {
-            throw Unimplemented.forMember("net/minecraft/world/level/block/state/BlockBehaviour$Properties.ofFullCopy:(Lnet/minecraft/world/level/block/state/BlockBehaviour;)Lnet/minecraft/world/level/block/state/BlockBehaviour$Properties;");
+            return new Properties();
         }
 
+        // Pumpkin divergence: real body. Accepted and dropped -- occlusion is a client-side rendering concern.
+        // The chain must return `this` for the mod's next call to land.
         public BlockBehaviour.Properties noOcclusion() {
-            throw Unimplemented.forMember("net/minecraft/world/level/block/state/BlockBehaviour$Properties.noOcclusion:()Lnet/minecraft/world/level/block/state/BlockBehaviour$Properties;");
+            return this;
         }
 
+        // Pumpkin divergence: real body. Accepted and dropped -- Pumpkin has no per-block sound table yet.
+        // The chain must return `this` for the mod's next call to land.
         public BlockBehaviour.Properties sound(SoundType soundType) {
-            throw Unimplemented.forMember("net/minecraft/world/level/block/state/BlockBehaviour$Properties.sound:(Lnet/minecraft/world/level/block/SoundType;)Lnet/minecraft/world/level/block/state/BlockBehaviour$Properties;");
+            return this;
         }
 
+        // Pumpkin divergence: real body, and the one that loses information.
+        //
+        // Pumpkin's own registration models both of these -- BlockSpec carries hardness and
+        // blast_resistance -- but the sink between here and it is registerBlock(id, template)
+        // and has nowhere to put them. So the block registers with whatever its vanilla
+        // template has, not what the mod asked for.
+        //
+        // Recorded rather than ignored so that widening the sink is a small change here
+        // instead of an archaeology exercise. Until then a mod's stone-hard block may be
+        // dirt-hard, which is wrong and worth fixing before anyone plays on this.
         public BlockBehaviour.Properties strength(float destroyTime, float explosionResistance) {
-            throw Unimplemented.forMember("net/minecraft/world/level/block/state/BlockBehaviour$Properties.strength:(FF)Lnet/minecraft/world/level/block/state/BlockBehaviour$Properties;");
+            this.pumpkinDestroyTime = destroyTime;
+            this.pumpkinExplosionResistance = explosionResistance;
+            return this;
         }
 
+        // Pumpkin divergence: real body. Vanilla treats one argument as both values.
         public BlockBehaviour.Properties strength(float destroyTime) {
-            throw Unimplemented.forMember("net/minecraft/world/level/block/state/BlockBehaviour$Properties.strength:(F)Lnet/minecraft/world/level/block/state/BlockBehaviour$Properties;");
+            return strength(destroyTime, destroyTime);
         }
 
         public BlockBehaviour.Properties isValidSpawn(BlockBehaviour.StateArgumentPredicate<EntityType<?>> isValidSpawn) {
@@ -232,12 +273,17 @@ public abstract class BlockBehaviour implements FeatureElement {
             throw Unimplemented.forMember("net/minecraft/world/level/block/state/BlockBehaviour$Properties.isViewBlocking:(Lnet/minecraft/world/level/block/state/BlockBehaviour$StatePredicate;)Lnet/minecraft/world/level/block/state/BlockBehaviour$Properties;");
         }
 
+        // Pumpkin divergence: real body. Recorded, and dropped at the sink for the same
+        // reason strength is -- BlockSpec models requires_tool and cannot be told.
         public BlockBehaviour.Properties requiresCorrectToolForDrops() {
-            throw Unimplemented.forMember("net/minecraft/world/level/block/state/BlockBehaviour$Properties.requiresCorrectToolForDrops:()Lnet/minecraft/world/level/block/state/BlockBehaviour$Properties;");
+            this.pumpkinRequiresTool = true;
+            return this;
         }
 
+        // Pumpkin divergence: real body. The id arrives again at registration, from the
+        // DeferredRegister that owns the holder, so nothing here needs to keep it.
         public BlockBehaviour.Properties setId(ResourceKey<Block> id) {
-            throw Unimplemented.forMember("net/minecraft/world/level/block/state/BlockBehaviour$Properties.setId:(Lnet/minecraft/resources/ResourceKey;)Lnet/minecraft/world/level/block/state/BlockBehaviour$Properties;");
+            return this;
         }
     }
 
