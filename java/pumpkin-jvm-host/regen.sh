@@ -37,3 +37,8 @@ done
 
 # Generation overwrites the eight files that carry Pumpkin's own behaviour. Put it back.
 python3 generator/reconcile.py
+
+# Build last, not first. Without this the jars still hold the previous generation: the
+# reconcile step rewrites sources after the only compile, so anything run afterwards --
+# a server boot, a linkage check -- silently tests the old code and reports on it.
+./gradlew build

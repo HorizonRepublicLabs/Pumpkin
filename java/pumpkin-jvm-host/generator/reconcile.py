@@ -233,24 +233,34 @@ edit("net/minecraft/resources/ResourceKey.java", [
 p = os.path.join(ROOT, "net/minecraft/core/registries/BuiltInRegistries.java")
 s = open(p).read()
 
+# field -> (interface, the vanilla registry name it identifies as)
+#
+# The key is built inline rather than read from Registries, because the pruner keeps only
+# the Registries fields the mods name and two of these six -- SOUND_EVENT and FLUID -- did
+# not survive. Building from the vanilla name needs nothing to have survived.
 STUBS = {
-    "SOUND_EVENT": "Registry",
-    "FLUID": "DefaultedRegistry",
-    "ENTITY_TYPE": "DefaultedRegistry",
-    "ITEM": "DefaultedRegistry",
-    "RECIPE_TYPE": "Registry",
-    "RECIPE_SERIALIZER": "Registry",
+    "SOUND_EVENT": ("Registry", "sound_event"),
+    "FLUID": ("DefaultedRegistry", "fluid"),
+    "ENTITY_TYPE": ("DefaultedRegistry", "entity_type"),
+    "ITEM": ("DefaultedRegistry", "item"),
+    "RECIPE_TYPE": ("Registry", "recipe_type"),
+    "RECIPE_SERIALIZER": ("Registry", "recipe_serializer"),
 }
 OWNERS = {
     "Registry": "net/minecraft/core/Registry",
     "DefaultedRegistry": "net/minecraft/core/DefaultedRegistry",
 }
 
-for field, iface in STUBS.items():
+for field, (iface, registry_name) in STUBS.items():
     old = " " + field + " = null;"
     if old not in s:
         sys.exit("BuiltInRegistries: no null field " + field)
-    stub = ' %s = Stubs.of(%s.class, "%s");' % (field, iface, OWNERS[iface])
+    # Answers key() with its own identity and throws for everything else. create(Registry,
+    # String) asks exactly this and nothing more.
+    stub = (' %s = Stubs.of(%s.class, "%s", java.util.Map.of("key",'
+            ' ResourceKey.createRegistryKey('
+            'Identifier.fromNamespaceAndPath("minecraft", "%s"))));'
+            % (field, iface, OWNERS[iface], registry_name))
     s = s.replace(old, stub, 1)
 
 # Every field now initialises, so the clinit has nothing left to guard.
@@ -269,7 +279,10 @@ if leftover:
     sys.exit("BuiltInRegistries: still null after reconcile: " + ", ".join(leftover))
 
 s = s.replace("import dev.pumpkin.shim.Unimplemented;",
-              "import dev.pumpkin.shim.Stubs;\nimport dev.pumpkin.shim.Unimplemented;", 1)
+              "import net.minecraft.resources.Identifier;\n"
+              "import net.minecraft.resources.ResourceKey;\n"
+              "import dev.pumpkin.shim.Stubs;\n"
+              "import dev.pumpkin.shim.Unimplemented;", 1)
 PENDING[p] = s
 
 # ---------------------------------------------------------------- Registries
@@ -465,6 +478,9 @@ edit("net/neoforged/neoforge/registries/DeferredHolder.java", [
 
 # ----------------------------------------------------------- DeferredRegister
 edit("net/neoforged/neoforge/registries/DeferredRegister.java", [
+    ('    public static <T> DeferredRegister<T> create(Registry<T> registry, String namespace) {\n        throw Unimplemented.forMember("net/neoforged/neoforge/registries/DeferredRegister.create:(Lnet/minecraft/core/Registry;Ljava/lang/String;)Lnet/neoforged/neoforge/registries/DeferredRegister;");\n    }',
+     '    // Pumpkin divergence: real body. A registry knows which registry it is, so this needs\n    // nothing the ResourceKey overload does not already do. The BuiltInRegistries stubs\n    // answer key() for exactly this call.\n    public static <T> DeferredRegister<T> create(Registry<T> registry, String namespace) {\n        return create(registry.key(), namespace);\n    }'),
+
 ("""public class DeferredRegister<T> {
 """,
 """public class DeferredRegister<T> {

@@ -46,8 +46,11 @@ public class DeferredRegister<T> {
 
     private final java.util.List<DeferredHolder<T, ? extends T>> pumpkinPending = new java.util.ArrayList<>();
 
+    // Pumpkin divergence: real body. A registry knows which registry it is, so this needs
+    // nothing the ResourceKey overload does not already do. The BuiltInRegistries stubs
+    // answer key() for exactly this call.
     public static <T> DeferredRegister<T> create(Registry<T> registry, String namespace) {
-        throw Unimplemented.forMember("net/neoforged/neoforge/registries/DeferredRegister.create:(Lnet/minecraft/core/Registry;Ljava/lang/String;)Lnet/neoforged/neoforge/registries/DeferredRegister;");
+        return create(registry.key(), namespace);
     }
 
     // Pumpkin divergence: real body.

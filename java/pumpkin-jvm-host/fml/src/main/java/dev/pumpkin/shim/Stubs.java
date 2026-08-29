@@ -35,6 +35,26 @@ public final class Stubs {
      *               build the member key so the failure joins against the committed manifest
      */
     public static <T> T of(Class<T> iface, String owner) {
+        return of(iface, owner, java.util.Map.of());
+    }
+
+    /**
+     * A stub that answers a few methods and throws for the rest.
+     *
+     * <p>Some questions a stub genuinely can answer, and refusing to is worse than useless.
+     * {@code BuiltInRegistries.ITEM} is handed to {@code DeferredRegister.create(Registry,
+     * String)}, which needs only to ask the registry which registry it is -- a fact the stub
+     * knows, because whoever built it said so. Throwing there would stop a mod over a
+     * question that has an answer.
+     *
+     * <p>This is the same line {@code FMLEnvironment} draws: answer facts about Pumpkin,
+     * throw for facts about Minecraft that Pumpkin does not have. Every method not named in
+     * {@code answers} still throws.
+     *
+     * @param answers method name to the value it returns; overloads are not distinguished,
+     *                which is sufficient for identity accessors and nothing more
+     */
+    public static <T> T of(Class<T> iface, String owner, java.util.Map<String, Object> answers) {
         if (!iface.isInterface()) {
             throw new IllegalArgumentException(iface.getName() + " is not an interface");
         }
@@ -53,8 +73,14 @@ public final class Stubs {
                 case "toString" -> {
                     return "stub " + owner;
                 }
-                default -> throw Unimplemented.forMember(
-                        owner + "." + method.getName() + ":" + descriptorOf(method));
+                default -> {
+                    Object answer = answers.get(method.getName());
+                    if (answer != null) {
+                        return answer;
+                    }
+                    throw Unimplemented.forMember(
+                            owner + "." + method.getName() + ":" + descriptorOf(method));
+                }
             }
         };
         return iface.cast(
