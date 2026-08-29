@@ -8,21 +8,22 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.material.Fluid;
+import dev.pumpkin.shim.Stubs;
 import dev.pumpkin.shim.Unimplemented;
 
 public class BuiltInRegistries {
 
-    public static final Registry<SoundEvent> SOUND_EVENT = null;
+    public static final Registry<SoundEvent> SOUND_EVENT = Stubs.of(Registry.class, "net/minecraft/core/Registry");
 
-    public static final DefaultedRegistry<Fluid> FLUID = null;
+    public static final DefaultedRegistry<Fluid> FLUID = Stubs.of(DefaultedRegistry.class, "net/minecraft/core/DefaultedRegistry");
 
-    public static final DefaultedRegistry<EntityType<?>> ENTITY_TYPE = null;
+    public static final DefaultedRegistry<EntityType<?>> ENTITY_TYPE = Stubs.of(DefaultedRegistry.class, "net/minecraft/core/DefaultedRegistry");
 
-    public static final DefaultedRegistry<Item> ITEM = null;
+    public static final DefaultedRegistry<Item> ITEM = Stubs.of(DefaultedRegistry.class, "net/minecraft/core/DefaultedRegistry");
 
-    public static final Registry<RecipeType<?>> RECIPE_TYPE = null;
+    public static final Registry<RecipeType<?>> RECIPE_TYPE = Stubs.of(Registry.class, "net/minecraft/core/Registry");
 
-    public static final Registry<RecipeSerializer<?>> RECIPE_SERIALIZER = null;
+    public static final Registry<RecipeSerializer<?>> RECIPE_SERIALIZER = Stubs.of(Registry.class, "net/minecraft/core/Registry");
 
     private static void freeze() {
         throw Unimplemented.forMember("net/minecraft/core/registries/BuiltInRegistries.freeze:()V");
@@ -38,11 +39,5 @@ public class BuiltInRegistries {
     }
 
     protected BuiltInRegistries() {
-    }
-
-    static {
-        if (true) {
-            throw Unimplemented.forMember("net/minecraft/core/registries/BuiltInRegistries");
-        }
     }
 }

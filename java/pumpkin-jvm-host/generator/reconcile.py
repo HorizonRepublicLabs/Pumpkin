@@ -11,7 +11,7 @@ matches the exact generated text, and a miss aborts the run rather than half-app
 If the generator's output for one of these members changes, this fails loudly and the
 edit gets re-thought, which is the whole point. regen.sh runs it.
 """
-import os, sys
+import os, re, sys
 
 ROOT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "shim", "src", "main", "java")
 
@@ -219,6 +219,58 @@ edit("net/minecraft/resources/ResourceKey.java", [
         this(Identifier.fromNamespaceAndPath("minecraft", "root"), Identifier.fromNamespaceAndPath("minecraft", ""));
     }"""),
 ])
+
+# ------------------------------------------------------- BuiltInRegistries
+# The pruner classifies this a HOLDER: six static-final registries whose real initializers
+# build the game's registry tables, which the shim has no way to run. Stripped and left at
+# `null` behind a throwing clinit, it stops a mod at class-initialisation with a key naming
+# only the holder -- true, but it says nothing about which registry was wanted or what the
+# mod tried to do with it.
+#
+# Both field types are interfaces, so each can hold a stub whose every call throws with its
+# own member key. The mod then fails at the point of use, naming something implementable,
+# and gets far enough in one boot to reveal several missing members instead of one.
+p = os.path.join(ROOT, "net/minecraft/core/registries/BuiltInRegistries.java")
+s = open(p).read()
+
+STUBS = {
+    "SOUND_EVENT": "Registry",
+    "FLUID": "DefaultedRegistry",
+    "ENTITY_TYPE": "DefaultedRegistry",
+    "ITEM": "DefaultedRegistry",
+    "RECIPE_TYPE": "Registry",
+    "RECIPE_SERIALIZER": "Registry",
+}
+OWNERS = {
+    "Registry": "net/minecraft/core/Registry",
+    "DefaultedRegistry": "net/minecraft/core/DefaultedRegistry",
+}
+
+for field, iface in STUBS.items():
+    old = " " + field + " = null;"
+    if old not in s:
+        sys.exit("BuiltInRegistries: no null field " + field)
+    stub = ' %s = Stubs.of(%s.class, "%s");' % (field, iface, OWNERS[iface])
+    s = s.replace(old, stub, 1)
+
+# Every field now initialises, so the clinit has nothing left to guard.
+clinit = (
+    '\n\n    static {\n        if (true) {\n'
+    '            throw Unimplemented.forMember('
+    '"net/minecraft/core/registries/BuiltInRegistries");\n'
+    '        }\n    }\n'
+)
+if clinit not in s:
+    sys.exit("BuiltInRegistries: clinit not in the expected shape")
+s = s.replace(clinit, "\n", 1)
+
+leftover = re.findall(r"^\s+public static final \w+<[^;]+> (\w+) = null;", s, re.M)
+if leftover:
+    sys.exit("BuiltInRegistries: still null after reconcile: " + ", ".join(leftover))
+
+s = s.replace("import dev.pumpkin.shim.Unimplemented;",
+              "import dev.pumpkin.shim.Stubs;\nimport dev.pumpkin.shim.Unimplemented;", 1)
+PENDING[p] = s
 
 # ---------------------------------------------------------------- Registries
 import re
