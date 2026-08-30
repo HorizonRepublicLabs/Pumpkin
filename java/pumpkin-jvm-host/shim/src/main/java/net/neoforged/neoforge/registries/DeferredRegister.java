@@ -40,6 +40,13 @@ public class DeferredRegister<T> {
                 Float explosionResistance, boolean requiresTool) {
             return registerBlock(id, template);
         }
+
+        // Pumpkin divergence: items too. Throwing, not dropping, is the default so a
+        // block-only test sink that unexpectedly receives an item fails saying why;
+        // the production sink in Bootstrap overrides this with the real native.
+        default int registerItem(String id, String template) {
+            throw new IllegalStateException("this sink cannot register items: " + id);
+        }
     }
 
     private static Sink pumpkinSink = (id, template) -> {
@@ -137,6 +144,8 @@ public class DeferredRegister<T> {
                 pumpkinSink.registerBlock(holder.getId().toString(), block.pumpkinTemplate(),
                         props.pumpkinDestroyTime(), props.pumpkinExplosionResistance(),
                         props.pumpkinRequiresTool());
+            } else if (object instanceof net.minecraft.world.item.Item item) {
+                pumpkinSink.registerItem(holder.getId().toString(), item.pumpkinTemplate());
             } else {
                 pumpkinWarnUnsupported(pumpkinRegistryKey.identifier().toString(),
                         holder.getId().toString());

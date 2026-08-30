@@ -1273,4 +1273,26 @@ edit("net/minecraft/util/random/WeightedList.java", [
 ])
 
 
+# ------------------------------------------------------------------ items, the sink
+
+edit('net/neoforged/neoforge/registries/DeferredRegister.java', [
+    ('        default int registerBlock(String id, String template, Float destroyTime,\n                Float explosionResistance, boolean requiresTool) {\n            return registerBlock(id, template);\n        }\n    }',
+     '        default int registerBlock(String id, String template, Float destroyTime,\n                Float explosionResistance, boolean requiresTool) {\n            return registerBlock(id, template);\n        }\n\n        // Pumpkin divergence: items too. Throwing, not dropping, is the default so a\n        // block-only test sink that unexpectedly receives an item fails saying why;\n        // the production sink in Bootstrap overrides this with the real native.\n        default int registerItem(String id, String template) {\n            throw new IllegalStateException("this sink cannot register items: " + id);\n        }\n    }'),
+    ('            if (object instanceof Block block) {\n                net.minecraft.world.level.block.state.BlockBehaviour.Properties props = block.pumpkinProperties();\n                pumpkinSink.registerBlock(holder.getId().toString(), block.pumpkinTemplate(),\n                        props.pumpkinDestroyTime(), props.pumpkinExplosionResistance(),\n                        props.pumpkinRequiresTool());\n            } else {',
+     '            if (object instanceof Block block) {\n                net.minecraft.world.level.block.state.BlockBehaviour.Properties props = block.pumpkinProperties();\n                pumpkinSink.registerBlock(holder.getId().toString(), block.pumpkinTemplate(),\n                        props.pumpkinDestroyTime(), props.pumpkinExplosionResistance(),\n                        props.pumpkinRequiresTool());\n            } else if (object instanceof net.minecraft.world.item.Item item) {\n                pumpkinSink.registerItem(holder.getId().toString(), item.pumpkinTemplate());\n            } else {'),
+])
+
+
+edit('net/neoforged/neoforge/registries/RegisterEvent.java', [
+    ('            if (value instanceof net.minecraft.world.level.block.Block block) {\n                net.minecraft.world.level.block.state.BlockBehaviour.Properties props = block.pumpkinProperties();\n                DeferredRegister.pumpkinSink().registerBlock(name.toString(), block.pumpkinTemplate(),\n                        props.pumpkinDestroyTime(), props.pumpkinExplosionResistance(),\n                        props.pumpkinRequiresTool());\n            } else {',
+     '            if (value instanceof net.minecraft.world.level.block.Block block) {\n                net.minecraft.world.level.block.state.BlockBehaviour.Properties props = block.pumpkinProperties();\n                DeferredRegister.pumpkinSink().registerBlock(name.toString(), block.pumpkinTemplate(),\n                        props.pumpkinDestroyTime(), props.pumpkinExplosionResistance(),\n                        props.pumpkinRequiresTool());\n            } else if (value instanceof net.minecraft.world.item.Item item) {\n                DeferredRegister.pumpkinSink().registerItem(name.toString(), item.pumpkinTemplate());\n            } else {'),
+])
+
+
+edit('net/minecraft/world/item/Item.java', [
+    ('    public Item(Item.Properties properties) {\n    }',
+     '    public Item(Item.Properties properties) {\n    }\n\n    // Pumpkin divergence: no vanilla counterpart. Pumpkin registers an item by copying an\n    // existing one\'s definition, and "stone" is the deliberate default template -- the\n    // same choice Block\'s registration path makes. It is a stand-in, not a guess at the\n    // mod\'s intent: stack size and components come from stone until item behaviour gets\n    // its own slice.\n    public String pumpkinTemplate() {\n        return "stone";\n    }'),
+])
+
+
 commit()

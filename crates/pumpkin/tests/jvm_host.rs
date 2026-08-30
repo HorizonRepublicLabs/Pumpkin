@@ -156,6 +156,40 @@ fn java_can_register_a_block() {
 }
 
 #[test]
+fn java_can_register_an_item() {
+    let vm = pumpkin::plugin::loader::jvm::vm::boot(&host_classpath()).expect("the VM boots");
+
+    let assigned = vm
+        .call(|env| {
+            let id = env
+                .new_string("testmod:ruby")
+                .map_err(|err| pumpkin::plugin::loader::jvm::vm::VmError::Java(err.to_string()))?;
+            let template = env
+                .new_string("stone")
+                .map_err(|err| pumpkin::plugin::loader::jvm::vm::VmError::Java(err.to_string()))?;
+
+            env.call_static_method(
+                "dev/pumpkin/jvmhost/PumpkinHost",
+                "registerItem",
+                "(Ljava/lang/String;Ljava/lang/String;)I",
+                &[(&id).into(), (&template).into()],
+            )
+            .and_then(jni::objects::JValueGen::i)
+            .map_err(|err| pumpkin::plugin::loader::jvm::vm::VmError::Java(err.to_string()))
+        })
+        .expect("the registration succeeds");
+
+    assert!(assigned > 0, "a real item id was assigned, got {assigned}");
+
+    // Staged, not published — same reasoning as the block test above: freezing here would
+    // break every registration a later test makes in this process.
+    assert!(
+        pumpkin_data::dynamic::registering_item_id("testmod:ruby").is_some(),
+        "the item Java registered is in Pumpkin's registry"
+    );
+}
+
+#[test]
 fn the_loader_claims_jars_and_nothing_else() {
     use pumpkin::plugin::loader::{PluginLoader, jvm::JvmPluginLoader};
 

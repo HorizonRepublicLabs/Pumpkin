@@ -14,6 +14,7 @@ use crate::plugin::{
     host::registry::{BlockSpec, register_block_spec},
     loader::jvm::vm::VmError,
 };
+use pumpkin_data::item::Item;
 
 /// Binds every native on `PumpkinHost`.
 ///
@@ -36,6 +37,11 @@ pub fn bind(env: &mut JNIEnv) -> Result<(), VmError> {
                 name: "registerBlockWithProperties".into(),
                 sig: "(Ljava/lang/String;Ljava/lang/String;FFZ)I".into(),
                 fn_ptr: register_block_with_properties_native as *mut std::ffi::c_void,
+            },
+            NativeMethod {
+                name: "registerItem".into(),
+                sig: "(Ljava/lang/String;Ljava/lang/String;)I".into(),
+                fn_ptr: register_item_native as *mut std::ffi::c_void,
             },
         ],
     )
@@ -142,6 +148,40 @@ fn register_block_impl(
         Ok(registered) => jint::from(registered.block_id.as_u16()),
         Err(message) => {
             throw(env, &message);
+            0
+        }
+    }
+}
+
+extern "system" fn register_item_native(
+    mut env: JNIEnv,
+    _class: JClass,
+    id: JString,
+    template: JString,
+) -> jint {
+    let Some(id) = read_string(&mut env, &id, "the item id") else {
+        return 0;
+    };
+    let Some(template) = read_string(&mut env, &template, "the item template") else {
+        return 0;
+    };
+
+    // Same shape as the WASM host's register_item: the template is an existing item whose
+    // definition (components, stack size) the new item copies. Behaviour beyond that —
+    // right-click handlers, tools acting like tools — is a future slice, exactly like the
+    // dropped `first_state`/`drops` on blocks above.
+    let Some(template_item) = Item::from_registry_key(&template) else {
+        throw(&mut env, &format!("unknown item template {template}"));
+        return 0;
+    };
+
+    match pumpkin_data::dynamic::register_item(pumpkin_data::dynamic::ItemRegistration {
+        name: id,
+        item: template_item.clone(),
+    }) {
+        Ok(assigned) => jint::from(assigned),
+        Err(err) => {
+            throw(&mut env, &err.to_string());
             0
         }
     }

@@ -43,6 +43,11 @@ public final class Bootstrap {
                         explosionResistance == null ? Float.NaN : explosionResistance,
                         requiresTool);
             }
+
+            @Override
+            public int registerItem(String id, String template) {
+                return PumpkinHost.registerItem(id, template);
+            }
         });
     }
 

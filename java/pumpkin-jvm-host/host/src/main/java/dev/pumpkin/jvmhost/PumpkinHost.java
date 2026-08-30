@@ -36,4 +36,19 @@ public final class PumpkinHost {
      */
     public static native int registerBlockWithProperties(String id, String template,
             float destroyTime, float explosionResistance, boolean requiresTool);
+
+    /**
+     * Registers an item copied from a vanilla template.
+     *
+     * <p>The new item takes the template's whole definition -- components, stack size --
+     * verbatim. Item behaviour beyond existing (use handlers, tool logic) is a future
+     * slice, the same boundary the block natives draw around drops and hooks.
+     *
+     * @param id       namespaced id, e.g. {@code testmod:ruby}
+     * @param template vanilla item whose definition is copied, e.g. {@code stone}
+     * @return the assigned item id
+     * @throws IllegalStateException if the template is unknown, registration failed, or
+     *                               the registries are frozen
+     */
+    public static native int registerItem(String id, String template);
 }

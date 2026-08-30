@@ -56,6 +56,15 @@ public class Item implements ItemLike, FeatureElement, IItemExtension {
     public Item(Item.Properties properties) {
     }
 
+    // Pumpkin divergence: no vanilla counterpart. Pumpkin registers an item by copying an
+    // existing one's definition, and "stone" is the deliberate default template -- the
+    // same choice Block's registration path makes. It is a stand-in, not a guess at the
+    // mod's intent: stack size and components come from stone until item behaviour gets
+    // its own slice.
+    public String pumpkinTemplate() {
+        return "stone";
+    }
+
     public Holder.Reference<Item> builtInRegistryHolder() {
         throw Unimplemented.forMember("net/minecraft/world/item/Item.builtInRegistryHolder:()Lnet/minecraft/core/Holder$Reference;");
     }
