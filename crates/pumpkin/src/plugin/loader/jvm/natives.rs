@@ -65,6 +65,11 @@ pub fn bind(env: &mut JNIEnv) -> Result<(), VmError> {
                 fn_ptr: register_block_with_properties_native as *mut std::ffi::c_void,
             },
             NativeMethod {
+                name: "registerBlockWithStates".into(),
+                sig: "(Ljava/lang/String;Ljava/lang/String;FFZLjava/lang/String;)I".into(),
+                fn_ptr: register_block_with_states_native as *mut std::ffi::c_void,
+            },
+            NativeMethod {
                 name: "registerItem".into(),
                 sig: "(Ljava/lang/String;Ljava/lang/String;)I".into(),
                 fn_ptr: register_item_native as *mut std::ffi::c_void,
@@ -158,6 +163,44 @@ extern "system" fn register_block_with_properties_native(
     )
 }
 
+extern "system" fn register_block_with_states_native(
+    mut env: JNIEnv,
+    _class: JClass,
+    id: JString,
+    template: JString,
+    destroy_time: jfloat,
+    explosion_resistance: jfloat,
+    requires_tool: jboolean,
+    state_properties: JString,
+) -> jint {
+    let Some(properties_spec) = read_string(&mut env, &state_properties, "the state properties")
+    else {
+        return 0;
+    };
+    // "name:v|v|v;name:v|v" -- one BlockProperty per declaration, order preserved,
+    // because state numbering is the product of the declarations in order.
+    let properties: Vec<crate::plugin::host::registry::BlockProperty> = properties_spec
+        .split(';')
+        .filter(|entry| !entry.is_empty())
+        .filter_map(|entry| {
+            let (name, values) = entry.split_once(':')?;
+            Some(crate::plugin::host::registry::BlockProperty {
+                name: name.to_string(),
+                values: values.split('|').map(ToString::to_string).collect(),
+            })
+        })
+        .collect();
+    register_block_impl_with(
+        &mut env,
+        &id,
+        &template,
+        (!destroy_time.is_nan()).then_some(destroy_time),
+        (!explosion_resistance.is_nan()).then_some(explosion_resistance),
+        Some(requires_tool != 0),
+        properties,
+    )
+}
+
 extern "system" fn register_block_native(
     mut env: JNIEnv,
     _class: JClass,
@@ -175,6 +218,26 @@ fn register_block_impl(
     blast_resistance: Option<f32>,
     requires_tool: Option<bool>,
 ) -> jint {
+    register_block_impl_with(
+        env,
+        id,
+        template,
+        hardness,
+        blast_resistance,
+        requires_tool,
+        Vec::new(),
+    )
+}
+
+fn register_block_impl_with(
+    env: &mut JNIEnv,
+    id: &JString,
+    template: &JString,
+    hardness: Option<f32>,
+    blast_resistance: Option<f32>,
+    requires_tool: Option<bool>,
+    properties: Vec<crate::plugin::host::registry::BlockProperty>,
+) -> jint {
     let Some(id) = read_string(env, id, "the block id") else {
         return 0;
     };
@@ -189,7 +252,7 @@ fn register_block_impl(
         blast_resistance,
         luminance: None,
         requires_tool,
-        properties: Vec::new(),
+        properties,
         default_state: 0,
         item: None,
         drops: Vec::new(),

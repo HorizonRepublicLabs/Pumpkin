@@ -13,6 +13,10 @@ public class HalfTransparentBlock extends Block {
     }
 
     public HalfTransparentBlock(BlockBehaviour.Properties properties) {
+        // Pumpkin divergence: chains the properties up. Without this the block's
+        // template (and everything else recorded on Properties) silently resets
+        // to the defaults -- a crop built ofFullCopy(WHEAT) registered as stone.
+        super(properties);
     }
 
     protected boolean skipRendering(BlockState state, BlockState neighborState, Direction direction) {

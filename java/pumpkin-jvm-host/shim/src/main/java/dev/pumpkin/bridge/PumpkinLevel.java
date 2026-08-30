@@ -263,11 +263,6 @@ public final class PumpkinLevel extends net.minecraft.server.level.ServerLevel {
     }
 
     @Override
-    public BlockState getBlockState(final BlockPos pos) {
-        throw Unimplemented.forMember("net/minecraft/world/level/Level.getBlockState");
-    }
-
-    @Override
     public ChunkAccess getChunk(final int chunkX, final int chunkZ, final ChunkStatus targetStatus, final boolean loadOrGenerate) {
         throw Unimplemented.forMember("net/minecraft/world/level/Level.getChunk");
     }
@@ -388,11 +383,6 @@ public final class PumpkinLevel extends net.minecraft.server.level.ServerLevel {
     }
 
     @Override
-    public boolean setBlock(BlockPos pos, BlockState blockState, int updateFlags, int updateLimit) {
-        throw Unimplemented.forMember("net/minecraft/world/level/Level.setBlock");
-    }
-
-    @Override
     public int getHeight() {
         throw Unimplemented.forMember("net/minecraft/world/level/Level.getHeight");
     }
@@ -484,4 +474,65 @@ public final class PumpkinLevel extends net.minecraft.server.level.ServerLevel {
         throw Unimplemented.forMember("net/minecraft/world/level/Level.environmentAttributes");
     }
 
+    // ---- random-tick context -------------------------------------------------------
+    // A random tick hands the mod a light level and a small neighborhood of states
+    // (the crop, the soil square below it, the row around it). getBlockState answers
+    // from that snapshot and fails loudly outside it -- a position the bridge did not
+    // send is a gap to widen, not a stone to invent. setBlock records what the mod
+    // wrote so the bridge can carry the new state back to the server.
+
+    private int pumpkinBrightness;
+    private java.util.Map<String, net.minecraft.world.level.block.state.BlockState> pumpkinSnapshot =
+            java.util.Map.of();
+    private final java.util.Map<String, net.minecraft.world.level.block.state.BlockState> pumpkinWrites =
+            new java.util.HashMap<>();
+
+    void pumpkinSetRandomTickContext(int brightness,
+            java.util.Map<String, net.minecraft.world.level.block.state.BlockState> snapshot) {
+        pumpkinBrightness = brightness;
+        pumpkinSnapshot = snapshot;
+        pumpkinWrites.clear();
+    }
+
+    void pumpkinClearRandomTickContext() {
+        pumpkinSnapshot = java.util.Map.of();
+        pumpkinWrites.clear();
+    }
+
+    net.minecraft.world.level.block.state.BlockState pumpkinWrittenState(int x, int y, int z) {
+        return pumpkinWrites.get(x + "," + y + "," + z);
+    }
+
+    // The bridge measures light at the ticked position; a mod asking about another
+    // position gets the same answer, which is the best fact this level holds.
+    public int getRawBrightness(BlockPos pos, int amount) {
+        return pumpkinBrightness;
+    }
+
+    @Override
+    public net.minecraft.world.level.block.state.BlockState getBlockState(BlockPos pos) {
+        String key = pos.getX() + "," + pos.getY() + "," + pos.getZ();
+        net.minecraft.world.level.block.state.BlockState written = pumpkinWrites.get(key);
+        if (written != null) {
+            return written;
+        }
+        net.minecraft.world.level.block.state.BlockState state = pumpkinSnapshot.get(key);
+        if (state == null) {
+            throw dev.pumpkin.shim.Unimplemented.forMember(
+                    "dev/pumpkin/bridge/PumpkinLevel.getBlockState outside the snapshot: " + key);
+        }
+        return state;
+    }
+
+    public boolean setBlock(BlockPos pos, net.minecraft.world.level.block.state.BlockState state,
+            int updateFlags) {
+        pumpkinWrites.put(pos.getX() + "," + pos.getY() + "," + pos.getZ(), state);
+        return true;
+    }
+
+    @Override
+    public boolean setBlock(BlockPos pos, net.minecraft.world.level.block.state.BlockState state,
+            int updateFlags, int updateLimit) {
+        return setBlock(pos, state, updateFlags);
+    }
 }

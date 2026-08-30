@@ -90,8 +90,11 @@ public class CampfireBlock extends BaseEntityBlock implements SimpleWaterloggedB
         throw Unimplemented.forMember("net/minecraft/world/level/block/CampfireBlock.mirror:(Lnet/minecraft/world/level/block/state/BlockState;Lnet/minecraft/world/level/block/Mirror;)Lnet/minecraft/world/level/block/state/BlockState;");
     }
 
+    // Pumpkin divergence: declares nothing here. The vanilla declaration needs
+    // property constants this shim does not carry yet; a subclass registering
+    // through this base gets a single state until they exist, rather than a
+    // constructor crash.
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
-        throw Unimplemented.forMember("net/minecraft/world/level/block/CampfireBlock.createBlockStateDefinition:(Lnet/minecraft/world/level/block/state/StateDefinition$Builder;)V");
     }
 
     public BlockEntity newBlockEntity(BlockPos worldPosition, BlockState blockState) {

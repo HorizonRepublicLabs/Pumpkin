@@ -227,8 +227,15 @@ public abstract class BlockBehaviour implements FeatureElement {
 
         // Pumpkin divergence: real body. A copy carries the template forward -- that is the
         // only state Pumpkin reads off these properties today.
+        // Pumpkin divergence: carries the source's template forward. A crop built with
+        // ofFullCopy(Blocks.WHEAT) must register as a wheat copy, not stone -- wheat's
+        // states are what make it randomly tick.
         public static BlockBehaviour.Properties ofFullCopy(BlockBehaviour block) {
-            return new Properties();
+            Properties properties = new Properties();
+            if (block instanceof net.minecraft.world.level.block.Block source) {
+                properties.pumpkinTemplate = source.pumpkinTemplate();
+            }
+            return properties;
         }
 
         // Pumpkin divergence: real body. Accepted and dropped -- occlusion is a client-side rendering concern.

@@ -18,7 +18,11 @@ public class Blocks {
 
     public static final Block WHEAT = pumpkinVanilla("wheat");
 
-    public static final Block FARMLAND = pumpkinVanilla("farmland");
+    // Pumpkin divergence: a real FarmlandBlock, not a bare template holder -- crop growth
+    // reads state.getValue(FarmlandBlock.MOISTURE) off the soil, so the soil's state has
+    // to declare the property.
+    public static final Block FARMLAND =
+            new FarmlandBlock(BlockBehaviour.Properties.of().pumpkinTemplate("farmland"));
 
     public static final Block MYCELIUM = pumpkinVanilla("mycelium");
 

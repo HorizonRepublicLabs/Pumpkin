@@ -29,6 +29,10 @@ public class FarmlandBlock extends Block {
     }
 
     public FarmlandBlock(BlockBehaviour.Properties properties) {
+        // Pumpkin divergence: chains the properties up. Without this the block's
+        // template (and everything else recorded on Properties) silently resets
+        // to the defaults -- a crop built ofFullCopy(WHEAT) registered as stone.
+        super(properties);
     }
 
     protected BlockState updateShape(BlockState state, LevelReader level, ScheduledTickAccess ticks, BlockPos pos, Direction directionToNeighbour, BlockPos neighbourPos, BlockState neighbourState, RandomSource random) {
@@ -67,8 +71,9 @@ public class FarmlandBlock extends Block {
         throw Unimplemented.forMember("net/minecraft/world/level/block/FarmlandBlock.isNearWater:(Lnet/minecraft/world/level/LevelReader;Lnet/minecraft/core/BlockPos;)Z");
     }
 
+    // Pumpkin divergence: vanilla body -- the properties this block declares.
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
-        throw Unimplemented.forMember("net/minecraft/world/level/block/FarmlandBlock.createBlockStateDefinition:(Lnet/minecraft/world/level/block/state/StateDefinition$Builder;)V");
+        builder.add(MOISTURE);
     }
 
     protected boolean isPathfindable(BlockState state, PathComputationType type) {

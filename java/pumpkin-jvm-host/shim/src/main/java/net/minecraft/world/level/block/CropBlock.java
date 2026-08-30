@@ -28,6 +28,10 @@ public class CropBlock extends VegetationBlock implements BonemealableBlock {
     }
 
     public CropBlock(BlockBehaviour.Properties properties) {
+        // Pumpkin divergence: chains the properties up. Without this the block's
+        // template (and everything else recorded on Properties) silently resets
+        // to the defaults -- a crop built ofFullCopy(WHEAT) registered as stone.
+        super(properties);
     }
 
     protected VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
@@ -38,24 +42,79 @@ public class CropBlock extends VegetationBlock implements BonemealableBlock {
         throw Unimplemented.forMember("net/minecraft/world/level/block/CropBlock.mayPlaceOn:(Lnet/minecraft/world/level/block/state/BlockState;Lnet/minecraft/world/level/BlockGetter;Lnet/minecraft/core/BlockPos;)Z");
     }
 
+    // Pumpkin divergence: vanilla body -- crops age 0 to 7.
     public int getMaxAge() {
-        throw Unimplemented.forMember("net/minecraft/world/level/block/CropBlock.getMaxAge:()I");
+        return 7;
     }
 
+    // Pumpkin divergence: vanilla body.
     public BlockState getStateForAge(int age) {
-        throw Unimplemented.forMember("net/minecraft/world/level/block/CropBlock.getStateForAge:(I)Lnet/minecraft/world/level/block/state/BlockState;");
+        return defaultBlockState().setValue(AGE, age);
     }
 
+    // Pumpkin divergence: vanilla body.
     public final boolean isMaxAge(BlockState state) {
-        throw Unimplemented.forMember("net/minecraft/world/level/block/CropBlock.isMaxAge:(Lnet/minecraft/world/level/block/state/BlockState;)Z");
+        return state.getValue(AGE) >= getMaxAge();
     }
 
+    // Pumpkin divergence: vanilla body -- a full-grown crop stops ticking.
     protected boolean isRandomlyTicking(BlockState state) {
-        throw Unimplemented.forMember("net/minecraft/world/level/block/CropBlock.isRandomlyTicking:(Lnet/minecraft/world/level/block/state/BlockState;)Z");
+        return !isMaxAge(state);
     }
 
+    // Pumpkin divergence: vanilla body -- light gate, farmland-weighted growth chance,
+    // one age step written back through the level. The level is Pumpkin's stand-in, whose
+    // getBlockState answers from the neighborhood snapshot the random-tick bridge carries.
     protected void randomTick(BlockState state, ServerLevel level, BlockPos pos, RandomSource random) {
-        throw Unimplemented.forMember("net/minecraft/world/level/block/CropBlock.randomTick:(Lnet/minecraft/world/level/block/state/BlockState;Lnet/minecraft/server/level/ServerLevel;Lnet/minecraft/core/BlockPos;Lnet/minecraft/util/RandomSource;)V");
+        if (level.getRawBrightness(pos, 0) >= 9) {
+            int age = state.getValue(AGE);
+            if (age < getMaxAge()) {
+                float speed = pumpkinGrowthSpeed(level, pos);
+                if (random.nextInt((int) (25.0F / speed) + 1) == 0) {
+                    level.setBlock(pos, getStateForAge(age + 1), 2);
+                }
+            }
+        }
+    }
+
+    // Pumpkin divergence: vanilla getGrowthSpeed, private because only randomTick above
+    // calls it. Moist farmland under the crop counts 3, dry 1, diagonals a quarter; crops
+    // of the same kind in a row or touching diagonally halve the total.
+    private float pumpkinGrowthSpeed(Level level, BlockPos pos) {
+        float speed = 1.0F;
+        BlockPos below = pos.below();
+        for (int dx = -1; dx <= 1; dx++) {
+            for (int dz = -1; dz <= 1; dz++) {
+                float gain = 0.0F;
+                BlockState soil = level.getBlockState(below.offset(dx, 0, dz));
+                if (soil.getBlock() instanceof FarmlandBlock) {
+                    gain = 1.0F;
+                    if (soil.getValue(FarmlandBlock.MOISTURE) > 0) {
+                        gain = 3.0F;
+                    }
+                }
+                if (dx != 0 || dz != 0) {
+                    gain /= 4.0F;
+                }
+                speed += gain;
+            }
+        }
+        boolean row = level.getBlockState(pos.offset(-1, 0, 0)).getBlock() == this
+                || level.getBlockState(pos.offset(1, 0, 0)).getBlock() == this;
+        boolean column = level.getBlockState(pos.offset(0, 0, -1)).getBlock() == this
+                || level.getBlockState(pos.offset(0, 0, 1)).getBlock() == this;
+        if (row && column) {
+            speed /= 2.0F;
+        } else {
+            boolean diagonal = level.getBlockState(pos.offset(-1, 0, -1)).getBlock() == this
+                    || level.getBlockState(pos.offset(1, 0, -1)).getBlock() == this
+                    || level.getBlockState(pos.offset(-1, 0, 1)).getBlock() == this
+                    || level.getBlockState(pos.offset(1, 0, 1)).getBlock() == this;
+            if (diagonal) {
+                speed /= 2.0F;
+            }
+        }
+        return speed;
     }
 
     protected boolean canSurvive(BlockState state, LevelReader level, BlockPos pos) {
@@ -86,8 +145,9 @@ public class CropBlock extends VegetationBlock implements BonemealableBlock {
         throw Unimplemented.forMember("net/minecraft/world/level/block/CropBlock.performBonemeal:(Lnet/minecraft/server/level/ServerLevel;Lnet/minecraft/util/RandomSource;Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/state/BlockState;)V");
     }
 
+    // Pumpkin divergence: vanilla body -- a crop is its age.
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
-        throw Unimplemented.forMember("net/minecraft/world/level/block/CropBlock.createBlockStateDefinition:(Lnet/minecraft/world/level/block/state/StateDefinition$Builder;)V");
+        builder.add(AGE);
     }
 
     public CropBlock() {

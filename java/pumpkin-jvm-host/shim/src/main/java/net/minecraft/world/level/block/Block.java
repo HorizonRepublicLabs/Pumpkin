@@ -63,8 +63,28 @@ public class Block extends BlockBehaviour implements ItemLike, IBlockExtension {
 
     // Pumpkin divergence: real body. Vanilla's constructor builds a state definition and a
     // registry holder; the shim keeps only the one thing registration reads back.
+    // Pumpkin divergence: the declared state properties, collected the way vanilla does
+    // -- by running createBlockStateDefinition from the constructor. (Vanilla's famous
+    // quirk: the subclass override runs before subclass fields initialise; mods are
+    // written to survive it.)
+    private java.util.List<net.minecraft.world.level.block.state.properties.Property<?>> pumpkinDeclaredProperties = java.util.List.of();
+
+    public java.util.List<net.minecraft.world.level.block.state.properties.Property<?>> pumpkinDeclaredProperties() {
+        return pumpkinDeclaredProperties;
+    }
+
+    // Pumpkin divergence: the base declaration hook vanilla keeps on BlockBehaviour;
+    // the base declares nothing, subclasses add their properties.
+    protected void createBlockStateDefinition(
+            net.minecraft.world.level.block.state.StateDefinition.Builder<Block, net.minecraft.world.level.block.state.BlockState> builder) {
+    }
+
     public Block(BlockBehaviour.Properties properties) {
         this.pumpkinProperties = properties;
+        net.minecraft.world.level.block.state.StateDefinition.Builder<Block, net.minecraft.world.level.block.state.BlockState> builder =
+                new net.minecraft.world.level.block.state.StateDefinition.Builder<>(this);
+        createBlockStateDefinition(builder);
+        this.pumpkinDeclaredProperties = builder.pumpkinProperties();
     }
 
     // Pumpkin divergence: no vanilla counterpart at all. The vanilla block whose definition
@@ -155,6 +175,17 @@ public class Block extends BlockBehaviour implements ItemLike, IBlockExtension {
         if (defaultBlockState == null) {
             defaultBlockState = new BlockState();
             defaultBlockState.pumpkinOwner = this;
+            // Each declared property starts at its first value, matching how the Rust
+            // side numbers states -- index 0 is all-first-values.
+            java.util.Map<net.minecraft.world.level.block.state.properties.Property<?>, Comparable<?>> values =
+                    new java.util.HashMap<>();
+            for (net.minecraft.world.level.block.state.properties.Property<?> property
+                    : pumpkinDeclaredProperties()) {
+                if (!property.pumpkinPossibleValues.isEmpty()) {
+                    values.put(property, property.pumpkinParse.get(property.pumpkinPossibleValues.get(0)));
+                }
+            }
+            defaultBlockState.pumpkinValues = java.util.Map.copyOf(values);
         }
         return defaultBlockState;
     }

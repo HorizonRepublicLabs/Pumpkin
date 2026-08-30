@@ -35,7 +35,8 @@ public class RegisterEvent extends Event implements IModBusEvent {
                 block.pumpkinSetRegisteredId(name.toString());
                 DeferredRegister.pumpkinSink().registerBlock(name.toString(), block.pumpkinTemplate(),
                         props.pumpkinDestroyTime(), props.pumpkinExplosionResistance(),
-                        props.pumpkinRequiresTool());
+                        props.pumpkinRequiresTool(),
+                        DeferredRegister.pumpkinStateProperties(block));
             } else if (value instanceof net.minecraft.world.item.Item item) {
                 item.pumpkinSetRegisteredId(name.toString());
                 DeferredRegister.pumpkinSink().registerItem(name.toString(), item.pumpkinTemplate(),

@@ -878,7 +878,7 @@ edit("net/minecraft/world/phys/shapes/Shapes.java", [
 # NOT interned -- vanilla's identity guarantee waits for the Rust state binding.
 edit('net/minecraft/world/level/block/state/StateHolder.java', [
     ('    public <T extends Comparable<T>> T getValue(Property<T> property) {\n        throw Unimplemented.forMember("net/minecraft/world/level/block/state/StateHolder.getValue:(Lnet/minecraft/world/level/block/state/properties/Property;)Ljava/lang/Comparable;");\n    }',
-     '    // Pumpkin divergence: real bodies over a copy-on-write property map. Enough for\n    // registration and the mods\' own reads; NOT interned, so vanilla\'s states-are-identity\n    // guarantee does not hold yet -- that arrives with the Rust state binding. A property\n    // never set fails loudly with the property\'s name, not a null.\n    protected java.util.Map<Property<?>, Comparable<?>> pumpkinValues = java.util.Map.of();\n\n    @SuppressWarnings("unchecked")\n    public <T extends Comparable<T>> T getValue(Property<T> property) {\n        Comparable<?> value = pumpkinValues.get(property);\n        if (value == null) {\n            throw new IllegalArgumentException("property " + property + " was never set on " + this);\n        }\n        return (T) value;\n    }'),
+     '    // Pumpkin divergence: real bodies over a copy-on-write property map. Enough for\n    // registration and the mods\' own reads; NOT interned, so vanilla\'s states-are-identity\n    // guarantee does not hold yet -- that arrives with the Rust state binding. A property\n    // never set fails loudly with the property\'s name, not a null.\n    public java.util.Map<Property<?>, Comparable<?>> pumpkinValues = java.util.Map.of();\n\n    @SuppressWarnings("unchecked")\n    public <T extends Comparable<T>> T getValue(Property<T> property) {\n        Comparable<?> value = pumpkinValues.get(property);\n        if (value == null) {\n            throw new IllegalArgumentException("property " + property + " was never set on " + this);\n        }\n        return (T) value;\n    }'),
     ('    public <T extends Comparable<T>, V extends T> S setValue(Property<T> property, V value) {\n        throw Unimplemented.forMember("net/minecraft/world/level/block/state/StateHolder.setValue:(Lnet/minecraft/world/level/block/state/properties/Property;Lnet/minecraft/world/level/block/state/T;)Ljava/lang/Object;");\n    }',
      '    // Pumpkin divergence: real body. Returns a sibling state with one value changed --\n    // copy-on-write, not interned; see getValue\'s comment.\n    @SuppressWarnings("unchecked")\n    public <T extends Comparable<T>, V extends T> S setValue(Property<T> property, V value) {\n        StateHolder<O, S> next = pumpkinSibling();\n        java.util.Map<Property<?>, Comparable<?>> map = new java.util.HashMap<>(pumpkinValues);\n        map.put(property, value);\n        next.pumpkinValues = java.util.Map.copyOf(map);\n        return (S) next;\n    }\n\n    // Pumpkin divergence: how setValue makes the copy. Subclasses that carry more state\n    // override to preserve it; BlockState keeps its owning block this way.\n    protected StateHolder<O, S> pumpkinSibling() {\n        throw new UnsupportedOperationException(getClass().getName() + " cannot copy itself");\n    }'),
 ])
@@ -2001,6 +2001,259 @@ edit("net/minecraft/world/inventory/Slot.java", [
 edit("net/minecraft/world/item/ItemStack.java", [
     ('    public ItemStack copy() {\n        throw Unimplemented.forMember("net/minecraft/world/item/ItemStack.copy:()Lnet/minecraft/world/item/ItemStack;");\n    }',
      '    // Pumpkin divergence: real body.\n    public ItemStack copy() {\n        return copyWithCount(pumpkinCount);\n    }'),
+])
+
+# ------------------------------------------------- crop states, property values
+
+edit('net/minecraft/world/level/block/state/properties/Property.java', [
+    ('    public String pumpkinName;',
+     '    public String pumpkinName;\n\n    // Pumpkin divergence: the possible values, in declaration order -- what registration\n    // sends to the server so a block gets one state per combination.\n    public java.util.List<String> pumpkinPossibleValues = new java.util.ArrayList<>();\n\n    // The typed value each spelling parses to, for rebuilding a state from a string.\n    public java.util.Map<String, Comparable<?>> pumpkinParse = new java.util.HashMap<>();'),
+])
+
+edit('net/minecraft/world/level/block/state/properties/IntegerProperty.java', [
+    ('    // Pumpkin divergence: real body. The range constrains a file no one writes.\n    public static IntegerProperty create(String name, int min, int max) {\n        IntegerProperty property = new IntegerProperty();\n        property.pumpkinName = name;\n        return property;\n    }',
+     '    // Pumpkin divergence: real body, values included -- registration walks them.\n    public static IntegerProperty create(String name, int min, int max) {\n        IntegerProperty property = new IntegerProperty();\n        property.pumpkinName = name;\n        java.util.List<String> values = new java.util.ArrayList<>();\n        java.util.Map<String, Comparable<?>> parse = new java.util.HashMap<>();\n        for (int value = min; value <= max; value++) {\n            values.add(Integer.toString(value));\n            parse.put(Integer.toString(value), value);\n        }\n        property.pumpkinPossibleValues = java.util.List.copyOf(values);\n        property.pumpkinParse = java.util.Map.copyOf(parse);\n        return property;\n    }'),
+])
+
+edit('net/minecraft/world/level/block/state/properties/BooleanProperty.java', [
+    ('    // Pumpkin divergence: real body -- a named property is just its name here.\n    public static BooleanProperty create(String name) {\n        BooleanProperty property = new BooleanProperty();\n        property.pumpkinName = name;\n        return property;\n    }',
+     '    // Pumpkin divergence: real body, values included -- registration walks them.\n    public static BooleanProperty create(String name) {\n        BooleanProperty property = new BooleanProperty();\n        property.pumpkinName = name;\n        property.pumpkinPossibleValues = java.util.List.of("true", "false");\n        property.pumpkinParse = java.util.Map.of("true", Boolean.TRUE, "false", Boolean.FALSE);\n        return property;\n    }'),
+])
+
+edit('net/minecraft/world/level/block/Block.java', [
+    ('    public Block(BlockBehaviour.Properties properties) {\n        this.pumpkinProperties = properties;\n    }',
+     "    // Pumpkin divergence: the declared state properties, collected the way vanilla does\n    // -- by running createBlockStateDefinition from the constructor. (Vanilla's famous\n    // quirk: the subclass override runs before subclass fields initialise; mods are\n    // written to survive it.)\n    private java.util.List<net.minecraft.world.level.block.state.properties.Property<?>> pumpkinDeclaredProperties = java.util.List.of();\n\n    public java.util.List<net.minecraft.world.level.block.state.properties.Property<?>> pumpkinDeclaredProperties() {\n        return pumpkinDeclaredProperties;\n    }\n\n    public Block(BlockBehaviour.Properties properties) {\n        this.pumpkinProperties = properties;\n        net.minecraft.world.level.block.state.StateDefinition.Builder<Block, net.minecraft.world.level.block.state.BlockState> builder =\n                new net.minecraft.world.level.block.state.StateDefinition.Builder<>(this);\n        createBlockStateDefinition(builder);\n        this.pumpkinDeclaredProperties = builder.pumpkinProperties();\n    }"),
+])
+
+edit('net/minecraft/world/level/block/state/StateDefinition.java', [
+    ('    public static class Builder<O, S extends StateHolder<O, S>> {\n\n        public Builder(O owner) {\n        }\n\n        public StateDefinition.Builder<O, S> add(Property<?>... properties) {\n            throw Unimplemented.forMember("net/minecraft/world/level/block/state/StateDefinition$Builder.add:([Lnet/minecraft/world/level/block/state/properties/Property;)Lnet/minecraft/world/level/block/state/StateDefinition$Builder;");\n        }',
+     '    public static class Builder<O, S extends StateHolder<O, S>> {\n\n        // Pumpkin divergence: the builder records what add() declares; registration\n        // reads it back.\n        private final java.util.List<Property<?>> pumpkinProperties = new java.util.ArrayList<>();\n\n        public java.util.List<Property<?>> pumpkinProperties() {\n            return pumpkinProperties;\n        }\n\n        public Builder(O owner) {\n        }\n\n        public StateDefinition.Builder<O, S> add(Property<?>... properties) {\n            java.util.Collections.addAll(pumpkinProperties, properties);\n            return this;\n        }'),
+])
+
+edit('net/minecraft/world/level/block/Block.java', [
+    ('    public Block(BlockBehaviour.Properties properties) {\n        this.pumpkinProperties = properties;\n        net.minecraft.world.level.block.state.StateDefinition.Builder<Block, net.minecraft.world.level.block.state.BlockState> builder =',
+     '    // Pumpkin divergence: the base declaration hook vanilla keeps on BlockBehaviour;\n    // the base declares nothing, subclasses add their properties.\n    protected void createBlockStateDefinition(\n            net.minecraft.world.level.block.state.StateDefinition.Builder<Block, net.minecraft.world.level.block.state.BlockState> builder) {\n    }\n\n    public Block(BlockBehaviour.Properties properties) {\n        this.pumpkinProperties = properties;\n        net.minecraft.world.level.block.state.StateDefinition.Builder<Block, net.minecraft.world.level.block.state.BlockState> builder ='),
+])
+
+edit('net/minecraft/world/level/block/CropBlock.java', [
+    ('    protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {\n        throw Unimplemented.forMember("net/minecraft/world/level/block/CropBlock.createBlockStateDefinition:(Lnet/minecraft/world/level/block/state/StateDefinition$Builder;)V");\n    }',
+     '    // Pumpkin divergence: vanilla body -- a crop is its age.\n    protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {\n        builder.add(AGE);\n    }'),
+])
+
+edit('net/neoforged/neoforge/registries/DeferredRegister.java', [
+    ('    // Pumpkin divergence: no vanilla counterpart. The comma-joined registered ids of a',
+     '    // Pumpkin divergence: no vanilla counterpart. The block\'s declared properties in\n    // the sink\'s wire spelling; empty for a block that declares none.\n    static String pumpkinStateProperties(net.minecraft.world.level.block.Block block) {\n        StringBuilder joined = new StringBuilder();\n        for (net.minecraft.world.level.block.state.properties.Property<?> property\n                : block.pumpkinDeclaredProperties()) {\n            if (joined.length() > 0) {\n                joined.append(\';\');\n            }\n            joined.append(property.getName()).append(\':\')\n                    .append(String.join("|", property.pumpkinPossibleValues));\n        }\n        return joined.toString();\n    }\n\n    // Pumpkin divergence: no vanilla counterpart. The comma-joined registered ids of a'),
+])
+
+edit('net/neoforged/neoforge/registries/DeferredRegister.java', [
+    ('                pumpkinSink.registerBlock(holder.getId().toString(), block.pumpkinTemplate(),\n                        props.pumpkinDestroyTime(), props.pumpkinExplosionResistance(),\n                        props.pumpkinRequiresTool());',
+     '                pumpkinSink.registerBlock(holder.getId().toString(), block.pumpkinTemplate(),\n                        props.pumpkinDestroyTime(), props.pumpkinExplosionResistance(),\n                        props.pumpkinRequiresTool(), pumpkinStateProperties(block));'),
+])
+
+edit('net/neoforged/neoforge/registries/RegisterEvent.java', [
+    ('                DeferredRegister.pumpkinSink().registerBlock(name.toString(), block.pumpkinTemplate(),\n                        props.pumpkinDestroyTime(), props.pumpkinExplosionResistance(),\n                        props.pumpkinRequiresTool());',
+     '                DeferredRegister.pumpkinSink().registerBlock(name.toString(), block.pumpkinTemplate(),\n                        props.pumpkinDestroyTime(), props.pumpkinExplosionResistance(),\n                        props.pumpkinRequiresTool(),\n                        DeferredRegister.pumpkinStateProperties(block));'),
+])
+
+edit('net/minecraft/world/level/block/FarmlandBlock.java', [
+    ('    protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {\n        throw Unimplemented.forMember("net/minecraft/world/level/block/FarmlandBlock.createBlockStateDefinition:(Lnet/minecraft/world/level/block/state/StateDefinition$Builder;)V");\n    }',
+     '    // Pumpkin divergence: vanilla body -- the properties this block declares.\n    protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {\n        builder.add(MOISTURE);\n    }'),
+])
+
+edit('net/minecraft/world/level/block/NetherWartBlock.java', [
+    ('    protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {\n        throw Unimplemented.forMember("net/minecraft/world/level/block/NetherWartBlock.createBlockStateDefinition:(Lnet/minecraft/world/level/block/state/StateDefinition$Builder;)V");\n    }',
+     '    // Pumpkin divergence: vanilla body -- the properties this block declares.\n    protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {\n        builder.add(AGE);\n    }'),
+])
+
+edit('net/minecraft/world/level/block/SaplingBlock.java', [
+    ('    protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {\n        throw Unimplemented.forMember("net/minecraft/world/level/block/SaplingBlock.createBlockStateDefinition:(Lnet/minecraft/world/level/block/state/StateDefinition$Builder;)V");\n    }',
+     '    // Pumpkin divergence: declares nothing here. The vanilla declaration needs\n    // property constants this shim does not carry yet; a subclass registering\n    // through this base gets a single state until they exist, rather than a\n    // constructor crash.\n    protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {\n    }'),
+])
+
+edit('net/minecraft/world/level/block/SkullBlock.java', [
+    ('    protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {\n        throw Unimplemented.forMember("net/minecraft/world/level/block/SkullBlock.createBlockStateDefinition:(Lnet/minecraft/world/level/block/state/StateDefinition$Builder;)V");\n    }',
+     '    // Pumpkin divergence: declares nothing here. The vanilla declaration needs\n    // property constants this shim does not carry yet; a subclass registering\n    // through this base gets a single state until they exist, rather than a\n    // constructor crash.\n    protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {\n    }'),
+])
+
+edit('net/minecraft/world/level/block/AbstractSkullBlock.java', [
+    ('    protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {\n        throw Unimplemented.forMember("net/minecraft/world/level/block/AbstractSkullBlock.createBlockStateDefinition:(Lnet/minecraft/world/level/block/state/StateDefinition$Builder;)V");\n    }',
+     '    // Pumpkin divergence: declares nothing here. The vanilla declaration needs\n    // property constants this shim does not carry yet; a subclass registering\n    // through this base gets a single state until they exist, rather than a\n    // constructor crash.\n    protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {\n    }'),
+])
+
+edit('net/minecraft/world/level/block/DispenserBlock.java', [
+    ('    protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {\n        throw Unimplemented.forMember("net/minecraft/world/level/block/DispenserBlock.createBlockStateDefinition:(Lnet/minecraft/world/level/block/state/StateDefinition$Builder;)V");\n    }',
+     '    // Pumpkin divergence: declares nothing here. The vanilla declaration needs\n    // property constants this shim does not carry yet; a subclass registering\n    // through this base gets a single state until they exist, rather than a\n    // constructor crash.\n    protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {\n    }'),
+])
+
+edit('net/minecraft/world/level/block/WallBlock.java', [
+    ('    protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {\n        throw Unimplemented.forMember("net/minecraft/world/level/block/WallBlock.createBlockStateDefinition:(Lnet/minecraft/world/level/block/state/StateDefinition$Builder;)V");\n    }',
+     '    // Pumpkin divergence: declares nothing here. The vanilla declaration needs\n    // property constants this shim does not carry yet; a subclass registering\n    // through this base gets a single state until they exist, rather than a\n    // constructor crash.\n    protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {\n    }'),
+])
+
+edit('net/minecraft/world/level/block/LiquidBlock.java', [
+    ('    protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {\n        throw Unimplemented.forMember("net/minecraft/world/level/block/LiquidBlock.createBlockStateDefinition:(Lnet/minecraft/world/level/block/state/StateDefinition$Builder;)V");\n    }',
+     '    // Pumpkin divergence: declares nothing here. The vanilla declaration needs\n    // property constants this shim does not carry yet; a subclass registering\n    // through this base gets a single state until they exist, rather than a\n    // constructor crash.\n    protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {\n    }'),
+])
+
+edit('net/minecraft/world/level/block/SlabBlock.java', [
+    ('    protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {\n        throw Unimplemented.forMember("net/minecraft/world/level/block/SlabBlock.createBlockStateDefinition:(Lnet/minecraft/world/level/block/state/StateDefinition$Builder;)V");\n    }',
+     '    // Pumpkin divergence: declares nothing here. The vanilla declaration needs\n    // property constants this shim does not carry yet; a subclass registering\n    // through this base gets a single state until they exist, rather than a\n    // constructor crash.\n    protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {\n    }'),
+])
+
+edit('net/minecraft/world/level/block/CampfireBlock.java', [
+    ('    protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {\n        throw Unimplemented.forMember("net/minecraft/world/level/block/CampfireBlock.createBlockStateDefinition:(Lnet/minecraft/world/level/block/state/StateDefinition$Builder;)V");\n    }',
+     '    // Pumpkin divergence: declares nothing here. The vanilla declaration needs\n    // property constants this shim does not carry yet; a subclass registering\n    // through this base gets a single state until they exist, rather than a\n    // constructor crash.\n    protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {\n    }'),
+])
+
+edit('net/minecraft/world/level/block/StairBlock.java', [
+    ('    protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {\n        throw Unimplemented.forMember("net/minecraft/world/level/block/StairBlock.createBlockStateDefinition:(Lnet/minecraft/world/level/block/state/StateDefinition$Builder;)V");\n    }',
+     '    // Pumpkin divergence: declares nothing here. The vanilla declaration needs\n    // property constants this shim does not carry yet; a subclass registering\n    // through this base gets a single state until they exist, rather than a\n    // constructor crash.\n    protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {\n    }'),
+])
+
+edit('net/minecraft/world/level/block/state/properties/EnumProperty.java', [
+    ('    public List<T> getPossibleValues() {\n        throw Unimplemented.forMember("net/minecraft/world/level/block/state/properties/EnumProperty.getPossibleValues:()Ljava/util/List;");\n    }',
+     '    // Pumpkin divergence: real body -- the enum constants recorded by create().\n    public List<T> getPossibleValues() {\n        return pumpkinValues;\n    }'),
+])
+
+edit('net/minecraft/world/level/block/state/properties/EnumProperty.java', [
+    ('    public Optional<T> getValue(String name) {\n        throw Unimplemented.forMember("net/minecraft/world/level/block/state/properties/EnumProperty.getValue:(Ljava/lang/String;)Ljava/util/Optional;");\n    }',
+     '    // Pumpkin divergence: real body -- looks up by serialized name, as vanilla does.\n    @SuppressWarnings("unchecked")\n    public Optional<T> getValue(String name) {\n        return Optional.ofNullable((T) pumpkinParse.get(name));\n    }'),
+])
+
+edit('net/minecraft/world/level/block/state/properties/EnumProperty.java', [
+    ('    public String getName(T value) {\n        throw Unimplemented.forMember("net/minecraft/world/level/block/state/properties/EnumProperty.getName:(Ljava/lang/Enum;)Ljava/lang/String;");\n    }',
+     "    // Pumpkin divergence: real body -- an enum property value's name is its serialized name.\n    public String getName(T value) {\n        return value.getSerializedName();\n    }"),
+])
+
+edit('net/minecraft/world/level/block/state/properties/EnumProperty.java', [
+    ('    public boolean equals(Object o) {\n        throw Unimplemented.forMember("net/minecraft/world/level/block/state/properties/EnumProperty.equals:(Ljava/lang/Object;)Z");\n    }',
+     "    // Pumpkin divergence: identity equality. Vanilla compares name and value list, but every\n    // property a mod hands us is a static singleton, so identity gives the same answer and\n    // needs nothing the shim lacks. StateHolder.setValue's Map.copyOf probes this.\n    public boolean equals(Object o) {\n        return this == o;\n    }"),
+])
+
+edit('net/minecraft/world/level/block/state/properties/EnumProperty.java', [
+    ('    // Pumpkin divergence: real body -- a named property is its name here, as with\n    // BooleanProperty.create.\n    public static <T extends Enum<T> & StringRepresentable> EnumProperty<T> create(String name, Class<T> clazz) {\n        EnumProperty<T> property = new EnumProperty<>();\n        property.pumpkinName = name;\n        return property;\n    }',
+     '    // Pumpkin divergence: real body -- records the enum constants and their serialized\n    // names so registration can describe every state this property produces.\n    public static <T extends Enum<T> & StringRepresentable> EnumProperty<T> create(String name, Class<T> clazz) {\n        EnumProperty<T> property = new EnumProperty<>();\n        property.pumpkinName = name;\n        property.pumpkinValues = List.of(clazz.getEnumConstants());\n        for (T value : property.pumpkinValues) {\n            property.pumpkinPossibleValues.add(value.getSerializedName());\n            property.pumpkinParse.put(value.getSerializedName(), value);\n        }\n        return property;\n    }'),
+])
+
+edit('net/minecraft/world/level/block/state/properties/EnumProperty.java', [
+    ('    public EnumProperty() {\n    }',
+     '    public EnumProperty() {\n    }\n\n    // Pumpkin divergence: the constants create() recorded, typed; pumpkinPossibleValues on\n    // Property carries their string forms for registration.\n    private List<T> pumpkinValues = List.of();'),
+])
+
+edit('net/minecraft/core/Direction.java', [
+    ('    public String getSerializedName() {\n        throw Unimplemented.forMember("net/minecraft/core/Direction.getSerializedName:()Ljava/lang/String;");\n    }',
+     '    // Pumpkin divergence: real body -- vanilla serializes a direction as its lowercase\n    // constant name ("down", "up", "north", ...), which is what state property values carry.\n    public String getSerializedName() {\n        return name().toLowerCase(java.util.Locale.ROOT);\n    }'),
+])
+
+edit('net/minecraft/core/Direction.java', [
+    ('        public String getSerializedName() {\n            throw Unimplemented.forMember("net/minecraft/core/Direction$Axis.getSerializedName:()Ljava/lang/String;");\n        }',
+     '        // Pumpkin divergence: real body -- an axis serializes as "x", "y" or "z".\n        public String getSerializedName() {\n            return name().toLowerCase(java.util.Locale.ROOT);\n        }'),
+])
+
+edit('net/minecraft/world/level/block/state/BlockBehaviour.java', [
+    ('        public static BlockBehaviour.Properties ofFullCopy(BlockBehaviour block) {\n            return new Properties();\n        }',
+     "        // Pumpkin divergence: carries the source's template forward. A crop built with\n        // ofFullCopy(Blocks.WHEAT) must register as a wheat copy, not stone -- wheat's\n        // states are what make it randomly tick.\n        public static BlockBehaviour.Properties ofFullCopy(BlockBehaviour block) {\n            Properties properties = new Properties();\n            if (block instanceof net.minecraft.world.level.block.Block source) {\n                properties.pumpkinTemplate = source.pumpkinTemplate();\n            }\n            return properties;\n        }"),
+])
+
+edit('net/minecraft/world/level/block/Block.java', [
+    ('    public final BlockState defaultBlockState() {\n        if (defaultBlockState == null) {\n            defaultBlockState = new BlockState();\n            defaultBlockState.pumpkinOwner = this;\n        }\n        return defaultBlockState;\n    }',
+     '    public final BlockState defaultBlockState() {\n        if (defaultBlockState == null) {\n            defaultBlockState = new BlockState();\n            defaultBlockState.pumpkinOwner = this;\n            // Each declared property starts at its first value, matching how the Rust\n            // side numbers states -- index 0 is all-first-values.\n            java.util.Map<net.minecraft.world.level.block.state.properties.Property<?>, Comparable<?>> values =\n                    new java.util.HashMap<>();\n            for (net.minecraft.world.level.block.state.properties.Property<?> property\n                    : pumpkinDeclaredProperties()) {\n                if (!property.pumpkinPossibleValues.isEmpty()) {\n                    values.put(property, property.pumpkinParse.get(property.pumpkinPossibleValues.get(0)));\n                }\n            }\n            defaultBlockState.pumpkinValues = java.util.Map.copyOf(values);\n        }\n        return defaultBlockState;\n    }'),
+])
+
+edit('net/minecraft/world/level/block/Blocks.java', [
+    ('    public static final Block FARMLAND = pumpkinVanilla("farmland");',
+     '    // Pumpkin divergence: a real FarmlandBlock, not a bare template holder -- crop growth\n    // reads state.getValue(FarmlandBlock.MOISTURE) off the soil, so the soil\'s state has\n    // to declare the property.\n    public static final Block FARMLAND =\n            new FarmlandBlock(BlockBehaviour.Properties.of().pumpkinTemplate("farmland"));'),
+])
+
+edit('net/minecraft/world/level/block/CropBlock.java', [
+    ('    public int getMaxAge() {\n        throw Unimplemented.forMember("net/minecraft/world/level/block/CropBlock.getMaxAge:()I");\n    }',
+     '    // Pumpkin divergence: vanilla body -- crops age 0 to 7.\n    public int getMaxAge() {\n        return 7;\n    }'),
+])
+
+edit('net/minecraft/world/level/block/CropBlock.java', [
+    ('    public BlockState getStateForAge(int age) {\n        throw Unimplemented.forMember("net/minecraft/world/level/block/CropBlock.getStateForAge:(I)Lnet/minecraft/world/level/block/state/BlockState;");\n    }',
+     '    // Pumpkin divergence: vanilla body.\n    public BlockState getStateForAge(int age) {\n        return defaultBlockState().setValue(AGE, age);\n    }'),
+])
+
+edit('net/minecraft/world/level/block/CropBlock.java', [
+    ('    public final boolean isMaxAge(BlockState state) {\n        throw Unimplemented.forMember("net/minecraft/world/level/block/CropBlock.isMaxAge:(Lnet/minecraft/world/level/block/state/BlockState;)Z");\n    }',
+     '    // Pumpkin divergence: vanilla body.\n    public final boolean isMaxAge(BlockState state) {\n        return state.getValue(AGE) >= getMaxAge();\n    }'),
+])
+
+edit('net/minecraft/world/level/block/CropBlock.java', [
+    ('    protected boolean isRandomlyTicking(BlockState state) {\n        throw Unimplemented.forMember("net/minecraft/world/level/block/CropBlock.isRandomlyTicking:(Lnet/minecraft/world/level/block/state/BlockState;)Z");\n    }',
+     '    // Pumpkin divergence: vanilla body -- a full-grown crop stops ticking.\n    protected boolean isRandomlyTicking(BlockState state) {\n        return !isMaxAge(state);\n    }'),
+])
+
+edit('net/minecraft/world/level/block/CropBlock.java', [
+    ('    protected void randomTick(BlockState state, ServerLevel level, BlockPos pos, RandomSource random) {\n        throw Unimplemented.forMember("net/minecraft/world/level/block/CropBlock.randomTick:(Lnet/minecraft/world/level/block/state/BlockState;Lnet/minecraft/server/level/ServerLevel;Lnet/minecraft/core/BlockPos;Lnet/minecraft/util/RandomSource;)V");\n    }',
+     "    // Pumpkin divergence: vanilla body -- light gate, farmland-weighted growth chance,\n    // one age step written back through the level. The level is Pumpkin's stand-in, whose\n    // getBlockState answers from the neighborhood snapshot the random-tick bridge carries.\n    protected void randomTick(BlockState state, ServerLevel level, BlockPos pos, RandomSource random) {\n        if (level.getRawBrightness(pos, 0) >= 9) {\n            int age = state.getValue(AGE);\n            if (age < getMaxAge()) {\n                float speed = pumpkinGrowthSpeed(level, pos);\n                if (random.nextInt((int) (25.0F / speed) + 1) == 0) {\n                    level.setBlock(pos, getStateForAge(age + 1), 2);\n                }\n            }\n        }\n    }\n\n    // Pumpkin divergence: vanilla getGrowthSpeed, private because only randomTick above\n    // calls it. Moist farmland under the crop counts 3, dry 1, diagonals a quarter; crops\n    // of the same kind in a row or touching diagonally halve the total.\n    private float pumpkinGrowthSpeed(Level level, BlockPos pos) {\n        float speed = 1.0F;\n        BlockPos below = pos.below();\n        for (int dx = -1; dx <= 1; dx++) {\n            for (int dz = -1; dz <= 1; dz++) {\n                float gain = 0.0F;\n                BlockState soil = level.getBlockState(below.offset(dx, 0, dz));\n                if (soil.getBlock() instanceof FarmlandBlock) {\n                    gain = 1.0F;\n                    if (soil.getValue(FarmlandBlock.MOISTURE) > 0) {\n                        gain = 3.0F;\n                    }\n                }\n                if (dx != 0 || dz != 0) {\n                    gain /= 4.0F;\n                }\n                speed += gain;\n            }\n        }\n        boolean row = level.getBlockState(pos.offset(-1, 0, 0)).getBlock() == this\n                || level.getBlockState(pos.offset(1, 0, 0)).getBlock() == this;\n        boolean column = level.getBlockState(pos.offset(0, 0, -1)).getBlock() == this\n                || level.getBlockState(pos.offset(0, 0, 1)).getBlock() == this;\n        if (row && column) {\n            speed /= 2.0F;\n        } else {\n            boolean diagonal = level.getBlockState(pos.offset(-1, 0, -1)).getBlock() == this\n                    || level.getBlockState(pos.offset(1, 0, -1)).getBlock() == this\n                    || level.getBlockState(pos.offset(-1, 0, 1)).getBlock() == this\n                    || level.getBlockState(pos.offset(1, 0, 1)).getBlock() == this;\n            if (diagonal) {\n                speed /= 2.0F;\n            }\n        }\n        return speed;\n    }"),
+])
+
+edit('net/minecraft/world/level/Level.java', [
+    ('    public RandomSource getRandom() {\n        throw Unimplemented.forMember("net/minecraft/world/level/Level.getRandom:()Lnet/minecraft/util/RandomSource;");\n    }',
+     '    public RandomSource getRandom() {\n        throw Unimplemented.forMember("net/minecraft/world/level/Level.getRandom:()Lnet/minecraft/util/RandomSource;");\n    }\n\n    // Pumpkin divergence: vanilla declares this on BlockAndTintGetter; the shim carries it\n    // here so crop growth\'s light gate has a member to override. Still throws for any\n    // level that does not answer it.\n    public int getRawBrightness(net.minecraft.core.BlockPos pos, int amount) {\n        throw Unimplemented.forMember("net/minecraft/world/level/Level.getRawBrightness:(Lnet/minecraft/core/BlockPos;I)I");\n    }'),
+])
+
+edit('net/minecraft/world/level/block/FarmlandBlock.java', [
+    ('public FarmlandBlock(BlockBehaviour.Properties properties) {\n    }',
+     "public FarmlandBlock(BlockBehaviour.Properties properties) {\n        // Pumpkin divergence: chains the properties up. Without this the block's\n        // template (and everything else recorded on Properties) silently resets\n        // to the defaults -- a crop built ofFullCopy(WHEAT) registered as stone.\n        super(properties);\n    }"),
+])
+
+edit('net/minecraft/world/level/block/NetherWartBlock.java', [
+    ('public NetherWartBlock(BlockBehaviour.Properties properties) {\n    }',
+     "public NetherWartBlock(BlockBehaviour.Properties properties) {\n        // Pumpkin divergence: chains the properties up. Without this the block's\n        // template (and everything else recorded on Properties) silently resets\n        // to the defaults -- a crop built ofFullCopy(WHEAT) registered as stone.\n        super(properties);\n    }"),
+])
+
+edit('net/minecraft/world/level/block/BaseEntityBlock.java', [
+    ('public BaseEntityBlock(BlockBehaviour.Properties properties) {\n    }',
+     "public BaseEntityBlock(BlockBehaviour.Properties properties) {\n        // Pumpkin divergence: chains the properties up. Without this the block's\n        // template (and everything else recorded on Properties) silently resets\n        // to the defaults -- a crop built ofFullCopy(WHEAT) registered as stone.\n        super(properties);\n    }"),
+])
+
+edit('net/minecraft/world/level/block/DispenserBlock.java', [
+    ('public DispenserBlock(BlockBehaviour.Properties properties) {\n    }',
+     "public DispenserBlock(BlockBehaviour.Properties properties) {\n        // Pumpkin divergence: chains the properties up. Without this the block's\n        // template (and everything else recorded on Properties) silently resets\n        // to the defaults -- a crop built ofFullCopy(WHEAT) registered as stone.\n        super(properties);\n    }"),
+])
+
+edit('net/minecraft/world/level/block/HorizontalDirectionalBlock.java', [
+    ('public HorizontalDirectionalBlock(BlockBehaviour.Properties properties) {\n    }',
+     "public HorizontalDirectionalBlock(BlockBehaviour.Properties properties) {\n        // Pumpkin divergence: chains the properties up. Without this the block's\n        // template (and everything else recorded on Properties) silently resets\n        // to the defaults -- a crop built ofFullCopy(WHEAT) registered as stone.\n        super(properties);\n    }"),
+])
+
+edit('net/minecraft/world/level/block/CropBlock.java', [
+    ('public CropBlock(BlockBehaviour.Properties properties) {\n    }',
+     "public CropBlock(BlockBehaviour.Properties properties) {\n        // Pumpkin divergence: chains the properties up. Without this the block's\n        // template (and everything else recorded on Properties) silently resets\n        // to the defaults -- a crop built ofFullCopy(WHEAT) registered as stone.\n        super(properties);\n    }"),
+])
+
+edit('net/minecraft/world/level/block/WallBlock.java', [
+    ('public WallBlock(BlockBehaviour.Properties properties) {\n    }',
+     "public WallBlock(BlockBehaviour.Properties properties) {\n        // Pumpkin divergence: chains the properties up. Without this the block's\n        // template (and everything else recorded on Properties) silently resets\n        // to the defaults -- a crop built ofFullCopy(WHEAT) registered as stone.\n        super(properties);\n    }"),
+])
+
+edit('net/minecraft/world/level/block/HalfTransparentBlock.java', [
+    ('public HalfTransparentBlock(BlockBehaviour.Properties properties) {\n    }',
+     "public HalfTransparentBlock(BlockBehaviour.Properties properties) {\n        // Pumpkin divergence: chains the properties up. Without this the block's\n        // template (and everything else recorded on Properties) silently resets\n        // to the defaults -- a crop built ofFullCopy(WHEAT) registered as stone.\n        super(properties);\n    }"),
+])
+
+edit('net/minecraft/world/level/block/TransparentBlock.java', [
+    ('public TransparentBlock(BlockBehaviour.Properties properties) {\n    }',
+     "public TransparentBlock(BlockBehaviour.Properties properties) {\n        // Pumpkin divergence: chains the properties up. Without this the block's\n        // template (and everything else recorded on Properties) silently resets\n        // to the defaults -- a crop built ofFullCopy(WHEAT) registered as stone.\n        super(properties);\n    }"),
+])
+
+edit('net/minecraft/world/level/block/VegetationBlock.java', [
+    ('public VegetationBlock(BlockBehaviour.Properties properties) {\n    }',
+     "public VegetationBlock(BlockBehaviour.Properties properties) {\n        // Pumpkin divergence: chains the properties up. Without this the block's\n        // template (and everything else recorded on Properties) silently resets\n        // to the defaults -- a crop built ofFullCopy(WHEAT) registered as stone.\n        super(properties);\n    }"),
+])
+
+edit('net/minecraft/world/level/block/SlabBlock.java', [
+    ('public SlabBlock(BlockBehaviour.Properties properties) {\n    }',
+     "public SlabBlock(BlockBehaviour.Properties properties) {\n        // Pumpkin divergence: chains the properties up. Without this the block's\n        // template (and everything else recorded on Properties) silently resets\n        // to the defaults -- a crop built ofFullCopy(WHEAT) registered as stone.\n        super(properties);\n    }"),
+])
+
+
+edit('net/minecraft/world/level/block/state/properties/IntegerProperty.java', [
+    ('    public boolean equals(Object o) {\n        throw Unimplemented.forMember("net/minecraft/world/level/block/state/properties/IntegerProperty.equals:(Ljava/lang/Object;)Z");\n    }',
+     "    // Pumpkin divergence: identity equality, as with EnumProperty -- every property a mod\n    // hands us is a static singleton, and StateHolder.setValue's Map.copyOf probes this.\n    public boolean equals(Object o) {\n        return this == o;\n    }"),
 ])
 
 commit()

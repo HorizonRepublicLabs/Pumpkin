@@ -39,6 +39,10 @@ public class DispenserBlock extends BaseEntityBlock {
     }
 
     public DispenserBlock(BlockBehaviour.Properties properties) {
+        // Pumpkin divergence: chains the properties up. Without this the block's
+        // template (and everything else recorded on Properties) silently resets
+        // to the defaults -- a crop built ofFullCopy(WHEAT) registered as stone.
+        super(properties);
     }
 
     protected InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hitResult) {
@@ -81,8 +85,11 @@ public class DispenserBlock extends BaseEntityBlock {
         throw Unimplemented.forMember("net/minecraft/world/level/block/DispenserBlock.mirror:(Lnet/minecraft/world/level/block/state/BlockState;Lnet/minecraft/world/level/block/Mirror;)Lnet/minecraft/world/level/block/state/BlockState;");
     }
 
+    // Pumpkin divergence: declares nothing here. The vanilla declaration needs
+    // property constants this shim does not carry yet; a subclass registering
+    // through this base gets a single state until they exist, rather than a
+    // constructor crash.
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
-        throw Unimplemented.forMember("net/minecraft/world/level/block/DispenserBlock.createBlockStateDefinition:(Lnet/minecraft/world/level/block/state/StateDefinition$Builder;)V");
     }
 
     public DispenserBlock() {

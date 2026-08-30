@@ -183,15 +183,22 @@ fn wire_block_drops(server: &Arc<crate::server::Server>) {
     let mut skipped_entries = 0usize;
 
     for block in &pending {
-        let Some(table) = find_block_loot_table(&datapacks, &block.name) else {
-            without_table += 1;
-            continue;
-        };
-        let Some(parsed) = loot::parse_block_loot_table(&table) else {
-            tracing::warn!("{}: its loot table is not valid JSON", block.name);
-            without_table += 1;
-            continue;
-        };
+        // Every registered block gets a behaviour -- interactions, ticks and random
+        // ticks route through it whether or not the block drops anything. The loot
+        // table only decides the drops; skipping the whole block for a missing table
+        // left crops without their growth hook.
+        let table = find_block_loot_table(&datapacks, &block.name);
+        let parsed = table
+            .as_deref()
+            .and_then(loot::parse_block_loot_table)
+            .inspect(|_| wired += 1)
+            .unwrap_or_else(|| {
+                if table.is_some() {
+                    tracing::warn!("{}: its loot table is not valid JSON", block.name);
+                }
+                without_table += 1;
+                loot::ParsedTable::default()
+            });
         skipped_entries += parsed.skipped_entries;
 
         let mut drops = Vec::new();
@@ -232,7 +239,6 @@ fn wire_block_drops(server: &Arc<crate::server::Server>) {
         server
             .block_registry
             .set_plugin_block(block.block_id, behaviour);
-        wired += 1;
     }
 
     install_jvm_tick_hook();
@@ -407,6 +413,106 @@ impl JvmBlockBehaviour {
         }
         apply_interaction_reply(&reply, world, position, held, player)
     }
+}
+
+impl JvmBlockBehaviour {
+    /// Applies a `TICKED;STATE=age=3;SOUNDS=...` reply: resolves the named values to the
+    /// block's own state and writes it, so the growth the mod decided lands in the world.
+    fn apply_random_tick_reply(
+        &self,
+        reply: &str,
+        world: &Arc<crate::world::World>,
+        position: &pumpkin_util::math::position::BlockPos,
+    ) {
+        for part in reply.split(';') {
+            if let Some(spec) = part.strip_prefix("STATE=") {
+                if spec == "unchanged" || spec.is_empty() {
+                    continue;
+                }
+                let values: Vec<(&str, &str)> = spec
+                    .split(',')
+                    .filter_map(|pair| pair.split_once('='))
+                    .collect();
+                if let Some(new_state) =
+                    pumpkin_data::dynamic::block_state_for(self.block_id, &values)
+                {
+                    world.set_block_state(
+                        position,
+                        new_state,
+                        crate::world::BlockFlags::NOTIFY_LISTENERS,
+                    );
+                } else {
+                    tracing::warn!(
+                        "{}: the mod grew into state {spec}, which this block does not have",
+                        self.block_name
+                    );
+                }
+            } else if let Some(sounds) = part.strip_prefix("SOUNDS=") {
+                for sound in sounds.split(',').filter(|sound| !sound.is_empty()) {
+                    play_mod_sound(world, sound);
+                }
+            }
+        }
+    }
+}
+
+/// `name=value` comma-joined -- the spelling the bridge's state parser reads.
+fn join_state_values(values: &[(&str, &str)]) -> String {
+    values
+        .iter()
+        .map(|(name, value)| format!("{name}={value}"))
+        .collect::<Vec<_>>()
+        .join(",")
+}
+
+/// The states around a ticked position that growth logic reads: the 3x3 soil square
+/// below, the 3x3 same-level ring, and the position two below (a crux, for crops that
+/// need one). `x,y,z=id|prop=v,prop=v` semicolon-joined.
+fn tick_neighborhood(
+    world: &Arc<crate::world::World>,
+    position: &pumpkin_util::math::position::BlockPos,
+) -> String {
+    use std::fmt::Write;
+
+    let mut out = String::new();
+    let mut offsets: Vec<(i32, i32, i32)> = Vec::with_capacity(19);
+    for dx in -1..=1 {
+        for dz in -1..=1 {
+            offsets.push((dx, -1, dz));
+            if dx != 0 || dz != 0 {
+                offsets.push((dx, 0, dz));
+            }
+        }
+    }
+    offsets.push((0, -2, 0));
+
+    for (dx, dy, dz) in offsets {
+        let (x, y, z) = (position.0.x + dx, position.0.y + dy, position.0.z + dz);
+        let neighbor = pumpkin_util::math::position::BlockPos::new(x, y, z);
+        let (block, state) = world.get_block_and_state(&neighbor);
+        let props = block
+            .properties(state.id)
+            .map(|p| {
+                p.to_props()
+                    .into_iter()
+                    .map(|(name, value)| format!("{name}={value}"))
+                    .collect::<Vec<_>>()
+                    .join(",")
+            })
+            .or_else(|| {
+                pumpkin_data::dynamic::block_state_values(block.id, state.id)
+                    .map(|values| join_state_values(&values))
+            })
+            .unwrap_or_default();
+        if !out.is_empty() {
+            out.push(';');
+        }
+        let _ = write!(out, "{x},{y},{z}={}", block.name);
+        if !props.is_empty() {
+            let _ = write!(out, "|{props}");
+        }
+    }
+    out
 }
 
 /// Applies the bridge's reply -- hand stack change and drops -- and maps its result.
@@ -960,6 +1066,65 @@ impl crate::block::BlockBehaviour for JvmBlockBehaviour {
     }
 
     fn random_tick(&self, args: crate::block::RandomTickArgs<'_>) {
+        // Growth and decay live in the mod's own randomTick. The bridge carries the
+        // ticked state's values, the light level, and the neighborhood snapshot growth
+        // logic reads; the reply names the state the mod wrote back, if any.
+        if let Some(vm) = vm::current() {
+            let position = *args.position;
+            let (x, y, z) = (position.0.x, position.0.y, position.0.z);
+            let state_id = args.world.get_block_state_id(&position);
+            let state_spec = pumpkin_data::dynamic::block_state_values(self.block_id, state_id)
+                .map(|values| join_state_values(&values))
+                .unwrap_or_default();
+            let brightness = i32::from(args.world.get_max_local_raw_brightness(&position));
+            let neighborhood = tick_neighborhood(args.world, &position);
+            let block_name = self.block_name.clone();
+
+            let reply = vm.call(move |env| {
+                let block = env
+                    .new_string(&block_name)
+                    .map_err(|err| VmError::Java(err.to_string()))?;
+                let state = env
+                    .new_string(&state_spec)
+                    .map_err(|err| VmError::Java(err.to_string()))?;
+                let snapshot = env
+                    .new_string(&neighborhood)
+                    .map_err(|err| VmError::Java(err.to_string()))?;
+                let returned = env.call_static_method(
+                    "dev/pumpkin/bridge/PumpkinRandomTicks",
+                    "randomTick",
+                    "(Ljava/lang/String;IIILjava/lang/String;ILjava/lang/String;)Ljava/lang/String;",
+                    &[
+                        (&block).into(),
+                        x.into(),
+                        y.into(),
+                        z.into(),
+                        (&state).into(),
+                        brightness.into(),
+                        (&snapshot).into(),
+                    ],
+                );
+                if env.exception_check().unwrap_or(false) {
+                    let _ = env.exception_describe();
+                    let _ = env.exception_clear();
+                    return Err(VmError::Java("randomTick threw".into()));
+                }
+                let object = returned
+                    .and_then(jni::objects::JValueGen::l)
+                    .map_err(|err| VmError::Java(err.to_string()))?;
+                env.get_string(&jni::objects::JString::from(object))
+                    .map(Into::into)
+                    .map_err(|err| VmError::Java(err.to_string()))
+            });
+
+            let reply: Result<String, VmError> = reply;
+            match reply {
+                Ok(reply) => self.apply_random_tick_reply(&reply, args.world, &position),
+                Err(err) => {
+                    tracing::warn!("{}: random tick stopped in the mod: {err}", self.block_name);
+                }
+            }
+        }
         self.inner.random_tick(args);
     }
 

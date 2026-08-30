@@ -37,8 +37,11 @@ public abstract class AbstractSkullBlock extends BaseEntityBlock {
         throw Unimplemented.forMember("net/minecraft/world/level/block/AbstractSkullBlock.isPathfindable:(Lnet/minecraft/world/level/block/state/BlockState;Lnet/minecraft/world/level/pathfinder/PathComputationType;)Z");
     }
 
+    // Pumpkin divergence: declares nothing here. The vanilla declaration needs
+    // property constants this shim does not carry yet; a subclass registering
+    // through this base gets a single state until they exist, rather than a
+    // constructor crash.
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
-        throw Unimplemented.forMember("net/minecraft/world/level/block/AbstractSkullBlock.createBlockStateDefinition:(Lnet/minecraft/world/level/block/state/StateDefinition$Builder;)V");
     }
 
     public BlockState getStateForPlacement(BlockPlaceContext context) {

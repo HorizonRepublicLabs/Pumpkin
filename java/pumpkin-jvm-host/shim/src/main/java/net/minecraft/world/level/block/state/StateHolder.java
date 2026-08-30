@@ -28,7 +28,8 @@ public abstract class StateHolder<O, S> {
     // registration and the mods' own reads; NOT interned, so vanilla's states-are-identity
     // guarantee does not hold yet -- that arrives with the Rust state binding. A property
     // never set fails loudly with the property's name, not a null.
-    protected java.util.Map<Property<?>, Comparable<?>> pumpkinValues = java.util.Map.of();
+    // Public because Block fills the default state's values from another package.
+    public java.util.Map<Property<?>, Comparable<?>> pumpkinValues = java.util.Map.of();
 
     @SuppressWarnings("unchecked")
     public <T extends Comparable<T>> T getValue(Property<T> property) {

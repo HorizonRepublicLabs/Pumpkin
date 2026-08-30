@@ -65,7 +65,12 @@ impl BlockStateResolver {
             .map(|(key, value)| (key.as_str(), value.as_str()))
             .collect::<Vec<_>>();
 
-        // Get the state ID from properties
+        // Get the state ID from properties. A runtime-registered block's states live in
+        // the dynamic registry, not the generated tables; without this branch a saved mod
+        // crop would come back at age 0.
+        if let Some(state_id) = pumpkin_data::dynamic::block_state_for(block.id, &props_slice) {
+            return Some(BlockState::from_id(state_id));
+        }
         let props_box = block.from_properties(&props_slice);
         let state_id = props_box.to_state_id(block);
 

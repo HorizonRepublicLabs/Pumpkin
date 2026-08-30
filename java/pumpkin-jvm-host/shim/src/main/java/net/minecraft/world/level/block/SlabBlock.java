@@ -27,14 +27,21 @@ public class SlabBlock extends Block implements SimpleWaterloggedBlock {
     }
 
     public SlabBlock(BlockBehaviour.Properties properties) {
+        // Pumpkin divergence: chains the properties up. Without this the block's
+        // template (and everything else recorded on Properties) silently resets
+        // to the defaults -- a crop built ofFullCopy(WHEAT) registered as stone.
+        super(properties);
     }
 
     protected boolean useShapeForLightOcclusion(BlockState state) {
         throw Unimplemented.forMember("net/minecraft/world/level/block/SlabBlock.useShapeForLightOcclusion:(Lnet/minecraft/world/level/block/state/BlockState;)Z");
     }
 
+    // Pumpkin divergence: declares nothing here. The vanilla declaration needs
+    // property constants this shim does not carry yet; a subclass registering
+    // through this base gets a single state until they exist, rather than a
+    // constructor crash.
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
-        throw Unimplemented.forMember("net/minecraft/world/level/block/SlabBlock.createBlockStateDefinition:(Lnet/minecraft/world/level/block/state/StateDefinition$Builder;)V");
     }
 
     protected VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {

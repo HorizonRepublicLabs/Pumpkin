@@ -45,6 +45,15 @@ public final class Bootstrap {
             }
 
             @Override
+            public int registerBlock(String id, String template, Float destroyTime,
+                    Float explosionResistance, boolean requiresTool, String stateProperties) {
+                return PumpkinHost.registerBlockWithStates(id, template,
+                        destroyTime == null ? Float.NaN : destroyTime,
+                        explosionResistance == null ? Float.NaN : explosionResistance,
+                        requiresTool, stateProperties);
+            }
+
+            @Override
             public int registerItem(String id, String template) {
                 return PumpkinHost.registerItem(id, template);
             }

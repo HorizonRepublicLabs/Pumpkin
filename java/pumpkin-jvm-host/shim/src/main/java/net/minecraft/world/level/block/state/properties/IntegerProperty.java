@@ -13,17 +13,27 @@ public final class IntegerProperty extends Property<Integer> {
         throw Unimplemented.forMember("net/minecraft/world/level/block/state/properties/IntegerProperty.getPossibleValues:()Ljava/util/List;");
     }
 
+    // Pumpkin divergence: identity equality, as with EnumProperty -- every property a mod
+    // hands us is a static singleton, and StateHolder.setValue's Map.copyOf probes this.
     public boolean equals(Object o) {
-        throw Unimplemented.forMember("net/minecraft/world/level/block/state/properties/IntegerProperty.equals:(Ljava/lang/Object;)Z");
+        return this == o;
     }
 
     public int generateHashCode() {
         throw Unimplemented.forMember("net/minecraft/world/level/block/state/properties/IntegerProperty.generateHashCode:()I");
     }
-    // Pumpkin divergence: real body. The range constrains a file no one writes.
+    // Pumpkin divergence: real body, values included -- registration walks them.
     public static IntegerProperty create(String name, int min, int max) {
         IntegerProperty property = new IntegerProperty();
         property.pumpkinName = name;
+        java.util.List<String> values = new java.util.ArrayList<>();
+        java.util.Map<String, Comparable<?>> parse = new java.util.HashMap<>();
+        for (int value = min; value <= max; value++) {
+            values.add(Integer.toString(value));
+            parse.put(Integer.toString(value), value);
+        }
+        property.pumpkinPossibleValues = java.util.List.copyOf(values);
+        property.pumpkinParse = java.util.Map.copyOf(parse);
         return property;
     }
 

@@ -510,15 +510,31 @@ impl ChunkData {
                         format!("minecraft:{}", block.name)
                     };
                     comp.put_string("Name", name);
-                    if let Some(props) = block.properties(id) {
-                        let prop_vec = props.to_props();
-                        if !prop_vec.is_empty() {
-                            let mut props_comp = NbtCompound::new();
-                            for (k, v) in prop_vec {
-                                props_comp.put_string(k, v.to_string());
-                            }
-                            comp.put_compound("Properties", props_comp);
+                    // Generated blocks answer properties() directly; runtime-registered
+                    // ones go through the dynamic registry. Without the fallback a mod
+                    // crop's age would silently vanish from the save.
+                    let prop_vec: Vec<(String, String)> = block.properties(id).map_or_else(
+                        || {
+                            pumpkin_data::dynamic::block_state_values(block.id, id)
+                                .unwrap_or_default()
+                                .into_iter()
+                                .map(|(k, v)| (k.to_string(), v.to_string()))
+                                .collect()
+                        },
+                        |props| {
+                            props
+                                .to_props()
+                                .into_iter()
+                                .map(|(k, v)| (k.to_string(), v.to_string()))
+                                .collect()
+                        },
+                    );
+                    if !prop_vec.is_empty() {
+                        let mut props_comp = NbtCompound::new();
+                        for (k, v) in prop_vec {
+                            props_comp.put_string(&k, v);
                         }
+                        comp.put_compound("Properties", props_comp);
                     }
                     NbtTag::Compound(comp)
                 })

@@ -21,6 +21,13 @@ public abstract class Property<T extends Comparable<T>> {
     // Pumpkin divergence: real body, backed by the name create() recorded.
     public String pumpkinName;
 
+    // Pumpkin divergence: the possible values, in declaration order -- what registration
+    // sends to the server so a block gets one state per combination.
+    public java.util.List<String> pumpkinPossibleValues = new java.util.ArrayList<>();
+
+    // The typed value each spelling parses to, for rebuilding a state from a string.
+    public java.util.Map<String, Comparable<?>> pumpkinParse = new java.util.HashMap<>();
+
     public String getName() {
         if (pumpkinName == null) {
             throw Unimplemented.forMember("net/minecraft/world/level/block/state/properties/Property.getName:()Ljava/lang/String;");

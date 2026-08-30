@@ -37,8 +37,11 @@ public class SkullBlock extends AbstractSkullBlock {
         throw Unimplemented.forMember("net/minecraft/world/level/block/SkullBlock.mirror:(Lnet/minecraft/world/level/block/state/BlockState;Lnet/minecraft/world/level/block/Mirror;)Lnet/minecraft/world/level/block/state/BlockState;");
     }
 
+    // Pumpkin divergence: declares nothing here. The vanilla declaration needs
+    // property constants this shim does not carry yet; a subclass registering
+    // through this base gets a single state until they exist, rather than a
+    // constructor crash.
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
-        throw Unimplemented.forMember("net/minecraft/world/level/block/SkullBlock.createBlockStateDefinition:(Lnet/minecraft/world/level/block/state/StateDefinition$Builder;)V");
     }
 
     public interface Type extends StringRepresentable {

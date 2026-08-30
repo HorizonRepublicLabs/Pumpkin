@@ -230,6 +230,13 @@ public abstract class Level extends net.neoforged.neoforge.attachment.Attachment
         throw Unimplemented.forMember("net/minecraft/world/level/Level.getRandom:()Lnet/minecraft/util/RandomSource;");
     }
 
+    // Pumpkin divergence: vanilla declares this on BlockAndTintGetter; the shim carries it
+    // here so crop growth's light gate has a member to override. Still throws for any
+    // level that does not answer it.
+    public int getRawBrightness(net.minecraft.core.BlockPos pos, int amount) {
+        throw Unimplemented.forMember("net/minecraft/world/level/Level.getRawBrightness:(Lnet/minecraft/core/BlockPos;I)I");
+    }
+
     public boolean isStateAtPosition(BlockPos pos, Predicate<BlockState> predicate) {
         throw Unimplemented.forMember("net/minecraft/world/level/Level.isStateAtPosition:(Lnet/minecraft/core/BlockPos;Ljava/util/function/Predicate;)Z");
     }

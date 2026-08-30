@@ -33,11 +33,20 @@ public class StateDefinition<O, S extends StateHolder<O, S>> {
 
     public static class Builder<O, S extends StateHolder<O, S>> {
 
+        // Pumpkin divergence: the builder records what add() declares; registration
+        // reads it back.
+        private final java.util.List<Property<?>> pumpkinProperties = new java.util.ArrayList<>();
+
+        public java.util.List<Property<?>> pumpkinProperties() {
+            return pumpkinProperties;
+        }
+
         public Builder(O owner) {
         }
 
         public StateDefinition.Builder<O, S> add(Property<?>... properties) {
-            throw Unimplemented.forMember("net/minecraft/world/level/block/state/StateDefinition$Builder.add:([Lnet/minecraft/world/level/block/state/properties/Property;)Lnet/minecraft/world/level/block/state/StateDefinition$Builder;");
+            java.util.Collections.addAll(pumpkinProperties, properties);
+            return this;
         }
 
         public StateDefinition<O, S> create(Function<O, S> defaultState, StateDefinition.Factory<O, S> factory) {

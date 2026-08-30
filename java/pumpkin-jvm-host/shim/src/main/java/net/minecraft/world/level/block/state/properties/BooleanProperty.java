@@ -13,10 +13,12 @@ public final class BooleanProperty extends Property<Boolean> {
         throw Unimplemented.forMember("net/minecraft/world/level/block/state/properties/BooleanProperty.getPossibleValues:()Ljava/util/List;");
     }
 
-    // Pumpkin divergence: real body -- a named property is just its name here.
+    // Pumpkin divergence: real body, values included -- registration walks them.
     public static BooleanProperty create(String name) {
         BooleanProperty property = new BooleanProperty();
         property.pumpkinName = name;
+        property.pumpkinPossibleValues = java.util.List.of("true", "false");
+        property.pumpkinParse = java.util.Map.of("true", Boolean.TRUE, "false", Boolean.FALSE);
         return property;
     }
 

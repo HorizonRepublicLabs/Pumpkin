@@ -41,6 +41,14 @@ public class DeferredRegister<T> {
             return registerBlock(id, template);
         }
 
+        // Pumpkin divergence: wider still -- the block's declared state properties, as
+        // "name:v|v|v;name:v|v". A block with properties gets one server-side state per
+        // combination, which is what lets a crop's age exist at all.
+        default int registerBlock(String id, String template, Float destroyTime,
+                Float explosionResistance, boolean requiresTool, String stateProperties) {
+            return registerBlock(id, template, destroyTime, explosionResistance, requiresTool);
+        }
+
         // Pumpkin divergence: items too. Throwing, not dropping, is the default so a
         // block-only test sink that unexpectedly receives an item fails saying why;
         // the production sink in Bootstrap overrides this with the real native.
@@ -137,6 +145,21 @@ public class DeferredRegister<T> {
 
     private static final java.util.Set<String> PUMPKIN_UNSUPPORTED_WARNED =
             java.util.concurrent.ConcurrentHashMap.newKeySet();
+
+    // Pumpkin divergence: no vanilla counterpart. The block's declared properties in
+    // the sink's wire spelling; empty for a block that declares none.
+    static String pumpkinStateProperties(net.minecraft.world.level.block.Block block) {
+        StringBuilder joined = new StringBuilder();
+        for (net.minecraft.world.level.block.state.properties.Property<?> property
+                : block.pumpkinDeclaredProperties()) {
+            if (joined.length() > 0) {
+                joined.append(';');
+            }
+            joined.append(property.getName()).append(':')
+                    .append(String.join("|", property.pumpkinPossibleValues));
+        }
+        return joined.toString();
+    }
 
     // Pumpkin divergence: no vanilla counterpart. The comma-joined registered ids of a
     // block entity type's valid blocks; blocks that never registered are silently
@@ -237,7 +260,7 @@ public class DeferredRegister<T> {
                 block.pumpkinSetRegisteredId(holder.getId().toString());
                 pumpkinSink.registerBlock(holder.getId().toString(), block.pumpkinTemplate(),
                         props.pumpkinDestroyTime(), props.pumpkinExplosionResistance(),
-                        props.pumpkinRequiresTool());
+                        props.pumpkinRequiresTool(), pumpkinStateProperties(block));
             } else if (object instanceof net.minecraft.world.item.Item item) {
                 item.pumpkinSetRegisteredId(holder.getId().toString());
                 pumpkinSink.registerItem(holder.getId().toString(), item.pumpkinTemplate(),

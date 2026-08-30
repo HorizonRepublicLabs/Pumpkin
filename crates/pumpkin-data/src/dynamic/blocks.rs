@@ -318,6 +318,31 @@ pub fn block_state_for(id: BlockId, values: &[(&str, &str)]) -> Option<BlockStat
     block.states.get(offset).map(|state| state.id)
 }
 
+/// The property values one of a registered block's states carries --
+/// [`block_state_for`]'s inverse.
+///
+/// `None` when the block or state is unknown or the block declares no properties.
+#[must_use]
+pub fn block_state_values(
+    id: BlockId,
+    state_id: BlockStateId,
+) -> Option<Vec<(&'static str, &'static str)>> {
+    let block = block_from_id(id)?;
+    let properties = block_properties(id)?;
+    let mut offset = block.states.iter().position(|state| state.id == state_id)?;
+    let mut values = Vec::with_capacity(properties.len());
+    // block_state_for treats the first property as the slowest digit, so the inverse
+    // peels digits off from the last property backwards.
+    for (name, options) in properties.iter().rev() {
+        let radix = options.len().max(1);
+        let value = options.get(offset % radix)?;
+        values.push((name.as_str(), value.as_str()));
+        offset /= radix;
+    }
+    values.reverse();
+    Some(values)
+}
+
 /// Finds the registered block an item places.
 #[cold]
 #[inline(never)]

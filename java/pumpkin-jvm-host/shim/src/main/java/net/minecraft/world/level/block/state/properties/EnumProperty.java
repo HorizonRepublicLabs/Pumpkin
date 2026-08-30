@@ -11,35 +11,47 @@ public final class EnumProperty<T extends Enum<T> & StringRepresentable> extends
     private EnumProperty(String name, Class<T> clazz, List<T> values) {
     }
 
+    // Pumpkin divergence: real body -- the enum constants recorded by create().
     public List<T> getPossibleValues() {
-        throw Unimplemented.forMember("net/minecraft/world/level/block/state/properties/EnumProperty.getPossibleValues:()Ljava/util/List;");
+        return pumpkinValues;
     }
 
+    // Pumpkin divergence: real body -- looks up by serialized name, as vanilla does.
+    @SuppressWarnings("unchecked")
     public Optional<T> getValue(String name) {
-        throw Unimplemented.forMember("net/minecraft/world/level/block/state/properties/EnumProperty.getValue:(Ljava/lang/String;)Ljava/util/Optional;");
+        return Optional.ofNullable((T) pumpkinParse.get(name));
     }
 
+    // Pumpkin divergence: real body -- an enum property value's name is its serialized name.
     public String getName(T value) {
-        throw Unimplemented.forMember("net/minecraft/world/level/block/state/properties/EnumProperty.getName:(Ljava/lang/Enum;)Ljava/lang/String;");
+        return value.getSerializedName();
     }
 
     public int getInternalIndex(T value) {
         throw Unimplemented.forMember("net/minecraft/world/level/block/state/properties/EnumProperty.getInternalIndex:(Ljava/lang/Enum;)I");
     }
 
+    // Pumpkin divergence: identity equality. Vanilla compares name and value list, but every
+    // property a mod hands us is a static singleton, so identity gives the same answer and
+    // needs nothing the shim lacks. StateHolder.setValue's Map.copyOf probes this.
     public boolean equals(Object o) {
-        throw Unimplemented.forMember("net/minecraft/world/level/block/state/properties/EnumProperty.equals:(Ljava/lang/Object;)Z");
+        return this == o;
     }
 
     public int generateHashCode() {
         throw Unimplemented.forMember("net/minecraft/world/level/block/state/properties/EnumProperty.generateHashCode:()I");
     }
 
-    // Pumpkin divergence: real body -- a named property is its name here, as with
-    // BooleanProperty.create.
+    // Pumpkin divergence: real body -- records the enum constants and their serialized
+    // names so registration can describe every state this property produces.
     public static <T extends Enum<T> & StringRepresentable> EnumProperty<T> create(String name, Class<T> clazz) {
         EnumProperty<T> property = new EnumProperty<>();
         property.pumpkinName = name;
+        property.pumpkinValues = List.of(clazz.getEnumConstants());
+        for (T value : property.pumpkinValues) {
+            property.pumpkinPossibleValues.add(value.getSerializedName());
+            property.pumpkinParse.put(value.getSerializedName(), value);
+        }
         return property;
     }
 
@@ -57,4 +69,8 @@ public final class EnumProperty<T extends Enum<T> & StringRepresentable> extends
 
     public EnumProperty() {
     }
+
+    // Pumpkin divergence: the constants create() recorded, typed; pumpkinPossibleValues on
+    // Property carries their string forms for registration.
+    private List<T> pumpkinValues = List.of();
 }

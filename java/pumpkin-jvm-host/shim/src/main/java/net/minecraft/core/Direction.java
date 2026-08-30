@@ -64,8 +64,10 @@ public enum Direction implements StringRepresentable {
         throw Unimplemented.forMember("net/minecraft/core/Direction.toString:()Ljava/lang/String;");
     }
 
+    // Pumpkin divergence: real body -- vanilla serializes a direction as its lowercase
+    // constant name ("down", "up", "north", ...), which is what state property values carry.
     public String getSerializedName() {
-        throw Unimplemented.forMember("net/minecraft/core/Direction.getSerializedName:()Ljava/lang/String;");
+        return name().toLowerCase(java.util.Locale.ROOT);
     }
 
     public static Direction get(Direction.AxisDirection axisDirection, Direction.Axis axis) {
@@ -162,8 +164,9 @@ public enum Direction implements StringRepresentable {
             throw Unimplemented.forMember("net/minecraft/core/Direction$Axis.test:(Lnet/minecraft/core/Direction;)Z");
         }
 
+        // Pumpkin divergence: real body -- an axis serializes as "x", "y" or "z".
         public String getSerializedName() {
-            throw Unimplemented.forMember("net/minecraft/core/Direction$Axis.getSerializedName:()Ljava/lang/String;");
+            return name().toLowerCase(java.util.Locale.ROOT);
         }
 
         public abstract int choose(final int x, final int y, final int z);

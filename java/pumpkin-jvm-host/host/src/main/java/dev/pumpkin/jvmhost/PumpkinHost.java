@@ -50,6 +50,15 @@ public final class PumpkinHost {
      * @throws IllegalStateException if the template is unknown, registration failed, or
      *                               the registries are frozen
      */
+    /**
+     * Registers a block with declared properties and full state combinations.
+     *
+     * @param stateProperties {@code name:v|v|v;name:v|v}, empty for a single-state block
+     */
+    public static native int registerBlockWithStates(String id, String template,
+            float destroyTime, float explosionResistance, boolean requiresTool,
+            String stateProperties);
+
     public static native int registerItem(String id, String template);
 
     /**

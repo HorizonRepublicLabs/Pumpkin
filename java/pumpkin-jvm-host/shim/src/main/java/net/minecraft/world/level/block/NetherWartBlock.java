@@ -24,6 +24,10 @@ public class NetherWartBlock extends VegetationBlock {
     }
 
     public NetherWartBlock(BlockBehaviour.Properties properties) {
+        // Pumpkin divergence: chains the properties up. Without this the block's
+        // template (and everything else recorded on Properties) silently resets
+        // to the defaults -- a crop built ofFullCopy(WHEAT) registered as stone.
+        super(properties);
     }
 
     protected VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
@@ -46,8 +50,9 @@ public class NetherWartBlock extends VegetationBlock {
         throw Unimplemented.forMember("net/minecraft/world/level/block/NetherWartBlock.getCloneItemStack:(Lnet/minecraft/world/level/LevelReader;Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/state/BlockState;Z)Lnet/minecraft/world/item/ItemStack;");
     }
 
+    // Pumpkin divergence: vanilla body -- the properties this block declares.
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
-        throw Unimplemented.forMember("net/minecraft/world/level/block/NetherWartBlock.createBlockStateDefinition:(Lnet/minecraft/world/level/block/state/StateDefinition$Builder;)V");
+        builder.add(AGE);
     }
 
     public NetherWartBlock() {

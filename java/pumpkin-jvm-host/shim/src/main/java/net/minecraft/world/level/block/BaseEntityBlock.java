@@ -11,6 +11,10 @@ import dev.pumpkin.shim.Unimplemented;
 public abstract class BaseEntityBlock extends Block implements EntityBlock {
 
     public BaseEntityBlock(BlockBehaviour.Properties properties) {
+        // Pumpkin divergence: chains the properties up. Without this the block's
+        // template (and everything else recorded on Properties) silently resets
+        // to the defaults -- a crop built ofFullCopy(WHEAT) registered as stone.
+        super(properties);
     }
 
     protected abstract MapCodec<? extends BaseEntityBlock> codec();
