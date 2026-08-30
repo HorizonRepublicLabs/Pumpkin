@@ -56,6 +56,12 @@ public class DeferredRegister<T> {
                 int maxDamage, String blockId) {
             return registerItem(id, template);
         }
+
+        // Pumpkin divergence: block entity types too. Same contract as registerItem's
+        // narrow default: throwing, not dropping, so a sink that cannot take one says so.
+        default int registerBlockEntityType(String id) {
+            throw new IllegalStateException("this sink cannot register block entity types: " + id);
+        }
     }
 
     private static Sink pumpkinSink = (id, template) -> {
@@ -159,6 +165,8 @@ public class DeferredRegister<T> {
                 pumpkinSink.registerItem(holder.getId().toString(), item.pumpkinTemplate(),
                         item.pumpkinMaxStackSize(), item.pumpkinMaxDamage(),
                         item.pumpkinPlacedBlockId());
+            } else if (object instanceof net.minecraft.world.level.block.entity.BlockEntityType) {
+                pumpkinSink.registerBlockEntityType(holder.getId().toString());
             } else {
                 pumpkinWarnUnsupported(pumpkinRegistryKey.identifier().toString(),
                         holder.getId().toString());

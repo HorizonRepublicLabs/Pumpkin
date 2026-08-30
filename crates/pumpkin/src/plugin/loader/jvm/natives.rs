@@ -48,6 +48,11 @@ pub fn bind(env: &mut JNIEnv) -> Result<(), VmError> {
                 sig: "(Ljava/lang/String;Ljava/lang/String;IILjava/lang/String;)I".into(),
                 fn_ptr: register_item_with_properties_native as *mut std::ffi::c_void,
             },
+            NativeMethod {
+                name: "registerBlockEntityType".into(),
+                sig: "(Ljava/lang/String;)I".into(),
+                fn_ptr: register_block_entity_type_native as *mut std::ffi::c_void,
+            },
         ],
     )
     .map_err(|err| VmError::Java(format!("Failed to bind PumpkinHost natives: {err}")))
@@ -299,4 +304,25 @@ fn register_item_impl(
     }
 
     jint::from(assigned)
+}
+
+extern "system" fn register_block_entity_type_native(
+    mut env: JNIEnv,
+    _class: JClass,
+    id: JString,
+) -> jint {
+    let Some(id) = read_string(&mut env, &id, "the block entity type id") else {
+        return 0;
+    };
+
+    // An id and a name are all a block entity type needs to survive the protocol; concrete
+    // behaviour (`create_block_entity` knowing the type) is a future slice — see the
+    // dynamic module's docs.
+    match pumpkin_data::dynamic::register_block_entity_type(id) {
+        Ok(assigned) => jint::from(assigned),
+        Err(err) => {
+            throw(&mut env, &err.to_string());
+            0
+        }
+    }
 }

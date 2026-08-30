@@ -1333,4 +1333,20 @@ edit('net/neoforged/neoforge/registries/RegisterEvent.java', [
 ])
 
 
+# --------------------------------------------------------- block entity types, the sink
+
+edit('net/neoforged/neoforge/registries/DeferredRegister.java', [
+    ('        default int registerItem(String id, String template, int maxStackSize,\n                int maxDamage, String blockId) {\n            return registerItem(id, template);\n        }',
+     '        default int registerItem(String id, String template, int maxStackSize,\n                int maxDamage, String blockId) {\n            return registerItem(id, template);\n        }\n\n        // Pumpkin divergence: block entity types too. Same contract as registerItem\'s\n        // narrow default: throwing, not dropping, so a sink that cannot take one says so.\n        default int registerBlockEntityType(String id) {\n            throw new IllegalStateException("this sink cannot register block entity types: " + id);\n        }'),
+    ('            } else if (object instanceof net.minecraft.world.item.Item item) {\n                pumpkinSink.registerItem(holder.getId().toString(), item.pumpkinTemplate(),\n                        item.pumpkinMaxStackSize(), item.pumpkinMaxDamage(),\n                        item.pumpkinPlacedBlockId());\n            } else {',
+     '            } else if (object instanceof net.minecraft.world.item.Item item) {\n                pumpkinSink.registerItem(holder.getId().toString(), item.pumpkinTemplate(),\n                        item.pumpkinMaxStackSize(), item.pumpkinMaxDamage(),\n                        item.pumpkinPlacedBlockId());\n            } else if (object instanceof net.minecraft.world.level.block.entity.BlockEntityType) {\n                pumpkinSink.registerBlockEntityType(holder.getId().toString());\n            } else {'),
+])
+
+
+edit('net/neoforged/neoforge/registries/RegisterEvent.java', [
+    ('            } else if (value instanceof net.minecraft.world.item.Item item) {\n                DeferredRegister.pumpkinSink().registerItem(name.toString(), item.pumpkinTemplate(),\n                        item.pumpkinMaxStackSize(), item.pumpkinMaxDamage(),\n                        item.pumpkinPlacedBlockId());\n            } else {',
+     '            } else if (value instanceof net.minecraft.world.item.Item item) {\n                DeferredRegister.pumpkinSink().registerItem(name.toString(), item.pumpkinTemplate(),\n                        item.pumpkinMaxStackSize(), item.pumpkinMaxDamage(),\n                        item.pumpkinPlacedBlockId());\n            } else if (value instanceof net.minecraft.world.level.block.entity.BlockEntityType) {\n                DeferredRegister.pumpkinSink().registerBlockEntityType(name.toString());\n            } else {'),
+])
+
+
 commit()

@@ -55,6 +55,11 @@ public final class Bootstrap {
                 return PumpkinHost.registerItemWithProperties(id, template, maxStackSize,
                         maxDamage, blockId);
             }
+
+            @Override
+            public int registerBlockEntityType(String id) {
+                return PumpkinHost.registerBlockEntityType(id);
+            }
         });
     }
 

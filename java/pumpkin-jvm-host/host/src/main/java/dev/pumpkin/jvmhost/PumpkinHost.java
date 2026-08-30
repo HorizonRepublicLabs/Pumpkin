@@ -68,4 +68,16 @@ public final class PumpkinHost {
      */
     public static native int registerItemWithProperties(String id, String template,
             int maxStackSize, int maxDamage, String blockId);
+
+    /**
+     * Registers a block entity type.
+     *
+     * <p>An id and a name are all Pumpkin needs for the type to survive the protocol.
+     * Concrete behaviour -- ticking, inventory, save data -- is a future slice.
+     *
+     * @param id namespaced id, e.g. {@code testmod:pedestal}
+     * @return the assigned block entity type id
+     * @throws IllegalStateException if registration failed or the registries are frozen
+     */
+    public static native int registerBlockEntityType(String id);
 }

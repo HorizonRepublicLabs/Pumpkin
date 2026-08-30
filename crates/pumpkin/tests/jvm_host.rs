@@ -247,6 +247,32 @@ fn a_block_item_links_to_its_block() {
 }
 
 #[test]
+fn java_can_register_a_block_entity_type() {
+    let vm = pumpkin::plugin::loader::jvm::vm::boot(&host_classpath()).expect("the VM boots");
+
+    let assigned = vm
+        .call(|env| {
+            let id = env
+                .new_string("testmod:pedestal")
+                .map_err(|err| pumpkin::plugin::loader::jvm::vm::VmError::Java(err.to_string()))?;
+            env.call_static_method(
+                "dev/pumpkin/jvmhost/PumpkinHost",
+                "registerBlockEntityType",
+                "(Ljava/lang/String;)I",
+                &[(&id).into()],
+            )
+            .and_then(jni::objects::JValueGen::i)
+            .map_err(|err| pumpkin::plugin::loader::jvm::vm::VmError::Java(err.to_string()))
+        })
+        .expect("the registration succeeds");
+
+    assert!(
+        u16::try_from(assigned).unwrap() >= pumpkin_data::dynamic::base_block_entity_type_count(),
+        "a runtime block entity type id was assigned, got {assigned}"
+    );
+}
+
+#[test]
 fn the_loader_claims_jars_and_nothing_else() {
     use pumpkin::plugin::loader::{PluginLoader, jvm::JvmPluginLoader};
 

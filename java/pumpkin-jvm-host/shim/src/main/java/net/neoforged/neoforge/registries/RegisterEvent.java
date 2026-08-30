@@ -40,6 +40,8 @@ public class RegisterEvent extends Event implements IModBusEvent {
                 DeferredRegister.pumpkinSink().registerItem(name.toString(), item.pumpkinTemplate(),
                         item.pumpkinMaxStackSize(), item.pumpkinMaxDamage(),
                         item.pumpkinPlacedBlockId());
+            } else if (value instanceof net.minecraft.world.level.block.entity.BlockEntityType) {
+                DeferredRegister.pumpkinSink().registerBlockEntityType(name.toString());
             } else {
                 DeferredRegister.pumpkinWarnUnsupported(registryKey.identifier().toString(), name.toString());
             }
