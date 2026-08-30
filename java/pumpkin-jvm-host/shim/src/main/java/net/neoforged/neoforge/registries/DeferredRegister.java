@@ -93,10 +93,38 @@ public class DeferredRegister<T> {
     // registerConfig draws: the mod goes on, and the operator knows what is missing.
     static void pumpkinWarnUnsupported(String registry, String entry) {
         if (PUMPKIN_UNSUPPORTED_WARNED.add(registry)) {
-            System.err.println("[pumpkin] " + registry + " is not modelled yet; entries like "
-                    + entry + " are accepted so their mod can load, but nothing reads them.");
+            String explanation = PUMPKIN_ACKNOWLEDGED.get(registry);
+            if (explanation != null) {
+                System.err.println("[pumpkin] " + registry + " (e.g. " + entry + "): " + explanation);
+            } else {
+                System.err.println("[pumpkin] " + registry + " is not modelled yet; entries like "
+                        + entry + " are accepted so their mod can load, but nothing reads them.");
+            }
         }
     }
+
+    // Pumpkin divergence: no vanilla counterpart. Registries whose entries the server
+    // understands well enough to say exactly why its job ends at accepting them. Each
+    // message names the missing subsystem, so the generic "not modelled yet" line is
+    // reserved for registries nothing has looked at.
+    private static final java.util.Map<String, String> PUMPKIN_ACKNOWLEDGED = java.util.Map.of(
+            "minecraft:recipe_type",
+            "recipes are loaded from datapacks, and Pumpkin does not load a mod's datapack"
+                    + " yet, so the type has nothing to tag until it does.",
+            "minecraft:recipe_serializer",
+            "a serializer reads recipe JSON from datapacks Pumpkin does not load for mods"
+                    + " yet, so there is nothing for it to parse.",
+            "minecraft:worldgen/feature",
+            "world generation does not take mod features yet; ores and plants from mods"
+                    + " will not spawn until generation opens up to them.",
+            "neoforge:ingredient_serializer",
+            "reads custom ingredient JSON out of recipes, which Pumpkin does not load for"
+                    + " mods yet.",
+            "neoforge:condition_codecs",
+            "datapack load conditions; nothing evaluates them until Pumpkin loads mod"
+                    + " datapacks.",
+            "neoforge:biome_modifier_serializers",
+            "biome modifiers steer world generation, which does not take mod input yet.");
 
     private static final java.util.Set<String> PUMPKIN_UNSUPPORTED_WARNED =
             java.util.concurrent.ConcurrentHashMap.newKeySet();
