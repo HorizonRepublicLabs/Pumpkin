@@ -22,6 +22,8 @@ use super::{RegistryError, validate_name};
 
 /// The published registry. Written once by [`publish`], read everywhere after.
 struct FrozenBlockEntityTypes {
+    /// The block entity type each linked block id creates when placed.
+    by_block: HashMap<u16, u16>,
     /// Indexed by `id - base_block_entity_type_count()`.
     names: Vec<&'static str>,
     by_name: HashMap<&'static str, u16>,
@@ -30,6 +32,8 @@ struct FrozenBlockEntityTypes {
 /// Entries accepted but not yet published.
 struct Staging {
     names: Vec<&'static str>,
+    /// Which block places which type, filled by [`link_block_entity_type`].
+    by_block: Vec<(u16, u16)>,
 }
 
 static STAGING: Mutex<Option<Staging>> = Mutex::new(None);
@@ -65,7 +69,10 @@ pub fn register_block_entity_type(name: String) -> Result<u16, RegistryError> {
     let mut guard = STAGING
         .lock()
         .unwrap_or_else(std::sync::PoisonError::into_inner);
-    let staging = guard.get_or_insert_with(|| Staging { names: Vec::new() });
+    let staging = guard.get_or_insert_with(|| Staging {
+        names: Vec::new(),
+        by_block: Vec::new(),
+    });
 
     if staging.names.contains(&name.as_str()) || BLOCK_ENTITY_TYPES.contains(&name.as_str()) {
         return Err(RegistryError::DuplicateName(name));
@@ -81,6 +88,40 @@ pub fn register_block_entity_type(name: String) -> Result<u16, RegistryError> {
     Ok(id)
 }
 
+/// Links a block to the block entity type it creates when placed.
+///
+/// Exists because of registration order: mods register every block before any block
+/// entity type, so a block's states cannot carry the type id -- the type did not exist
+/// when they were copied. The link reaches the other way once the type registers,
+/// naming the blocks it is valid for.
+///
+/// # Errors
+///
+/// Returns [`RegistryError::Frozen`] once the registries are frozen.
+pub fn link_block_entity_type(block_id: u16, type_id: u16) -> Result<(), RegistryError> {
+    if super::is_frozen() {
+        return Err(RegistryError::Frozen);
+    }
+    let mut guard = STAGING
+        .lock()
+        .unwrap_or_else(std::sync::PoisonError::into_inner);
+    let staging = guard.get_or_insert_with(|| Staging {
+        names: Vec::new(),
+        by_block: Vec::new(),
+    });
+    staging.by_block.push((block_id, type_id));
+    Ok(())
+}
+
+/// The block entity type a runtime-registered block creates when placed, if any.
+///
+/// Generated blocks carry the type on their states; only linked runtime blocks answer
+/// here.
+#[must_use]
+pub fn block_entity_type_for_block(block_id: u16) -> Option<u16> {
+    FROZEN.get()?.by_block.get(&block_id).copied()
+}
+
 /// Publishes every staged block entity type. Called by [`super::freeze`].
 pub(super) fn publish() {
     let staged = STAGING
@@ -88,7 +129,10 @@ pub(super) fn publish() {
         .unwrap_or_else(std::sync::PoisonError::into_inner)
         .take();
 
-    let staged = staged.unwrap_or_else(|| Staging { names: Vec::new() });
+    let staged = staged.unwrap_or_else(|| Staging {
+        names: Vec::new(),
+        by_block: Vec::new(),
+    });
 
     let base = base_block_entity_type_count();
     let by_name = staged
@@ -103,6 +147,7 @@ pub(super) fn publish() {
 
     // Ignores the result: a second publish leaves the first in place.
     let _ = FROZEN.set(FrozenBlockEntityTypes {
+        by_block: staged.by_block.into_iter().collect(),
         names: staged.names,
         by_name,
     });

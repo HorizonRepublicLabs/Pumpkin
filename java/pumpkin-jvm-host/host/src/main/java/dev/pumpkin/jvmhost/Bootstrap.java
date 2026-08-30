@@ -62,6 +62,11 @@ public final class Bootstrap {
             }
 
             @Override
+            public int registerBlockEntityType(String id, String validBlockIds) {
+                return PumpkinHost.registerBlockEntityTypeWithBlocks(id, validBlockIds);
+            }
+
+            @Override
             public int registerMenuType(String id) {
                 return PumpkinHost.registerMenuType(id);
             }

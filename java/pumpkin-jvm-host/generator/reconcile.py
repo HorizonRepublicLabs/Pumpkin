@@ -1449,4 +1449,28 @@ edit("net/neoforged/neoforge/registries/DeferredRegister.java", [
 ])
 
 
+# ------------------------------------------- block entity types, valid-block links
+
+edit('net/minecraft/world/level/block/entity/BlockEntityType.java', [
+    ('    public BlockEntityType(BlockEntityType.BlockEntitySupplier<? extends T> factory, Set<Block> validBlocks) {\n    }\n\n    public BlockEntityType(BlockEntityType.BlockEntitySupplier<? extends T> factory, Set<Block> validBlocks, boolean onlyOpCanSetNbt) {\n    }\n\n    public BlockEntityType(BlockEntityType.BlockEntitySupplier<? extends T> factory, Block... validBlocks) {\n    }\n\n    public BlockEntityType(BlockEntityType.BlockEntitySupplier<? extends T> factory, boolean onlyOpCanSetNbt, Block... validBlocks) {\n    }',
+     '    // Pumpkin divergence: the valid blocks are kept, not discarded. They are how the\n    // registration sink learns which placed block should get this entity -- the type\n    // registers after its blocks, so the link has to travel this way.\n    private final java.util.List<Block> pumpkinValidBlocks = new java.util.ArrayList<>();\n\n    public java.util.List<Block> pumpkinValidBlocks() {\n        return pumpkinValidBlocks;\n    }\n\n    public BlockEntityType(BlockEntityType.BlockEntitySupplier<? extends T> factory, Set<Block> validBlocks) {\n        pumpkinValidBlocks.addAll(validBlocks);\n    }\n\n    public BlockEntityType(BlockEntityType.BlockEntitySupplier<? extends T> factory, Set<Block> validBlocks, boolean onlyOpCanSetNbt) {\n        pumpkinValidBlocks.addAll(validBlocks);\n    }\n\n    public BlockEntityType(BlockEntityType.BlockEntitySupplier<? extends T> factory, Block... validBlocks) {\n        java.util.Collections.addAll(pumpkinValidBlocks, validBlocks);\n    }\n\n    public BlockEntityType(BlockEntityType.BlockEntitySupplier<? extends T> factory, boolean onlyOpCanSetNbt, Block... validBlocks) {\n        java.util.Collections.addAll(pumpkinValidBlocks, validBlocks);\n    }'),
+])
+
+
+edit('net/neoforged/neoforge/registries/DeferredRegister.java', [
+    ('        default int registerDataComponentType(String id) {\n            throw new IllegalStateException("this sink cannot register data component types: " + id);\n        }',
+     '        default int registerDataComponentType(String id) {\n            throw new IllegalStateException("this sink cannot register data component types: " + id);\n        }\n\n        // Pumpkin divergence: the wide path for block entity types. The comma-joined\n        // block list is which placed blocks get this entity; namespaced ids cannot\n        // contain commas, so the join is unambiguous. Default drops the list so narrow\n        // test sinks keep working -- the production sink overrides it.\n        default int registerBlockEntityType(String id, String validBlockIds) {\n            return registerBlockEntityType(id);\n        }'),
+    ('            } else if (object instanceof net.minecraft.world.level.block.entity.BlockEntityType) {\n                pumpkinSink.registerBlockEntityType(holder.getId().toString());',
+     '            } else if (object instanceof net.minecraft.world.level.block.entity.BlockEntityType<?> type) {\n                pumpkinSink.registerBlockEntityType(holder.getId().toString(),\n                        pumpkinJoinRegisteredBlockIds(type));'),
+    ('    private static final java.util.Set<String> PUMPKIN_UNSUPPORTED_WARNED =\n            java.util.concurrent.ConcurrentHashMap.newKeySet();',
+     '    private static final java.util.Set<String> PUMPKIN_UNSUPPORTED_WARNED =\n            java.util.concurrent.ConcurrentHashMap.newKeySet();\n\n    // Pumpkin divergence: no vanilla counterpart. The comma-joined registered ids of a\n    // block entity type\'s valid blocks; blocks that never registered are silently\n    // absent, because a link to nothing is not a link. Package-private for\n    // RegisterEvent\'s twin path.\n    static String pumpkinJoinRegisteredBlockIds(\n            net.minecraft.world.level.block.entity.BlockEntityType<?> type) {\n        java.util.List<String> ids = new java.util.ArrayList<>();\n        for (net.minecraft.world.level.block.Block block : type.pumpkinValidBlocks()) {\n            String id = block.pumpkinRegisteredId();\n            if (id != null) {\n                ids.add(id);\n            }\n        }\n        return String.join(",", ids);\n    }'),
+])
+
+
+edit('net/neoforged/neoforge/registries/RegisterEvent.java', [
+    ('            } else if (value instanceof net.minecraft.world.level.block.entity.BlockEntityType) {\n                DeferredRegister.pumpkinSink().registerBlockEntityType(name.toString());',
+     '            } else if (value instanceof net.minecraft.world.level.block.entity.BlockEntityType<?> type) {\n                DeferredRegister.pumpkinSink().registerBlockEntityType(name.toString(),\n                        DeferredRegister.pumpkinJoinRegisteredBlockIds(type));'),
+])
+
+
 commit()

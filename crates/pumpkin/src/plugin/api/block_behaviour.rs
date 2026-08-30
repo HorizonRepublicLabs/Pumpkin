@@ -113,10 +113,19 @@ impl BlockBehaviour for PluginBlockBehaviour {
         // say, so acting on that is this module's job: without it a machine is placed with
         // nowhere to keep its contents.
         let state = args.world.get_block_state(args.position);
-        if state.block_entity_type != u16::MAX
+        // A JVM-registered block cannot carry the type on its states -- its block entity
+        // type registered after the states were copied -- so the dynamic link answers
+        // where the state cannot.
+        let block_entity_type = if state.block_entity_type == u16::MAX {
+            pumpkin_data::dynamic::block_entity_type_for_block(args.block.id.as_u16())
+                .unwrap_or(u16::MAX)
+        } else {
+            state.block_entity_type
+        };
+        if block_entity_type != u16::MAX
             && args.world.get_block_entity(args.position).is_none()
             && let Some(entity) =
-                crate::block::entities::create_block_entity(state.block_entity_type, *args.position)
+                crate::block::entities::create_block_entity(block_entity_type, *args.position)
         {
             args.world.add_block_entity(entity);
         }

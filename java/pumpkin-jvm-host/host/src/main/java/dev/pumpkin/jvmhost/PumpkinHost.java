@@ -82,6 +82,17 @@ public final class PumpkinHost {
     public static native int registerBlockEntityType(String id);
 
     /**
+     * Registers a block entity type and links it to the blocks that create it.
+     *
+     * <p>The plain overload registers the name alone; this one also says which placed
+     * blocks should get the entity, which is what makes a pedestal placed in the world
+     * actually have somewhere to keep its contents.
+     *
+     * @param validBlockIds comma-joined namespaced block ids; empty for none
+     */
+    public static native int registerBlockEntityTypeWithBlocks(String id, String validBlockIds);
+
+    /**
      * Registers a menu type.
      *
      * <p>The id gets the client to draw the mod's own screen when the server opens a

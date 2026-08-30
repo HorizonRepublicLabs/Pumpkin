@@ -9,16 +9,29 @@ import dev.pumpkin.shim.Unimplemented;
 
 public class BlockEntityType<T extends BlockEntity> {
 
+    // Pumpkin divergence: the valid blocks are kept, not discarded. They are how the
+    // registration sink learns which placed block should get this entity -- the type
+    // registers after its blocks, so the link has to travel this way.
+    private final java.util.List<Block> pumpkinValidBlocks = new java.util.ArrayList<>();
+
+    public java.util.List<Block> pumpkinValidBlocks() {
+        return pumpkinValidBlocks;
+    }
+
     public BlockEntityType(BlockEntityType.BlockEntitySupplier<? extends T> factory, Set<Block> validBlocks) {
+        pumpkinValidBlocks.addAll(validBlocks);
     }
 
     public BlockEntityType(BlockEntityType.BlockEntitySupplier<? extends T> factory, Set<Block> validBlocks, boolean onlyOpCanSetNbt) {
+        pumpkinValidBlocks.addAll(validBlocks);
     }
 
     public BlockEntityType(BlockEntityType.BlockEntitySupplier<? extends T> factory, Block... validBlocks) {
+        java.util.Collections.addAll(pumpkinValidBlocks, validBlocks);
     }
 
     public BlockEntityType(BlockEntityType.BlockEntitySupplier<? extends T> factory, boolean onlyOpCanSetNbt, Block... validBlocks) {
+        java.util.Collections.addAll(pumpkinValidBlocks, validBlocks);
     }
 
     public T create(BlockPos worldPosition, BlockState blockState) {

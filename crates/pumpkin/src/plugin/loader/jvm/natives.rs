@@ -94,6 +94,11 @@ pub fn bind(env: &mut JNIEnv) -> Result<(), VmError> {
                 sig: "(Ljava/lang/String;)I".into(),
                 fn_ptr: register_data_component_type_native as *mut std::ffi::c_void,
             },
+            NativeMethod {
+                name: "registerBlockEntityTypeWithBlocks".into(),
+                sig: "(Ljava/lang/String;Ljava/lang/String;)I".into(),
+                fn_ptr: register_block_entity_type_with_blocks_native as *mut std::ffi::c_void,
+            },
         ],
     )
     .map_err(|err| VmError::Java(format!("Failed to bind PumpkinHost natives: {err}")))
@@ -428,4 +433,47 @@ extern "system" fn register_data_component_type_native(
             0
         }
     }
+}
+
+extern "system" fn register_block_entity_type_with_blocks_native(
+    mut env: JNIEnv,
+    _class: JClass,
+    id: JString,
+    valid_blocks: JString,
+) -> jint {
+    let Some(id) = read_string(&mut env, &id, "the block entity type id") else {
+        return 0;
+    };
+    let Some(valid_blocks) = read_string(&mut env, &valid_blocks, "the valid block list") else {
+        return 0;
+    };
+
+    let assigned = match pumpkin_data::dynamic::register_block_entity_type(id) {
+        Ok(assigned) => assigned,
+        Err(err) => {
+            throw(&mut env, &err.to_string());
+            return 0;
+        }
+    };
+
+    // The blocks registered before their entity type -- every mod flushes blocks first --
+    // so the link reaches back to them, the same way the block-item link does. A block
+    // placed after this gets a generic plugin block entity: somewhere for a machine's
+    // contents to live that saves and loads with its chunk.
+    for block_name in valid_blocks.split(',').filter(|name| !name.is_empty()) {
+        let Some(block_id) = pumpkin_data::dynamic::registering_block_id(block_name) else {
+            throw(
+                &mut env,
+                &format!("{block_name} is named by a block entity type but never registered"),
+            );
+            return 0;
+        };
+        if let Err(err) = pumpkin_data::dynamic::link_block_entity_type(block_id.as_u16(), assigned)
+        {
+            throw(&mut env, &err.to_string());
+            return 0;
+        }
+    }
+
+    jint::from(assigned)
 }

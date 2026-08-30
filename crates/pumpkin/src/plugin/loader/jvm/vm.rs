@@ -319,7 +319,16 @@ impl ModVm {
         let (reply, answer) = mpsc::channel();
         self.jobs
             .send(Box::new(move |env| {
-                let _ = reply.send(work(env));
+                let result = work(env);
+                // A job that failed with a Java exception still pending would poison
+                // every job after it -- JNI refuses most calls while one is pending, so
+                // an unrelated later call fails with "Java exception was thrown" and no
+                // trail back here. Describe it (to stderr, where the trail is) and clear.
+                if result.is_err() && env.exception_check().unwrap_or(false) {
+                    let _ = env.exception_describe();
+                    let _ = env.exception_clear();
+                }
+                let _ = reply.send(result);
             }))
             .map_err(|_| VmError::ThreadGone)?;
         answer.recv().map_err(|_| VmError::ThreadGone)?

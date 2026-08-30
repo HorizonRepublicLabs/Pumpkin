@@ -75,6 +75,14 @@ public class DeferredRegister<T> {
         default int registerDataComponentType(String id) {
             throw new IllegalStateException("this sink cannot register data component types: " + id);
         }
+
+        // Pumpkin divergence: the wide path for block entity types. The comma-joined
+        // block list is which placed blocks get this entity; namespaced ids cannot
+        // contain commas, so the join is unambiguous. Default drops the list so narrow
+        // test sinks keep working -- the production sink overrides it.
+        default int registerBlockEntityType(String id, String validBlockIds) {
+            return registerBlockEntityType(id);
+        }
     }
 
     private static Sink pumpkinSink = (id, template) -> {
@@ -129,6 +137,22 @@ public class DeferredRegister<T> {
 
     private static final java.util.Set<String> PUMPKIN_UNSUPPORTED_WARNED =
             java.util.concurrent.ConcurrentHashMap.newKeySet();
+
+    // Pumpkin divergence: no vanilla counterpart. The comma-joined registered ids of a
+    // block entity type's valid blocks; blocks that never registered are silently
+    // absent, because a link to nothing is not a link. Package-private for
+    // RegisterEvent's twin path.
+    static String pumpkinJoinRegisteredBlockIds(
+            net.minecraft.world.level.block.entity.BlockEntityType<?> type) {
+        java.util.List<String> ids = new java.util.ArrayList<>();
+        for (net.minecraft.world.level.block.Block block : type.pumpkinValidBlocks()) {
+            String id = block.pumpkinRegisteredId();
+            if (id != null) {
+                ids.add(id);
+            }
+        }
+        return String.join(",", ids);
+    }
 
     // Pumpkin divergence: no vanilla counterpart. A creative tab is client-side
     // presentation -- the protocol never carries it, so there is nothing for a server to
@@ -218,8 +242,9 @@ public class DeferredRegister<T> {
                 pumpkinSink.registerItem(holder.getId().toString(), item.pumpkinTemplate(),
                         item.pumpkinMaxStackSize(), item.pumpkinMaxDamage(),
                         item.pumpkinPlacedBlockId());
-            } else if (object instanceof net.minecraft.world.level.block.entity.BlockEntityType) {
-                pumpkinSink.registerBlockEntityType(holder.getId().toString());
+            } else if (object instanceof net.minecraft.world.level.block.entity.BlockEntityType<?> type) {
+                pumpkinSink.registerBlockEntityType(holder.getId().toString(),
+                        pumpkinJoinRegisteredBlockIds(type));
             } else if (object instanceof net.minecraft.world.item.CreativeModeTab tab) {
                 pumpkinReportCreativeTab(holder.getId().toString(), tab);
             } else if (object instanceof net.minecraft.world.inventory.MenuType) {

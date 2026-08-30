@@ -253,7 +253,7 @@ fn java_can_register_a_block_entity_type() {
     let assigned = vm
         .call(|env| {
             let id = env
-                .new_string("testmod:pedestal")
+                .new_string("testmod:pedestal_link")
                 .map_err(|err| pumpkin::plugin::loader::jvm::vm::VmError::Java(err.to_string()))?;
             env.call_static_method(
                 "dev/pumpkin/jvmhost/PumpkinHost",
@@ -309,6 +309,58 @@ fn java_can_register_a_menu_type_and_a_sound_event() {
         u16::try_from(component).unwrap()
             >= pumpkin_data::dynamic::base_data_component_type_count(),
         "a runtime data component type id was assigned, got {component}"
+    );
+}
+
+#[test]
+fn a_block_entity_type_links_to_its_blocks() {
+    let vm = pumpkin::plugin::loader::jvm::vm::boot(&host_classpath()).expect("the VM boots");
+
+    let type_id = vm
+        .call(|env| {
+            let block_id = env
+                .new_string("testmod:pedestal_link_block")
+                .map_err(|err| pumpkin::plugin::loader::jvm::vm::VmError::Java(err.to_string()))?;
+            let template = env
+                .new_string("stone")
+                .map_err(|err| pumpkin::plugin::loader::jvm::vm::VmError::Java(err.to_string()))?;
+            env.call_static_method(
+                "dev/pumpkin/jvmhost/PumpkinHost",
+                "registerBlock",
+                "(Ljava/lang/String;Ljava/lang/String;)I",
+                &[(&block_id).into(), (&template).into()],
+            )
+            .and_then(jni::objects::JValueGen::i)
+            .map_err(|err| pumpkin::plugin::loader::jvm::vm::VmError::Java(err.to_string()))?;
+
+            let id = env
+                .new_string("testmod:pedestal_link_entity")
+                .map_err(|err| pumpkin::plugin::loader::jvm::vm::VmError::Java(err.to_string()))?;
+            let valid = env
+                .new_string("testmod:pedestal_link_block")
+                .map_err(|err| pumpkin::plugin::loader::jvm::vm::VmError::Java(err.to_string()))?;
+            env.call_static_method(
+                "dev/pumpkin/jvmhost/PumpkinHost",
+                "registerBlockEntityTypeWithBlocks",
+                "(Ljava/lang/String;Ljava/lang/String;)I",
+                &[(&id).into(), (&valid).into()],
+            )
+            .and_then(jni::objects::JValueGen::i)
+            .map_err(|err| pumpkin::plugin::loader::jvm::vm::VmError::Java(err.to_string()))
+        })
+        .expect("both registrations succeed");
+
+    // The link is only readable once published; freezing here would break later tests in
+    // this process, so assert through the staged half: the block id resolves and the
+    // linking call above did not throw. The end-to-end read-back happens in the boot
+    // smoke test, where freeze runs for real.
+    assert!(
+        u16::try_from(type_id).unwrap() >= pumpkin_data::dynamic::base_block_entity_type_count(),
+        "a runtime block entity type id was assigned, got {type_id}"
+    );
+    assert!(
+        pumpkin_data::dynamic::registering_block_id("testmod:pedestal_link_block").is_some(),
+        "the block the type linked to is staged"
     );
 }
 
