@@ -220,4 +220,66 @@ public final class Bootstrap {
     public static String burndown() {
         return String.join("\n", new java.util.TreeSet<>(Unimplemented.hits()));
     }
+
+    /**
+     * Extracts a mod jar's {@code data/} tree into a datapack directory.
+     *
+     * <p>A NeoForge jar carries its recipes, loot tables and tags as an ordinary datapack
+     * under {@code data/}; Pumpkin's datapack loader reads directories, so the tree is
+     * copied out rather than served from the zip. The copy is skipped when the target is
+     * newer than the jar, so a server that boots twice does the work once.
+     *
+     * @param jarPath   the mod jar
+     * @param targetDir the datapack directory to create, e.g. {@code
+     *                  world/datapacks/mod_examplemod}
+     * @return the number of files extracted; 0 means the target was already current
+     * @throws Exception if the jar cannot be read or a file cannot be written
+     */
+    public static int extractDatapack(String jarPath, String targetDir) throws Exception {
+        Path jar = Path.of(jarPath);
+        Path target = Path.of(targetDir);
+        Path marker = target.resolve(".jar-modified-time");
+
+        long jarTime = java.nio.file.Files.getLastModifiedTime(jar).toMillis();
+        // First line: the jar's mtime, for staleness. Second line: the jar's absolute
+        // path, so the datapack loader can skip a pack whose mod has been removed.
+        String stamp = jarTime + "\n" + jar.toAbsolutePath() + "\n";
+        if (java.nio.file.Files.exists(marker)
+                && java.nio.file.Files.readString(marker).equals(stamp)) {
+            return 0;
+        }
+
+        int extracted = 0;
+        try (java.util.zip.ZipFile zip = new java.util.zip.ZipFile(jar.toFile())) {
+            var entries = zip.entries();
+            while (entries.hasMoreElements()) {
+                java.util.zip.ZipEntry entry = entries.nextElement();
+                if (entry.isDirectory() || !entry.getName().startsWith("data/")) {
+                    continue;
+                }
+                // Zip entry names are attacker-ish input as far as path handling goes:
+                // normalize and refuse anything that escapes the target directory.
+                Path out = target.resolve(entry.getName()).normalize();
+                if (!out.startsWith(target)) {
+                    throw new Exception("refusing to extract " + entry.getName()
+                            + " outside " + target);
+                }
+                java.nio.file.Files.createDirectories(out.getParent());
+                try (java.io.InputStream in = zip.getInputStream(entry)) {
+                    java.nio.file.Files.copy(in, out,
+                            java.nio.file.StandardCopyOption.REPLACE_EXISTING);
+                }
+                extracted++;
+            }
+        }
+
+        // The loader wants a pack.mcmeta; the description names the jar so an operator
+        // browsing datapacks/ can tell where the pack came from.
+        String meta = "{\n  \"pack\": {\n    \"description\": \"data from "
+                + jar.getFileName() + "\",\n    \"pack_format\": 81\n  }\n}\n";
+        java.nio.file.Files.createDirectories(target);
+        java.nio.file.Files.writeString(target.resolve("pack.mcmeta"), meta);
+        java.nio.file.Files.writeString(marker, stamp);
+        return extracted;
+    }
 }

@@ -109,20 +109,21 @@ public class DeferredRegister<T> {
     // reserved for registries nothing has looked at.
     private static final java.util.Map<String, String> PUMPKIN_ACKNOWLEDGED = java.util.Map.of(
             "minecraft:recipe_type",
-            "recipes are loaded from datapacks, and Pumpkin does not load a mod's datapack"
-                    + " yet, so the type has nothing to tag until it does.",
+            "vanilla-typed recipes from the mod's datapack already load and craft; a custom"
+                    + " recipe type is its machine's input, and mod machines do not run"
+                    + " server-side yet.",
             "minecraft:recipe_serializer",
-            "a serializer reads recipe JSON from datapacks Pumpkin does not load for mods"
-                    + " yet, so there is nothing for it to parse.",
+            "Pumpkin parses vanilla recipe formats itself; a custom serializer's format is"
+                    + " skipped and counted when the mod's datapack loads.",
             "minecraft:worldgen/feature",
             "world generation does not take mod features yet; ores and plants from mods"
                     + " will not spawn until generation opens up to them.",
             "neoforge:ingredient_serializer",
-            "reads custom ingredient JSON out of recipes, which Pumpkin does not load for"
-                    + " mods yet.",
+            "reads custom ingredient JSON, which only appears in recipe formats Pumpkin"
+                    + " already skips and counts.",
             "neoforge:condition_codecs",
-            "datapack load conditions; nothing evaluates them until Pumpkin loads mod"
-                    + " datapacks.",
+            "datapack load conditions; Pumpkin loads a mod's datapack unconditionally, so"
+                    + " a condition meant to disable content is not evaluated.",
             "neoforge:biome_modifier_serializers",
             "biome modifiers steer world generation, which does not take mod input yet.");
 

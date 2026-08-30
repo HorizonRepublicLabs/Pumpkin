@@ -94,18 +94,16 @@ impl DatapackManager {
                     continue;
                 }
 
-                let pack_id = format!("file/{file_name}");
-                let is_enabled = enabled_packs
-                    .iter()
-                    .any(|p| p == &pack_id || p == &file_name);
-                if !is_enabled {
+                if !pack_is_loadable(&file_name, &pack_path, enabled_packs) {
                     continue;
                 }
+                let pack_id = format!("file/{file_name}");
 
                 let (description, pack_format) = read_pack_mcmeta(&pack_path);
 
                 let data_dir = pack_path.join("data");
                 let mut pack_recipe_count = 0;
+                let mut pack_recipe_files_seen = 0;
                 let mut pack_function_count = 0;
 
                 if data_dir.is_dir()
@@ -127,6 +125,7 @@ impl DatapackManager {
                                     &recipe_dir,
                                     &mut all_recipes,
                                     &mut pack_recipe_count,
+                                    &mut pack_recipe_files_seen,
                                 );
                             }
                         }
@@ -160,6 +159,7 @@ impl DatapackManager {
                 info!(
                     "Loaded datapack '{file_name}': {pack_recipe_count} recipe(s), {pack_function_count} function(s)"
                 );
+                report_skipped_recipes(&file_name, pack_recipe_files_seen, pack_recipe_count);
 
                 loaded_packs_vec.push(LoadedDatapack {
                     id: pack_id,
@@ -592,11 +592,66 @@ pub fn read_pack_mcmeta(pack_path: &Path) -> (String, u32) {
     (String::new(), 61)
 }
 
+/// Says how many of a pack's recipe files did not load.
+///
+/// A skipped file is a recipe type the server cannot craft -- a mod machine's input, or a
+/// format this loader does not parse. Said out loud so "487 loaded" is never mistaken for
+/// "all of them".
+fn report_skipped_recipes(file_name: &str, seen: usize, loaded: usize) {
+    let skipped = seen.saturating_sub(loaded);
+    if skipped > 0 {
+        info!(
+            "Datapack '{file_name}': {skipped} recipe file(s) skipped (recipe types the \
+             server cannot craft, e.g. mod machines)"
+        );
+    }
+}
+
+/// Whether a pack should load: enabled in the level data, or a live mod's data.
+///
+/// A `mod_*` pack is the data a loaded mod jar carries; the mod being loaded is what
+/// enables it, the same way `NeoForge` treats mod data. The marker the extractor writes
+/// names the jar, so a pack whose mod has been removed is skipped loudly instead of
+/// serving stale content forever.
+fn pack_is_loadable(file_name: &str, pack_path: &Path, enabled_packs: &[String]) -> bool {
+    if file_name.starts_with("mod_") {
+        if mod_pack_jar_is_gone(pack_path) {
+            warn!(
+                "skipping datapack {file_name}: its mod jar is gone; delete {} to silence \
+                 this",
+                pack_path.display()
+            );
+            return false;
+        }
+        return true;
+    }
+    let pack_id = format!("file/{file_name}");
+    enabled_packs
+        .iter()
+        .any(|p| p == &pack_id || p == file_name)
+}
+
+/// Whether a `mod_*` datapack's source jar has been removed.
+///
+/// The extractor's marker records the jar's path on its second line. A pack without a
+/// readable marker is kept: better to serve data that might be stale than to silently
+/// drop a pack over a missing bookkeeping file.
+fn mod_pack_jar_is_gone(pack_path: &Path) -> bool {
+    let Ok(marker) = fs::read_to_string(pack_path.join(".jar-modified-time")) else {
+        return false;
+    };
+    let Some(jar) = marker.lines().nth(1) else {
+        return false;
+    };
+    !Path::new(jar).exists()
+}
+
 fn load_recipes_from_dir(
     namespace: &str,
     dir: &Path,
     all_recipes: &mut Vec<DynamicRecipe>,
     count: &mut usize,
+    seen: &mut usize,
 ) {
     let Ok(entries) = fs::read_dir(dir) else {
         return;
@@ -604,11 +659,12 @@ fn load_recipes_from_dir(
     for entry in entries.flatten() {
         let path = entry.path();
         if path.is_dir() {
-            load_recipes_from_dir(namespace, &path, all_recipes, count);
+            load_recipes_from_dir(namespace, &path, all_recipes, count, seen);
         } else if path
             .extension()
             .is_some_and(|ext| ext.eq_ignore_ascii_case("json"))
         {
+            *seen += 1;
             let stem = path
                 .file_stem()
                 .map(|s| s.to_string_lossy().to_string())
@@ -620,5 +676,41 @@ fn load_recipes_from_dir(
                 *count += 1;
             }
         }
+    }
+}
+
+#[cfg(test)]
+mod mod_pack_tests {
+    use super::mod_pack_jar_is_gone;
+    use std::fs;
+
+    #[test]
+    fn a_pack_whose_marker_names_a_missing_jar_is_flagged() {
+        let dir =
+            std::env::temp_dir().join(format!("pumpkin-mod-pack-test-{}", std::process::id()));
+        fs::create_dir_all(&dir).unwrap();
+
+        // No marker at all: kept, not flagged.
+        assert!(!mod_pack_jar_is_gone(&dir));
+
+        // Marker naming a jar that exists: kept.
+        let jar = dir.join("present.jar");
+        fs::write(&jar, b"jar").unwrap();
+        fs::write(
+            dir.join(".jar-modified-time"),
+            format!("12345\n{}\n", jar.display()),
+        )
+        .unwrap();
+        assert!(!mod_pack_jar_is_gone(&dir));
+
+        // Marker naming a jar that is gone: flagged.
+        fs::write(
+            dir.join(".jar-modified-time"),
+            format!("12345\n{}\n", dir.join("removed.jar").display()),
+        )
+        .unwrap();
+        assert!(mod_pack_jar_is_gone(&dir));
+
+        fs::remove_dir_all(&dir).unwrap();
     }
 }

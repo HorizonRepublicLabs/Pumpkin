@@ -83,6 +83,49 @@ pub fn load_mod(vm: &'static ModVm, jar: &str) -> Result<String, VmError> {
     call_bootstrap_string_method(vm, "loadAndRegister", jar)
 }
 
+/// Extracts a mod jar's `data/` tree into a datapack directory.
+///
+/// Backed by `Bootstrap.extractDatapack`. Returns how many files were extracted; zero
+/// means the target was already current (the jar has not changed since last boot).
+///
+/// # Errors
+/// Returns [`VmError::Java`] if the jar cannot be read or a file cannot be written.
+pub fn extract_datapack(
+    vm: &'static ModVm,
+    jar: &str,
+    target: &std::path::Path,
+) -> Result<i32, VmError> {
+    let jar = jar.to_owned();
+    let target = target.to_string_lossy().into_owned();
+    vm.call(move |env| {
+        let jar_string = env
+            .new_string(&jar)
+            .map_err(|err| VmError::Java(err.to_string()))?;
+        let target_string = env
+            .new_string(&target)
+            .map_err(|err| VmError::Java(err.to_string()))?;
+
+        let returned = env.call_static_method(
+            "dev/pumpkin/jvmhost/Bootstrap",
+            "extractDatapack",
+            "(Ljava/lang/String;Ljava/lang/String;)I",
+            &[(&jar_string).into(), (&target_string).into()],
+        );
+
+        if env.exception_check().unwrap_or(false) {
+            let _ = env.exception_describe();
+            let _ = env.exception_clear();
+            return Err(VmError::Java(format!(
+                "extracting the datapack from {jar} threw"
+            )));
+        }
+
+        returned
+            .and_then(jni::objects::JValueGen::i)
+            .map_err(|err| VmError::Java(err.to_string()))
+    })
+}
+
 /// Every stubbed shim member reached so far, one per line, sorted.
 ///
 /// The burndown for the next slice: subtract these from the committed manifest and what
@@ -129,7 +172,7 @@ struct JvmPlugin {
 }
 
 impl Plugin for JvmPlugin {
-    fn on_load(&self, _context: Arc<Context>) -> PluginFuture<'_, Result<(), String>> {
+    fn on_load(&self, context: Arc<Context>) -> PluginFuture<'_, Result<(), String>> {
         // Construction and registration happen here rather than in `JvmPluginLoader::load`
         // because `load` runs before the operator gets a say: `PluginManager::load_plugins`
         // only checks a plugin's config override (the `enabled == false` skip) and its
@@ -145,11 +188,29 @@ impl Plugin for JvmPlugin {
         // `load_plugins` returns — so there is room to spare.
         let jar = self.jar.clone();
         let classpath = self.classpath.clone();
+        let mod_id = self.mod_id.clone();
         Box::pin(async move {
             let vm = vm::boot(&classpath).map_err(|err| err.to_string())?;
-            load_mod(vm, &jar)
-                .map(|_mod_id| ())
-                .map_err(|err| err.to_string())
+            load_mod(vm, &jar).map_err(|err| err.to_string())?;
+
+            // A NeoForge jar carries its recipes and tags as an ordinary datapack under
+            // `data/`. Copy that tree out beside the world's other datapacks -- named
+            // `mod_<id>`, which the datapack loader treats as implicitly enabled -- and
+            // reload, so the mod's craftable recipes exist by the time anyone joins.
+            // Reloading per mod is idempotent and boot-time cheap; no player is online
+            // to be resent anything yet.
+            let target = context
+                .server
+                .basic_config
+                .get_world_path()
+                .join("datapacks")
+                .join(format!("mod_{mod_id}"));
+            let extracted = extract_datapack(vm, &jar, &target).map_err(|err| err.to_string())?;
+            if extracted > 0 {
+                tracing::info!("{mod_id}: extracted {extracted} datapack files");
+            }
+            context.server.reload_datapacks(&context.server);
+            Ok(())
         })
     }
 
