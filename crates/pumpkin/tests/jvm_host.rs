@@ -273,6 +273,40 @@ fn java_can_register_a_block_entity_type() {
 }
 
 #[test]
+fn java_can_register_a_menu_type_and_a_sound_event() {
+    let vm = pumpkin::plugin::loader::jvm::vm::boot(&host_classpath()).expect("the VM boots");
+
+    let register = |method: &'static str, id: &'static str| {
+        vm.call(move |env| {
+            let id = env
+                .new_string(id)
+                .map_err(|err| pumpkin::plugin::loader::jvm::vm::VmError::Java(err.to_string()))?;
+            env.call_static_method(
+                "dev/pumpkin/jvmhost/PumpkinHost",
+                method,
+                "(Ljava/lang/String;)I",
+                &[(&id).into()],
+            )
+            .and_then(jni::objects::JValueGen::i)
+            .map_err(|err| pumpkin::plugin::loader::jvm::vm::VmError::Java(err.to_string()))
+        })
+        .expect("the registration succeeds")
+    };
+
+    let menu = register("registerMenuType", "testmod:reprocessor");
+    assert!(
+        u16::try_from(menu).unwrap() >= pumpkin_data::dynamic::base_menu_type_count(),
+        "a runtime menu type id was assigned, got {menu}"
+    );
+
+    let sound = register("registerSoundEvent", "testmod:machine_hum");
+    assert!(
+        u16::try_from(sound).unwrap() >= pumpkin_data::dynamic::base_sound_event_count(),
+        "a runtime sound event id was assigned, got {sound}"
+    );
+}
+
+#[test]
 fn the_loader_claims_jars_and_nothing_else() {
     use pumpkin::plugin::loader::{PluginLoader, jvm::JvmPluginLoader};
 

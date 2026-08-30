@@ -62,6 +62,15 @@ public class DeferredRegister<T> {
         default int registerBlockEntityType(String id) {
             throw new IllegalStateException("this sink cannot register block entity types: " + id);
         }
+
+        // Pumpkin divergence: same contract as the two above.
+        default int registerMenuType(String id) {
+            throw new IllegalStateException("this sink cannot register menu types: " + id);
+        }
+
+        default int registerSoundEvent(String id) {
+            throw new IllegalStateException("this sink cannot register sound events: " + id);
+        }
     }
 
     private static Sink pumpkinSink = (id, template) -> {
@@ -180,6 +189,10 @@ public class DeferredRegister<T> {
                 pumpkinSink.registerBlockEntityType(holder.getId().toString());
             } else if (object instanceof net.minecraft.world.item.CreativeModeTab tab) {
                 pumpkinReportCreativeTab(holder.getId().toString(), tab);
+            } else if (object instanceof net.minecraft.world.inventory.MenuType) {
+                pumpkinSink.registerMenuType(holder.getId().toString());
+            } else if (object instanceof net.minecraft.sounds.SoundEvent) {
+                pumpkinSink.registerSoundEvent(holder.getId().toString());
             } else {
                 pumpkinWarnUnsupported(pumpkinRegistryKey.identifier().toString(),
                         holder.getId().toString());

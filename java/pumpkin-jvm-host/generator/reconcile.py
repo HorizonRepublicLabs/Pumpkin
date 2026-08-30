@@ -1410,4 +1410,20 @@ edit('net/minecraft/world/item/ItemStack.java', [
 ])
 
 
+# ------------------------------------------------- menus and sound events, the sink
+
+edit('net/neoforged/neoforge/registries/DeferredRegister.java', [
+    ('        default int registerBlockEntityType(String id) {\n            throw new IllegalStateException("this sink cannot register block entity types: " + id);\n        }',
+     '        default int registerBlockEntityType(String id) {\n            throw new IllegalStateException("this sink cannot register block entity types: " + id);\n        }\n\n        // Pumpkin divergence: same contract as the two above.\n        default int registerMenuType(String id) {\n            throw new IllegalStateException("this sink cannot register menu types: " + id);\n        }\n\n        default int registerSoundEvent(String id) {\n            throw new IllegalStateException("this sink cannot register sound events: " + id);\n        }'),
+    ('            } else if (object instanceof net.minecraft.world.item.CreativeModeTab tab) {\n                pumpkinReportCreativeTab(holder.getId().toString(), tab);\n            } else {',
+     '            } else if (object instanceof net.minecraft.world.item.CreativeModeTab tab) {\n                pumpkinReportCreativeTab(holder.getId().toString(), tab);\n            } else if (object instanceof net.minecraft.world.inventory.MenuType) {\n                pumpkinSink.registerMenuType(holder.getId().toString());\n            } else if (object instanceof net.minecraft.sounds.SoundEvent) {\n                pumpkinSink.registerSoundEvent(holder.getId().toString());\n            } else {'),
+])
+
+
+edit('net/neoforged/neoforge/registries/RegisterEvent.java', [
+    ('            } else if (value instanceof net.minecraft.world.item.CreativeModeTab tab) {\n                DeferredRegister.pumpkinReportCreativeTab(name.toString(), tab);\n            } else {',
+     '            } else if (value instanceof net.minecraft.world.item.CreativeModeTab tab) {\n                DeferredRegister.pumpkinReportCreativeTab(name.toString(), tab);\n            } else if (value instanceof net.minecraft.world.inventory.MenuType) {\n                DeferredRegister.pumpkinSink().registerMenuType(name.toString());\n            } else if (value instanceof net.minecraft.sounds.SoundEvent) {\n                DeferredRegister.pumpkinSink().registerSoundEvent(name.toString());\n            } else {'),
+])
+
+
 commit()

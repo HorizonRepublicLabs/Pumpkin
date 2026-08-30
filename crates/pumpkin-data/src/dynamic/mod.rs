@@ -43,6 +43,8 @@ mod fluids;
 mod items;
 #[cfg(feature = "screen")]
 mod menu_types;
+#[cfg(feature = "sound")]
+mod sound_events;
 
 #[cfg(feature = "block")]
 pub use block_entity_types::{
@@ -75,6 +77,11 @@ pub use items::{
 #[cfg(feature = "screen")]
 pub use menu_types::{
     base_menu_type_count, menu_type_count, menu_type_id, menu_type_name, register_menu_type,
+};
+#[cfg(feature = "sound")]
+pub use sound_events::{
+    base_sound_event_count, register_sound_event, sound_event_count, sound_event_id,
+    sound_event_name,
 };
 
 /// Set once [`freeze`] has run. Registration checks this; lookups check their own tables.
@@ -140,6 +147,8 @@ pub fn freeze() {
     items::publish();
     #[cfg(feature = "screen")]
     menu_types::publish();
+    #[cfg(feature = "sound")]
+    sound_events::publish();
 
     // Set last: registration reads this, and must keep failing only after the tables are
     // in place rather than during the window where they are half-published.

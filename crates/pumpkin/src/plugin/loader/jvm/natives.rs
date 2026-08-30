@@ -53,6 +53,16 @@ pub fn bind(env: &mut JNIEnv) -> Result<(), VmError> {
                 sig: "(Ljava/lang/String;)I".into(),
                 fn_ptr: register_block_entity_type_native as *mut std::ffi::c_void,
             },
+            NativeMethod {
+                name: "registerMenuType".into(),
+                sig: "(Ljava/lang/String;)I".into(),
+                fn_ptr: register_menu_type_native as *mut std::ffi::c_void,
+            },
+            NativeMethod {
+                name: "registerSoundEvent".into(),
+                sig: "(Ljava/lang/String;)I".into(),
+                fn_ptr: register_sound_event_native as *mut std::ffi::c_void,
+            },
         ],
     )
     .map_err(|err| VmError::Java(format!("Failed to bind PumpkinHost natives: {err}")))
@@ -319,6 +329,43 @@ extern "system" fn register_block_entity_type_native(
     // behaviour (`create_block_entity` knowing the type) is a future slice — see the
     // dynamic module's docs.
     match pumpkin_data::dynamic::register_block_entity_type(id) {
+        Ok(assigned) => jint::from(assigned),
+        Err(err) => {
+            throw(&mut env, &err.to_string());
+            0
+        }
+    }
+}
+
+extern "system" fn register_menu_type_native(mut env: JNIEnv, _class: JClass, id: JString) -> jint {
+    let Some(id) = read_string(&mut env, &id, "the menu type id") else {
+        return 0;
+    };
+
+    // The id gets the client to draw the mod's own screen when a window opens with it; the
+    // window's contents are ordinary container work, not this registry's — see the dynamic
+    // module's docs.
+    match pumpkin_data::dynamic::register_menu_type(id) {
+        Ok(assigned) => jint::from(assigned),
+        Err(err) => {
+            throw(&mut env, &err.to_string());
+            0
+        }
+    }
+}
+
+extern "system" fn register_sound_event_native(
+    mut env: JNIEnv,
+    _class: JClass,
+    id: JString,
+) -> jint {
+    let Some(id) = read_string(&mut env, &id, "the sound event id") else {
+        return 0;
+    };
+
+    // The id survives the protocol so the server can point at the sound; the audio ships
+    // in the mod's client half, like a menu type's screen.
+    match pumpkin_data::dynamic::register_sound_event(id) {
         Ok(assigned) => jint::from(assigned),
         Err(err) => {
             throw(&mut env, &err.to_string());

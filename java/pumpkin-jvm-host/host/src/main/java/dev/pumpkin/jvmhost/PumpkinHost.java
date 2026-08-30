@@ -80,4 +80,29 @@ public final class PumpkinHost {
      * @throws IllegalStateException if registration failed or the registries are frozen
      */
     public static native int registerBlockEntityType(String id);
+
+    /**
+     * Registers a menu type.
+     *
+     * <p>The id gets the client to draw the mod's own screen when the server opens a
+     * window with it. The window's contents are ordinary container work, not this
+     * registry's.
+     *
+     * @param id namespaced id, e.g. {@code testmod:reprocessor}
+     * @return the assigned menu type id
+     * @throws IllegalStateException if registration failed or the registries are frozen
+     */
+    public static native int registerMenuType(String id);
+
+    /**
+     * Registers a sound event.
+     *
+     * <p>The id survives the protocol so the server can point at the sound; the audio
+     * ships in the mod's client half, like a menu type's screen.
+     *
+     * @param id namespaced id, e.g. {@code testmod:machine_hum}
+     * @return the assigned sound event id
+     * @throws IllegalStateException if registration failed or the registries are frozen
+     */
+    public static native int registerSoundEvent(String id);
 }

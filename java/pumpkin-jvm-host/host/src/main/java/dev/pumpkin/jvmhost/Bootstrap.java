@@ -60,6 +60,16 @@ public final class Bootstrap {
             public int registerBlockEntityType(String id) {
                 return PumpkinHost.registerBlockEntityType(id);
             }
+
+            @Override
+            public int registerMenuType(String id) {
+                return PumpkinHost.registerMenuType(id);
+            }
+
+            @Override
+            public int registerSoundEvent(String id) {
+                return PumpkinHost.registerSoundEvent(id);
+            }
         });
     }
 
