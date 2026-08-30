@@ -580,8 +580,6 @@ pub fn handle_menu_click(
     mode: i32,
     world: &Arc<crate::world::World>,
 ) -> bool {
-    use pumpkin_protocol::codec::item_stack_seralizer::ItemStackSerializer;
-
     if window_id < 100 {
         return false;
     }
