@@ -51,4 +51,21 @@ public final class PumpkinHost {
      *                               the registries are frozen
      */
     public static native int registerItem(String id, String template);
+
+    /**
+     * Registers an item with the properties its mod declared.
+     *
+     * <p>The plain overload keeps the template's definition wholesale; this one lets a
+     * mod's {@code stacksTo(...)} and {@code durability(...)} actually arrive, and links a
+     * block item to the block it places. {@code -1} means "not set" for the two ints and
+     * leaves the template's component in place; a real stack size or durability is never
+     * negative.
+     *
+     * @param maxStackSize declared stack size, or {@code -1} when the mod did not say
+     * @param maxDamage    declared durability, or {@code -1}
+     * @param blockId      namespaced id of the block this item places, or {@code null}
+     *                     for an item that places nothing
+     */
+    public static native int registerItemWithProperties(String id, String template,
+            int maxStackSize, int maxDamage, String blockId);
 }

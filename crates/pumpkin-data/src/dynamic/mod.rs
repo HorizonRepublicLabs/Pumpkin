@@ -54,8 +54,8 @@ pub use block_entity_types::{
 pub use blocks::{
     BlockRegistration, base_block_count, base_state_count, block_count, block_from_id,
     block_from_item_id, block_from_name, block_id_from_state_id, block_properties, block_state_for,
-    register_block, registering_block_hardness, registering_block_id, state_count, state_from_id,
-    state_has_random_ticks,
+    link_block_item, register_block, registering_block_hardness, registering_block_id,
+    registering_block_item_id, state_count, state_from_id, state_has_random_ticks,
 };
 #[cfg(feature = "entity_type")]
 pub use entity_types::{
@@ -93,6 +93,8 @@ pub enum RegistryError {
     InvalidStates(String),
     /// Adding this entry would push an id past what the protocol can carry.
     OutOfIds(String),
+    /// A link named a staged entry that does not exist.
+    UnknownName(String),
 }
 
 impl std::fmt::Display for RegistryError {
@@ -109,6 +111,7 @@ impl std::fmt::Display for RegistryError {
                 write!(f, "block {name} has no states, or an invalid default state")
             }
             Self::OutOfIds(name) => write!(f, "no id space left to register {name}"),
+            Self::UnknownName(name) => write!(f, "{name} is not a staged registration"),
         }
     }
 }

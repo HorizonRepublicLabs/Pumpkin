@@ -63,8 +63,13 @@ struct FrozenBlocks {
 }
 
 /// Entries accepted but not yet published.
+///
+/// Blocks are owned here rather than leaked on registration: a block's placing item
+/// usually registers after the block (mods register all blocks, then all items), so
+/// [`link_block_item`] has to be able to reach back and set `item_id` on a staged block.
+/// [`publish`] leaks them once nothing can change any more.
 struct Staging {
-    blocks: Vec<&'static Block>,
+    blocks: Vec<Block>,
     states: Vec<&'static BlockState>,
     state_owners: Vec<BlockId>,
     names: HashMap<String, ()>,
@@ -164,14 +169,14 @@ pub fn register_block(registration: BlockRegistration) -> Result<Registered, Reg
     let states: &'static [BlockState] = Box::leak(states.into_boxed_slice());
     let default_state = &states[default_state_index];
 
-    let block: &'static Block = Box::leak(Box::new(Block {
+    let block = Block {
         id: block_id,
         name,
         default_state,
         states,
         item_id: item_id.unwrap_or(0),
         ..block
-    }));
+    };
 
     // Leaked with the block, and read whenever something needs to pick a state by meaning
     // rather than by index.
@@ -209,15 +214,17 @@ pub(super) fn publish() {
         properties: Vec::new(),
     });
 
-    let by_name = staged
+    // Leaked on purpose, now that nothing can change them: see the module docs.
+    let blocks: Vec<&'static Block> = staged
         .blocks
-        .iter()
-        .map(|block| (block.name, *block))
+        .into_iter()
+        .map(|block| &*Box::leak(Box::new(block)))
         .collect();
 
+    let by_name = blocks.iter().map(|block| (block.name, *block)).collect();
+
     // Zero means the block has no item, so it is not something anything can place.
-    let by_item = staged
-        .blocks
+    let by_item = blocks
         .iter()
         .filter(|block| block.item_id != 0)
         .map(|block| (block.item_id, *block))
@@ -226,7 +233,7 @@ pub(super) fn publish() {
     // Ignores the result: a second freeze leaves the first publication in place.
     let _ = FROZEN.set(FrozenBlocks {
         properties: staged.properties.into_iter().collect(),
-        blocks: staged.blocks,
+        blocks,
         states: staged.states,
         state_owners: staged.state_owners,
         by_name,
@@ -348,6 +355,60 @@ pub fn registering_block_id(name: &str) -> Option<BlockId> {
         .iter()
         .find(|block| block.name == name)
         .map(|block| block.id)
+}
+
+/// Links a staged block to the item that places it.
+///
+/// Exists because of registration order: mods register every block before any item, so
+/// when the block arrived its item did not exist yet, and by the time the item registers
+/// the block is already staged. This reaches back and completes the pair.
+///
+/// # Errors
+///
+/// Returns [`RegistryError::Frozen`] if the registry is frozen, and
+/// [`RegistryError::UnknownName`] if no staged block has that name -- a published block
+/// cannot be linked (its `item_id` is already final), and a name that was never
+/// registered is a caller mistake worth hearing about.
+pub fn link_block_item(block_name: &str, item_id: u16) -> Result<(), RegistryError> {
+    if super::is_frozen() {
+        return Err(RegistryError::Frozen);
+    }
+
+    let mut guard = STAGING
+        .lock()
+        .unwrap_or_else(std::sync::PoisonError::into_inner);
+    let staged = guard
+        .as_mut()
+        .and_then(|staging| {
+            staging
+                .blocks
+                .iter_mut()
+                .find(|block| block.name == block_name)
+        })
+        .ok_or_else(|| RegistryError::UnknownName(block_name.to_string()))?;
+
+    staged.item_id = item_id;
+    Ok(())
+}
+
+/// The item id a staged or published block is linked to, by name. Zero means no item.
+///
+/// Exists for the same reason as [`registering_block_hardness`]: so a test can prove a
+/// link made through a host sink actually landed, without freezing the registry.
+#[must_use]
+pub fn registering_block_item_id(name: &str) -> Option<u16> {
+    if let Some(block) = block_from_name(name) {
+        return Some(block.item_id);
+    }
+
+    STAGING
+        .lock()
+        .unwrap_or_else(std::sync::PoisonError::into_inner)
+        .as_ref()?
+        .blocks
+        .iter()
+        .find(|block| block.name == name)
+        .map(|block| block.item_id)
 }
 
 /// The hardness a staged or published block carries, by name.

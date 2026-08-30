@@ -1295,4 +1295,42 @@ edit('net/minecraft/world/item/Item.java', [
 ])
 
 
+# ---------------------------------------------- items, declared properties + block link
+
+edit('net/minecraft/world/item/Item.java', [
+    ('    public Item(Item.Properties properties) {\n    }',
+     "    // Pumpkin divergence: kept, not discarded. The registration sink reads the declared\n    // stack size and durability off this on the way to Pumpkin.\n    private Item.Properties pumpkinItemProperties;\n\n    public Item(Item.Properties properties) {\n        this.pumpkinItemProperties = properties;\n    }\n\n    // Pumpkin divergence: no vanilla counterpart. -1 means the mod did not say.\n    public int pumpkinMaxStackSize() {\n        return pumpkinItemProperties == null ? -1 : pumpkinItemProperties.pumpkinMaxStackSize();\n    }\n\n    // Pumpkin divergence: no vanilla counterpart. -1 means the mod did not say.\n    public int pumpkinMaxDamage() {\n        return pumpkinItemProperties == null ? -1 : pumpkinItemProperties.pumpkinMaxDamage();\n    }\n\n    // Pumpkin divergence: no vanilla counterpart. The block this item places, or null for\n    // an ordinary item; BlockItem overrides it. Read by the registration sinks so a block\n    // and its item end up linked in Pumpkin's registry.\n    public String pumpkinPlacedBlockId() {\n        return null;\n    }"),
+    ('        // Pumpkin divergence: real body. Item metadata Pumpkin does not model yet;\n\n        // accepted and dropped, chain returns `this`.\n\n        public Item.Properties stacksTo(int max) {\n\n            return this;\n\n        }',
+     '        // Pumpkin divergence: real body. Recorded so the registration sink can carry it;\n        // -1 means the mod did not say.\n        private int pumpkinMaxStackSize = -1;\n\n        private int pumpkinMaxDamage = -1;\n\n        int pumpkinMaxStackSize() {\n            return pumpkinMaxStackSize;\n        }\n\n        int pumpkinMaxDamage() {\n            return pumpkinMaxDamage;\n        }\n\n        public Item.Properties stacksTo(int max) {\n            this.pumpkinMaxStackSize = max;\n            return this;\n        }'),
+    ('        // Pumpkin divergence: real body. Item metadata Pumpkin does not model yet;\n\n        // accepted and dropped, chain returns `this`.\n\n        public Item.Properties durability(int maxDamage) {\n\n            return this;\n\n        }',
+     '        // Pumpkin divergence: real body. Recorded so the registration sink can carry it.\n        public Item.Properties durability(int maxDamage) {\n            this.pumpkinMaxDamage = maxDamage;\n            return this;\n        }'),
+])
+
+
+edit('net/minecraft/world/item/BlockItem.java', [
+    ('    public BlockItem(Block block, Item.Properties properties) {\n    }',
+     '    // Pumpkin divergence: the block is kept, not discarded. pumpkinPlacedBlockId() below\n    // is how the registration sink learns which block this item places.\n    private Block pumpkinBlock;\n\n    public BlockItem(Block block, Item.Properties properties) {\n        super(properties);\n        this.pumpkinBlock = block;\n    }\n\n    @Override\n    public String pumpkinPlacedBlockId() {\n        return pumpkinBlock == null ? null : pumpkinBlock.pumpkinRegisteredId();\n    }'),
+])
+
+
+edit('net/minecraft/world/level/block/Block.java', [
+    ('    public String pumpkinTemplate() {\n        return pumpkinProperties.template();\n    }',
+     "    public String pumpkinTemplate() {\n        return pumpkinProperties.template();\n    }\n\n    // Pumpkin divergence: no vanilla counterpart. Set by the registration sinks when this\n    // block registers; read back when its BlockItem registers later, so the two can be\n    // linked. Null until then -- an unregistered block's item places nothing.\n    private String pumpkinRegisteredId;\n\n    public void pumpkinSetRegisteredId(String id) {\n        this.pumpkinRegisteredId = id;\n    }\n\n    public String pumpkinRegisteredId() {\n        return pumpkinRegisteredId;\n    }"),
+])
+
+
+edit('net/neoforged/neoforge/registries/DeferredRegister.java', [
+    ('        default int registerItem(String id, String template) {\n            throw new IllegalStateException("this sink cannot register items: " + id);\n        }',
+     '        default int registerItem(String id, String template) {\n            throw new IllegalStateException("this sink cannot register items: " + id);\n        }\n\n        // Pumpkin divergence: the wide path, mirroring the block one above. stacksTo()\n        // and durability() record onto Item.Properties precisely so these can arrive;\n        // blockId links a BlockItem to the block it places. Default drops them so\n        // single-method test sinks keep working -- the production sink overrides it.\n        default int registerItem(String id, String template, int maxStackSize,\n                int maxDamage, String blockId) {\n            return registerItem(id, template);\n        }'),
+    ('            if (object instanceof Block block) {\n                net.minecraft.world.level.block.state.BlockBehaviour.Properties props = block.pumpkinProperties();\n                pumpkinSink.registerBlock(holder.getId().toString(), block.pumpkinTemplate(),\n                        props.pumpkinDestroyTime(), props.pumpkinExplosionResistance(),\n                        props.pumpkinRequiresTool());\n            } else if (object instanceof net.minecraft.world.item.Item item) {\n                pumpkinSink.registerItem(holder.getId().toString(), item.pumpkinTemplate());\n            } else {',
+     '            if (object instanceof Block block) {\n                net.minecraft.world.level.block.state.BlockBehaviour.Properties props = block.pumpkinProperties();\n                // Recorded on the block so its BlockItem, registering later, can name it.\n                block.pumpkinSetRegisteredId(holder.getId().toString());\n                pumpkinSink.registerBlock(holder.getId().toString(), block.pumpkinTemplate(),\n                        props.pumpkinDestroyTime(), props.pumpkinExplosionResistance(),\n                        props.pumpkinRequiresTool());\n            } else if (object instanceof net.minecraft.world.item.Item item) {\n                pumpkinSink.registerItem(holder.getId().toString(), item.pumpkinTemplate(),\n                        item.pumpkinMaxStackSize(), item.pumpkinMaxDamage(),\n                        item.pumpkinPlacedBlockId());\n            } else {'),
+])
+
+
+edit('net/neoforged/neoforge/registries/RegisterEvent.java', [
+    ('            if (value instanceof net.minecraft.world.level.block.Block block) {\n                net.minecraft.world.level.block.state.BlockBehaviour.Properties props = block.pumpkinProperties();\n                DeferredRegister.pumpkinSink().registerBlock(name.toString(), block.pumpkinTemplate(),\n                        props.pumpkinDestroyTime(), props.pumpkinExplosionResistance(),\n                        props.pumpkinRequiresTool());\n            } else if (value instanceof net.minecraft.world.item.Item item) {\n                DeferredRegister.pumpkinSink().registerItem(name.toString(), item.pumpkinTemplate());\n            } else {',
+     '            if (value instanceof net.minecraft.world.level.block.Block block) {\n                net.minecraft.world.level.block.state.BlockBehaviour.Properties props = block.pumpkinProperties();\n                // Recorded on the block so its BlockItem, registering later, can name it.\n                block.pumpkinSetRegisteredId(name.toString());\n                DeferredRegister.pumpkinSink().registerBlock(name.toString(), block.pumpkinTemplate(),\n                        props.pumpkinDestroyTime(), props.pumpkinExplosionResistance(),\n                        props.pumpkinRequiresTool());\n            } else if (value instanceof net.minecraft.world.item.Item item) {\n                DeferredRegister.pumpkinSink().registerItem(name.toString(), item.pumpkinTemplate(),\n                        item.pumpkinMaxStackSize(), item.pumpkinMaxDamage(),\n                        item.pumpkinPlacedBlockId());\n            } else {'),
+])
+
+
 commit()

@@ -190,6 +190,63 @@ fn java_can_register_an_item() {
 }
 
 #[test]
+fn a_block_item_links_to_its_block() {
+    let vm = pumpkin::plugin::loader::jvm::vm::boot(&host_classpath()).expect("the VM boots");
+
+    // Block first, item second — the order every mod uses, and the reason the link has to
+    // reach back into a staged block instead of arriving with the block itself.
+    let item_id = vm
+        .call(|env| {
+            let block_id = env
+                .new_string("testmod:sapphire_block")
+                .map_err(|err| pumpkin::plugin::loader::jvm::vm::VmError::Java(err.to_string()))?;
+            let template = env
+                .new_string("stone")
+                .map_err(|err| pumpkin::plugin::loader::jvm::vm::VmError::Java(err.to_string()))?;
+            env.call_static_method(
+                "dev/pumpkin/jvmhost/PumpkinHost",
+                "registerBlock",
+                "(Ljava/lang/String;Ljava/lang/String;)I",
+                &[(&block_id).into(), (&template).into()],
+            )
+            .and_then(jni::objects::JValueGen::i)
+            .map_err(|err| pumpkin::plugin::loader::jvm::vm::VmError::Java(err.to_string()))?;
+
+            let id = env
+                .new_string("testmod:sapphire_block_item")
+                .map_err(|err| pumpkin::plugin::loader::jvm::vm::VmError::Java(err.to_string()))?;
+            let item_template = env
+                .new_string("stone")
+                .map_err(|err| pumpkin::plugin::loader::jvm::vm::VmError::Java(err.to_string()))?;
+            let placed = env
+                .new_string("testmod:sapphire_block")
+                .map_err(|err| pumpkin::plugin::loader::jvm::vm::VmError::Java(err.to_string()))?;
+            env.call_static_method(
+                "dev/pumpkin/jvmhost/PumpkinHost",
+                "registerItemWithProperties",
+                "(Ljava/lang/String;Ljava/lang/String;IILjava/lang/String;)I",
+                &[
+                    (&id).into(),
+                    (&item_template).into(),
+                    16i32.into(),
+                    (-1i32).into(),
+                    (&placed).into(),
+                ],
+            )
+            .and_then(jni::objects::JValueGen::i)
+            .map_err(|err| pumpkin::plugin::loader::jvm::vm::VmError::Java(err.to_string()))
+        })
+        .expect("both registrations succeed");
+
+    assert!(item_id > 0, "a real item id was assigned, got {item_id}");
+    assert_eq!(
+        pumpkin_data::dynamic::registering_block_item_id("testmod:sapphire_block"),
+        Some(u16::try_from(item_id).unwrap()),
+        "the staged block was linked to the item that places it"
+    );
+}
+
+#[test]
 fn the_loader_claims_jars_and_nothing_else() {
     use pumpkin::plugin::loader::{PluginLoader, jvm::JvmPluginLoader};
 

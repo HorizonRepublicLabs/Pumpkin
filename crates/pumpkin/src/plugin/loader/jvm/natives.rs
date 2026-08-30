@@ -43,6 +43,11 @@ pub fn bind(env: &mut JNIEnv) -> Result<(), VmError> {
                 sig: "(Ljava/lang/String;Ljava/lang/String;)I".into(),
                 fn_ptr: register_item_native as *mut std::ffi::c_void,
             },
+            NativeMethod {
+                name: "registerItemWithProperties".into(),
+                sig: "(Ljava/lang/String;Ljava/lang/String;IILjava/lang/String;)I".into(),
+                fn_ptr: register_item_with_properties_native as *mut std::ffi::c_void,
+            },
         ],
     )
     .map_err(|err| VmError::Java(format!("Failed to bind PumpkinHost natives: {err}")))
@@ -159,30 +164,120 @@ extern "system" fn register_item_native(
     id: JString,
     template: JString,
 ) -> jint {
-    let Some(id) = read_string(&mut env, &id, "the item id") else {
+    register_item_impl(&mut env, &id, &template, None, None, None)
+}
+
+extern "system" fn register_item_with_properties_native(
+    mut env: JNIEnv,
+    _class: JClass,
+    id: JString,
+    template: JString,
+    max_stack_size: jint,
+    max_damage: jint,
+    block: JString,
+) -> jint {
+    // -1 is the Java side's "the mod did not say"; the template's component applies. A
+    // null block string means the item places nothing.
+    let block_name = if block.is_null() {
+        None
+    } else {
+        match read_string(&mut env, &block, "the placed block id") {
+            Some(name) => Some(name),
+            None => return 0,
+        }
+    };
+    register_item_impl(
+        &mut env,
+        &id,
+        &template,
+        (max_stack_size >= 0).then_some(max_stack_size),
+        (max_damage >= 0).then_some(max_damage),
+        block_name,
+    )
+}
+
+fn register_item_impl(
+    env: &mut JNIEnv,
+    id: &JString,
+    template: &JString,
+    max_stack_size: Option<jint>,
+    max_damage: Option<jint>,
+    block: Option<String>,
+) -> jint {
+    use pumpkin_data::data_component::DataComponent;
+    use pumpkin_data::data_component_impl::{DataComponentImpl, MaxDamageImpl, MaxStackSizeImpl};
+
+    let Some(id) = read_string(env, id, "the item id") else {
         return 0;
     };
-    let Some(template) = read_string(&mut env, &template, "the item template") else {
+    let Some(template) = read_string(env, template, "the item template") else {
         return 0;
     };
 
     // Same shape as the WASM host's register_item: the template is an existing item whose
-    // definition (components, stack size) the new item copies. Behaviour beyond that —
-    // right-click handlers, tools acting like tools — is a future slice, exactly like the
-    // dropped `first_state`/`drops` on blocks above.
+    // definition (components, stack size) the new item copies. Behaviour beyond what a
+    // component can carry — right-click handlers, tools acting like tools — is a future
+    // slice, exactly like the dropped `first_state`/`drops` on blocks above.
     let Some(template_item) = Item::from_registry_key(&template) else {
-        throw(&mut env, &format!("unknown item template {template}"));
+        throw(env, &format!("unknown item template {template}"));
         return 0;
     };
 
-    match pumpkin_data::dynamic::register_item(pumpkin_data::dynamic::ItemRegistration {
-        name: id,
-        item: template_item.clone(),
-    }) {
-        Ok(assigned) => jint::from(assigned),
-        Err(err) => {
-            throw(&mut env, &err.to_string());
-            0
-        }
+    let mut item = template_item.clone();
+
+    // A declared property replaces the template's component wholesale. The vec is leaked
+    // for the same reason every dynamic registry entry is: the item outlives every reader.
+    let mut overrides: Vec<(DataComponent, &'static dyn DataComponentImpl)> = Vec::new();
+    if let Some(size) = max_stack_size {
+        let Ok(size) = u8::try_from(size) else {
+            throw(env, &format!("max stack size {size} does not fit in a u8"));
+            return 0;
+        };
+        overrides.push((
+            DataComponent::MaxStackSize,
+            Box::leak(Box::new(MaxStackSizeImpl { size })),
+        ));
     }
+    if let Some(max_damage) = max_damage {
+        overrides.push((
+            DataComponent::MaxDamage,
+            Box::leak(Box::new(MaxDamageImpl { max_damage })),
+        ));
+    }
+    if !overrides.is_empty() {
+        let mut components: Vec<(DataComponent, &'static dyn DataComponentImpl)> = item
+            .components
+            .iter()
+            .filter(|(kind, _)| !overrides.iter().any(|(new_kind, _)| new_kind == kind))
+            .copied()
+            .collect();
+        components.extend(overrides);
+        item.components = Box::leak(components.into_boxed_slice());
+    }
+
+    let assigned =
+        match pumpkin_data::dynamic::register_item(pumpkin_data::dynamic::ItemRegistration {
+            name: id,
+            item,
+        }) {
+            Ok(assigned) => assigned,
+            Err(err) => {
+                throw(env, &err.to_string());
+                return 0;
+            }
+        };
+
+    // Mods register every block before any item, so the block is already staged by the
+    // time its placing item shows up; the link reaches back and completes the pair.
+    if let Some(block_name) = block
+        && let Err(err) = pumpkin_data::dynamic::link_block_item(&block_name, assigned)
+    {
+        throw(
+            env,
+            &format!("could not link {block_name} to its item: {err}"),
+        );
+        return 0;
+    }
+
+    jint::from(assigned)
 }

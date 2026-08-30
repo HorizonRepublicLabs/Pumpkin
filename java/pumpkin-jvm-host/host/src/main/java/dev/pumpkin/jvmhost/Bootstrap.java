@@ -48,6 +48,13 @@ public final class Bootstrap {
             public int registerItem(String id, String template) {
                 return PumpkinHost.registerItem(id, template);
             }
+
+            @Override
+            public int registerItem(String id, String template, int maxStackSize,
+                    int maxDamage, String blockId) {
+                return PumpkinHost.registerItemWithProperties(id, template, maxStackSize,
+                        maxDamage, blockId);
+            }
         });
     }
 

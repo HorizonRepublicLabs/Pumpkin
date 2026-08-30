@@ -74,6 +74,19 @@ public class Block extends BlockBehaviour implements ItemLike, IBlockExtension {
         return pumpkinProperties.template();
     }
 
+    // Pumpkin divergence: no vanilla counterpart. Set by the registration sinks when this
+    // block registers; read back when its BlockItem registers later, so the two can be
+    // linked. Null until then -- an unregistered block's item places nothing.
+    private String pumpkinRegisteredId;
+
+    public void pumpkinSetRegisteredId(String id) {
+        this.pumpkinRegisteredId = id;
+    }
+
+    public String pumpkinRegisteredId() {
+        return pumpkinRegisteredId;
+    }
+
     // Pumpkin divergence: no vanilla counterpart. The registration sinks read the recorded
     // strength and tool requirement off this on the way to Pumpkin.
     public BlockBehaviour.Properties pumpkinProperties() {

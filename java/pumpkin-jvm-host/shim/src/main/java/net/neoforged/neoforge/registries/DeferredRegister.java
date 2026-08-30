@@ -47,6 +47,15 @@ public class DeferredRegister<T> {
         default int registerItem(String id, String template) {
             throw new IllegalStateException("this sink cannot register items: " + id);
         }
+
+        // Pumpkin divergence: the wide path, mirroring the block one above. stacksTo()
+        // and durability() record onto Item.Properties precisely so these can arrive;
+        // blockId links a BlockItem to the block it places. Default drops them so
+        // single-method test sinks keep working -- the production sink overrides it.
+        default int registerItem(String id, String template, int maxStackSize,
+                int maxDamage, String blockId) {
+            return registerItem(id, template);
+        }
     }
 
     private static Sink pumpkinSink = (id, template) -> {
@@ -141,11 +150,15 @@ public class DeferredRegister<T> {
             Object object = holder.get();
             if (object instanceof Block block) {
                 net.minecraft.world.level.block.state.BlockBehaviour.Properties props = block.pumpkinProperties();
+                // Recorded on the block so its BlockItem, registering later, can name it.
+                block.pumpkinSetRegisteredId(holder.getId().toString());
                 pumpkinSink.registerBlock(holder.getId().toString(), block.pumpkinTemplate(),
                         props.pumpkinDestroyTime(), props.pumpkinExplosionResistance(),
                         props.pumpkinRequiresTool());
             } else if (object instanceof net.minecraft.world.item.Item item) {
-                pumpkinSink.registerItem(holder.getId().toString(), item.pumpkinTemplate());
+                pumpkinSink.registerItem(holder.getId().toString(), item.pumpkinTemplate(),
+                        item.pumpkinMaxStackSize(), item.pumpkinMaxDamage(),
+                        item.pumpkinPlacedBlockId());
             } else {
                 pumpkinWarnUnsupported(pumpkinRegistryKey.identifier().toString(),
                         holder.getId().toString());

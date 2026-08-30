@@ -53,7 +53,29 @@ public class Item implements ItemLike, FeatureElement, IItemExtension {
         throw Unimplemented.forMember("net/minecraft/world/item/Item.byId:(I)Lnet/minecraft/world/item/Item;");
     }
 
+    // Pumpkin divergence: kept, not discarded. The registration sink reads the declared
+    // stack size and durability off this on the way to Pumpkin.
+    private Item.Properties pumpkinItemProperties;
+
     public Item(Item.Properties properties) {
+        this.pumpkinItemProperties = properties;
+    }
+
+    // Pumpkin divergence: no vanilla counterpart. -1 means the mod did not say.
+    public int pumpkinMaxStackSize() {
+        return pumpkinItemProperties == null ? -1 : pumpkinItemProperties.pumpkinMaxStackSize();
+    }
+
+    // Pumpkin divergence: no vanilla counterpart. -1 means the mod did not say.
+    public int pumpkinMaxDamage() {
+        return pumpkinItemProperties == null ? -1 : pumpkinItemProperties.pumpkinMaxDamage();
+    }
+
+    // Pumpkin divergence: no vanilla counterpart. The block this item places, or null for
+    // an ordinary item; BlockItem overrides it. Read by the registration sinks so a block
+    // and its item end up linked in Pumpkin's registry.
+    public String pumpkinPlacedBlockId() {
+        return null;
     }
 
     // Pumpkin divergence: no vanilla counterpart. Pumpkin registers an item by copying an
@@ -153,24 +175,29 @@ public class Item implements ItemLike, FeatureElement, IItemExtension {
 
         }
 
-        // Pumpkin divergence: real body. Item metadata Pumpkin does not model yet;
+        // Pumpkin divergence: real body. Recorded so the registration sink can carry it;
+        // -1 means the mod did not say.
+        private int pumpkinMaxStackSize = -1;
 
-        // accepted and dropped, chain returns `this`.
+        private int pumpkinMaxDamage = -1;
 
-        public Item.Properties stacksTo(int max) {
-
-            return this;
-
+        int pumpkinMaxStackSize() {
+            return pumpkinMaxStackSize;
         }
 
-        // Pumpkin divergence: real body. Item metadata Pumpkin does not model yet;
+        int pumpkinMaxDamage() {
+            return pumpkinMaxDamage;
+        }
 
-        // accepted and dropped, chain returns `this`.
-
-        public Item.Properties durability(int maxDamage) {
-
+        public Item.Properties stacksTo(int max) {
+            this.pumpkinMaxStackSize = max;
             return this;
+        }
 
+        // Pumpkin divergence: real body. Recorded so the registration sink can carry it.
+        public Item.Properties durability(int maxDamage) {
+            this.pumpkinMaxDamage = maxDamage;
+            return this;
         }
 
         // Pumpkin divergence: real body. Item metadata Pumpkin does not model yet;

@@ -31,11 +31,15 @@ public class RegisterEvent extends Event implements IModBusEvent {
             DeferredHolder.pumpkinRecordValue(registryKey.identifier().toString(), name, value);
             if (value instanceof net.minecraft.world.level.block.Block block) {
                 net.minecraft.world.level.block.state.BlockBehaviour.Properties props = block.pumpkinProperties();
+                // Recorded on the block so its BlockItem, registering later, can name it.
+                block.pumpkinSetRegisteredId(name.toString());
                 DeferredRegister.pumpkinSink().registerBlock(name.toString(), block.pumpkinTemplate(),
                         props.pumpkinDestroyTime(), props.pumpkinExplosionResistance(),
                         props.pumpkinRequiresTool());
             } else if (value instanceof net.minecraft.world.item.Item item) {
-                DeferredRegister.pumpkinSink().registerItem(name.toString(), item.pumpkinTemplate());
+                DeferredRegister.pumpkinSink().registerItem(name.toString(), item.pumpkinTemplate(),
+                        item.pumpkinMaxStackSize(), item.pumpkinMaxDamage(),
+                        item.pumpkinPlacedBlockId());
             } else {
                 DeferredRegister.pumpkinWarnUnsupported(registryKey.identifier().toString(), name.toString());
             }

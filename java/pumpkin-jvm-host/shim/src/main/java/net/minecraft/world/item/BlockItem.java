@@ -10,7 +10,18 @@ import dev.pumpkin.shim.Unimplemented;
 
 public class BlockItem extends Item {
 
+    // Pumpkin divergence: the block is kept, not discarded. pumpkinPlacedBlockId() below
+    // is how the registration sink learns which block this item places.
+    private Block pumpkinBlock;
+
     public BlockItem(Block block, Item.Properties properties) {
+        super(properties);
+        this.pumpkinBlock = block;
+    }
+
+    @Override
+    public String pumpkinPlacedBlockId() {
+        return pumpkinBlock == null ? null : pumpkinBlock.pumpkinRegisteredId();
     }
 
     public InteractionResult useOn(UseOnContext context) {
