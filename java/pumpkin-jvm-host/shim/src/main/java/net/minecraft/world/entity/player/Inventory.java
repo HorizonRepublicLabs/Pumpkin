@@ -60,8 +60,10 @@ public class Inventory implements Container, Nameable {
         throw Unimplemented.forMember("net/minecraft/world/entity/player/Inventory.removeItemNoUpdate:(I)Lnet/minecraft/world/item/ItemStack;");
     }
 
-    public void setItem(int slot, ItemStack itemStack) {
-        throw Unimplemented.forMember("net/minecraft/world/entity/player/Inventory.setItem:(ILnet/minecraft/world/item/ItemStack;)V");
+    public void setItem(int index, ItemStack stack) {
+        if (index >= 0 && index < pumpkinItems.size()) {
+            pumpkinItems.set(index, stack);
+        }
     }
 
     public void load(ValueInput.TypedInputList<ItemStackWithSlot> input) {

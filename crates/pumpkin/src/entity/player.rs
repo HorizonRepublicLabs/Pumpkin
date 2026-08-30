@@ -5339,6 +5339,20 @@ impl Player {
     pub async fn on_slot_click(self: &Arc<Self>, packet: SClickSlot, server: &Arc<Server>) {
         self.update_last_action_time();
 
+        // A window id of 100 or more belongs to a JVM mod menu; its clicks run the mod's
+        // own menu logic through the bridge, not the screen-handler machinery below.
+        #[cfg(feature = "jvm-plugins")]
+        if crate::plugin::loader::jvm::handle_menu_click(
+            self,
+            packet.sync_id.0,
+            packet.slot,
+            packet.button,
+            i32::from(packet.mode.clone() as u8),
+            &self.world(),
+        ) {
+            return;
+        }
+
         let (
             sync_id,
             container_slots,

@@ -1911,4 +1911,96 @@ edit('net/neoforged/neoforge/transfer/item/ResourceHandlerSlot.java', [
      '    protected void setStackCopy(ItemStack stack) {\n        if (pumpkinHandler instanceof net.neoforged.neoforge.transfer.StacksResourceHandler<?, ItemResource> stacks) {\n            stacks.set(pumpkinHandlerSlot, ItemResource.of(stack), stack.count());\n        } else {\n            throw dev.pumpkin.shim.Unimplemented.forMember(\n                    "net/neoforged/neoforge/transfer/item/ResourceHandlerSlot.setStackCopy (non-stack handler)");\n        }\n    }'),
 ])
 
+# ------------------------------------------------------- menus S2, click machinery
+
+edit('net/minecraft/world/inventory/Slot.java', [
+    ('    public boolean mayPlace(ItemStack itemStack) {\n        throw Unimplemented.forMember("net/minecraft/world/inventory/Slot.mayPlace:(Lnet/minecraft/world/item/ItemStack;)Z");\n    }',
+     "    // Pumpkin divergence: vanilla bodies for the click machinery. mayPlace/mayPickup\n    // default open, exactly as vanilla's base slot does; subclasses narrow them.\n    public boolean mayPlace(ItemStack itemStack) {\n        return true;\n    }\n\n    public boolean mayPickup(net.minecraft.world.entity.player.Player player) {\n        return true;\n    }"),
+])
+
+edit('net/minecraft/world/inventory/Slot.java', [
+    ('    public boolean hasItem() {\n        throw Unimplemented.forMember("net/minecraft/world/inventory/Slot.hasItem:()Z");\n    }',
+     '    public boolean hasItem() {\n        return !getItem().isEmpty();\n    }'),
+])
+
+edit('net/minecraft/world/inventory/Slot.java', [
+    ('    public void set(ItemStack itemStack) {\n        throw Unimplemented.forMember("net/minecraft/world/inventory/Slot.set:(Lnet/minecraft/world/item/ItemStack;)V");\n    }',
+     '    public void set(ItemStack itemStack) {\n        container.setItem(pumpkinContainerSlot, itemStack);\n        setChanged();\n    }'),
+])
+
+edit('net/minecraft/world/inventory/Slot.java', [
+    ('    public void setChanged() {\n        throw Unimplemented.forMember("net/minecraft/world/inventory/Slot.setChanged:()V");\n    }',
+     "    public void setChanged() {\n        // Nothing to mark: the click bridge serialises the menu's state after every\n        // click regardless.\n    }"),
+])
+
+edit('net/minecraft/world/inventory/Slot.java', [
+    ('    public int getMaxStackSize() {\n        throw Unimplemented.forMember("net/minecraft/world/inventory/Slot.getMaxStackSize:()I");\n    }',
+     '    public int getMaxStackSize() {\n        return 64;\n    }'),
+])
+
+edit('net/minecraft/world/inventory/Slot.java', [
+    ('    public ItemStack remove(int amount) {\n        throw Unimplemented.forMember("net/minecraft/world/inventory/Slot.remove:(I)Lnet/minecraft/world/item/ItemStack;");\n    }',
+     '    public ItemStack remove(int amount) {\n        ItemStack current = getItem();\n        if (current.isEmpty() || amount <= 0) {\n            return ItemStack.EMPTY;\n        }\n        int taken = Math.min(amount, current.count());\n        ItemStack removed = current.copyWithCount(taken);\n        set(current.count() == taken ? ItemStack.EMPTY\n                : current.copyWithCount(current.count() - taken));\n        return removed;\n    }'),
+])
+
+edit('net/minecraft/world/inventory/Slot.java', [
+    ('    public void onTake(Player player, ItemStack carried) {\n        throw Unimplemented.forMember("net/minecraft/world/inventory/Slot.onTake:(Lnet/minecraft/world/entity/player/Player;Lnet/minecraft/world/item/ItemStack;)V");\n    }',
+     '    public void onTake(Player player, ItemStack carried) {\n        // Vanilla hooks crafting stats here; the base has nothing to do.\n    }'),
+])
+
+edit('net/minecraft/world/inventory/AbstractContainerMenu.java', [
+    ('    protected boolean moveItemStackTo(ItemStack itemStack, int startSlot, int endSlot, boolean backwards) {\n        throw Unimplemented.forMember("net/minecraft/world/inventory/AbstractContainerMenu.moveItemStackTo:(Lnet/minecraft/world/item/ItemStack;IIZ)Z");\n    }',
+     "    // Pumpkin divergence: vanilla's merge algorithm, the workhorse every mod's\n    // quickMoveStack leans on -- fill matching stacks first, then empty slots.\n    protected boolean moveItemStackTo(ItemStack itemStack, int startSlot, int endSlot, boolean backwards) {\n        boolean moved = false;\n        int index = backwards ? endSlot - 1 : startSlot;\n        while (itemStack.count() > 0 && (backwards ? index >= startSlot : index < endSlot)) {\n            Slot slot = slots.get(index);\n            ItemStack existing = slot.getItem();\n            if (!existing.isEmpty() && existing.getItem() == itemStack.getItem()) {\n                int total = existing.count() + itemStack.count();\n                int max = Math.min(slot.getMaxStackSize(), 64);\n                if (total <= max) {\n                    slot.set(existing.copyWithCount(total));\n                    pumpkinShrink(itemStack, itemStack.count());\n                    moved = true;\n                } else if (existing.count() < max) {\n                    int adding = max - existing.count();\n                    slot.set(existing.copyWithCount(max));\n                    pumpkinShrink(itemStack, adding);\n                    moved = true;\n                }\n            }\n            index += backwards ? -1 : 1;\n        }\n        if (itemStack.count() > 0) {\n            index = backwards ? endSlot - 1 : startSlot;\n            while (backwards ? index >= startSlot : index < endSlot) {\n                Slot slot = slots.get(index);\n                if (!slot.hasItem() && slot.mayPlace(itemStack)) {\n                    int placing = Math.min(itemStack.count(), slot.getMaxStackSize());\n                    slot.set(itemStack.copyWithCount(placing));\n                    pumpkinShrink(itemStack, placing);\n                    moved = true;\n                    if (itemStack.count() <= 0) {\n                        break;\n                    }\n                }\n                index += backwards ? -1 : 1;\n            }\n        }\n        return moved;\n    }\n\n    // ItemStack counts are immutable in this shim (copyWithCount replaces); the caller's\n    // stack is shrunk by swapping its contents through the carried reference the click\n    // bridge owns. Tracked here as a mutable count on the wrapper.\n    private void pumpkinShrink(ItemStack stack, int by) {\n        stack.pumpkinShrink(by);\n    }\n\n    // Pumpkin divergence: the carried stack -- vanilla keeps it on the menu too.\n    private ItemStack pumpkinCarried = ItemStack.EMPTY;\n\n    public ItemStack getCarried() {\n        return pumpkinCarried;\n    }\n\n    public void setCarried(ItemStack stack) {\n        this.pumpkinCarried = stack;\n    }"),
+])
+
+edit('net/minecraft/world/inventory/AbstractContainerMenu.java', [
+    ('    public Slot getSlot(int index) {\n        throw Unimplemented.forMember("net/minecraft/world/inventory/AbstractContainerMenu.getSlot:(I)Lnet/minecraft/world/inventory/Slot;");\n    }',
+     '    public Slot getSlot(int index) {\n        return slots.get(index);\n    }'),
+])
+
+edit('net/minecraft/world/entity/player/Inventory.java', [
+    ('    public void setItem(int slot, ItemStack itemStack) {\n        throw Unimplemented.forMember("net/minecraft/world/entity/player/Inventory.setItem:(ILnet/minecraft/world/item/ItemStack;)V");\n    }',
+     '    public void setItem(int index, ItemStack stack) {\n        if (index >= 0 && index < pumpkinItems.size()) {\n            pumpkinItems.set(index, stack);\n        }\n    }'),
+])
+
+edit('net/neoforged/neoforge/transfer/StacksResourceHandler.java', [
+    ('    public boolean isValid(int index, T resource) {\n        throw Unimplemented.forMember("net/neoforged/neoforge/transfer/StacksResourceHandler.isValid:(ILnet/neoforged/neoforge/transfer/resource/Resource;)Z");\n    }',
+     "    // Pumpkin divergence: vanilla's base answer; subclasses narrow.\n    public boolean isValid(int index, T resource) {\n        return true;\n    }"),
+])
+
+edit('net/neoforged/neoforge/transfer/item/ResourceHandlerSlot.java', [
+    ('    public boolean mayPlace(ItemStack stack) {\n        throw Unimplemented.forMember("net/neoforged/neoforge/transfer/item/ResourceHandlerSlot.mayPlace:(Lnet/minecraft/world/item/ItemStack;)Z");\n    }',
+     '    // Pumpkin divergence: NeoForge shape -- ask the handler.\n    public boolean mayPlace(ItemStack stack) {\n        return pumpkinHandler.isValid(pumpkinHandlerSlot, ItemResource.of(stack));\n    }'),
+])
+
+edit('net/neoforged/neoforge/transfer/item/ResourceHandlerSlot.java', [
+    ('    public int getMaxStackSize() {\n        throw Unimplemented.forMember("net/neoforged/neoforge/transfer/item/ResourceHandlerSlot.getMaxStackSize:()I");\n    }',
+     '    public int getMaxStackSize() {\n        return 64;\n    }'),
+])
+
+edit('net/neoforged/neoforge/transfer/item/ResourceHandlerSlot.java', [
+    ('    public int getMaxStackSize(ItemStack stack) {\n        throw Unimplemented.forMember("net/neoforged/neoforge/transfer/item/ResourceHandlerSlot.getMaxStackSize:(Lnet/minecraft/world/item/ItemStack;)I");\n    }',
+     '    public int getMaxStackSize(ItemStack stack) {\n        return 64;\n    }'),
+])
+
+edit('net/neoforged/neoforge/transfer/item/ResourceHandlerSlot.java', [
+    ('    public boolean mayPickup(Player player) {\n        throw Unimplemented.forMember("net/neoforged/neoforge/transfer/item/ResourceHandlerSlot.mayPickup:(Lnet/minecraft/world/entity/player/Player;)Z");\n    }',
+     '    public boolean mayPickup(Player player) {\n        return true;\n    }'),
+])
+
+edit('net/minecraft/world/item/ItemStack.java', [
+    ('    public ItemLike pumpkinItemLike() {\n        return pumpkinItem;\n    }',
+     '    public ItemLike pumpkinItemLike() {\n        return pumpkinItem;\n    }\n\n    // Pumpkin divergence: in-place shrink, for the one algorithm (moveItemStackTo) that\n    // vanilla writes against a mutable count.\n    public void pumpkinShrink(int by) {\n        pumpkinCount = Math.max(0, pumpkinCount - by);\n        if (pumpkinCount == 0) {\n            pumpkinItem = null;\n        }\n    }'),
+])
+
+edit("net/minecraft/world/inventory/Slot.java", [
+    ('    public int getMaxStackSize(ItemStack itemStack) {\n        throw Unimplemented.forMember("net/minecraft/world/inventory/Slot.getMaxStackSize:(Lnet/minecraft/world/item/ItemStack;)I");\n    }',
+     '    public int getMaxStackSize(ItemStack itemStack) {\n        return getMaxStackSize();\n    }'),
+])
+
+edit("net/minecraft/world/item/ItemStack.java", [
+    ('    public ItemStack copy() {\n        throw Unimplemented.forMember("net/minecraft/world/item/ItemStack.copy:()Lnet/minecraft/world/item/ItemStack;");\n    }',
+     '    // Pumpkin divergence: real body.\n    public ItemStack copy() {\n        return copyWithCount(pumpkinCount);\n    }'),
+])
+
 commit()

@@ -1047,7 +1047,7 @@ impl JavaClient {
                 self.handle_close_container(
                     player,
                     server,
-                    SCloseContainer::read(&mut payload, &version)?,
+                    &SCloseContainer::read(&mut payload, &version)?,
                 );
             }
             id if id == SChunkBatch::to_id(version) => {

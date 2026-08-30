@@ -107,6 +107,8 @@ public final class PumpkinInteractions {
         reply.append(";MENU=");
         if (player.pumpkinOpenedMenu() != null) {
             reply.append(player.pumpkinOpenedMenu());
+            String[] parts = player.pumpkinOpenedMenu().split("\\|");
+            PumpkinMenus.bindPosition(Integer.parseInt(parts[1]), x, y, z);
         }
 
         // Whatever the interaction did to the entity travels back as an opaque blob and

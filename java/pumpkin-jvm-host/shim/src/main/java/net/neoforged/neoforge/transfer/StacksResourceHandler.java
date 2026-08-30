@@ -67,8 +67,9 @@ public abstract class StacksResourceHandler<S, T extends Resource> implements Re
         throw Unimplemented.forMember("net/neoforged/neoforge/transfer/StacksResourceHandler.matches:(Ljava/lang/Object;Lnet/neoforged/neoforge/transfer/resource/Resource;)Z");
     }
 
+    // Pumpkin divergence: vanilla's base answer; subclasses narrow.
     public boolean isValid(int index, T resource) {
-        throw Unimplemented.forMember("net/neoforged/neoforge/transfer/StacksResourceHandler.isValid:(ILnet/neoforged/neoforge/transfer/resource/Resource;)Z");
+        return true;
     }
 
     protected abstract int getCapacity(int index, T resource);

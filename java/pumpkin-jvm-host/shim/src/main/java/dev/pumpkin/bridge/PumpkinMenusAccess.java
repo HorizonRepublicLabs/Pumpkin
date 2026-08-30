@@ -19,4 +19,8 @@ public final class PumpkinMenusAccess {
     public static String typeName(AbstractContainerMenu menu) {
         return PumpkinMenus.typeName(menu);
     }
+
+    public static void bindPlayer(int windowId, PumpkinPlayer player) {
+        PumpkinMenus.bindPlayer(windowId, player);
+    }
 }

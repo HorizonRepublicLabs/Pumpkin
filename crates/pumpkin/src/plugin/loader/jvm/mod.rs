@@ -561,6 +561,193 @@ fn install_jvm_tick_hook() {
     }));
 }
 
+/// Routes a container click on a JVM window into the mod's own menu.
+///
+/// Returns true when the click belonged to a JVM menu (window id 100 and up) and was
+/// handled -- the caller must not run its own screen-handler logic for it. The player's
+/// main inventory rides along so the stand-in the menu holds player slots over answers
+/// with real contents, and the reply writes back everything the click changed: menu
+/// slots, carried stack, player inventory and the machine's save blob.
+pub fn handle_menu_click(
+    player: &Arc<crate::entity::player::Player>,
+    window_id: i32,
+    slot: i16,
+    button: i8,
+    mode: i32,
+    world: &Arc<crate::world::World>,
+) -> bool {
+    use pumpkin_protocol::codec::item_stack_seralizer::ItemStackSerializer;
+
+    if window_id < 100 {
+        return false;
+    }
+    let Some(vm) = vm::current() else {
+        return false;
+    };
+
+    let inventory = player.inventory();
+    let player_inv = player_inventory_csv(inventory);
+
+    let reply = vm.call(move |env| {
+        let inv = env
+            .new_string(&player_inv)
+            .map_err(|err| VmError::Java(err.to_string()))?;
+        let returned = env.call_static_method(
+            "dev/pumpkin/bridge/PumpkinMenus",
+            "click",
+            "(IIIILjava/lang/String;)Ljava/lang/String;",
+            &[
+                window_id.into(),
+                i32::from(slot).into(),
+                i32::from(button).into(),
+                mode.into(),
+                (&inv).into(),
+            ],
+        );
+        if env.exception_check().unwrap_or(false) {
+            let _ = env.exception_describe();
+            let _ = env.exception_clear();
+            return Err(VmError::Java("menu click threw".into()));
+        }
+        let object = returned
+            .and_then(jni::objects::JValueGen::l)
+            .map_err(|err| VmError::Java(err.to_string()))?;
+        env.get_string(&jni::objects::JString::from(object))
+            .map(Into::into)
+            .map_err(|err| VmError::Java(err.to_string()))
+    });
+    let reply: String = match reply {
+        Ok(reply) => reply,
+        Err(err) => {
+            tracing::warn!("menu click stopped in the mod: {err}");
+            return true;
+        }
+    };
+    tracing::debug!("menu click {window_id}/{slot}/{mode}: {reply}");
+    if reply == "GONE" {
+        return true;
+    }
+
+    apply_menu_click_reply(&reply, player, world, inventory, window_id);
+    true
+}
+
+/// The player's main 36 slots as `slot:id:count` entries, comma-joined.
+fn player_inventory_csv(
+    inventory: &Arc<pumpkin_inventory::player::player_inventory::PlayerInventory>,
+) -> String {
+    use std::fmt::Write;
+
+    let mut player_inv = String::new();
+    for index in 0..36usize {
+        let stack = pumpkin_world::inventory::Inventory::get_stack(&**inventory, index);
+        if stack.item_count == 0 {
+            continue;
+        }
+        let key = stack.item.registry_key;
+        let id = if key.contains(':') {
+            key.to_string()
+        } else {
+            format!("minecraft:{key}")
+        };
+        if !player_inv.is_empty() {
+            player_inv.push(',');
+        }
+        let _ = write!(player_inv, "{index}:{id}:{}", stack.item_count);
+    }
+    player_inv
+}
+
+/// Applies a click reply: menu slots and carried to the client, player inventory and the
+/// machine's save blob to the server.
+fn apply_menu_click_reply(
+    reply: &str,
+    player: &Arc<crate::entity::player::Player>,
+    world: &Arc<crate::world::World>,
+    inventory: &Arc<pumpkin_inventory::player::player_inventory::PlayerInventory>,
+    window_id: i32,
+) {
+    use pumpkin_protocol::codec::item_stack_seralizer::ItemStackSerializer;
+
+    let mut slots: Vec<pumpkin_data::item_stack::ItemStack> = Vec::new();
+    let mut carried = pumpkin_data::item_stack::ItemStack::EMPTY.clone();
+    let mut pos: Option<pumpkin_util::math::position::BlockPos> = None;
+    for part in reply.split(';') {
+        if let Some(spec) = part.strip_prefix("SLOTS=") {
+            slots = spec
+                .split(',')
+                .filter(|entry| !entry.is_empty())
+                .map(|entry| {
+                    parse_stack(entry)
+                        .unwrap_or_else(|| pumpkin_data::item_stack::ItemStack::EMPTY.clone())
+                })
+                .collect();
+        } else if let Some(spec) = part.strip_prefix("CARRIED=") {
+            carried = parse_stack(spec)
+                .unwrap_or_else(|| pumpkin_data::item_stack::ItemStack::EMPTY.clone());
+        } else if let Some(spec) = part.strip_prefix("PLAYERINV=") {
+            for (index, entry) in spec.split(',').enumerate().take(36) {
+                let stack = parse_stack(entry)
+                    .unwrap_or_else(|| pumpkin_data::item_stack::ItemStack::EMPTY.clone());
+                pumpkin_world::inventory::Inventory::set_stack(&**inventory, index, stack.clone());
+                player.sync_hand_slot(index, stack);
+            }
+        } else if let Some(spec) = part.strip_prefix("POS=") {
+            let coords: Vec<i32> = spec.split(',').filter_map(|c| c.parse().ok()).collect();
+            if coords.len() == 3 {
+                pos = Some(pumpkin_util::math::position::BlockPos::new(
+                    coords[0], coords[1], coords[2],
+                ));
+            }
+        } else if let Some(spec) = part.strip_prefix("DATA=")
+            && !spec.is_empty()
+            && let Some(pos) = pos.as_ref()
+        {
+            write_mod_data(world, pos, spec);
+        }
+    }
+
+    let serialized: Vec<ItemStackSerializer<'_>> = slots
+        .iter()
+        .map(|stack| ItemStackSerializer::from(stack.clone()))
+        .collect();
+    let carried = ItemStackSerializer::from(carried);
+    let content = pumpkin_protocol::java::client::play::CSetContainerContent::new(
+        window_id.into(),
+        0.into(),
+        &serialized,
+        &carried,
+    );
+    let crate::net::ClientPlatform::Java(java) = player.client.as_ref() else {
+        return;
+    };
+    if let Ok(data) = java.serialize_packet(&content) {
+        java.try_enqueue_packet(data);
+    }
+}
+
+/// Forgets a closed JVM menu window. Returns true when the id was one of ours.
+#[must_use]
+pub fn handle_menu_close(window_id: i32) -> bool {
+    if window_id < 100 {
+        return false;
+    }
+    let Some(vm) = vm::current() else {
+        return true;
+    };
+    let _ = vm.call(move |env| {
+        env.call_static_method(
+            "dev/pumpkin/bridge/PumpkinMenus",
+            "close",
+            "(I)V",
+            &[window_id.into()],
+        )
+        .map(|_| ())
+        .map_err(|err| VmError::Java(err.to_string()))
+    });
+    true
+}
+
 /// Opens a mod menu on the client: the screen the mod registered, with its contents.
 ///
 /// `spec` is the bridge's `type|windowId|title`. The window id is the Java side's --

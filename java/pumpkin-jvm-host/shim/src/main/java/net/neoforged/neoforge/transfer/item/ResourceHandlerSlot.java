@@ -22,8 +22,9 @@ public class ResourceHandlerSlot extends StackCopySlot {
         this.pumpkinHandlerSlot = handlerSlot;
     }
 
+    // Pumpkin divergence: NeoForge shape -- ask the handler.
     public boolean mayPlace(ItemStack stack) {
-        throw Unimplemented.forMember("net/neoforged/neoforge/transfer/item/ResourceHandlerSlot.mayPlace:(Lnet/minecraft/world/item/ItemStack;)Z");
+        return pumpkinHandler.isValid(pumpkinHandlerSlot, ItemResource.of(stack));
     }
 
     protected ItemStack getStackCopy() {
@@ -48,15 +49,15 @@ public class ResourceHandlerSlot extends StackCopySlot {
     }
 
     public int getMaxStackSize() {
-        throw Unimplemented.forMember("net/neoforged/neoforge/transfer/item/ResourceHandlerSlot.getMaxStackSize:()I");
+        return 64;
     }
 
     public int getMaxStackSize(ItemStack stack) {
-        throw Unimplemented.forMember("net/neoforged/neoforge/transfer/item/ResourceHandlerSlot.getMaxStackSize:(Lnet/minecraft/world/item/ItemStack;)I");
+        return 64;
     }
 
     public boolean mayPickup(Player player) {
-        throw Unimplemented.forMember("net/neoforged/neoforge/transfer/item/ResourceHandlerSlot.mayPickup:(Lnet/minecraft/world/entity/player/Player;)Z");
+        return true;
     }
 
     public ResourceHandler<ItemResource> getResourceHandler() {

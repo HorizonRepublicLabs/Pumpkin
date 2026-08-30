@@ -40,7 +40,7 @@ public abstract class AbstractContainerMenu {
     }
 
     public Slot getSlot(int index) {
-        throw Unimplemented.forMember("net/minecraft/world/inventory/AbstractContainerMenu.getSlot:(I)Lnet/minecraft/world/inventory/Slot;");
+        return slots.get(index);
     }
 
     public abstract ItemStack quickMoveStack(final Player player, final int slotIndex);
@@ -55,8 +55,65 @@ public abstract class AbstractContainerMenu {
 
     public abstract boolean stillValid(Player player);
 
+    // Pumpkin divergence: vanilla's merge algorithm, the workhorse every mod's
+    // quickMoveStack leans on -- fill matching stacks first, then empty slots.
     protected boolean moveItemStackTo(ItemStack itemStack, int startSlot, int endSlot, boolean backwards) {
-        throw Unimplemented.forMember("net/minecraft/world/inventory/AbstractContainerMenu.moveItemStackTo:(Lnet/minecraft/world/item/ItemStack;IIZ)Z");
+        boolean moved = false;
+        int index = backwards ? endSlot - 1 : startSlot;
+        while (itemStack.count() > 0 && (backwards ? index >= startSlot : index < endSlot)) {
+            Slot slot = slots.get(index);
+            ItemStack existing = slot.getItem();
+            if (!existing.isEmpty() && existing.getItem() == itemStack.getItem()) {
+                int total = existing.count() + itemStack.count();
+                int max = Math.min(slot.getMaxStackSize(), 64);
+                if (total <= max) {
+                    slot.set(existing.copyWithCount(total));
+                    pumpkinShrink(itemStack, itemStack.count());
+                    moved = true;
+                } else if (existing.count() < max) {
+                    int adding = max - existing.count();
+                    slot.set(existing.copyWithCount(max));
+                    pumpkinShrink(itemStack, adding);
+                    moved = true;
+                }
+            }
+            index += backwards ? -1 : 1;
+        }
+        if (itemStack.count() > 0) {
+            index = backwards ? endSlot - 1 : startSlot;
+            while (backwards ? index >= startSlot : index < endSlot) {
+                Slot slot = slots.get(index);
+                if (!slot.hasItem() && slot.mayPlace(itemStack)) {
+                    int placing = Math.min(itemStack.count(), slot.getMaxStackSize());
+                    slot.set(itemStack.copyWithCount(placing));
+                    pumpkinShrink(itemStack, placing);
+                    moved = true;
+                    if (itemStack.count() <= 0) {
+                        break;
+                    }
+                }
+                index += backwards ? -1 : 1;
+            }
+        }
+        return moved;
+    }
+
+    // ItemStack counts are immutable in this shim (copyWithCount replaces); the caller's
+    // stack is shrunk by swapping its contents through the carried reference the click
+    // bridge owns. Tracked here as a mutable count on the wrapper.
+    private void pumpkinShrink(ItemStack stack, int by) {
+        stack.pumpkinShrink(by);
+    }
+
+    // Pumpkin divergence: the carried stack -- vanilla keeps it on the menu too.
+    private ItemStack pumpkinCarried = ItemStack.EMPTY;
+
+    public ItemStack getCarried() {
+        return pumpkinCarried;
+    }
+
+    public void setCarried(ItemStack stack) {
+        this.pumpkinCarried = stack;
     }
 
     public AbstractContainerMenu() {

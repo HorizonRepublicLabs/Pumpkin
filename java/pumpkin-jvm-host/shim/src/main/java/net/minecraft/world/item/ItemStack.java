@@ -62,6 +62,15 @@ public final class ItemStack implements DataComponentHolder, ItemInstance, IItem
         return pumpkinItem;
     }
 
+    // Pumpkin divergence: in-place shrink, for the one algorithm (moveItemStackTo) that
+    // vanilla writes against a mutable count.
+    public void pumpkinShrink(int by) {
+        pumpkinCount = Math.max(0, pumpkinCount - by);
+        if (pumpkinCount == 0) {
+            pumpkinItem = null;
+        }
+    }
+
     public ItemStack(ItemLike item, int count) {
         this.pumpkinItem = item;
         this.pumpkinCount = count;
@@ -172,8 +181,9 @@ public final class ItemStack implements DataComponentHolder, ItemInstance, IItem
         throw Unimplemented.forMember("net/minecraft/world/item/ItemStack.isCorrectToolForDrops:(Lnet/minecraft/world/level/block/state/BlockState;)Z");
     }
 
+    // Pumpkin divergence: real body.
     public ItemStack copy() {
-        throw Unimplemented.forMember("net/minecraft/world/item/ItemStack.copy:()Lnet/minecraft/world/item/ItemStack;");
+        return copyWithCount(pumpkinCount);
     }
 
     // Pumpkin divergence: real body.

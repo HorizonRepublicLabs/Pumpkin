@@ -52,6 +52,7 @@ public final class PumpkinPlayer extends net.minecraft.world.entity.player.Playe
             return java.util.OptionalInt.empty();
         }
         dev.pumpkin.bridge.PumpkinMenusAccess.register(windowId, menu);
+        dev.pumpkin.bridge.PumpkinMenusAccess.bindPlayer(windowId, this);
         String type = dev.pumpkin.bridge.PumpkinMenusAccess.typeName(menu);
         String title = provider.getDisplayName() == null ? ""
                 : provider.getDisplayName().getString();

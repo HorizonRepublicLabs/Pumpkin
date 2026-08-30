@@ -40,11 +40,17 @@ public class Slot {
     }
 
     public void onTake(Player player, ItemStack carried) {
-        throw Unimplemented.forMember("net/minecraft/world/inventory/Slot.onTake:(Lnet/minecraft/world/entity/player/Player;Lnet/minecraft/world/item/ItemStack;)V");
+        // Vanilla hooks crafting stats here; the base has nothing to do.
     }
 
+    // Pumpkin divergence: vanilla bodies for the click machinery. mayPlace/mayPickup
+    // default open, exactly as vanilla's base slot does; subclasses narrow them.
     public boolean mayPlace(ItemStack itemStack) {
-        throw Unimplemented.forMember("net/minecraft/world/inventory/Slot.mayPlace:(Lnet/minecraft/world/item/ItemStack;)Z");
+        return true;
+    }
+
+    public boolean mayPickup(net.minecraft.world.entity.player.Player player) {
+        return true;
     }
 
     // Pumpkin divergence: vanilla body -- read through to the container.
@@ -53,7 +59,7 @@ public class Slot {
     }
 
     public boolean hasItem() {
-        throw Unimplemented.forMember("net/minecraft/world/inventory/Slot.hasItem:()Z");
+        return !getItem().isEmpty();
     }
 
     public void setByPlayer(ItemStack itemStack) {
@@ -65,23 +71,33 @@ public class Slot {
     }
 
     public void set(ItemStack itemStack) {
-        throw Unimplemented.forMember("net/minecraft/world/inventory/Slot.set:(Lnet/minecraft/world/item/ItemStack;)V");
+        container.setItem(pumpkinContainerSlot, itemStack);
+        setChanged();
     }
 
     public void setChanged() {
-        throw Unimplemented.forMember("net/minecraft/world/inventory/Slot.setChanged:()V");
+        // Nothing to mark: the click bridge serialises the menu's state after every
+        // click regardless.
     }
 
     public int getMaxStackSize() {
-        throw Unimplemented.forMember("net/minecraft/world/inventory/Slot.getMaxStackSize:()I");
+        return 64;
     }
 
     public int getMaxStackSize(ItemStack itemStack) {
-        throw Unimplemented.forMember("net/minecraft/world/inventory/Slot.getMaxStackSize:(Lnet/minecraft/world/item/ItemStack;)I");
+        return getMaxStackSize();
     }
 
     public ItemStack remove(int amount) {
-        throw Unimplemented.forMember("net/minecraft/world/inventory/Slot.remove:(I)Lnet/minecraft/world/item/ItemStack;");
+        ItemStack current = getItem();
+        if (current.isEmpty() || amount <= 0) {
+            return ItemStack.EMPTY;
+        }
+        int taken = Math.min(amount, current.count());
+        ItemStack removed = current.copyWithCount(taken);
+        set(current.count() == taken ? ItemStack.EMPTY
+                : current.copyWithCount(current.count() - taken));
+        return removed;
     }
 
     public boolean isActive() {

@@ -51,7 +51,28 @@ def act(sock):
         send(sock, 66, (varint(0) + bp(0, 150, 0) + varint(1)
                         + struct.pack(">fff", 0.5, 1.0, 0.5) + b"\x00" + b"\x00" + varint(2)))
         print("BOT: table clicked", flush=True)
-        time.sleep(5)
+        time.sleep(3)
+        wid = getattr(sys.modules[__name__], "window_id", None)
+        if wid is None:
+            print("BOT: no window opened", flush=True); os._exit(1)
+        nslots = getattr(sys.modules[__name__], "slot_count", 0)
+        def container_click(slot, button, mode):
+            payload = (varint(wid) + varint(1) + struct.pack(">h", slot)
+                       + struct.pack("b", button) + varint(mode)
+                       + varint(0) + b"\x00" + b"\x00")
+            send(sock, 18, payload)
+        # the essence sits in player-inventory slot 0 (hotbar), which the menu maps at
+        # the end of its slot list: pick it up, drop it into machine slot 0
+        pick_index = nslots - 9 + 1  # hotbar slot 1: the essence (slot 0 held the table)
+        container_click(pick_index, 0, 0)
+        print(f"BOT: picked up from menu slot {pick_index}", flush=True)
+        time.sleep(1.5)
+        container_click(7, 0, 0)  # first player-storage slot in the menu
+        print("BOT: placed into player storage via the menu", flush=True)
+        time.sleep(2)
+        container_click(7, 0, 1)  # shift-click: the mod's quickMoveStack decides where
+        print("BOT: quick-moved menu slot 7", flush=True)
+        time.sleep(3)
         os._exit(0)
     except Exception as e:
         print("BOT: act failed:", e, flush=True); os._exit(1)
@@ -84,8 +105,21 @@ while time.time() < deadline:
         if pid == 59:
             wid, pos = rv(body, 0)
             mtype, pos = rv(body, pos)
+            sys.modules[__name__].window_id = wid
             print(f"BOT: OPEN_SCREEN window={wid} menu_type={mtype}", flush=True)
         if pid == 18:
             wid, pos = rv(body, 0)
             if wid >= 100:
-                print(f"BOT: CONTAINER_CONTENT for window={wid} ({len(body)} bytes)", flush=True)
+                _state, pos = rv(body, pos)
+                n, pos = rv(body, pos)
+                sys.modules[__name__].slot_count = n
+                # crude non-empty count: entries with a leading nonzero count varint
+                filled = []
+                p2 = pos
+                for i in range(n):
+                    c, p2 = rv(body, p2)
+                    if c > 0:
+                        item_id, p2 = rv(body, p2)
+                        a, p2 = rv(body, p2); r, p2 = rv(body, p2)
+                        filled.append((i, item_id, c))
+                print(f"BOT: CONTENT window={wid} slots={n} filled={filled}", flush=True)
