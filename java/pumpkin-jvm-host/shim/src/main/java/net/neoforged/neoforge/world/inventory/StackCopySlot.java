@@ -6,19 +6,23 @@ import dev.pumpkin.shim.Unimplemented;
 
 public abstract class StackCopySlot extends Slot {
 
+    // Pumpkin divergence: the ctor feeds Slot's real fields; the container is null
+    // because this slot reads through getStackCopy instead.
     public StackCopySlot(int slot, int x, int y) {
+        super(null, slot, x, y);
     }
 
     protected abstract ItemStack getStackCopy();
 
     protected abstract void setStackCopy(ItemStack stack);
 
+    // Pumpkin divergence: NeoForge body -- the whole point of the class.
     public final ItemStack getItem() {
-        throw Unimplemented.forMember("net/neoforged/neoforge/world/inventory/StackCopySlot.getItem:()Lnet/minecraft/world/item/ItemStack;");
+        return getStackCopy();
     }
 
     public final void set(ItemStack stack) {
-        throw Unimplemented.forMember("net/neoforged/neoforge/world/inventory/StackCopySlot.set:(Lnet/minecraft/world/item/ItemStack;)V");
+        setStackCopy(stack);
     }
 
     public final void setChanged() {

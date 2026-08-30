@@ -10,7 +10,16 @@ import dev.pumpkin.shim.Unimplemented;
 
 public class ResourceHandlerSlot extends StackCopySlot {
 
+    // Pumpkin divergence: the handler and slot index are kept; the copy accessors below
+    // read and write through them, which is this class's whole job.
+    private ResourceHandler<ItemResource> pumpkinHandler;
+
+    private int pumpkinHandlerSlot;
+
     public ResourceHandlerSlot(ResourceHandler<ItemResource> handler, IndexModifier<ItemResource> slotModifier, int handlerSlot, int xPosition, int yPosition) {
+        super(handlerSlot, xPosition, yPosition);
+        this.pumpkinHandler = handler;
+        this.pumpkinHandlerSlot = handlerSlot;
     }
 
     public boolean mayPlace(ItemStack stack) {
@@ -18,11 +27,20 @@ public class ResourceHandlerSlot extends StackCopySlot {
     }
 
     protected ItemStack getStackCopy() {
-        throw Unimplemented.forMember("net/neoforged/neoforge/transfer/item/ResourceHandlerSlot.getStackCopy:()Lnet/minecraft/world/item/ItemStack;");
+        ItemResource resource = pumpkinHandler.getResource(pumpkinHandlerSlot);
+        if (resource == null || resource.isEmpty()) {
+            return ItemStack.EMPTY;
+        }
+        return resource.toStack(pumpkinHandler.getAmountAsInt(pumpkinHandlerSlot));
     }
 
     protected void setStackCopy(ItemStack stack) {
-        throw Unimplemented.forMember("net/neoforged/neoforge/transfer/item/ResourceHandlerSlot.setStackCopy:(Lnet/minecraft/world/item/ItemStack;)V");
+        if (pumpkinHandler instanceof net.neoforged.neoforge.transfer.StacksResourceHandler<?, ItemResource> stacks) {
+            stacks.set(pumpkinHandlerSlot, ItemResource.of(stack), stack.count());
+        } else {
+            throw dev.pumpkin.shim.Unimplemented.forMember(
+                    "net/neoforged/neoforge/transfer/item/ResourceHandlerSlot.setStackCopy (non-stack handler)");
+        }
     }
 
     public void onQuickCraft(ItemStack oldStackIn, ItemStack newStackIn) {

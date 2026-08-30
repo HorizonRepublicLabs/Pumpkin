@@ -316,6 +316,7 @@ impl JvmBlockBehaviour {
         world: &Arc<crate::world::World>,
         position: &pumpkin_util::math::position::BlockPos,
         held: Option<&mut pumpkin_data::item_stack::ItemStack>,
+        player: Option<&Arc<crate::entity::player::Player>>,
     ) -> crate::block::registry::BlockActionResult {
         use crate::block::registry::BlockActionResult;
 
@@ -404,7 +405,7 @@ impl JvmBlockBehaviour {
                 self.block_name
             );
         }
-        apply_interaction_reply(&reply, world, position, held)
+        apply_interaction_reply(&reply, world, position, held, player)
     }
 }
 
@@ -414,6 +415,7 @@ fn apply_interaction_reply(
     world: &Arc<crate::world::World>,
     position: &pumpkin_util::math::position::BlockPos,
     held: Option<&mut pumpkin_data::item_stack::ItemStack>,
+    player: Option<&Arc<crate::entity::player::Player>>,
 ) -> crate::block::registry::BlockActionResult {
     use crate::block::registry::BlockActionResult;
     use pumpkin_data::item_stack::ItemStack;
@@ -427,6 +429,12 @@ fn apply_interaction_reply(
             }
             if let Some(held) = held.as_deref_mut() {
                 *held = parse_stack(spec).unwrap_or(ItemStack::EMPTY.clone());
+            }
+        } else if let Some(spec) = part.strip_prefix("MENU=") {
+            if !spec.is_empty()
+                && let Some(player) = player
+            {
+                open_jvm_menu(spec, player);
             }
         } else if let Some(spec) = part.strip_prefix("DATA=") {
             // An empty DATA means "nothing to say" -- no entity, or an unchanged one --
@@ -535,7 +543,7 @@ fn install_jvm_tick_hook() {
                         tracing::info!("{block_name}: its mod ticker is running");
                     }
                     drop(warned);
-                    apply_interaction_reply(&reply, world, &position, None);
+                    apply_interaction_reply(&reply, world, &position, None, None);
                 }
             }
             Err(err) => {
@@ -551,6 +559,93 @@ fn install_jvm_tick_hook() {
             }
         }
     }));
+}
+
+/// Opens a mod menu on the client: the screen the mod registered, with its contents.
+///
+/// `spec` is the bridge's `type|windowId|title`. The window id is the Java side's --
+/// clicks will come back carrying it, which is how they find their menu again. The
+/// content follows in a second bridge call because the menu's slots exist only after the
+/// mod's constructor ran, inside the interaction that produced `spec`.
+fn open_jvm_menu(spec: &str, player: &Arc<crate::entity::player::Player>) {
+    use pumpkin_protocol::codec::item_stack_seralizer::ItemStackSerializer;
+    use pumpkin_util::text::TextComponent;
+
+    let mut parts = spec.splitn(3, '|');
+    let (Some(type_name), Some(window_id), Some(title)) =
+        (parts.next(), parts.next(), parts.next())
+    else {
+        return;
+    };
+    let Ok(window_id) = window_id.parse::<i32>() else {
+        return;
+    };
+    let Some(menu_type_id) = pumpkin_data::dynamic::menu_type_id(type_name) else {
+        tracing::warn!("{type_name}: the mod opened a menu whose type never registered");
+        return;
+    };
+
+    let crate::net::ClientPlatform::Java(java) = player.client.as_ref() else {
+        return;
+    };
+    let title = TextComponent::text(title.to_string());
+    let open = pumpkin_protocol::java::client::play::COpenScreen::new(
+        window_id.into(),
+        i32::from(menu_type_id).into(),
+        &title,
+    );
+    if let Ok(data) = java.serialize_packet(&open) {
+        java.try_enqueue_packet(data);
+    }
+
+    // Second trip: the slot contents, now that the menu exists.
+    let Some(vm) = vm::current() else {
+        return;
+    };
+    let contents = vm.call(move |env| {
+        let returned = env.call_static_method(
+            "dev/pumpkin/bridge/PumpkinMenus",
+            "slotContents",
+            "(I)Ljava/lang/String;",
+            &[window_id.into()],
+        );
+        if env.exception_check().unwrap_or(false) {
+            let _ = env.exception_describe();
+            let _ = env.exception_clear();
+            return Err(VmError::Java("slotContents threw".into()));
+        }
+        let object = returned
+            .and_then(jni::objects::JValueGen::l)
+            .map_err(|err| VmError::Java(err.to_string()))?;
+        env.get_string(&jni::objects::JString::from(object))
+            .map(Into::into)
+            .map_err(|err| VmError::Java(err.to_string()))
+    });
+    let Ok(contents) = contents else {
+        return;
+    };
+    let contents: String = contents;
+    let stacks: Vec<pumpkin_data::item_stack::ItemStack> = contents
+        .split(',')
+        .filter(|entry| !entry.is_empty())
+        .map(|entry| {
+            parse_stack(entry).unwrap_or_else(|| pumpkin_data::item_stack::ItemStack::EMPTY.clone())
+        })
+        .collect();
+    let serialized: Vec<ItemStackSerializer<'_>> = stacks
+        .iter()
+        .map(|stack| ItemStackSerializer::from(stack.clone()))
+        .collect();
+    let carried = ItemStackSerializer::from(pumpkin_data::item_stack::ItemStack::EMPTY.clone());
+    let content = pumpkin_protocol::java::client::play::CSetContainerContent::new(
+        window_id.into(),
+        0.into(),
+        &serialized,
+        &carried,
+    );
+    if let Ok(data) = java.serialize_packet(&content) {
+        java.try_enqueue_packet(data);
+    }
 }
 
 /// The saved mod-entity blob at a position, or empty when there is none.
@@ -654,14 +749,19 @@ impl crate::block::BlockBehaviour for JvmBlockBehaviour {
         &self,
         args: crate::block::NormalUseArgs<'_>,
     ) -> crate::block::registry::BlockActionResult {
-        self.bridge(args.world, args.position, None)
+        self.bridge(args.world, args.position, None, Some(args.player))
     }
 
     fn use_with_item(
         &self,
         args: crate::block::UseWithItemArgs<'_>,
     ) -> crate::block::registry::BlockActionResult {
-        let result = self.bridge(args.world, args.position, Some(args.item_stack));
+        let result = self.bridge(
+            args.world,
+            args.position,
+            Some(args.item_stack),
+            Some(args.player),
+        );
         // A consuming result returns to the handler before its hand-sync runs, so a stack
         // the mod replaced has to be written back to the inventory here or the change
         // evaporates -- the pedestal takes a shard and the player keeps three.

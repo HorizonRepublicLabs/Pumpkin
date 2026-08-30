@@ -104,6 +104,11 @@ public final class PumpkinInteractions {
             first = false;
         }
 
+        reply.append(";MENU=");
+        if (player.pumpkinOpenedMenu() != null) {
+            reply.append(player.pumpkinOpenedMenu());
+        }
+
         // Whatever the interaction did to the entity travels back as an opaque blob and
         // is saved inside Pumpkin's own block entity -- persistence's outbound half.
         reply.append(";DATA=");

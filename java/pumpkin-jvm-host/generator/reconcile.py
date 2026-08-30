@@ -1845,4 +1845,70 @@ edit('net/neoforged/neoforge/transfer/item/ItemResource.java', [
      '    // Pumpkin divergence: real body over the carried item.\n    public Item getItem() {\n        return pumpkinItem == null ? null : pumpkinItem.asItem();\n    }'),
 ])
 
+# ------------------------------------------------------- menus, slot machinery
+
+edit('net/minecraft/world/inventory/Slot.java', [
+    ('    public final Container container = Stubs.of(Container.class, "net/minecraft/world/Container");\n\n    public int index;\n\n    public final int x = 0;\n\n    public final int y = 0;\n\n    public Slot(Container container, int slot, int x, int y) {\n    }',
+     '    // Pumpkin divergence: a slot really points at its container and position; the menu\n    // machinery reads all four.\n    public final Container container;\n\n    public int index;\n\n    public final int x;\n\n    public final int y;\n\n    private final int pumpkinContainerSlot;\n\n    public int pumpkinContainerSlot() {\n        return pumpkinContainerSlot;\n    }\n\n    public Slot(Container container, int slot, int x, int y) {\n        this.container = container;\n        this.pumpkinContainerSlot = slot;\n        this.x = x;\n        this.y = y;\n    }'),
+])
+
+
+edit('net/minecraft/world/inventory/Slot.java', [
+    ('    public ItemStack getItem() {\n        throw Unimplemented.forMember("net/minecraft/world/inventory/Slot.getItem:()Lnet/minecraft/world/item/ItemStack;");\n    }',
+     '    // Pumpkin divergence: vanilla body -- read through to the container.\n    public ItemStack getItem() {\n        return container.getItem(pumpkinContainerSlot);\n    }'),
+])
+
+
+edit('net/minecraft/world/inventory/AbstractContainerMenu.java', [
+    ('    public final NonNullList<Slot> slots = null;',
+     '    // Pumpkin divergence: the slot list is real; every mod menu fills it via addSlot.\n    public final NonNullList<Slot> slots = NonNullList.create();\n\n    private MenuType<?> pumpkinMenuType;\n\n    public int containerId;'),
+])
+
+
+edit('net/minecraft/world/inventory/AbstractContainerMenu.java', [
+    ('    protected AbstractContainerMenu(MenuType<?> menuType, int containerId) {\n    }',
+     '    protected AbstractContainerMenu(MenuType<?> menuType, int containerId) {\n        this.pumpkinMenuType = menuType;\n        this.containerId = containerId;\n    }'),
+])
+
+
+edit('net/minecraft/world/inventory/AbstractContainerMenu.java', [
+    ('    protected Slot addSlot(Slot slot) {\n        throw Unimplemented.forMember("net/minecraft/world/inventory/AbstractContainerMenu.addSlot:(Lnet/minecraft/world/inventory/Slot;)Lnet/minecraft/world/inventory/Slot;");\n    }',
+     '    // Pumpkin divergence: vanilla body -- number the slot, keep it.\n    protected Slot addSlot(Slot slot) {\n        slot.index = slots.size();\n        slots.add(slot);\n        return slot;\n    }'),
+])
+
+
+edit('net/minecraft/world/inventory/AbstractContainerMenu.java', [
+    ('    public MenuType<?> getType() {\n        throw Unimplemented.forMember("net/minecraft/world/inventory/AbstractContainerMenu.getType:()Lnet/minecraft/world/inventory/MenuType;");\n    }',
+     '    public MenuType<?> getType() {\n        return pumpkinMenuType;\n    }'),
+])
+
+
+edit("net/minecraft/world/inventory/Slot.java", [
+    ('    public Slot() {\n    }',
+     '    public Slot() {\n        this.container = null;\n        this.pumpkinContainerSlot = 0;\n        this.x = 0;\n        this.y = 0;\n    }'),
+])
+
+edit('net/minecraft/world/entity/player/Inventory.java', [
+    ('    public ItemStack getItem(int slot) {\n        throw Unimplemented.forMember("net/minecraft/world/entity/player/Inventory.getItem:(I)Lnet/minecraft/world/item/ItemStack;");\n    }',
+     '    // Pumpkin divergence: a real 41-slot backing (36 inventory + armour + offhand). The\n    // bridge hydrates it from the Rust player when a menu opens; empty until then.\n    private final NonNullList<ItemStack> pumpkinItems =\n            NonNullList.withSize(41, ItemStack.EMPTY);\n\n    public NonNullList<ItemStack> pumpkinItems() {\n        return pumpkinItems;\n    }\n\n    public ItemStack getItem(int index) {\n        return index >= 0 && index < pumpkinItems.size()\n                ? pumpkinItems.get(index) : ItemStack.EMPTY;\n    }'),
+])
+
+edit('net/neoforged/neoforge/world/inventory/StackCopySlot.java', [
+    ('    public StackCopySlot(int slot, int x, int y) {\n    }',
+     "    // Pumpkin divergence: the ctor feeds Slot's real fields; the container is null\n    // because this slot reads through getStackCopy instead.\n    public StackCopySlot(int slot, int x, int y) {\n        super(null, slot, x, y);\n    }"),
+    ('    public final ItemStack getItem() {\n        throw Unimplemented.forMember("net/neoforged/neoforge/world/inventory/StackCopySlot.getItem:()Lnet/minecraft/world/item/ItemStack;");\n    }',
+     '    // Pumpkin divergence: NeoForge body -- the whole point of the class.\n    public final ItemStack getItem() {\n        return getStackCopy();\n    }'),
+    ('    public final void set(ItemStack stack) {\n        throw Unimplemented.forMember("net/neoforged/neoforge/world/inventory/StackCopySlot.set:(Lnet/minecraft/world/item/ItemStack;)V");\n    }',
+     '    public final void set(ItemStack stack) {\n        setStackCopy(stack);\n    }'),
+])
+
+edit('net/neoforged/neoforge/transfer/item/ResourceHandlerSlot.java', [
+    ('    public ResourceHandlerSlot(ResourceHandler<ItemResource> handler, IndexModifier<ItemResource> slotModifier, int handlerSlot, int xPosition, int yPosition) {\n    }',
+     "    // Pumpkin divergence: the handler and slot index are kept; the copy accessors below\n    // read and write through them, which is this class's whole job.\n    private ResourceHandler<ItemResource> pumpkinHandler;\n\n    private int pumpkinHandlerSlot;\n\n    public ResourceHandlerSlot(ResourceHandler<ItemResource> handler, IndexModifier<ItemResource> slotModifier, int handlerSlot, int xPosition, int yPosition) {\n        super(handlerSlot, xPosition, yPosition);\n        this.pumpkinHandler = handler;\n        this.pumpkinHandlerSlot = handlerSlot;\n    }"),
+    ('    protected ItemStack getStackCopy() {\n        throw Unimplemented.forMember("net/neoforged/neoforge/transfer/item/ResourceHandlerSlot.getStackCopy:()Lnet/minecraft/world/item/ItemStack;");\n    }',
+     '    protected ItemStack getStackCopy() {\n        ItemResource resource = pumpkinHandler.getResource(pumpkinHandlerSlot);\n        if (resource == null || resource.isEmpty()) {\n            return ItemStack.EMPTY;\n        }\n        return resource.toStack(pumpkinHandler.getAmountAsInt(pumpkinHandlerSlot));\n    }'),
+    ('    protected void setStackCopy(ItemStack stack) {\n        throw Unimplemented.forMember("net/neoforged/neoforge/transfer/item/ResourceHandlerSlot.setStackCopy:(Lnet/minecraft/world/item/ItemStack;)V");\n    }',
+     '    protected void setStackCopy(ItemStack stack) {\n        if (pumpkinHandler instanceof net.neoforged.neoforge.transfer.StacksResourceHandler<?, ItemResource> stacks) {\n            stacks.set(pumpkinHandlerSlot, ItemResource.of(stack), stack.count());\n        } else {\n            throw dev.pumpkin.shim.Unimplemented.forMember(\n                    "net/neoforged/neoforge/transfer/item/ResourceHandlerSlot.setStackCopy (non-stack handler)");\n        }\n    }'),
+])
+
 commit()

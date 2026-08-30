@@ -8,15 +8,27 @@ import dev.pumpkin.shim.Unimplemented;
 
 public class Slot {
 
-    public final Container container = Stubs.of(Container.class, "net/minecraft/world/Container");
+    // Pumpkin divergence: a slot really points at its container and position; the menu
+    // machinery reads all four.
+    public final Container container;
 
     public int index;
 
-    public final int x = 0;
+    public final int x;
 
-    public final int y = 0;
+    public final int y;
+
+    private final int pumpkinContainerSlot;
+
+    public int pumpkinContainerSlot() {
+        return pumpkinContainerSlot;
+    }
 
     public Slot(Container container, int slot, int x, int y) {
+        this.container = container;
+        this.pumpkinContainerSlot = slot;
+        this.x = x;
+        this.y = y;
     }
 
     public void onQuickCraft(ItemStack picked, ItemStack original) {
@@ -35,8 +47,9 @@ public class Slot {
         throw Unimplemented.forMember("net/minecraft/world/inventory/Slot.mayPlace:(Lnet/minecraft/world/item/ItemStack;)Z");
     }
 
+    // Pumpkin divergence: vanilla body -- read through to the container.
     public ItemStack getItem() {
-        throw Unimplemented.forMember("net/minecraft/world/inventory/Slot.getItem:()Lnet/minecraft/world/item/ItemStack;");
+        return container.getItem(pumpkinContainerSlot);
     }
 
     public boolean hasItem() {
@@ -76,5 +89,9 @@ public class Slot {
     }
 
     public Slot() {
+        this.container = null;
+        this.pumpkinContainerSlot = 0;
+        this.x = 0;
+        this.y = 0;
     }
 }

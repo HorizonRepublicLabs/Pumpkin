@@ -76,8 +76,18 @@ public class Inventory implements Container, Nameable {
         throw Unimplemented.forMember("net/minecraft/world/entity/player/Inventory.isEmpty:()Z");
     }
 
-    public ItemStack getItem(int slot) {
-        throw Unimplemented.forMember("net/minecraft/world/entity/player/Inventory.getItem:(I)Lnet/minecraft/world/item/ItemStack;");
+    // Pumpkin divergence: a real 41-slot backing (36 inventory + armour + offhand). The
+    // bridge hydrates it from the Rust player when a menu opens; empty until then.
+    private final NonNullList<ItemStack> pumpkinItems =
+            NonNullList.withSize(41, ItemStack.EMPTY);
+
+    public NonNullList<ItemStack> pumpkinItems() {
+        return pumpkinItems;
+    }
+
+    public ItemStack getItem(int index) {
+        return index >= 0 && index < pumpkinItems.size()
+                ? pumpkinItems.get(index) : ItemStack.EMPTY;
     }
 
     public Component getName() {

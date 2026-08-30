@@ -8,17 +8,27 @@ import dev.pumpkin.shim.Unimplemented;
 
 public abstract class AbstractContainerMenu {
 
-    public final NonNullList<Slot> slots = null;
+    // Pumpkin divergence: the slot list is real; every mod menu fills it via addSlot.
+    public final NonNullList<Slot> slots = NonNullList.create();
+
+    private MenuType<?> pumpkinMenuType;
+
+    public int containerId;
 
     protected AbstractContainerMenu(MenuType<?> menuType, int containerId) {
+        this.pumpkinMenuType = menuType;
+        this.containerId = containerId;
     }
 
     public MenuType<?> getType() {
-        throw Unimplemented.forMember("net/minecraft/world/inventory/AbstractContainerMenu.getType:()Lnet/minecraft/world/inventory/MenuType;");
+        return pumpkinMenuType;
     }
 
+    // Pumpkin divergence: vanilla body -- number the slot, keep it.
     protected Slot addSlot(Slot slot) {
-        throw Unimplemented.forMember("net/minecraft/world/inventory/AbstractContainerMenu.addSlot:(Lnet/minecraft/world/inventory/Slot;)Lnet/minecraft/world/inventory/Slot;");
+        slot.index = slots.size();
+        slots.add(slot);
+        return slot;
     }
 
     protected void addDataSlots(ContainerData container) {

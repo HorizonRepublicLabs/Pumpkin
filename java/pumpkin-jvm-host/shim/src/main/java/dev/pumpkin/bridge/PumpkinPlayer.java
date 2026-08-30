@@ -20,6 +20,45 @@ public final class PumpkinPlayer extends net.minecraft.world.entity.player.Playe
         pumpkinSetPosition(new net.minecraft.world.phys.Vec3(x, y, z));
     }
 
+    private String openedMenu;
+
+    /** {@code type|windowId|title} for the menu the interaction opened, or null. */
+    public String pumpkinOpenedMenu() {
+        return openedMenu;
+    }
+
+    private final net.minecraft.world.entity.player.Inventory inventory =
+            new net.minecraft.world.entity.player.Inventory();
+
+    @Override
+    public net.minecraft.world.entity.player.Inventory getInventory() {
+        return inventory;
+    }
+
+    @Override
+    public java.util.OptionalInt openMenu(net.minecraft.world.MenuProvider provider,
+            net.minecraft.core.BlockPos pos) {
+        // The extension overload NeoForge blocks actually call; the position adds
+        // nothing the provider does not already know.
+        return openMenu(provider);
+    }
+
+    @Override
+    public java.util.OptionalInt openMenu(net.minecraft.world.MenuProvider provider) {
+        int windowId = dev.pumpkin.bridge.PumpkinMenusAccess.nextWindowId();
+        net.minecraft.world.inventory.AbstractContainerMenu menu =
+                provider.createMenu(windowId, inventory, this);
+        if (menu == null) {
+            return java.util.OptionalInt.empty();
+        }
+        dev.pumpkin.bridge.PumpkinMenusAccess.register(windowId, menu);
+        String type = dev.pumpkin.bridge.PumpkinMenusAccess.typeName(menu);
+        String title = provider.getDisplayName() == null ? ""
+                : provider.getDisplayName().getString();
+        openedMenu = (type == null ? "unknown" : type) + "|" + windowId + "|" + title;
+        return java.util.OptionalInt.of(windowId);
+    }
+
     /** The hand stack after the interaction, or null when the mod never replaced it. */
     public ItemStack pumpkinHeldAfter() {
         return heldChanged ? held : null;
