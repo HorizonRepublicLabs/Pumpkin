@@ -42,6 +42,11 @@ public final class PumpkinRecipes {
         datapacksDir = Path.of(dir);
     }
 
+    /** The datapacks directory, for the tag loader. */
+    static Path pumpkinDatapacksDir() {
+        return datapacksDir;
+    }
+
     private static final Manager MANAGER = new Manager();
 
     /** Recipes per type name, decoded once on first ask. */

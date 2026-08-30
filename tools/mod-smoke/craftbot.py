@@ -53,14 +53,14 @@ def slot(sock, n):
 ALTAR = (1, 150, 0)
 OFFSETS = [(3,0,0),(0,0,3),(-3,0,0),(0,0,-3),(2,0,2),(2,0,-2),(-2,0,2),(-2,0,-2)]
 PEDESTALS = [(1+dx, 150+dy, dz) for dx, dy, dz in OFFSETS]
-# hotbar after gives: 0=pedestals(8) 1=gold(4) 2=essence(4) 3=blank_augment 4=altar
-INGREDIENT_SLOT = [1, 2, 1, 2, 1, 2, 1, 2]
+# hotbar: 0=pedestals 1=gold(2) 2=essence(4) 3=pick 4=pick 5=blank_augment 6=altar
+INGREDIENT_SLOT = [1, 2, 3, 2, 1, 2, 4, 2]
 
 def act(sock):
   try:
     time.sleep(16)  # all gives landed
     # place the altar
-    slot(sock, 4)
+    slot(sock, 6)
     print("REQ tp 1 151 2", flush=True); time.sleep(3)
     click(sock, 1, 149, 0)
     print("BOT: altar placed", flush=True); time.sleep(1)
@@ -75,7 +75,7 @@ def act(sock):
         print(f"BOT: pedestal {i} loaded", flush=True); time.sleep(1)
     # input on the altar
     print("REQ tp 1 151 2", flush=True); time.sleep(3)
-    slot(sock, 3)
+    slot(sock, 5)
     click(sock, *ALTAR)
     print("BOT: altar input placed", flush=True)
     time.sleep(15)  # let it craft

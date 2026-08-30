@@ -129,4 +129,12 @@ public final class PumpkinHost {
      * @throws IllegalStateException if registration failed or the registries are frozen
      */
     public static native int registerDataComponentType(String id);
+
+    /**
+     * The members of a vanilla item tag, comma-joined; empty when the tag is unknown.
+     *
+     * <p>Serves the bridge's tag lookups for tags no mod datapack defines -- the
+     * generated tables on the Rust side are the authority for those.
+     */
+    public static native String itemTagValues(String tag);
 }

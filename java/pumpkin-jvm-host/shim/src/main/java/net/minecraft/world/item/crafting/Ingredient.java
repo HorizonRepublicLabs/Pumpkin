@@ -95,9 +95,9 @@ public final class Ingredient implements Predicate<ItemStack>, StackedContents.I
         String id = dev.pumpkin.bridge.PumpkinInteractions.pumpkinItemId(input);
         for (String candidate : pumpkinIds) {
             if (candidate.startsWith("#")) {
-                dev.pumpkin.shim.PumpkinWarnOnce.warn("ingredient-tag",
-                        "an ingredient matches by tag (" + candidate
-                                + "), which mod item tags do not answer yet; it matches nothing.");
+                if (dev.pumpkin.bridge.PumpkinTags.contains(candidate.substring(1), id)) {
+                    return true;
+                }
                 continue;
             }
             if (candidate.equals(id)) {

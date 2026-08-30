@@ -25,8 +25,10 @@ cmds = ["setblock 1 149 0 minecraft:stone"]
 for dx, dz in [(3,0),(0,3),(-3,0),(0,-3),(2,2),(2,-2),(-2,2),(-2,-2)]:
     cmds.append(f"setblock {1+dx} 149 {dz} minecraft:stone")
 cmds += ["give PumpkinBot mysticalagriculture:infusion_pedestal 8",
-         "give PumpkinBot minecraft:gold_ingot 4",
-         "give PumpkinBot mysticalagriculture:inferium_essence 4",
+         "give PumpkinBot minecraft:gold_ingot 2",
+         "give PumpkinBot mysticalagriculture:imperium_essence 4",
+         "give PumpkinBot minecraft:golden_pickaxe 1",
+         "give PumpkinBot minecraft:golden_pickaxe 1",
          "give PumpkinBot mysticalagriculture:blank_augment 1",
          "give PumpkinBot mysticalagriculture:infusion_altar 1"]
 for cmd in cmds:
