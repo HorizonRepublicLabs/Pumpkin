@@ -5,16 +5,19 @@ import dev.pumpkin.shim.Unimplemented;
 
 public class Enchantments {
 
-    public static final ResourceKey<Enchantment> SILK_TOUCH = null;
+    // Pumpkin divergence: real values. A ResourceKey is a pair of names; these are
+    // vanilla's, and BaseReusableItem reads them at class-init.
+    public static final ResourceKey<Enchantment> SILK_TOUCH = pumpkinKey("silk_touch");
 
-    public static final ResourceKey<Enchantment> UNBREAKING = null;
+    public static final ResourceKey<Enchantment> UNBREAKING = pumpkinKey("unbreaking");
+
+    private static ResourceKey<Enchantment> pumpkinKey(String name) {
+        return ResourceKey.create(
+                ResourceKey.createRegistryKey(net.minecraft.resources.Identifier.fromNamespaceAndPath("minecraft", "enchantment")),
+                net.minecraft.resources.Identifier.fromNamespaceAndPath("minecraft", name));
+    }
 
     public Enchantments() {
     }
 
-    static {
-        if (true) {
-            throw Unimplemented.forMember("net/minecraft/world/item/enchantment/Enchantments");
-        }
-    }
 }

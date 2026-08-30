@@ -9,7 +9,9 @@ import dev.pumpkin.shim.Unimplemented;
 
 public abstract class HorizontalDirectionalBlock extends Block {
 
-    public static final EnumProperty<Direction> FACING = null;
+    // Pumpkin divergence: real value. TinkeringTableBlock's constructor passes this to
+    // setValue -- null here was an NPE inside Map.copyOf naming nothing.
+    public static final EnumProperty<Direction> FACING = EnumProperty.create("facing", Direction.class);
 
     public HorizontalDirectionalBlock(BlockBehaviour.Properties properties) {
     }

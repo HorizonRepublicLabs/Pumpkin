@@ -7,8 +7,10 @@ import dev.pumpkin.shim.Unimplemented;
 
 public record TagKey<T>(ResourceKey<? extends Registry<T>> registry, Identifier location) {
 
+    // Pumpkin divergence: real body. A tag key is its two names -- the record's own
+    // canonical constructor is the whole implementation.
     public static <T> TagKey<T> create(ResourceKey<? extends Registry<T>> registry, Identifier location) {
-        throw Unimplemented.forMember("net/minecraft/tags/TagKey.create:(Lnet/minecraft/resources/ResourceKey;Lnet/minecraft/resources/Identifier;)Lnet/minecraft/tags/TagKey;");
+        return new TagKey<>(registry, location);
     }
 
     public String toString() {

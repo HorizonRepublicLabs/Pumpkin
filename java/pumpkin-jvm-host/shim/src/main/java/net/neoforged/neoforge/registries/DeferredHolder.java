@@ -52,8 +52,10 @@ public class DeferredHolder<R, T extends R> implements Holder<R>, Supplier<T> {
         throw Unimplemented.forMember("net/neoforged/neoforge/registries/DeferredHolder.create:(Lnet/minecraft/resources/Identifier;Lnet/minecraft/resources/Identifier;)Lnet/neoforged/neoforge/registries/DeferredHolder;");
     }
 
+    // Pumpkin divergence: real body. The one-key overload: the key's own registry half
+    // scopes the lookup, delegating to the two-argument form.
     public static <R, T extends R> DeferredHolder<R, T> create(ResourceKey<R> key) {
-        throw Unimplemented.forMember("net/neoforged/neoforge/registries/DeferredHolder.create:(Lnet/minecraft/resources/ResourceKey;)Lnet/neoforged/neoforge/registries/DeferredHolder;");
+        return create(net.minecraft.resources.ResourceKey.createRegistryKey(key.pumpkinRegistry()), key.identifier());
     }
 
     // Pumpkin divergence: real body.

@@ -33,7 +33,7 @@ import dev.pumpkin.shim.Unimplemented;
 
 public class CampfireBlock extends BaseEntityBlock implements SimpleWaterloggedBlock {
 
-    public static final BooleanProperty LIT = null;
+    public static final BooleanProperty LIT = BooleanProperty.create("lit");
 
     public MapCodec<CampfireBlock> codec() {
         throw Unimplemented.forMember("net/minecraft/world/level/block/CampfireBlock.codec:()Lcom/mojang/serialization/MapCodec;");

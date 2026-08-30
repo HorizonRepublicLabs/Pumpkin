@@ -6,7 +6,8 @@ import dev.pumpkin.shim.Unimplemented;
 
 public final class BlockTags {
 
-    public static final TagKey<Block> CROPS = null;
+    // Pumpkin divergence: real value, named as vanilla names it.
+    public static final TagKey<Block> CROPS = create(Identifier.fromNamespaceAndPath("minecraft", "crops"));
 
     protected BlockTags() {
     }
@@ -15,13 +16,9 @@ public final class BlockTags {
         throw Unimplemented.forMember("net/minecraft/tags/BlockTags.create:(Ljava/lang/String;)Lnet/minecraft/tags/TagKey;");
     }
 
+    // Pumpkin divergence: real body -- TagKey.create over the block registry's key.
     public static TagKey<Block> create(Identifier name) {
-        throw Unimplemented.forMember("net/minecraft/tags/BlockTags.create:(Lnet/minecraft/resources/Identifier;)Lnet/minecraft/tags/TagKey;");
+        return TagKey.create(net.minecraft.resources.ResourceKey.createRegistryKey(Identifier.fromNamespaceAndPath("minecraft", "block")), name);
     }
 
-    static {
-        if (true) {
-            throw Unimplemented.forMember("net/minecraft/tags/BlockTags");
-        }
-    }
 }

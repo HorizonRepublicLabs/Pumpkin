@@ -7,7 +7,9 @@ import dev.pumpkin.shim.Unimplemented;
 
 public interface IItemPropertiesExtensions {
 
+    // Pumpkin divergence: real body. NeoForge sugar for a default component value on an
+    // item -- metadata Pumpkin does not model; accepted and dropped, chain continues.
     default <T> Item.Properties component(Supplier<? extends DataComponentType<T>> componentType, T value) {
-        throw Unimplemented.forMember("net/neoforged/neoforge/common/extensions/IItemPropertiesExtensions.component:(Ljava/util/function/Supplier;Ljava/lang/Object;)Lnet/minecraft/world/item/Item$Properties;");
+        return (Item.Properties) this;
     }
 }

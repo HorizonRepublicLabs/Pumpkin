@@ -11,8 +11,16 @@ public class StateDefinition<O, S extends StateHolder<O, S>> {
     protected StateDefinition(Function<O, S> defaultState, O owner, StateDefinition.Factory<O, S> factory, Map<String, Property<?>> properties) {
     }
 
+    // Pumpkin divergence: real bodies. A definition knows its owner and answers the
+    // owner's default state; the property list machines declare is implicit in what
+    // setValue records rather than tracked here.
+    public java.util.function.Supplier<S> pumpkinAny;
+
     public S any() {
-        throw Unimplemented.forMember("net/minecraft/world/level/block/state/StateDefinition.any:()Lnet/minecraft/world/level/block/state/StateHolder;");
+        if (pumpkinAny == null) {
+            throw Unimplemented.forMember("net/minecraft/world/level/block/state/StateDefinition.any:()Lnet/minecraft/world/level/block/state/StateHolder;");
+        }
+        return pumpkinAny.get();
     }
 
     public O getOwner() {

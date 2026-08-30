@@ -8,7 +8,9 @@ import dev.pumpkin.shim.Unimplemented;
 
 public interface IDataComponentMapBuilderExtensions extends DataComponentGetter {
 
+    // Pumpkin divergence: real body. The NeoForge convenience overload: resolve the
+    // supplier -- a DeferredHolder in practice -- and delegate.
     default <T> DataComponentMap.Builder set(Supplier<? extends DataComponentType<T>> componentType, T value) {
-        throw Unimplemented.forMember("net/neoforged/neoforge/common/extensions/IDataComponentMapBuilderExtensions.set:(Ljava/util/function/Supplier;Ljava/lang/Object;)Lnet/minecraft/core/component/DataComponentMap$Builder;");
+        return ((DataComponentMap.Builder) this).set(componentType.get(), value);
     }
 }

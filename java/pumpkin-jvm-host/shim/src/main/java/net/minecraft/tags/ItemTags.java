@@ -9,7 +9,8 @@ public final class ItemTags {
     protected ItemTags() {
     }
 
+    // Pumpkin divergence: real body -- TagKey.create over the item registry's key.
     public static TagKey<Item> create(final Identifier name) {
-        throw Unimplemented.forMember("net/minecraft/tags/ItemTags.create:(Lnet/minecraft/resources/Identifier;)Lnet/minecraft/tags/TagKey;");
+        return TagKey.create(net.minecraft.resources.ResourceKey.createRegistryKey(Identifier.fromNamespaceAndPath("minecraft", "item")), name);
     }
 }

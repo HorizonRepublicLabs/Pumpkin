@@ -47,6 +47,12 @@ public class ResourceKey<T> implements Comparable<ResourceKey<?>> {
         return identifier;
     }
 
+    // Pumpkin divergence: no vanilla counterpart. The registry half, for callers that
+    // need to rebuild a registry key from a value key -- DeferredHolder.create(key) does.
+    public Identifier pumpkinRegistry() {
+        return pumpkinRegistryName;
+    }
+
     // Pumpkin divergence: real body.
     public int compareTo(ResourceKey<?> o) {
         int byRegistry = pumpkinRegistryName.compareTo(o.pumpkinRegistryName);

@@ -20,9 +20,11 @@ public final class IntegerProperty extends Property<Integer> {
     public int generateHashCode() {
         throw Unimplemented.forMember("net/minecraft/world/level/block/state/properties/IntegerProperty.generateHashCode:()I");
     }
-
+    // Pumpkin divergence: real body. The range constrains a file no one writes.
     public static IntegerProperty create(String name, int min, int max) {
-        throw Unimplemented.forMember("net/minecraft/world/level/block/state/properties/IntegerProperty.create:(Ljava/lang/String;II)Lnet/minecraft/world/level/block/state/properties/IntegerProperty;");
+        IntegerProperty property = new IntegerProperty();
+        property.pumpkinName = name;
+        return property;
     }
 
     public Optional<Integer> getValue(String name) {

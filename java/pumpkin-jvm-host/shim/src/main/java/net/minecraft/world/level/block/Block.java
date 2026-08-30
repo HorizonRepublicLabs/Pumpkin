@@ -116,12 +116,22 @@ public class Block extends BlockBehaviour implements ItemLike, IBlockExtension {
         throw Unimplemented.forMember("net/minecraft/world/level/block/Block.getName:()Lnet/minecraft/network/chat/MutableComponent;");
     }
 
+    // Pumpkin divergence: real body. Lazily built; any() answers this block's default
+    // state, which is how machines write their initial LIT=false.
+    private StateDefinition<Block, BlockState> pumpkinStateDefinition;
+
     public StateDefinition<Block, BlockState> getStateDefinition() {
-        throw Unimplemented.forMember("net/minecraft/world/level/block/Block.getStateDefinition:()Lnet/minecraft/world/level/block/state/StateDefinition;");
+        if (pumpkinStateDefinition == null) {
+            pumpkinStateDefinition = new StateDefinition<>();
+            pumpkinStateDefinition.pumpkinAny = this::defaultBlockState;
+        }
+        return pumpkinStateDefinition;
     }
 
+    // Pumpkin divergence: real body. What a block constructor declares as its default is
+    // what defaultBlockState() answers from then on.
     protected final void registerDefaultState(BlockState state) {
-        throw Unimplemented.forMember("net/minecraft/world/level/block/Block.registerDefaultState:(Lnet/minecraft/world/level/block/state/BlockState;)V");
+        this.defaultBlockState = state;
     }
 
     // Pumpkin divergence: real body. One BlockState per Block, built lazily. The state

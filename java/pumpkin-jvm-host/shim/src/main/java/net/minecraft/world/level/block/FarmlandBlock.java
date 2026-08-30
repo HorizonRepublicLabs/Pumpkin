@@ -22,7 +22,7 @@ import dev.pumpkin.shim.Unimplemented;
 
 public class FarmlandBlock extends Block {
 
-    public static final IntegerProperty MOISTURE = null;
+    public static final IntegerProperty MOISTURE = IntegerProperty.create("moisture", 0, 7);
 
     public MapCodec<FarmlandBlock> codec() {
         throw Unimplemented.forMember("net/minecraft/world/level/block/FarmlandBlock.codec:()Lcom/mojang/serialization/MapCodec;");

@@ -6,7 +6,8 @@ import dev.pumpkin.shim.Unimplemented;
 
 public final class FluidTags {
 
-    public static final TagKey<Fluid> WATER = null;
+    // Pumpkin divergence: real value, named as vanilla names it.
+    public static final TagKey<Fluid> WATER = create(Identifier.fromNamespaceAndPath("minecraft", "water"));
 
     protected FluidTags() {
     }
@@ -15,13 +16,9 @@ public final class FluidTags {
         throw Unimplemented.forMember("net/minecraft/tags/FluidTags.create:(Ljava/lang/String;)Lnet/minecraft/tags/TagKey;");
     }
 
+    // Pumpkin divergence: real body.
     public static TagKey<Fluid> create(Identifier name) {
-        throw Unimplemented.forMember("net/minecraft/tags/FluidTags.create:(Lnet/minecraft/resources/Identifier;)Lnet/minecraft/tags/TagKey;");
+        return TagKey.create(net.minecraft.resources.ResourceKey.createRegistryKey(Identifier.fromNamespaceAndPath("minecraft", "fluid")), name);
     }
 
-    static {
-        if (true) {
-            throw Unimplemented.forMember("net/minecraft/tags/FluidTags");
-        }
-    }
 }

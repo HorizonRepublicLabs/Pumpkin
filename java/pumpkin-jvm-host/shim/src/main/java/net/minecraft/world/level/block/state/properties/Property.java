@@ -18,8 +18,14 @@ public abstract class Property<T extends Comparable<T>> {
         throw Unimplemented.forMember("net/minecraft/world/level/block/state/properties/Property.valueCodec:()Lcom/mojang/serialization/Codec;");
     }
 
+    // Pumpkin divergence: real body, backed by the name create() recorded.
+    public String pumpkinName;
+
     public String getName() {
-        throw Unimplemented.forMember("net/minecraft/world/level/block/state/properties/Property.getName:()Ljava/lang/String;");
+        if (pumpkinName == null) {
+            throw Unimplemented.forMember("net/minecraft/world/level/block/state/properties/Property.getName:()Ljava/lang/String;");
+        }
+        return pumpkinName;
     }
 
     public abstract List<T> getPossibleValues();
@@ -34,12 +40,15 @@ public abstract class Property<T extends Comparable<T>> {
         throw Unimplemented.forMember("net/minecraft/world/level/block/state/properties/Property.toString:()Ljava/lang/String;");
     }
 
+    // Pumpkin divergence: real bodies. Properties are singletons -- create() is the only
+    // maker -- so identity semantics are correct, and HashMap needs both of these the
+    // moment a property becomes a map key, which the state machinery makes routine.
     public boolean equals(Object o) {
-        throw Unimplemented.forMember("net/minecraft/world/level/block/state/properties/Property.equals:(Ljava/lang/Object;)Z");
+        return this == o;
     }
 
     public final int hashCode() {
-        throw Unimplemented.forMember("net/minecraft/world/level/block/state/properties/Property.hashCode:()I");
+        return System.identityHashCode(this);
     }
 
     public record Value<T extends Comparable<T>>(Property<T> property, T value) {

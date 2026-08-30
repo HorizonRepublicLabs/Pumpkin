@@ -21,7 +21,7 @@ import dev.pumpkin.shim.Unimplemented;
 
 public class CropBlock extends VegetationBlock implements BonemealableBlock {
 
-    public static final IntegerProperty AGE = null;
+    public static final IntegerProperty AGE = IntegerProperty.create("age", 0, 7);
 
     public MapCodec<? extends CropBlock> codec() {
         throw Unimplemented.forMember("net/minecraft/world/level/block/CropBlock.codec:()Lcom/mojang/serialization/MapCodec;");

@@ -13,8 +13,11 @@ public final class BooleanProperty extends Property<Boolean> {
         throw Unimplemented.forMember("net/minecraft/world/level/block/state/properties/BooleanProperty.getPossibleValues:()Ljava/util/List;");
     }
 
+    // Pumpkin divergence: real body -- a named property is just its name here.
     public static BooleanProperty create(String name) {
-        throw Unimplemented.forMember("net/minecraft/world/level/block/state/properties/BooleanProperty.create:(Ljava/lang/String;)Lnet/minecraft/world/level/block/state/properties/BooleanProperty;");
+        BooleanProperty property = new BooleanProperty();
+        property.pumpkinName = name;
+        return property;
     }
 
     public Optional<Boolean> getValue(String name) {

@@ -17,7 +17,7 @@ import dev.pumpkin.shim.Unimplemented;
 
 public class NetherWartBlock extends VegetationBlock {
 
-    public static final IntegerProperty AGE = null;
+    public static final IntegerProperty AGE = IntegerProperty.create("age", 0, 3);
 
     public MapCodec<NetherWartBlock> codec() {
         throw Unimplemented.forMember("net/minecraft/world/level/block/NetherWartBlock.codec:()Lcom/mojang/serialization/MapCodec;");

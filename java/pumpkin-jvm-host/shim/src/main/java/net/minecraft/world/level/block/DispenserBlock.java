@@ -22,14 +22,20 @@ import dev.pumpkin.shim.Unimplemented;
 
 public class DispenserBlock extends BaseEntityBlock {
 
-    public static final EnumProperty<Direction> FACING = null;
+    public static final EnumProperty<Direction> FACING = EnumProperty.create("facing", Direction.class);
 
     public MapCodec<? extends DispenserBlock> codec() {
         throw Unimplemented.forMember("net/minecraft/world/level/block/DispenserBlock.codec:()Lcom/mojang/serialization/MapCodec;");
     }
 
+    // Pumpkin divergence: real body. Registers a dispenser behaviour Pumpkin's own
+
+    // dispensers never consult -- accepted and dropped, like the unmodelled registries,
+
+    // so an item can install its dispense logic without stopping its whole mod.
+
     public static void registerBehavior(ItemLike item, DispenseItemBehavior behavior) {
-        throw Unimplemented.forMember("net/minecraft/world/level/block/DispenserBlock.registerBehavior:(Lnet/minecraft/world/level/ItemLike;Lnet/minecraft/core/dispenser/DispenseItemBehavior;)V");
+
     }
 
     public DispenserBlock(BlockBehaviour.Properties properties) {

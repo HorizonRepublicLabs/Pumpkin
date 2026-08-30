@@ -24,12 +24,36 @@ public abstract class StateHolder<O, S> {
         throw Unimplemented.forMember("net/minecraft/world/level/block/state/StateHolder.hashCode:()I");
     }
 
+    // Pumpkin divergence: real bodies over a copy-on-write property map. Enough for
+    // registration and the mods' own reads; NOT interned, so vanilla's states-are-identity
+    // guarantee does not hold yet -- that arrives with the Rust state binding. A property
+    // never set fails loudly with the property's name, not a null.
+    protected java.util.Map<Property<?>, Comparable<?>> pumpkinValues = java.util.Map.of();
+
+    @SuppressWarnings("unchecked")
     public <T extends Comparable<T>> T getValue(Property<T> property) {
-        throw Unimplemented.forMember("net/minecraft/world/level/block/state/StateHolder.getValue:(Lnet/minecraft/world/level/block/state/properties/Property;)Ljava/lang/Comparable;");
+        Comparable<?> value = pumpkinValues.get(property);
+        if (value == null) {
+            throw new IllegalArgumentException("property " + property + " was never set on " + this);
+        }
+        return (T) value;
     }
 
+    // Pumpkin divergence: real body. Returns a sibling state with one value changed --
+    // copy-on-write, not interned; see getValue's comment.
+    @SuppressWarnings("unchecked")
     public <T extends Comparable<T>, V extends T> S setValue(Property<T> property, V value) {
-        throw Unimplemented.forMember("net/minecraft/world/level/block/state/StateHolder.setValue:(Lnet/minecraft/world/level/block/state/properties/Property;Lnet/minecraft/world/level/block/state/T;)Ljava/lang/Object;");
+        StateHolder<O, S> next = pumpkinSibling();
+        java.util.Map<Property<?>, Comparable<?>> map = new java.util.HashMap<>(pumpkinValues);
+        map.put(property, value);
+        next.pumpkinValues = java.util.Map.copyOf(map);
+        return (S) next;
+    }
+
+    // Pumpkin divergence: how setValue makes the copy. Subclasses that carry more state
+    // override to preserve it; BlockState keeps its owning block this way.
+    protected StateHolder<O, S> pumpkinSibling() {
+        throw new UnsupportedOperationException(getClass().getName() + " cannot copy itself");
     }
 
     public StateHolder() {

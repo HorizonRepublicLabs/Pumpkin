@@ -35,8 +35,12 @@ public final class EnumProperty<T extends Enum<T> & StringRepresentable> extends
         throw Unimplemented.forMember("net/minecraft/world/level/block/state/properties/EnumProperty.generateHashCode:()I");
     }
 
+    // Pumpkin divergence: real body -- a named property is its name here, as with
+    // BooleanProperty.create.
     public static <T extends Enum<T> & StringRepresentable> EnumProperty<T> create(String name, Class<T> clazz) {
-        throw Unimplemented.forMember("net/minecraft/world/level/block/state/properties/EnumProperty.create:(Ljava/lang/String;Ljava/lang/Class;)Lnet/minecraft/world/level/block/state/properties/EnumProperty;");
+        EnumProperty<T> property = new EnumProperty<>();
+        property.pumpkinName = name;
+        return property;
     }
 
     public static <T extends Enum<T> & StringRepresentable> EnumProperty<T> create(String name, Class<T> clazz, Predicate<T> filter) {

@@ -12,8 +12,10 @@ public interface DataComponentMap extends Iterable<TypedDataComponent<?>>, DataC
 
     DataComponentMap EMPTY = Stubs.of(DataComponentMap.class, "net/minecraft/core/component/DataComponentMap");
 
+    // Pumpkin divergence: real body. A component map is a real map -- small surface,
+    // genuine behaviour, nothing to stub.
     static DataComponentMap.Builder builder() {
-        throw Unimplemented.forMember("net/minecraft/core/component/DataComponentMap.builder:()Lnet/minecraft/core/component/DataComponentMap$Builder;");
+        return new Builder();
     }
 
     Set<DataComponentType<?>> keySet();
@@ -39,16 +41,49 @@ public interface DataComponentMap extends Iterable<TypedDataComponent<?>>, DataC
         protected Builder() {
         }
 
+        // Pumpkin divergence: real bodies over a plain LinkedHashMap.
+        final java.util.Map<DataComponentType<?>, Object> pumpkinMap = new java.util.LinkedHashMap<>();
+
+        @SuppressWarnings("unchecked")
         public <T> T get(DataComponentType<? extends T> type) {
-            throw Unimplemented.forMember("net/minecraft/core/component/DataComponentMap$Builder.get:(Lnet/minecraft/core/component/DataComponentType;)Ljava/lang/Object;");
+            return (T) pumpkinMap.get(type);
         }
 
         public <T> DataComponentMap.Builder set(DataComponentType<T> type, T value) {
-            throw Unimplemented.forMember("net/minecraft/core/component/DataComponentMap$Builder.set:(Lnet/minecraft/core/component/DataComponentType;Ljava/lang/Object;)Lnet/minecraft/core/component/DataComponentMap$Builder;");
+            pumpkinMap.put(type, value);
+            return this;
         }
 
         public DataComponentMap build() {
-            throw Unimplemented.forMember("net/minecraft/core/component/DataComponentMap$Builder.build:()Lnet/minecraft/core/component/DataComponentMap;");
+            final java.util.Map<DataComponentType<?>, Object> built =
+                    java.util.Collections.unmodifiableMap(new java.util.LinkedHashMap<>(pumpkinMap));
+            return new DataComponentMap() {
+                @Override
+                @SuppressWarnings("unchecked")
+                public <T> T get(DataComponentType<? extends T> type) {
+                    return (T) built.get(type);
+                }
+
+                @Override
+                public boolean has(DataComponentType<?> type) {
+                    return built.containsKey(type);
+                }
+
+                @Override
+                public Set<DataComponentType<?>> keySet() {
+                    return built.keySet();
+                }
+
+                @Override
+                public boolean isEmpty() {
+                    return built.isEmpty();
+                }
+
+                @Override
+                public int size() {
+                    return built.size();
+                }
+            };
         }
 
         private record SimpleMap(Reference2ObjectMap<DataComponentType<?>, Object> map) implements DataComponentMap {

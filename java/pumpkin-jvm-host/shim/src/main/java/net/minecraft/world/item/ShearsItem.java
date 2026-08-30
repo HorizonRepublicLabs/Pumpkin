@@ -14,9 +14,12 @@ public class ShearsItem extends Item {
 
     public ShearsItem(Item.Properties properties) {
     }
-
+    // Pumpkin divergence: real-enough body. Vanilla's builds mining-speed rules from
+    // registry lookups the shim does not have; the result is item metadata that only
+    // Java-side mining logic would read, and mining runs in Rust. An empty rule set is
+    // "no special rules", which is honest for metadata nothing consults.
     public static Tool createToolProperties() {
-        throw Unimplemented.forMember("net/minecraft/world/item/ShearsItem.createToolProperties:()Lnet/minecraft/world/item/component/Tool;");
+        return new Tool(java.util.List.of(), 1.0F, 1, false);
     }
 
     public boolean mineBlock(ItemStack itemStack, Level level, BlockState state, BlockPos pos, LivingEntity miner) {

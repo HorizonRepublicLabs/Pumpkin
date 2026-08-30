@@ -134,60 +134,144 @@ public class Item implements ItemLike, FeatureElement, IItemExtension {
 
     public static class Properties implements IItemPropertiesExtensions {
 
+        // Pumpkin divergence: real body. Item metadata Pumpkin does not model yet;
+
+        // accepted and dropped, chain returns `this`.
+
         public Item.Properties setNoCombineRepair() {
-            throw Unimplemented.forMember("net/minecraft/world/item/Item$Properties.setNoCombineRepair:()Lnet/minecraft/world/item/Item$Properties;");
+
+            return this;
+
         }
+
+        // Pumpkin divergence: real body. Item metadata Pumpkin does not model yet;
+
+        // accepted and dropped, chain returns `this`.
 
         public Item.Properties stacksTo(int max) {
-            throw Unimplemented.forMember("net/minecraft/world/item/Item$Properties.stacksTo:(I)Lnet/minecraft/world/item/Item$Properties;");
+
+            return this;
+
         }
+
+        // Pumpkin divergence: real body. Item metadata Pumpkin does not model yet;
+
+        // accepted and dropped, chain returns `this`.
 
         public Item.Properties durability(int maxDamage) {
-            throw Unimplemented.forMember("net/minecraft/world/item/Item$Properties.durability:(I)Lnet/minecraft/world/item/Item$Properties;");
+
+            return this;
+
         }
+
+        // Pumpkin divergence: real body. Item metadata Pumpkin does not model yet;
+
+        // accepted and dropped, chain returns `this`.
 
         public Item.Properties craftRemainder(Item craftingRemainingItem) {
-            throw Unimplemented.forMember("net/minecraft/world/item/Item$Properties.craftRemainder:(Lnet/minecraft/world/item/Item;)Lnet/minecraft/world/item/Item$Properties;");
+
+            return this;
+
         }
+
+        // Pumpkin divergence: real body. Item metadata Pumpkin does not model yet;
+
+        // accepted and dropped, chain returns `this`.
 
         public Item.Properties craftRemainder(ItemStackTemplate craftingRemainingItem) {
-            throw Unimplemented.forMember("net/minecraft/world/item/Item$Properties.craftRemainder:(Lnet/minecraft/world/item/ItemStackTemplate;)Lnet/minecraft/world/item/Item$Properties;");
+
+            return this;
+
         }
+
+        // Pumpkin divergence: real body. Item metadata Pumpkin does not model yet;
+
+        // accepted and dropped, chain returns `this`.
 
         public Item.Properties tool(ToolMaterial material, TagKey<Block> minesEfficiently, float attackDamageBaseline, float attackSpeedBaseline, float disableBlockingSeconds) {
-            throw Unimplemented.forMember("net/minecraft/world/item/Item$Properties.tool:(Lnet/minecraft/world/item/ToolMaterial;Lnet/minecraft/tags/TagKey;FFF)Lnet/minecraft/world/item/Item$Properties;");
+
+            return this;
+
         }
+
+        // Pumpkin divergence: real body. Item metadata Pumpkin does not model yet;
+
+        // accepted and dropped, chain returns `this`.
 
         public Item.Properties pickaxe(ToolMaterial material, float attackDamageBaseline, float attackSpeedBaseline) {
-            throw Unimplemented.forMember("net/minecraft/world/item/Item$Properties.pickaxe:(Lnet/minecraft/world/item/ToolMaterial;FF)Lnet/minecraft/world/item/Item$Properties;");
+
+            return this;
+
         }
+
+        // Pumpkin divergence: real body. Item metadata Pumpkin does not model yet;
+
+        // accepted and dropped, chain returns `this`.
 
         public Item.Properties sword(ToolMaterial material, float attackDamageBaseline, float attackSpeedBaseline) {
-            throw Unimplemented.forMember("net/minecraft/world/item/Item$Properties.sword:(Lnet/minecraft/world/item/ToolMaterial;FF)Lnet/minecraft/world/item/Item$Properties;");
+
+            return this;
+
         }
+
+        // Pumpkin divergence: real body. Item metadata Pumpkin does not model yet;
+
+        // accepted and dropped, chain returns `this`.
 
         public Item.Properties spear(ToolMaterial material, float attackDuration, float damageMultiplier, float delay, float dismountTime, float dismountThreshold, float knockbackTime, float knockbackThreshold, float damageTime, float damageThreshold) {
-            throw Unimplemented.forMember("net/minecraft/world/item/Item$Properties.spear:(Lnet/minecraft/world/item/ToolMaterial;FFFFFFFFF)Lnet/minecraft/world/item/Item$Properties;");
+
+            return this;
+
         }
+
+        // Pumpkin divergence: real body. Item metadata Pumpkin does not model yet;
+
+        // accepted and dropped, chain returns `this`.
 
         public Item.Properties humanoidArmor(ArmorMaterial material, ArmorType type) {
-            throw Unimplemented.forMember("net/minecraft/world/item/Item$Properties.humanoidArmor:(Lnet/minecraft/world/item/equipment/ArmorMaterial;Lnet/minecraft/world/item/equipment/ArmorType;)Lnet/minecraft/world/item/Item$Properties;");
+
+            return this;
+
         }
+
+        // Pumpkin divergence: real body. Item metadata Pumpkin does not model yet;
+
+        // accepted and dropped, chain returns `this`.
 
         public Item.Properties setId(ResourceKey<Item> id) {
-            throw Unimplemented.forMember("net/minecraft/world/item/Item$Properties.setId:(Lnet/minecraft/resources/ResourceKey;)Lnet/minecraft/world/item/Item$Properties;");
+
+            return this;
+
         }
+
+        // Pumpkin divergence: real body. Item metadata Pumpkin does not model yet;
+
+        // accepted and dropped, chain returns `this`.
 
         public Item.Properties overrideDescription(String descriptionId) {
-            throw Unimplemented.forMember("net/minecraft/world/item/Item$Properties.overrideDescription:(Ljava/lang/String;)Lnet/minecraft/world/item/Item$Properties;");
+
+            return this;
+
         }
+
+        // Pumpkin divergence: real body. Item metadata Pumpkin does not model yet;
+
+        // accepted and dropped, chain returns `this`.
 
         public Item.Properties useBlockDescriptionPrefix() {
-            throw Unimplemented.forMember("net/minecraft/world/item/Item$Properties.useBlockDescriptionPrefix:()Lnet/minecraft/world/item/Item$Properties;");
+
+            return this;
+
         }
 
+        // Pumpkin divergence: real body. Item metadata Pumpkin does not model yet;
+
+        // accepted and dropped, chain returns `this`.
+
         public <T> Item.Properties component(DataComponentType<T> type, T value) {
-            throw Unimplemented.forMember("net/minecraft/world/item/Item$Properties.component:(Lnet/minecraft/core/component/DataComponentType;Ljava/lang/Object;)Lnet/minecraft/world/item/Item$Properties;");
+
+            return this;
+
         }
 
         public Properties() {

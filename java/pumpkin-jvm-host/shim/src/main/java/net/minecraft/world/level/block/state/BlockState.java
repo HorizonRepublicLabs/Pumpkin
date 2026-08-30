@@ -16,4 +16,13 @@ public class BlockState extends BlockBehaviour.BlockStateBase implements IBlockS
 
     public BlockState() {
     }
+
+    // Pumpkin divergence: setValue's copy keeps the owning block and the values.
+    @Override
+    protected net.minecraft.world.level.block.state.StateHolder<net.minecraft.world.level.block.Block, BlockState> pumpkinSibling() {
+        BlockState sibling = new BlockState();
+        sibling.pumpkinOwner = this.pumpkinOwner;
+        sibling.pumpkinValues = this.pumpkinValues;
+        return sibling;
+    }
 }

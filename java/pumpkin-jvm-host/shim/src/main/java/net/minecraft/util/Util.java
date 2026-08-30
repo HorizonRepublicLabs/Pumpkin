@@ -9,12 +9,14 @@ import dev.pumpkin.shim.Unimplemented;
 
 public class Util {
 
+    // Pumpkin divergence: real bodies, copied from vanilla -- the ARGB rule.
     public static <T> T make(Supplier<T> factory) {
-        throw Unimplemented.forMember("net/minecraft/util/Util.make:(Ljava/util/function/Supplier;)Ljava/lang/Object;");
+        return factory.get();
     }
 
     public static <T> T make(T t, Consumer<? super T> consumer) {
-        throw Unimplemented.forMember("net/minecraft/util/Util.make:(Ljava/lang/Object;Ljava/util/function/Consumer;)Ljava/lang/Object;");
+        consumer.accept(t);
+        return t;
     }
 
     public static <T, R> Function<T, R> memoize(Function<T, R> function) {
