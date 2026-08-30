@@ -174,7 +174,7 @@ impl DatapackManager {
         }
 
         recipe_manager.set_recipes(all_recipes);
-        load_dynamic_worldgen(&datapacks_dir);
+        load_dynamic_content(&datapacks_dir);
         *self
             .loaded_packs
             .write()
@@ -600,6 +600,95 @@ pub fn read_pack_mcmeta(pack_path: &Path) -> (String, u32) {
 /// `minecraft:ore`-shaped features are expressible -- see
 /// [`dynamic_features`](pumpkin_world::generation::feature::dynamic_features) -- and each
 /// one that is not gets its reason said once instead of being half-placed.
+/// The dynamic content a datapack load refreshes beyond recipes: worldgen and item tags.
+pub(crate) fn load_dynamic_content(datapacks_dir: &Path) {
+    load_dynamic_worldgen(datapacks_dir);
+    load_dynamic_item_tags(datapacks_dir);
+}
+
+/// Reads item tag JSONs out of the extracted `mod_*` datapacks and installs them.
+///
+/// Nested directories become tag paths (`tags/item/gems/super.json` is
+/// `<ns>:gems/super`), matching the datapack convention, and entries are stored as
+/// written -- `#references` resolve at query time in the dynamic store.
+pub(crate) fn load_dynamic_item_tags(datapacks_dir: &Path) {
+    let mut tags: std::collections::HashMap<String, Vec<String>> = std::collections::HashMap::new();
+    let Ok(entries) = fs::read_dir(datapacks_dir) else {
+        pumpkin_data::dynamic::install_item_tags(tags);
+        return;
+    };
+    for entry in entries.flatten() {
+        if !entry.file_name().to_string_lossy().starts_with("mod_") {
+            continue;
+        }
+        let Ok(namespaces) = fs::read_dir(entry.path().join("data")) else {
+            continue;
+        };
+        for namespace_entry in namespaces.flatten() {
+            let namespace = namespace_entry.file_name().to_string_lossy().to_string();
+            let tag_root = namespace_entry.path().join("tags").join("item");
+            if !tag_root.is_dir() {
+                continue;
+            }
+            collect_tag_files(&tag_root, &tag_root, &namespace, &mut tags);
+        }
+    }
+    let count = tags.len();
+    if count > 0 {
+        info!("Mod item tags: {count} tag(s) loaded");
+    }
+    pumpkin_data::dynamic::install_item_tags(tags);
+}
+
+fn collect_tag_files(
+    root: &Path,
+    dir: &Path,
+    namespace: &str,
+    tags: &mut std::collections::HashMap<String, Vec<String>>,
+) {
+    let Ok(entries) = fs::read_dir(dir) else {
+        return;
+    };
+    for entry in entries.flatten() {
+        let path = entry.path();
+        if path.is_dir() {
+            collect_tag_files(root, &path, namespace, tags);
+            continue;
+        }
+        if path.extension().is_none_or(|ext| ext != "json") {
+            continue;
+        }
+        let Ok(text) = fs::read_to_string(&path) else {
+            continue;
+        };
+        let Ok(json) = serde_json::from_str::<serde_json::Value>(&text) else {
+            continue;
+        };
+        let Some(values) = json.get("values").and_then(serde_json::Value::as_array) else {
+            continue;
+        };
+        let relative = path
+            .strip_prefix(root)
+            .unwrap_or(&path)
+            .with_extension("")
+            .to_string_lossy()
+            .replace('\\', "/");
+        let name = format!("{namespace}:{relative}");
+        // Several packs may add to one tag ("replace": false is the convention mods use);
+        // appending honours that, and nothing this loader serves uses replace: true.
+        let list = tags.entry(name).or_default();
+        for value in values {
+            let entry = value
+                .get("id")
+                .and_then(serde_json::Value::as_str)
+                .or_else(|| value.as_str());
+            if let Some(entry) = entry {
+                list.push(entry.to_string());
+            }
+        }
+    }
+}
+
 pub(crate) fn load_dynamic_worldgen(datapacks_dir: &Path) {
     use pumpkin_world::generation::feature::dynamic_features;
 

@@ -41,6 +41,7 @@ mod data_component_types;
 mod entity_types;
 #[cfg(feature = "fluid")]
 mod fluids;
+mod item_tags;
 #[cfg(feature = "item")]
 mod items;
 #[cfg(feature = "screen")]
@@ -76,6 +77,7 @@ pub use fluids::{
     FluidRegistration, base_fluid_count, fluid_count, fluid_from_id, fluid_from_name,
     register_fluid,
 };
+pub use item_tags::{install_item_tags, item_tag_contains};
 #[cfg(feature = "item")]
 pub use items::{
     ItemRegistration, base_item_count, item_count, item_from_id, item_from_name, register_item,

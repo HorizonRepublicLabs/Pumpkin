@@ -420,7 +420,7 @@ impl PumpkinServer {
         // during plugin loading found nothing -- the blocks were still staged. Now that
         // the tables are frozen, read the extracted datapacks once more and install the
         // features chunk generation will consult.
-        crate::data::datapack::load_dynamic_worldgen(
+        crate::data::datapack::load_dynamic_content(
             &self.server.basic_config.get_world_path().join("datapacks"),
         );
 
