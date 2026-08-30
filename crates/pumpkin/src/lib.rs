@@ -416,6 +416,14 @@ impl PumpkinServer {
         pumpkin_data::dynamic::freeze();
         crate::net::java::neoforge::channels::freeze();
 
+        // Mod worldgen resolves its blocks against the published registries, so the pass
+        // during plugin loading found nothing -- the blocks were still staged. Now that
+        // the tables are frozen, read the extracted datapacks once more and install the
+        // features chunk generation will consult.
+        crate::data::datapack::load_dynamic_worldgen(
+            &self.server.basic_config.get_world_path().join("datapacks"),
+        );
+
         if self.server.advanced_config.plugins.hot_reload {
             if let Err(err) = self.server.plugin_manager.start_watcher(&self.server).await {
                 error!("Failed to start plugin hot-reloading watcher: {err}");

@@ -174,6 +174,7 @@ impl DatapackManager {
         }
 
         recipe_manager.set_recipes(all_recipes);
+        load_dynamic_worldgen(&datapacks_dir);
         *self
             .loaded_packs
             .write()
@@ -590,6 +591,115 @@ pub fn read_pack_mcmeta(pack_path: &Path) -> (String, u32) {
         return (description, pack_format);
     }
     (String::new(), 61)
+}
+
+/// Reads mod ore features out of the extracted `mod_*` datapacks and installs them.
+///
+/// The trail is the one `NeoForge` walks: a biome modifier JSON names a placed feature and
+/// the biomes it belongs in; the placed feature names its configured feature. Only
+/// `minecraft:ore`-shaped features are expressible -- see
+/// [`dynamic_features`](pumpkin_world::generation::feature::dynamic_features) -- and each
+/// one that is not gets its reason said once instead of being half-placed.
+pub(crate) fn load_dynamic_worldgen(datapacks_dir: &Path) {
+    use pumpkin_world::generation::feature::dynamic_features;
+
+    let mut features = Vec::new();
+    let mut refused = 0usize;
+
+    let Ok(entries) = fs::read_dir(datapacks_dir) else {
+        dynamic_features::install_dynamic_features(features);
+        return;
+    };
+    for entry in entries.flatten() {
+        if !entry.file_name().to_string_lossy().starts_with("mod_") {
+            continue;
+        }
+        let data_dir = entry.path().join("data");
+        let Ok(namespaces) = fs::read_dir(&data_dir) else {
+            continue;
+        };
+        for namespace_entry in namespaces.flatten() {
+            let namespace = namespace_entry.file_name().to_string_lossy().to_string();
+            let modifiers_dir = namespace_entry
+                .path()
+                .join("neoforge")
+                .join("biome_modifier");
+            let Ok(modifiers) = fs::read_dir(&modifiers_dir) else {
+                continue;
+            };
+            for modifier_entry in modifiers.flatten() {
+                let Ok(modifier_json) = fs::read_to_string(modifier_entry.path()) else {
+                    continue;
+                };
+                let Ok(modifier) = serde_json::from_str::<serde_json::Value>(&modifier_json) else {
+                    continue;
+                };
+                // The modifier's own type is a codec in the mod's Java half; what this
+                // host can honour is the shape every add-features modifier shares: which
+                // feature, in which biomes.
+                let Some(feature_ref) = modifier.get("feature").and_then(|v| v.as_str()) else {
+                    continue;
+                };
+                let Some(biomes) = modifier.get("biomes").and_then(|v| v.as_str()) else {
+                    continue;
+                };
+
+                let (feature_ns, feature_path) = feature_ref
+                    .split_once(':')
+                    .unwrap_or((&namespace, feature_ref));
+                let worldgen = data_dir.join(feature_ns).join("worldgen");
+                let placed_path = worldgen
+                    .join("placed_feature")
+                    .join(format!("{feature_path}.json"));
+                let Ok(placed_json) = fs::read_to_string(&placed_path) else {
+                    warn!("{feature_ref}: biome modifier names it, but {placed_path:?} is missing");
+                    refused += 1;
+                    continue;
+                };
+                // The placed feature names its configured feature; by convention they
+                // share a path, and the reference inside the JSON is authoritative.
+                let configured_ref = serde_json::from_str::<serde_json::Value>(&placed_json)
+                    .ok()
+                    .and_then(|v| v.get("feature").and_then(|f| f.as_str().map(String::from)))
+                    .unwrap_or_else(|| feature_ref.to_string());
+                let (configured_ns, configured_path) = configured_ref.split_once(':').map_or_else(
+                    || (namespace.clone(), configured_ref.clone()),
+                    |(a, b)| (a.to_string(), b.to_string()),
+                );
+                let configured_file = data_dir
+                    .join(&configured_ns)
+                    .join("worldgen")
+                    .join("configured_feature")
+                    .join(format!("{configured_path}.json"));
+                let Ok(configured_json) = fs::read_to_string(&configured_file) else {
+                    warn!("{feature_ref}: its configured feature {configured_ref} is missing");
+                    refused += 1;
+                    continue;
+                };
+
+                match dynamic_features::parse_dynamic_ore(
+                    feature_ref,
+                    &placed_json,
+                    &configured_json,
+                    biomes,
+                ) {
+                    Ok(feature) => features.push(feature),
+                    Err(reason) => {
+                        warn!("{feature_ref}: not placeable by this server: {reason}");
+                        refused += 1;
+                    }
+                }
+            }
+        }
+    }
+
+    if !features.is_empty() || refused > 0 {
+        info!(
+            "Mod worldgen: {} ore feature(s) will generate in new chunks; {refused} refused",
+            features.len()
+        );
+    }
+    dynamic_features::install_dynamic_features(features);
 }
 
 /// Says how many of a pack's recipe files did not load.

@@ -1156,6 +1156,7 @@ impl ProtoChunk {
             features_to_run.sort_unstable();
             features_to_run.dedup();
 
+            let static_count = features_to_run.len();
             for (p, feature_enum) in features_to_run.into_iter().enumerate() {
                 if let Some(feature) = PLACED_FEATURES.get(&feature_enum) {
                     let decorator_seed = get_decorator_seed(population_seed, p as u64, step as u64);
@@ -1173,6 +1174,40 @@ impl ProtoChunk {
                     );
                 }
             }
+
+            // Runtime features -- a mod's ores, parsed from its datapack -- run after the
+            // static tables at the same step, seeded the same way with indices continuing
+            // where the static list ended so their placement is deterministic per world
+            // seed. Biome gating happens here against the feature's own tag: the static
+            // biome filter can only find features in the generated per-biome lists.
+            let mut extra = 0u64;
+            crate::generation::feature::dynamic_features::for_each_at_step(
+                step,
+                &biomes_in_chunk,
+                |dynamic| {
+                    let decorator_seed = get_decorator_seed(
+                        population_seed,
+                        static_count as u64 + extra,
+                        step as u64,
+                    );
+                    extra += 1;
+                    let mut random =
+                        RandomGenerator::Xoroshiro(Xoroshiro::from_seed(decorator_seed));
+
+                    // The feature-name argument only feeds the static biome filter and
+                    // logging; no dynamic placement chain contains that modifier, so any
+                    // variant serves. Ore stands in for the family this path supports.
+                    dynamic.placed.generate(
+                        cache,
+                        block_registry,
+                        generation_min_y,
+                        generation_height,
+                        pumpkin_data::placed_feature::PlacedFeature::OreIronUpper,
+                        &mut random,
+                        origin_pos,
+                    );
+                },
+            );
         }
 
         cache.get_center_chunk_mut().stage = StagedChunkEnum::Features;
