@@ -764,6 +764,7 @@ impl PluginManager {
 
         // `mods/` joins the scan when the JVM host is compiled in. Created eagerly like
         // `plugins/`, so an operator sees where jars belong without reading anything.
+        #[cfg_attr(not(feature = "jvm-plugins"), allow(unused_mut))]
         let mut scan_dirs = vec![path.to_path_buf()];
         #[cfg(feature = "jvm-plugins")]
         {
