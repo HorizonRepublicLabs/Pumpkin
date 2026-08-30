@@ -48,6 +48,8 @@ public class RegisterEvent extends Event implements IModBusEvent {
                 DeferredRegister.pumpkinSink().registerMenuType(name.toString());
             } else if (value instanceof net.minecraft.sounds.SoundEvent) {
                 DeferredRegister.pumpkinSink().registerSoundEvent(name.toString());
+            } else if (value instanceof net.minecraft.core.component.DataComponentType) {
+                DeferredRegister.pumpkinSink().registerDataComponentType(name.toString());
             } else {
                 DeferredRegister.pumpkinWarnUnsupported(registryKey.identifier().toString(), name.toString());
             }

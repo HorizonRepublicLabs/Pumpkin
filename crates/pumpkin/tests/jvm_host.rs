@@ -304,6 +304,12 @@ fn java_can_register_a_menu_type_and_a_sound_event() {
         u16::try_from(sound).unwrap() >= pumpkin_data::dynamic::base_sound_event_count(),
         "a runtime sound event id was assigned, got {sound}"
     );
+    let component = register("registerDataComponentType", "testmod:charge_level");
+    assert!(
+        u16::try_from(component).unwrap()
+            >= pumpkin_data::dynamic::base_data_component_type_count(),
+        "a runtime data component type id was assigned, got {component}"
+    );
 }
 
 #[test]

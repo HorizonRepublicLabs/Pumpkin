@@ -1426,4 +1426,20 @@ edit('net/neoforged/neoforge/registries/RegisterEvent.java', [
 ])
 
 
+# ---------------------------------------------------- data component types, the sink
+
+edit('net/neoforged/neoforge/registries/DeferredRegister.java', [
+    ('        default int registerSoundEvent(String id) {\n            throw new IllegalStateException("this sink cannot register sound events: " + id);\n        }',
+     '        default int registerSoundEvent(String id) {\n            throw new IllegalStateException("this sink cannot register sound events: " + id);\n        }\n\n        default int registerDataComponentType(String id) {\n            throw new IllegalStateException("this sink cannot register data component types: " + id);\n        }'),
+    ('            } else if (object instanceof net.minecraft.sounds.SoundEvent) {\n                pumpkinSink.registerSoundEvent(holder.getId().toString());\n            } else {',
+     '            } else if (object instanceof net.minecraft.sounds.SoundEvent) {\n                pumpkinSink.registerSoundEvent(holder.getId().toString());\n            } else if (object instanceof net.minecraft.core.component.DataComponentType) {\n                pumpkinSink.registerDataComponentType(holder.getId().toString());\n            } else {'),
+])
+
+
+edit('net/neoforged/neoforge/registries/RegisterEvent.java', [
+    ('            } else if (value instanceof net.minecraft.sounds.SoundEvent) {\n                DeferredRegister.pumpkinSink().registerSoundEvent(name.toString());\n            } else {',
+     '            } else if (value instanceof net.minecraft.sounds.SoundEvent) {\n                DeferredRegister.pumpkinSink().registerSoundEvent(name.toString());\n            } else if (value instanceof net.minecraft.core.component.DataComponentType) {\n                DeferredRegister.pumpkinSink().registerDataComponentType(name.toString());\n            } else {'),
+])
+
+
 commit()

@@ -105,4 +105,17 @@ public final class PumpkinHost {
      * @throws IllegalStateException if registration failed or the registries are frozen
      */
     public static native int registerSoundEvent(String id);
+
+    /**
+     * Registers a data component type.
+     *
+     * <p>The id is a name the server can acknowledge over the protocol. Reading a mod
+     * component's payload needs its codec, which lives in the mod's Java half; carrying
+     * raw payloads through is a future slice.
+     *
+     * @param id namespaced id, e.g. {@code testmod:charge_level}
+     * @return the assigned data component type id
+     * @throws IllegalStateException if registration failed or the registries are frozen
+     */
+    public static native int registerDataComponentType(String id);
 }

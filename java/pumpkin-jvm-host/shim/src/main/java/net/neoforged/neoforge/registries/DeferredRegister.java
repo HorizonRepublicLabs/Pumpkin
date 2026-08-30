@@ -71,6 +71,10 @@ public class DeferredRegister<T> {
         default int registerSoundEvent(String id) {
             throw new IllegalStateException("this sink cannot register sound events: " + id);
         }
+
+        default int registerDataComponentType(String id) {
+            throw new IllegalStateException("this sink cannot register data component types: " + id);
+        }
     }
 
     private static Sink pumpkinSink = (id, template) -> {
@@ -193,6 +197,8 @@ public class DeferredRegister<T> {
                 pumpkinSink.registerMenuType(holder.getId().toString());
             } else if (object instanceof net.minecraft.sounds.SoundEvent) {
                 pumpkinSink.registerSoundEvent(holder.getId().toString());
+            } else if (object instanceof net.minecraft.core.component.DataComponentType) {
+                pumpkinSink.registerDataComponentType(holder.getId().toString());
             } else {
                 pumpkinWarnUnsupported(pumpkinRegistryKey.identifier().toString(),
                         holder.getId().toString());

@@ -63,6 +63,11 @@ pub fn bind(env: &mut JNIEnv) -> Result<(), VmError> {
                 sig: "(Ljava/lang/String;)I".into(),
                 fn_ptr: register_sound_event_native as *mut std::ffi::c_void,
             },
+            NativeMethod {
+                name: "registerDataComponentType".into(),
+                sig: "(Ljava/lang/String;)I".into(),
+                fn_ptr: register_data_component_type_native as *mut std::ffi::c_void,
+            },
         ],
     )
     .map_err(|err| VmError::Java(format!("Failed to bind PumpkinHost natives: {err}")))
@@ -366,6 +371,27 @@ extern "system" fn register_sound_event_native(
     // The id survives the protocol so the server can point at the sound; the audio ships
     // in the mod's client half, like a menu type's screen.
     match pumpkin_data::dynamic::register_sound_event(id) {
+        Ok(assigned) => jint::from(assigned),
+        Err(err) => {
+            throw(&mut env, &err.to_string());
+            0
+        }
+    }
+}
+
+extern "system" fn register_data_component_type_native(
+    mut env: JNIEnv,
+    _class: JClass,
+    id: JString,
+) -> jint {
+    let Some(id) = read_string(&mut env, &id, "the data component type id") else {
+        return 0;
+    };
+
+    // A name the server can acknowledge over the protocol. Reading a mod component's
+    // payload needs its codec, which lives in the mod's Java half -- see the dynamic
+    // module's docs.
+    match pumpkin_data::dynamic::register_data_component_type(id) {
         Ok(assigned) => jint::from(assigned),
         Err(err) => {
             throw(&mut env, &err.to_string());

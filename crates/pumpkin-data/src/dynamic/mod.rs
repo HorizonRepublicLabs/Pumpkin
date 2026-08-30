@@ -35,6 +35,8 @@ use std::sync::OnceLock;
 mod block_entity_types;
 #[cfg(feature = "block")]
 mod blocks;
+#[cfg(feature = "data_component")]
+mod data_component_types;
 #[cfg(feature = "entity_type")]
 mod entity_types;
 #[cfg(feature = "fluid")]
@@ -58,6 +60,11 @@ pub use blocks::{
     block_from_item_id, block_from_name, block_id_from_state_id, block_properties, block_state_for,
     link_block_item, register_block, registering_block_hardness, registering_block_id,
     registering_block_item_id, state_count, state_from_id, state_has_random_ticks,
+};
+#[cfg(feature = "data_component")]
+pub use data_component_types::{
+    base_data_component_type_count, data_component_type_count, data_component_type_id,
+    data_component_type_name, register_data_component_type,
 };
 #[cfg(feature = "entity_type")]
 pub use entity_types::{
@@ -145,6 +152,8 @@ pub fn freeze() {
     fluids::publish();
     #[cfg(feature = "item")]
     items::publish();
+    #[cfg(feature = "data_component")]
+    data_component_types::publish();
     #[cfg(feature = "screen")]
     menu_types::publish();
     #[cfg(feature = "sound")]

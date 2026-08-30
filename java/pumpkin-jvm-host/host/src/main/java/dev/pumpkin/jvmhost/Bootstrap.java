@@ -70,6 +70,11 @@ public final class Bootstrap {
             public int registerSoundEvent(String id) {
                 return PumpkinHost.registerSoundEvent(id);
             }
+
+            @Override
+            public int registerDataComponentType(String id) {
+                return PumpkinHost.registerDataComponentType(id);
+            }
         });
     }
 
