@@ -1473,4 +1473,242 @@ edit('net/neoforged/neoforge/registries/RegisterEvent.java', [
 ])
 
 
+# ------------------------------------------------- interaction bridge, shim surface
+
+edit('net/minecraft/world/item/ItemStack.java', [
+    ('    public ItemStack(ItemLike item, int count) {\n    }\n\n    public ItemStack(ItemLike item) {\n    }',
+     '    // Pumpkin divergence: a stack really carries its item and count. The interaction\n    // bridge builds these and mods read them back; without real fields every isEmpty()\n    // is a guess.\n    private ItemLike pumpkinItem;\n\n    private int pumpkinCount = 1;\n\n    public ItemLike pumpkinItemLike() {\n        return pumpkinItem;\n    }\n\n    public ItemStack(ItemLike item, int count) {\n        this.pumpkinItem = item;\n        this.pumpkinCount = count;\n    }\n\n    public ItemStack(ItemLike item) {\n        this(item, 1);\n    }'),
+    ('    public boolean isEmpty() {\n        throw Unimplemented.forMember("net/minecraft/world/item/ItemStack.isEmpty:()Z");\n    }',
+     '    // Pumpkin divergence: real body.\n    public boolean isEmpty() {\n        return pumpkinItem == null || pumpkinCount <= 0;\n    }'),
+    ('    public Item getItem() {\n        throw Unimplemented.forMember("net/minecraft/world/item/ItemStack.getItem:()Lnet/minecraft/world/item/Item;");\n    }',
+     '    // Pumpkin divergence: real body.\n    public Item getItem() {\n        return pumpkinItem == null ? null : pumpkinItem.asItem();\n    }'),
+    ('    public ItemStack copyWithCount(int count) {\n        throw Unimplemented.forMember("net/minecraft/world/item/ItemStack.copyWithCount:(I)Lnet/minecraft/world/item/ItemStack;");\n    }',
+     '    // Pumpkin divergence: real body.\n    public ItemStack copyWithCount(int count) {\n        return new ItemStack(pumpkinItem, count);\n    }'),
+    ('    public int count() {\n        throw Unimplemented.forMember("net/minecraft/world/item/ItemStack.count:()I");\n    }',
+     '    // Pumpkin divergence: real body.\n    public int count() {\n        return pumpkinCount;\n    }'),
+])
+
+
+edit('net/neoforged/neoforge/transfer/item/ItemResource.java', [
+    ('    public static ItemResource of(ItemStack stack) {\n        throw Unimplemented.forMember("net/neoforged/neoforge/transfer/item/ItemResource.of:(Lnet/minecraft/world/item/ItemStack;)Lnet/neoforged/neoforge/transfer/item/ItemResource;");\n    }',
+     '    // Pumpkin divergence: real bodies for the stack-shaped subset the interaction path\n    // uses. A resource is an item reference without a count; EMPTY-ness follows the item.\n    private ItemLike pumpkinItem;\n\n    public static ItemResource of(ItemStack stack) {\n        ItemResource resource = new ItemResource();\n        resource.pumpkinItem = stack.isEmpty() ? null : stack.getItem();\n        return resource;\n    }'),
+    ('    public boolean isEmpty() {\n        throw Unimplemented.forMember("net/neoforged/neoforge/transfer/item/ItemResource.isEmpty:()Z");\n    }',
+     '    public boolean isEmpty() {\n        return pumpkinItem == null;\n    }'),
+    ('    public ItemStack toStack(int count) {\n        throw Unimplemented.forMember("net/neoforged/neoforge/transfer/item/ItemResource.toStack:(I)Lnet/minecraft/world/item/ItemStack;");\n    }',
+     '    public ItemStack toStack(int count) {\n        return pumpkinItem == null ? new ItemStack((ItemLike) null, 0)\n                : new ItemStack(pumpkinItem, count);\n    }'),
+])
+
+
+edit('net/minecraft/world/entity/item/ItemEntity.java', [
+    ('    public ItemEntity(Level level, double x, double y, double z, ItemStack itemStack) {\n    }',
+     '    // Pumpkin divergence: the stack is kept so Level.addFreshEntity can hand the drop\n    // back to the server instead of losing it.\n    private ItemStack pumpkinStack;\n\n    public ItemStack pumpkinStack() {\n        return pumpkinStack;\n    }\n\n    public ItemEntity(Level level, double x, double y, double z, ItemStack itemStack) {\n        this.pumpkinStack = itemStack;\n    }'),
+])
+
+
+edit('net/minecraft/world/level/block/entity/BlockEntityType.java', [
+    ('    private final java.util.List<Block> pumpkinValidBlocks = new java.util.ArrayList<>();',
+     "    private final java.util.List<Block> pumpkinValidBlocks = new java.util.ArrayList<>();\n\n    // Pumpkin divergence: the factory too -- it is how the interaction bridge builds the\n    // mod's own tile entity when its block is used.\n    private BlockEntityType.BlockEntitySupplier<? extends T> pumpkinFactory;\n\n    public T pumpkinCreate(BlockPos worldPosition, BlockState blockState) {\n        return pumpkinFactory.create(worldPosition, blockState);\n    }"),
+    ('        pumpkinValidBlocks.addAll(validBlocks);\n    }\n\n    public BlockEntityType(BlockEntityType.BlockEntitySupplier<? extends T> factory, Set<Block> validBlocks, boolean onlyOpCanSetNbt) {\n        pumpkinValidBlocks.addAll(validBlocks);\n    }',
+     '        pumpkinValidBlocks.addAll(validBlocks);\n        this.pumpkinFactory = factory;\n    }\n\n    public BlockEntityType(BlockEntityType.BlockEntitySupplier<? extends T> factory, Set<Block> validBlocks, boolean onlyOpCanSetNbt) {\n        pumpkinValidBlocks.addAll(validBlocks);\n        this.pumpkinFactory = factory;\n    }'),
+    ('        java.util.Collections.addAll(pumpkinValidBlocks, validBlocks);\n    }\n\n    public BlockEntityType(BlockEntityType.BlockEntitySupplier<? extends T> factory, boolean onlyOpCanSetNbt, Block... validBlocks) {\n        java.util.Collections.addAll(pumpkinValidBlocks, validBlocks);\n    }',
+     '        java.util.Collections.addAll(pumpkinValidBlocks, validBlocks);\n        this.pumpkinFactory = factory;\n    }\n\n    public BlockEntityType(BlockEntityType.BlockEntitySupplier<? extends T> factory, boolean onlyOpCanSetNbt, Block... validBlocks) {\n        java.util.Collections.addAll(pumpkinValidBlocks, validBlocks);\n        this.pumpkinFactory = factory;\n    }'),
+])
+
+
+edit('net/minecraft/world/item/Item.java', [
+    ('    // Pumpkin divergence: no vanilla counterpart. -1 means the mod did not say.\n    public int pumpkinMaxStackSize() {',
+     '    // Pumpkin divergence: no vanilla counterpart. Set by the registration sinks; the\n    // interaction bridge reads it back to name this item across the JNI boundary.\n    private String pumpkinRegisteredId;\n\n    public void pumpkinSetRegisteredId(String id) {\n        this.pumpkinRegisteredId = id;\n    }\n\n    public String pumpkinRegisteredId() {\n        return pumpkinRegisteredId;\n    }\n\n    // Pumpkin divergence: no vanilla counterpart. -1 means the mod did not say.\n    public int pumpkinMaxStackSize() {'),
+])
+
+
+edit('net/neoforged/neoforge/registries/DeferredRegister.java', [
+    ('            } else if (object instanceof net.minecraft.world.item.Item item) {\n                pumpkinSink.registerItem(holder.getId().toString(), item.pumpkinTemplate(),',
+     '            } else if (object instanceof net.minecraft.world.item.Item item) {\n                item.pumpkinSetRegisteredId(holder.getId().toString());\n                pumpkinSink.registerItem(holder.getId().toString(), item.pumpkinTemplate(),'),
+])
+
+
+edit('net/neoforged/neoforge/registries/RegisterEvent.java', [
+    ('            } else if (value instanceof net.minecraft.world.item.Item item) {\n                DeferredRegister.pumpkinSink().registerItem(name.toString(), item.pumpkinTemplate(),',
+     '            } else if (value instanceof net.minecraft.world.item.Item item) {\n                item.pumpkinSetRegisteredId(name.toString());\n                DeferredRegister.pumpkinSink().registerItem(name.toString(), item.pumpkinTemplate(),'),
+])
+
+
+edit('net/neoforged/neoforge/registries/DeferredHolder.java', [
+    ('" + holder.getId(), holder);\n    }',
+     '" + holder.getId(), holder);\n    }\n\n    // Pumpkin divergence: no vanilla counterpart. The interaction bridge resolves a\n    // registered value by registry and id -- the same key the record methods write.\n    public static Object pumpkinResolve(String registry, String id) {\n        DeferredHolder<?, ?> holder = PUMPKIN_BY_ID.get(registry + "|" + id);\n        return holder == null ? null : holder.get();\n    }'),
+])
+
+
+# ------------------------------------------------------- entity position, bridge-set
+edit("net/minecraft/world/entity/Entity.java", [
+    ('    public final double getX() {\n        throw Unimplemented.forMember("net/minecraft/world/entity/Entity.getX:()D");\n    }',
+     '    // Pumpkin divergence: real body over the position field the bridge sets.\n    public final double getX() {\n        return position == null ? 0.0 : position.x;\n    }'),
+    ('    public final double getY() {\n        throw Unimplemented.forMember("net/minecraft/world/entity/Entity.getY:()D");\n    }',
+     '    // Pumpkin divergence: real body over the position field the bridge sets.\n    public final double getY() {\n        return position == null ? 0.0 : position.y;\n    }'),
+    ('    public final double getZ() {\n        throw Unimplemented.forMember("net/minecraft/world/entity/Entity.getZ:()D");\n    }',
+     '    // Pumpkin divergence: real body over the position field the bridge sets.\n    public final double getZ() {\n        return position == null ? 0.0 : position.z;\n    }'),
+    ('    private Vec3 position;',
+     '    private Vec3 position;\n\n    // Pumpkin divergence: no vanilla counterpart. The interaction bridge places the\n    // stand-in player without running vanilla movement code.\n    public void pumpkinSetPosition(Vec3 position) {\n        this.position = position;\n    }'),
+])
+
+
+# ----------------------------------------------------------------- vec3, real fields
+edit("net/minecraft/world/phys/Vec3.java", [
+    ('    public final double x = 0.0;\n\n    public final double y = 0.0;\n\n    public final double z = 0.0;',
+     '    // Pumpkin divergence: a vector really carries its coordinates; the pruner had\n    // zeroed them because the originals were assigned in a stripped constructor.\n    public final double x;\n\n    public final double y;\n\n    public final double z;'),
+    ('    public Vec3(double x, double y, double z) {\n    }',
+     '    public Vec3(double x, double y, double z) {\n        this.x = x;\n        this.y = y;\n        this.z = z;\n    }'),
+    ('    public Vec3(Vector3fc vec) {\n    }',
+     '    public Vec3(Vector3fc vec) {\n        this.x = 0.0;\n        this.y = 0.0;\n        this.z = 0.0;\n    }'),
+    ('    public Vec3(Vec3i vec) {\n    }',
+     '    public Vec3(Vec3i vec) {\n        this.x = 0.0;\n        this.y = 0.0;\n        this.z = 0.0;\n    }'),
+    ('    public Vec3() {\n    }',
+     '    public Vec3() {\n        this.x = 0.0;\n        this.y = 0.0;\n        this.z = 0.0;\n    }'),
+])
+
+
+# ------------------------------------------------------ interaction results, real
+edit("net/minecraft/world/InteractionResult.java", [
+    ('    InteractionResult.Success SUCCESS = null;\n\n    InteractionResult.Fail FAIL = null;\n\n    InteractionResult.Pass PASS = null;',
+     "    // Pumpkin divergence: real instances -- vanilla's own values. A null here made every\n    // handler's return indistinguishable from every other.\n    InteractionResult.Success SUCCESS = new Success(SwingSource.CLIENT, new ItemContext(true, null));\n\n    InteractionResult.Fail FAIL = new Fail();\n\n    InteractionResult.Pass PASS = new Pass();"),
+])
+
+
+# ---------------------------------------------------------------- vec3i, real fields
+edit("net/minecraft/core/Vec3i.java", [
+    ('    public Vec3i(int x, int y, int z) {\n    }',
+     '    // Pumpkin divergence: a vector really carries its coordinates, like Vec3.\n    private int pumpkinX;\n\n    private int pumpkinY;\n\n    private int pumpkinZ;\n\n    public Vec3i(int x, int y, int z) {\n        this.pumpkinX = x;\n        this.pumpkinY = y;\n        this.pumpkinZ = z;\n    }'),
+    ('    public int getX() {\n        throw Unimplemented.forMember("net/minecraft/core/Vec3i.getX:()I");\n    }',
+     '    public int getX() {\n        return pumpkinX;\n    }'),
+    ('    public int getY() {\n        throw Unimplemented.forMember("net/minecraft/core/Vec3i.getY:()I");\n    }',
+     '    public int getY() {\n        return pumpkinY;\n    }'),
+    ('    public int getZ() {\n        throw Unimplemented.forMember("net/minecraft/core/Vec3i.getZ:()I");\n    }',
+     '    public int getZ() {\n        return pumpkinZ;\n    }'),
+])
+
+
+# ------------------------------------------------------------ block pos, real coords
+edit("net/minecraft/core/BlockPos.java", [
+    ('    public BlockPos(int x, int y, int z) {\n    }',
+     "    // Pumpkin divergence: coordinates flow into Vec3i's real fields.\n    public BlockPos(int x, int y, int z) {\n        super(x, y, z);\n    }"),
+    ('    public BlockPos(Vec3i vec3i) {\n    }',
+     '    public BlockPos(Vec3i vec3i) {\n        super(vec3i.getX(), vec3i.getY(), vec3i.getZ());\n    }'),
+])
+
+
+# ----------------------------------------------------- extra codecs, inert
+edit("net/minecraft/util/ExtraCodecs.java", [
+    ('    public static <A> Codec<Optional<A>> optionalEmptyMap(Codec<A> codec) {\n        throw Unimplemented.forMember("net/minecraft/util/ExtraCodecs.optionalEmptyMap:(Lcom/mojang/serialization/Codec;)Lcom/mojang/serialization/Codec;");\n    }',
+     '    // Pumpkin divergence: real-enough body -- inert codec; encode/decode throw the key.\n    public static <A> Codec<Optional<A>> optionalEmptyMap(Codec<A> codec) {\n        return dev.pumpkin.shim.Stubs.throwingCodec("net/minecraft/util/ExtraCodecs.optionalEmptyMap:(Lcom/mojang/serialization/Codec;)Lcom/mojang/serialization/Codec;");\n    }'),
+])
+
+
+# --------------------------------------------- transfer handlers, real item storage
+
+edit('net/minecraft/world/item/ItemStack.java', [
+    ('    public static final ItemStack EMPTY = null;',
+     '    // Pumpkin divergence: a real empty stack, because everything compares against it.\n    public static final ItemStack EMPTY = new ItemStack((ItemLike) null, 0);'),
+])
+
+
+edit('net/neoforged/neoforge/transfer/item/ItemResource.java', [
+    ('    public static final ItemResource EMPTY = null;',
+     '    // Pumpkin divergence: a real empty resource; a null here NPEs every isEmpty check.\n    public static final ItemResource EMPTY = new ItemResource();'),
+])
+
+
+edit('net/minecraft/core/NonNullList.java', [
+    ('    protected NonNullList(List<E> list, E defaultValue) {\n    }',
+     '    // Pumpkin divergence: really backed by the list it wraps; vanilla is the same thin\n    // wrapper, minus the null checks nothing here needs yet.\n    private List<E> pumpkinBacking;\n\n    protected NonNullList(List<E> list, E defaultValue) {\n        this.pumpkinBacking = list;\n    }'),
+    ('    public static <E> NonNullList<E> withSize(int size, E defaultValue) {\n        throw Unimplemented.forMember("net/minecraft/core/NonNullList.withSize:(ILjava/lang/Object;)Lnet/minecraft/core/NonNullList;");\n    }',
+     '    public static <E> NonNullList<E> withSize(int size, E defaultValue) {\n        List<E> backing = new java.util.ArrayList<>(size);\n        for (int i = 0; i < size; i++) {\n            backing.add(defaultValue);\n        }\n        return new NonNullList<>(backing, defaultValue);\n    }'),
+    ('    public E get(int index) {\n        throw Unimplemented.forMember("net/minecraft/core/NonNullList.get:(I)Ljava/lang/Object;");\n    }',
+     '    public E get(int index) {\n        return pumpkinBacking.get(index);\n    }'),
+    ('    public E set(int index, E element) {\n        throw Unimplemented.forMember("net/minecraft/core/NonNullList.set:(ILjava/lang/Object;)Ljava/lang/Object;");\n    }',
+     '    public E set(int index, E element) {\n        return pumpkinBacking.set(index, element);\n    }'),
+    ('    public int size() {\n        throw Unimplemented.forMember("net/minecraft/core/NonNullList.size:()I");\n    }',
+     '    public int size() {\n        return pumpkinBacking.size();\n    }'),
+])
+
+
+edit('net/neoforged/neoforge/transfer/StacksResourceHandler.java', [
+    ('    protected final S emptyStack = null;\n\n    protected NonNullList<S> stacks;\n\n    protected final Codec<NonNullList<S>> codec = null;\n\n    protected StacksResourceHandler(int size, S emptyStack, Codec<S> stackCodec) {\n    }',
+     "    // Pumpkin divergence: real storage. The handler is where a machine's slots live, and\n    // every accessor below reads and writes this list, the same shape vanilla keeps.\n    protected final S emptyStack;\n\n    protected NonNullList<S> stacks;\n\n    protected final Codec<NonNullList<S>> codec = null;\n\n    protected StacksResourceHandler(int size, S emptyStack, Codec<S> stackCodec) {\n        this.emptyStack = emptyStack;\n        this.stacks = NonNullList.withSize(size, emptyStack);\n    }"),
+    ('    protected StacksResourceHandler(NonNullList<S> stacks, S emptyStack, Codec<S> stackCodec) {\n    }',
+     '    protected StacksResourceHandler(NonNullList<S> stacks, S emptyStack, Codec<S> stackCodec) {\n        this.emptyStack = emptyStack;\n        this.stacks = stacks;\n    }'),
+    ('    public void set(int index, T resource, int amount) {\n        throw Unimplemented.forMember("net/neoforged/neoforge/transfer/StacksResourceHandler.set:(ILnet/neoforged/neoforge/transfer/resource/Resource;I)V");\n    }',
+     '    // Pumpkin divergence: vanilla shape -- store the stack, tell the subclass.\n    public void set(int index, T resource, int amount) {\n        S previous = stacks.get(index);\n        stacks.set(index, resource.isEmpty() ? emptyStack : getStackFrom(resource, amount));\n        onContentsChanged(index, previous);\n    }'),
+    ('    public int size() {\n        throw Unimplemented.forMember("net/neoforged/neoforge/transfer/StacksResourceHandler.size:()I");\n    }',
+     '    public int size() {\n        return stacks.size();\n    }'),
+    ('    public T getResource(int index) {\n        throw Unimplemented.forMember("net/neoforged/neoforge/transfer/StacksResourceHandler.getResource:(I)Lnet/neoforged/neoforge/transfer/resource/Resource;");\n    }',
+     '    public T getResource(int index) {\n        return getResourceFrom(stacks.get(index));\n    }'),
+    ('    public long getAmountAsLong(int index) {\n        throw Unimplemented.forMember("net/neoforged/neoforge/transfer/StacksResourceHandler.getAmountAsLong:(I)J");\n    }',
+     '    public long getAmountAsLong(int index) {\n        return getAmountFrom(stacks.get(index));\n    }'),
+    ('    protected void onContentsChanged(int index, S previousContents) {\n        throw Unimplemented.forMember("net/neoforged/neoforge/transfer/StacksResourceHandler.onContentsChanged:(ILjava/lang/Object;)V");\n    }',
+     '    // Pumpkin divergence: a notification hook; the base has nothing to notify.\n    protected void onContentsChanged(int index, S previousContents) {\n    }'),
+    ('    public StacksResourceHandler() {\n    }',
+     '    public StacksResourceHandler() {\n        this.emptyStack = null;\n    }'),
+])
+
+
+edit('net/neoforged/neoforge/transfer/item/ItemStacksResourceHandler.java', [
+    ('    public ItemStacksResourceHandler(int size) {\n    }',
+     '    // Pumpkin divergence: real bodies -- the item flavour of the storage above.\n    public ItemStacksResourceHandler(int size) {\n        super(size, ItemStack.EMPTY, null);\n    }'),
+    ('    public ItemResource getResourceFrom(ItemStack stack) {\n        throw Unimplemented.forMember("net/neoforged/neoforge/transfer/item/ItemStacksResourceHandler.getResourceFrom:(Lnet/minecraft/world/item/ItemStack;)Lnet/neoforged/neoforge/transfer/item/ItemResource;");\n    }',
+     '    public ItemResource getResourceFrom(ItemStack stack) {\n        return stack == null || stack.isEmpty() ? ItemResource.EMPTY : ItemResource.of(stack);\n    }'),
+    ('    public int getAmountFrom(ItemStack stack) {\n        throw Unimplemented.forMember("net/neoforged/neoforge/transfer/item/ItemStacksResourceHandler.getAmountFrom:(Lnet/minecraft/world/item/ItemStack;)I");\n    }',
+     '    public int getAmountFrom(ItemStack stack) {\n        return stack == null ? 0 : stack.count();\n    }'),
+    ('    protected ItemStack getStackFrom(ItemResource resource, int amount) {\n        throw Unimplemented.forMember("net/neoforged/neoforge/transfer/item/ItemStacksResourceHandler.getStackFrom:(Lnet/neoforged/neoforge/transfer/item/ItemResource;I)Lnet/minecraft/world/item/ItemStack;");\n    }',
+     '    protected ItemStack getStackFrom(ItemResource resource, int amount) {\n        return resource.toStack(amount);\n    }'),
+    ('    protected ItemStack copyOf(ItemStack stack) {\n        throw Unimplemented.forMember("net/neoforged/neoforge/transfer/item/ItemStacksResourceHandler.copyOf:(Lnet/minecraft/world/item/ItemStack;)Lnet/minecraft/world/item/ItemStack;");\n    }',
+     '    protected ItemStack copyOf(ItemStack stack) {\n        return stack.copyWithCount(stack.count());\n    }'),
+])
+
+
+# ------------------------------------------------ interaction burndown, small keys
+
+edit('net/minecraft/world/level/block/entity/BlockEntity.java', [
+    ('    public void setChanged() {\n        throw Unimplemented.forMember("net/minecraft/world/level/block/entity/BlockEntity.setChanged:()V");\n    }',
+     '    // Pumpkin divergence: accepted and dropped. setChanged marks the entity for saving;\n    // persisting the mod-side entity back into the Rust one is the persistence slice, and\n    // until it lands there is nothing here to mark. Stopping every interaction over it\n    // would be worse than the unsaved contents it honestly flags.\n    public void setChanged() {\n    }'),
+])
+
+
+edit('net/neoforged/neoforge/transfer/ResourceHandler.java', [
+    ('    default int getAmountAsInt(int index) {\n        throw Unimplemented.forMember("net/neoforged/neoforge/transfer/ResourceHandler.getAmountAsInt:(I)I");\n    }',
+     '    // Pumpkin divergence: vanilla body verbatim -- pure delegation.\n    default int getAmountAsInt(int index) {\n        return (int) getAmountAsLong(index);\n    }'),
+])
+
+
+# ------------------------------------------------------- block entity level, real
+edit('net/minecraft/world/level/block/entity/BlockEntity.java', [
+    ('    public Level getLevel() {\n        throw Unimplemented.forMember("net/minecraft/world/level/block/entity/BlockEntity.getLevel:()Lnet/minecraft/world/level/Level;");\n    }',
+     "    // Pumpkin divergence: real body over the protected field the bridge sets.\n    public Level getLevel() {\n        return level;\n    }\n\n    // Pumpkin divergence: no vanilla counterpart in this form. The bridge attaches the\n    // level when it creates the mod's entity.\n    public void pumpkinSetLevel(Level level) {\n        this.level = level;\n    }"),
+])
+
+
+# ------------------------------------------- block entity data packet, inert
+edit('net/minecraft/network/protocol/game/ClientboundBlockEntityDataPacket.java', [
+    ('    public static ClientboundBlockEntityDataPacket create(BlockEntity blockEntity, BiFunction<BlockEntity, RegistryAccess, CompoundTag> updateTagSaver) {\n        throw Unimplemented.forMember("net/minecraft/network/protocol/game/ClientboundBlockEntityDataPacket.create:(Lnet/minecraft/world/level/block/entity/BlockEntity;Ljava/util/function/BiFunction;)Lnet/minecraft/network/protocol/game/ClientboundBlockEntityDataPacket;");\n    }',
+     "    // Pumpkin divergence: an inert packet. Syncing a mod entity's data to clients is the\n    // sync slice; the packet is built and dropped so the mark-dirty path survives.\n    public static ClientboundBlockEntityDataPacket create(BlockEntity blockEntity, BiFunction<BlockEntity, RegistryAccess, CompoundTag> updateTagSaver) {\n        return new ClientboundBlockEntityDataPacket();\n    }"),
+    ('    public static ClientboundBlockEntityDataPacket create(BlockEntity blockEntity) {\n        throw Unimplemented.forMember("net/minecraft/network/protocol/game/ClientboundBlockEntityDataPacket.create:(Lnet/minecraft/world/level/block/entity/BlockEntity;)Lnet/minecraft/network/protocol/game/ClientboundBlockEntityDataPacket;");\n    }',
+     "    // Pumpkin divergence: an inert packet. Syncing a mod entity's data to clients is the\n    // sync slice; the packet is built and dropped so the mark-dirty path survives.\n    public static ClientboundBlockEntityDataPacket create(BlockEntity blockEntity) {\n        return new ClientboundBlockEntityDataPacket();\n    }"),
+])
+
+
+# ---------------------------------------------------- block entity position, real
+edit('net/minecraft/world/level/block/entity/BlockEntity.java', [
+    ('    public BlockEntity(BlockEntityType<?> type, BlockPos worldPosition, BlockState blockState) {\n    }',
+     '    // Pumpkin divergence: the position is kept; getBlockPos answers with it.\n    private BlockPos pumpkinPosition;\n\n    public BlockEntity(BlockEntityType<?> type, BlockPos worldPosition, BlockState blockState) {\n        this.pumpkinPosition = worldPosition;\n    }'),
+    ('    public BlockPos getBlockPos() {\n        throw Unimplemented.forMember("net/minecraft/world/level/block/entity/BlockEntity.getBlockPos:()Lnet/minecraft/core/BlockPos;");\n    }',
+     '    public BlockPos getBlockPos() {\n        return pumpkinPosition;\n    }'),
+])
+
+
+# ---------------------------------------------------- item entity pickup delay, dropped
+edit('net/minecraft/world/entity/item/ItemEntity.java', [
+    ('    public void setNoPickUpDelay() {\n        throw Unimplemented.forMember("net/minecraft/world/entity/item/ItemEntity.setNoPickUpDelay:()V");\n    }',
+     "    // Pumpkin divergence: accepted and dropped. The bridge captures the entity's stack\n    // and hands it to the real world, which applies its own pickup rules; this entity is\n    // never spawned, so it has no delay to clear.\n    public void setNoPickUpDelay() {\n    }"),
+])
+
+
 commit()

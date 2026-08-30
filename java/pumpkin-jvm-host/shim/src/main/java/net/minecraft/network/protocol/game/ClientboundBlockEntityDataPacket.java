@@ -12,12 +12,16 @@ import dev.pumpkin.shim.Unimplemented;
 
 public class ClientboundBlockEntityDataPacket implements Packet<ClientGamePacketListener> {
 
+    // Pumpkin divergence: an inert packet. Syncing a mod entity's data to clients is the
+    // sync slice; the packet is built and dropped so the mark-dirty path survives.
     public static ClientboundBlockEntityDataPacket create(BlockEntity blockEntity, BiFunction<BlockEntity, RegistryAccess, CompoundTag> updateTagSaver) {
-        throw Unimplemented.forMember("net/minecraft/network/protocol/game/ClientboundBlockEntityDataPacket.create:(Lnet/minecraft/world/level/block/entity/BlockEntity;Ljava/util/function/BiFunction;)Lnet/minecraft/network/protocol/game/ClientboundBlockEntityDataPacket;");
+        return new ClientboundBlockEntityDataPacket();
     }
 
+    // Pumpkin divergence: an inert packet. Syncing a mod entity's data to clients is the
+    // sync slice; the packet is built and dropped so the mark-dirty path survives.
     public static ClientboundBlockEntityDataPacket create(BlockEntity blockEntity) {
-        throw Unimplemented.forMember("net/minecraft/network/protocol/game/ClientboundBlockEntityDataPacket.create:(Lnet/minecraft/world/level/block/entity/BlockEntity;)Lnet/minecraft/network/protocol/game/ClientboundBlockEntityDataPacket;");
+        return new ClientboundBlockEntityDataPacket();
     }
 
     private ClientboundBlockEntityDataPacket(BlockPos pos, BlockEntityType<?> type, CompoundTag tag) {

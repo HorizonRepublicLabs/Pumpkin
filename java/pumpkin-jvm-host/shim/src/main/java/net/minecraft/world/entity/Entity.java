@@ -52,6 +52,12 @@ public abstract class Entity extends net.neoforged.neoforge.attachment.Attachmen
 
     private Vec3 position;
 
+    // Pumpkin divergence: no vanilla counterpart. The interaction bridge places the
+    // stand-in player without running vanilla movement code.
+    public void pumpkinSetPosition(Vec3 position) {
+        this.position = position;
+    }
+
     private boolean onGround;
 
     public Entity(EntityType<?> type, Level level) {
@@ -333,24 +339,27 @@ public abstract class Entity extends net.neoforged.neoforge.attachment.Attachmen
         throw Unimplemented.forMember("net/minecraft/world/entity/Entity.blockPosition:()Lnet/minecraft/core/BlockPos;");
     }
 
+    // Pumpkin divergence: real body over the position field the bridge sets.
     public final double getX() {
-        throw Unimplemented.forMember("net/minecraft/world/entity/Entity.getX:()D");
+        return position == null ? 0.0 : position.x;
     }
 
     public double getX(double progress) {
         throw Unimplemented.forMember("net/minecraft/world/entity/Entity.getX:(D)D");
     }
 
+    // Pumpkin divergence: real body over the position field the bridge sets.
     public final double getY() {
-        throw Unimplemented.forMember("net/minecraft/world/entity/Entity.getY:()D");
+        return position == null ? 0.0 : position.y;
     }
 
     public double getY(double progress) {
         throw Unimplemented.forMember("net/minecraft/world/entity/Entity.getY:(D)D");
     }
 
+    // Pumpkin divergence: real body over the position field the bridge sets.
     public final double getZ() {
-        throw Unimplemented.forMember("net/minecraft/world/entity/Entity.getZ:()D");
+        return position == null ? 0.0 : position.z;
     }
 
     public double getZ(double progress) {

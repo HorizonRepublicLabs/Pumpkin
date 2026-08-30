@@ -8,23 +8,34 @@ import dev.pumpkin.shim.Unimplemented;
 
 public class Vec3 implements Position {
 
-    public final double x = 0.0;
+    // Pumpkin divergence: a vector really carries its coordinates; the pruner had
+    // zeroed them because the originals were assigned in a stripped constructor.
+    public final double x;
 
-    public final double y = 0.0;
+    public final double y;
 
-    public final double z = 0.0;
+    public final double z;
 
     public static Vec3 atCenterOf(Vec3i pos) {
         throw Unimplemented.forMember("net/minecraft/world/phys/Vec3.atCenterOf:(Lnet/minecraft/core/Vec3i;)Lnet/minecraft/world/phys/Vec3;");
     }
 
     public Vec3(double x, double y, double z) {
+        this.x = x;
+        this.y = y;
+        this.z = z;
     }
 
     public Vec3(Vector3fc vec) {
+        this.x = 0.0;
+        this.y = 0.0;
+        this.z = 0.0;
     }
 
     public Vec3(Vec3i vec) {
+        this.x = 0.0;
+        this.y = 0.0;
+        this.z = 0.0;
     }
 
     public Vec3 add(double value) {
@@ -76,5 +87,8 @@ public class Vec3 implements Position {
     }
 
     public Vec3() {
+        this.x = 0.0;
+        this.y = 0.0;
+        this.z = 0.0;
     }
 }

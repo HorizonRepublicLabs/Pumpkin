@@ -5,11 +5,13 @@ import dev.pumpkin.shim.Unimplemented;
 
 public interface InteractionResult {
 
-    InteractionResult.Success SUCCESS = null;
+    // Pumpkin divergence: real instances -- vanilla's own values. A null here made every
+    // handler's return indistinguishable from every other.
+    InteractionResult.Success SUCCESS = new Success(SwingSource.CLIENT, new ItemContext(true, null));
 
-    InteractionResult.Fail FAIL = null;
+    InteractionResult.Fail FAIL = new Fail();
 
-    InteractionResult.Pass PASS = null;
+    InteractionResult.Pass PASS = new Pass();
 
     record Fail() implements InteractionResult {
     }

@@ -82,6 +82,13 @@ public class DeferredHolder<R, T extends R> implements Holder<R>, Supplier<T> {
         PUMPKIN_BY_ID.put(registry + "|" + holder.getId(), holder);
     }
 
+    // Pumpkin divergence: no vanilla counterpart. The interaction bridge resolves a
+    // registered value by registry and id -- the same key the record methods write.
+    public static Object pumpkinResolve(String registry, String id) {
+        DeferredHolder<?, ?> holder = PUMPKIN_BY_ID.get(registry + "|" + id);
+        return holder == null ? null : holder.get();
+    }
+
     // The RegisterEvent path hands over a value, not a supplier: it was built before the
     // helper ever saw it. Wrapped so holders created by name resolve regardless of which
     // of the two registration roads the target took -- MysticalAgriculture registers its

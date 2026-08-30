@@ -239,6 +239,7 @@ public class DeferredRegister<T> {
                         props.pumpkinDestroyTime(), props.pumpkinExplosionResistance(),
                         props.pumpkinRequiresTool());
             } else if (object instanceof net.minecraft.world.item.Item item) {
+                item.pumpkinSetRegisteredId(holder.getId().toString());
                 pumpkinSink.registerItem(holder.getId().toString(), item.pumpkinTemplate(),
                         item.pumpkinMaxStackSize(), item.pumpkinMaxDamage(),
                         item.pumpkinPlacedBlockId());

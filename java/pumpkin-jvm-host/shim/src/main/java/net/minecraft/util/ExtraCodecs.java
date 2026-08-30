@@ -17,8 +17,9 @@ public class ExtraCodecs {
         throw Unimplemented.forMember("net/minecraft/util/ExtraCodecs.strictUnboundedMap:(Lcom/mojang/serialization/Codec;Lcom/mojang/serialization/Codec;)Lnet/minecraft/util/ExtraCodecs$StrictUnboundedMapCodec;");
     }
 
+    // Pumpkin divergence: real-enough body -- inert codec; encode/decode throw the key.
     public static <A> Codec<Optional<A>> optionalEmptyMap(Codec<A> codec) {
-        throw Unimplemented.forMember("net/minecraft/util/ExtraCodecs.optionalEmptyMap:(Lcom/mojang/serialization/Codec;)Lcom/mojang/serialization/Codec;");
+        return dev.pumpkin.shim.Stubs.throwingCodec("net/minecraft/util/ExtraCodecs.optionalEmptyMap:(Lcom/mojang/serialization/Codec;)Lcom/mojang/serialization/Codec;");
     }
 
     public static class LateBoundIdMapper<I, V> {

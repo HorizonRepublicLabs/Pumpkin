@@ -13,16 +13,22 @@ import dev.pumpkin.shim.Unimplemented;
 
 public abstract class StacksResourceHandler<S, T extends Resource> implements ResourceHandler<T>, ValueIOSerializable {
 
-    protected final S emptyStack = null;
+    // Pumpkin divergence: real storage. The handler is where a machine's slots live, and
+    // every accessor below reads and writes this list, the same shape vanilla keeps.
+    protected final S emptyStack;
 
     protected NonNullList<S> stacks;
 
     protected final Codec<NonNullList<S>> codec = null;
 
     protected StacksResourceHandler(int size, S emptyStack, Codec<S> stackCodec) {
+        this.emptyStack = emptyStack;
+        this.stacks = NonNullList.withSize(size, emptyStack);
     }
 
     protected StacksResourceHandler(NonNullList<S> stacks, S emptyStack, Codec<S> stackCodec) {
+        this.emptyStack = emptyStack;
+        this.stacks = stacks;
     }
 
     private NonNullList<S> mutableCopyOf(Collection<S> list) {
@@ -41,8 +47,11 @@ public abstract class StacksResourceHandler<S, T extends Resource> implements Re
         throw Unimplemented.forMember("net/neoforged/neoforge/transfer/StacksResourceHandler.deserialize:(Lnet/minecraft/world/level/storage/ValueInput;)V");
     }
 
+    // Pumpkin divergence: vanilla shape -- store the stack, tell the subclass.
     public void set(int index, T resource, int amount) {
-        throw Unimplemented.forMember("net/neoforged/neoforge/transfer/StacksResourceHandler.set:(ILnet/neoforged/neoforge/transfer/resource/Resource;I)V");
+        S previous = stacks.get(index);
+        stacks.set(index, resource.isEmpty() ? emptyStack : getStackFrom(resource, amount));
+        onContentsChanged(index, previous);
     }
 
     protected abstract T getResourceFrom(S stack);
@@ -63,20 +72,20 @@ public abstract class StacksResourceHandler<S, T extends Resource> implements Re
 
     protected abstract int getCapacity(int index, T resource);
 
+    // Pumpkin divergence: a notification hook; the base has nothing to notify.
     protected void onContentsChanged(int index, S previousContents) {
-        throw Unimplemented.forMember("net/neoforged/neoforge/transfer/StacksResourceHandler.onContentsChanged:(ILjava/lang/Object;)V");
     }
 
     public int size() {
-        throw Unimplemented.forMember("net/neoforged/neoforge/transfer/StacksResourceHandler.size:()I");
+        return stacks.size();
     }
 
     public T getResource(int index) {
-        throw Unimplemented.forMember("net/neoforged/neoforge/transfer/StacksResourceHandler.getResource:(I)Lnet/neoforged/neoforge/transfer/resource/Resource;");
+        return getResourceFrom(stacks.get(index));
     }
 
     public long getAmountAsLong(int index) {
-        throw Unimplemented.forMember("net/neoforged/neoforge/transfer/StacksResourceHandler.getAmountAsLong:(I)J");
+        return getAmountFrom(stacks.get(index));
     }
 
     public long getCapacityAsLong(int index, T resource) {
@@ -113,5 +122,6 @@ public abstract class StacksResourceHandler<S, T extends Resource> implements Re
     }
 
     public StacksResourceHandler() {
+        this.emptyStack = null;
     }
 }

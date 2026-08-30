@@ -34,7 +34,8 @@ import dev.pumpkin.shim.Unimplemented;
 
 public final class ItemStack implements DataComponentHolder, ItemInstance, IItemStackExtension, MutableDataComponentHolder {
 
-    public static final ItemStack EMPTY = null;
+    // Pumpkin divergence: a real empty stack, because everything compares against it.
+    public static final ItemStack EMPTY = new ItemStack((ItemLike) null, 0);
 
     private int count;
 
@@ -50,10 +51,24 @@ public final class ItemStack implements DataComponentHolder, ItemInstance, IItem
         throw Unimplemented.forMember("net/minecraft/world/item/ItemStack.isComponentsPatchEmpty:()Z");
     }
 
+    // Pumpkin divergence: a stack really carries its item and count. The interaction
+    // bridge builds these and mods read them back; without real fields every isEmpty()
+    // is a guess.
+    private ItemLike pumpkinItem;
+
+    private int pumpkinCount = 1;
+
+    public ItemLike pumpkinItemLike() {
+        return pumpkinItem;
+    }
+
     public ItemStack(ItemLike item, int count) {
+        this.pumpkinItem = item;
+        this.pumpkinCount = count;
     }
 
     public ItemStack(ItemLike item) {
+        this(item, 1);
     }
 
     public ItemStack(Holder<Item> item, int count) {
@@ -71,16 +86,18 @@ public final class ItemStack implements DataComponentHolder, ItemInstance, IItem
     private ItemStack(Void nullMarker) {
     }
 
+    // Pumpkin divergence: real body.
     public boolean isEmpty() {
-        throw Unimplemented.forMember("net/minecraft/world/item/ItemStack.isEmpty:()Z");
+        return pumpkinItem == null || pumpkinCount <= 0;
     }
 
     public ItemStack split(int amount) {
         throw Unimplemented.forMember("net/minecraft/world/item/ItemStack.split:(I)Lnet/minecraft/world/item/ItemStack;");
     }
 
+    // Pumpkin divergence: real body.
     public Item getItem() {
-        throw Unimplemented.forMember("net/minecraft/world/item/ItemStack.getItem:()Lnet/minecraft/world/item/Item;");
+        return pumpkinItem == null ? null : pumpkinItem.asItem();
     }
 
     public Holder<Item> typeHolder() {
@@ -159,8 +176,9 @@ public final class ItemStack implements DataComponentHolder, ItemInstance, IItem
         throw Unimplemented.forMember("net/minecraft/world/item/ItemStack.copy:()Lnet/minecraft/world/item/ItemStack;");
     }
 
+    // Pumpkin divergence: real body.
     public ItemStack copyWithCount(int count) {
-        throw Unimplemented.forMember("net/minecraft/world/item/ItemStack.copyWithCount:(I)Lnet/minecraft/world/item/ItemStack;");
+        return new ItemStack(pumpkinItem, count);
     }
 
     public static boolean matches(ItemStack a, ItemStack b) {
@@ -254,8 +272,9 @@ public final class ItemStack implements DataComponentHolder, ItemInstance, IItem
         throw Unimplemented.forMember("net/minecraft/world/item/ItemStack.getCount:()I");
     }
 
+    // Pumpkin divergence: real body.
     public int count() {
-        throw Unimplemented.forMember("net/minecraft/world/item/ItemStack.count:()I");
+        return pumpkinCount;
     }
 
     public void setCount(int count) {

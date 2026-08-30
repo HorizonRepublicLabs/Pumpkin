@@ -16,10 +16,17 @@ import dev.pumpkin.shim.Unimplemented;
 
 public final class ItemResource implements DataComponentHolderResource<Item> {
 
-    public static final ItemResource EMPTY = null;
+    // Pumpkin divergence: a real empty resource; a null here NPEs every isEmpty check.
+    public static final ItemResource EMPTY = new ItemResource();
+
+    // Pumpkin divergence: real bodies for the stack-shaped subset the interaction path
+    // uses. A resource is an item reference without a count; EMPTY-ness follows the item.
+    private ItemLike pumpkinItem;
 
     public static ItemResource of(ItemStack stack) {
-        throw Unimplemented.forMember("net/neoforged/neoforge/transfer/item/ItemResource.of:(Lnet/minecraft/world/item/ItemStack;)Lnet/neoforged/neoforge/transfer/item/ItemResource;");
+        ItemResource resource = new ItemResource();
+        resource.pumpkinItem = stack.isEmpty() ? null : stack.getItem();
+        return resource;
     }
 
     public static ItemResource of(ItemStackTemplate template) {
@@ -58,7 +65,7 @@ public final class ItemResource implements DataComponentHolderResource<Item> {
     }
 
     public boolean isEmpty() {
-        throw Unimplemented.forMember("net/neoforged/neoforge/transfer/item/ItemResource.isEmpty:()Z");
+        return pumpkinItem == null;
     }
 
     public boolean matches(ItemStack stack) {
@@ -110,7 +117,8 @@ public final class ItemResource implements DataComponentHolderResource<Item> {
     }
 
     public ItemStack toStack(int count) {
-        throw Unimplemented.forMember("net/neoforged/neoforge/transfer/item/ItemResource.toStack:(I)Lnet/minecraft/world/item/ItemStack;");
+        return pumpkinItem == null ? new ItemStack((ItemLike) null, 0)
+                : new ItemStack(pumpkinItem, count);
     }
 
     public ItemStack toStack() {

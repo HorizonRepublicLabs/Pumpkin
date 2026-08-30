@@ -111,6 +111,18 @@ static BOOT_LOCK: Mutex<()> = Mutex::new(());
 /// panicking boot attempt — deliberately: the "one JVM per process" contract makes it
 /// unsafe to guess whether the panicking attempt reached `JNI_CreateJavaVM` before it died,
 /// so failing closed for the rest of the process is safer than risking a second call.
+/// The already-booted VM, if any.
+///
+/// For callers reacting to gameplay -- a right-click on a mod block -- where a VM that
+/// never booted simply means no mod is loaded, and `None` is the honest answer rather
+/// than an error.
+pub fn current() -> Option<&'static ModVm> {
+    match VM.get() {
+        Some(Ok(vm)) => Some(vm),
+        _ => None,
+    }
+}
+
 pub fn boot(classpath: &[PathBuf]) -> Result<&'static ModVm, VmError> {
     if let Some(outcome) = VM.get() {
         return as_vm_result(outcome);

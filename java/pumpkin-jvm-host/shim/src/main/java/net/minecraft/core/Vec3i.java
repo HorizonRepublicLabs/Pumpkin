@@ -4,7 +4,17 @@ import dev.pumpkin.shim.Unimplemented;
 
 public class Vec3i implements Comparable<Vec3i> {
 
+    // Pumpkin divergence: a vector really carries its coordinates, like Vec3.
+    private int pumpkinX;
+
+    private int pumpkinY;
+
+    private int pumpkinZ;
+
     public Vec3i(int x, int y, int z) {
+        this.pumpkinX = x;
+        this.pumpkinY = y;
+        this.pumpkinZ = z;
     }
 
     public boolean equals(Object o) {
@@ -20,15 +30,15 @@ public class Vec3i implements Comparable<Vec3i> {
     }
 
     public int getX() {
-        throw Unimplemented.forMember("net/minecraft/core/Vec3i.getX:()I");
+        return pumpkinX;
     }
 
     public int getY() {
-        throw Unimplemented.forMember("net/minecraft/core/Vec3i.getY:()I");
+        return pumpkinY;
     }
 
     public int getZ() {
-        throw Unimplemented.forMember("net/minecraft/core/Vec3i.getZ:()I");
+        return pumpkinZ;
     }
 
     protected Vec3i setX(int x) {

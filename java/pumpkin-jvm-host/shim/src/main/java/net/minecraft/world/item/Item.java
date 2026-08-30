@@ -61,6 +61,18 @@ public class Item implements ItemLike, FeatureElement, IItemExtension {
         this.pumpkinItemProperties = properties;
     }
 
+    // Pumpkin divergence: no vanilla counterpart. Set by the registration sinks; the
+    // interaction bridge reads it back to name this item across the JNI boundary.
+    private String pumpkinRegisteredId;
+
+    public void pumpkinSetRegisteredId(String id) {
+        this.pumpkinRegisteredId = id;
+    }
+
+    public String pumpkinRegisteredId() {
+        return pumpkinRegisteredId;
+    }
+
     // Pumpkin divergence: no vanilla counterpart. -1 means the mod did not say.
     public int pumpkinMaxStackSize() {
         return pumpkinItemProperties == null ? -1 : pumpkinItemProperties.pumpkinMaxStackSize();

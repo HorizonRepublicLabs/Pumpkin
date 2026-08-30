@@ -8,10 +8,13 @@ import dev.pumpkin.shim.Unimplemented;
 
 public class BlockPos extends Vec3i {
 
+    // Pumpkin divergence: coordinates flow into Vec3i's real fields.
     public BlockPos(int x, int y, int z) {
+        super(x, y, z);
     }
 
     public BlockPos(Vec3i vec3i) {
+        super(vec3i.getX(), vec3i.getY(), vec3i.getZ());
     }
 
     public static long offset(long blockNode, Direction offset) {

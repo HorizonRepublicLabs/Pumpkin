@@ -7,22 +7,24 @@ import dev.pumpkin.shim.Unimplemented;
 
 public class ItemStacksResourceHandler extends StacksResourceHandler<ItemStack, ItemResource> {
 
+    // Pumpkin divergence: real bodies -- the item flavour of the storage above.
     public ItemStacksResourceHandler(int size) {
+        super(size, ItemStack.EMPTY, null);
     }
 
     public ItemStacksResourceHandler(NonNullList<ItemStack> stacks) {
     }
 
     public ItemResource getResourceFrom(ItemStack stack) {
-        throw Unimplemented.forMember("net/neoforged/neoforge/transfer/item/ItemStacksResourceHandler.getResourceFrom:(Lnet/minecraft/world/item/ItemStack;)Lnet/neoforged/neoforge/transfer/item/ItemResource;");
+        return stack == null || stack.isEmpty() ? ItemResource.EMPTY : ItemResource.of(stack);
     }
 
     public int getAmountFrom(ItemStack stack) {
-        throw Unimplemented.forMember("net/neoforged/neoforge/transfer/item/ItemStacksResourceHandler.getAmountFrom:(Lnet/minecraft/world/item/ItemStack;)I");
+        return stack == null ? 0 : stack.count();
     }
 
     protected ItemStack getStackFrom(ItemResource resource, int amount) {
-        throw Unimplemented.forMember("net/neoforged/neoforge/transfer/item/ItemStacksResourceHandler.getStackFrom:(Lnet/neoforged/neoforge/transfer/item/ItemResource;I)Lnet/minecraft/world/item/ItemStack;");
+        return resource.toStack(amount);
     }
 
     protected int getCapacity(int index, ItemResource resource) {
@@ -30,7 +32,7 @@ public class ItemStacksResourceHandler extends StacksResourceHandler<ItemStack, 
     }
 
     protected ItemStack copyOf(ItemStack stack) {
-        throw Unimplemented.forMember("net/neoforged/neoforge/transfer/item/ItemStacksResourceHandler.copyOf:(Lnet/minecraft/world/item/ItemStack;)Lnet/minecraft/world/item/ItemStack;");
+        return stack.copyWithCount(stack.count());
     }
 
     public boolean matches(ItemStack stack, ItemResource resource) {

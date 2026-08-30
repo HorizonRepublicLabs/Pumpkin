@@ -220,12 +220,15 @@ fn wire_block_drops(server: &Arc<crate::server::Server>) {
             });
         }
 
-        let behaviour: &'static dyn crate::block::BlockBehaviour = Box::leak(Box::new(
-            crate::plugin::api::block_behaviour::PluginBlockBehaviour::new(
-                block.first_state,
-                drops,
-            ),
-        ));
+        let behaviour: &'static dyn crate::block::BlockBehaviour =
+            Box::leak(Box::new(JvmBlockBehaviour {
+                inner: crate::plugin::api::block_behaviour::PluginBlockBehaviour::new(
+                    block.first_state,
+                    drops,
+                ),
+                block_name: block.name.clone(),
+                block_id: block.block_id,
+            }));
         server
             .block_registry
             .set_plugin_block(block.block_id, behaviour);
@@ -262,6 +265,210 @@ fn find_block_loot_table(datapacks: &Path, block_name: &str) -> Option<String> {
         }
     }
     None
+}
+
+/// Block behaviour that routes right-clicks into the mod's own Java.
+///
+/// Wraps the generic [`PluginBlockBehaviour`] -- placement, drops and ticks stay with it
+/// -- and sends `use` through the JVM bridge (`PumpkinInteractions.useBlockOn`), which
+/// invokes the block's real `useItemOn`. The bridge's reply is a flat string: the result
+/// kind, the hand stack if the mod replaced it, and any drops, each item named by its
+/// registered id.
+///
+/// [`PluginBlockBehaviour`]: crate::plugin::api::block_behaviour::PluginBlockBehaviour
+struct JvmBlockBehaviour {
+    inner: crate::plugin::api::block_behaviour::PluginBlockBehaviour,
+    block_name: String,
+    /// The block's id, for resolving its block entity type at interaction time. Wire time
+    /// is too early: the behaviour is installed while the registries are still staged,
+    /// and the block-to-entity link only becomes readable once they freeze.
+    block_id: pumpkin_data::BlockId,
+}
+
+impl JvmBlockBehaviour {
+    fn bridge(
+        &self,
+        world: &Arc<crate::world::World>,
+        position: &pumpkin_util::math::position::BlockPos,
+        held: Option<&mut pumpkin_data::item_stack::ItemStack>,
+    ) -> crate::block::registry::BlockActionResult {
+        use crate::block::registry::BlockActionResult;
+
+        let Some(vm) = vm::current() else {
+            return BlockActionResult::Pass;
+        };
+        let block_name = self.block_name.clone();
+        let entity_type =
+            pumpkin_data::dynamic::block_entity_type_for_block(self.block_id.as_u16())
+                .and_then(pumpkin_data::dynamic::block_entity_type_name)
+                .unwrap_or("")
+                .to_string();
+        let (held_id, held_count) = held.as_ref().filter(|stack| stack.item_count > 0).map_or(
+            (String::new(), 0),
+            |stack| {
+                (
+                    stack.item.registry_key.to_string(),
+                    i32::from(stack.item_count),
+                )
+            },
+        );
+        let held_display = format!("{held_id}:{held_count}");
+        let (x, y, z) = (position.0.x, position.0.y, position.0.z);
+
+        let reply = vm.call(move |env| {
+            let args: Vec<jni::objects::JObject<'_>> = Vec::new();
+            drop(args);
+            let block = env
+                .new_string(&block_name)
+                .map_err(|err| VmError::Java(err.to_string()))?;
+            let entity = env
+                .new_string(&entity_type)
+                .map_err(|err| VmError::Java(err.to_string()))?;
+            let held = env
+                .new_string(&held_id)
+                .map_err(|err| VmError::Java(err.to_string()))?;
+            let returned = env.call_static_method(
+                "dev/pumpkin/bridge/PumpkinInteractions",
+                "useBlockOn",
+                "(Ljava/lang/String;Ljava/lang/String;IIILjava/lang/String;I)Ljava/lang/String;",
+                &[
+                    (&block).into(),
+                    (&entity).into(),
+                    x.into(),
+                    y.into(),
+                    z.into(),
+                    (&held).into(),
+                    held_count.into(),
+                ],
+            );
+            if env.exception_check().unwrap_or(false) {
+                let _ = env.exception_describe();
+                let _ = env.exception_clear();
+                return Err(VmError::Java("useBlockOn threw".into()));
+            }
+            let object = returned
+                .and_then(jni::objects::JValueGen::l)
+                .map_err(|err| VmError::Java(err.to_string()))?;
+            env.get_string(&jni::objects::JString::from(object))
+                .map(Into::into)
+                .map_err(|err| VmError::Java(err.to_string()))
+        });
+
+        let reply: String = match reply {
+            Ok(reply) => reply,
+            Err(err) => {
+                tracing::warn!("{}: interaction stopped in the mod: {err}", self.block_name);
+                return BlockActionResult::Pass;
+            }
+        };
+        if !reply.starts_with("PASS") {
+            tracing::info!(
+                "{} at {position:?}: hand was {held_display}, mod answered {reply}",
+                self.block_name
+            );
+        }
+        apply_interaction_reply(&reply, world, position, held)
+    }
+}
+
+/// Applies the bridge's reply -- hand stack change and drops -- and maps its result.
+fn apply_interaction_reply(
+    reply: &str,
+    world: &Arc<crate::world::World>,
+    position: &pumpkin_util::math::position::BlockPos,
+    held: Option<&mut pumpkin_data::item_stack::ItemStack>,
+) -> crate::block::registry::BlockActionResult {
+    use crate::block::registry::BlockActionResult;
+    use pumpkin_data::item_stack::ItemStack;
+
+    let mut result = BlockActionResult::Pass;
+    let mut held = held;
+    for part in reply.split(';') {
+        if let Some(spec) = part.strip_prefix("HELD=") {
+            if spec == "unchanged" {
+                continue;
+            }
+            if let Some(held) = held.as_deref_mut() {
+                *held = parse_stack(spec).unwrap_or(ItemStack::EMPTY.clone());
+            }
+        } else if let Some(spec) = part.strip_prefix("DROPS=") {
+            for drop in spec.split(',').filter(|drop| !drop.is_empty()) {
+                if let Some(stack) = parse_stack(drop) {
+                    world.drop_stack(position, stack);
+                }
+            }
+        } else {
+            result = match part {
+                "SUCCESS" => BlockActionResult::Success,
+                "FAIL" => BlockActionResult::Fail,
+                _ => BlockActionResult::Pass,
+            };
+        }
+    }
+    result
+}
+
+/// `namespace:path:count` into a real stack; unknown items are dropped loudly.
+fn parse_stack(spec: &str) -> Option<pumpkin_data::item_stack::ItemStack> {
+    let (id, count) = spec.rsplit_once(':')?;
+    let count: u8 = count.parse().ok()?;
+    if id == "empty" || count == 0 {
+        return Some(pumpkin_data::item_stack::ItemStack::EMPTY.clone());
+    }
+    let Some(item) = pumpkin_data::item::Item::from_registry_key(id) else {
+        tracing::warn!("the mod handed back {id}, which is not a registered item");
+        return None;
+    };
+    Some(pumpkin_data::item_stack::ItemStack::new(count, item))
+}
+
+impl crate::block::BlockBehaviour for JvmBlockBehaviour {
+    fn player_placed(&self, args: crate::block::PlayerPlacedArgs<'_>) {
+        self.inner.player_placed(args);
+    }
+
+    fn random_tick(&self, args: crate::block::RandomTickArgs<'_>) {
+        self.inner.random_tick(args);
+    }
+
+    fn broken(&self, args: crate::block::BrokenArgs<'_>) {
+        self.inner.broken(args);
+    }
+
+    fn normal_use(
+        &self,
+        args: crate::block::NormalUseArgs<'_>,
+    ) -> crate::block::registry::BlockActionResult {
+        self.bridge(args.world, args.position, None)
+    }
+
+    fn use_with_item(
+        &self,
+        args: crate::block::UseWithItemArgs<'_>,
+    ) -> crate::block::registry::BlockActionResult {
+        let result = self.bridge(args.world, args.position, Some(args.item_stack));
+        // A consuming result returns to the handler before its hand-sync runs, so a stack
+        // the mod replaced has to be written back to the inventory here or the change
+        // evaporates -- the pedestal takes a shard and the player keeps three.
+        if result.consumes_action() {
+            let hand = if *args.equipment_slot
+                == pumpkin_data::data_component_impl::EquipmentSlot::MAIN_HAND
+            {
+                pumpkin_util::Hand::Right
+            } else {
+                pumpkin_util::Hand::Left
+            };
+            let inventory = args.player.inventory();
+            let slot = if matches!(hand, pumpkin_util::Hand::Right) {
+                usize::from(inventory.get_selected_slot())
+            } else {
+                pumpkin_inventory::player::player_inventory::PlayerInventory::OFF_HAND_SLOT
+            };
+            inventory.set_stack_in_hand(hand, args.item_stack.clone());
+            args.player.sync_hand_slot(slot, args.item_stack.clone());
+        }
+        result
+    }
 }
 
 /// A loaded Java mod, seen by Pumpkin as an ordinary plugin.

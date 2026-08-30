@@ -25,7 +25,16 @@ public class ItemEntity extends Entity implements TraceableEntity {
     public ItemEntity(EntityType<? extends ItemEntity> type, Level level) {
     }
 
+    // Pumpkin divergence: the stack is kept so Level.addFreshEntity can hand the drop
+    // back to the server instead of losing it.
+    private ItemStack pumpkinStack;
+
+    public ItemStack pumpkinStack() {
+        return pumpkinStack;
+    }
+
     public ItemEntity(Level level, double x, double y, double z, ItemStack itemStack) {
+        this.pumpkinStack = itemStack;
     }
 
     public ItemEntity(Level level, double x, double y, double z, ItemStack itemStack, double deltaX, double deltaY, double deltaZ) {
@@ -111,8 +120,10 @@ public class ItemEntity extends Entity implements TraceableEntity {
         throw Unimplemented.forMember("net/minecraft/world/entity/item/ItemEntity.getTarget:()Ljava/util/UUID;");
     }
 
+    // Pumpkin divergence: accepted and dropped. The bridge captures the entity's stack
+    // and hands it to the real world, which applies its own pickup rules; this entity is
+    // never spawned, so it has no delay to clear.
     public void setNoPickUpDelay() {
-        throw Unimplemented.forMember("net/minecraft/world/entity/item/ItemEntity.setNoPickUpDelay:()V");
     }
 
     public SoundSource getSoundSource() {

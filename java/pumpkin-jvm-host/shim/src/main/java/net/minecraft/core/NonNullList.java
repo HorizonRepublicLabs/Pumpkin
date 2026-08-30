@@ -23,22 +23,31 @@ public class NonNullList<E> extends AbstractList<E> {
     }
 
     public static <E> NonNullList<E> withSize(int size, E defaultValue) {
-        throw Unimplemented.forMember("net/minecraft/core/NonNullList.withSize:(ILjava/lang/Object;)Lnet/minecraft/core/NonNullList;");
+        List<E> backing = new java.util.ArrayList<>(size);
+        for (int i = 0; i < size; i++) {
+            backing.add(defaultValue);
+        }
+        return new NonNullList<>(backing, defaultValue);
     }
 
     public static <E> NonNullList<E> of(E defaultValue, E... values) {
         throw Unimplemented.forMember("net/minecraft/core/NonNullList.of:(Ljava/lang/Object;[Ljava/lang/Object;)Lnet/minecraft/core/NonNullList;");
     }
 
+    // Pumpkin divergence: really backed by the list it wraps; vanilla is the same thin
+    // wrapper, minus the null checks nothing here needs yet.
+    private List<E> pumpkinBacking;
+
     protected NonNullList(List<E> list, E defaultValue) {
+        this.pumpkinBacking = list;
     }
 
     public E get(int index) {
-        throw Unimplemented.forMember("net/minecraft/core/NonNullList.get:(I)Ljava/lang/Object;");
+        return pumpkinBacking.get(index);
     }
 
     public E set(int index, E element) {
-        throw Unimplemented.forMember("net/minecraft/core/NonNullList.set:(ILjava/lang/Object;)Ljava/lang/Object;");
+        return pumpkinBacking.set(index, element);
     }
 
     public void add(int index, E element) {
@@ -50,7 +59,7 @@ public class NonNullList<E> extends AbstractList<E> {
     }
 
     public int size() {
-        throw Unimplemented.forMember("net/minecraft/core/NonNullList.size:()I");
+        return pumpkinBacking.size();
     }
 
     public void clear() {

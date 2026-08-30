@@ -12,8 +12,9 @@ public interface ResourceHandler<T extends Resource> {
 
     long getAmountAsLong(int index);
 
+    // Pumpkin divergence: vanilla body verbatim -- pure delegation.
     default int getAmountAsInt(int index) {
-        throw Unimplemented.forMember("net/neoforged/neoforge/transfer/ResourceHandler.getAmountAsInt:(I)I");
+        return (int) getAmountAsLong(index);
     }
 
     long getCapacityAsLong(int index, T resource);

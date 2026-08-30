@@ -22,11 +22,22 @@ public abstract class BlockEntity extends net.neoforged.neoforge.attachment.Atta
 
     protected Level level;
 
+    // Pumpkin divergence: the position is kept; getBlockPos answers with it.
+    private BlockPos pumpkinPosition;
+
     public BlockEntity(BlockEntityType<?> type, BlockPos worldPosition, BlockState blockState) {
+        this.pumpkinPosition = worldPosition;
     }
 
+    // Pumpkin divergence: real body over the protected field the bridge sets.
     public Level getLevel() {
-        throw Unimplemented.forMember("net/minecraft/world/level/block/entity/BlockEntity.getLevel:()Lnet/minecraft/world/level/Level;");
+        return level;
+    }
+
+    // Pumpkin divergence: no vanilla counterpart in this form. The bridge attaches the
+    // level when it creates the mod's entity.
+    public void pumpkinSetLevel(Level level) {
+        this.level = level;
     }
 
     protected void loadAdditional(ValueInput input) {
@@ -45,8 +56,11 @@ public abstract class BlockEntity extends net.neoforged.neoforge.attachment.Atta
         throw Unimplemented.forMember("net/minecraft/world/level/block/entity/BlockEntity.saveWithFullMetadata:(Lnet/minecraft/world/level/storage/ValueOutput;)V");
     }
 
+    // Pumpkin divergence: accepted and dropped. setChanged marks the entity for saving;
+    // persisting the mod-side entity back into the Rust one is the persistence slice, and
+    // until it lands there is nothing here to mark. Stopping every interaction over it
+    // would be worse than the unsaved contents it honestly flags.
     public void setChanged() {
-        throw Unimplemented.forMember("net/minecraft/world/level/block/entity/BlockEntity.setChanged:()V");
     }
 
     protected static void setChanged(Level level, BlockPos worldPosition, BlockState blockState) {
@@ -54,7 +68,7 @@ public abstract class BlockEntity extends net.neoforged.neoforge.attachment.Atta
     }
 
     public BlockPos getBlockPos() {
-        throw Unimplemented.forMember("net/minecraft/world/level/block/entity/BlockEntity.getBlockPos:()Lnet/minecraft/core/BlockPos;");
+        return pumpkinPosition;
     }
 
     public BlockState getBlockState() {
