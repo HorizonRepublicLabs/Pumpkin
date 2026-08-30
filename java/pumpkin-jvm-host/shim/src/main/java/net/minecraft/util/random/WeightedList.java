@@ -31,16 +31,19 @@ public final class WeightedList<E> {
         throw Unimplemented.forMember("net/minecraft/util/random/WeightedList.unwrap:()Ljava/util/List;");
     }
 
+    // Pumpkin divergence: real-enough body -- inert codec; encode/decode throw the key.
     public static <E> Codec<WeightedList<E>> codec(Codec<E> elementCodec) {
-        throw Unimplemented.forMember("net/minecraft/util/random/WeightedList.codec:(Lcom/mojang/serialization/Codec;)Lcom/mojang/serialization/Codec;");
+        return dev.pumpkin.shim.Stubs.throwingCodec("net/minecraft/util/random/WeightedList.codec:(Lcom/mojang/serialization/Codec;)Lcom/mojang/serialization/Codec;");
     }
 
+    // Pumpkin divergence: real-enough body -- inert codec; encode/decode throw the key.
     public static <E> Codec<WeightedList<E>> codec(MapCodec<E> elementCodec) {
-        throw Unimplemented.forMember("net/minecraft/util/random/WeightedList.codec:(Lcom/mojang/serialization/MapCodec;)Lcom/mojang/serialization/Codec;");
+        return dev.pumpkin.shim.Stubs.throwingCodec("net/minecraft/util/random/WeightedList.codec:(Lcom/mojang/serialization/MapCodec;)Lcom/mojang/serialization/Codec;");
     }
 
+    // Pumpkin divergence: real-enough body -- inert stream codec, same as ByteBufCodecs.
     public static <E, B extends ByteBuf> StreamCodec<B, WeightedList<E>> streamCodec(StreamCodec<B, E> elementCodec) {
-        throw Unimplemented.forMember("net/minecraft/util/random/WeightedList.streamCodec:(Lnet/minecraft/network/codec/StreamCodec;)Lnet/minecraft/network/codec/StreamCodec;");
+        return dev.pumpkin.shim.Stubs.of(StreamCodec.class, "net/minecraft/network/codec/StreamCodec");
     }
 
     public boolean contains(E value) {

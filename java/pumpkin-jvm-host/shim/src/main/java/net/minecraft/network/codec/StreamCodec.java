@@ -44,9 +44,9 @@ public interface StreamCodec<B, V> extends StreamEncoder<B, V>, StreamDecoder<B,
         return dev.pumpkin.shim.Stubs.of(StreamCodec.class, "net/minecraft/network/codec/StreamCodec");
 
     }
-
+    // Pumpkin divergence: vanilla body verbatim -- pure composition, no game state.
     default <O> StreamCodec<B, O> apply(StreamCodec.CodecOperation<B, V, O> operation) {
-        throw Unimplemented.forMember("net/minecraft/network/codec/StreamCodec.apply:(Lnet/minecraft/network/codec/StreamCodec$CodecOperation;)Lnet/minecraft/network/codec/StreamCodec;");
+        return operation.apply(this);
     }
 
     default <U> StreamCodec<B, U> dispatch(Function<? super U, ? extends V> type, Function<? super V, ? extends StreamCodec<? super B, ? extends U>> codec) {

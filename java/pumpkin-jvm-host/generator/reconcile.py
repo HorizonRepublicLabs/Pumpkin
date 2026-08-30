@@ -1162,4 +1162,115 @@ edit("net/minecraft/world/item/equipment/EquipmentAssets.java", [
      '    // Pumpkin divergence: real value, named as vanilla names it -- a registry key is a\n    // pair of names, and ModEquipmentAssets dereferences this at class-init.\n    ResourceKey<? extends Registry<EquipmentAsset>> ROOT_ID =\n            net.minecraft.resources.ResourceKey.createRegistryKey(\n                    net.minecraft.resources.Identifier.fromNamespaceAndPath("minecraft", "equipment_asset"));'),
 ])
 
+# ---------------------------------------------- creative tabs, inert presentation
+edit("net/minecraft/world/item/CreativeModeTab.java", [
+    ('\n    public static CreativeModeTab.Builder builder() {\n        throw Unimplemented.forMember("net/minecraft/world/item/CreativeModeTab.builder:()Lnet/minecraft/world/item/CreativeModeTab$Builder;");\n    }',
+     "    // Pumpkin divergence: real body. A creative tab is client-side presentation Pumpkin\n    // never renders; the builder exists so a mod's registration completes, and the tab it\n    // yields is inert.\n    public static CreativeModeTab.Builder builder() {\n        return new Builder(null, 0);\n    }"),
+    ('\n        public CreativeModeTab.Builder title(Component displayName) {\n            throw Unimplemented.forMember("net/minecraft/world/item/CreativeModeTab$Builder.title:(Lnet/minecraft/network/chat/Component;)Lnet/minecraft/world/item/CreativeModeTab$Builder;");\n        }',
+     '\n        // Pumpkin divergence: accepted and dropped -- client-side presentation.\n\n        public CreativeModeTab.Builder title(Component displayName) {\n\n            return this;\n\n        }'),
+    ('\n        public CreativeModeTab.Builder icon(Supplier<ItemStack> iconGenerator) {\n            throw Unimplemented.forMember("net/minecraft/world/item/CreativeModeTab$Builder.icon:(Ljava/util/function/Supplier;)Lnet/minecraft/world/item/CreativeModeTab$Builder;");\n        }',
+     '\n        // Pumpkin divergence: accepted and dropped -- client-side presentation.\n\n        public CreativeModeTab.Builder icon(Supplier<ItemStack> iconGenerator) {\n\n            return this;\n\n        }'),
+    ('\n        public CreativeModeTab.Builder displayItems(CreativeModeTab.DisplayItemsGenerator displayItemsGenerator) {\n            throw Unimplemented.forMember("net/minecraft/world/item/CreativeModeTab$Builder.displayItems:(Lnet/minecraft/world/item/CreativeModeTab$DisplayItemsGenerator;)Lnet/minecraft/world/item/CreativeModeTab$Builder;");\n        }',
+     '\n        // Pumpkin divergence: accepted and dropped -- client-side presentation.\n\n        public CreativeModeTab.Builder displayItems(CreativeModeTab.DisplayItemsGenerator displayItemsGenerator) {\n\n            return this;\n\n        }'),
+    ('\n        public CreativeModeTab.Builder displayItems(Collection<? extends net.minecraft.core.Holder<? extends ItemLike>> collection) {\n            throw Unimplemented.forMember("net/minecraft/world/item/CreativeModeTab$Builder.displayItems:(Ljava/util/Collection;)Lnet/minecraft/world/item/CreativeModeTab$Builder;");\n        }',
+     '\n        // Pumpkin divergence: accepted and dropped -- client-side presentation.\n\n        public CreativeModeTab.Builder displayItems(Collection<? extends net.minecraft.core.Holder<? extends ItemLike>> collection) {\n\n            return this;\n\n        }'),
+    ('\n        public CreativeModeTab build() {\n            throw Unimplemented.forMember("net/minecraft/world/item/CreativeModeTab$Builder.build:()Lnet/minecraft/world/item/CreativeModeTab;");\n        }',
+     '        // Pumpkin divergence: real body -- an inert tab; its own methods still throw.\n        public CreativeModeTab build() {\n            return new CreativeModeTab();\n        }'),
+])
+
+# ------------------------------------------------------------- components, text
+edit("net/minecraft/network/chat/Component.java", [
+    ('\n    static MutableComponent literal(String text) {\n        throw Unimplemented.forMember("net/minecraft/network/chat/Component.literal:(Ljava/lang/String;)Lnet/minecraft/network/chat/MutableComponent;");\n    }',
+     '\n    // Pumpkin divergence: real bodies. A component is text; translation keys stay\n\n    // keys, because the server has no language files and the client translates.\n\n    static MutableComponent literal(String text) {\n\n        return MutableComponent.pumpkinOf(text);\n\n    }'),
+    ('\n    static MutableComponent translatable(String key) {\n        throw Unimplemented.forMember("net/minecraft/network/chat/Component.translatable:(Ljava/lang/String;)Lnet/minecraft/network/chat/MutableComponent;");\n    }',
+     '\n    static MutableComponent translatable(String key) {\n\n        return MutableComponent.pumpkinOf(key);\n\n    }'),
+    ('\n    static MutableComponent translatable(String key, Object... args) {\n        throw Unimplemented.forMember("net/minecraft/network/chat/Component.translatable:(Ljava/lang/String;[Ljava/lang/Object;)Lnet/minecraft/network/chat/MutableComponent;");\n    }',
+     '\n    static MutableComponent translatable(String key, Object... args) {\n\n        return MutableComponent.pumpkinOf(key);\n\n    }'),
+    ('\n    static MutableComponent empty() {\n        throw Unimplemented.forMember("net/minecraft/network/chat/Component.empty:()Lnet/minecraft/network/chat/MutableComponent;");\n    }',
+     '\n    static MutableComponent empty() {\n\n        return MutableComponent.pumpkinOf("");\n\n    }'),
+    ('\n    default String getString() {\n        throw Unimplemented.forMember("net/minecraft/network/chat/Component.getString:()Ljava/lang/String;");\n    }',
+     '    // Pumpkin divergence: real where the component can answer, loud where it cannot.\n    default String getString() {\n        if (this instanceof MutableComponent mutable) {\n            return mutable.pumpkinText();\n        }\n        throw Unimplemented.forMember("net/minecraft/network/chat/Component.getString:()Ljava/lang/String;");\n    }'),
+])
+
+edit("net/minecraft/network/chat/MutableComponent.java", [
+    ('public final class MutableComponent implements Component {',
+     'public final class MutableComponent implements Component {\n\n    // Pumpkin divergence: the text this component carries. Enough for registration-time\n    // titles and tooltips; styling still throws.\n    private String pumpkinText = "";\n\n    public static MutableComponent pumpkinOf(String text) {\n        MutableComponent component = new MutableComponent();\n        component.pumpkinText = text;\n        return component;\n    }\n\n    public String pumpkinText() {\n        return pumpkinText;\n    }'),
+    ('\n    public MutableComponent append(String text) {\n        throw Unimplemented.forMember("net/minecraft/network/chat/MutableComponent.append:(Ljava/lang/String;)Lnet/minecraft/network/chat/MutableComponent;");\n    }',
+     '\n    // Pumpkin divergence: real body.\n\n    public MutableComponent append(String text) {\n\n        pumpkinText = pumpkinText + text;\n\n        return this;\n\n    }'),
+])
+
+# ------------------------------------------------- stream codec operations, inert
+
+edit('net/minecraft/network/codec/StreamCodec.java', [
+    ('\n    default <O> StreamCodec<B, O> apply(StreamCodec.CodecOperation<B, V, O> operation) {\n        throw Unimplemented.forMember("net/minecraft/network/codec/StreamCodec.apply:(Lnet/minecraft/network/codec/StreamCodec$CodecOperation;)Lnet/minecraft/network/codec/StreamCodec;");\n    }',
+     '    // Pumpkin divergence: vanilla body verbatim -- pure composition, no game state.\n    default <O> StreamCodec<B, O> apply(StreamCodec.CodecOperation<B, V, O> operation) {\n        return operation.apply(this);\n    }'),
+])
+
+
+edit('net/minecraft/network/codec/ByteBufCodecs.java', [
+    ('\n    static <B extends ByteBuf, V> StreamCodec.CodecOperation<B, V, List<V>> list() {\n        throw Unimplemented.forMember("net/minecraft/network/codec/ByteBufCodecs.list:()Lnet/minecraft/network/codec/StreamCodec$CodecOperation;");\n    }',
+     '    // Pumpkin divergence: real-enough body. The operation composes a list codec Pumpkin\n    // never invokes -- nothing serialises yet -- so composition survives and the first\n    // actual encode/decode throws with the interface\'s name.\n\n    static <B extends ByteBuf, V> StreamCodec.CodecOperation<B, V, List<V>> list() {\n        return original -> dev.pumpkin.shim.Stubs.of(StreamCodec.class, "net/minecraft/network/codec/StreamCodec");\n    }'),
+    ('\n    static <B extends ByteBuf, V> StreamCodec.CodecOperation<B, V, List<V>> list(int maxSize) {\n        throw Unimplemented.forMember("net/minecraft/network/codec/ByteBufCodecs.list:(I)Lnet/minecraft/network/codec/StreamCodec$CodecOperation;");\n    }',
+     '    // Pumpkin divergence: real-enough body. The operation composes a list codec Pumpkin\n    // never invokes -- nothing serialises yet -- so composition survives and the first\n    // actual encode/decode throws with the interface\'s name.\n\n    static <B extends ByteBuf, V> StreamCodec.CodecOperation<B, V, List<V>> list(int maxSize) {\n        return original -> dev.pumpkin.shim.Stubs.of(StreamCodec.class, "net/minecraft/network/codec/StreamCodec");\n    }'),
+])
+
+
+# ---------------------------------------------------------- feature flags, empty set
+edit("net/minecraft/world/flag/FeatureFlagSet.java", [
+    ('    public static FeatureFlagSet of() {\n        throw Unimplemented.forMember("net/minecraft/world/flag/FeatureFlagSet.of:()Lnet/minecraft/world/flag/FeatureFlagSet;");\n    }',
+     '    // Pumpkin divergence: real bodies for the empty set. Every other way to build a\n    // FeatureFlagSet still throws, so every reachable instance IS the empty set and the\n    // instance methods below can answer honestly.\n    private static final FeatureFlagSet PUMPKIN_EMPTY = new FeatureFlagSet();\n\n    public static FeatureFlagSet of() {\n        return PUMPKIN_EMPTY;\n    }'),
+    ('    public boolean contains(FeatureFlag flag) {\n        throw Unimplemented.forMember("net/minecraft/world/flag/FeatureFlagSet.contains:(Lnet/minecraft/world/flag/FeatureFlag;)Z");\n    }',
+     '    public boolean contains(FeatureFlag flag) {\n        return false;\n    }'),
+    ('    public boolean isEmpty() {\n        throw Unimplemented.forMember("net/minecraft/world/flag/FeatureFlagSet.isEmpty:()Z");\n    }',
+     '    public boolean isEmpty() {\n        return true;\n    }'),
+    ('    public boolean equals(Object o) {\n        throw Unimplemented.forMember("net/minecraft/world/flag/FeatureFlagSet.equals:(Ljava/lang/Object;)Z");\n    }',
+     '    public boolean equals(Object o) {\n        return o instanceof FeatureFlagSet;\n    }'),
+    ('    public int hashCode() {\n        throw Unimplemented.forMember("net/minecraft/world/flag/FeatureFlagSet.hashCode:()I");\n    }',
+     '    public int hashCode() {\n        return 0;\n    }'),
+])
+
+
+# --------------------------------------------------- string-representable codec, inert
+edit("net/minecraft/util/StringRepresentable.java", [
+    ('    static <E extends Enum<E> & StringRepresentable> StringRepresentable.EnumCodec<E> fromEnum(Supplier<E[]> values) {\n        throw Unimplemented.forMember("net/minecraft/util/StringRepresentable.fromEnum:(Ljava/util/function/Supplier;)Lnet/minecraft/util/StringRepresentable$EnumCodec;");\n    }',
+     '    // Pumpkin divergence: real-enough body. The codec carries serialisation logic Pumpkin\n    // never invokes -- decode/encode still throw with their own member keys -- so building\n    // one at class-initialisation survives.\n    static <E extends Enum<E> & StringRepresentable> StringRepresentable.EnumCodec<E> fromEnum(Supplier<E[]> values) {\n        return new StringRepresentable.EnumCodec<>();\n    }'),
+])
+
+
+# ----------------------------------------------------------- recipe types, vanilla
+edit("net/minecraft/world/item/crafting/RecipeType.java", [
+    ('    public static <T extends Recipe<?>> RecipeType<T> simple(final Identifier name) {\n        throw Unimplemented.forMember("net/minecraft/world/item/crafting/RecipeType.simple:(Lnet/minecraft/resources/Identifier;)Lnet/minecraft/world/item/crafting/RecipeType;");\n    }',
+     '    // Pumpkin divergence: vanilla body verbatim -- fully self-contained, just a token\n    // whose toString is its id.\n    public static <T extends Recipe<?>> RecipeType<T> simple(final Identifier name) {\n        return new RecipeType<T>() {\n            @Override\n            public String toString() {\n                return name.toString();\n            }\n        };\n    }'),
+])
+
+
+# ------------------------------------------------ byte buf codecs, registry + map inert
+edit("net/minecraft/network/codec/ByteBufCodecs.java", [
+    ('    static <B extends ByteBuf, K, V, M extends Map<K, V>> StreamCodec<B, M> map(IntFunction<? extends M> constructor, StreamCodec<? super B, K> keyCodec, StreamCodec<? super B, V> valueCodec, int maxSize) {\n        throw Unimplemented.forMember("net/minecraft/network/codec/ByteBufCodecs.map:(Ljava/util/function/IntFunction;Lnet/minecraft/network/codec/StreamCodec;Lnet/minecraft/network/codec/StreamCodec;I)Lnet/minecraft/network/codec/StreamCodec;");\n    }',
+     '    // Pumpkin divergence: real-enough body. A stream codec carries wire logic Pumpkin\n    // never invokes -- nothing serialises yet -- so composition survives and the first\n    // actual encode/decode throws with the interface\'s name.\n    static <B extends ByteBuf, K, V, M extends Map<K, V>> StreamCodec<B, M> map(IntFunction<? extends M> constructor, StreamCodec<? super B, K> keyCodec, StreamCodec<? super B, V> valueCodec, int maxSize) {\n        return dev.pumpkin.shim.Stubs.of(StreamCodec.class, "net/minecraft/network/codec/StreamCodec");\n    }'),
+    ('    private static <T, R> StreamCodec<RegistryFriendlyByteBuf, R> registry(ResourceKey<? extends Registry<T>> registryKey, Function<Registry<T>, IdMap<R>> mapExtractor) {\n        throw Unimplemented.forMember("net/minecraft/network/codec/ByteBufCodecs.registry:(Lnet/minecraft/resources/ResourceKey;Ljava/util/function/Function;)Lnet/minecraft/network/codec/StreamCodec;");\n    }',
+     '    // Pumpkin divergence: real-enough body. A stream codec carries wire logic Pumpkin\n    // never invokes -- nothing serialises yet -- so composition survives and the first\n    // actual encode/decode throws with the interface\'s name.\n    private static <T, R> StreamCodec<RegistryFriendlyByteBuf, R> registry(ResourceKey<? extends Registry<T>> registryKey, Function<Registry<T>, IdMap<R>> mapExtractor) {\n        return dev.pumpkin.shim.Stubs.of(StreamCodec.class, "net/minecraft/network/codec/StreamCodec");\n    }'),
+    ('    static <T> StreamCodec<RegistryFriendlyByteBuf, T> registry(ResourceKey<? extends Registry<T>> registryKey) {\n        throw Unimplemented.forMember("net/minecraft/network/codec/ByteBufCodecs.registry:(Lnet/minecraft/resources/ResourceKey;)Lnet/minecraft/network/codec/StreamCodec;");\n    }',
+     '    // Pumpkin divergence: real-enough body. A stream codec carries wire logic Pumpkin\n    // never invokes -- nothing serialises yet -- so composition survives and the first\n    // actual encode/decode throws with the interface\'s name.\n    static <T> StreamCodec<RegistryFriendlyByteBuf, T> registry(ResourceKey<? extends Registry<T>> registryKey) {\n        return dev.pumpkin.shim.Stubs.of(StreamCodec.class, "net/minecraft/network/codec/StreamCodec");\n    }'),
+])
+
+
+# ---------------------------------------------------------- registry codec, inert
+edit("net/minecraft/core/Registry.java", [
+    ('    default Codec<T> byNameCodec() {\n        throw Unimplemented.forMember("net/minecraft/core/Registry.byNameCodec:()Lcom/mojang/serialization/Codec;");\n    }',
+     '    // Pumpkin divergence: real-enough body. The codec carries serialisation logic Pumpkin\n    // never invokes -- encode/decode throw with the codec\'s own key -- so a mod composing\n    // registry-keyed codecs at class-initialisation survives.\n    default Codec<T> byNameCodec() {\n        return dev.pumpkin.shim.Stubs.throwingCodec("net/minecraft/core/Registry.byNameCodec:()Lcom/mojang/serialization/Codec;");\n    }'),
+])
+
+
+# ---------------------------------------------------------- weighted list codecs, inert
+edit("net/minecraft/util/random/WeightedList.java", [
+    ('    public static <E> Codec<WeightedList<E>> codec(Codec<E> elementCodec) {\n        throw Unimplemented.forMember("net/minecraft/util/random/WeightedList.codec:(Lcom/mojang/serialization/Codec;)Lcom/mojang/serialization/Codec;");\n    }',
+     '    // Pumpkin divergence: real-enough body -- inert codec; encode/decode throw the key.\n    public static <E> Codec<WeightedList<E>> codec(Codec<E> elementCodec) {\n        return dev.pumpkin.shim.Stubs.throwingCodec("net/minecraft/util/random/WeightedList.codec:(Lcom/mojang/serialization/Codec;)Lcom/mojang/serialization/Codec;");\n    }'),
+    ('    public static <E> Codec<WeightedList<E>> codec(MapCodec<E> elementCodec) {\n        throw Unimplemented.forMember("net/minecraft/util/random/WeightedList.codec:(Lcom/mojang/serialization/MapCodec;)Lcom/mojang/serialization/Codec;");\n    }',
+     '    // Pumpkin divergence: real-enough body -- inert codec; encode/decode throw the key.\n    public static <E> Codec<WeightedList<E>> codec(MapCodec<E> elementCodec) {\n        return dev.pumpkin.shim.Stubs.throwingCodec("net/minecraft/util/random/WeightedList.codec:(Lcom/mojang/serialization/MapCodec;)Lcom/mojang/serialization/Codec;");\n    }'),
+    ('    public static <E, B extends ByteBuf> StreamCodec<B, WeightedList<E>> streamCodec(StreamCodec<B, E> elementCodec) {\n        throw Unimplemented.forMember("net/minecraft/util/random/WeightedList.streamCodec:(Lnet/minecraft/network/codec/StreamCodec;)Lnet/minecraft/network/codec/StreamCodec;");\n    }',
+     '    // Pumpkin divergence: real-enough body -- inert stream codec, same as ByteBufCodecs.\n    public static <E, B extends ByteBuf> StreamCodec<B, WeightedList<E>> streamCodec(StreamCodec<B, E> elementCodec) {\n        return dev.pumpkin.shim.Stubs.of(StreamCodec.class, "net/minecraft/network/codec/StreamCodec");\n    }'),
+])
+
+
 commit()

@@ -8,6 +8,20 @@ import dev.pumpkin.shim.Unimplemented;
 
 public final class MutableComponent implements Component {
 
+    // Pumpkin divergence: the text this component carries. Enough for registration-time
+    // titles and tooltips; styling still throws.
+    private String pumpkinText = "";
+
+    public static MutableComponent pumpkinOf(String text) {
+        MutableComponent component = new MutableComponent();
+        component.pumpkinText = text;
+        return component;
+    }
+
+    public String pumpkinText() {
+        return pumpkinText;
+    }
+
     MutableComponent(ComponentContents contents, List<Component> siblings, Style style) {
     }
 
@@ -27,8 +41,14 @@ public final class MutableComponent implements Component {
         throw Unimplemented.forMember("net/minecraft/network/chat/MutableComponent.getStyle:()Lnet/minecraft/network/chat/Style;");
     }
 
+    // Pumpkin divergence: real body.
+
     public MutableComponent append(String text) {
-        throw Unimplemented.forMember("net/minecraft/network/chat/MutableComponent.append:(Ljava/lang/String;)Lnet/minecraft/network/chat/MutableComponent;");
+
+        pumpkinText = pumpkinText + text;
+
+        return this;
+
     }
 
     public MutableComponent append(Component component) {

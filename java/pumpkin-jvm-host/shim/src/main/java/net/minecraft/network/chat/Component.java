@@ -11,8 +11,11 @@ public interface Component extends Message, FormattedText {
     Style getStyle();
 
     ComponentContents getContents();
-
+    // Pumpkin divergence: real where the component can answer, loud where it cannot.
     default String getString() {
+        if (this instanceof MutableComponent mutable) {
+            return mutable.pumpkinText();
+        }
         throw Unimplemented.forMember("net/minecraft/network/chat/Component.getString:()Ljava/lang/String;");
     }
 
@@ -40,19 +43,31 @@ public interface Component extends Message, FormattedText {
         throw Unimplemented.forMember("net/minecraft/network/chat/Component.contains:(Lnet/minecraft/network/chat/Component;)Z");
     }
 
+    // Pumpkin divergence: real bodies. A component is text; translation keys stay
+
+    // keys, because the server has no language files and the client translates.
+
     static MutableComponent literal(String text) {
-        throw Unimplemented.forMember("net/minecraft/network/chat/Component.literal:(Ljava/lang/String;)Lnet/minecraft/network/chat/MutableComponent;");
+
+        return MutableComponent.pumpkinOf(text);
+
     }
 
     static MutableComponent translatable(String key) {
-        throw Unimplemented.forMember("net/minecraft/network/chat/Component.translatable:(Ljava/lang/String;)Lnet/minecraft/network/chat/MutableComponent;");
+
+        return MutableComponent.pumpkinOf(key);
+
     }
 
     static MutableComponent translatable(String key, Object... args) {
-        throw Unimplemented.forMember("net/minecraft/network/chat/Component.translatable:(Ljava/lang/String;[Ljava/lang/Object;)Lnet/minecraft/network/chat/MutableComponent;");
+
+        return MutableComponent.pumpkinOf(key);
+
     }
 
     static MutableComponent empty() {
-        throw Unimplemented.forMember("net/minecraft/network/chat/Component.empty:()Lnet/minecraft/network/chat/MutableComponent;");
+
+        return MutableComponent.pumpkinOf("");
+
     }
 }

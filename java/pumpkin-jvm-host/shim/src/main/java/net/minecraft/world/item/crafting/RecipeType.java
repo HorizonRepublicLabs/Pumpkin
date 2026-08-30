@@ -12,7 +12,14 @@ public interface RecipeType<T extends Recipe<?>> {
         throw Unimplemented.forMember("net/minecraft/world/item/crafting/RecipeType.register:(Ljava/lang/String;)Lnet/minecraft/world/item/crafting/RecipeType;");
     }
 
+    // Pumpkin divergence: vanilla body verbatim -- fully self-contained, just a token
+    // whose toString is its id.
     public static <T extends Recipe<?>> RecipeType<T> simple(final Identifier name) {
-        throw Unimplemented.forMember("net/minecraft/world/item/crafting/RecipeType.simple:(Lnet/minecraft/resources/Identifier;)Lnet/minecraft/world/item/crafting/RecipeType;");
+        return new RecipeType<T>() {
+            @Override
+            public String toString() {
+                return name.toString();
+            }
+        };
     }
 }

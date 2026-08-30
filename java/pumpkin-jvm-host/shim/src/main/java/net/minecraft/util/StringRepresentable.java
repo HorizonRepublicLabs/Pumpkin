@@ -14,8 +14,11 @@ public interface StringRepresentable {
 
     String getSerializedName();
 
+    // Pumpkin divergence: real-enough body. The codec carries serialisation logic Pumpkin
+    // never invokes -- decode/encode still throw with their own member keys -- so building
+    // one at class-initialisation survives.
     static <E extends Enum<E> & StringRepresentable> StringRepresentable.EnumCodec<E> fromEnum(Supplier<E[]> values) {
-        throw Unimplemented.forMember("net/minecraft/util/StringRepresentable.fromEnum:(Ljava/util/function/Supplier;)Lnet/minecraft/util/StringRepresentable$EnumCodec;");
+        return new StringRepresentable.EnumCodec<>();
     }
 
     static Keyable keys(StringRepresentable[] values) {

@@ -15,8 +15,13 @@ public final class FeatureFlagSet {
         throw Unimplemented.forMember("net/minecraft/world/flag/FeatureFlagSet.create:(Lnet/minecraft/world/flag/FeatureFlagUniverse;Ljava/util/Collection;)Lnet/minecraft/world/flag/FeatureFlagSet;");
     }
 
+    // Pumpkin divergence: real bodies for the empty set. Every other way to build a
+    // FeatureFlagSet still throws, so every reachable instance IS the empty set and the
+    // instance methods below can answer honestly.
+    private static final FeatureFlagSet PUMPKIN_EMPTY = new FeatureFlagSet();
+
     public static FeatureFlagSet of() {
-        throw Unimplemented.forMember("net/minecraft/world/flag/FeatureFlagSet.of:()Lnet/minecraft/world/flag/FeatureFlagSet;");
+        return PUMPKIN_EMPTY;
     }
 
     public static FeatureFlagSet of(FeatureFlag flag) {
@@ -28,19 +33,19 @@ public final class FeatureFlagSet {
     }
 
     public boolean contains(FeatureFlag flag) {
-        throw Unimplemented.forMember("net/minecraft/world/flag/FeatureFlagSet.contains:(Lnet/minecraft/world/flag/FeatureFlag;)Z");
+        return false;
     }
 
     public boolean isEmpty() {
-        throw Unimplemented.forMember("net/minecraft/world/flag/FeatureFlagSet.isEmpty:()Z");
+        return true;
     }
 
     public boolean equals(Object o) {
-        throw Unimplemented.forMember("net/minecraft/world/flag/FeatureFlagSet.equals:(Ljava/lang/Object;)Z");
+        return o instanceof FeatureFlagSet;
     }
 
     public int hashCode() {
-        throw Unimplemented.forMember("net/minecraft/world/flag/FeatureFlagSet.hashCode:()I");
+        return 0;
     }
 
     public FeatureFlagSet() {

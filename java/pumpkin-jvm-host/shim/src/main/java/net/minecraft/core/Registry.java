@@ -21,8 +21,11 @@ public interface Registry<T> extends IdMap<T>, Keyable, HolderLookup.RegistryLoo
 
     ResourceKey<? extends Registry<T>> key();
 
+    // Pumpkin divergence: real-enough body. The codec carries serialisation logic Pumpkin
+    // never invokes -- encode/decode throw with the codec's own key -- so a mod composing
+    // registry-keyed codecs at class-initialisation survives.
     default Codec<T> byNameCodec() {
-        throw Unimplemented.forMember("net/minecraft/core/Registry.byNameCodec:()Lcom/mojang/serialization/Codec;");
+        return dev.pumpkin.shim.Stubs.throwingCodec("net/minecraft/core/Registry.byNameCodec:()Lcom/mojang/serialization/Codec;");
     }
 
     <A> java.util.Map<ResourceKey<T>, A> getDataMap(net.neoforged.neoforge.registries.datamaps.DataMapType<T, A> type);

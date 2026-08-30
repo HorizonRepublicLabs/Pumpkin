@@ -19,24 +19,39 @@ public interface ByteBufCodecs {
     StreamCodec<ByteBuf, Integer> INT = Stubs.of(StreamCodec.class, "net/minecraft/network/codec/StreamCodec");
 
     StreamCodec<ByteBuf, Double> DOUBLE = Stubs.of(StreamCodec.class, "net/minecraft/network/codec/StreamCodec");
+    // Pumpkin divergence: real-enough body. The operation composes a list codec Pumpkin
+    // never invokes -- nothing serialises yet -- so composition survives and the first
+    // actual encode/decode throws with the interface's name.
 
     static <B extends ByteBuf, V> StreamCodec.CodecOperation<B, V, List<V>> list() {
-        throw Unimplemented.forMember("net/minecraft/network/codec/ByteBufCodecs.list:()Lnet/minecraft/network/codec/StreamCodec$CodecOperation;");
+        return original -> dev.pumpkin.shim.Stubs.of(StreamCodec.class, "net/minecraft/network/codec/StreamCodec");
     }
+    // Pumpkin divergence: real-enough body. The operation composes a list codec Pumpkin
+    // never invokes -- nothing serialises yet -- so composition survives and the first
+    // actual encode/decode throws with the interface's name.
 
     static <B extends ByteBuf, V> StreamCodec.CodecOperation<B, V, List<V>> list(int maxSize) {
-        throw Unimplemented.forMember("net/minecraft/network/codec/ByteBufCodecs.list:(I)Lnet/minecraft/network/codec/StreamCodec$CodecOperation;");
+        return original -> dev.pumpkin.shim.Stubs.of(StreamCodec.class, "net/minecraft/network/codec/StreamCodec");
     }
 
+    // Pumpkin divergence: real-enough body. A stream codec carries wire logic Pumpkin
+    // never invokes -- nothing serialises yet -- so composition survives and the first
+    // actual encode/decode throws with the interface's name.
     static <B extends ByteBuf, K, V, M extends Map<K, V>> StreamCodec<B, M> map(IntFunction<? extends M> constructor, StreamCodec<? super B, K> keyCodec, StreamCodec<? super B, V> valueCodec, int maxSize) {
-        throw Unimplemented.forMember("net/minecraft/network/codec/ByteBufCodecs.map:(Ljava/util/function/IntFunction;Lnet/minecraft/network/codec/StreamCodec;Lnet/minecraft/network/codec/StreamCodec;I)Lnet/minecraft/network/codec/StreamCodec;");
+        return dev.pumpkin.shim.Stubs.of(StreamCodec.class, "net/minecraft/network/codec/StreamCodec");
     }
 
+    // Pumpkin divergence: real-enough body. A stream codec carries wire logic Pumpkin
+    // never invokes -- nothing serialises yet -- so composition survives and the first
+    // actual encode/decode throws with the interface's name.
     private static <T, R> StreamCodec<RegistryFriendlyByteBuf, R> registry(ResourceKey<? extends Registry<T>> registryKey, Function<Registry<T>, IdMap<R>> mapExtractor) {
-        throw Unimplemented.forMember("net/minecraft/network/codec/ByteBufCodecs.registry:(Lnet/minecraft/resources/ResourceKey;Ljava/util/function/Function;)Lnet/minecraft/network/codec/StreamCodec;");
+        return dev.pumpkin.shim.Stubs.of(StreamCodec.class, "net/minecraft/network/codec/StreamCodec");
     }
 
+    // Pumpkin divergence: real-enough body. A stream codec carries wire logic Pumpkin
+    // never invokes -- nothing serialises yet -- so composition survives and the first
+    // actual encode/decode throws with the interface's name.
     static <T> StreamCodec<RegistryFriendlyByteBuf, T> registry(ResourceKey<? extends Registry<T>> registryKey) {
-        throw Unimplemented.forMember("net/minecraft/network/codec/ByteBufCodecs.registry:(Lnet/minecraft/resources/ResourceKey;)Lnet/minecraft/network/codec/StreamCodec;");
+        return dev.pumpkin.shim.Stubs.of(StreamCodec.class, "net/minecraft/network/codec/StreamCodec");
     }
 }

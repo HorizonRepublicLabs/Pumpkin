@@ -16,9 +16,11 @@ public class CreativeModeTab {
 
     protected CreativeModeTab(CreativeModeTab.Builder builder) {
     }
-
+    // Pumpkin divergence: real body. A creative tab is client-side presentation Pumpkin
+    // never renders; the builder exists so a mod's registration completes, and the tab it
+    // yields is inert.
     public static CreativeModeTab.Builder builder() {
-        throw Unimplemented.forMember("net/minecraft/world/item/CreativeModeTab.builder:()Lnet/minecraft/world/item/CreativeModeTab$Builder;");
+        return new Builder(null, 0);
     }
 
     public static CreativeModeTab.Builder builder(CreativeModeTab.Row row, int column) {
@@ -42,24 +44,40 @@ public class CreativeModeTab {
         public Builder(CreativeModeTab.Row row, int column) {
         }
 
+        // Pumpkin divergence: accepted and dropped -- client-side presentation.
+
         public CreativeModeTab.Builder title(Component displayName) {
-            throw Unimplemented.forMember("net/minecraft/world/item/CreativeModeTab$Builder.title:(Lnet/minecraft/network/chat/Component;)Lnet/minecraft/world/item/CreativeModeTab$Builder;");
+
+            return this;
+
         }
+
+        // Pumpkin divergence: accepted and dropped -- client-side presentation.
 
         public CreativeModeTab.Builder icon(Supplier<ItemStack> iconGenerator) {
-            throw Unimplemented.forMember("net/minecraft/world/item/CreativeModeTab$Builder.icon:(Ljava/util/function/Supplier;)Lnet/minecraft/world/item/CreativeModeTab$Builder;");
+
+            return this;
+
         }
+
+        // Pumpkin divergence: accepted and dropped -- client-side presentation.
 
         public CreativeModeTab.Builder displayItems(CreativeModeTab.DisplayItemsGenerator displayItemsGenerator) {
-            throw Unimplemented.forMember("net/minecraft/world/item/CreativeModeTab$Builder.displayItems:(Lnet/minecraft/world/item/CreativeModeTab$DisplayItemsGenerator;)Lnet/minecraft/world/item/CreativeModeTab$Builder;");
+
+            return this;
+
         }
+
+        // Pumpkin divergence: accepted and dropped -- client-side presentation.
 
         public CreativeModeTab.Builder displayItems(Collection<? extends net.minecraft.core.Holder<? extends ItemLike>> collection) {
-            throw Unimplemented.forMember("net/minecraft/world/item/CreativeModeTab$Builder.displayItems:(Ljava/util/Collection;)Lnet/minecraft/world/item/CreativeModeTab$Builder;");
-        }
 
+            return this;
+
+        }
+        // Pumpkin divergence: real body -- an inert tab; its own methods still throw.
         public CreativeModeTab build() {
-            throw Unimplemented.forMember("net/minecraft/world/item/CreativeModeTab$Builder.build:()Lnet/minecraft/world/item/CreativeModeTab;");
+            return new CreativeModeTab();
         }
 
         public Builder() {
