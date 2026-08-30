@@ -99,8 +99,9 @@ public class Item implements ItemLike, FeatureElement, IItemExtension {
         throw Unimplemented.forMember("net/minecraft/world/item/Item.onDestroyed:(Lnet/minecraft/world/entity/item/ItemEntity;)V");
     }
 
+    // Pumpkin divergence: vanilla body verbatim.
     public Item asItem() {
-        throw Unimplemented.forMember("net/minecraft/world/item/Item.asItem:()Lnet/minecraft/world/item/Item;");
+        return this;
     }
 
     public InteractionResult useOn(UseOnContext context) {

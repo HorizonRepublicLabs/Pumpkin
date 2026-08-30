@@ -13,8 +13,9 @@ public interface MutableDataComponentHolder extends DataComponentHolder {
 
     <T> T set(DataComponentType<T> componentType, T value);
 
+    // Pumpkin divergence: NeoForge body verbatim -- pure delegation.
     default <T> T set(Supplier<? extends DataComponentType<T>> componentType, T value) {
-        throw Unimplemented.forMember("net/neoforged/neoforge/common/MutableDataComponentHolder.set:(Ljava/util/function/Supplier;Ljava/lang/Object;)Ljava/lang/Object;");
+        return set(componentType.get(), value);
     }
 
     default <T, U> T update(DataComponentType<T> componentType, T value, U updateContext, BiFunction<T, U, T> updater) {

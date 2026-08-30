@@ -1349,4 +1349,65 @@ edit('net/neoforged/neoforge/registries/RegisterEvent.java', [
 ])
 
 
+# ------------------------------------------------- creative tabs, validated + reported
+
+edit('net/minecraft/world/item/Item.java', [
+    ('    public Item asItem() {\n        throw Unimplemented.forMember("net/minecraft/world/item/Item.asItem:()Lnet/minecraft/world/item/Item;");\n    }',
+     '    // Pumpkin divergence: vanilla body verbatim.\n    public Item asItem() {\n        return this;\n    }'),
+])
+
+
+edit('net/minecraft/world/item/CreativeModeTab.java', [
+    ('        // Pumpkin divergence: accepted and dropped -- client-side presentation.\n\n        public CreativeModeTab.Builder displayItems(CreativeModeTab.DisplayItemsGenerator displayItemsGenerator) {\n\n            return this;\n\n        }',
+     '        // Pumpkin divergence: recorded, not dropped. The tab itself is client-side\n        // presentation, but running the generator at registration proves every holder the\n        // mod put in its tab actually resolves -- see pumpkinRunDisplayItems().\n        private CreativeModeTab.DisplayItemsGenerator pumpkinDisplayItemsGenerator;\n\n        public CreativeModeTab.Builder displayItems(CreativeModeTab.DisplayItemsGenerator displayItemsGenerator) {\n            this.pumpkinDisplayItemsGenerator = displayItemsGenerator;\n            return this;\n        }'),
+    ('        // Pumpkin divergence: real body -- an inert tab; its own methods still throw.\n        public CreativeModeTab build() {\n            return new CreativeModeTab();\n        }',
+     '        // Pumpkin divergence: real body -- an inert tab that keeps its generator; its\n        // vanilla methods still throw.\n        public CreativeModeTab build() {\n            CreativeModeTab tab = new CreativeModeTab();\n            tab.pumpkinDisplayItemsGenerator = pumpkinDisplayItemsGenerator;\n            return tab;\n        }'),
+    ('    protected CreativeModeTab(CreativeModeTab.Builder builder) {\n    }',
+     '    protected CreativeModeTab(CreativeModeTab.Builder builder) {\n    }\n\n    // Pumpkin divergence: no vanilla counterpart in this form. The generator the builder\n    // recorded, if any.\n    private CreativeModeTab.DisplayItemsGenerator pumpkinDisplayItemsGenerator;\n\n    /**\n     * Runs the tab\'s display-items generator against a counting output and returns how\n     * many entries it produced.\n     *\n     * <p>The tab is client-side presentation the server never renders, so the entries are\n     * not kept. Running the generator is still worth doing: it forces every holder the mod\n     * put in its tab to resolve, which catches a broken registration at load time instead\n     * of never.\n     */\n    public int pumpkinRunDisplayItems() {\n        if (pumpkinDisplayItemsGenerator == null) {\n            return 0;\n        }\n        final int[] count = {0};\n        CreativeModeTab.Output collector = new CreativeModeTab.Output() {\n            @Override\n            public void accept(ItemStack stack, CreativeModeTab.TabVisibility tabVisibility) {\n                count[0]++;\n            }\n\n            @Override\n            public void accept(ItemStack stack) {\n                count[0]++;\n            }\n\n            @Override\n            public void accept(ItemLike item, CreativeModeTab.TabVisibility tabVisibility) {\n                java.util.Objects.requireNonNull(item, "a creative tab accepted a null item");\n                count[0]++;\n            }\n\n            @Override\n            public void accept(ItemLike item) {\n                java.util.Objects.requireNonNull(item, "a creative tab accepted a null item");\n                count[0]++;\n            }\n        };\n        // The parameters carry facts the server does not have: no feature flags beyond\n        // vanilla, no permissions, and a holder provider that throws with a named member\n        // if the generator actually reaches for it.\n        pumpkinDisplayItemsGenerator.accept(new CreativeModeTab.ItemDisplayParameters(\n                FeatureFlagSet.of(), false,\n                dev.pumpkin.shim.Stubs.of(net.minecraft.core.HolderLookup.Provider.class,\n                        "net/minecraft/core/HolderLookup$Provider")),\n                collector);\n        return count[0];\n    }'),
+])
+
+
+edit('net/neoforged/neoforge/registries/DeferredRegister.java', [
+    ('            } else if (object instanceof net.minecraft.world.level.block.entity.BlockEntityType) {\n                pumpkinSink.registerBlockEntityType(holder.getId().toString());\n            } else {',
+     '            } else if (object instanceof net.minecraft.world.level.block.entity.BlockEntityType) {\n                pumpkinSink.registerBlockEntityType(holder.getId().toString());\n            } else if (object instanceof net.minecraft.world.item.CreativeModeTab tab) {\n                pumpkinReportCreativeTab(holder.getId().toString(), tab);\n            } else {'),
+])
+
+
+edit('net/neoforged/neoforge/registries/DeferredRegister.java', [
+    ('    private static final java.util.Set<String> PUMPKIN_UNSUPPORTED_WARNED =\n            java.util.concurrent.ConcurrentHashMap.newKeySet();',
+     '    private static final java.util.Set<String> PUMPKIN_UNSUPPORTED_WARNED =\n            java.util.concurrent.ConcurrentHashMap.newKeySet();\n\n    // Pumpkin divergence: no vanilla counterpart. A creative tab is client-side\n    // presentation -- the protocol never carries it, so there is nothing for a server to\n    // store. Running its generator is still real work: every holder the mod put in the\n    // tab must resolve, which catches a broken registration at load time. Package-private\n    // for the same reason as pumpkinSink().\n    static void pumpkinReportCreativeTab(String id, net.minecraft.world.item.CreativeModeTab tab) {\n        int entries = tab.pumpkinRunDisplayItems();\n        System.out.println("[pumpkin] creative tab " + id + ": " + entries\n                + " entries resolved; tabs are client-side presentation, so the server\'s job ends here.");\n    }'),
+])
+
+
+edit('net/neoforged/neoforge/registries/RegisterEvent.java', [
+    ('            } else if (value instanceof net.minecraft.world.level.block.entity.BlockEntityType) {\n                DeferredRegister.pumpkinSink().registerBlockEntityType(name.toString());\n            } else {',
+     '            } else if (value instanceof net.minecraft.world.level.block.entity.BlockEntityType) {\n                DeferredRegister.pumpkinSink().registerBlockEntityType(name.toString());\n            } else if (value instanceof net.minecraft.world.item.CreativeModeTab tab) {\n                DeferredRegister.pumpkinReportCreativeTab(name.toString(), tab);\n            } else {'),
+])
+
+
+# ------------------------------------------------ creative tab output defaults, vanilla
+edit("net/minecraft/world/item/CreativeModeTab.java", [
+    ('        default void accept(ItemStack stack) {\n            throw Unimplemented.forMember("net/minecraft/world/item/CreativeModeTab$Output.accept:(Lnet/minecraft/world/item/ItemStack;)V");\n        }',
+     '        // Pumpkin divergence: vanilla body verbatim -- pure delegation.\n        default void accept(ItemStack stack) {\n            accept(stack, CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);\n        }'),
+    ('        default void accept(ItemLike item, CreativeModeTab.TabVisibility tabVisibility) {\n            throw Unimplemented.forMember("net/minecraft/world/item/CreativeModeTab$Output.accept:(Lnet/minecraft/world/level/ItemLike;Lnet/minecraft/world/item/CreativeModeTab$TabVisibility;)V");\n        }',
+     '        // Pumpkin divergence: vanilla body verbatim -- pure delegation.\n        default void accept(ItemLike item, CreativeModeTab.TabVisibility tabVisibility) {\n            accept(new ItemStack(item), tabVisibility);\n        }'),
+    ('        default void accept(ItemLike item) {\n            throw Unimplemented.forMember("net/minecraft/world/item/CreativeModeTab$Output.accept:(Lnet/minecraft/world/level/ItemLike;)V");\n        }',
+     '        // Pumpkin divergence: vanilla body verbatim -- pure delegation.\n        default void accept(ItemLike item) {\n            accept(new ItemStack(item), CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);\n        }'),
+])
+
+
+# ----------------------------------------------------- item stack components, real map
+
+edit('net/neoforged/neoforge/common/MutableDataComponentHolder.java', [
+    ('    default <T> T set(Supplier<? extends DataComponentType<T>> componentType, T value) {\n        throw Unimplemented.forMember("net/neoforged/neoforge/common/MutableDataComponentHolder.set:(Ljava/util/function/Supplier;Ljava/lang/Object;)Ljava/lang/Object;");\n    }',
+     '    // Pumpkin divergence: NeoForge body verbatim -- pure delegation.\n    default <T> T set(Supplier<? extends DataComponentType<T>> componentType, T value) {\n        return set(componentType.get(), value);\n    }'),
+])
+
+
+edit('net/minecraft/world/item/ItemStack.java', [
+    ('    public <T> T set(DataComponentType<T> type, T value) {\n        throw Unimplemented.forMember("net/minecraft/world/item/ItemStack.set:(Lnet/minecraft/core/component/DataComponentType;Ljava/lang/Object;)Ljava/lang/Object;");\n    }',
+     '    // Pumpkin divergence: real bodies. A stack\'s own components genuinely live on the\n    // stack, so a mod that sets one and reads it back gets its value. The item\'s base\n    // components are not consulted here -- get() answers only what was set on this stack,\n    // and pumpkinComponents() hands the map to whoever needs the rest of the merge later.\n    private final java.util.Map<DataComponentType<?>, Object> pumpkinComponents =\n            new java.util.HashMap<>();\n\n    @SuppressWarnings("unchecked")\n    public <T> T set(DataComponentType<T> type, T value) {\n        return (T) pumpkinComponents.put(type, value);\n    }\n\n    // Pumpkin divergence: no vanilla counterpart. The components set on this stack.\n    public java.util.Map<DataComponentType<?>, Object> pumpkinComponents() {\n        return pumpkinComponents;\n    }\n\n    @SuppressWarnings("unchecked")\n    @Override\n    public <T> T get(DataComponentType<? extends T> type) {\n        return (T) pumpkinComponents.get(type);\n    }'),
+])
+
+
 commit()

@@ -16,6 +16,58 @@ public class CreativeModeTab {
 
     protected CreativeModeTab(CreativeModeTab.Builder builder) {
     }
+
+    // Pumpkin divergence: no vanilla counterpart in this form. The generator the builder
+    // recorded, if any.
+    private CreativeModeTab.DisplayItemsGenerator pumpkinDisplayItemsGenerator;
+
+    /**
+     * Runs the tab's display-items generator against a counting output and returns how
+     * many entries it produced.
+     *
+     * <p>The tab is client-side presentation the server never renders, so the entries are
+     * not kept. Running the generator is still worth doing: it forces every holder the mod
+     * put in its tab to resolve, which catches a broken registration at load time instead
+     * of never.
+     */
+    public int pumpkinRunDisplayItems() {
+        if (pumpkinDisplayItemsGenerator == null) {
+            return 0;
+        }
+        final int[] count = {0};
+        CreativeModeTab.Output collector = new CreativeModeTab.Output() {
+            @Override
+            public void accept(ItemStack stack, CreativeModeTab.TabVisibility tabVisibility) {
+                count[0]++;
+            }
+
+            @Override
+            public void accept(ItemStack stack) {
+                count[0]++;
+            }
+
+            @Override
+            public void accept(ItemLike item, CreativeModeTab.TabVisibility tabVisibility) {
+                java.util.Objects.requireNonNull(item, "a creative tab accepted a null item");
+                count[0]++;
+            }
+
+            @Override
+            public void accept(ItemLike item) {
+                java.util.Objects.requireNonNull(item, "a creative tab accepted a null item");
+                count[0]++;
+            }
+        };
+        // The parameters carry facts the server does not have: no feature flags beyond
+        // vanilla, no permissions, and a holder provider that throws with a named member
+        // if the generator actually reaches for it.
+        pumpkinDisplayItemsGenerator.accept(new CreativeModeTab.ItemDisplayParameters(
+                FeatureFlagSet.of(), false,
+                dev.pumpkin.shim.Stubs.of(net.minecraft.core.HolderLookup.Provider.class,
+                        "net/minecraft/core/HolderLookup$Provider")),
+                collector);
+        return count[0];
+    }
     // Pumpkin divergence: real body. A creative tab is client-side presentation Pumpkin
     // never renders; the builder exists so a mod's registration completes, and the tab it
     // yields is inert.
@@ -60,12 +112,14 @@ public class CreativeModeTab {
 
         }
 
-        // Pumpkin divergence: accepted and dropped -- client-side presentation.
+        // Pumpkin divergence: recorded, not dropped. The tab itself is client-side
+        // presentation, but running the generator at registration proves every holder the
+        // mod put in its tab actually resolves -- see pumpkinRunDisplayItems().
+        private CreativeModeTab.DisplayItemsGenerator pumpkinDisplayItemsGenerator;
 
         public CreativeModeTab.Builder displayItems(CreativeModeTab.DisplayItemsGenerator displayItemsGenerator) {
-
+            this.pumpkinDisplayItemsGenerator = displayItemsGenerator;
             return this;
-
         }
 
         // Pumpkin divergence: accepted and dropped -- client-side presentation.
@@ -75,9 +129,12 @@ public class CreativeModeTab {
             return this;
 
         }
-        // Pumpkin divergence: real body -- an inert tab; its own methods still throw.
+        // Pumpkin divergence: real body -- an inert tab that keeps its generator; its
+        // vanilla methods still throw.
         public CreativeModeTab build() {
-            return new CreativeModeTab();
+            CreativeModeTab tab = new CreativeModeTab();
+            tab.pumpkinDisplayItemsGenerator = pumpkinDisplayItemsGenerator;
+            return tab;
         }
 
         public Builder() {
@@ -109,16 +166,19 @@ public class CreativeModeTab {
 
         void accept(final ItemStack stack, final CreativeModeTab.TabVisibility tabVisibility);
 
+        // Pumpkin divergence: vanilla body verbatim -- pure delegation.
         default void accept(ItemStack stack) {
-            throw Unimplemented.forMember("net/minecraft/world/item/CreativeModeTab$Output.accept:(Lnet/minecraft/world/item/ItemStack;)V");
+            accept(stack, CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
         }
 
+        // Pumpkin divergence: vanilla body verbatim -- pure delegation.
         default void accept(ItemLike item, CreativeModeTab.TabVisibility tabVisibility) {
-            throw Unimplemented.forMember("net/minecraft/world/item/CreativeModeTab$Output.accept:(Lnet/minecraft/world/level/ItemLike;Lnet/minecraft/world/item/CreativeModeTab$TabVisibility;)V");
+            accept(new ItemStack(item), tabVisibility);
         }
 
+        // Pumpkin divergence: vanilla body verbatim -- pure delegation.
         default void accept(ItemLike item) {
-            throw Unimplemented.forMember("net/minecraft/world/item/CreativeModeTab$Output.accept:(Lnet/minecraft/world/level/ItemLike;)V");
+            accept(new ItemStack(item), CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
         }
     }
 

@@ -187,8 +187,27 @@ public final class ItemStack implements DataComponentHolder, ItemInstance, IItem
         throw Unimplemented.forMember("net/minecraft/world/item/ItemStack.getUseDuration:(Lnet/minecraft/world/entity/LivingEntity;)I");
     }
 
+    // Pumpkin divergence: real bodies. A stack's own components genuinely live on the
+    // stack, so a mod that sets one and reads it back gets its value. The item's base
+    // components are not consulted here -- get() answers only what was set on this stack,
+    // and pumpkinComponents() hands the map to whoever needs the rest of the merge later.
+    private final java.util.Map<DataComponentType<?>, Object> pumpkinComponents =
+            new java.util.HashMap<>();
+
+    @SuppressWarnings("unchecked")
     public <T> T set(DataComponentType<T> type, T value) {
-        throw Unimplemented.forMember("net/minecraft/world/item/ItemStack.set:(Lnet/minecraft/core/component/DataComponentType;Ljava/lang/Object;)Ljava/lang/Object;");
+        return (T) pumpkinComponents.put(type, value);
+    }
+
+    // Pumpkin divergence: no vanilla counterpart. The components set on this stack.
+    public java.util.Map<DataComponentType<?>, Object> pumpkinComponents() {
+        return pumpkinComponents;
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public <T> T get(DataComponentType<? extends T> type) {
+        return (T) pumpkinComponents.get(type);
     }
 
     public <T> T set(TypedDataComponent<T> value) {

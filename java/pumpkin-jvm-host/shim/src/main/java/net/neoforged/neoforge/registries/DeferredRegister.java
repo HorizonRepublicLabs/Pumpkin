@@ -88,6 +88,17 @@ public class DeferredRegister<T> {
     private static final java.util.Set<String> PUMPKIN_UNSUPPORTED_WARNED =
             java.util.concurrent.ConcurrentHashMap.newKeySet();
 
+    // Pumpkin divergence: no vanilla counterpart. A creative tab is client-side
+    // presentation -- the protocol never carries it, so there is nothing for a server to
+    // store. Running its generator is still real work: every holder the mod put in the
+    // tab must resolve, which catches a broken registration at load time. Package-private
+    // for the same reason as pumpkinSink().
+    static void pumpkinReportCreativeTab(String id, net.minecraft.world.item.CreativeModeTab tab) {
+        int entries = tab.pumpkinRunDisplayItems();
+        System.out.println("[pumpkin] creative tab " + id + ": " + entries
+                + " entries resolved; tabs are client-side presentation, so the server's job ends here.");
+    }
+
     // Pumpkin divergence: no vanilla counterpart. RegisterEvent registers straight into the
     // game rather than through a DeferredRegister, so it needs the same sink. Package-private
     // because only its sibling in this package has any business reaching it.
@@ -167,6 +178,8 @@ public class DeferredRegister<T> {
                         item.pumpkinPlacedBlockId());
             } else if (object instanceof net.minecraft.world.level.block.entity.BlockEntityType) {
                 pumpkinSink.registerBlockEntityType(holder.getId().toString());
+            } else if (object instanceof net.minecraft.world.item.CreativeModeTab tab) {
+                pumpkinReportCreativeTab(holder.getId().toString(), tab);
             } else {
                 pumpkinWarnUnsupported(pumpkinRegistryKey.identifier().toString(),
                         holder.getId().toString());
