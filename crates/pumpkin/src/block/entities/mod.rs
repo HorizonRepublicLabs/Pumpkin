@@ -33,6 +33,7 @@ pub mod map;
 pub mod mob_spawner;
 pub mod piston;
 pub mod plugin;
+pub mod plugin_mod_data;
 pub mod shulker_box;
 pub mod sign;
 pub mod smoker;

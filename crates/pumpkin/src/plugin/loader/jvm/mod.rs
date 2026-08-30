@@ -527,7 +527,7 @@ fn install_jvm_tick_hook() {
 /// loads with the chunk. The blob is the bridge's own JSON, base64-wrapped so it stays
 /// opaque to the reply protocol -- a world saved by real `NeoForge` does not interchange
 /// with this, which the bridge's `ValueIO` says out loud too.
-const MOD_DATA_KEY: &str = "pumpkin:mod_data";
+use crate::block::entities::plugin_mod_data::MOD_DATA_KEY;
 
 fn read_mod_data(
     world: &Arc<crate::world::World>,
@@ -571,6 +571,10 @@ fn write_mod_data(
         .unwrap_or_else(std::sync::PoisonError::into_inner)
         .put_string(MOD_DATA_KEY, blob.to_string());
     pumpkin_world::inventory::Inventory::mark_dirty(plugin);
+    // Re-adding broadcasts the entity's client data to the chunk's watchers and refreshes
+    // the pending chunk NBT -- how a pedestal's held item reaches a modded client's
+    // renderer the moment it changes.
+    world.add_block_entity(entity.clone());
 }
 
 /// `namespace:path:count` into a real stack; unknown items are dropped loudly.

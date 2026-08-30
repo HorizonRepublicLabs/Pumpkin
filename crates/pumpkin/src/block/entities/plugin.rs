@@ -88,6 +88,26 @@ impl BlockEntity for PluginBlockEntity {
         }
     }
 
+    fn get_id(&self) -> u32 {
+        // The default trims the namespace off before looking the name up, which is right
+        // for generated types ("furnace") and wrong for registered ones -- the dynamic
+        // registry stores them fully qualified.
+        u32::from(pumpkin_data::dynamic::block_entity_type_id(self.id).unwrap_or(0))
+    }
+
+    fn chunk_data_nbt(&self) -> Option<NbtCompound> {
+        // What a client's renderer reads: the mod entity's own saved fields, decoded out
+        // of the bridge blob into NBT. The blob's field names and stack shape are already
+        // vanilla's (see the bridge's ValueIO), so a modded client's loadAdditional finds
+        // what it expects.
+        let data = self
+            .data
+            .read()
+            .unwrap_or_else(std::sync::PoisonError::into_inner);
+        let blob = data.get_string(super::plugin_mod_data::MOD_DATA_KEY)?;
+        super::plugin_mod_data::decode_blob_to_nbt(blob)
+    }
+
     fn get_position(&self) -> BlockPos {
         self.position
     }
@@ -118,6 +138,18 @@ impl BlockEntity for PluginBlockEntity {
         let data = read(&self.data);
         for (key, value) in data.child_tags.clone() {
             if !matches!(&*key, "id" | "x" | "y" | "z" | "Items") {
+                nbt.put(&key, value);
+            }
+        }
+
+        // The mod-side entity's own fields, spliced in at top level so both the save and
+        // the chunk a client receives carry them where its loadAdditional looks. The
+        // opaque blob above stays authoritative for the Java round trip; these are its
+        // readable projection.
+        if let Some(blob) = data.get_string(super::plugin_mod_data::MOD_DATA_KEY)
+            && let Some(decoded) = super::plugin_mod_data::decode_blob_to_nbt(blob)
+        {
+            for (key, value) in decoded.child_tags {
                 nbt.put(&key, value);
             }
         }

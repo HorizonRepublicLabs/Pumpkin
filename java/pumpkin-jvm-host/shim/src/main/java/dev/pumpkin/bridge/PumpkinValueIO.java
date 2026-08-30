@@ -41,6 +41,9 @@ public final class PumpkinValueIO {
             // The codec is inert; the value's own shape is what gets recognised. Item
             // stack lists are the one thing the mods this host runs persist this way.
             if (value instanceof NonNullList<?> list) {
+                // Written in vanilla's own stack shape -- a list of {id, count} -- so the
+                // same fields, converted to NBT, are readable by a modded client's
+                // renderer as well as by this class.
                 JsonArray items = new JsonArray();
                 for (Object element : list) {
                     JsonObject slot = new JsonObject();
@@ -50,10 +53,7 @@ public final class PumpkinValueIO {
                     }
                     items.add(slot);
                 }
-                JsonObject tagged = new JsonObject();
-                tagged.addProperty("pumpkin:kind", "item_stacks");
-                tagged.add("items", items);
-                json.add(name, tagged);
+                json.add(name, items);
                 return;
             }
             throw Unimplemented.forMember(
@@ -184,12 +184,9 @@ public final class PumpkinValueIO {
             if (element == null) {
                 return Optional.empty();
             }
-            // The mirror of Output.store: recognise the tagged item-stack shape.
-            if (element.isJsonObject()
-                    && element.getAsJsonObject().has("pumpkin:kind")
-                    && element.getAsJsonObject().get("pumpkin:kind").getAsString()
-                            .equals("item_stacks")) {
-                JsonArray items = element.getAsJsonObject().getAsJsonArray("items");
+            // The mirror of Output.store: an array of {id, count} slots is a stack list.
+            if (element.isJsonArray()) {
+                JsonArray items = element.getAsJsonArray();
                 NonNullList<ItemStack> stacks =
                         NonNullList.withSize(items.size(), ItemStack.EMPTY);
                 for (int i = 0; i < items.size(); i++) {
