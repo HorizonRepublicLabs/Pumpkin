@@ -89,12 +89,114 @@ import net.minecraft.world.item.ItemStack;
  * the class's own abstract surface and looks it: every entry refuses with a key naming
  * the method, which is what the interaction burndown feeds on.
  */
-public final class PumpkinLevel extends net.minecraft.world.level.Level {
+public final class PumpkinLevel extends net.minecraft.server.level.ServerLevel {
+
+    @Override
+    public net.minecraft.world.item.crafting.RecipeManager recipeAccess() {
+        // Cucumber's CachedRecipe casts the level to ServerLevel and asks this -- the
+        // door recipe-driven machines walk through.
+        return PumpkinRecipes.manager();
+    }
+
     private final java.util.List<ItemStack> drops = new java.util.ArrayList<>();
 
     /** What {@code addFreshEntity} collected: items the mod dropped into the world. */
     public java.util.List<ItemStack> pumpkinDrops() {
         return drops;
+    }
+
+    @Override
+    public java.util.List<net.minecraft.server.level.ServerPlayer> players() {
+        // No one inhabits the stand-in level; packet fan-out asking is the sync slice.
+        return java.util.List.of();
+    }
+
+    @Override
+    public void blockEntityChanged(BlockPos pos) {
+        // Accepted and dropped: the tick bridge already serialises a changed entity via
+        // its own dirty flag; vanilla's chunk-save bookkeeping has nothing to mark here.
+    }
+
+    // The redstone signal at the block the bridge is currently serving, told by the
+    // Rust world with each call. One interaction runs at a time on the mod thread, and
+    // machines only ask about their own position.
+    private static volatile boolean currentSignal;
+
+    static void pumpkinSetSignal(boolean signal) {
+        currentSignal = signal;
+    }
+
+    @Override
+    public RandomSource getRandom() {
+        // A real random over java.util.Random: particle offsets and the like want noise,
+        // not determinism, and refusing them would stop machines over decoration.
+        return PUMPKIN_RANDOM;
+    }
+
+    private static final RandomSource PUMPKIN_RANDOM = new RandomSource() {
+        private final java.util.Random random = new java.util.Random();
+
+        @Override
+        public RandomSource fork() {
+            return this;
+        }
+
+        @Override
+        public net.minecraft.world.level.levelgen.PositionalRandomFactory forkPositional() {
+            throw Unimplemented.forMember("net/minecraft/util/RandomSource.forkPositional");
+        }
+
+        @Override
+        public void setSeed(long seed) {
+            random.setSeed(seed);
+        }
+
+        @Override
+        public int nextInt() {
+            return random.nextInt();
+        }
+
+        @Override
+        public int nextInt(int bound) {
+            return random.nextInt(bound);
+        }
+
+        @Override
+        public long nextLong() {
+            return random.nextLong();
+        }
+
+        @Override
+        public boolean nextBoolean() {
+            return random.nextBoolean();
+        }
+
+        @Override
+        public float nextFloat() {
+            return random.nextFloat();
+        }
+
+        @Override
+        public double nextDouble() {
+            return random.nextDouble();
+        }
+
+        @Override
+        public double nextGaussian() {
+            return random.nextGaussian();
+        }
+    };
+
+    @Override
+    public <T extends ParticleOptions> int sendParticles(T particle, double x, double y,
+            double z, int count, double dx, double dy, double dz, double speed) {
+        // Accepted and dropped, like addParticle: decoration for the sync slice.
+        return count;
+    }
+
+    @Override
+    public boolean hasNeighborSignal(BlockPos pos) {
+        return currentSignal;
     }
 
     @Override
@@ -149,21 +251,6 @@ public final class PumpkinLevel extends net.minecraft.world.level.Level {
     }
 
     @Override
-    public ChunkSource getChunkSource() {
-        throw Unimplemented.forMember("net/minecraft/world/level/Level.getChunkSource");
-    }
-
-    @Override
-    public ClockManager clockManager() {
-        throw Unimplemented.forMember("net/minecraft/world/level/Level.clockManager");
-    }
-
-    @Override
-    public Collection<? extends net.neoforged.neoforge.entity.PartEntity<?>> dragonParts() {
-        throw Unimplemented.forMember("net/minecraft/world/level/Level.dragonParts");
-    }
-
-    @Override
     public DimensionType dimensionType() {
         throw Unimplemented.forMember("net/minecraft/world/level/Level.dimensionType");
     }
@@ -210,23 +297,6 @@ public final class PumpkinLevel extends net.minecraft.world.level.Level {
         throw Unimplemented.forMember("net/minecraft/world/level/Level.getLightEngine");
     }
 
-    @Override
-    public LevelTickAccess<Block> getBlockTicks() {
-        throw Unimplemented.forMember("net/minecraft/world/level/Level.getBlockTicks");
-    }
-
-    @Override
-    public LevelTickAccess<Fluid> getFluidTicks() {
-        throw Unimplemented.forMember("net/minecraft/world/level/Level.getFluidTicks");
-    }
-
-    @Override
-    public List<? extends Player> players() {
-        // No one: the packet fan-out that asks for players is the sync slice, and an
-        // empty room is the truthful answer for a level no player inhabits.
-        return java.util.List.of();
-    }
-
 
     @Override
     public List<VoxelShape> getEntityCollisions(final Entity source, final AABB testArea) {
@@ -249,23 +319,8 @@ public final class PumpkinLevel extends net.minecraft.world.level.Level {
     }
 
     @Override
-    public RandomSource getRandom() {
-        throw Unimplemented.forMember("net/minecraft/world/level/Level.getRandom");
-    }
-
-    @Override
-    public RecipeAccess recipeAccess() {
-        throw Unimplemented.forMember("net/minecraft/world/level/Level.recipeAccess");
-    }
-
-    @Override
     public RegistryAccess registryAccess() {
         throw Unimplemented.forMember("net/minecraft/world/level/Level.registryAccess");
-    }
-
-    @Override
-    public Scoreboard getScoreboard() {
-        throw Unimplemented.forMember("net/minecraft/world/level/Level.getScoreboard");
     }
 
     @Override
@@ -347,7 +402,8 @@ public final class PumpkinLevel extends net.minecraft.world.level.Level {
 
     @Override
     public void addParticle(final ParticleOptions particle, final double x, final double y, final double z, final double xd, final double yd, final double zd) {
-        throw Unimplemented.forMember("net/minecraft/world/level/Level.addParticle");
+        // Accepted and dropped: decoration; routing particles to clients is the sync
+        // slice, and stopping a craft over sparkles helps no one.
     }
 
     @Override
@@ -406,8 +462,4 @@ public final class PumpkinLevel extends net.minecraft.world.level.Level {
         throw Unimplemented.forMember("net/minecraft/world/level/Level.environmentAttributes");
     }
 
-    @Override
-    protected LevelEntityGetter<Entity> getEntities() {
-        throw Unimplemented.forMember("net/minecraft/world/level/Level.getEntities");
-    }
 }

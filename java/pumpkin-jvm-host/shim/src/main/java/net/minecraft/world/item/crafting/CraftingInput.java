@@ -18,24 +18,36 @@ public class CraftingInput implements RecipeInput {
     private CraftingInput(int width, int height, List<ItemStack> items) {
     }
 
+    // Pumpkin divergence: real bodies -- an input really carries its grid. This is what
+    // a machine hands to Recipe.matches; nothing here is behaviour, only storage.
+    private int pumpkinWidth;
+
+    private int pumpkinHeight;
+
+    private List<ItemStack> pumpkinItems = List.of();
+
     public static CraftingInput of(int width, int height, List<ItemStack> items) {
-        throw Unimplemented.forMember("net/minecraft/world/item/crafting/CraftingInput.of:(IILjava/util/List;)Lnet/minecraft/world/item/crafting/CraftingInput;");
+        CraftingInput input = new CraftingInput();
+        input.pumpkinWidth = width;
+        input.pumpkinHeight = height;
+        input.pumpkinItems = items;
+        return input;
     }
 
     public ItemStack getItem(int index) {
-        throw Unimplemented.forMember("net/minecraft/world/item/crafting/CraftingInput.getItem:(I)Lnet/minecraft/world/item/ItemStack;");
+        return pumpkinItems.get(index);
     }
 
     public ItemStack getItem(int x, int y) {
-        throw Unimplemented.forMember("net/minecraft/world/item/crafting/CraftingInput.getItem:(II)Lnet/minecraft/world/item/ItemStack;");
+        return pumpkinItems.get(x + y * pumpkinWidth);
     }
 
     public int size() {
-        throw Unimplemented.forMember("net/minecraft/world/item/crafting/CraftingInput.size:()I");
+        return pumpkinItems.size();
     }
 
     public boolean isEmpty() {
-        throw Unimplemented.forMember("net/minecraft/world/item/crafting/CraftingInput.isEmpty:()Z");
+        return pumpkinItems.stream().allMatch(ItemStack::isEmpty);
     }
 
     public StackedItemContents stackedContents() {
@@ -46,8 +58,15 @@ public class CraftingInput implements RecipeInput {
         throw Unimplemented.forMember("net/minecraft/world/item/crafting/CraftingInput.items:()Ljava/util/List;");
     }
 
+    // Pumpkin divergence: vanilla body -- how many slots actually hold something.
     public int ingredientCount() {
-        throw Unimplemented.forMember("net/minecraft/world/item/crafting/CraftingInput.ingredientCount:()I");
+        int count = 0;
+        for (ItemStack stack : pumpkinItems) {
+            if (!stack.isEmpty()) {
+                count++;
+            }
+        }
+        return count;
     }
 
     public int width() {

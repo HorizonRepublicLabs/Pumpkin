@@ -25,7 +25,52 @@ public final class Ingredient implements Predicate<ItemStack>, StackedContents.I
 
     // composition and throws on first real serialisation, naming the field.
 
-    public static final Codec<Ingredient> CODEC = dev.pumpkin.shim.Stubs.throwingCodec("net/minecraft/world/item/crafting/Ingredient.CODEC");
+    // Pumpkin divergence: a real codec for the shapes mod recipes actually use -- a
+    // plain item id, "#tag", or a list of either. NeoForge custom ingredient maps
+    // (neoforge:ingredient_type) refuse with a reason, so a recipe using one fails its
+    // decode loudly and is counted, never half-matched.
+    public static final Codec<Ingredient> CODEC = new com.mojang.serialization.codecs.PrimitiveCodec<Ingredient>() {
+        @Override
+        public <T> com.mojang.serialization.DataResult<Ingredient> read(
+                com.mojang.serialization.DynamicOps<T> ops, T input) {
+            var asString = ops.getStringValue(input);
+            if (asString.result().isPresent()) {
+                return com.mojang.serialization.DataResult.success(
+                        pumpkinOf(java.util.List.of(asString.result().get())));
+            }
+            var asList = ops.getStream(input);
+            if (asList.result().isPresent()) {
+                java.util.List<String> ids = new java.util.ArrayList<>();
+                for (T entry : asList.result().get().toList()) {
+                    var entryString = ops.getStringValue(entry);
+                    if (entryString.result().isEmpty()) {
+                        return com.mojang.serialization.DataResult.error(
+                                () -> "unsupported ingredient entry (custom ingredient types are not decodable here)");
+                    }
+                    ids.add(entryString.result().get());
+                }
+                return com.mojang.serialization.DataResult.success(pumpkinOf(ids));
+            }
+            return com.mojang.serialization.DataResult.error(
+                    () -> "unsupported ingredient shape (custom ingredient types are not decodable here)");
+        }
+
+        @Override
+        public <T> T write(com.mojang.serialization.DynamicOps<T> ops, Ingredient value) {
+            throw dev.pumpkin.shim.Unimplemented.forMember(
+                    "net/minecraft/world/item/crafting/Ingredient.CODEC.encode");
+        }
+    };
+
+    // Pumpkin divergence: the decoded item ids ("#..." entries are tags, kept but matched
+    // never -- see test()).
+    private java.util.List<String> pumpkinIds = java.util.List.of();
+
+    private static Ingredient pumpkinOf(java.util.List<String> ids) {
+        Ingredient ingredient = new Ingredient((HolderSet<Item>) null);
+        ingredient.pumpkinIds = ids;
+        return ingredient;
+    }
 
     private Ingredient(HolderSet<Item> values) {
     }
@@ -38,11 +83,28 @@ public final class Ingredient implements Predicate<ItemStack>, StackedContents.I
     }
 
     public boolean isEmpty() {
-        throw Unimplemented.forMember("net/minecraft/world/item/crafting/Ingredient.isEmpty:()Z");
+        return pumpkinIds.isEmpty();
     }
 
+    // Pumpkin divergence: real body over the decoded ids. A tag entry matches nothing
+    // yet -- item tag membership for mod items is its own slice -- and says so once.
     public boolean test(ItemStack input) {
-        throw Unimplemented.forMember("net/minecraft/world/item/crafting/Ingredient.test:(Lnet/minecraft/world/item/ItemStack;)Z");
+        if (input == null || input.isEmpty()) {
+            return false;
+        }
+        String id = dev.pumpkin.bridge.PumpkinInteractions.pumpkinItemId(input);
+        for (String candidate : pumpkinIds) {
+            if (candidate.startsWith("#")) {
+                dev.pumpkin.shim.PumpkinWarnOnce.warn("ingredient-tag",
+                        "an ingredient matches by tag (" + candidate
+                                + "), which mod item tags do not answer yet; it matches nothing.");
+                continue;
+            }
+            if (candidate.equals(id)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     public boolean acceptsItem(Holder<Item> item) {

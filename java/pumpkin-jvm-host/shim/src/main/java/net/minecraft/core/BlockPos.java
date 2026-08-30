@@ -53,28 +53,29 @@ public class BlockPos extends Vec3i {
         throw Unimplemented.forMember("net/minecraft/core/BlockPos.asLong:(III)J");
     }
 
+    // Pumpkin divergence: vanilla bodies verbatim -- coordinate arithmetic, nothing else.
     public BlockPos offset(int x, int y, int z) {
-        throw Unimplemented.forMember("net/minecraft/core/BlockPos.offset:(III)Lnet/minecraft/core/BlockPos;");
+        return new BlockPos(getX() + x, getY() + y, getZ() + z);
     }
 
     public BlockPos offset(Vec3i vec) {
-        throw Unimplemented.forMember("net/minecraft/core/BlockPos.offset:(Lnet/minecraft/core/Vec3i;)Lnet/minecraft/core/BlockPos;");
+        return offset(vec.getX(), vec.getY(), vec.getZ());
     }
 
     public BlockPos above() {
-        throw Unimplemented.forMember("net/minecraft/core/BlockPos.above:()Lnet/minecraft/core/BlockPos;");
+        return offset(0, 1, 0);
     }
 
     public BlockPos above(int steps) {
-        throw Unimplemented.forMember("net/minecraft/core/BlockPos.above:(I)Lnet/minecraft/core/BlockPos;");
+        return offset(0, steps, 0);
     }
 
     public BlockPos below() {
-        throw Unimplemented.forMember("net/minecraft/core/BlockPos.below:()Lnet/minecraft/core/BlockPos;");
+        return offset(0, -1, 0);
     }
 
     public BlockPos below(int steps) {
-        throw Unimplemented.forMember("net/minecraft/core/BlockPos.below:(I)Lnet/minecraft/core/BlockPos;");
+        return offset(0, -steps, 0);
     }
 
     public BlockPos relative(Direction direction) {

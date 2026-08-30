@@ -1535,7 +1535,7 @@ edit('net/neoforged/neoforge/registries/RegisterEvent.java', [
 
 edit('net/neoforged/neoforge/registries/DeferredHolder.java', [
     ('" + holder.getId(), holder);\n    }',
-     '" + holder.getId(), holder);\n    }\n\n    // Pumpkin divergence: no vanilla counterpart. The interaction bridge resolves a\n    // registered value by registry and id -- the same key the record methods write.\n    public static Object pumpkinResolve(String registry, String id) {\n        DeferredHolder<?, ?> holder = PUMPKIN_BY_ID.get(registry + "|" + id);\n        return holder == null ? null : holder.get();\n    }'),
+     '" + holder.getId(), holder);\n    }\n\n    // Pumpkin divergence: no vanilla counterpart. The interaction bridge resolves a\n    // registered value by registry and id -- the same key the record methods write.\n    public static Object pumpkinResolve(String registry, String id) {\n        DeferredHolder<?, ?> holder = PUMPKIN_BY_ID.get(registry + "|" + id);\n        return holder == null ? null : holder.get();\n    }\n\n    // Pumpkin divergence: no vanilla counterpart. The reverse: which id a value was\n    // registered under. A linear scan, used only on cold paths (a recipe type\'s first\n    // lookup) and correct because registration resolved every holder it recorded.\n    public static String pumpkinResolveName(String registry, Object value) {\n        String prefix = registry + "|";\n        for (java.util.Map.Entry<String, DeferredHolder<?, ?>> entry : PUMPKIN_BY_ID.entrySet()) {\n            if (entry.getKey().startsWith(prefix) && entry.getValue().get() == value) {\n                return entry.getKey().substring(prefix.length());\n            }\n        }\n        return null;\n    }'),
 ])
 
 
@@ -1740,5 +1740,109 @@ edit('net/minecraft/world/level/Level.java', [
      '    // Pumpkin divergence: vanilla body verbatim -- the pruner kept the field.\n    public boolean isClientSide() {\n        return this.isClientSide;\n    }'),
 ])
 
+
+# ---------------------------------------------------- enum property identity
+edit('net/minecraft/world/level/block/state/properties/EnumProperty.java', [
+])
+
+
+# --------------------------------------------------- block pos arithmetic, vanilla
+edit('net/minecraft/core/BlockPos.java', [
+    ('    public BlockPos offset(int x, int y, int z) {\n        throw Unimplemented.forMember("net/minecraft/core/BlockPos.offset:(III)Lnet/minecraft/core/BlockPos;");\n    }',
+     '    // Pumpkin divergence: vanilla bodies verbatim -- coordinate arithmetic, nothing else.\n    public BlockPos offset(int x, int y, int z) {\n        return new BlockPos(getX() + x, getY() + y, getZ() + z);\n    }'),
+    ('    public BlockPos offset(Vec3i vec) {\n        throw Unimplemented.forMember("net/minecraft/core/BlockPos.offset:(Lnet/minecraft/core/Vec3i;)Lnet/minecraft/core/BlockPos;");\n    }',
+     '    public BlockPos offset(Vec3i vec) {\n        return offset(vec.getX(), vec.getY(), vec.getZ());\n    }'),
+    ('    public BlockPos above() {\n        throw Unimplemented.forMember("net/minecraft/core/BlockPos.above:()Lnet/minecraft/core/BlockPos;");\n    }',
+     '    public BlockPos above() {\n        return offset(0, 1, 0);\n    }'),
+    ('    public BlockPos above(int steps) {\n        throw Unimplemented.forMember("net/minecraft/core/BlockPos.above:(I)Lnet/minecraft/core/BlockPos;");\n    }',
+     '    public BlockPos above(int steps) {\n        return offset(0, steps, 0);\n    }'),
+    ('    public BlockPos below() {\n        throw Unimplemented.forMember("net/minecraft/core/BlockPos.below:()Lnet/minecraft/core/BlockPos;");\n    }',
+     '    public BlockPos below() {\n        return offset(0, -1, 0);\n    }'),
+    ('    public BlockPos below(int steps) {\n        throw Unimplemented.forMember("net/minecraft/core/BlockPos.below:(I)Lnet/minecraft/core/BlockPos;");\n    }',
+     '    public BlockPos below(int steps) {\n        return offset(0, -steps, 0);\n    }'),
+])
+
+
+# ------------------------------------------------------ crafting input, real grid
+edit('net/minecraft/world/item/crafting/CraftingInput.java', [
+    ('    public static CraftingInput of(int width, int height, List<ItemStack> items) {\n        throw Unimplemented.forMember("net/minecraft/world/item/crafting/CraftingInput.of:(IILjava/util/List;)Lnet/minecraft/world/item/crafting/CraftingInput;");\n    }',
+     '    // Pumpkin divergence: real bodies -- an input really carries its grid. This is what\n    // a machine hands to Recipe.matches; nothing here is behaviour, only storage.\n    private int pumpkinWidth;\n\n    private int pumpkinHeight;\n\n    private List<ItemStack> pumpkinItems = List.of();\n\n    public static CraftingInput of(int width, int height, List<ItemStack> items) {\n        CraftingInput input = new CraftingInput();\n        input.pumpkinWidth = width;\n        input.pumpkinHeight = height;\n        input.pumpkinItems = items;\n        return input;\n    }'),
+    ('    public ItemStack getItem(int index) {\n        throw Unimplemented.forMember("net/minecraft/world/item/crafting/CraftingInput.getItem:(I)Lnet/minecraft/world/item/ItemStack;");\n    }',
+     '    public ItemStack getItem(int index) {\n        return pumpkinItems.get(index);\n    }'),
+    ('    public ItemStack getItem(int x, int y) {\n        throw Unimplemented.forMember("net/minecraft/world/item/crafting/CraftingInput.getItem:(II)Lnet/minecraft/world/item/ItemStack;");\n    }',
+     '    public ItemStack getItem(int x, int y) {\n        return pumpkinItems.get(x + y * pumpkinWidth);\n    }'),
+    ('    public int size() {\n        throw Unimplemented.forMember("net/minecraft/world/item/crafting/CraftingInput.size:()I");\n    }',
+     '    public int size() {\n        return pumpkinItems.size();\n    }'),
+    ('    public boolean isEmpty() {\n        throw Unimplemented.forMember("net/minecraft/world/item/crafting/CraftingInput.isEmpty:()Z");\n    }',
+     '    public boolean isEmpty() {\n        return pumpkinItems.stream().allMatch(ItemStack::isEmpty);\n    }'),
+])
+
+
+# ------------------------------------------------------------ ingredient, real codec
+edit('net/minecraft/world/item/crafting/Ingredient.java', [
+    ('    public static final Codec<Ingredient> CODEC = dev.pumpkin.shim.Stubs.throwingCodec("net/minecraft/world/item/crafting/Ingredient.CODEC");\n\n    private Ingredient(HolderSet<Item> values) {\n    }',
+     '    // Pumpkin divergence: a real codec for the shapes mod recipes actually use -- a\n    // plain item id, "#tag", or a list of either. NeoForge custom ingredient maps\n    // (neoforge:ingredient_type) refuse with a reason, so a recipe using one fails its\n    // decode loudly and is counted, never half-matched.\n    public static final Codec<Ingredient> CODEC = new com.mojang.serialization.codecs.PrimitiveCodec<Ingredient>() {\n        @Override\n        public <T> com.mojang.serialization.DataResult<Ingredient> read(\n                com.mojang.serialization.DynamicOps<T> ops, T input) {\n            var asString = ops.getStringValue(input);\n            if (asString.result().isPresent()) {\n                return com.mojang.serialization.DataResult.success(\n                        pumpkinOf(java.util.List.of(asString.result().get())));\n            }\n            var asList = ops.getStream(input);\n            if (asList.result().isPresent()) {\n                java.util.List<String> ids = new java.util.ArrayList<>();\n                for (T entry : asList.result().get().toList()) {\n                    var entryString = ops.getStringValue(entry);\n                    if (entryString.result().isEmpty()) {\n                        return com.mojang.serialization.DataResult.error(\n                                () -> "unsupported ingredient entry (custom ingredient types are not decodable here)");\n                    }\n                    ids.add(entryString.result().get());\n                }\n                return com.mojang.serialization.DataResult.success(pumpkinOf(ids));\n            }\n            return com.mojang.serialization.DataResult.error(\n                    () -> "unsupported ingredient shape (custom ingredient types are not decodable here)");\n        }\n\n        @Override\n        public <T> T write(com.mojang.serialization.DynamicOps<T> ops, Ingredient value) {\n            throw dev.pumpkin.shim.Unimplemented.forMember(\n                    "net/minecraft/world/item/crafting/Ingredient.CODEC.encode");\n        }\n    };\n\n    // Pumpkin divergence: the decoded item ids ("#..." entries are tags, kept but matched\n    // never -- see test()).\n    private java.util.List<String> pumpkinIds = java.util.List.of();\n\n    private static Ingredient pumpkinOf(java.util.List<String> ids) {\n        Ingredient ingredient = new Ingredient((HolderSet<Item>) null);\n        ingredient.pumpkinIds = ids;\n        return ingredient;\n    }\n\n    private Ingredient(HolderSet<Item> values) {\n    }'),
+    ('    public boolean test(ItemStack input) {\n        throw Unimplemented.forMember("net/minecraft/world/item/crafting/Ingredient.test:(Lnet/minecraft/world/item/ItemStack;)Z");\n    }',
+     '    // Pumpkin divergence: real body over the decoded ids. A tag entry matches nothing\n    // yet -- item tag membership for mod items is its own slice -- and says so once.\n    public boolean test(ItemStack input) {\n        if (input == null || input.isEmpty()) {\n            return false;\n        }\n        String id = dev.pumpkin.bridge.PumpkinInteractions.pumpkinItemId(input);\n        for (String candidate : pumpkinIds) {\n            if (candidate.startsWith("#")) {\n                dev.pumpkin.shim.PumpkinWarnOnce.warn("ingredient-tag",\n                        "an ingredient matches by tag (" + candidate\n                                + "), which mod item tags do not answer yet; it matches nothing.");\n                continue;\n            }\n            if (candidate.equals(id)) {\n                return true;\n            }\n        }\n        return false;\n    }'),
+    ('    public boolean isEmpty() {\n        throw Unimplemented.forMember("net/minecraft/world/item/crafting/Ingredient.isEmpty:()Z");\n    }',
+     '    public boolean isEmpty() {\n        return pumpkinIds.isEmpty();\n    }'),
+])
+
+
+# --------------------------------------------------- item stack template, real codec
+edit('net/minecraft/world/item/ItemStackTemplate.java', [
+    ('    public static final Codec<ItemStackTemplate> CODEC = dev.pumpkin.shim.Stubs.throwingCodec("net/minecraft/world/item/ItemStackTemplate.CODEC");',
+     '    // Pumpkin divergence: a real codec for the one shape recipe results use -- a map of\n    // {id, optional count}. Components in a result refuse loudly; nothing decodes them\n    // here yet.\n    public static final Codec<ItemStackTemplate> CODEC = new com.mojang.serialization.codecs.PrimitiveCodec<ItemStackTemplate>() {\n        @Override\n        public <T> com.mojang.serialization.DataResult<ItemStackTemplate> read(\n                com.mojang.serialization.DynamicOps<T> ops, T input) {\n            var map = ops.getMap(input);\n            if (map.result().isEmpty()) {\n                return com.mojang.serialization.DataResult.error(() -> "result is not a map");\n            }\n            var like = map.result().get();\n            T idValue = like.get("id");\n            if (idValue == null) {\n                return com.mojang.serialization.DataResult.error(() -> "result has no id");\n            }\n            var id = ops.getStringValue(idValue);\n            if (id.result().isEmpty()) {\n                return com.mojang.serialization.DataResult.error(() -> "result id is not a string");\n            }\n            if (like.get("components") != null) {\n                return com.mojang.serialization.DataResult.error(\n                        () -> "result components are not decodable here");\n            }\n            int count = 1;\n            T countValue = like.get("count");\n            if (countValue != null) {\n                var parsed = ops.getNumberValue(countValue);\n                if (parsed.result().isPresent()) {\n                    count = parsed.result().get().intValue();\n                }\n            }\n            net.minecraft.world.item.ItemStack stack = dev.pumpkin.bridge.PumpkinInteractions\n                    .pumpkinBuildStack(id.result().get(), count);\n            Item item = stack.getItem();\n            @SuppressWarnings("unchecked")\n            Holder<Item> holder = (Holder<Item>) dev.pumpkin.shim.Stubs.of(Holder.class,\n                    "net/minecraft/core/Holder", java.util.Map.of("value", item));\n            return com.mojang.serialization.DataResult.success(\n                    new ItemStackTemplate(holder, count, (DataComponentPatch) null));\n        }\n\n        @Override\n        public <T> T write(com.mojang.serialization.DynamicOps<T> ops, ItemStackTemplate value) {\n            throw dev.pumpkin.shim.Unimplemented.forMember(\n                    "net/minecraft/world/item/ItemStackTemplate.CODEC.encode");\n        }\n    };'),
+])
+
+
+# ------------------------------------------------ crafting input ingredient count
+edit('net/minecraft/world/item/crafting/CraftingInput.java', [
+    ('    public int ingredientCount() {\n        throw Unimplemented.forMember("net/minecraft/world/item/crafting/CraftingInput.ingredientCount:()I");\n    }',
+     '    // Pumpkin divergence: vanilla body -- how many slots actually hold something.\n    public int ingredientCount() {\n        int count = 0;\n        for (ItemStack stack : pumpkinItems) {\n            if (!stack.isEmpty()) {\n                count++;\n            }\n        }\n        return count;\n    }'),
+])
+
+
+# ------------------------------------------------------- non null list create/add
+edit('net/minecraft/core/NonNullList.java', [
+    ('    public static <E> NonNullList<E> create() {\n        throw Unimplemented.forMember("net/minecraft/core/NonNullList.create:()Lnet/minecraft/core/NonNullList;");\n    }',
+     '    // Pumpkin divergence: vanilla shape -- an empty growable list with no default.\n    public static <E> NonNullList<E> create() {\n        return new NonNullList<>(new java.util.ArrayList<>(), null);\n    }'),
+    ('    public void add(int index, E element) {\n        throw Unimplemented.forMember("net/minecraft/core/NonNullList.add:(ILjava/lang/Object;)V");\n    }',
+     '    public void add(int index, E element) {\n        pumpkinBacking.add(index, element);\n    }'),
+])
+
+
+# ------------------------------------------------------ recipe matcher, real
+edit('net/neoforged/neoforge/common/util/RecipeMatcher.java', [
+    ('    public static <T> int[] findMatches(List<T> inputs, List<? extends Predicate<T>> tests) {\n        throw Unimplemented.forMember("net/neoforged/neoforge/common/util/RecipeMatcher.findMatches:(Ljava/util/List;Ljava/util/List;)[I");\n    }',
+     '    // Pumpkin divergence: NeoForge\'s algorithm, reimplemented -- a backtracking perfect\n    // matching of inputs to ingredient tests. Returns which test each input satisfies,\n    // or null when no assignment covers every test, which is what "the recipe does not\n    // match" means for shapeless-style machines.\n    public static <T> int[] findMatches(List<T> inputs, List<? extends Predicate<T>> tests) {\n        if (inputs.size() != tests.size()) {\n            return null;\n        }\n        int size = tests.size();\n        boolean[][] accepts = new boolean[size][size];\n        for (int input = 0; input < size; input++) {\n            for (int test = 0; test < size; test++) {\n                accepts[input][test] = tests.get(test).test(inputs.get(input));\n            }\n        }\n        int[] assigned = new int[size];\n        java.util.Arrays.fill(assigned, -1);\n        boolean[] used = new boolean[size];\n        if (assign(accepts, assigned, used, 0, size)) {\n            return assigned;\n        }\n        return null;\n    }\n\n    private static boolean assign(boolean[][] accepts, int[] assigned, boolean[] used,\n            int input, int size) {\n        if (input == size) {\n            return true;\n        }\n        for (int test = 0; test < size; test++) {\n            if (!used[test] && accepts[input][test]) {\n                used[test] = true;\n                assigned[input] = test;\n                if (assign(accepts, assigned, used, input + 1, size)) {\n                    return true;\n                }\n                used[test] = false;\n                assigned[input] = -1;\n            }\n        }\n        return false;\n    }'),
+])
+
+
+# ---------------------------------------------------- crafting remainder, empty
+edit('net/neoforged/neoforge/common/extensions/ItemInstanceExtension.java', [
+    ('    default ItemStackTemplate getCraftingRemainder() {\n        throw Unimplemented.forMember("net/neoforged/neoforge/common/extensions/ItemInstanceExtension.getCraftingRemainder:()Lnet/minecraft/world/item/ItemStackTemplate;");\n    }',
+     '    // Pumpkin divergence: no item this host builds declares a crafting remainder (the\n    // recorder for Properties.craftRemainder does not exist yet), so the truthful answer\n    // is always "nothing stays behind" -- an empty template, which is what vanilla\n    // returns for a remainder-less item.\n    default ItemStackTemplate getCraftingRemainder() {\n        return new ItemStackTemplate((net.minecraft.world.item.Item) null, 0,\n                (net.minecraft.core.component.DataComponentPatch) null);\n    }'),
+])
+
+
+# ---------------------------------------------------------- particle types, defused
+edit('net/minecraft/core/particles/ParticleTypes.java', [
+    ('    static {\n        if (true) {\n            throw Unimplemented.forMember("net/minecraft/core/particles/ParticleTypes");\n        }\n    }',
+     '    // Pumpkin divergence: the throwing clinit is defused. Every field stays null, and the\n    // one consumer this host serves -- a machine spawning decoration -- hands the value\n    // straight to the bridge level, which accepts and drops particles. A machine must not\n    // die over sparkles.\n    static {\n    }'),
+])
+
+
+# ------------------------------------------------- template create + resource item
+
+edit('net/minecraft/world/item/ItemStackTemplate.java', [
+    ('    public ItemStack create() {\n        throw Unimplemented.forMember("net/minecraft/world/item/ItemStackTemplate.create:()Lnet/minecraft/world/item/ItemStack;");\n    }',
+     "    // Pumpkin divergence: real body -- the template's whole point is making this stack.\n    public ItemStack create() {\n        if (item == null || count <= 0) {\n            return ItemStack.EMPTY;\n        }\n        return new ItemStack(item.value(), count);\n    }"),
+])
+
+edit('net/neoforged/neoforge/transfer/item/ItemResource.java', [
+    ('    public Item getItem() {\n        throw Unimplemented.forMember("net/neoforged/neoforge/transfer/item/ItemResource.getItem:()Lnet/minecraft/world/item/Item;");\n    }',
+     '    // Pumpkin divergence: real body over the carried item.\n    public Item getItem() {\n        return pumpkinItem == null ? null : pumpkinItem.asItem();\n    }'),
+])
 
 commit()

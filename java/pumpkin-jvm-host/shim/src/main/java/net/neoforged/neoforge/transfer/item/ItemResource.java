@@ -56,8 +56,9 @@ public final class ItemResource implements DataComponentHolderResource<Item> {
         throw Unimplemented.forMember("net/neoforged/neoforge/transfer/item/ItemResource.value:()Lnet/minecraft/world/item/Item;");
     }
 
+    // Pumpkin divergence: real body over the carried item.
     public Item getItem() {
-        throw Unimplemented.forMember("net/neoforged/neoforge/transfer/item/ItemResource.getItem:()Lnet/minecraft/world/item/Item;");
+        return pumpkinItem == null ? null : pumpkinItem.asItem();
     }
 
     public Holder<Item> typeHolder() {

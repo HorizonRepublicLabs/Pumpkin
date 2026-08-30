@@ -56,6 +56,15 @@ public final class PumpkinValueIO {
                 json.add(name, items);
                 return;
             }
+            // A recipe id in progress-tracking saves.
+            if (value instanceof net.minecraft.resources.Identifier identifier) {
+                json.addProperty(name, "pumpkin:identifier/" + identifier);
+                return;
+            }
+            if (value instanceof net.minecraft.resources.ResourceKey<?> key) {
+                json.addProperty(name, "pumpkin:identifier/" + key.identifier());
+                return;
+            }
             throw Unimplemented.forMember(
                     "net/minecraft/world/level/storage/ValueOutput.store:(Ljava/lang/String;Lcom/mojang/serialization/Codec;Ljava/lang/Object;)V");
         }
@@ -183,6 +192,13 @@ public final class PumpkinValueIO {
             JsonElement element = json.get(name);
             if (element == null) {
                 return Optional.empty();
+            }
+            if (element.isJsonPrimitive() && element.getAsJsonPrimitive().isString()
+                    && element.getAsString().startsWith("pumpkin:identifier/")) {
+                @SuppressWarnings("unchecked")
+                T identifier = (T) net.minecraft.resources.Identifier.parse(
+                        element.getAsString().substring("pumpkin:identifier/".length()));
+                return Optional.of(identifier);
             }
             // The mirror of Output.store: an array of {id, count} slots is a stack list.
             if (element.isJsonArray()) {

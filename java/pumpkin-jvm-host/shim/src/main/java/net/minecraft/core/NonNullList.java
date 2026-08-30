@@ -14,8 +14,9 @@ public class NonNullList<E> extends AbstractList<E> {
         throw Unimplemented.forMember("net/minecraft/core/NonNullList.copyOf:(Ljava/util/Collection;)Lnet/minecraft/core/NonNullList;");
     }
 
+    // Pumpkin divergence: vanilla shape -- an empty growable list with no default.
     public static <E> NonNullList<E> create() {
-        throw Unimplemented.forMember("net/minecraft/core/NonNullList.create:()Lnet/minecraft/core/NonNullList;");
+        return new NonNullList<>(new java.util.ArrayList<>(), null);
     }
 
     public static <E> NonNullList<E> createWithCapacity(int capacity) {
@@ -51,7 +52,7 @@ public class NonNullList<E> extends AbstractList<E> {
     }
 
     public void add(int index, E element) {
-        throw Unimplemented.forMember("net/minecraft/core/NonNullList.add:(ILjava/lang/Object;)V");
+        pumpkinBacking.add(index, element);
     }
 
     public E remove(int index) {

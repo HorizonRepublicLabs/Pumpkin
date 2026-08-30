@@ -44,7 +44,9 @@ public final class PumpkinInteractions {
     }
 
     public static String useBlockOn(String blockId, String entityTypeId, int x, int y, int z,
-            String heldItemId, int heldCount, String savedData) throws Exception {
+            String heldItemId, int heldCount, String savedData, boolean hasSignal)
+            throws Exception {
+        PumpkinLevel.pumpkinSetSignal(hasSignal);
         Object blockObject = DeferredHolder.pumpkinResolve("minecraft:block", blockId);
         if (!(blockObject instanceof Block block)) {
             return "PASS;HELD=unchanged;DROPS=";
@@ -180,7 +182,8 @@ public final class PumpkinInteractions {
      * times a second buys nothing.
      */
     public static String tickBlock(String blockId, String entityTypeId, int x, int y, int z,
-            String savedData) throws Exception {
+            String savedData, boolean hasSignal) throws Exception {
+        PumpkinLevel.pumpkinSetSignal(hasSignal);
         if (NO_TICKER.contains(blockId)) {
             return "NONE";
         }

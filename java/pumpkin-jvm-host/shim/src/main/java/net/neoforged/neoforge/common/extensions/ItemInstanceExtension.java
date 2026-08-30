@@ -11,7 +11,12 @@ public interface ItemInstanceExtension {
         throw Unimplemented.forMember("net/neoforged/neoforge/common/extensions/ItemInstanceExtension.getEnchantmentLevel:(Lnet/minecraft/core/Holder;)I");
     }
 
+    // Pumpkin divergence: no item this host builds declares a crafting remainder (the
+    // recorder for Properties.craftRemainder does not exist yet), so the truthful answer
+    // is always "nothing stays behind" -- an empty template, which is what vanilla
+    // returns for a remainder-less item.
     default ItemStackTemplate getCraftingRemainder() {
-        throw Unimplemented.forMember("net/neoforged/neoforge/common/extensions/ItemInstanceExtension.getCraftingRemainder:()Lnet/minecraft/world/item/ItemStackTemplate;");
+        return new ItemStackTemplate((net.minecraft.world.item.Item) null, 0,
+                (net.minecraft.core.component.DataComponentPatch) null);
     }
 }

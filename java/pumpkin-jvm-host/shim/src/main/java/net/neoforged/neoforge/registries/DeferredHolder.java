@@ -89,6 +89,19 @@ public class DeferredHolder<R, T extends R> implements Holder<R>, Supplier<T> {
         return holder == null ? null : holder.get();
     }
 
+    // Pumpkin divergence: no vanilla counterpart. The reverse: which id a value was
+    // registered under. A linear scan, used only on cold paths (a recipe type's first
+    // lookup) and correct because registration resolved every holder it recorded.
+    public static String pumpkinResolveName(String registry, Object value) {
+        String prefix = registry + "|";
+        for (java.util.Map.Entry<String, DeferredHolder<?, ?>> entry : PUMPKIN_BY_ID.entrySet()) {
+            if (entry.getKey().startsWith(prefix) && entry.getValue().get() == value) {
+                return entry.getKey().substring(prefix.length());
+            }
+        }
+        return null;
+    }
+
     // The RegisterEvent path hands over a value, not a supplier: it was built before the
     // helper ever saw it. Wrapped so holders created by name resolve regardless of which
     // of the two registration roads the target took -- MysticalAgriculture registers its

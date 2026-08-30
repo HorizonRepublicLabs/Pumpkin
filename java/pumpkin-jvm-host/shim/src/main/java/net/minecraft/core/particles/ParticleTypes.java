@@ -21,9 +21,10 @@ public class ParticleTypes {
     public ParticleTypes() {
     }
 
+    // Pumpkin divergence: the throwing clinit is defused. Every field stays null, and the
+    // one consumer this host serves -- a machine spawning decoration -- hands the value
+    // straight to the bridge level, which accepts and drops particles. A machine must not
+    // die over sparkles.
     static {
-        if (true) {
-            throw Unimplemented.forMember("net/minecraft/core/particles/ParticleTypes");
-        }
     }
 }

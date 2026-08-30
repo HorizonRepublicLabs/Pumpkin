@@ -236,6 +236,30 @@ fn wire_block_drops(server: &Arc<crate::server::Server>) {
     }
 
     install_jvm_tick_hook();
+
+    // Tell the bridge where the extracted mod datapacks live: the recipe manager it
+    // serves to mod machines decodes their recipe JSON straight from there.
+    if let Some(vm) = vm::current() {
+        let dir = server
+            .basic_config
+            .get_world_path()
+            .join("datapacks")
+            .to_string_lossy()
+            .into_owned();
+        let _ = vm.call(move |env| {
+            let dir = env
+                .new_string(&dir)
+                .map_err(|err| VmError::Java(err.to_string()))?;
+            env.call_static_method(
+                "dev/pumpkin/bridge/PumpkinRecipes",
+                "setDatapacksDir",
+                "(Ljava/lang/String;)V",
+                &[(&dir).into()],
+            )
+            .map(|_| ())
+            .map_err(|err| VmError::Java(err.to_string()))
+        });
+    }
     tracing::info!(
         "wired drops for {wired} mod block(s); {without_table} without a loot table, \
          {skipped_entries} table entr(ies) beyond the drop model (tool conditions, nested \
@@ -307,10 +331,14 @@ impl JvmBlockBehaviour {
         let (held_id, held_count) = held.as_ref().filter(|stack| stack.item_count > 0).map_or(
             (String::new(), 0),
             |stack| {
-                (
-                    stack.item.registry_key.to_string(),
-                    i32::from(stack.item_count),
-                )
+                // Vanilla registry keys are bare; recipes and mods speak namespaced ids.
+                let key = stack.item.registry_key;
+                let id = if key.contains(':') {
+                    key.to_string()
+                } else {
+                    format!("minecraft:{key}")
+                };
+                (id, i32::from(stack.item_count))
             },
         );
         let held_display = format!("{held_id}:{held_count}");
@@ -318,10 +346,10 @@ impl JvmBlockBehaviour {
         // entity when it is rebuilt. Opaque here: only the bridge's ValueIO reads it.
         let saved_data = read_mod_data(world, position);
         let (x, y, z) = (position.0.x, position.0.y, position.0.z);
+        let has_signal =
+            crate::block::blocks::redstone::block_receives_redstone_power(world, position);
 
         let reply = vm.call(move |env| {
-            let args: Vec<jni::objects::JObject<'_>> = Vec::new();
-            drop(args);
             let block = env
                 .new_string(&block_name)
                 .map_err(|err| VmError::Java(err.to_string()))?;
@@ -337,7 +365,7 @@ impl JvmBlockBehaviour {
             let returned = env.call_static_method(
                 "dev/pumpkin/bridge/PumpkinInteractions",
                 "useBlockOn",
-                "(Ljava/lang/String;Ljava/lang/String;IIILjava/lang/String;ILjava/lang/String;)Ljava/lang/String;",
+                "(Ljava/lang/String;Ljava/lang/String;IIILjava/lang/String;ILjava/lang/String;Z)Ljava/lang/String;",
                 &[
                     (&block).into(),
                     (&entity).into(),
@@ -347,6 +375,7 @@ impl JvmBlockBehaviour {
                     (&held).into(),
                     held_count.into(),
                     (&saved).into(),
+                    has_signal.into(),
                 ],
             );
             if env.exception_check().unwrap_or(false) {
@@ -451,6 +480,8 @@ fn install_jvm_tick_hook() {
             data.get_string(MOD_DATA_KEY).unwrap_or("").to_string()
         };
         let (x, y, z) = (position.0.x, position.0.y, position.0.z);
+        let has_signal =
+            crate::block::blocks::redstone::block_receives_redstone_power(world, &position);
 
         let reply = vm.call(move |env| {
             let block = env
@@ -465,7 +496,7 @@ fn install_jvm_tick_hook() {
             let returned = env.call_static_method(
                 "dev/pumpkin/bridge/PumpkinInteractions",
                 "tickBlock",
-                "(Ljava/lang/String;Ljava/lang/String;IIILjava/lang/String;)Ljava/lang/String;",
+                "(Ljava/lang/String;Ljava/lang/String;IIILjava/lang/String;Z)Ljava/lang/String;",
                 &[
                     (&block).into(),
                     (&entity_type).into(),
@@ -473,6 +504,7 @@ fn install_jvm_tick_hook() {
                     y.into(),
                     z.into(),
                     (&saved).into(),
+                    has_signal.into(),
                 ],
             );
             if env.exception_check().unwrap_or(false) {
