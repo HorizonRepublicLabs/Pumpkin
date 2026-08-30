@@ -488,14 +488,12 @@ extern "system" fn item_tag_values_native<'a>(
     _class: JClass<'a>,
     tag: JString<'a>,
 ) -> jni::sys::jstring {
-    let tag: String = match env.get_string(&tag) {
-        Ok(tag) => tag.into(),
-        Err(_) => String::new(),
-    };
+    let tag: String = env
+        .get_string(&tag)
+        .map_or_else(|_| String::new(), Into::into);
     let joined = pumpkin_data::tag::get_tag_values(pumpkin_data::tag::RegistryKey::Item, &tag)
         .map(|values| values.join(","))
         .unwrap_or_default();
     env.new_string(joined)
-        .map(jni::objects::JString::into_raw)
-        .unwrap_or(std::ptr::null_mut())
+        .map_or(std::ptr::null_mut(), jni::objects::JString::into_raw)
 }
