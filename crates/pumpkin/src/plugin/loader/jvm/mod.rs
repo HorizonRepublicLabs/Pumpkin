@@ -436,6 +436,10 @@ fn apply_interaction_reply(
             {
                 open_jvm_menu(spec, player);
             }
+        } else if let Some(spec) = part.strip_prefix("SOUNDS=") {
+            for sound in spec.split(',').filter(|sound| !sound.is_empty()) {
+                play_mod_sound(world, sound);
+            }
         } else if let Some(spec) = part.strip_prefix("DATA=") {
             // An empty DATA means "nothing to say" -- no entity, or an unchanged one --
             // never "erase what was stored": a truly emptied machine serialises to a
@@ -699,6 +703,14 @@ fn apply_menu_click_reply(
                     coords[0], coords[1], coords[2],
                 ));
             }
+        } else if let Some(spec) = part.strip_prefix("DROPS=") {
+            if let Some(pos) = pos.as_ref() {
+                for drop in spec.split(',').filter(|drop| !drop.is_empty()) {
+                    if let Some(stack) = parse_stack(drop) {
+                        world.drop_stack(pos, stack);
+                    }
+                }
+            }
         } else if let Some(spec) = part.strip_prefix("DATA=")
             && !spec.is_empty()
             && let Some(pos) = pos.as_ref()
@@ -833,6 +845,45 @@ fn open_jvm_menu(spec: &str, player: &Arc<crate::entity::player::Player>) {
     if let Ok(data) = java.serialize_packet(&content) {
         java.try_enqueue_packet(data);
     }
+}
+
+/// Plays a mod-registered sound to everyone: `name:vol:pitch:x:y:z`.
+///
+/// Sent by name, not id -- a modded client numbers its sound registry differently from
+/// this server's dynamic table, and the name is the one spelling both sides agree on.
+fn play_mod_sound(world: &Arc<crate::world::World>, spec: &str) {
+    let parts: Vec<&str> = spec.split(':').collect();
+    // name is namespaced (two segments) followed by vol, pitch, x, y, z.
+    if parts.len() != 7 {
+        return;
+    }
+    let name = format!("{}:{}", parts[0], parts[1]);
+    let (Ok(volume), Ok(pitch), Ok(x), Ok(y), Ok(z)) = (
+        parts[2].parse::<f32>(),
+        parts[3].parse::<f32>(),
+        parts[4].parse::<i32>(),
+        parts[5].parse::<i32>(),
+        parts[6].parse::<i32>(),
+    ) else {
+        return;
+    };
+    let seed: f64 = rand::random();
+    let packet = pumpkin_protocol::java::client::play::CSoundEffect::new(
+        pumpkin_protocol::IdOr::Value(pumpkin_protocol::SoundEvent {
+            sound_name: name.into(),
+            range: None,
+        }),
+        pumpkin_data::sound::SoundCategory::Blocks,
+        &pumpkin_util::math::vector3::Vector3::new(
+            f64::from(x) + 0.5,
+            f64::from(y) + 0.5,
+            f64::from(z) + 0.5,
+        ),
+        volume,
+        pitch,
+        seed,
+    );
+    world.broadcast_packet_all(&packet);
 }
 
 /// The saved mod-entity blob at a position, or empty when there is none.

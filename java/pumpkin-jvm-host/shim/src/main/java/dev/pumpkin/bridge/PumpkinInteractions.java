@@ -104,6 +104,7 @@ public final class PumpkinInteractions {
             first = false;
         }
 
+        reply.append(";SOUNDS=").append(String.join(",", level.pumpkinDrainSounds()));
         reply.append(";MENU=");
         if (player.pumpkinOpenedMenu() != null) {
             reply.append(player.pumpkinOpenedMenu());
@@ -234,6 +235,7 @@ public final class PumpkinInteractions {
         cast.tick(level, new BlockPos(x, y, z), state, entity);
 
         StringBuilder reply = new StringBuilder("TICKED");
+        reply.append(";SOUNDS=").append(String.join(",", level.pumpkinDrainSounds()));
         reply.append(";DATA=");
         if (entity.pumpkinTakeChanged()) {
             PumpkinValueIO.Output output = new PumpkinValueIO.Output();

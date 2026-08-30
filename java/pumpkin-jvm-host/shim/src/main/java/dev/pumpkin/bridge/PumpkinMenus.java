@@ -29,6 +29,12 @@ public final class PumpkinMenus {
 
     private static final Map<Integer, int[]> POSITIONS = new ConcurrentHashMap<>();
 
+    /** Slots collected by an in-progress drag, per window. */
+    private static final Map<Integer, java.util.List<Integer>> DRAGS = new ConcurrentHashMap<>();
+
+    /** Items thrown out of the menu by the last click, drained into the reply. */
+    private static final Map<Integer, java.util.List<ItemStack>> THROWN = new ConcurrentHashMap<>();
+
     /** Remembers which stand-in player opened a window; the click path hydrates it. */
     static void bindPlayer(int windowId, PumpkinPlayer player) {
         PLAYERS.put(windowId, player);
@@ -149,6 +155,122 @@ public final class PumpkinMenus {
                 slot.set(carried);
                 menu.setCarried(inSlot);
             }
+        } else if (mode == 2 && slotIndex >= 0 && slotIndex < menu.slots.size()) {
+            // Swap: exchange the clicked slot with a hotbar slot (button 0-8) or the
+            // offhand (button 40). Both directions respect the slots' own rules.
+            int targetInv = button == 40 ? 40 : button;
+            Slot target = null;
+            for (Slot candidate : menu.slots) {
+                if (candidate.container == player.getInventory()
+                        && candidate.pumpkinContainerSlot() == targetInv) {
+                    target = candidate;
+                    break;
+                }
+            }
+            Slot clicked = menu.slots.get(slotIndex);
+            if (target != null && target != clicked) {
+                ItemStack a = clicked.getItem();
+                ItemStack b = target.getItem();
+                if ((a.isEmpty() || target.mayPlace(a))
+                        && (b.isEmpty() || clicked.mayPlace(b))
+                        && clicked.mayPickup(player) && target.mayPickup(player)) {
+                    clicked.set(b);
+                    target.set(a);
+                }
+            }
+        } else if (mode == 3 && slotIndex >= 0 && slotIndex < menu.slots.size()) {
+            // Clone (creative middle-click): a full copy onto an empty cursor. Gamemode
+            // gating lives on the client for this one; a survival client never sends it.
+            if (menu.getCarried().isEmpty()) {
+                ItemStack inSlot = menu.slots.get(slotIndex).getItem();
+                if (!inSlot.isEmpty()) {
+                    menu.setCarried(inSlot.copyWithCount(64));
+                }
+            }
+        } else if (mode == 4) {
+            // Throw: Q over a slot (button 0 = one, 1 = the stack); the thrown stack
+            // rides the reply into the real world as a drop.
+            if (slotIndex >= 0 && slotIndex < menu.slots.size()) {
+                Slot slot = menu.slots.get(slotIndex);
+                ItemStack inSlot = slot.getItem();
+                if (!inSlot.isEmpty() && slot.mayPickup(player)) {
+                    int throwing = button == 1 ? inSlot.count() : 1;
+                    ItemStack thrown = slot.remove(throwing);
+                    THROWN.computeIfAbsent(windowId, ignored -> new java.util.ArrayList<>())
+                            .add(thrown);
+                }
+            } else if (slotIndex == -999 && !menu.getCarried().isEmpty()) {
+                ItemStack carried2 = menu.getCarried();
+                int throwing = button == 1 ? carried2.count() : 1;
+                THROWN.computeIfAbsent(windowId, ignored -> new java.util.ArrayList<>())
+                        .add(carried2.copyWithCount(throwing));
+                menu.setCarried(carried2.count() <= throwing ? ItemStack.EMPTY
+                        : carried2.copyWithCount(carried2.count() - throwing));
+            }
+        } else if (mode == 5) {
+            // Drag: start (button 0/4/8) collects nothing, add (1/5/9) collects slots,
+            // end (2/6/10) distributes the carried stack -- evenly for a left drag, one
+            // each for a right drag.
+            int stage = button & 3;
+            boolean single = (button & 4) != 0;
+            if (stage == 0) {
+                DRAGS.put(windowId, new java.util.ArrayList<>());
+            } else if (stage == 1) {
+                java.util.List<Integer> drag = DRAGS.get(windowId);
+                if (drag != null && slotIndex >= 0 && slotIndex < menu.slots.size()) {
+                    drag.add(slotIndex);
+                }
+            } else if (stage == 2) {
+                java.util.List<Integer> drag = DRAGS.remove(windowId);
+                ItemStack carried2 = menu.getCarried();
+                if (drag != null && !drag.isEmpty() && !carried2.isEmpty()) {
+                    int per = single ? 1 : carried2.count() / drag.size();
+                    int remaining = carried2.count();
+                    for (int index : drag) {
+                        if (per <= 0 || remaining <= 0) {
+                            break;
+                        }
+                        Slot slot = menu.slots.get(index);
+                        ItemStack inSlot = slot.getItem();
+                        if (!slot.mayPlace(carried2)) {
+                            continue;
+                        }
+                        if (inSlot.isEmpty()) {
+                            int placing = Math.min(per, slot.getMaxStackSize(carried2));
+                            slot.set(carried2.copyWithCount(placing));
+                            remaining -= placing;
+                        } else if (inSlot.getItem() == carried2.getItem()) {
+                            int room = slot.getMaxStackSize(carried2) - inSlot.count();
+                            int placing = Math.min(per, room);
+                            if (placing > 0) {
+                                slot.set(inSlot.copyWithCount(inSlot.count() + placing));
+                                remaining -= placing;
+                            }
+                        }
+                    }
+                    menu.setCarried(remaining <= 0 ? ItemStack.EMPTY
+                            : carried2.copyWithCount(remaining));
+                }
+            }
+        } else if (mode == 6) {
+            // Pickup-all (double-click): sweep every matching stack onto the cursor.
+            ItemStack carried2 = menu.getCarried();
+            if (!carried2.isEmpty()) {
+                int total = carried2.count();
+                for (Slot slot : menu.slots) {
+                    if (total >= 64) {
+                        break;
+                    }
+                    ItemStack inSlot = slot.getItem();
+                    if (!inSlot.isEmpty() && inSlot.getItem() == carried2.getItem()
+                            && slot.mayPickup(player)) {
+                        int taking = Math.min(inSlot.count(), 64 - total);
+                        slot.remove(taking);
+                        total += taking;
+                    }
+                }
+                menu.setCarried(carried2.copyWithCount(total));
+            }
         } else {
             throw dev.pumpkin.shim.Unimplemented.forMember(
                     "net/minecraft/world/inventory/AbstractContainerMenu.clicked (mode " + mode + ")");
@@ -172,6 +294,18 @@ public final class PumpkinMenus {
         int[] pos = POSITIONS.get(windowId);
         reply.append(";POS=").append(pos == null ? ""
                 : pos[0] + "," + pos[1] + "," + pos[2]);
+        reply.append(";DROPS=");
+        java.util.List<ItemStack> thrown = THROWN.remove(windowId);
+        if (thrown != null) {
+            boolean first = true;
+            for (ItemStack stack : thrown) {
+                if (!first) {
+                    reply.append(',');
+                }
+                reply.append(PumpkinInteractions.pumpkinItemId(stack) + ":" + stack.count());
+                first = false;
+            }
+        }
         reply.append(";DATA=");
         if (pos != null) {
             var entity = PumpkinBlockEntities.get(pos[0], pos[1], pos[2]);

@@ -70,8 +70,8 @@ def act(sock):
         container_click(7, 0, 0)  # first player-storage slot in the menu
         print("BOT: placed into player storage via the menu", flush=True)
         time.sleep(2)
-        container_click(7, 0, 1)  # shift-click: the mod's quickMoveStack decides where
-        print("BOT: quick-moved menu slot 7", flush=True)
+        container_click(7, 1, 4)  # Q: throw the whole stack out of the menu
+        print("BOT: threw menu slot 7", flush=True)
         time.sleep(3)
         os._exit(0)
     except Exception as e:

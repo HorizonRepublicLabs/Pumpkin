@@ -113,8 +113,13 @@ public final class PumpkinLevel extends net.minecraft.server.level.ServerLevel {
 
     @Override
     public void blockEntityChanged(BlockPos pos) {
-        // Accepted and dropped: the tick bridge already serialises a changed entity via
-        // its own dirty flag; vanilla's chunk-save bookkeeping has nothing to mark here.
+        // Cucumber's setChangedFast marks through the level instead of the entity, which
+        // left tick progress invisible to the serialisation gate. Forward the mark to
+        // the entity's own dirty flag so the next tick persists it.
+        BlockEntity entity = PumpkinBlockEntities.get(pos.getX(), pos.getY(), pos.getZ());
+        if (entity != null) {
+            entity.setChanged();
+        }
     }
 
     // The redstone signal at the block the bridge is currently serving, told by the
@@ -218,11 +223,28 @@ public final class PumpkinLevel extends net.minecraft.server.level.ServerLevel {
                 "net/minecraft/world/level/Level.addFreshEntity:(Lnet/minecraft/world/entity/Entity;)Z");
     }
 
+    private final java.util.List<String> sounds = new java.util.ArrayList<>();
+
+    /** Sounds the mod played this interaction, as {@code name:vol:pitch:x:y:z}. */
+    public java.util.List<String> pumpkinDrainSounds() {
+        java.util.List<String> drained = new java.util.ArrayList<>(sounds);
+        sounds.clear();
+        return drained;
+    }
+
     @Override
     public void playSound(Entity except, BlockPos pos, SoundEvent sound, SoundSource source,
             float volume, float pitch) {
-        // Accepted and dropped: routing mod sounds to nearby players is its own slice,
-        // and stopping an interaction over a click sound helps no one.
+        // A mod-registered sound has a name a modded client can resolve; it rides the
+        // reply and plays for real. Vanilla sound constants are unmapped stubs (or null)
+        // in this shim and stay dropped -- a wrong sound is worse than none.
+        String name = sound == null ? null
+                : net.neoforged.neoforge.registries.DeferredHolder
+                        .pumpkinResolveName("minecraft:sound_event", sound);
+        if (name != null && pos != null) {
+            sounds.add(name + ":" + volume + ":" + pitch + ":" + pos.getX() + ":"
+                    + pos.getY() + ":" + pos.getZ());
+        }
     }
 
     @Override
