@@ -37,6 +37,11 @@ public final class PumpkinBlockEntities {
         });
     }
 
+    /** Whether an entity was ever created at a position this run. */
+    public static boolean exists(int x, int y, int z) {
+        return BY_POSITION.containsKey(key(x, y, z));
+    }
+
     /** Forgets the entity at a position; the block is gone. */
     public static void remove(int x, int y, int z) {
         BY_POSITION.remove(key(x, y, z));

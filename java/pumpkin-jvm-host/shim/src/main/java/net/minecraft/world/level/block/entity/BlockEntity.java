@@ -40,12 +40,13 @@ public abstract class BlockEntity extends net.neoforged.neoforge.attachment.Atta
         this.level = level;
     }
 
+    // Pumpkin divergence: the base writes vanilla bookkeeping (components) the shim does
+    // not model; a subclass's own state is what persistence carries, and it calls super
+    // first. Accepting quietly here is what lets that state through.
     protected void loadAdditional(ValueInput input) {
-        throw Unimplemented.forMember("net/minecraft/world/level/block/entity/BlockEntity.loadAdditional:(Lnet/minecraft/world/level/storage/ValueInput;)V");
     }
 
     protected void saveAdditional(ValueOutput output) {
-        throw Unimplemented.forMember("net/minecraft/world/level/block/entity/BlockEntity.saveAdditional:(Lnet/minecraft/world/level/storage/ValueOutput;)V");
     }
 
     public final CompoundTag saveWithFullMetadata(HolderLookup.Provider registries) {

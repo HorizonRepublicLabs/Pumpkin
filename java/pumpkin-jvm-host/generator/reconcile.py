@@ -1711,4 +1711,27 @@ edit('net/minecraft/world/entity/item/ItemEntity.java', [
 ])
 
 
+# ------------------------------------------------- persistence, base save hooks
+
+edit('net/neoforged/neoforge/common/extensions/ValueOutputExtension.java', [
+    ('    default void putChild(String key, ValueIOSerializable child) {\n        throw Unimplemented.forMember("net/neoforged/neoforge/common/extensions/ValueOutputExtension.putChild:(Ljava/lang/String;Lnet/neoforged/neoforge/common/util/ValueIOSerializable;)V");\n    }',
+     '    // Pumpkin divergence: NeoForge body verbatim -- pure delegation. The extension is\n    // mixed into ValueOutput, which owns child().\n    default void putChild(String key, ValueIOSerializable child) {\n        child.serialize(((net.minecraft.world.level.storage.ValueOutput) this).child(key));\n    }'),
+])
+
+
+edit('net/minecraft/world/level/block/entity/BlockEntity.java', [
+    ('    protected void loadAdditional(ValueInput input) {\n        throw Unimplemented.forMember("net/minecraft/world/level/block/entity/BlockEntity.loadAdditional:(Lnet/minecraft/world/level/storage/ValueInput;)V");\n    }',
+     "    // Pumpkin divergence: the base writes vanilla bookkeeping (components) the shim does\n    // not model; a subclass's own state is what persistence carries, and it calls super\n    // first. Accepting quietly here is what lets that state through.\n    protected void loadAdditional(ValueInput input) {\n    }"),
+    ('    protected void saveAdditional(ValueOutput output) {\n        throw Unimplemented.forMember("net/minecraft/world/level/block/entity/BlockEntity.saveAdditional:(Lnet/minecraft/world/level/storage/ValueOutput;)V");\n    }',
+     '    protected void saveAdditional(ValueOutput output) {\n    }'),
+])
+
+
+# ---------------------------------------------------------- handler setStacks, real
+edit('net/neoforged/neoforge/transfer/StacksResourceHandler.java', [
+    ('    protected void setStacks(NonNullList<S> stacks) {\n        throw Unimplemented.forMember("net/neoforged/neoforge/transfer/StacksResourceHandler.setStacks:(Lnet/minecraft/core/NonNullList;)V");\n    }',
+     '    // Pumpkin divergence: real body -- this is how deserialized contents land.\n    protected void setStacks(NonNullList<S> stacks) {\n        this.stacks = stacks;\n    }'),
+])
+
+
 commit()

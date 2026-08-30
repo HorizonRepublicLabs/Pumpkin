@@ -35,8 +35,9 @@ public abstract class StacksResourceHandler<S, T extends Resource> implements Re
         throw Unimplemented.forMember("net/neoforged/neoforge/transfer/StacksResourceHandler.mutableCopyOf:(Ljava/util/Collection;)Lnet/minecraft/core/NonNullList;");
     }
 
+    // Pumpkin divergence: real body -- this is how deserialized contents land.
     protected void setStacks(NonNullList<S> stacks) {
-        throw Unimplemented.forMember("net/neoforged/neoforge/transfer/StacksResourceHandler.setStacks:(Lnet/minecraft/core/NonNullList;)V");
+        this.stacks = stacks;
     }
 
     public void serialize(ValueOutput output) {

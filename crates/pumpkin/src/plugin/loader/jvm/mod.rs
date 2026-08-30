@@ -313,6 +313,9 @@ impl JvmBlockBehaviour {
             },
         );
         let held_display = format!("{held_id}:{held_count}");
+        // The blob the last interaction (or the last run) saved, handed to the mod's
+        // entity when it is rebuilt. Opaque here: only the bridge's ValueIO reads it.
+        let saved_data = read_mod_data(world, position);
         let (x, y, z) = (position.0.x, position.0.y, position.0.z);
 
         let reply = vm.call(move |env| {
@@ -327,10 +330,13 @@ impl JvmBlockBehaviour {
             let held = env
                 .new_string(&held_id)
                 .map_err(|err| VmError::Java(err.to_string()))?;
+            let saved = env
+                .new_string(&saved_data)
+                .map_err(|err| VmError::Java(err.to_string()))?;
             let returned = env.call_static_method(
                 "dev/pumpkin/bridge/PumpkinInteractions",
                 "useBlockOn",
-                "(Ljava/lang/String;Ljava/lang/String;IIILjava/lang/String;I)Ljava/lang/String;",
+                "(Ljava/lang/String;Ljava/lang/String;IIILjava/lang/String;ILjava/lang/String;)Ljava/lang/String;",
                 &[
                     (&block).into(),
                     (&entity).into(),
@@ -339,6 +345,7 @@ impl JvmBlockBehaviour {
                     z.into(),
                     (&held).into(),
                     held_count.into(),
+                    (&saved).into(),
                 ],
             );
             if env.exception_check().unwrap_or(false) {
@@ -391,6 +398,8 @@ fn apply_interaction_reply(
             if let Some(held) = held.as_deref_mut() {
                 *held = parse_stack(spec).unwrap_or(ItemStack::EMPTY.clone());
             }
+        } else if let Some(spec) = part.strip_prefix("DATA=") {
+            write_mod_data(world, position, spec);
         } else if let Some(spec) = part.strip_prefix("DROPS=") {
             for drop in spec.split(',').filter(|drop| !drop.is_empty()) {
                 if let Some(stack) = parse_stack(drop) {
@@ -406,6 +415,58 @@ fn apply_interaction_reply(
         }
     }
     result
+}
+
+/// The saved mod-entity blob at a position, or empty when there is none.
+///
+/// Lives under one key in the generic plugin block entity's data bag, which saves and
+/// loads with the chunk. The blob is the bridge's own JSON, base64-wrapped so it stays
+/// opaque to the reply protocol -- a world saved by real `NeoForge` does not interchange
+/// with this, which the bridge's `ValueIO` says out loud too.
+const MOD_DATA_KEY: &str = "pumpkin:mod_data";
+
+fn read_mod_data(
+    world: &Arc<crate::world::World>,
+    position: &pumpkin_util::math::position::BlockPos,
+) -> String {
+    world
+        .get_block_entity(position)
+        .and_then(|entity| {
+            entity
+                .as_any()
+                .downcast_ref::<crate::block::entities::plugin::PluginBlockEntity>()
+                .and_then(|plugin| {
+                    plugin
+                        .data
+                        .read()
+                        .unwrap_or_else(std::sync::PoisonError::into_inner)
+                        .get_string(MOD_DATA_KEY)
+                        .map(ToString::to_string)
+                })
+        })
+        .unwrap_or_default()
+}
+
+fn write_mod_data(
+    world: &Arc<crate::world::World>,
+    position: &pumpkin_util::math::position::BlockPos,
+    blob: &str,
+) {
+    let Some(entity) = world.get_block_entity(position) else {
+        return;
+    };
+    let Some(plugin) = entity
+        .as_any()
+        .downcast_ref::<crate::block::entities::plugin::PluginBlockEntity>()
+    else {
+        return;
+    };
+    plugin
+        .data
+        .write()
+        .unwrap_or_else(std::sync::PoisonError::into_inner)
+        .put_string(MOD_DATA_KEY, blob.to_string());
+    pumpkin_world::inventory::Inventory::mark_dirty(plugin);
 }
 
 /// `namespace:path:count` into a real stack; unknown items are dropped loudly.
@@ -432,6 +493,20 @@ impl crate::block::BlockBehaviour for JvmBlockBehaviour {
     }
 
     fn broken(&self, args: crate::block::BrokenArgs<'_>) {
+        // The mod-side entity is positional state; a broken block leaves none behind.
+        if let Some(vm) = vm::current() {
+            let (x, y, z) = (args.position.0.x, args.position.0.y, args.position.0.z);
+            let _ = vm.call(move |env| {
+                env.call_static_method(
+                    "dev/pumpkin/bridge/PumpkinBlockEntities",
+                    "remove",
+                    "(III)V",
+                    &[x.into(), y.into(), z.into()],
+                )
+                .map(|_| ())
+                .map_err(|err| VmError::Java(err.to_string()))
+            });
+        }
         self.inner.broken(args);
     }
 

@@ -44,16 +44,29 @@ public final class PumpkinInteractions {
     }
 
     public static String useBlockOn(String blockId, String entityTypeId, int x, int y, int z,
-            String heldItemId, int heldCount) throws Exception {
+            String heldItemId, int heldCount, String savedData) throws Exception {
         Object blockObject = DeferredHolder.pumpkinResolve("minecraft:block", blockId);
         if (!(blockObject instanceof Block block)) {
             return "PASS;HELD=unchanged;DROPS=";
         }
 
+        net.minecraft.world.level.block.entity.BlockEntity blockEntity = null;
         if (!entityTypeId.isEmpty()
                 && DeferredHolder.pumpkinResolve("minecraft:block_entity_type", entityTypeId)
                         instanceof BlockEntityType<?> type) {
-            PumpkinBlockEntities.getOrCreate(type, x, y, z);
+            boolean existed = PumpkinBlockEntities.exists(x, y, z);
+            blockEntity = PumpkinBlockEntities.getOrCreate(type, x, y, z);
+            // A freshly built entity whose position has saved state gets that state back
+            // before the mod's code sees it -- this is where persistence re-enters.
+            if (!existed && !savedData.isEmpty()) {
+                com.google.gson.JsonObject parsed = com.google.gson.JsonParser
+                        .parseString(new String(java.util.Base64.getDecoder().decode(savedData),
+                                java.nio.charset.StandardCharsets.UTF_8))
+                        .getAsJsonObject();
+                Method load = findMethod(blockEntity.getClass(), "loadAdditional", 1);
+                load.setAccessible(true);
+                load.invoke(blockEntity, new PumpkinValueIO.Input(parsed));
+            }
         }
 
         ItemStack held = buildStack(heldItemId, heldCount);
@@ -65,7 +78,7 @@ public final class PumpkinInteractions {
         BlockHitResult hit = new BlockHitResult(
                 new Vec3(x + 0.5, y + 0.5, z + 0.5), Direction.UP, pos, false);
 
-        Method method = findUseItemOn(block.getClass());
+        Method method = findMethod(block.getClass(), "useItemOn", 7);
         method.setAccessible(true);
         Object result = method.invoke(block, held, state, level, pos, player,
                 InteractionHand.MAIN_HAND, hit);
@@ -88,7 +101,34 @@ public final class PumpkinInteractions {
             reply.append(describe(drop));
             first = false;
         }
+
+        // Whatever the interaction did to the entity travels back as an opaque blob and
+        // is saved inside Pumpkin's own block entity -- persistence's outbound half.
+        reply.append(";DATA=");
+        if (blockEntity != null) {
+            PumpkinValueIO.Output output = new PumpkinValueIO.Output();
+            Method save = findMethod(blockEntity.getClass(), "saveAdditional", 1);
+            save.setAccessible(true);
+            save.invoke(blockEntity, output);
+            if (!output.isEmpty()) {
+                reply.append(java.util.Base64.getEncoder().encodeToString(
+                        output.pumpkinJson().toString()
+                                .getBytes(java.nio.charset.StandardCharsets.UTF_8)));
+            }
+        }
         return reply.toString();
+    }
+
+    /** The registered id a stack's item answers to, or "unknown". */
+    public static String pumpkinItemId(ItemStack stack) {
+        Item item = stack.getItem();
+        String id = item == null ? null : item.pumpkinRegisteredId();
+        return id == null ? "unknown" : id;
+    }
+
+    /** A stack for a registered or vanilla item id -- the reverse of pumpkinItemId. */
+    public static ItemStack pumpkinBuildStack(String itemId, int count) {
+        return buildStack(itemId, count);
     }
 
     private static ItemStack buildStack(String itemId, int count) {
@@ -111,9 +151,7 @@ public final class PumpkinInteractions {
         if (stack == null || stack.isEmpty()) {
             return "empty:0";
         }
-        Item item = stack.getItem();
-        String id = item == null ? null : item.pumpkinRegisteredId();
-        return (id == null ? "unknown" : id) + ":" + stack.count();
+        return pumpkinItemId(stack) + ":" + stack.count();
     }
 
     private static String kindOf(Object result) {
@@ -129,14 +167,16 @@ public final class PumpkinInteractions {
         return "PASS";
     }
 
-    private static Method findUseItemOn(Class<?> type) throws NoSuchMethodException {
+    private static Method findMethod(Class<?> type, String name, int parameterCount)
+            throws NoSuchMethodException {
         for (Class<?> current = type; current != null; current = current.getSuperclass()) {
             for (Method method : current.getDeclaredMethods()) {
-                if (method.getName().equals("useItemOn") && method.getParameterCount() == 7) {
+                if (method.getName().equals(name) && method.getParameterCount() == parameterCount) {
                     return method;
                 }
             }
         }
-        throw new NoSuchMethodException(type.getName() + " has no useItemOn(7 args)");
+        throw new NoSuchMethodException(type.getName() + " has no " + name
+                + "(" + parameterCount + " args)");
     }
 }
