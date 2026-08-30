@@ -205,7 +205,9 @@ fn register_item_impl(
     block: Option<String>,
 ) -> jint {
     use pumpkin_data::data_component::DataComponent;
-    use pumpkin_data::data_component_impl::{DataComponentImpl, MaxDamageImpl, MaxStackSizeImpl};
+    use pumpkin_data::data_component_impl::{
+        DataComponentImpl, ItemNameImpl, MaxDamageImpl, MaxStackSizeImpl,
+    };
 
     let Some(id) = read_string(env, id, "the item id") else {
         return 0;
@@ -228,6 +230,23 @@ fn register_item_impl(
     // A declared property replaces the template's component wholesale. The vec is leaked
     // for the same reason every dynamic registry entry is: the item outlives every reader.
     let mut overrides: Vec<(DataComponent, &'static dyn DataComponentImpl)> = Vec::new();
+
+    // The template's display name would otherwise come along -- a prosperity ingot showing
+    // up as "Stone". Vanilla's makeDescriptionId convention gives every item a translation
+    // key derived from its id; a client with the mod installed translates it, and any other
+    // client shows the raw key, which is at least honestly the mod's own name.
+    let kind = if block.is_some() { "block" } else { "item" };
+    let key = match id.split_once(':') {
+        Some((namespace, path)) => format!("{kind}.{namespace}.{path}"),
+        None => format!("{kind}.{id}"),
+    };
+    overrides.push((
+        DataComponent::ItemName,
+        Box::leak(Box::new(ItemNameImpl {
+            name: std::borrow::Cow::Owned(key),
+        })),
+    ));
+
     if let Some(size) = max_stack_size {
         let Ok(size) = u8::try_from(size) else {
             throw(env, &format!("max stack size {size} does not fit in a u8"));
