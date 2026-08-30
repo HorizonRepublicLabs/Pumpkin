@@ -870,7 +870,7 @@ fn play_mod_sound(world: &Arc<crate::world::World>, spec: &str) {
     let seed: f64 = rand::random();
     let packet = pumpkin_protocol::java::client::play::CSoundEffect::new(
         pumpkin_protocol::IdOr::Value(pumpkin_protocol::SoundEvent {
-            sound_name: name.into(),
+            sound_name: name,
             range: None,
         }),
         pumpkin_data::sound::SoundCategory::Blocks,
