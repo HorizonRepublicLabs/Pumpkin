@@ -167,6 +167,87 @@ public final class PumpkinInteractions {
         return "PASS";
     }
 
+    /** Block names whose blocks answered "no ticker" -- skipped without reflection. */
+    private static final java.util.Set<String> NO_TICKER =
+            java.util.concurrent.ConcurrentHashMap.newKeySet();
+
+    /**
+     * One server tick of a mod block entity, through the mod's own {@code getTicker}.
+     *
+     * <p>Returns {@code "NONE"} for a block whose mod declines a ticker (remembered, so
+     * later ticks cost one set lookup), or {@code "TICKED;DATA=..;DROPS=.."} -- DATA only
+     * when the entity marked itself changed, because serialising an idle machine twenty
+     * times a second buys nothing.
+     */
+    public static String tickBlock(String blockId, String entityTypeId, int x, int y, int z,
+            String savedData) throws Exception {
+        if (NO_TICKER.contains(blockId)) {
+            return "NONE";
+        }
+        Object blockObject = DeferredHolder.pumpkinResolve("minecraft:block", blockId);
+        Object typeObject = DeferredHolder.pumpkinResolve("minecraft:block_entity_type", entityTypeId);
+        if (!(blockObject instanceof Block block)
+                || !(typeObject instanceof BlockEntityType<?> type)) {
+            NO_TICKER.add(blockId);
+            return "NONE";
+        }
+
+        PumpkinLevel level = PumpkinInteractions.pumpkinLevel();
+        BlockState state = block.defaultBlockState();
+        Method getTicker = findMethod(block.getClass(), "getTicker", 3);
+        getTicker.setAccessible(true);
+        Object ticker = getTicker.invoke(block, level, state, type);
+        if (ticker == null) {
+            NO_TICKER.add(blockId);
+            return "NONE";
+        }
+
+        boolean existed = PumpkinBlockEntities.exists(x, y, z);
+        net.minecraft.world.level.block.entity.BlockEntity entity =
+                PumpkinBlockEntities.getOrCreate(type, x, y, z);
+        if (!existed && !savedData.isEmpty()) {
+            com.google.gson.JsonObject parsed = com.google.gson.JsonParser
+                    .parseString(new String(java.util.Base64.getDecoder().decode(savedData),
+                            java.nio.charset.StandardCharsets.UTF_8))
+                    .getAsJsonObject();
+            Method load = findMethod(entity.getClass(), "loadAdditional", 1);
+            load.setAccessible(true);
+            load.invoke(entity, new PumpkinValueIO.Input(parsed));
+        }
+
+        level.pumpkinDrops().clear();
+        @SuppressWarnings("unchecked")
+        net.minecraft.world.level.block.entity.BlockEntityTicker<
+                net.minecraft.world.level.block.entity.BlockEntity> cast =
+                (net.minecraft.world.level.block.entity.BlockEntityTicker<
+                        net.minecraft.world.level.block.entity.BlockEntity>) ticker;
+        cast.tick(level, new BlockPos(x, y, z), state, entity);
+
+        StringBuilder reply = new StringBuilder("TICKED");
+        reply.append(";DATA=");
+        if (entity.pumpkinTakeChanged()) {
+            PumpkinValueIO.Output output = new PumpkinValueIO.Output();
+            Method save = findMethod(entity.getClass(), "saveAdditional", 1);
+            save.setAccessible(true);
+            save.invoke(entity, output);
+            if (!output.isEmpty()) {
+                reply.append(java.util.Base64.getEncoder().encodeToString(
+                        output.pumpkinJson().toString()
+                                .getBytes(java.nio.charset.StandardCharsets.UTF_8)));
+            }
+        }
+        reply.append(";DROPS=");
+        boolean first = true;
+        for (ItemStack drop : level.pumpkinDrops()) {
+            if (!first) {
+                reply.append(',');
+            }
+            reply.append(describe(drop));
+            first = false;
+        }
+        return reply.toString();
+    }
+
     private static Method findMethod(Class<?> type, String name, int parameterCount)
             throws NoSuchMethodException {
         for (Class<?> current = type; current != null; current = current.getSuperclass()) {

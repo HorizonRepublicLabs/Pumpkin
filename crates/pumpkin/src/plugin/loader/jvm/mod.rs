@@ -235,6 +235,7 @@ fn wire_block_drops(server: &Arc<crate::server::Server>) {
         wired += 1;
     }
 
+    install_jvm_tick_hook();
     tracing::info!(
         "wired drops for {wired} mod block(s); {without_table} without a loot table, \
          {skipped_entries} table entr(ies) beyond the drop model (tool conditions, nested \
@@ -399,7 +400,12 @@ fn apply_interaction_reply(
                 *held = parse_stack(spec).unwrap_or(ItemStack::EMPTY.clone());
             }
         } else if let Some(spec) = part.strip_prefix("DATA=") {
-            write_mod_data(world, position, spec);
+            // An empty DATA means "nothing to say" -- no entity, or an unchanged one --
+            // never "erase what was stored": a truly emptied machine serialises to a
+            // non-empty blob describing empty slots.
+            if !spec.is_empty() {
+                write_mod_data(world, position, spec);
+            }
         } else if let Some(spec) = part.strip_prefix("DROPS=") {
             for drop in spec.split(',').filter(|drop| !drop.is_empty()) {
                 if let Some(stack) = parse_stack(drop) {
@@ -415,6 +421,104 @@ fn apply_interaction_reply(
         }
     }
     result
+}
+
+/// Routes plugin block entity ticks into the mod's own `BlockEntityTicker`.
+///
+/// Installed once, after the first mod finishes loading. Every tick of every mod block
+/// entity crosses into the VM; block types whose blocks answer "no ticker" are remembered
+/// on the Java side and return immediately, so a pedestal costs one string comparison per
+/// tick rather than a reflective lookup. A tick that stops inside the mod is said once
+/// per block type -- a ticking machine can fail twenty times a second, and a log that
+/// repeats that fast says less than one line that names the key.
+fn install_jvm_tick_hook() {
+    static WARNED: std::sync::Mutex<Option<std::collections::HashSet<String>>> =
+        std::sync::Mutex::new(None);
+
+    crate::block::entities::plugin::install_tick_hook(Box::new(|entity, world| {
+        let Some(vm) = vm::current() else {
+            return;
+        };
+        let position = entity.position;
+        let block = world.get_block(&position);
+        let block_name = block.name.to_string();
+        let type_name = entity.id.to_string();
+        let saved = {
+            let data = entity
+                .data
+                .read()
+                .unwrap_or_else(std::sync::PoisonError::into_inner);
+            data.get_string(MOD_DATA_KEY).unwrap_or("").to_string()
+        };
+        let (x, y, z) = (position.0.x, position.0.y, position.0.z);
+
+        let reply = vm.call(move |env| {
+            let block = env
+                .new_string(&block_name)
+                .map_err(|err| VmError::Java(err.to_string()))?;
+            let entity_type = env
+                .new_string(&type_name)
+                .map_err(|err| VmError::Java(err.to_string()))?;
+            let saved = env
+                .new_string(&saved)
+                .map_err(|err| VmError::Java(err.to_string()))?;
+            let returned = env.call_static_method(
+                "dev/pumpkin/bridge/PumpkinInteractions",
+                "tickBlock",
+                "(Ljava/lang/String;Ljava/lang/String;IIILjava/lang/String;)Ljava/lang/String;",
+                &[
+                    (&block).into(),
+                    (&entity_type).into(),
+                    x.into(),
+                    y.into(),
+                    z.into(),
+                    (&saved).into(),
+                ],
+            );
+            if env.exception_check().unwrap_or(false) {
+                let _ = env.exception_describe();
+                let _ = env.exception_clear();
+                return Err(VmError::Java("tickBlock threw".into()));
+            }
+            let object = returned
+                .and_then(jni::objects::JValueGen::l)
+                .map_err(|err| VmError::Java(err.to_string()))?;
+            env.get_string(&jni::objects::JString::from(object))
+                .map(Into::into)
+                .map_err(|err| VmError::Java(err.to_string()))
+        });
+
+        let block_name = block.name;
+        match reply {
+            Ok(reply) => {
+                let reply: String = reply;
+                if reply.starts_with("TICKED") {
+                    let mut warned = WARNED
+                        .lock()
+                        .unwrap_or_else(std::sync::PoisonError::into_inner);
+                    if warned
+                        .get_or_insert_with(std::collections::HashSet::new)
+                        .insert(format!("ticked:{block_name}"))
+                    {
+                        tracing::info!("{block_name}: its mod ticker is running");
+                    }
+                    drop(warned);
+                    apply_interaction_reply(&reply, world, &position, None);
+                }
+            }
+            Err(err) => {
+                let mut warned = WARNED
+                    .lock()
+                    .unwrap_or_else(std::sync::PoisonError::into_inner);
+                if warned
+                    .get_or_insert_with(std::collections::HashSet::new)
+                    .insert(block_name.to_string())
+                {
+                    tracing::warn!("{block_name}: its ticker stopped in the mod: {err}");
+                }
+            }
+        }
+    }));
 }
 
 /// The saved mod-entity blob at a position, or empty when there is none.

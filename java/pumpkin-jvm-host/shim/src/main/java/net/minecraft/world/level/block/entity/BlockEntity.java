@@ -57,11 +57,19 @@ public abstract class BlockEntity extends net.neoforged.neoforge.attachment.Atta
         throw Unimplemented.forMember("net/minecraft/world/level/block/entity/BlockEntity.saveWithFullMetadata:(Lnet/minecraft/world/level/storage/ValueOutput;)V");
     }
 
-    // Pumpkin divergence: accepted and dropped. setChanged marks the entity for saving;
-    // persisting the mod-side entity back into the Rust one is the persistence slice, and
-    // until it lands there is nothing here to mark. Stopping every interaction over it
-    // would be worse than the unsaved contents it honestly flags.
+    // Pumpkin divergence: a real dirty flag. The tick bridge reads and clears it to
+    // decide whether an entity is worth re-serialising -- ticking machines call this
+    // twenty times a second, and serialising unchanged ones would be pure waste.
+    private boolean pumpkinChanged;
+
     public void setChanged() {
+        pumpkinChanged = true;
+    }
+
+    public boolean pumpkinTakeChanged() {
+        boolean changed = pumpkinChanged;
+        pumpkinChanged = false;
+        return changed;
     }
 
     protected static void setChanged(Level level, BlockPos worldPosition, BlockState blockState) {

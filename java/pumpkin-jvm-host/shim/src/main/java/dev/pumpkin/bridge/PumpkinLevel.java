@@ -296,11 +296,6 @@ public final class PumpkinLevel extends net.minecraft.world.level.Level {
 
 
     @Override
-    public boolean isClientSide() {
-        throw Unimplemented.forMember("net/minecraft/world/level/Level.isClientSide");
-    }
-
-    @Override
     public boolean isFluidAtPosition(final BlockPos pos, final Predicate<FluidState> predicate) {
         throw Unimplemented.forMember("net/minecraft/world/level/Level.isFluidAtPosition");
     }

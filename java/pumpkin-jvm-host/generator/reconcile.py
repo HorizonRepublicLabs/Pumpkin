@@ -1669,7 +1669,7 @@ edit('net/neoforged/neoforge/transfer/item/ItemStacksResourceHandler.java', [
 
 edit('net/minecraft/world/level/block/entity/BlockEntity.java', [
     ('    public void setChanged() {\n        throw Unimplemented.forMember("net/minecraft/world/level/block/entity/BlockEntity.setChanged:()V");\n    }',
-     '    // Pumpkin divergence: accepted and dropped. setChanged marks the entity for saving;\n    // persisting the mod-side entity back into the Rust one is the persistence slice, and\n    // until it lands there is nothing here to mark. Stopping every interaction over it\n    // would be worse than the unsaved contents it honestly flags.\n    public void setChanged() {\n    }'),
+     '    // Pumpkin divergence: a real dirty flag. The tick bridge reads and clears it to\n    // decide whether an entity is worth re-serialising -- ticking machines call this\n    // twenty times a second, and serialising unchanged ones would be pure waste.\n    private boolean pumpkinChanged;\n\n    public void setChanged() {\n        pumpkinChanged = true;\n    }\n\n    public boolean pumpkinTakeChanged() {\n        boolean changed = pumpkinChanged;\n        pumpkinChanged = false;\n        return changed;\n    }'),
 ])
 
 
@@ -1731,6 +1731,13 @@ edit('net/minecraft/world/level/block/entity/BlockEntity.java', [
 edit('net/neoforged/neoforge/transfer/StacksResourceHandler.java', [
     ('    protected void setStacks(NonNullList<S> stacks) {\n        throw Unimplemented.forMember("net/neoforged/neoforge/transfer/StacksResourceHandler.setStacks:(Lnet/minecraft/core/NonNullList;)V");\n    }',
      '    // Pumpkin divergence: real body -- this is how deserialized contents land.\n    protected void setStacks(NonNullList<S> stacks) {\n        this.stacks = stacks;\n    }'),
+])
+
+
+# ------------------------------------------------------------- level side, vanilla
+edit('net/minecraft/world/level/Level.java', [
+    ('    public boolean isClientSide() {\n        throw Unimplemented.forMember("net/minecraft/world/level/Level.isClientSide:()Z");\n    }',
+     '    // Pumpkin divergence: vanilla body verbatim -- the pruner kept the field.\n    public boolean isClientSide() {\n        return this.isClientSide;\n    }'),
 ])
 
 

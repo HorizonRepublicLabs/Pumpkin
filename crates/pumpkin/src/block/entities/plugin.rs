@@ -60,9 +60,32 @@ fn registered_name(id: &str) -> Option<&'static str> {
     pumpkin_data::dynamic::block_entity_type_name(numeric)
 }
 
+/// The tick hook a plugin host may install.
+///
+/// The generic entity cannot know how its behaviour is hosted -- the JVM loader routes
+/// ticks into a mod's own ticker, a future host may do something else -- so whoever can
+/// installs exactly one hook for the process. Entities without an installed hook simply
+/// do not tick, which is also what they did before hooks existed.
+pub type BlockEntityTickHook =
+    Box<dyn Fn(&PluginBlockEntity, &Arc<crate::world::World>) + Send + Sync>;
+
+static TICK_HOOK: std::sync::OnceLock<BlockEntityTickHook> = std::sync::OnceLock::new();
+
+/// Installs the process-wide tick hook. The first caller wins; later calls are ignored,
+/// which keeps a second plugin host from silently stealing the first one's ticks.
+pub fn install_tick_hook(hook: BlockEntityTickHook) {
+    let _ = TICK_HOOK.set(hook);
+}
+
 impl BlockEntity for PluginBlockEntity {
     fn resource_location(&self) -> &'static str {
         self.id
+    }
+
+    fn tick(&self, world: &Arc<crate::world::World>) {
+        if let Some(hook) = TICK_HOOK.get() {
+            hook(self, world);
+        }
     }
 
     fn get_position(&self) -> BlockPos {

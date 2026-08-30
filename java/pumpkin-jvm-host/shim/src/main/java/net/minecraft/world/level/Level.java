@@ -59,8 +59,9 @@ public abstract class Level extends net.neoforged.neoforge.attachment.Attachment
     protected Level(WritableLevelData levelData, ResourceKey<Level> dimension, RegistryAccess registryAccess, Holder<DimensionType> dimensionTypeRegistration, boolean isClientSide, boolean isDebug, long biomeZoomSeed, int maxChainedNeighborUpdates) {
     }
 
+    // Pumpkin divergence: vanilla body verbatim -- the pruner kept the field.
     public boolean isClientSide() {
-        throw Unimplemented.forMember("net/minecraft/world/level/Level.isClientSide:()Z");
+        return this.isClientSide;
     }
 
     public MinecraftServer getServer() {
