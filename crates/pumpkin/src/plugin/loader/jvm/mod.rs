@@ -1,6 +1,7 @@
 //! Hosting a JVM so mods written in Java can run against Pumpkin.
 
 pub mod handles;
+pub mod loot;
 pub mod natives;
 pub mod vm;
 
@@ -160,6 +161,109 @@ pub fn burndown(vm: &'static ModVm) -> Result<String, VmError> {
     })
 }
 
+/// Gives every block Java has registered its drops, read from mod loot tables.
+///
+/// The registration native records blocks it could not give behaviour to (it runs with
+/// no server handle); this drains that list with the server in hand. Each block's loot
+/// table is looked up in the extracted `mod_*` datapacks by the vanilla convention --
+/// `data/<namespace>/loot_table/blocks/<path>.json` -- parsed by [`loot`], and installed
+/// as a [`PluginBlockBehaviour`]. A block without a table simply has no drops, which is
+/// also what vanilla means by a missing table.
+///
+/// [`PluginBlockBehaviour`]: crate::plugin::api::block_behaviour::PluginBlockBehaviour
+fn wire_block_drops(server: &Arc<crate::server::Server>) {
+    let pending = natives::take_pending_blocks();
+    if pending.is_empty() {
+        return;
+    }
+
+    let datapacks = server.basic_config.get_world_path().join("datapacks");
+    let mut wired = 0usize;
+    let mut without_table = 0usize;
+    let mut skipped_entries = 0usize;
+
+    for block in &pending {
+        let Some(table) = find_block_loot_table(&datapacks, &block.name) else {
+            without_table += 1;
+            continue;
+        };
+        let Some(parsed) = loot::parse_block_loot_table(&table) else {
+            tracing::warn!("{}: its loot table is not valid JSON", block.name);
+            without_table += 1;
+            continue;
+        };
+        skipped_entries += parsed.skipped_entries;
+
+        let mut drops = Vec::new();
+        for drop in &parsed.drops {
+            // Staged lookup, not published: the registries freeze only after every
+            // plugin has loaded, and the item this drop names was registered moments
+            // ago by the same mod.
+            let Some(item_id) =
+                pumpkin_data::dynamic::registering_item_id(&drop.item).or_else(|| {
+                    pumpkin_data::item::Item::from_registry_key(&drop.item).map(|item| item.id)
+                })
+            else {
+                tracing::warn!(
+                    "{}: its loot table drops {}, which is not a registered item",
+                    block.name,
+                    drop.item
+                );
+                continue;
+            };
+            drops.push(crate::plugin::api::block_behaviour::BlockDrop {
+                item_id,
+                min: drop.min,
+                max: drop.max,
+                from_state: 0,
+                to_state: u32::MAX,
+            });
+        }
+
+        let behaviour: &'static dyn crate::block::BlockBehaviour = Box::leak(Box::new(
+            crate::plugin::api::block_behaviour::PluginBlockBehaviour::new(
+                block.first_state,
+                drops,
+            ),
+        ));
+        server
+            .block_registry
+            .set_plugin_block(block.block_id, behaviour);
+        wired += 1;
+    }
+
+    tracing::info!(
+        "wired drops for {wired} mod block(s); {without_table} without a loot table, \
+         {skipped_entries} table entr(ies) beyond the drop model (tool conditions, nested \
+         tables)"
+    );
+}
+
+/// A block's loot table JSON, searched across every extracted mod datapack.
+fn find_block_loot_table(datapacks: &Path, block_name: &str) -> Option<String> {
+    let (namespace, path) = block_name.split_once(':')?;
+    let entries = std::fs::read_dir(datapacks).ok()?;
+    for entry in entries.flatten() {
+        if !entry.file_name().to_string_lossy().starts_with("mod_") {
+            continue;
+        }
+        // Both spellings: 1.21+ uses `loot_table`, older packs `loot_tables`.
+        for dir_name in ["loot_table", "loot_tables"] {
+            let candidate = entry
+                .path()
+                .join("data")
+                .join(namespace)
+                .join(dir_name)
+                .join("blocks")
+                .join(format!("{path}.json"));
+            if let Ok(json) = std::fs::read_to_string(&candidate) {
+                return Some(json);
+            }
+        }
+    }
+    None
+}
+
 /// A loaded Java mod, seen by Pumpkin as an ordinary plugin.
 struct JvmPlugin {
     mod_id: String,
@@ -210,6 +314,8 @@ impl Plugin for JvmPlugin {
                 tracing::info!("{mod_id}: extracted {extracted} datapack files");
             }
             context.server.reload_datapacks(&context.server);
+
+            wire_block_drops(&context.server);
             Ok(())
         })
     }

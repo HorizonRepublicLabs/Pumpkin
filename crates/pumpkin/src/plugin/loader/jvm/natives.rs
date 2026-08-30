@@ -15,6 +15,32 @@ use crate::plugin::{
     loader::jvm::vm::VmError,
 };
 use pumpkin_data::item::Item;
+use std::sync::Mutex;
+
+/// A block Java registered, waiting for its behaviour.
+///
+/// The native that registers a block runs deep inside a mod's registration pass and has
+/// no server handle, so it cannot install behaviour itself -- the exact gap the comment
+/// in [`register_block_impl`] describes. It records what it knows here instead, and
+/// `JvmPlugin::on_load`, which does hold the server, drains the list once the mod is up
+/// and wires each block's drops from its extracted loot table.
+pub struct PendingJvmBlock {
+    /// Namespaced block id, e.g. `examplemod:ruby_block`.
+    pub name: String,
+    pub block_id: pumpkin_data::BlockId,
+    pub first_state: u16,
+}
+
+static PENDING_BLOCKS: Mutex<Vec<PendingJvmBlock>> = Mutex::new(Vec::new());
+
+/// Every block registered since the last call. Drained by `on_load`.
+pub fn take_pending_blocks() -> Vec<PendingJvmBlock> {
+    std::mem::take(
+        &mut PENDING_BLOCKS
+            .lock()
+            .unwrap_or_else(std::sync::PoisonError::into_inner),
+    )
+}
 
 /// Binds every native on `PumpkinHost`.
 ///
@@ -161,16 +187,20 @@ fn register_block_impl(
     };
 
     match register_block_spec(&spec) {
-        // `first_state` and `drops` are deliberately dropped here, not silently: wiring a
-        // registered block up to real behaviour means giving it a `PluginBlockBehaviour`
-        // on a live `Server`, and this native has no server handle to reach one with —
-        // this slice is content registration only (see the plan's "Explicitly not in
-        // this slice"). A block Java registers this way therefore has no drops and
-        // answers none of the server's per-block hooks, exactly like a `BlockSpec`
-        // whose caller never wires it up. Closing that gap needs a future slice that
-        // hands this native (or the boot path that installs it) a `Server` to register
-        // the behaviour against, the way the WASM host already does with `self.server`.
-        Ok(registered) => jint::from(registered.block_id.as_u16()),
+        Ok(registered) => {
+            // This native has no server handle to install behaviour with, so the block
+            // is recorded and `on_load` -- which does hold the server -- wires its drops
+            // from the mod's extracted loot table once the mod is up.
+            PENDING_BLOCKS
+                .lock()
+                .unwrap_or_else(std::sync::PoisonError::into_inner)
+                .push(PendingJvmBlock {
+                    name: spec.id.clone(),
+                    block_id: registered.block_id,
+                    first_state: registered.first_state,
+                });
+            jint::from(registered.block_id.as_u16())
+        }
         Err(message) => {
             throw(env, &message);
             0
