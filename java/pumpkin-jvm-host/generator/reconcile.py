@@ -4502,4 +4502,40 @@ edit('net/minecraft/world/entity/Entity.java', [
      '    // Pumpkin divergence: identity semantics -- vanilla keys on the entity id, which\n    // stand-ins do not carry; identity is the honest equivalent.\n    public boolean equals(Object obj) {\n        return this == obj;\n    }\n\n    public int hashCode() {\n        return System.identityHashCode(this);\n    }'),
 ])
 
+edit('net/neoforged/neoforge/common/extensions/ItemInstanceExtension.java', [
+    ('    default boolean canPerformAction(ItemAbility itemAbility) {\n        throw Unimplemented.forMember("net/neoforged/neoforge/common/extensions/ItemInstanceExtension.canPerformAction:(Lnet/neoforged/neoforge/common/ItemAbility;)Z");\n    }',
+     '    // Pumpkin divergence: NeoForge\'s own default -- the stack asks its item, so a\n    // mod tool that overrides Item.canPerformAction still answers for itself. Only\n    // ItemStack carries an item here; any other carrier fails loudly.\n    default boolean canPerformAction(ItemAbility itemAbility) {\n        if (this instanceof net.minecraft.world.item.ItemStack self) {\n            return self.getItem().canPerformAction(self, itemAbility);\n        }\n        throw Unimplemented.forMember("net/neoforged/neoforge/common/extensions/ItemInstanceExtension.canPerformAction:(Lnet/neoforged/neoforge/common/ItemAbility;)Z");\n    }'),
+])
+
+edit('net/neoforged/neoforge/common/extensions/IItemExtension.java', [
+    ('    default boolean canPerformAction(ItemInstance stack, ItemAbility itemAbility) {\n        throw Unimplemented.forMember("net/neoforged/neoforge/common/extensions/IItemExtension.canPerformAction:(Lnet/minecraft/world/item/ItemInstance;Lnet/neoforged/neoforge/common/ItemAbility;)Z");\n    }',
+     "    // Pumpkin divergence: NeoForge's own default -- a plain item performs no action.\n    default boolean canPerformAction(ItemInstance stack, ItemAbility itemAbility) {\n        return false;\n    }"),
+])
+
+edit('net/minecraft/world/item/ItemStack.java', [
+    ('public final class ItemStack implements DataComponentHolder, ItemInstance, IItemStackExtension, MutableDataComponentHolder {',
+     'public final class ItemStack implements DataComponentHolder, ItemInstance, IItemStackExtension, MutableDataComponentHolder {\n\n    // Pumpkin divergence: tag membership answered from the real tag tables (mod\n    // datapacks + vanilla, via PumpkinTags); an unregistered item wears no tags.\n    @Override\n    public boolean is(net.minecraft.tags.TagKey<Item> tag) {\n        Item item = getItem();\n        String id = item == null ? null : item.pumpkinRegisteredId();\n        return id != null && dev.pumpkin.bridge.PumpkinTags.contains(tag.location().toString(), id);\n    }'),
+])
+
+edit('net/minecraft/world/inventory/Slot.java', [
+    ('    public int getSlotIndex() {\n        throw Unimplemented.forMember("net/minecraft/world/inventory/Slot.getSlotIndex:()I");\n    }',
+     "    // Pumpkin divergence: NeoForge's own accessor -- the index inside the backing\n    // container, which the ctor stored.\n    public int getSlotIndex() {\n        return pumpkinContainerSlot;\n    }"),
+])
+
+edit('net/neoforged/neoforge/transfer/TransferPreconditions.java', [
+    ('    public static void checkNonEmpty(Resource resource) {\n        throw Unimplemented.forMember("net/neoforged/neoforge/transfer/TransferPreconditions.checkNonEmpty:(Lnet/neoforged/neoforge/transfer/resource/Resource;)V");\n    }\n\n    public static void checkNonNegative(int value) {\n        throw Unimplemented.forMember("net/neoforged/neoforge/transfer/TransferPreconditions.checkNonNegative:(I)V");\n    }\n\n    public static void checkNonEmptyNonNegative(Resource resource, int value) {\n        throw Unimplemented.forMember("net/neoforged/neoforge/transfer/TransferPreconditions.checkNonEmptyNonNegative:(Lnet/neoforged/neoforge/transfer/resource/Resource;I)V");\n    }',
+     '    // Pumpkin divergence: NeoForge\'s own bodies -- argument validation, nothing else.\n    public static void checkNonEmpty(Resource resource) {\n        if (resource.isEmpty()) {\n            throw new IllegalArgumentException("Resource may not be empty");\n        }\n    }\n\n    public static void checkNonNegative(int value) {\n        if (value < 0) {\n            throw new IllegalArgumentException("Value may not be negative: " + value);\n        }\n    }\n\n    public static void checkNonEmptyNonNegative(Resource resource, int value) {\n        checkNonEmpty(resource);\n        checkNonNegative(value);\n    }'),
+    ('import dev.pumpkin.shim.Unimplemented;\n', ''),
+])
+
+edit('net/minecraft/world/item/ItemStack.java', [
+    ('    @SuppressWarnings("unchecked")\n    @Override\n    public <T> T get(DataComponentType<? extends T> type) {\n        return (T) pumpkinComponents.get(type);\n    }',
+     '    @SuppressWarnings("unchecked")\n    @Override\n    public <T> T get(DataComponentType<? extends T> type) {\n        return (T) pumpkinComponents.get(type);\n    }\n\n    @Override\n    public boolean has(DataComponentType<?> type) {\n        return pumpkinComponents.containsKey(type);\n    }\n\n    @Override\n    public <T> T getOrDefault(DataComponentType<? extends T> type, T defaultValue) {\n        T value = get(type);\n        return value == null ? defaultValue : value;\n    }'),
+])
+
+edit('net/neoforged/neoforge/transfer/item/ItemResource.java', [
+    ('    public DataComponentPatch getComponentsPatch() {\n        return pumpkinPatch;\n    }',
+     '    public DataComponentPatch getComponentsPatch() {\n        return pumpkinPatch;\n    }\n\n    // Pumpkin divergence: component questions answered from the patch this resource\n    // carries -- the same divergence ItemStack documents: only what was set is seen.\n    @Override\n    public boolean has(DataComponentType<?> type) {\n        java.util.Optional<?> entry = pumpkinPatch.pumpkinMap.get(type);\n        return entry != null && entry.isPresent();\n    }\n\n    @SuppressWarnings("unchecked")\n    @Override\n    public <T> T get(DataComponentType<? extends T> type) {\n        java.util.Optional<?> entry = pumpkinPatch.pumpkinMap.get(type);\n        return entry == null ? null : (T) entry.orElse(null);\n    }\n\n    @Override\n    public <T> T getOrDefault(DataComponentType<? extends T> type, T defaultValue) {\n        T value = get(type);\n        return value == null ? defaultValue : value;\n    }'),
+])
+
 commit()

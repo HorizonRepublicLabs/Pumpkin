@@ -1,22 +1,27 @@
 package net.neoforged.neoforge.transfer;
 
 import net.neoforged.neoforge.transfer.resource.Resource;
-import dev.pumpkin.shim.Unimplemented;
 
 public class TransferPreconditions {
 
     protected TransferPreconditions() {
     }
 
+    // Pumpkin divergence: NeoForge's own bodies -- argument validation, nothing else.
     public static void checkNonEmpty(Resource resource) {
-        throw Unimplemented.forMember("net/neoforged/neoforge/transfer/TransferPreconditions.checkNonEmpty:(Lnet/neoforged/neoforge/transfer/resource/Resource;)V");
+        if (resource.isEmpty()) {
+            throw new IllegalArgumentException("Resource may not be empty");
+        }
     }
 
     public static void checkNonNegative(int value) {
-        throw Unimplemented.forMember("net/neoforged/neoforge/transfer/TransferPreconditions.checkNonNegative:(I)V");
+        if (value < 0) {
+            throw new IllegalArgumentException("Value may not be negative: " + value);
+        }
     }
 
     public static void checkNonEmptyNonNegative(Resource resource, int value) {
-        throw Unimplemented.forMember("net/neoforged/neoforge/transfer/TransferPreconditions.checkNonEmptyNonNegative:(Lnet/neoforged/neoforge/transfer/resource/Resource;I)V");
+        checkNonEmpty(resource);
+        checkNonNegative(value);
     }
 }

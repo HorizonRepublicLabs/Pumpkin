@@ -27,8 +27,9 @@ public interface IItemExtension {
         throw Unimplemented.forMember("net/neoforged/neoforge/common/extensions/IItemExtension.getCraftingRemainder:(Lnet/minecraft/world/item/ItemInstance;)Lnet/minecraft/world/item/ItemStackTemplate;");
     }
 
+    // Pumpkin divergence: NeoForge's own default -- a plain item performs no action.
     default boolean canPerformAction(ItemInstance stack, ItemAbility itemAbility) {
-        throw Unimplemented.forMember("net/neoforged/neoforge/common/extensions/IItemExtension.canPerformAction:(Lnet/minecraft/world/item/ItemInstance;Lnet/neoforged/neoforge/common/ItemAbility;)Z");
+        return false;
     }
 
     default boolean isPrimaryItemFor(ItemStack stack, Holder<Enchantment> enchantment) {

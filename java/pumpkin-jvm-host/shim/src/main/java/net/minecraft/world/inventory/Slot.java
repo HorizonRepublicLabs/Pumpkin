@@ -112,8 +112,10 @@ public class Slot {
         throw Unimplemented.forMember("net/minecraft/world/inventory/Slot.isActive:()Z");
     }
 
+    // Pumpkin divergence: NeoForge's own accessor -- the index inside the backing
+    // container, which the ctor stored.
     public int getSlotIndex() {
-        throw Unimplemented.forMember("net/minecraft/world/inventory/Slot.getSlotIndex:()I");
+        return pumpkinContainerSlot;
     }
 
     public Slot setBackground(Identifier sprite) {

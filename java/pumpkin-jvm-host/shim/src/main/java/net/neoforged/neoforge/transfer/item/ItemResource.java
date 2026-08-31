@@ -148,6 +148,27 @@ public final class ItemResource implements DataComponentHolderResource<Item> {
         return pumpkinPatch;
     }
 
+    // Pumpkin divergence: component questions answered from the patch this resource
+    // carries -- the same divergence ItemStack documents: only what was set is seen.
+    @Override
+    public boolean has(DataComponentType<?> type) {
+        java.util.Optional<?> entry = pumpkinPatch.pumpkinMap.get(type);
+        return entry != null && entry.isPresent();
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public <T> T get(DataComponentType<? extends T> type) {
+        java.util.Optional<?> entry = pumpkinPatch.pumpkinMap.get(type);
+        return entry == null ? null : (T) entry.orElse(null);
+    }
+
+    @Override
+    public <T> T getOrDefault(DataComponentType<? extends T> type, T defaultValue) {
+        T value = get(type);
+        return value == null ? defaultValue : value;
+    }
+
     public ItemStack toStack(int count) {
         return pumpkinItem == null ? new ItemStack((ItemLike) null, 0)
                 : new ItemStack(pumpkinItem, count);

@@ -47,6 +47,15 @@ import dev.pumpkin.shim.Unimplemented;
 
 public final class ItemStack implements DataComponentHolder, ItemInstance, IItemStackExtension, MutableDataComponentHolder {
 
+    // Pumpkin divergence: tag membership answered from the real tag tables (mod
+    // datapacks + vanilla, via PumpkinTags); an unregistered item wears no tags.
+    @Override
+    public boolean is(net.minecraft.tags.TagKey<Item> tag) {
+        Item item = getItem();
+        String id = item == null ? null : item.pumpkinRegisteredId();
+        return id != null && dev.pumpkin.bridge.PumpkinTags.contains(tag.location().toString(), id);
+    }
+
     public static final StreamCodec<RegistryFriendlyByteBuf, ItemStack> OPTIONAL_STREAM_CODEC = Stubs.of(StreamCodec.class, "net/minecraft/network/codec/StreamCodec");
 
     // Pumpkin divergence: a real empty stack, because everything compares against it.
@@ -271,6 +280,17 @@ public final class ItemStack implements DataComponentHolder, ItemInstance, IItem
     @Override
     public <T> T get(DataComponentType<? extends T> type) {
         return (T) pumpkinComponents.get(type);
+    }
+
+    @Override
+    public boolean has(DataComponentType<?> type) {
+        return pumpkinComponents.containsKey(type);
+    }
+
+    @Override
+    public <T> T getOrDefault(DataComponentType<? extends T> type, T defaultValue) {
+        T value = get(type);
+        return value == null ? defaultValue : value;
     }
 
     public <T> T set(TypedDataComponent<T> value) {

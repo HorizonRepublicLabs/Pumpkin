@@ -8,7 +8,13 @@ import dev.pumpkin.shim.Unimplemented;
 
 public interface ItemInstanceExtension {
 
+    // Pumpkin divergence: NeoForge's own default -- the stack asks its item, so a
+    // mod tool that overrides Item.canPerformAction still answers for itself. Only
+    // ItemStack carries an item here; any other carrier fails loudly.
     default boolean canPerformAction(ItemAbility itemAbility) {
+        if (this instanceof net.minecraft.world.item.ItemStack self) {
+            return self.getItem().canPerformAction(self, itemAbility);
+        }
         throw Unimplemented.forMember("net/neoforged/neoforge/common/extensions/ItemInstanceExtension.canPerformAction:(Lnet/neoforged/neoforge/common/ItemAbility;)Z");
     }
 
