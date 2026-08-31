@@ -2739,7 +2739,11 @@ impl EntityBase for LivingEntity {
                         if let Some(player) = caller_clone.get_player() {
                             player.trigger_advancement(
                                 crate::entity::player::advancement::trigger::AdvancementTrigger::ConsumeItem {
-                                    item_id: format!("minecraft:{}", item.item.registry_key),
+                                    item_id: if item.item.registry_key.contains(':') {
+                                        item.item.registry_key.to_string()
+                                    } else {
+                                        format!("minecraft:{}", item.item.registry_key)
+                                    },
                                 },
                             );
 

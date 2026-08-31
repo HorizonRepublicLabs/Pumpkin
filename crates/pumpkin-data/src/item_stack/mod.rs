@@ -706,8 +706,14 @@ impl ItemStack {
     }
 
     pub fn write_item_stack(&self, compound: &mut NbtCompound) {
-        // Minecraft 1.21.4 uses "id" as string with namespaced ID (minecraft:diamond_sword)
-        compound.put_string("id", format!("minecraft:{}", self.item.registry_key));
+        // Minecraft 1.21.4 uses "id" as string with namespaced ID (minecraft:diamond_sword).
+        // Runtime-registered items already carry their own namespace in the key.
+        let id = if self.item.registry_key.contains(':') {
+            self.item.registry_key.to_string()
+        } else {
+            format!("minecraft:{}", self.item.registry_key)
+        };
+        compound.put_string("id", id);
         compound.put_int("count", self.item_count as i32);
 
         // Create a tag compound for additional data
@@ -782,6 +788,23 @@ mod tests {
     /// Helper: creates a fresh Iron Sword (max_damage 250, damage 0).
     fn iron_sword() -> ItemStack {
         ItemStack::new(1, &Item::IRON_SWORD)
+    }
+
+    #[test]
+    fn namespaced_registry_key_saves_without_second_namespace() {
+        // A runtime-registered item carries its full name in registry_key; the
+        // vanilla write path must not stack minecraft: in front of it.
+        let modded: &'static Item = Box::leak(Box::new(Item {
+            registry_key: "mekanism:raw_osmium",
+            ..Item::IRON_SWORD.clone()
+        }));
+        let mut compound = NbtCompound::new();
+        ItemStack::new(1, modded).write_item_stack(&mut compound);
+        assert_eq!(compound.get_string("id"), Some("mekanism:raw_osmium"));
+
+        let mut vanilla = NbtCompound::new();
+        iron_sword().write_item_stack(&mut vanilla);
+        assert_eq!(vanilla.get_string("id"), Some("minecraft:iron_sword"));
     }
 
     #[test]
