@@ -13,6 +13,23 @@ import dev.pumpkin.shim.Unimplemented;
 
 public abstract class CrossCollisionBlock extends Block implements SimpleWaterloggedBlock {
 
+    // Pumpkin divergence: vanilla's own connection properties, declared here because
+    // the pruned class dropped them and fences declare through them.
+    public static final net.minecraft.world.level.block.state.properties.BooleanProperty NORTH =
+            net.minecraft.world.level.block.state.properties.BooleanProperty.create("north");
+
+    public static final net.minecraft.world.level.block.state.properties.BooleanProperty EAST =
+            net.minecraft.world.level.block.state.properties.BooleanProperty.create("east");
+
+    public static final net.minecraft.world.level.block.state.properties.BooleanProperty SOUTH =
+            net.minecraft.world.level.block.state.properties.BooleanProperty.create("south");
+
+    public static final net.minecraft.world.level.block.state.properties.BooleanProperty WEST =
+            net.minecraft.world.level.block.state.properties.BooleanProperty.create("west");
+
+    public static final net.minecraft.world.level.block.state.properties.BooleanProperty WATERLOGGED =
+            net.minecraft.world.level.block.state.properties.BooleanProperty.create("waterlogged");
+
     public CrossCollisionBlock(float postWidth, float postHeight, float wallWidth, float wallHeight, float collisionHeight, BlockBehaviour.Properties properties) {
     }
 

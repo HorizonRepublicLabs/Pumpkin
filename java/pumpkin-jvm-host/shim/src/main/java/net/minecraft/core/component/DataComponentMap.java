@@ -13,7 +13,9 @@ public interface DataComponentMap extends Iterable<TypedDataComponent<?>>, DataC
 
     DataComponentMap EMPTY = Stubs.of(DataComponentMap.class, "net/minecraft/core/component/DataComponentMap");
 
-    Codec<DataComponentMap> CODEC = null;
+    // Pumpkin divergence: a throwing codec, not null -- DFU composes through it
+    // at class-init; it throws by name on first real use.
+    Codec<DataComponentMap> CODEC = dev.pumpkin.shim.Stubs.throwingCodec("net/minecraft/core/component/DataComponentMap.CODEC");
 
     // Pumpkin divergence: real body. A component map is a real map -- small surface,
     // genuine behaviour, nothing to stub.

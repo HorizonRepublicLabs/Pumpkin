@@ -83,6 +83,17 @@ public class DeferredHolder<R, T extends R> implements Holder<R>, Supplier<T> {
     // the same id as a matter of course, and Cucumber registers codecs beside them; keyed
     // by id alone, whichever registered last won, and a slab asking for its base block got
     // a RecordCodecBuilder back -- a ClassCastException naming two classes and no cause.
+    public static java.util.List<DeferredHolder<?, ?>> pumpkinAllFor(String registry) {
+        String prefix = registry + "|";
+        java.util.ArrayList<DeferredHolder<?, ?>> all = new java.util.ArrayList<>();
+        for (java.util.Map.Entry<String, DeferredHolder<?, ?>> entry : PUMPKIN_BY_ID.entrySet()) {
+            if (entry.getKey().startsWith(prefix)) {
+                all.add(entry.getValue());
+            }
+        }
+        return all;
+    }
+
     private static final java.util.Map<String, DeferredHolder<?, ?>> PUMPKIN_BY_ID =
             new java.util.concurrent.ConcurrentHashMap<>();
 
@@ -126,8 +137,22 @@ public class DeferredHolder<R, T extends R> implements Holder<R>, Supplier<T> {
 
     // Pumpkin divergence: real body. Resolves once, on first use, which is what makes the
     // registration deferred.
+    @SuppressWarnings("unchecked")
     public T get() {
         if (pumpkinValue == null) {
+            if (pumpkinFactory == null) {
+                // A holder a mod constructed directly, expecting registry lookup: the
+                // target registered through its own holder, recorded under registry|id.
+                if (pumpkinKey == null) {
+                    throw new IllegalStateException(pumpkinId + " has no factory and no registry to look itself up in");
+                }
+                DeferredHolder<?, ?> target = PUMPKIN_BY_ID.get(pumpkinKey.pumpkinRegistry() + "|" + pumpkinId);
+                if (target == null || target == this) {
+                    throw new IllegalStateException(pumpkinId + " was never registered; a holder"
+                            + " created by key can only resolve after its target registers");
+                }
+                return (T) target.get();
+            }
             pumpkinValue = pumpkinFactory.get();
         }
         return pumpkinValue;

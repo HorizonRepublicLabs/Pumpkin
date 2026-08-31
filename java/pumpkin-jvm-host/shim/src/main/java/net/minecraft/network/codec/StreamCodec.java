@@ -82,7 +82,10 @@ public interface StreamCodec<B, V> extends StreamEncoder<B, V>, StreamDecoder<B,
     }
 
     default <U> StreamCodec<B, U> dispatch(Function<? super U, ? extends V> type, Function<? super V, ? extends StreamCodec<? super B, ? extends U>> codec) {
-        throw Unimplemented.forMember("net/minecraft/network/codec/StreamCodec.dispatch:(Ljava/util/function/Function;Ljava/util/function/Function;)Lnet/minecraft/network/codec/StreamCodec;");
+        // Pumpkin divergence: composes inert -- Pumpkin never encodes packets through
+        // mod stream codecs, so the composed codec throws its member key on first use.
+        return dev.pumpkin.shim.Stubs.of(StreamCodec.class,
+            "net/minecraft/network/codec/StreamCodec.dispatch:(Ljava/util/function/Function;Ljava/util/function/Function;)Lnet/minecraft/network/codec/StreamCodec;");
     }
 
     // Pumpkin divergence: real-enough body. A stream codec carries wire logic Pumpkin
@@ -229,8 +232,9 @@ public interface StreamCodec<B, V> extends StreamEncoder<B, V>, StreamDecoder<B,
 
     }
 
+    @SuppressWarnings("unchecked")
     default <S extends B> StreamCodec<S, V> cast() {
-        throw Unimplemented.forMember("net/minecraft/network/codec/StreamCodec.cast:()Lnet/minecraft/network/codec/StreamCodec;");
+        return (StreamCodec<S, V>) this;
     }
 
     interface CodecOperation<B, S, T> {

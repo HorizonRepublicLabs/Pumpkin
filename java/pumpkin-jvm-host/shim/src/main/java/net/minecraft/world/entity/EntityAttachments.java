@@ -7,9 +7,16 @@ import dev.pumpkin.shim.Unimplemented;
 
 public class EntityAttachments {
 
-    private final Map<EntityAttachment, List<Vec3>> attachments = null;
+    // Pumpkin divergence: NeoForge access-transforms this field public; the map is
+    // real, and an EntityAttachments built without points carries the empty map.
+    public final Map<EntityAttachment, List<Vec3>> attachments;
 
     private EntityAttachments(Map<EntityAttachment, List<Vec3>> attachments) {
+        this.attachments = attachments;
+    }
+
+    public static EntityAttachments pumpkinEmpty() {
+        return new EntityAttachments(Map.of());
     }
 
     public Vec3 get(EntityAttachment attachment, int index, float rotY) {
@@ -27,5 +34,6 @@ public class EntityAttachments {
     }
 
     public EntityAttachments() {
+        this(Map.of());
     }
 }

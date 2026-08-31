@@ -114,15 +114,25 @@ public interface Holder<T> extends IHolderExtension<T> {
 
         private T value;
 
+        // Pumpkin divergence: a reference really carries its key and value.
         protected Reference(Holder.Reference.Type type, HolderOwner<T> owner, ResourceKey<T> key, T value) {
+            this.key = key;
+            this.value = value;
+        }
+
+        public static <T> Holder.Reference<T> pumpkinOf(ResourceKey<T> key, T value) {
+            return new Reference<>(null, null, key, value);
         }
 
         public ResourceKey<T> key() {
-            throw Unimplemented.forMember("net/minecraft/core/Holder$Reference.key:()Lnet/minecraft/resources/ResourceKey;");
+            return key;
         }
 
         public T value() {
-            throw Unimplemented.forMember("net/minecraft/core/Holder$Reference.value:()Ljava/lang/Object;");
+            if (value == null) {
+                throw Unimplemented.forMember("net/minecraft/core/Holder$Reference.value:()Ljava/lang/Object;");
+            }
+            return value;
         }
 
         public boolean is(Identifier key) {

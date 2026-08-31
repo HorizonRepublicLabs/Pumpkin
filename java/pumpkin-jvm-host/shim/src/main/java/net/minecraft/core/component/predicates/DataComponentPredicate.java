@@ -11,7 +11,9 @@ import dev.pumpkin.shim.Unimplemented;
 
 public interface DataComponentPredicate {
 
-    Codec<Map<DataComponentPredicate.Type<?>, DataComponentPredicate>> CODEC = null;
+    // Pumpkin divergence: a throwing codec, not null -- DFU composes through it
+    // at class-init; it throws by name on first real use.
+    Codec<Map<DataComponentPredicate.Type<?>, DataComponentPredicate>> CODEC = dev.pumpkin.shim.Stubs.throwingCodec("net/minecraft/core/component/predicates/DataComponentPredicate.CODEC");
 
     boolean matches(DataComponentGetter components);
 

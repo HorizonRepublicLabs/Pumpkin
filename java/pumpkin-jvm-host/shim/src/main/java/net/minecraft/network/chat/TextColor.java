@@ -24,15 +24,15 @@ public final class TextColor {
     }
 
     public boolean equals(Object o) {
-        throw Unimplemented.forMember("net/minecraft/network/chat/TextColor.equals:(Ljava/lang/Object;)Z");
+        return o instanceof TextColor other && other.pumpkinValue == pumpkinValue;
     }
 
     public int hashCode() {
-        throw Unimplemented.forMember("net/minecraft/network/chat/TextColor.hashCode:()I");
+        return Integer.hashCode(pumpkinValue);
     }
 
     public String toString() {
-        throw Unimplemented.forMember("net/minecraft/network/chat/TextColor.toString:()Ljava/lang/String;");
+        return String.format("#%06X", pumpkinValue);
     }
 
     // Pumpkin divergence: vanilla body -- wrap the rgb.

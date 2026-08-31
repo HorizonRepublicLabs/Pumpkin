@@ -25,7 +25,14 @@ public interface Component extends Message, FormattedText {
 
     List<Component> getSiblings();
 
+    // Pumpkin divergence: real for the text-carrying components Pumpkin builds;
+    // anything else has no data to copy and fails loudly.
     default MutableComponent copy() {
+        if (this instanceof MutableComponent mutable) {
+            MutableComponent copy = MutableComponent.pumpkinOf(mutable.pumpkinText());
+            copy.setStyle(mutable.getStyle());
+            return copy;
+        }
         throw Unimplemented.forMember("net/minecraft/network/chat/Component.copy:()Lnet/minecraft/network/chat/MutableComponent;");
     }
 

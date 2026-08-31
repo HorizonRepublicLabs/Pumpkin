@@ -39,6 +39,15 @@ public final class Stubs {
     }
 
     /**
+     * An answer computed on every call, for values that cannot be shared across calls --
+     * a {@link java.util.stream.Stream} is one-shot, so a stored one would break the
+     * second caller.
+     */
+    public interface Dynamic {
+        Object answer(Object[] args);
+    }
+
+    /**
      * A stub that answers a few methods and throws for the rest.
      *
      * <p>Some questions a stub genuinely can answer, and refusing to is worse than useless.
@@ -75,6 +84,9 @@ public final class Stubs {
                 }
                 default -> {
                     Object answer = answers.get(method.getName());
+                    if (answer instanceof Dynamic dynamic) {
+                        return dynamic.answer(args);
+                    }
                     if (answer != null) {
                         return answer;
                     }

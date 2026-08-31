@@ -29,17 +29,20 @@ public class EntityType<T extends Entity> implements EntityTypeTest<Entity, T>, 
     public static final Codec<EntityType<?>> CODEC =
             dev.pumpkin.shim.Stubs.throwingCodec("net.minecraft.world.entity.EntityType.CODEC");
 
-    private final TagKey<Block> immuneTo = null;
+    // Pumpkin divergence: NeoForge access-transforms this field public.
+    public TagKey<Block> immuneTo;
 
-    private final boolean fireImmune = false;
+    boolean fireImmune = false;
 
-    private final boolean canSpawnFarFromPlayer = false;
+    boolean canSpawnFarFromPlayer;
 
-    private final int clientTrackingRange = 0;
+    // Pumpkin divergence: NeoForge access-transforms these fields public; the
+    // initial values are the vanilla builder defaults.
+    public int clientTrackingRange = 5;
 
-    private final int updateInterval = 0;
+    public int updateInterval = 3;
 
-    private final float spawnDimensionsScale = 0.0F;
+    public float spawnDimensionsScale = 1.0F;
 
     private final FeatureFlagSet requiredFeatures = null;
 
@@ -50,9 +53,11 @@ public class EntityType<T extends Entity> implements EntityTypeTest<Entity, T>, 
     }
 
     public EntityType(EntityType.EntityFactory<T> factory, MobCategory category, boolean serialize, boolean summon, boolean fireImmune, boolean canSpawnFarFromPlayer, TagKey<Block> immuneTo, EntityDimensions dimensions, float spawnDimensionsScale, int clientTrackingRange, int updateInterval, String descriptionId, Optional<ResourceKey<LootTable>> lootTable, FeatureFlagSet requiredFeatures, boolean allowedInPeaceful) {
+        this.pumpkinCategory = category;
     }
 
     public EntityType(EntityType.EntityFactory<T> factory, MobCategory category, boolean serialize, boolean summon, boolean fireImmune, boolean canSpawnFarFromPlayer, TagKey<Block> immuneTo, EntityDimensions dimensions, float spawnDimensionsScale, int clientTrackingRange, int updateInterval, String descriptionId, Optional<ResourceKey<LootTable>> lootTable, FeatureFlagSet requiredFeatures, boolean allowedInPeaceful, final java.util.function.Predicate<EntityType<?>> trackDeltasSupplier, final java.util.function.ToIntFunction<EntityType<?>> trackingRangeSupplier, final java.util.function.ToIntFunction<EntityType<?>> updateIntervalSupplier, boolean onlyOpCanSetNbt) {
+        this.pumpkinCategory = category;
     }
 
     public T spawn(ServerLevel level, ItemStack itemStack, LivingEntity user, BlockPos spawnPos, EntitySpawnReason spawnReason, boolean tryMoveDown, boolean movedUp) {
@@ -71,24 +76,37 @@ public class EntityType<T extends Entity> implements EntityTypeTest<Entity, T>, 
         throw Unimplemented.forMember("net/minecraft/world/entity/EntityType.create:(Lnet/minecraft/server/level/ServerLevel;Lnet/minecraft/world/entity/PostSpawnProcessor;Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/entity/EntitySpawnReason;ZZ)Lnet/minecraft/world/entity/Entity;");
     }
 
+    // Pumpkin divergence: truthful -- vanilla's flag is Builder.noSave(); the builder
+    // records it and build() carries it here.
+    public boolean pumpkinSerialize = true;
+
     public boolean canSerialize() {
-        throw Unimplemented.forMember("net/minecraft/world/entity/EntityType.canSerialize:()Z");
+        return pumpkinSerialize;
     }
 
+    public boolean pumpkinSummon = true;
+
     public boolean canSummon() {
-        throw Unimplemented.forMember("net/minecraft/world/entity/EntityType.canSummon:()Z");
+        return pumpkinSummon;
     }
 
     public boolean fireImmune() {
-        throw Unimplemented.forMember("net/minecraft/world/entity/EntityType.fireImmune:()Z");
+        return fireImmune;
     }
 
     public boolean canSpawnFarFromPlayer() {
-        throw Unimplemented.forMember("net/minecraft/world/entity/EntityType.canSpawnFarFromPlayer:()Z");
+        return canSpawnFarFromPlayer;
     }
 
+    // Pumpkin divergence: real field -- set by the constructors and by EntityTypes'
+    // stand-ins, whose categories are vanilla's own.
+    public MobCategory pumpkinCategory;
+
     public MobCategory getCategory() {
-        throw Unimplemented.forMember("net/minecraft/world/entity/EntityType.getCategory:()Lnet/minecraft/world/entity/MobCategory;");
+        if (pumpkinCategory == null) {
+            throw Unimplemented.forMember("net/minecraft/world/entity/EntityType.getCategory (no category recorded)");
+        }
+        return pumpkinCategory;
     }
 
     public Component getDescription() {
@@ -99,7 +117,20 @@ public class EntityType<T extends Entity> implements EntityTypeTest<Entity, T>, 
         throw Unimplemented.forMember("net/minecraft/world/entity/EntityType.toString:()Ljava/lang/String;");
     }
 
+    // Pumpkin divergence: vanilla derives entities/<path> from the type's own key;
+    // builder-built types carry theirs from build(key), vanilla stand-ins from their
+    // name. A type with neither has no truthful answer and fails loudly.
+    public Optional<ResourceKey<LootTable>> pumpkinLootTable;
+
     public Optional<ResourceKey<LootTable>> getDefaultLootTable() {
+        if (pumpkinLootTable != null) {
+            return pumpkinLootTable;
+        }
+        if (pumpkinVanillaName != null) {
+            return Optional.of(net.minecraft.resources.ResourceKey.create(
+                net.minecraft.core.registries.Registries.LOOT_TABLE,
+                net.minecraft.resources.Identifier.withDefaultNamespace("entities/" + pumpkinVanillaName)));
+        }
         throw Unimplemented.forMember("net/minecraft/world/entity/EntityType.getDefaultLootTable:()Ljava/util/Optional;");
     }
 
@@ -111,8 +142,10 @@ public class EntityType<T extends Entity> implements EntityTypeTest<Entity, T>, 
         throw Unimplemented.forMember("net/minecraft/world/entity/EntityType.getHeight:()F");
     }
 
+    // Pumpkin divergence: every reachable FeatureFlagSet is the empty set (see that
+    // class); the answer is the one set that exists.
     public FeatureFlagSet requiredFeatures() {
-        throw Unimplemented.forMember("net/minecraft/world/entity/EntityType.requiredFeatures:()Lnet/minecraft/world/flag/FeatureFlagSet;");
+        return FeatureFlagSet.of();
     }
 
     public T create(Level level, EntitySpawnReason reason) {
@@ -131,20 +164,27 @@ public class EntityType<T extends Entity> implements EntityTypeTest<Entity, T>, 
         throw Unimplemented.forMember("net/minecraft/world/entity/EntityType.create:(Lnet/minecraft/world/entity/EntityType;Lnet/minecraft/world/level/storage/ValueInput;Lnet/minecraft/world/level/Level;Lnet/minecraft/world/entity/EntitySpawnReason;)Ljava/util/Optional;");
     }
 
+    public EntityDimensions pumpkinDimensions;
+
     public EntityDimensions getDimensions() {
-        throw Unimplemented.forMember("net/minecraft/world/entity/EntityType.getDimensions:()Lnet/minecraft/world/entity/EntityDimensions;");
+        if (pumpkinDimensions == null) {
+            throw Unimplemented.forMember("net/minecraft/world/entity/EntityType.getDimensions:()Lnet/minecraft/world/entity/EntityDimensions;");
+        }
+        return pumpkinDimensions;
     }
 
     public int clientTrackingRange() {
-        throw Unimplemented.forMember("net/minecraft/world/entity/EntityType.clientTrackingRange:()I");
+        return clientTrackingRange;
     }
 
     public int updateInterval() {
-        throw Unimplemented.forMember("net/minecraft/world/entity/EntityType.updateInterval:()I");
+        return updateInterval;
     }
 
+    public boolean pumpkinTrackDeltas = true;
+
     public boolean trackDeltas() {
-        throw Unimplemented.forMember("net/minecraft/world/entity/EntityType.trackDeltas:()Z");
+        return pumpkinTrackDeltas;
     }
 
     public T tryCast(Entity entity) {
@@ -159,12 +199,16 @@ public class EntityType<T extends Entity> implements EntityTypeTest<Entity, T>, 
         throw Unimplemented.forMember("net/minecraft/world/entity/EntityType.builtInRegistryHolder:()Lnet/minecraft/core/Holder$Reference;");
     }
 
+    public boolean pumpkinAllowedInPeaceful = true;
+
     public boolean isAllowedInPeaceful() {
-        throw Unimplemented.forMember("net/minecraft/world/entity/EntityType.isAllowedInPeaceful:()Z");
+        return pumpkinAllowedInPeaceful;
     }
 
+    public boolean pumpkinOnlyOpCanSetNbt;
+
     public boolean onlyOpCanSetNbt() {
-        throw Unimplemented.forMember("net/minecraft/world/entity/EntityType.onlyOpCanSetNbt:()Z");
+        return pumpkinOnlyOpCanSetNbt;
     }
 
     public Stream<net.minecraft.tags.TagKey<EntityType<?>>> getTags() {
@@ -179,99 +223,157 @@ public class EntityType<T extends Entity> implements EntityTypeTest<Entity, T>, 
 
         private boolean canSpawnFarFromPlayer;
 
-        private int clientTrackingRange;
+        private int clientTrackingRange = 5;
 
-        private int updateInterval;
+        private int updateInterval = 3;
 
-        private float spawnDimensionsScale;
+        private float spawnDimensionsScale = 1.0F;
 
-        private FeatureFlagSet requiredFeatures;
+        // Pumpkin divergence: NeoForge access-transforms this field public.
+        public FeatureFlagSet requiredFeatures;
 
         private Builder(EntityType.EntityFactory<T> factory, MobCategory category) {
         }
 
+        // Pumpkin divergence: real chain -- the category is the fact registration
+        // reads back; presentation knobs accept and drop.
+        MobCategory pumpkinCategory;
+
         public static <T extends Entity> EntityType.Builder<T> of(EntityType.EntityFactory<T> factory, MobCategory category) {
-            throw Unimplemented.forMember("net/minecraft/world/entity/EntityType$Builder.of:(Lnet/minecraft/world/entity/EntityType$EntityFactory;Lnet/minecraft/world/entity/MobCategory;)Lnet/minecraft/world/entity/EntityType$Builder;");
+            Builder<T> builder = new Builder<>();
+            builder.pumpkinCategory = category;
+            builder.canSpawnFarFromPlayer = category == MobCategory.CREATURE || category == MobCategory.MISC;
+            return builder;
         }
 
+        EntityDimensions pumpkinDimensions = EntityDimensions.scalable(0.6F, 1.8F);
+
         public EntityType.Builder<T> sized(float width, float height) {
-            throw Unimplemented.forMember("net/minecraft/world/entity/EntityType$Builder.sized:(FF)Lnet/minecraft/world/entity/EntityType$Builder;");
+            pumpkinDimensions = EntityDimensions.scalable(width, height);
+            return this;
         }
 
         public EntityType.Builder<T> spawnDimensionsScale(float scale) {
-            throw Unimplemented.forMember("net/minecraft/world/entity/EntityType$Builder.spawnDimensionsScale:(F)Lnet/minecraft/world/entity/EntityType$Builder;");
+            spawnDimensionsScale = scale;
+            return this;
         }
 
         public EntityType.Builder<T> eyeHeight(float eyeHeight) {
-            throw Unimplemented.forMember("net/minecraft/world/entity/EntityType$Builder.eyeHeight:(F)Lnet/minecraft/world/entity/EntityType$Builder;");
+            return this;
         }
 
         public EntityType.Builder<T> attach(EntityAttachment attachment, float x, float y, float z) {
-            throw Unimplemented.forMember("net/minecraft/world/entity/EntityType$Builder.attach:(Lnet/minecraft/world/entity/EntityAttachment;FFF)Lnet/minecraft/world/entity/EntityType$Builder;");
+            return this;
         }
 
         public EntityType.Builder<T> attach(EntityAttachment attachment, Vec3 point) {
-            throw Unimplemented.forMember("net/minecraft/world/entity/EntityType$Builder.attach:(Lnet/minecraft/world/entity/EntityAttachment;Lnet/minecraft/world/phys/Vec3;)Lnet/minecraft/world/entity/EntityType$Builder;");
+            return this;
         }
+
+        boolean pumpkinSummon = true;
 
         public EntityType.Builder<T> noSummon() {
-            throw Unimplemented.forMember("net/minecraft/world/entity/EntityType$Builder.noSummon:()Lnet/minecraft/world/entity/EntityType$Builder;");
+            pumpkinSummon = false;
+            return this;
         }
 
+        boolean pumpkinSerialize = true;
+
         public EntityType.Builder<T> noSave() {
-            throw Unimplemented.forMember("net/minecraft/world/entity/EntityType$Builder.noSave:()Lnet/minecraft/world/entity/EntityType$Builder;");
+            pumpkinSerialize = false;
+            return this;
         }
 
         public EntityType.Builder<T> fireImmune() {
-            throw Unimplemented.forMember("net/minecraft/world/entity/EntityType$Builder.fireImmune:()Lnet/minecraft/world/entity/EntityType$Builder;");
+            fireImmune = true;
+            return this;
         }
 
         public EntityType.Builder<T> immuneTo(TagKey<Block> tag) {
-            throw Unimplemented.forMember("net/minecraft/world/entity/EntityType$Builder.immuneTo:(Lnet/minecraft/tags/TagKey;)Lnet/minecraft/world/entity/EntityType$Builder;");
+            immuneTo = tag;
+            return this;
         }
 
         public EntityType.Builder<T> canSpawnFarFromPlayer() {
-            throw Unimplemented.forMember("net/minecraft/world/entity/EntityType$Builder.canSpawnFarFromPlayer:()Lnet/minecraft/world/entity/EntityType$Builder;");
+            canSpawnFarFromPlayer = true;
+            return this;
         }
 
         public EntityType.Builder<T> clientTrackingRange(int clientChunkRange) {
-            throw Unimplemented.forMember("net/minecraft/world/entity/EntityType$Builder.clientTrackingRange:(I)Lnet/minecraft/world/entity/EntityType$Builder;");
+            clientTrackingRange = clientChunkRange;
+            return this;
         }
 
         public EntityType.Builder<T> updateInterval(int updateInterval) {
-            throw Unimplemented.forMember("net/minecraft/world/entity/EntityType$Builder.updateInterval:(I)Lnet/minecraft/world/entity/EntityType$Builder;");
+            this.updateInterval = updateInterval;
+            return this;
         }
 
         public EntityType.Builder<T> requiredFeatures(FeatureFlag... flags) {
-            throw Unimplemented.forMember("net/minecraft/world/entity/EntityType$Builder.requiredFeatures:([Lnet/minecraft/world/flag/FeatureFlag;)Lnet/minecraft/world/entity/EntityType$Builder;");
+            return this;
         }
+
+        boolean pumpkinNoLootTable;
 
         public EntityType.Builder<T> noLootTable() {
-            throw Unimplemented.forMember("net/minecraft/world/entity/EntityType$Builder.noLootTable:()Lnet/minecraft/world/entity/EntityType$Builder;");
+            pumpkinNoLootTable = true;
+            return this;
         }
 
+        boolean pumpkinAllowedInPeaceful = true;
+
         public EntityType.Builder<T> notInPeaceful() {
-            throw Unimplemented.forMember("net/minecraft/world/entity/EntityType$Builder.notInPeaceful:()Lnet/minecraft/world/entity/EntityType$Builder;");
+            pumpkinAllowedInPeaceful = false;
+            return this;
         }
 
         public EntityType.Builder<T> setUpdateInterval(int interval) {
-            throw Unimplemented.forMember("net/minecraft/world/entity/EntityType$Builder.setUpdateInterval:(I)Lnet/minecraft/world/entity/EntityType$Builder;");
+            return this;
         }
 
         public EntityType.Builder<T> setTrackingRange(int range) {
-            throw Unimplemented.forMember("net/minecraft/world/entity/EntityType$Builder.setTrackingRange:(I)Lnet/minecraft/world/entity/EntityType$Builder;");
+            return this;
         }
+
+        boolean pumpkinTrackDeltas = true;
 
         public EntityType.Builder<T> setShouldReceiveVelocityUpdates(boolean value) {
-            throw Unimplemented.forMember("net/minecraft/world/entity/EntityType$Builder.setShouldReceiveVelocityUpdates:(Z)Lnet/minecraft/world/entity/EntityType$Builder;");
+            pumpkinTrackDeltas = value;
+            return this;
         }
+
+        boolean pumpkinOnlyOpCanSetNbt;
 
         public EntityType.Builder<T> setOnlyOpCanSetNbt(boolean onlyOpCanSetNbt) {
-            throw Unimplemented.forMember("net/minecraft/world/entity/EntityType$Builder.setOnlyOpCanSetNbt:(Z)Lnet/minecraft/world/entity/EntityType$Builder;");
+            pumpkinOnlyOpCanSetNbt = onlyOpCanSetNbt;
+            return this;
         }
 
+        @SuppressWarnings({"unchecked", "rawtypes"})
         public EntityType<T> build(ResourceKey<EntityType<?>> name) {
-            throw Unimplemented.forMember("net/minecraft/world/entity/EntityType$Builder.build:(Lnet/minecraft/resources/ResourceKey;)Lnet/minecraft/world/entity/EntityType;");
+            EntityType type = new EntityType();
+            type.pumpkinCategory = pumpkinCategory;
+            type.pumpkinSerialize = pumpkinSerialize;
+            type.pumpkinSummon = pumpkinSummon;
+            type.fireImmune = fireImmune;
+            type.canSpawnFarFromPlayer = canSpawnFarFromPlayer;
+            type.pumpkinOnlyOpCanSetNbt = pumpkinOnlyOpCanSetNbt;
+            type.pumpkinAllowedInPeaceful = pumpkinAllowedInPeaceful;
+            type.immuneTo = immuneTo;
+            type.clientTrackingRange = clientTrackingRange;
+            type.updateInterval = updateInterval;
+            type.spawnDimensionsScale = spawnDimensionsScale;
+            type.pumpkinTrackDeltas = pumpkinTrackDeltas;
+            type.pumpkinDimensions = pumpkinDimensions;
+            if (pumpkinNoLootTable) {
+                type.pumpkinLootTable = Optional.empty();
+            } else if (name != null) {
+                type.pumpkinLootTable = Optional.of(net.minecraft.resources.ResourceKey.create(
+                    net.minecraft.core.registries.Registries.LOOT_TABLE,
+                    net.minecraft.resources.Identifier.fromNamespaceAndPath(
+                        name.identifier().getNamespace(), "entities/" + name.identifier().getPath())));
+            }
+            return type;
         }
 
         public Builder() {

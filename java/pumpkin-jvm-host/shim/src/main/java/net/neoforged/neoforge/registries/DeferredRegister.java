@@ -159,6 +159,24 @@ public class DeferredRegister<T> {
             joined.append(property.getName()).append(':')
                     .append(String.join("|", property.pumpkinPossibleValues));
         }
+        // The block's declared default rides behind '@': registerDefaultState picks
+        // non-first values (a machine registers inactive), and without this the server
+        // would place every such block in its all-first-values state.
+        StringBuilder defaults = new StringBuilder();
+        for (java.util.Map.Entry<net.minecraft.world.level.block.state.properties.Property<?>, Comparable<?>> entry
+                : block.defaultBlockState().pumpkinValues.entrySet()) {
+            if (defaults.length() > 0) {
+                defaults.append(',');
+            }
+            Comparable<?> value = entry.getValue();
+            String spelled = value instanceof net.minecraft.util.StringRepresentable representable
+                    ? representable.getSerializedName()
+                    : String.valueOf(value);
+            defaults.append(entry.getKey().pumpkinName).append('=').append(spelled);
+        }
+        if (defaults.length() > 0) {
+            joined.append('@').append(defaults);
+        }
         return joined.toString();
     }
 

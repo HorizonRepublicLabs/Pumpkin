@@ -36,6 +36,16 @@ public final class ItemResource implements DataComponentHolderResource<Item> {
     // uses. A resource is an item reference without a count; EMPTY-ness follows the item.
     private ItemLike pumpkinItem;
 
+    // Pumpkin divergence: the component patch is data the resource carries.
+    private DataComponentPatch pumpkinPatch = DataComponentPatch.EMPTY;
+
+    private ItemResource pumpkinWith(DataComponentPatch patch) {
+        ItemResource resource = new ItemResource();
+        resource.pumpkinItem = pumpkinItem;
+        resource.pumpkinPatch = patch;
+        return resource;
+    }
+
     public static ItemResource of(ItemStack stack) {
         ItemResource resource = new ItemResource();
         resource.pumpkinItem = stack.isEmpty() ? null : stack.getItem();
@@ -47,19 +57,23 @@ public final class ItemResource implements DataComponentHolderResource<Item> {
     }
 
     public static ItemResource of(ItemLike item) {
-        throw Unimplemented.forMember("net/neoforged/neoforge/transfer/item/ItemResource.of:(Lnet/minecraft/world/level/ItemLike;)Lnet/neoforged/neoforge/transfer/item/ItemResource;");
+        ItemResource resource = new ItemResource();
+        resource.pumpkinItem = item;
+        return resource;
     }
 
     public static ItemResource of(ItemLike item, DataComponentPatch patch) {
-        throw Unimplemented.forMember("net/neoforged/neoforge/transfer/item/ItemResource.of:(Lnet/minecraft/world/level/ItemLike;Lnet/minecraft/core/component/DataComponentPatch;)Lnet/neoforged/neoforge/transfer/item/ItemResource;");
+        return of(item).pumpkinWith(patch);
     }
 
     public static ItemResource of(Holder<Item> holder) {
-        throw Unimplemented.forMember("net/neoforged/neoforge/transfer/item/ItemResource.of:(Lnet/minecraft/core/Holder;)Lnet/neoforged/neoforge/transfer/item/ItemResource;");
+        ItemResource resource = new ItemResource();
+        resource.pumpkinItem = holder.value();
+        return resource;
     }
 
     public static ItemResource of(Holder<Item> holder, DataComponentPatch patch) {
-        throw Unimplemented.forMember("net/neoforged/neoforge/transfer/item/ItemResource.of:(Lnet/minecraft/core/Holder;Lnet/minecraft/core/component/DataComponentPatch;)Lnet/neoforged/neoforge/transfer/item/ItemResource;");
+        return of(holder).pumpkinWith(patch);
     }
 
     private ItemResource(ItemStack stack) {
@@ -99,27 +113,31 @@ public final class ItemResource implements DataComponentHolderResource<Item> {
     }
 
     public boolean isComponentsPatchEmpty() {
-        throw Unimplemented.forMember("net/neoforged/neoforge/transfer/item/ItemResource.isComponentsPatchEmpty:()Z");
+        return pumpkinPatch.isEmpty();
     }
 
     public ItemResource withMergedPatch(DataComponentPatch patch) {
-        throw Unimplemented.forMember("net/neoforged/neoforge/transfer/item/ItemResource.withMergedPatch:(Lnet/minecraft/core/component/DataComponentPatch;)Lnet/neoforged/neoforge/transfer/item/ItemResource;");
+        DataComponentPatch.Builder merged = DataComponentPatch.builder();
+        DataComponentPatch built = merged.build();
+        built.pumpkinMap.putAll(pumpkinPatch.pumpkinMap);
+        built.pumpkinMap.putAll(patch.pumpkinMap);
+        return pumpkinWith(built);
     }
 
     public <D> ItemResource with(DataComponentType<D> type, D data) {
-        throw Unimplemented.forMember("net/neoforged/neoforge/transfer/item/ItemResource.with:(Lnet/minecraft/core/component/DataComponentType;Ljava/lang/Object;)Lnet/neoforged/neoforge/transfer/item/ItemResource;");
+        return withMergedPatch(DataComponentPatch.builder().set(type, data).build());
     }
 
     public <D> ItemResource with(Supplier<? extends DataComponentType<D>> type, D data) {
-        throw Unimplemented.forMember("net/neoforged/neoforge/transfer/item/ItemResource.with:(Ljava/util/function/Supplier;Ljava/lang/Object;)Lnet/neoforged/neoforge/transfer/item/ItemResource;");
+        return with(type.get(), data);
     }
 
     public ItemResource without(DataComponentType<?> type) {
-        throw Unimplemented.forMember("net/neoforged/neoforge/transfer/item/ItemResource.without:(Lnet/minecraft/core/component/DataComponentType;)Lnet/neoforged/neoforge/transfer/item/ItemResource;");
+        return withMergedPatch(DataComponentPatch.builder().remove(type).build());
     }
 
     public ItemResource without(Supplier<? extends DataComponentType<?>> type) {
-        throw Unimplemented.forMember("net/neoforged/neoforge/transfer/item/ItemResource.without:(Ljava/util/function/Supplier;)Lnet/neoforged/neoforge/transfer/item/ItemResource;");
+        return without(type.get());
     }
 
     public DataComponentMap getComponents() {
@@ -127,7 +145,7 @@ public final class ItemResource implements DataComponentHolderResource<Item> {
     }
 
     public DataComponentPatch getComponentsPatch() {
-        throw Unimplemented.forMember("net/neoforged/neoforge/transfer/item/ItemResource.getComponentsPatch:()Lnet/minecraft/core/component/DataComponentPatch;");
+        return pumpkinPatch;
     }
 
     public ItemStack toStack(int count) {
@@ -136,7 +154,7 @@ public final class ItemResource implements DataComponentHolderResource<Item> {
     }
 
     public ItemStack toStack() {
-        throw Unimplemented.forMember("net/neoforged/neoforge/transfer/item/ItemResource.toStack:()Lnet/minecraft/world/item/ItemStack;");
+        return toStack(1);
     }
 
     public int getMaxStackSize() {

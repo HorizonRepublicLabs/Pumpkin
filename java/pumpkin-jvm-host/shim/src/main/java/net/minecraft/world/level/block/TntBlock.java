@@ -55,8 +55,14 @@ public class TntBlock extends Block {
         throw Unimplemented.forMember("net/minecraft/world/level/block/TntBlock.dropFromExplosion:(Lnet/minecraft/world/level/Explosion;)Z");
     }
 
+    // Pumpkin divergence: vanilla body -- tnt is its fuse-stability flag. The constant
+    // is declared here because the pruned BlockStateProperties does not carry it; the
+    // name and values are vanilla's own.
+    public static final net.minecraft.world.level.block.state.properties.BooleanProperty UNSTABLE =
+            net.minecraft.world.level.block.state.properties.BooleanProperty.create("unstable");
+
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
-        throw Unimplemented.forMember("net/minecraft/world/level/block/TntBlock.createBlockStateDefinition:(Lnet/minecraft/world/level/block/state/StateDefinition$Builder;)V");
+        builder.add(UNSTABLE);
     }
 
     public boolean onCaughtFire(BlockState state, Level world, BlockPos pos, net.minecraft.core.Direction face, LivingEntity igniter) {

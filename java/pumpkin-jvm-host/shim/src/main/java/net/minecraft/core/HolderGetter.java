@@ -27,8 +27,11 @@ public interface HolderGetter<T> {
             throw Unimplemented.forMember("net/minecraft/core/HolderGetter$Provider.lookupOrThrow:(Lnet/minecraft/resources/ResourceKey;)Lnet/minecraft/core/HolderGetter;");
         }
 
+        // Pumpkin divergence: absent, truthfully -- no registry lookup provider exists
+        // on this side, and Optional is the interface's own way to say so. Mods skip
+        // the content they would have resolved (creative-tab decoration, mostly).
         default <T> Optional<Holder.Reference<T>> get(ResourceKey<T> id) {
-            throw Unimplemented.forMember("net/minecraft/core/HolderGetter$Provider.get:(Lnet/minecraft/resources/ResourceKey;)Ljava/util/Optional;");
+            return java.util.Optional.empty();
         }
 
         default <T> Holder.Reference<T> getOrThrow(ResourceKey<T> id) {

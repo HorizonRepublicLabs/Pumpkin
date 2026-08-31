@@ -14,7 +14,9 @@ import dev.pumpkin.shim.Unimplemented;
 
 public interface Recipe<T extends RecipeInput> {
 
-    Codec<Recipe<?>> CODEC = null;
+    // Pumpkin divergence: a throwing codec, not null -- DFU composes through it
+    // at class-init; it throws by name on first real use.
+    Codec<Recipe<?>> CODEC = dev.pumpkin.shim.Stubs.throwingCodec("net/minecraft/world/item/crafting/Recipe.CODEC");
 
     StreamCodec<RegistryFriendlyByteBuf, Recipe<?>> STREAM_CODEC = Stubs.of(StreamCodec.class, "net/minecraft/network/codec/StreamCodec");
 

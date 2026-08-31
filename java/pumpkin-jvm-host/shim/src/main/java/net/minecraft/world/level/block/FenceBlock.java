@@ -53,8 +53,11 @@ public class FenceBlock extends CrossCollisionBlock {
         throw Unimplemented.forMember("net/minecraft/world/level/block/FenceBlock.updateShape:(Lnet/minecraft/world/level/block/state/BlockState;Lnet/minecraft/world/level/LevelReader;Lnet/minecraft/world/level/ScheduledTickAccess;Lnet/minecraft/core/BlockPos;Lnet/minecraft/core/Direction;Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/state/BlockState;Lnet/minecraft/util/RandomSource;)Lnet/minecraft/world/level/block/state/BlockState;");
     }
 
+    // Pumpkin divergence: vanilla body -- the four connections and waterlogging.
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
-        throw Unimplemented.forMember("net/minecraft/world/level/block/FenceBlock.createBlockStateDefinition:(Lnet/minecraft/world/level/block/state/StateDefinition$Builder;)V");
+        builder.add(CrossCollisionBlock.NORTH, CrossCollisionBlock.EAST,
+                CrossCollisionBlock.SOUTH, CrossCollisionBlock.WEST,
+                CrossCollisionBlock.WATERLOGGED);
     }
 
     public FenceBlock() {

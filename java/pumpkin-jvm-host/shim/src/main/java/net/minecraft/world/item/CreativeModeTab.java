@@ -149,8 +149,9 @@ public class CreativeModeTab {
             return this;
         }
 
+        // Pumpkin divergence: tab presentation, accepted and dropped; chain lives.
         public final CreativeModeTab.Builder withTabsBefore(net.minecraft.resources.ResourceKey<CreativeModeTab>... tabs) {
-            throw Unimplemented.forMember("net/minecraft/world/item/CreativeModeTab$Builder.withTabsBefore:([Lnet/minecraft/resources/ResourceKey;)Lnet/minecraft/world/item/CreativeModeTab$Builder;");
+            return this;
         }
 
         // Pumpkin divergence: accepted and dropped -- client-side presentation.

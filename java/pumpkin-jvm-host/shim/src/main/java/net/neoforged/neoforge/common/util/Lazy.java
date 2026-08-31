@@ -5,15 +5,28 @@ import dev.pumpkin.shim.Unimplemented;
 
 public final class Lazy<T> implements Supplier<T> {
 
+    // Pumpkin divergence: the real thing -- memoize on first get.
+    private Supplier<T> pumpkinSupplier;
+
+    private T pumpkinValue;
+
+    private boolean pumpkinResolved;
+
     public static <T> Lazy<T> of(Supplier<T> supplier) {
-        throw Unimplemented.forMember("net/neoforged/neoforge/common/util/Lazy.of:(Ljava/util/function/Supplier;)Lnet/neoforged/neoforge/common/util/Lazy;");
+        Lazy<T> lazy = new Lazy<>();
+        lazy.pumpkinSupplier = supplier;
+        return lazy;
     }
 
     private Lazy(Supplier<T> delegate) {
     }
 
     public T get() {
-        throw Unimplemented.forMember("net/neoforged/neoforge/common/util/Lazy.get:()Ljava/lang/Object;");
+        if (!pumpkinResolved) {
+            pumpkinValue = pumpkinSupplier.get();
+            pumpkinResolved = true;
+        }
+        return pumpkinValue;
     }
 
     public Lazy() {

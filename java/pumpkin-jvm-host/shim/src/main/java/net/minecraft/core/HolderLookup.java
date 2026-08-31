@@ -24,8 +24,18 @@ public interface HolderLookup<T> extends HolderGetter<T> {
 
         <T> Optional<? extends HolderLookup.RegistryLookup<T>> lookup(final ResourceKey<? extends Registry<? extends T>> key);
 
+        // Pumpkin divergence: answers key() and listElements() from what actually
+        // registered under that registry; every other member throws by name on use.
+        @SuppressWarnings({"unchecked", "rawtypes"})
         default <T> HolderLookup.RegistryLookup<T> lookupOrThrow(ResourceKey<? extends Registry<? extends T>> key) {
-            throw Unimplemented.forMember("net/minecraft/core/HolderLookup$Provider.lookupOrThrow:(Lnet/minecraft/resources/ResourceKey;)Lnet/minecraft/core/HolderLookup$RegistryLookup;");
+            return dev.pumpkin.shim.Stubs.of(HolderLookup.RegistryLookup.class,
+                "net/minecraft/core/HolderLookup$RegistryLookup(" + key.identifier() + ") via HolderLookup$Provider.lookupOrThrow",
+                java.util.Map.of(
+                    "key", key,
+                    "listElements", (dev.pumpkin.shim.Stubs.Dynamic) args ->
+                        net.neoforged.neoforge.registries.DeferredHolder.pumpkinAllFor(key.identifier().toString())
+                            .stream()
+                            .map(holder -> Holder.Reference.pumpkinOf((ResourceKey) holder.getKey(), holder.get()))));
         }
 
         default <V> RegistryOps<V> createSerializationContext(DynamicOps<V> parent) {

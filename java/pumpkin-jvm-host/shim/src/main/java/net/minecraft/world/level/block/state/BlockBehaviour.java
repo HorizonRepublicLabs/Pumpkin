@@ -184,8 +184,10 @@ public abstract class BlockBehaviour implements FeatureElement {
             return pumpkinOwner;
         }
 
+        // Pumpkin divergence: real body -- the owning block's holder, whose value() and
+        // is(TagKey) already answer; mods key their attribute maps by it.
         public Holder<Block> typeHolder() {
-            throw Unimplemented.forMember("net/minecraft/world/level/block/state/BlockBehaviour$BlockStateBase.typeHolder:()Lnet/minecraft/core/Holder;");
+            return getBlock().builtInRegistryHolder();
         }
 
         public int getLightDampening() {
@@ -488,8 +490,13 @@ public abstract class BlockBehaviour implements FeatureElement {
             return properties;
         }
 
+        // Pumpkin divergence: like ofFullCopy -- the template survives the copy.
         public static BlockBehaviour.Properties ofLegacyCopy(BlockBehaviour block) {
-            throw Unimplemented.forMember("net/minecraft/world/level/block/state/BlockBehaviour$Properties.ofLegacyCopy:(Lnet/minecraft/world/level/block/state/BlockBehaviour;)Lnet/minecraft/world/level/block/state/BlockBehaviour$Properties;");
+            Properties properties = new Properties();
+            if (block instanceof net.minecraft.world.level.block.Block source) {
+                properties.pumpkinTemplate = source.pumpkinTemplate();
+            }
+            return properties;
         }
 
         // Pumpkin divergence: declared block metadata, accepted and dropped.

@@ -12,6 +12,10 @@ public final class MutableComponent implements Component {
     // titles and tooltips; styling still throws.
     private String pumpkinText = "";
 
+    // Pumpkin divergence: the style is data the component carries; nothing renders it
+    // server-side, but mods compose and re-read it while building names.
+    private Style pumpkinStyle = Style.EMPTY;
+
     public static MutableComponent pumpkinOf(String text) {
         MutableComponent component = new MutableComponent();
         component.pumpkinText = text;
@@ -38,11 +42,12 @@ public final class MutableComponent implements Component {
     }
 
     public MutableComponent setStyle(Style style) {
-        throw Unimplemented.forMember("net/minecraft/network/chat/MutableComponent.setStyle:(Lnet/minecraft/network/chat/Style;)Lnet/minecraft/network/chat/MutableComponent;");
+        this.pumpkinStyle = style;
+        return this;
     }
 
     public Style getStyle() {
-        throw Unimplemented.forMember("net/minecraft/network/chat/MutableComponent.getStyle:()Lnet/minecraft/network/chat/Style;");
+        return pumpkinStyle;
     }
 
     // Pumpkin divergence: real body.
@@ -55,16 +60,28 @@ public final class MutableComponent implements Component {
 
     }
 
+    // Pumpkin divergence: appends the sibling's text; the sibling's own style is
+    // presentation the flat text cannot carry -- dropped, not misread.
     public MutableComponent append(Component component) {
-        throw Unimplemented.forMember("net/minecraft/network/chat/MutableComponent.append:(Lnet/minecraft/network/chat/Component;)Lnet/minecraft/network/chat/MutableComponent;");
+        if (component instanceof MutableComponent mutable) {
+            pumpkinText = pumpkinText + mutable.pumpkinText;
+            return this;
+        }
+        pumpkinText = pumpkinText + component.getString();
+        return this;
     }
 
     public MutableComponent withStyle(UnaryOperator<Style> updater) {
         throw Unimplemented.forMember("net/minecraft/network/chat/MutableComponent.withStyle:(Ljava/util/function/UnaryOperator;)Lnet/minecraft/network/chat/MutableComponent;");
     }
 
+    // Pumpkin divergence: vanilla applies the patch only where this style is unset;
+    // with color the sole style fact Pumpkin stores, that is what this implements.
     public MutableComponent withStyle(Style patch) {
-        throw Unimplemented.forMember("net/minecraft/network/chat/MutableComponent.withStyle:(Lnet/minecraft/network/chat/Style;)Lnet/minecraft/network/chat/MutableComponent;");
+        if (pumpkinStyle.getColor() == null && patch.getColor() != null) {
+            pumpkinStyle = pumpkinStyle.withColor(patch.getColor());
+        }
+        return this;
     }
 
     public MutableComponent withStyle(ChatFormatting... formats) {

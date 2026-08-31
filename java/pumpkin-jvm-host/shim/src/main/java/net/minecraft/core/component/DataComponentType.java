@@ -36,8 +36,10 @@ public interface DataComponentType<T> {
             return this;
         }
 
+        // Pumpkin divergence: an encode-speed hint; Pumpkin never encodes mod
+        // components, so there is nothing to cache. Accept and drop.
         public DataComponentType.Builder<T> cacheEncoding() {
-            throw Unimplemented.forMember("net/minecraft/core/component/DataComponentType$Builder.cacheEncoding:()Lnet/minecraft/core/component/DataComponentType$Builder;");
+            return this;
         }
 
         // Pumpkin divergence: real body. The type is an interface, so the stub stands in:

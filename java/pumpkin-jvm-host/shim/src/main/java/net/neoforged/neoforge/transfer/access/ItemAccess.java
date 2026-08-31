@@ -44,8 +44,11 @@ public interface ItemAccess {
         throw Unimplemented.forMember("net/neoforged/neoforge/transfer/access/ItemAccess.oneByOne:()Lnet/neoforged/neoforge/transfer/access/ItemAccess;");
     }
 
+    // Pumpkin divergence: truthful absence -- no capability provider is ever
+    // registered with Pumpkin (RegisterCapabilitiesEvent does not accept them), so
+    // every lookup answers null, the NeoForge contract for "no provider".
     default <T> T getCapability(ItemCapability<T, ItemAccess> capability) {
-        throw Unimplemented.forMember("net/neoforged/neoforge/transfer/access/ItemAccess.getCapability:(Lnet/neoforged/neoforge/capabilities/ItemCapability;)Ljava/lang/Object;");
+        return null;
     }
 
     ItemResource getResource();

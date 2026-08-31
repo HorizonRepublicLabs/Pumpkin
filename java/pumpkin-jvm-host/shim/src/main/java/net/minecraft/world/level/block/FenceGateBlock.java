@@ -81,8 +81,20 @@ public class FenceGateBlock extends HorizontalDirectionalBlock {
         throw Unimplemented.forMember("net/minecraft/world/level/block/FenceGateBlock.neighborChanged:(Lnet/minecraft/world/level/block/state/BlockState;Lnet/minecraft/world/level/Level;Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/Block;Lnet/minecraft/world/level/redstone/Orientation;Z)V");
     }
 
+    // Pumpkin divergence: vanilla's declarations, constants local because the pruned
+    // shared holders dropped them.
+    public static final net.minecraft.world.level.block.state.properties.BooleanProperty OPEN =
+            net.minecraft.world.level.block.state.properties.BooleanProperty.create("open");
+
+    public static final net.minecraft.world.level.block.state.properties.BooleanProperty POWERED =
+            net.minecraft.world.level.block.state.properties.BooleanProperty.create("powered");
+
+    public static final net.minecraft.world.level.block.state.properties.BooleanProperty IN_WALL =
+            net.minecraft.world.level.block.state.properties.BooleanProperty.create("in_wall");
+
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
-        throw Unimplemented.forMember("net/minecraft/world/level/block/FenceGateBlock.createBlockStateDefinition:(Lnet/minecraft/world/level/block/state/StateDefinition$Builder;)V");
+        builder.add(net.minecraft.world.level.block.state.properties.BlockStateProperties.HORIZONTAL_FACING,
+                OPEN, POWERED, IN_WALL);
     }
 
     public FenceGateBlock() {

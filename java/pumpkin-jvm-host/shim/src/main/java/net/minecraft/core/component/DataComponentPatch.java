@@ -11,7 +11,7 @@ import dev.pumpkin.shim.Unimplemented;
 
 public final class DataComponentPatch {
 
-    public static final DataComponentPatch EMPTY = null;
+    public static final DataComponentPatch EMPTY = new DataComponentPatch(null);
 
     // Pumpkin divergence: a throwing codec, not null. DFU dereferences these while
 
@@ -21,11 +21,15 @@ public final class DataComponentPatch {
 
     public static final Codec<DataComponentPatch> CODEC = dev.pumpkin.shim.Stubs.throwingCodec("net/minecraft/core/component/DataComponentPatch.CODEC");
 
+    // Pumpkin divergence: a patch really is a map -- Optional.of(value) sets,
+    // Optional.empty() removes.
+    public final java.util.LinkedHashMap<DataComponentType<?>, Optional<?>> pumpkinMap = new java.util.LinkedHashMap<>();
+
     DataComponentPatch(Reference2ObjectMap<DataComponentType<?>, Optional<?>> map) {
     }
 
     public static DataComponentPatch.Builder builder() {
-        throw Unimplemented.forMember("net/minecraft/core/component/DataComponentPatch.builder:()Lnet/minecraft/core/component/DataComponentPatch$Builder;");
+        return new Builder();
     }
 
     public <T> T get(DataComponentGetter prototype, DataComponentType<? extends T> type) {
@@ -33,23 +37,23 @@ public final class DataComponentPatch {
     }
 
     public Set<Entry<DataComponentType<?>, Optional<?>>> entrySet() {
-        throw Unimplemented.forMember("net/minecraft/core/component/DataComponentPatch.entrySet:()Ljava/util/Set;");
+        return pumpkinMap.entrySet();
     }
 
     public int size() {
-        throw Unimplemented.forMember("net/minecraft/core/component/DataComponentPatch.size:()I");
+        return pumpkinMap.size();
     }
 
     public boolean isEmpty() {
-        throw Unimplemented.forMember("net/minecraft/core/component/DataComponentPatch.isEmpty:()Z");
+        return pumpkinMap.isEmpty();
     }
 
     public boolean equals(Object obj) {
-        throw Unimplemented.forMember("net/minecraft/core/component/DataComponentPatch.equals:(Ljava/lang/Object;)Z");
+        return obj instanceof DataComponentPatch other && pumpkinMap.equals(other.pumpkinMap);
     }
 
     public int hashCode() {
-        throw Unimplemented.forMember("net/minecraft/core/component/DataComponentPatch.hashCode:()I");
+        return pumpkinMap.hashCode();
     }
 
     public String toString() {
@@ -61,12 +65,16 @@ public final class DataComponentPatch {
         protected Builder() {
         }
 
+        final DataComponentPatch pumpkinPatch = new DataComponentPatch(null);
+
         public <T> DataComponentPatch.Builder set(DataComponentType<T> type, T value) {
-            throw Unimplemented.forMember("net/minecraft/core/component/DataComponentPatch$Builder.set:(Lnet/minecraft/core/component/DataComponentType;Ljava/lang/Object;)Lnet/minecraft/core/component/DataComponentPatch$Builder;");
+            pumpkinPatch.pumpkinMap.put(type, Optional.of(value));
+            return this;
         }
 
         public <T> DataComponentPatch.Builder remove(DataComponentType<T> type) {
-            throw Unimplemented.forMember("net/minecraft/core/component/DataComponentPatch$Builder.remove:(Lnet/minecraft/core/component/DataComponentType;)Lnet/minecraft/core/component/DataComponentPatch$Builder;");
+            pumpkinPatch.pumpkinMap.put(type, Optional.empty());
+            return this;
         }
 
         public <T> DataComponentPatch.Builder set(TypedDataComponent<T> component) {
@@ -78,7 +86,7 @@ public final class DataComponentPatch {
         }
 
         public DataComponentPatch build() {
-            throw Unimplemented.forMember("net/minecraft/core/component/DataComponentPatch$Builder.build:()Lnet/minecraft/core/component/DataComponentPatch;");
+            return pumpkinPatch;
         }
     }
 

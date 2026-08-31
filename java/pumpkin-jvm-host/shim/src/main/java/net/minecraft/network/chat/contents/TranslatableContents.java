@@ -13,8 +13,9 @@ import dev.pumpkin.shim.Unimplemented;
 
 public class TranslatableContents implements ComponentContents {
 
+    // Pumpkin divergence: vanilla body.
     public static boolean isAllowedPrimitiveArgument(Object object) {
-        throw Unimplemented.forMember("net/minecraft/network/chat/contents/TranslatableContents.isAllowedPrimitiveArgument:(Ljava/lang/Object;)Z");
+        return object instanceof Number || object instanceof Boolean || object instanceof String;
     }
 
     private static TranslatableContents create(String key, Optional<String> fallback, Optional<List<Object>> args) {

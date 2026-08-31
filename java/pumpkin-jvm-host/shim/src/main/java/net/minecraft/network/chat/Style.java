@@ -5,49 +5,74 @@ import dev.pumpkin.shim.Unimplemented;
 
 public final class Style {
 
-    public static final Style EMPTY = null;
+    // Pumpkin divergence: a style really is just data -- the ctor stores it and the
+    // getters answer from it.
+    final TextColor pumpkinColor;
+    final Integer pumpkinShadowColor;
+    final Boolean pumpkinBold;
+    final Boolean pumpkinItalic;
+    final Boolean pumpkinUnderlined;
+    final Boolean pumpkinStrikethrough;
+    final Boolean pumpkinObfuscated;
+    final ClickEvent pumpkinClickEvent;
+    final HoverEvent pumpkinHoverEvent;
+    final String pumpkinInsertion;
+    final FontDescription pumpkinFont;
+
+    public static final Style EMPTY = new Style(null, null, null, null, null, null, null, null, null, null, null);
 
     private Style(TextColor color, Integer shadowColor, Boolean bold, Boolean italic, Boolean underlined, Boolean strikethrough, Boolean obfuscated, ClickEvent clickEvent, HoverEvent hoverEvent, String insertion, FontDescription font) {
+        this.pumpkinColor = color;
+        this.pumpkinShadowColor = shadowColor;
+        this.pumpkinBold = bold;
+        this.pumpkinItalic = italic;
+        this.pumpkinUnderlined = underlined;
+        this.pumpkinStrikethrough = strikethrough;
+        this.pumpkinObfuscated = obfuscated;
+        this.pumpkinClickEvent = clickEvent;
+        this.pumpkinHoverEvent = hoverEvent;
+        this.pumpkinInsertion = insertion;
+        this.pumpkinFont = font;
     }
 
     public TextColor getColor() {
-        throw Unimplemented.forMember("net/minecraft/network/chat/Style.getColor:()Lnet/minecraft/network/chat/TextColor;");
+        return pumpkinColor;
     }
 
     public boolean isBold() {
-        throw Unimplemented.forMember("net/minecraft/network/chat/Style.isBold:()Z");
+        return pumpkinBold == Boolean.TRUE;
     }
 
     public boolean isItalic() {
-        throw Unimplemented.forMember("net/minecraft/network/chat/Style.isItalic:()Z");
+        return pumpkinItalic == Boolean.TRUE;
     }
 
     public boolean isStrikethrough() {
-        throw Unimplemented.forMember("net/minecraft/network/chat/Style.isStrikethrough:()Z");
+        return pumpkinStrikethrough == Boolean.TRUE;
     }
 
     public boolean isUnderlined() {
-        throw Unimplemented.forMember("net/minecraft/network/chat/Style.isUnderlined:()Z");
+        return pumpkinUnderlined == Boolean.TRUE;
     }
 
     public boolean isObfuscated() {
-        throw Unimplemented.forMember("net/minecraft/network/chat/Style.isObfuscated:()Z");
+        return pumpkinObfuscated == Boolean.TRUE;
     }
 
     public boolean isEmpty() {
-        throw Unimplemented.forMember("net/minecraft/network/chat/Style.isEmpty:()Z");
+        return this.equals(EMPTY);
     }
 
     public ClickEvent getClickEvent() {
-        throw Unimplemented.forMember("net/minecraft/network/chat/Style.getClickEvent:()Lnet/minecraft/network/chat/ClickEvent;");
+        return pumpkinClickEvent;
     }
 
     public HoverEvent getHoverEvent() {
-        throw Unimplemented.forMember("net/minecraft/network/chat/Style.getHoverEvent:()Lnet/minecraft/network/chat/HoverEvent;");
+        return pumpkinHoverEvent;
     }
 
     public Style withColor(TextColor color) {
-        throw Unimplemented.forMember("net/minecraft/network/chat/Style.withColor:(Lnet/minecraft/network/chat/TextColor;)Lnet/minecraft/network/chat/Style;");
+        return new Style(color, pumpkinShadowColor, pumpkinBold, pumpkinItalic, pumpkinUnderlined, pumpkinStrikethrough, pumpkinObfuscated, pumpkinClickEvent, pumpkinHoverEvent, pumpkinInsertion, pumpkinFont);
     }
 
     public Style withColor(ChatFormatting color) {
@@ -55,15 +80,15 @@ public final class Style {
     }
 
     public Style withColor(int color) {
-        throw Unimplemented.forMember("net/minecraft/network/chat/Style.withColor:(I)Lnet/minecraft/network/chat/Style;");
+        return withColor(TextColor.fromRgb(color));
     }
 
     public Style withClickEvent(ClickEvent clickEvent) {
-        throw Unimplemented.forMember("net/minecraft/network/chat/Style.withClickEvent:(Lnet/minecraft/network/chat/ClickEvent;)Lnet/minecraft/network/chat/Style;");
+        return new Style(pumpkinColor, pumpkinShadowColor, pumpkinBold, pumpkinItalic, pumpkinUnderlined, pumpkinStrikethrough, pumpkinObfuscated, clickEvent, pumpkinHoverEvent, pumpkinInsertion, pumpkinFont);
     }
 
     public Style withHoverEvent(HoverEvent hoverEvent) {
-        throw Unimplemented.forMember("net/minecraft/network/chat/Style.withHoverEvent:(Lnet/minecraft/network/chat/HoverEvent;)Lnet/minecraft/network/chat/Style;");
+        return new Style(pumpkinColor, pumpkinShadowColor, pumpkinBold, pumpkinItalic, pumpkinUnderlined, pumpkinStrikethrough, pumpkinObfuscated, pumpkinClickEvent, hoverEvent, pumpkinInsertion, pumpkinFont);
     }
 
     public Style applyFormat(ChatFormatting format) {
@@ -75,11 +100,27 @@ public final class Style {
     }
 
     public boolean equals(Object o) {
-        throw Unimplemented.forMember("net/minecraft/network/chat/Style.equals:(Ljava/lang/Object;)Z");
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof Style other)) {
+            return false;
+        }
+        return java.util.Objects.equals(pumpkinColor, other.pumpkinColor)
+            && java.util.Objects.equals(pumpkinShadowColor, other.pumpkinShadowColor)
+            && java.util.Objects.equals(pumpkinBold, other.pumpkinBold)
+            && java.util.Objects.equals(pumpkinItalic, other.pumpkinItalic)
+            && java.util.Objects.equals(pumpkinUnderlined, other.pumpkinUnderlined)
+            && java.util.Objects.equals(pumpkinStrikethrough, other.pumpkinStrikethrough)
+            && java.util.Objects.equals(pumpkinObfuscated, other.pumpkinObfuscated)
+            && java.util.Objects.equals(pumpkinClickEvent, other.pumpkinClickEvent)
+            && java.util.Objects.equals(pumpkinHoverEvent, other.pumpkinHoverEvent)
+            && java.util.Objects.equals(pumpkinInsertion, other.pumpkinInsertion)
+            && java.util.Objects.equals(pumpkinFont, other.pumpkinFont);
     }
 
     public int hashCode() {
-        throw Unimplemented.forMember("net/minecraft/network/chat/Style.hashCode:()I");
+        return java.util.Objects.hash(pumpkinColor, pumpkinShadowColor, pumpkinBold, pumpkinItalic, pumpkinUnderlined, pumpkinStrikethrough, pumpkinObfuscated, pumpkinClickEvent, pumpkinHoverEvent, pumpkinInsertion, pumpkinFont);
     }
 
     public static class Serializer {
@@ -89,5 +130,6 @@ public final class Style {
     }
 
     public Style() {
+        this(null, null, null, null, null, null, null, null, null, null, null);
     }
 }

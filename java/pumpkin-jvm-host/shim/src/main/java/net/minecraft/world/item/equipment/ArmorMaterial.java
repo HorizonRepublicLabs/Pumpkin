@@ -11,7 +11,9 @@ import dev.pumpkin.shim.Unimplemented;
 
 public record ArmorMaterial(int durability, Map<ArmorType, Integer> defense, int enchantmentValue, Holder<SoundEvent> equipSound, float toughness, float knockbackResistance, TagKey<Item> repairIngredient, ResourceKey<EquipmentAsset> assetId) {
 
+    // Pumpkin divergence: the built component is declared metadata the Rust side does
+    // not consume; the mod only needs the call to complete while registering items.
     public ItemAttributeModifiers createAttributes(ArmorType type) {
-        throw Unimplemented.forMember("net/minecraft/world/item/equipment/ArmorMaterial.createAttributes:(Lnet/minecraft/world/item/equipment/ArmorType;)Lnet/minecraft/world/item/component/ItemAttributeModifiers;");
+        return ItemAttributeModifiers.builder().build();
     }
 }

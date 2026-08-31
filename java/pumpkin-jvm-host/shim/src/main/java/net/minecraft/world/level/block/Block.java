@@ -47,7 +47,9 @@ public class Block extends BlockBehaviour implements ItemLike, IBlockExtension {
 
     public static final IdMapper<BlockState> BLOCK_STATE_REGISTRY = null;
 
-    protected final StateDefinition<Block, BlockState> stateDefinition = null;
+    // Pumpkin divergence: assigned, not null-final -- Mekanism reads the field
+    // directly in its constructors (stateDefinition.any()).
+    protected StateDefinition<Block, BlockState> stateDefinition;
 
     private BlockState defaultBlockState;
 
@@ -99,6 +101,7 @@ public class Block extends BlockBehaviour implements ItemLike, IBlockExtension {
                 new net.minecraft.world.level.block.state.StateDefinition.Builder<>(this);
         createBlockStateDefinition(builder);
         this.pumpkinDeclaredProperties = builder.pumpkinProperties();
+        this.stateDefinition = getStateDefinition();
     }
 
     // Pumpkin divergence: no vanilla counterpart at all. The vanilla block whose definition

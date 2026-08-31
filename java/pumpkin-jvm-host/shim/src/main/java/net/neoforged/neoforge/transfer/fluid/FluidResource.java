@@ -38,7 +38,9 @@ public final class FluidResource implements DataComponentHolderResource<Fluid> {
     }
 
     public static FluidResource of(Fluid fluid) {
-        throw Unimplemented.forMember("net/neoforged/neoforge/transfer/fluid/FluidResource.of:(Lnet/minecraft/world/level/material/Fluid;)Lnet/neoforged/neoforge/transfer/fluid/FluidResource;");
+        FluidResource resource = new FluidResource();
+        resource.pumpkinFluid = fluid;
+        return resource;
     }
 
     public static FluidResource of(Fluid fluid, DataComponentPatch patch) {
@@ -46,7 +48,7 @@ public final class FluidResource implements DataComponentHolderResource<Fluid> {
     }
 
     public static FluidResource of(Holder<Fluid> fluid) {
-        throw Unimplemented.forMember("net/neoforged/neoforge/transfer/fluid/FluidResource.of:(Lnet/minecraft/core/Holder;)Lnet/neoforged/neoforge/transfer/fluid/FluidResource;");
+        return of(fluid.value());
     }
 
     public static FluidResource of(Holder<Fluid> holder, DataComponentPatch patch) {

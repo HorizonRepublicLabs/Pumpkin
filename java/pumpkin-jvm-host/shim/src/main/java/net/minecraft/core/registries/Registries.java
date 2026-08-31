@@ -49,6 +49,8 @@ public class Registries {
 
     public static final ResourceKey<Registry<EntityType<?>>> ENTITY_TYPE = pumpkinRegistryKey("entity_type");
 
+    public static final ResourceKey<Registry<net.minecraft.world.level.storage.loot.LootTable>> LOOT_TABLE = pumpkinRegistryKey("loot_table");
+
     public static final ResourceKey<Registry<Feature<?>>> FEATURE = pumpkinRegistryKey("worldgen/feature");
 
     public static final ResourceKey<Registry<Fluid>> FLUID = pumpkinRegistryKey("fluid");

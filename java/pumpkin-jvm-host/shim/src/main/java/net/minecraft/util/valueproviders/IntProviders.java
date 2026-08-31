@@ -1,7 +1,6 @@
 package net.minecraft.util.valueproviders;
 
 import com.mojang.serialization.Codec;
-import dev.pumpkin.shim.Unimplemented;
 
 public class IntProviders {
 
@@ -11,9 +10,6 @@ public class IntProviders {
     public IntProviders() {
     }
 
-    static {
-        if (true) {
-            throw Unimplemented.forMember("net/minecraft/util/valueproviders/IntProviders");
-        }
-    }
+    // Pumpkin divergence: no throwing clinit -- the one static is already an inert
+    // throwing codec, so the class composes and fails by name on first real use.
 }

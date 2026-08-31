@@ -20,7 +20,9 @@ import dev.pumpkin.shim.Unimplemented;
 
 public interface SlotDisplay {
 
-    Codec<SlotDisplay> CODEC = null;
+    // Pumpkin divergence: a throwing codec, not null -- DFU composes through it
+    // at class-init; it throws by name on first real use.
+    Codec<SlotDisplay> CODEC = dev.pumpkin.shim.Stubs.throwingCodec("net/minecraft/world/item/crafting/display/SlotDisplay.CODEC");
 
     StreamCodec<RegistryFriendlyByteBuf, SlotDisplay> STREAM_CODEC = Stubs.of(StreamCodec.class, "net/minecraft/network/codec/StreamCodec");
 

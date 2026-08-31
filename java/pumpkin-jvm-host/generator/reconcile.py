@@ -3170,15 +3170,18 @@ edit('net/minecraft/world/entity/EntityType.java', [
 _p = os.path.join(ROOT, "net/minecraft/world/entity/EntityTypes.java")
 _s = PENDING.get(_p) or open(_p).read()
 for _m in list(re.finditer(r"public static final EntityType<[^>]*>+ ([A-Z_0-9]+) = null;", _s)):
-    _s = _s.replace(_m.group(0), _m.group(0).replace(" = null;", ' = pumpkinVanilla("%s");' % _m.group(1).lower()), 1)
+    _ET_CATS = {'ARMOR_STAND': 'MISC', 'BOGGED': 'MONSTER', 'CREEPER': 'MONSTER', 'ENDERMAN': 'MONSTER', 'ITEM': 'MISC', 'LIGHTNING_BOLT': 'MISC', 'PARCHED': 'MONSTER', 'SKELETON': 'MONSTER', 'STRAY': 'MONSTER', 'WITHER_SKELETON': 'MONSTER', 'PLAYER': 'MISC'}
+    _cat = _ET_CATS.get(_m.group(1), "MISC")
+    _s = _s.replace(_m.group(0), _m.group(0).replace(" = null;", ' = pumpkinVanilla("%s", MobCategory.%s);' % (_m.group(1).lower(), _cat)), 1)
 _et_helper = """
 
     // Pumpkin divergence: a vanilla stand-in carries its own name; nothing constructs
     // entities through it, and anything deeper fails loudly on the member it needs.
     @SuppressWarnings({\"unchecked\", \"rawtypes\"})
-    private static <T extends Entity> EntityType<T> pumpkinVanilla(String name) {
+    private static <T extends Entity> EntityType<T> pumpkinVanilla(String name, MobCategory category) {
         EntityType type = new EntityType();
         type.pumpkinVanillaName = name;
+        type.pumpkinCategory = category;
         return type;
     }
 """
@@ -3785,6 +3788,543 @@ edit('net/neoforged/neoforge/registries/DeferredRegister.java', [
 edit('net/minecraft/world/level/block/state/BlockBehaviour.java', [
     ('        private ToIntFunction<BlockState> lightEmission;',
      "        // Pumpkin divergence: public, as NeoForge's access transformer makes it --\n        // Mekanism writes light levels straight onto the field.\n        public ToIntFunction<BlockState> lightEmission;"),
+])
+
+edit('net/minecraft/world/level/block/Block.java', [
+    ('    protected final StateDefinition<Block, BlockState> stateDefinition = null;',
+     '    // Pumpkin divergence: assigned, not null-final -- Mekanism reads the field\n    // directly in its constructors (stateDefinition.any()).\n    protected StateDefinition<Block, BlockState> stateDefinition;'),
+])
+
+edit('net/minecraft/world/level/block/Block.java', [
+    ('        this.pumpkinDeclaredProperties = builder.pumpkinProperties();\n    }',
+     '        this.pumpkinDeclaredProperties = builder.pumpkinProperties();\n        this.stateDefinition = getStateDefinition();\n    }'),
+])
+
+edit('net/minecraft/world/level/block/TntBlock.java', [
+    ('    protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {\n        throw Unimplemented.forMember("net/minecraft/world/level/block/TntBlock.createBlockStateDefinition:(Lnet/minecraft/world/level/block/state/StateDefinition$Builder;)V");\n    }',
+     '    // Pumpkin divergence: vanilla body -- tnt is its fuse-stability flag. The constant\n    // is declared here because the pruned BlockStateProperties does not carry it; the\n    // name and values are vanilla\'s own.\n    public static final net.minecraft.world.level.block.state.properties.BooleanProperty UNSTABLE =\n            net.minecraft.world.level.block.state.properties.BooleanProperty.create("unstable");\n\n    protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {\n        builder.add(UNSTABLE);\n    }'),
+])
+
+edit('net/neoforged/neoforge/registries/DeferredRegister.java', [
+    ('        return joined.toString();\n    }',
+     "        // The block's declared default rides behind '@': registerDefaultState picks\n        // non-first values (a machine registers inactive), and without this the server\n        // would place every such block in its all-first-values state.\n        StringBuilder defaults = new StringBuilder();\n        for (java.util.Map.Entry<net.minecraft.world.level.block.state.properties.Property<?>, Comparable<?>> entry\n                : block.defaultBlockState().pumpkinValues.entrySet()) {\n            if (defaults.length() > 0) {\n                defaults.append(',');\n            }\n            Comparable<?> value = entry.getValue();\n            String spelled = value instanceof net.minecraft.util.StringRepresentable representable\n                    ? representable.getSerializedName()\n                    : String.valueOf(value);\n            defaults.append(entry.getKey().pumpkinName).append('=').append(spelled);\n        }\n        if (defaults.length() > 0) {\n            joined.append('@').append(defaults);\n        }\n        return joined.toString();\n    }"),
+])
+
+edit('net/minecraft/world/level/block/state/BlockBehaviour.java', [
+    ('        public Holder<Block> typeHolder() {\n            throw Unimplemented.forMember("net/minecraft/world/level/block/state/BlockBehaviour$BlockStateBase.typeHolder:()Lnet/minecraft/core/Holder;");\n        }',
+     "        // Pumpkin divergence: real body -- the owning block's holder, whose value() and\n        // is(TagKey) already answer; mods key their attribute maps by it.\n        public Holder<Block> typeHolder() {\n            return getBlock().builtInRegistryHolder();\n        }"),
+])
+
+edit('net/neoforged/neoforge/registries/DeferredHolder.java', [
+    ('    public T get() {\n        if (pumpkinValue == null) {\n            pumpkinValue = pumpkinFactory.get();\n        }\n        return pumpkinValue;\n    }',
+     '    @SuppressWarnings("unchecked")\n    public T get() {\n        if (pumpkinValue == null) {\n            if (pumpkinFactory == null) {\n                // A holder a mod constructed directly, expecting registry lookup: the\n                // target registered through its own holder, recorded under registry|id.\n                if (pumpkinKey == null) {\n                    throw new IllegalStateException(pumpkinId + " has no factory and no registry to look itself up in");\n                }\n                DeferredHolder<?, ?> target = PUMPKIN_BY_ID.get(pumpkinKey.pumpkinRegistry() + "|" + pumpkinId);\n                if (target == null || target == this) {\n                    throw new IllegalStateException(pumpkinId + " was never registered; a holder"\n                            + " created by key can only resolve after its target registers");\n                }\n                return (T) target.get();\n            }\n            pumpkinValue = pumpkinFactory.get();\n        }\n        return pumpkinValue;\n    }'),
+])
+
+edit('net/minecraft/core/HolderGetter.java', [
+    ('        default <T> Optional<Holder.Reference<T>> get(ResourceKey<T> id) {\n            throw Unimplemented.forMember("net/minecraft/core/HolderGetter$Provider.get:(Lnet/minecraft/resources/ResourceKey;)Ljava/util/Optional;");\n        }',
+     "        // Pumpkin divergence: absent, truthfully -- no registry lookup provider exists\n        // on this side, and Optional is the interface's own way to say so. Mods skip\n        // the content they would have resolved (creative-tab decoration, mostly).\n        default <T> Optional<Holder.Reference<T>> get(ResourceKey<T> id) {\n            return java.util.Optional.empty();\n        }"),
+])
+
+edit('net/minecraft/world/level/block/state/BlockBehaviour.java', [
+    ('        public static BlockBehaviour.Properties ofLegacyCopy(BlockBehaviour block) {\n            throw Unimplemented.forMember("net/minecraft/world/level/block/state/BlockBehaviour$Properties.ofLegacyCopy:(Lnet/minecraft/world/level/block/state/BlockBehaviour;)Lnet/minecraft/world/level/block/state/BlockBehaviour$Properties;");\n        }',
+     '        // Pumpkin divergence: like ofFullCopy -- the template survives the copy.\n        public static BlockBehaviour.Properties ofLegacyCopy(BlockBehaviour block) {\n            Properties properties = new Properties();\n            if (block instanceof net.minecraft.world.level.block.Block source) {\n                properties.pumpkinTemplate = source.pumpkinTemplate();\n            }\n            return properties;\n        }'),
+])
+
+edit('net/minecraft/world/level/block/CrossCollisionBlock.java', [
+    ('public abstract class CrossCollisionBlock extends Block implements SimpleWaterloggedBlock {\n',
+     'public abstract class CrossCollisionBlock extends Block implements SimpleWaterloggedBlock {\n\n    // Pumpkin divergence: vanilla\'s own connection properties, declared here because\n    // the pruned class dropped them and fences declare through them.\n    public static final net.minecraft.world.level.block.state.properties.BooleanProperty NORTH =\n            net.minecraft.world.level.block.state.properties.BooleanProperty.create("north");\n\n    public static final net.minecraft.world.level.block.state.properties.BooleanProperty EAST =\n            net.minecraft.world.level.block.state.properties.BooleanProperty.create("east");\n\n    public static final net.minecraft.world.level.block.state.properties.BooleanProperty SOUTH =\n            net.minecraft.world.level.block.state.properties.BooleanProperty.create("south");\n\n    public static final net.minecraft.world.level.block.state.properties.BooleanProperty WEST =\n            net.minecraft.world.level.block.state.properties.BooleanProperty.create("west");\n\n    public static final net.minecraft.world.level.block.state.properties.BooleanProperty WATERLOGGED =\n            net.minecraft.world.level.block.state.properties.BooleanProperty.create("waterlogged");\n'),
+])
+
+edit('net/minecraft/world/level/block/FenceBlock.java', [
+    ('    protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {\n        throw Unimplemented.forMember("net/minecraft/world/level/block/FenceBlock.createBlockStateDefinition:(Lnet/minecraft/world/level/block/state/StateDefinition$Builder;)V");\n    }',
+     '    // Pumpkin divergence: vanilla body -- the four connections and waterlogging.\n    protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {\n        builder.add(CrossCollisionBlock.NORTH, CrossCollisionBlock.EAST,\n                CrossCollisionBlock.SOUTH, CrossCollisionBlock.WEST,\n                CrossCollisionBlock.WATERLOGGED);\n    }'),
+])
+
+edit('net/neoforged/neoforge/common/util/Lazy.java', [
+    ('    public static <T> Lazy<T> of(Supplier<T> supplier) {\n        throw Unimplemented.forMember("net/neoforged/neoforge/common/util/Lazy.of:(Ljava/util/function/Supplier;)Lnet/neoforged/neoforge/common/util/Lazy;");\n    }',
+     '    // Pumpkin divergence: the real thing -- memoize on first get.\n    public static <T> Lazy<T> of(Supplier<T> supplier) {\n        return new Lazy<T>() {\n            private T value;\n            private boolean resolved;\n\n            @Override\n            public T get() {\n                if (!resolved) {\n                    value = supplier.get();\n                    resolved = true;\n                }\n                return value;\n            }\n        };\n    }'),
+])
+
+edit('net/minecraft/world/level/block/FenceGateBlock.java', [
+    ('    protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {\n        throw Unimplemented.forMember("net/minecraft/world/level/block/FenceGateBlock.createBlockStateDefinition:(Lnet/minecraft/world/level/block/state/StateDefinition$Builder;)V");\n    }',
+     '    // Pumpkin divergence: vanilla\'s declarations, constants local because the pruned\n    // shared holders dropped them.\n    public static final net.minecraft.world.level.block.state.properties.BooleanProperty OPEN =\n            net.minecraft.world.level.block.state.properties.BooleanProperty.create("open");\n\n    public static final net.minecraft.world.level.block.state.properties.BooleanProperty POWERED =\n            net.minecraft.world.level.block.state.properties.BooleanProperty.create("powered");\n\n    public static final net.minecraft.world.level.block.state.properties.BooleanProperty IN_WALL =\n            net.minecraft.world.level.block.state.properties.BooleanProperty.create("in_wall");\n\n    protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {\n        builder.add(net.minecraft.world.level.block.state.properties.BlockStateProperties.HORIZONTAL_FACING,\n                OPEN, POWERED, IN_WALL);\n    }'),
+])
+
+edit('net/neoforged/neoforge/common/util/Lazy.java', [
+    ('    // Pumpkin divergence: the real thing -- memoize on first get.\n    public static <T> Lazy<T> of(Supplier<T> supplier) {\n        return new Lazy<T>() {\n            private T value;\n            private boolean resolved;\n\n            @Override\n            public T get() {\n                if (!resolved) {\n                    value = supplier.get();\n                    resolved = true;\n                }\n                return value;\n            }\n        };\n    }',
+     '    // Pumpkin divergence: the real thing -- memoize on first get.\n    private Supplier<T> pumpkinSupplier;\n\n    private T pumpkinValue;\n\n    private boolean pumpkinResolved;\n\n    public static <T> Lazy<T> of(Supplier<T> supplier) {\n        Lazy<T> lazy = new Lazy<>();\n        lazy.pumpkinSupplier = supplier;\n        return lazy;\n    }'),
+    ('    public T get() {\n        throw Unimplemented.forMember("net/neoforged/neoforge/common/util/Lazy.get:()Ljava/lang/Object;");\n    }',
+     '    public T get() {\n        if (!pumpkinResolved) {\n            pumpkinValue = pumpkinSupplier.get();\n            pumpkinResolved = true;\n        }\n        return pumpkinValue;\n    }'),
+])
+
+edit('net/minecraft/world/entity/EntityType.java', [
+    ('    public MobCategory getCategory() {\n        throw Unimplemented.forMember("net/minecraft/world/entity/EntityType.getCategory:()Lnet/minecraft/world/entity/MobCategory;");\n    }',
+     '    // Pumpkin divergence: real field -- set by the constructors and by EntityTypes\'\n    // stand-ins, whose categories are vanilla\'s own.\n    public MobCategory pumpkinCategory;\n\n    public MobCategory getCategory() {\n        if (pumpkinCategory == null) {\n            throw Unimplemented.forMember("net/minecraft/world/entity/EntityType.getCategory (no category recorded)");\n        }\n        return pumpkinCategory;\n    }'),
+])
+
+
+# EntityType constructors record the category.
+_p = os.path.join(ROOT, "net/minecraft/world/entity/EntityType.java")
+_s = PENDING.get(_p) or open(_p).read()
+_s = re.sub(r"(public EntityType\(EntityType\.EntityFactory<T> factory, MobCategory category[^)]*\) \{)\n(\s*\})",
+            r"\1\n        this.pumpkinCategory = category;\n\2", _s)
+PENDING[_p] = _s
+
+edit('net/minecraft/world/entity/EntityType.java', [
+    ('        public static <T extends Entity> EntityType.Builder<T> of(EntityType.EntityFactory<T> factory, MobCategory category) {\n            throw Unimplemented.forMember("net/minecraft/world/entity/EntityType$Builder.of:(Lnet/minecraft/world/entity/EntityType$EntityFactory;Lnet/minecraft/world/entity/MobCategory;)Lnet/minecraft/world/entity/EntityType$Builder;");\n        }',
+     '        // Pumpkin divergence: real chain -- the category is the fact registration\n        // reads back; presentation knobs accept and drop.\n        MobCategory pumpkinCategory;\n\n        public static <T extends Entity> EntityType.Builder<T> of(EntityType.EntityFactory<T> factory, MobCategory category) {\n            Builder<T> builder = new Builder<>();\n            builder.pumpkinCategory = category;\n            return builder;\n        }'),
+])
+
+edit('net/minecraft/world/entity/EntityType.java', [
+    ('        public EntityType<T> build(ResourceKey<EntityType<?>> name) {\n            throw Unimplemented.forMember("net/minecraft/world/entity/EntityType$Builder.build:(Lnet/minecraft/resources/ResourceKey;)Lnet/minecraft/world/entity/EntityType;");\n        }',
+     '        @SuppressWarnings({"unchecked", "rawtypes"})\n        public EntityType<T> build(ResourceKey<EntityType<?>> name) {\n            EntityType type = new EntityType();\n            type.pumpkinCategory = pumpkinCategory;\n            return type;\n        }'),
+])
+
+edit('net/minecraft/world/item/equipment/ArmorMaterial.java', [
+    ('    public ItemAttributeModifiers createAttributes(ArmorType type) {\n        throw Unimplemented.forMember("net/minecraft/world/item/equipment/ArmorMaterial.createAttributes:(Lnet/minecraft/world/item/equipment/ArmorType;)Lnet/minecraft/world/item/component/ItemAttributeModifiers;");\n    }',
+     '    // Pumpkin divergence: the built component is declared metadata the Rust side does\n    // not consume; the mod only needs the call to complete while registering items.\n    public ItemAttributeModifiers createAttributes(ArmorType type) {\n        return ItemAttributeModifiers.builder().build();\n    }'),
+])
+
+
+# EntityType.Builder chains: presentation knobs accept and drop.
+_p = os.path.join(ROOT, "net/minecraft/world/entity/EntityType.java")
+_s = PENDING.get(_p) or open(_p).read()
+_s = re.sub(r"        public EntityType\.Builder<T> (\w+)\(([^)]*)\) \{\n            throw Unimplemented[^\n]+\n        \}",
+            lambda m2: "        public EntityType.Builder<T> " + m2.group(1) + "(" + m2.group(2) + ") {\n            return this;\n        }", _s)
+PENDING[_p] = _s
+
+edit('net/minecraft/network/codec/StreamCodec.java', [
+    ('    default <U> StreamCodec<B, U> dispatch(Function<? super U, ? extends V> type, Function<? super V, ? extends StreamCodec<? super B, ? extends U>> codec) {\n        throw Unimplemented.forMember("net/minecraft/network/codec/StreamCodec.dispatch:(Ljava/util/function/Function;Ljava/util/function/Function;)Lnet/minecraft/network/codec/StreamCodec;");\n    }',
+     '    default <U> StreamCodec<B, U> dispatch(Function<? super U, ? extends V> type, Function<? super V, ? extends StreamCodec<? super B, ? extends U>> codec) {\n        // Pumpkin divergence: composes inert -- Pumpkin never encodes packets through\n        // mod stream codecs, so the composed codec throws its member key on first use.\n        return dev.pumpkin.shim.Stubs.of(StreamCodec.class,\n            "net/minecraft/network/codec/StreamCodec.dispatch:(Ljava/util/function/Function;Ljava/util/function/Function;)Lnet/minecraft/network/codec/StreamCodec;");\n    }'),
+])
+
+edit('net/minecraft/world/entity/EntityType.java', [
+    ('    public boolean canSerialize() {\n        throw Unimplemented.forMember("net/minecraft/world/entity/EntityType.canSerialize:()Z");\n    }',
+     "    // Pumpkin divergence: truthful -- vanilla's flag is Builder.noSave(); the builder\n    // records it and build() carries it here.\n    public boolean pumpkinSerialize = true;\n\n    public boolean canSerialize() {\n        return pumpkinSerialize;\n    }"),
+])
+
+edit('net/minecraft/world/entity/EntityType.java', [
+    ('        public EntityType.Builder<T> noSave() {\n            return this;\n        }',
+     '        boolean pumpkinSerialize = true;\n\n        public EntityType.Builder<T> noSave() {\n            pumpkinSerialize = false;\n            return this;\n        }'),
+])
+
+edit('net/minecraft/world/entity/EntityType.java', [
+    ('            type.pumpkinCategory = pumpkinCategory;',
+     '            type.pumpkinCategory = pumpkinCategory;\n            type.pumpkinSerialize = pumpkinSerialize;'),
+])
+
+edit('net/minecraft/network/codec/StreamCodec.java', [
+    ('    default <S extends B> StreamCodec<S, V> cast() {\n        throw Unimplemented.forMember("net/minecraft/network/codec/StreamCodec.cast:()Lnet/minecraft/network/codec/StreamCodec;");\n    }',
+     '    @SuppressWarnings("unchecked")\n    default <S extends B> StreamCodec<S, V> cast() {\n        return (StreamCodec<S, V>) this;\n    }'),
+])
+
+edit('net/minecraft/world/entity/EntityType.java', [
+    ('    public boolean canSummon() {\n        throw Unimplemented.forMember("net/minecraft/world/entity/EntityType.canSummon:()Z");\n    }',
+     '    public boolean pumpkinSummon = true;\n\n    public boolean canSummon() {\n        return pumpkinSummon;\n    }'),
+])
+
+edit('net/minecraft/world/entity/EntityType.java', [
+    ('        public EntityType.Builder<T> noSummon() {\n            return this;\n        }',
+     '        boolean pumpkinSummon = true;\n\n        public EntityType.Builder<T> noSummon() {\n            pumpkinSummon = false;\n            return this;\n        }'),
+])
+
+edit('net/minecraft/world/entity/EntityType.java', [
+    ('            type.pumpkinSerialize = pumpkinSerialize;',
+     '            type.pumpkinSerialize = pumpkinSerialize;\n            type.pumpkinSummon = pumpkinSummon;'),
+])
+
+edit('net/minecraft/stats/Stats.java', [
+    ('public class Stats {\n\n    public static final StatType<Item> ITEM_CRAFTED = null;\n\n    public static final StatType<Item> ITEM_USED = null;\n\n    public static final StatType<Identifier> CUSTOM = null;\n\n    public static final Identifier DAMAGE_BLOCKED_BY_SHIELD = null;\n\n    public static final Identifier FILL_CAULDRON = null;\n\n    public static final Identifier USE_CAULDRON = null;\n\n    public static final Identifier OPEN_CHEST = null;\n\n    public static final Identifier OPEN_BARREL = null;\n\n    public Stats() {\n    }\n\n    static {\n        if (true) {\n            throw Unimplemented.forMember("net/minecraft/stats/Stats");\n        }\n    }\n}\n',
+     'public class Stats {\n\n    // Pumpkin divergence: StatType instances are inert stand-ins (every method throws\n    // by member key); the Identifier constants are the real vanilla stat names.\n    public static final StatType<Item> ITEM_CRAFTED = new StatType<>();\n\n    public static final StatType<Item> ITEM_USED = new StatType<>();\n\n    public static final StatType<Identifier> CUSTOM = new StatType<>();\n\n    public static final Identifier DAMAGE_BLOCKED_BY_SHIELD = Identifier.withDefaultNamespace("damage_blocked_by_shield");\n\n    public static final Identifier FILL_CAULDRON = Identifier.withDefaultNamespace("fill_cauldron");\n\n    public static final Identifier USE_CAULDRON = Identifier.withDefaultNamespace("use_cauldron");\n\n    public static final Identifier OPEN_CHEST = Identifier.withDefaultNamespace("open_chest");\n\n    public static final Identifier OPEN_BARREL = Identifier.withDefaultNamespace("open_barrel");\n\n    public Stats() {\n    }\n}\n'),
+    ('import dev.pumpkin.shim.Unimplemented;\n', ''),
+])
+
+edit('net/minecraft/network/chat/Style.java', [
+    ('    public static final Style EMPTY = null;\n\n    private Style(TextColor color, Integer shadowColor, Boolean bold, Boolean italic, Boolean underlined, Boolean strikethrough, Boolean obfuscated, ClickEvent clickEvent, HoverEvent hoverEvent, String insertion, FontDescription font) {\n    }',
+     '    // Pumpkin divergence: a style really is just data -- the ctor stores it and the\n    // getters answer from it.\n    final TextColor pumpkinColor;\n    final Integer pumpkinShadowColor;\n    final Boolean pumpkinBold;\n    final Boolean pumpkinItalic;\n    final Boolean pumpkinUnderlined;\n    final Boolean pumpkinStrikethrough;\n    final Boolean pumpkinObfuscated;\n    final ClickEvent pumpkinClickEvent;\n    final HoverEvent pumpkinHoverEvent;\n    final String pumpkinInsertion;\n    final FontDescription pumpkinFont;\n\n    public static final Style EMPTY = new Style(null, null, null, null, null, null, null, null, null, null, null);\n\n    private Style(TextColor color, Integer shadowColor, Boolean bold, Boolean italic, Boolean underlined, Boolean strikethrough, Boolean obfuscated, ClickEvent clickEvent, HoverEvent hoverEvent, String insertion, FontDescription font) {\n        this.pumpkinColor = color;\n        this.pumpkinShadowColor = shadowColor;\n        this.pumpkinBold = bold;\n        this.pumpkinItalic = italic;\n        this.pumpkinUnderlined = underlined;\n        this.pumpkinStrikethrough = strikethrough;\n        this.pumpkinObfuscated = obfuscated;\n        this.pumpkinClickEvent = clickEvent;\n        this.pumpkinHoverEvent = hoverEvent;\n        this.pumpkinInsertion = insertion;\n        this.pumpkinFont = font;\n    }'),
+    ('    public TextColor getColor() {\n        throw Unimplemented.forMember("net/minecraft/network/chat/Style.getColor:()Lnet/minecraft/network/chat/TextColor;");\n    }',
+     '    public TextColor getColor() {\n        return pumpkinColor;\n    }'),
+    ('    public boolean isBold() {\n        throw Unimplemented.forMember("net/minecraft/network/chat/Style.isBold:()Z");\n    }',
+     '    public boolean isBold() {\n        return pumpkinBold == Boolean.TRUE;\n    }'),
+    ('    public boolean isItalic() {\n        throw Unimplemented.forMember("net/minecraft/network/chat/Style.isItalic:()Z");\n    }',
+     '    public boolean isItalic() {\n        return pumpkinItalic == Boolean.TRUE;\n    }'),
+    ('    public boolean isStrikethrough() {\n        throw Unimplemented.forMember("net/minecraft/network/chat/Style.isStrikethrough:()Z");\n    }',
+     '    public boolean isStrikethrough() {\n        return pumpkinStrikethrough == Boolean.TRUE;\n    }'),
+    ('    public boolean isUnderlined() {\n        throw Unimplemented.forMember("net/minecraft/network/chat/Style.isUnderlined:()Z");\n    }',
+     '    public boolean isUnderlined() {\n        return pumpkinUnderlined == Boolean.TRUE;\n    }'),
+    ('    public boolean isObfuscated() {\n        throw Unimplemented.forMember("net/minecraft/network/chat/Style.isObfuscated:()Z");\n    }',
+     '    public boolean isObfuscated() {\n        return pumpkinObfuscated == Boolean.TRUE;\n    }'),
+    ('    public boolean isEmpty() {\n        throw Unimplemented.forMember("net/minecraft/network/chat/Style.isEmpty:()Z");\n    }',
+     '    public boolean isEmpty() {\n        return this.equals(EMPTY);\n    }'),
+    ('    public ClickEvent getClickEvent() {\n        throw Unimplemented.forMember("net/minecraft/network/chat/Style.getClickEvent:()Lnet/minecraft/network/chat/ClickEvent;");\n    }',
+     '    public ClickEvent getClickEvent() {\n        return pumpkinClickEvent;\n    }'),
+    ('    public HoverEvent getHoverEvent() {\n        throw Unimplemented.forMember("net/minecraft/network/chat/Style.getHoverEvent:()Lnet/minecraft/network/chat/HoverEvent;");\n    }',
+     '    public HoverEvent getHoverEvent() {\n        return pumpkinHoverEvent;\n    }'),
+    ('    public Style withColor(TextColor color) {\n        throw Unimplemented.forMember("net/minecraft/network/chat/Style.withColor:(Lnet/minecraft/network/chat/TextColor;)Lnet/minecraft/network/chat/Style;");\n    }',
+     '    public Style withColor(TextColor color) {\n        return new Style(color, pumpkinShadowColor, pumpkinBold, pumpkinItalic, pumpkinUnderlined, pumpkinStrikethrough, pumpkinObfuscated, pumpkinClickEvent, pumpkinHoverEvent, pumpkinInsertion, pumpkinFont);\n    }'),
+    ('    public Style withColor(int color) {\n        throw Unimplemented.forMember("net/minecraft/network/chat/Style.withColor:(I)Lnet/minecraft/network/chat/Style;");\n    }',
+     '    public Style withColor(int color) {\n        return withColor(TextColor.fromRgb(color));\n    }'),
+    ('    public Style withClickEvent(ClickEvent clickEvent) {\n        throw Unimplemented.forMember("net/minecraft/network/chat/Style.withClickEvent:(Lnet/minecraft/network/chat/ClickEvent;)Lnet/minecraft/network/chat/Style;");\n    }',
+     '    public Style withClickEvent(ClickEvent clickEvent) {\n        return new Style(pumpkinColor, pumpkinShadowColor, pumpkinBold, pumpkinItalic, pumpkinUnderlined, pumpkinStrikethrough, pumpkinObfuscated, clickEvent, pumpkinHoverEvent, pumpkinInsertion, pumpkinFont);\n    }'),
+    ('    public Style withHoverEvent(HoverEvent hoverEvent) {\n        throw Unimplemented.forMember("net/minecraft/network/chat/Style.withHoverEvent:(Lnet/minecraft/network/chat/HoverEvent;)Lnet/minecraft/network/chat/Style;");\n    }',
+     '    public Style withHoverEvent(HoverEvent hoverEvent) {\n        return new Style(pumpkinColor, pumpkinShadowColor, pumpkinBold, pumpkinItalic, pumpkinUnderlined, pumpkinStrikethrough, pumpkinObfuscated, pumpkinClickEvent, hoverEvent, pumpkinInsertion, pumpkinFont);\n    }'),
+    ('    public boolean equals(Object o) {\n        throw Unimplemented.forMember("net/minecraft/network/chat/Style.equals:(Ljava/lang/Object;)Z");\n    }',
+     '    public boolean equals(Object o) {\n        if (this == o) {\n            return true;\n        }\n        if (!(o instanceof Style other)) {\n            return false;\n        }\n        return java.util.Objects.equals(pumpkinColor, other.pumpkinColor)\n            && java.util.Objects.equals(pumpkinShadowColor, other.pumpkinShadowColor)\n            && java.util.Objects.equals(pumpkinBold, other.pumpkinBold)\n            && java.util.Objects.equals(pumpkinItalic, other.pumpkinItalic)\n            && java.util.Objects.equals(pumpkinUnderlined, other.pumpkinUnderlined)\n            && java.util.Objects.equals(pumpkinStrikethrough, other.pumpkinStrikethrough)\n            && java.util.Objects.equals(pumpkinObfuscated, other.pumpkinObfuscated)\n            && java.util.Objects.equals(pumpkinClickEvent, other.pumpkinClickEvent)\n            && java.util.Objects.equals(pumpkinHoverEvent, other.pumpkinHoverEvent)\n            && java.util.Objects.equals(pumpkinInsertion, other.pumpkinInsertion)\n            && java.util.Objects.equals(pumpkinFont, other.pumpkinFont);\n    }'),
+    ('    public int hashCode() {\n        throw Unimplemented.forMember("net/minecraft/network/chat/Style.hashCode:()I");\n    }',
+     '    public int hashCode() {\n        return java.util.Objects.hash(pumpkinColor, pumpkinShadowColor, pumpkinBold, pumpkinItalic, pumpkinUnderlined, pumpkinStrikethrough, pumpkinObfuscated, pumpkinClickEvent, pumpkinHoverEvent, pumpkinInsertion, pumpkinFont);\n    }'),
+    ('    public Style() {\n    }',
+     '    public Style() {\n        this(null, null, null, null, null, null, null, null, null, null, null);\n    }'),
+])
+
+edit('net/minecraft/world/entity/EntityType.java', [
+    ('    private final boolean fireImmune = false;',
+     '    boolean fireImmune = false;'),
+    ('    public boolean fireImmune() {\n        throw Unimplemented.forMember("net/minecraft/world/entity/EntityType.fireImmune:()Z");\n    }',
+     '    public boolean fireImmune() {\n        return fireImmune;\n    }'),
+    ('        public EntityType.Builder<T> fireImmune() {\n            return this;\n        }',
+     '        public EntityType.Builder<T> fireImmune() {\n            fireImmune = true;\n            return this;\n        }'),
+    ('            type.pumpkinSummon = pumpkinSummon;',
+     '            type.pumpkinSummon = pumpkinSummon;\n            type.fireImmune = fireImmune;'),
+])
+
+edit('net/minecraft/world/entity/EntityTypes.java', [
+    ('    public static final EntityType<WitherSkeleton> WITHER_SKELETON = pumpkinVanilla("wither_skeleton", MobCategory.MONSTER);',
+     '    public static final EntityType<WitherSkeleton> WITHER_SKELETON = pumpkinVanillaFireImmune("wither_skeleton", MobCategory.MONSTER);\n\n    // Pumpkin divergence: vanilla fact -- these mobs are fire immune.\n    private static <T extends Entity> EntityType<T> pumpkinVanillaFireImmune(String name, MobCategory category) {\n        EntityType<T> type = pumpkinVanilla(name, category);\n        type.fireImmune = true;\n        return type;\n    }'),
+])
+
+edit('net/minecraft/network/chat/MutableComponent.java', [
+    ('    private String pumpkinText = "";',
+     '    private String pumpkinText = "";\n\n    // Pumpkin divergence: the style is data the component carries; nothing renders it\n    // server-side, but mods compose and re-read it while building names.\n    private Style pumpkinStyle = Style.EMPTY;'),
+    ('    public MutableComponent setStyle(Style style) {\n        throw Unimplemented.forMember("net/minecraft/network/chat/MutableComponent.setStyle:(Lnet/minecraft/network/chat/Style;)Lnet/minecraft/network/chat/MutableComponent;");\n    }',
+     '    public MutableComponent setStyle(Style style) {\n        this.pumpkinStyle = style;\n        return this;\n    }'),
+    ('    public Style getStyle() {\n        throw Unimplemented.forMember("net/minecraft/network/chat/MutableComponent.getStyle:()Lnet/minecraft/network/chat/Style;");\n    }',
+     '    public Style getStyle() {\n        return pumpkinStyle;\n    }'),
+    ('    public MutableComponent append(Component component) {\n        throw Unimplemented.forMember("net/minecraft/network/chat/MutableComponent.append:(Lnet/minecraft/network/chat/Component;)Lnet/minecraft/network/chat/MutableComponent;");\n    }',
+     "    // Pumpkin divergence: appends the sibling's text; the sibling's own style is\n    // presentation the flat text cannot carry -- dropped, not misread.\n    public MutableComponent append(Component component) {\n        if (component instanceof MutableComponent mutable) {\n            pumpkinText = pumpkinText + mutable.pumpkinText;\n            return this;\n        }\n        pumpkinText = pumpkinText + component.getString();\n        return this;\n    }"),
+    ('    public MutableComponent withStyle(Style patch) {\n        throw Unimplemented.forMember("net/minecraft/network/chat/MutableComponent.withStyle:(Lnet/minecraft/network/chat/Style;)Lnet/minecraft/network/chat/MutableComponent;");\n    }',
+     '    // Pumpkin divergence: vanilla applies the patch only where this style is unset;\n    // with color the sole style fact Pumpkin stores, that is what this implements.\n    public MutableComponent withStyle(Style patch) {\n        if (pumpkinStyle.getColor() == null && patch.getColor() != null) {\n            pumpkinStyle = pumpkinStyle.withColor(patch.getColor());\n        }\n        return this;\n    }'),
+])
+
+edit('net/minecraft/network/chat/Component.java', [
+    ('    default MutableComponent copy() {\n        throw Unimplemented.forMember("net/minecraft/network/chat/Component.copy:()Lnet/minecraft/network/chat/MutableComponent;");\n    }',
+     '    // Pumpkin divergence: real for the text-carrying components Pumpkin builds;\n    // anything else has no data to copy and fails loudly.\n    default MutableComponent copy() {\n        if (this instanceof MutableComponent mutable) {\n            MutableComponent copy = MutableComponent.pumpkinOf(mutable.pumpkinText());\n            copy.setStyle(mutable.getStyle());\n            return copy;\n        }\n        throw Unimplemented.forMember("net/minecraft/network/chat/Component.copy:()Lnet/minecraft/network/chat/MutableComponent;");\n    }'),
+])
+
+edit('net/minecraft/world/entity/EntityType.java', [
+    ('    private final boolean canSpawnFarFromPlayer = false;',
+     '    boolean canSpawnFarFromPlayer;'),
+    ('    public boolean canSpawnFarFromPlayer() {\n        throw Unimplemented.forMember("net/minecraft/world/entity/EntityType.canSpawnFarFromPlayer:()Z");\n    }',
+     '    public boolean canSpawnFarFromPlayer() {\n        return canSpawnFarFromPlayer;\n    }'),
+    ('            builder.pumpkinCategory = category;\n            return builder;',
+     '            builder.pumpkinCategory = category;\n            builder.canSpawnFarFromPlayer = category == MobCategory.CREATURE || category == MobCategory.MISC;\n            return builder;'),
+    ('        public EntityType.Builder<T> canSpawnFarFromPlayer() {\n            return this;\n        }',
+     '        public EntityType.Builder<T> canSpawnFarFromPlayer() {\n            canSpawnFarFromPlayer = true;\n            return this;\n        }'),
+    ('            type.fireImmune = fireImmune;',
+     '            type.fireImmune = fireImmune;\n            type.canSpawnFarFromPlayer = canSpawnFarFromPlayer;'),
+])
+
+edit('net/minecraft/world/entity/EntityTypes.java', [
+    ('        type.pumpkinCategory = category;\n        return type;',
+     '        type.pumpkinCategory = category;\n        type.canSpawnFarFromPlayer = category == MobCategory.CREATURE || category == MobCategory.MISC;\n        return type;'),
+])
+
+edit('net/minecraft/network/chat/TextColor.java', [
+    ('    public boolean equals(Object o) {\n        throw Unimplemented.forMember("net/minecraft/network/chat/TextColor.equals:(Ljava/lang/Object;)Z");\n    }',
+     '    public boolean equals(Object o) {\n        return o instanceof TextColor other && other.pumpkinValue == pumpkinValue;\n    }'),
+    ('    public int hashCode() {\n        throw Unimplemented.forMember("net/minecraft/network/chat/TextColor.hashCode:()I");\n    }',
+     '    public int hashCode() {\n        return Integer.hashCode(pumpkinValue);\n    }'),
+    ('    public String toString() {\n        throw Unimplemented.forMember("net/minecraft/network/chat/TextColor.toString:()Ljava/lang/String;");\n    }',
+     '    public String toString() {\n        return String.format("#%06X", pumpkinValue);\n    }'),
+])
+
+edit('net/minecraft/world/entity/EntityType.java', [
+    ('    public boolean onlyOpCanSetNbt() {\n        throw Unimplemented.forMember("net/minecraft/world/entity/EntityType.onlyOpCanSetNbt:()Z");\n    }',
+     '    public boolean pumpkinOnlyOpCanSetNbt;\n\n    public boolean onlyOpCanSetNbt() {\n        return pumpkinOnlyOpCanSetNbt;\n    }'),
+    ('        public EntityType.Builder<T> setOnlyOpCanSetNbt(boolean onlyOpCanSetNbt) {\n            return this;\n        }',
+     '        boolean pumpkinOnlyOpCanSetNbt;\n\n        public EntityType.Builder<T> setOnlyOpCanSetNbt(boolean onlyOpCanSetNbt) {\n            pumpkinOnlyOpCanSetNbt = onlyOpCanSetNbt;\n            return this;\n        }'),
+    ('            type.canSpawnFarFromPlayer = canSpawnFarFromPlayer;',
+     '            type.canSpawnFarFromPlayer = canSpawnFarFromPlayer;\n            type.pumpkinOnlyOpCanSetNbt = pumpkinOnlyOpCanSetNbt;'),
+])
+
+edit('net/minecraft/world/item/component/Consumable.java', [
+    ('    public static class Builder {\n\n        protected Builder() {\n        }\n\n        public Consumable build() {\n            throw Unimplemented.forMember("net/minecraft/world/item/component/Consumable$Builder.build:()Lnet/minecraft/world/item/component/Consumable;");\n        }\n    }',
+     "    public static class Builder {\n\n        // Pumpkin divergence: real data builder over the record's own fields. The sound\n        // holder stays null until a mod sets one; the record carries what was declared.\n        float pumpkinConsumeSeconds = 1.6F;\n        ItemUseAnimation pumpkinAnimation = ItemUseAnimation.EAT;\n        Holder<SoundEvent> pumpkinSound;\n        boolean pumpkinHasConsumeParticles = true;\n        final java.util.ArrayList<ConsumeEffect> pumpkinEffects = new java.util.ArrayList<>();\n\n        protected Builder() {\n        }\n\n        public Builder consumeSeconds(float seconds) {\n            pumpkinConsumeSeconds = seconds;\n            return this;\n        }\n\n        public Builder animation(ItemUseAnimation animation) {\n            pumpkinAnimation = animation;\n            return this;\n        }\n\n        public Builder sound(Holder<SoundEvent> sound) {\n            pumpkinSound = sound;\n            return this;\n        }\n\n        public Builder soundAfterConsume(Holder<SoundEvent> sound) {\n            return this;\n        }\n\n        public Builder hasConsumeParticles(boolean hasConsumeParticles) {\n            pumpkinHasConsumeParticles = hasConsumeParticles;\n            return this;\n        }\n\n        public Builder onConsume(ConsumeEffect effect) {\n            pumpkinEffects.add(effect);\n            return this;\n        }\n\n        public Consumable build() {\n            return new Consumable(pumpkinConsumeSeconds, pumpkinAnimation, pumpkinSound, pumpkinHasConsumeParticles, List.copyOf(pumpkinEffects));\n        }\n    }"),
+])
+
+edit('net/minecraft/world/item/component/Consumables.java', [
+    ('    public static Consumable.Builder defaultDrink() {\n        throw Unimplemented.forMember("net/minecraft/world/item/component/Consumables.defaultDrink:()Lnet/minecraft/world/item/component/Consumable$Builder;");\n    }',
+     '    // Pumpkin divergence: the vanilla drink defaults, minus the sound holder --\n    // Pumpkin has no SoundEvents.GENERIC_DRINK stand-in yet; null stays null rather\n    // than inventing one.\n    public static Consumable.Builder defaultDrink() {\n        return Consumable.builder().consumeSeconds(1.6F).animation(net.minecraft.world.item.ItemUseAnimation.DRINK).hasConsumeParticles(false);\n    }'),
+])
+
+edit('net/minecraft/world/item/component/Consumable.java', [
+    ('    public static class Builder {\n\n        // Pumpkin divergence:',
+     '    public static Consumable.Builder builder() {\n        return new Builder();\n    }\n\n    public static class Builder {\n\n        // Pumpkin divergence:'),
+])
+
+edit('net/minecraft/core/component/DataComponentType.java', [
+    ('        public DataComponentType.Builder<T> cacheEncoding() {\n            throw Unimplemented.forMember("net/minecraft/core/component/DataComponentType$Builder.cacheEncoding:()Lnet/minecraft/core/component/DataComponentType$Builder;");\n        }',
+     '        // Pumpkin divergence: an encode-speed hint; Pumpkin never encodes mod\n        // components, so there is nothing to cache. Accept and drop.\n        public DataComponentType.Builder<T> cacheEncoding() {\n            return this;\n        }'),
+])
+
+edit('net/minecraft/world/entity/EntityType.java', [
+    ('    public boolean isAllowedInPeaceful() {\n        throw Unimplemented.forMember("net/minecraft/world/entity/EntityType.isAllowedInPeaceful:()Z");\n    }',
+     '    public boolean pumpkinAllowedInPeaceful = true;\n\n    public boolean isAllowedInPeaceful() {\n        return pumpkinAllowedInPeaceful;\n    }'),
+    ('        public EntityType.Builder<T> notInPeaceful() {\n            return this;\n        }',
+     '        boolean pumpkinAllowedInPeaceful = true;\n\n        public EntityType.Builder<T> notInPeaceful() {\n            pumpkinAllowedInPeaceful = false;\n            return this;\n        }'),
+    ('            type.pumpkinOnlyOpCanSetNbt = pumpkinOnlyOpCanSetNbt;',
+     '            type.pumpkinOnlyOpCanSetNbt = pumpkinOnlyOpCanSetNbt;\n            type.pumpkinAllowedInPeaceful = pumpkinAllowedInPeaceful;'),
+])
+
+edit('net/minecraft/core/registries/Registries.java', [
+    ('    public static final ResourceKey<Registry<EntityType<?>>> ENTITY_TYPE = pumpkinRegistryKey("entity_type");',
+     '    public static final ResourceKey<Registry<EntityType<?>>> ENTITY_TYPE = pumpkinRegistryKey("entity_type");\n\n    public static final ResourceKey<Registry<net.minecraft.world.level.storage.loot.LootTable>> LOOT_TABLE = pumpkinRegistryKey("loot_table");'),
+])
+
+edit('net/minecraft/world/entity/EntityType.java', [
+    ('    public Optional<ResourceKey<LootTable>> getDefaultLootTable() {\n        throw Unimplemented.forMember("net/minecraft/world/entity/EntityType.getDefaultLootTable:()Ljava/util/Optional;");\n    }',
+     '    // Pumpkin divergence: vanilla derives entities/<path> from the type\'s own key;\n    // builder-built types carry theirs from build(key), vanilla stand-ins from their\n    // name. A type with neither has no truthful answer and fails loudly.\n    public Optional<ResourceKey<LootTable>> pumpkinLootTable;\n\n    public Optional<ResourceKey<LootTable>> getDefaultLootTable() {\n        if (pumpkinLootTable != null) {\n            return pumpkinLootTable;\n        }\n        if (pumpkinVanillaName != null) {\n            return Optional.of(net.minecraft.resources.ResourceKey.create(\n                net.minecraft.core.registries.Registries.LOOT_TABLE,\n                net.minecraft.resources.Identifier.withDefaultNamespace("entities/" + pumpkinVanillaName)));\n        }\n        throw Unimplemented.forMember("net/minecraft/world/entity/EntityType.getDefaultLootTable:()Ljava/util/Optional;");\n    }'),
+    ('        public EntityType.Builder<T> noLootTable() {\n            return this;\n        }',
+     '        boolean pumpkinNoLootTable;\n\n        public EntityType.Builder<T> noLootTable() {\n            pumpkinNoLootTable = true;\n            return this;\n        }'),
+    ('            type.pumpkinAllowedInPeaceful = pumpkinAllowedInPeaceful;',
+     '            type.pumpkinAllowedInPeaceful = pumpkinAllowedInPeaceful;\n            if (pumpkinNoLootTable) {\n                type.pumpkinLootTable = Optional.empty();\n            } else if (name != null) {\n                type.pumpkinLootTable = Optional.of(net.minecraft.resources.ResourceKey.create(\n                    net.minecraft.core.registries.Registries.LOOT_TABLE,\n                    net.minecraft.resources.Identifier.fromNamespaceAndPath(\n                        name.identifier().getNamespace(), "entities/" + name.identifier().getPath())));\n            }'),
+])
+
+edit('net/neoforged/neoforge/transfer/item/ItemResource.java', [
+    ('    public static ItemResource of(Holder<Item> holder) {\n        throw Unimplemented.forMember("net/neoforged/neoforge/transfer/item/ItemResource.of:(Lnet/minecraft/core/Holder;)Lnet/neoforged/neoforge/transfer/item/ItemResource;");\n    }',
+     '    public static ItemResource of(Holder<Item> holder) {\n        ItemResource resource = new ItemResource();\n        resource.pumpkinItem = holder.value();\n        return resource;\n    }'),
+])
+
+edit('net/minecraft/world/entity/EntityType.java', [
+    ('    public FeatureFlagSet requiredFeatures() {\n        throw Unimplemented.forMember("net/minecraft/world/entity/EntityType.requiredFeatures:()Lnet/minecraft/world/flag/FeatureFlagSet;");\n    }',
+     '    // Pumpkin divergence: every reachable FeatureFlagSet is the empty set (see that\n    // class); the answer is the one set that exists.\n    public FeatureFlagSet requiredFeatures() {\n        return FeatureFlagSet.of();\n    }'),
+])
+
+edit('net/minecraft/world/entity/EntityType.java', [
+    ('        private FeatureFlagSet requiredFeatures;',
+     '        // Pumpkin divergence: NeoForge access-transforms this field public.\n        public FeatureFlagSet requiredFeatures;'),
+])
+
+edit('net/neoforged/neoforge/transfer/access/ItemAccess.java', [
+    ('    default <T> T getCapability(ItemCapability<T, ItemAccess> capability) {\n        throw Unimplemented.forMember("net/neoforged/neoforge/transfer/access/ItemAccess.getCapability:(Lnet/neoforged/neoforge/capabilities/ItemCapability;)Ljava/lang/Object;");\n    }',
+     '    // Pumpkin divergence: truthful absence -- no capability provider is ever\n    // registered with Pumpkin (RegisterCapabilitiesEvent does not accept them), so\n    // every lookup answers null, the NeoForge contract for "no provider".\n    default <T> T getCapability(ItemCapability<T, ItemAccess> capability) {\n        return null;\n    }'),
+])
+
+edit('net/minecraft/world/entity/EntityType.java', [
+    ('    private final TagKey<Block> immuneTo = null;',
+     '    // Pumpkin divergence: NeoForge access-transforms this field public.\n    public TagKey<Block> immuneTo;'),
+    ('        public EntityType.Builder<T> immuneTo(TagKey<Block> tag) {\n            return this;\n        }',
+     '        public EntityType.Builder<T> immuneTo(TagKey<Block> tag) {\n            immuneTo = tag;\n            return this;\n        }'),
+    ('            type.pumpkinAllowedInPeaceful = pumpkinAllowedInPeaceful;\n            if (pumpkinNoLootTable) {',
+     '            type.pumpkinAllowedInPeaceful = pumpkinAllowedInPeaceful;\n            type.immuneTo = immuneTo;\n            if (pumpkinNoLootTable) {'),
+])
+
+edit('net/neoforged/neoforge/transfer/fluid/FluidResource.java', [
+    ('    public static FluidResource of(Fluid fluid) {\n        throw Unimplemented.forMember("net/neoforged/neoforge/transfer/fluid/FluidResource.of:(Lnet/minecraft/world/level/material/Fluid;)Lnet/neoforged/neoforge/transfer/fluid/FluidResource;");\n    }',
+     '    public static FluidResource of(Fluid fluid) {\n        FluidResource resource = new FluidResource();\n        resource.pumpkinFluid = fluid;\n        return resource;\n    }'),
+    ('    public static FluidResource of(Holder<Fluid> fluid) {\n        throw Unimplemented.forMember("net/neoforged/neoforge/transfer/fluid/FluidResource.of:(Lnet/minecraft/core/Holder;)Lnet/neoforged/neoforge/transfer/fluid/FluidResource;");\n    }',
+     '    public static FluidResource of(Holder<Fluid> fluid) {\n        return of(fluid.value());\n    }'),
+])
+
+edit('net/minecraft/world/entity/EntityType.java', [
+    ('    private final int clientTrackingRange = 0;\n\n    private final int updateInterval = 0;\n\n    private final float spawnDimensionsScale = 0.0F;',
+     '    // Pumpkin divergence: NeoForge access-transforms these fields public; the\n    // initial values are the vanilla builder defaults.\n    public int clientTrackingRange = 5;\n\n    public int updateInterval = 3;\n\n    public float spawnDimensionsScale = 1.0F;'),
+    ('        public EntityType.Builder<T> spawnDimensionsScale(float scale) {\n            return this;\n        }',
+     '        public EntityType.Builder<T> spawnDimensionsScale(float scale) {\n            spawnDimensionsScale = scale;\n            return this;\n        }'),
+    ('        public EntityType.Builder<T> clientTrackingRange(int clientChunkRange) {\n            return this;\n        }',
+     '        public EntityType.Builder<T> clientTrackingRange(int clientChunkRange) {\n            clientTrackingRange = clientChunkRange;\n            return this;\n        }'),
+    ('        public EntityType.Builder<T> updateInterval(int updateInterval) {\n            return this;\n        }',
+     '        public EntityType.Builder<T> updateInterval(int updateInterval) {\n            this.updateInterval = updateInterval;\n            return this;\n        }'),
+    ('        private int clientTrackingRange;\n\n        private int updateInterval;\n\n        private float spawnDimensionsScale;',
+     '        private int clientTrackingRange = 5;\n\n        private int updateInterval = 3;\n\n        private float spawnDimensionsScale = 1.0F;'),
+    ('            type.immuneTo = immuneTo;',
+     '            type.immuneTo = immuneTo;\n            type.clientTrackingRange = clientTrackingRange;\n            type.updateInterval = updateInterval;\n            type.spawnDimensionsScale = spawnDimensionsScale;'),
+])
+
+edit('net/minecraft/core/HolderLookup.java', [
+    ('        default <T> HolderLookup.RegistryLookup<T> lookupOrThrow(ResourceKey<? extends Registry<? extends T>> key) {\n            throw Unimplemented.forMember("net/minecraft/core/HolderLookup$Provider.lookupOrThrow:(Lnet/minecraft/resources/ResourceKey;)Lnet/minecraft/core/HolderLookup$RegistryLookup;");\n        }',
+     '        // Pumpkin divergence: composes inert -- the lookup itself carries no data, so\n        // the member actually consulted throws by name on first use.\n        @SuppressWarnings("unchecked")\n        default <T> HolderLookup.RegistryLookup<T> lookupOrThrow(ResourceKey<? extends Registry<? extends T>> key) {\n            return dev.pumpkin.shim.Stubs.of(HolderLookup.RegistryLookup.class,\n                "net/minecraft/core/HolderLookup$RegistryLookup(" + key.identifier() + ") via HolderLookup$Provider.lookupOrThrow");\n        }'),
+])
+
+edit('dev/pumpkin/shim/Stubs.java', [
+    ('                    Object answer = answers.get(method.getName());\n                    if (answer != null) {\n                        return answer;\n                    }',
+     '                    Object answer = answers.get(method.getName());\n                    if (answer instanceof Dynamic dynamic) {\n                        return dynamic.answer(args);\n                    }\n                    if (answer != null) {\n                        return answer;\n                    }'),
+    ('    public static <T> T of(Class<T> iface, String owner) {\n        return of(iface, owner, java.util.Map.of());\n    }',
+     '    public static <T> T of(Class<T> iface, String owner) {\n        return of(iface, owner, java.util.Map.of());\n    }\n\n    /**\n     * An answer computed on every call, for values that cannot be shared across calls --\n     * a {@link java.util.stream.Stream} is one-shot, so a stored one would break the\n     * second caller.\n     */\n    public interface Dynamic {\n        Object answer(Object[] args);\n    }'),
+])
+
+edit('net/minecraft/core/Holder.java', [
+    ('        protected Reference(Holder.Reference.Type type, HolderOwner<T> owner, ResourceKey<T> key, T value) {\n        }\n\n        public ResourceKey<T> key() {\n            throw Unimplemented.forMember("net/minecraft/core/Holder$Reference.key:()Lnet/minecraft/resources/ResourceKey;");\n        }\n\n        public T value() {\n            throw Unimplemented.forMember("net/minecraft/core/Holder$Reference.value:()Ljava/lang/Object;");\n        }',
+     '        // Pumpkin divergence: a reference really carries its key and value.\n        protected Reference(Holder.Reference.Type type, HolderOwner<T> owner, ResourceKey<T> key, T value) {\n            this.key = key;\n            this.value = value;\n        }\n\n        public static <T> Holder.Reference<T> pumpkinOf(ResourceKey<T> key, T value) {\n            return new Reference<>(null, null, key, value);\n        }\n\n        public ResourceKey<T> key() {\n            return key;\n        }\n\n        public T value() {\n            if (value == null) {\n                throw Unimplemented.forMember("net/minecraft/core/Holder$Reference.value:()Ljava/lang/Object;");\n            }\n            return value;\n        }'),
+])
+
+edit('net/neoforged/neoforge/registries/DeferredHolder.java', [
+    ('    private static final java.util.Map<String, DeferredHolder<?, ?>> PUMPKIN_BY_ID =',
+     '    public static java.util.List<DeferredHolder<?, ?>> pumpkinAllFor(String registry) {\n        String prefix = registry + "|";\n        java.util.ArrayList<DeferredHolder<?, ?>> all = new java.util.ArrayList<>();\n        for (java.util.Map.Entry<String, DeferredHolder<?, ?>> entry : PUMPKIN_BY_ID.entrySet()) {\n            if (entry.getKey().startsWith(prefix)) {\n                all.add(entry.getValue());\n            }\n        }\n        return all;\n    }\n\n    private static final java.util.Map<String, DeferredHolder<?, ?>> PUMPKIN_BY_ID ='),
+])
+
+edit('net/minecraft/core/HolderLookup.java', [
+    ('        // Pumpkin divergence: composes inert -- the lookup itself carries no data, so\n        // the member actually consulted throws by name on first use.\n        @SuppressWarnings("unchecked")\n        default <T> HolderLookup.RegistryLookup<T> lookupOrThrow(ResourceKey<? extends Registry<? extends T>> key) {\n            return dev.pumpkin.shim.Stubs.of(HolderLookup.RegistryLookup.class,\n                "net/minecraft/core/HolderLookup$RegistryLookup(" + key.identifier() + ") via HolderLookup$Provider.lookupOrThrow");\n        }',
+     '        // Pumpkin divergence: answers key() and listElements() from what actually\n        // registered under that registry; every other member throws by name on use.\n        @SuppressWarnings({"unchecked", "rawtypes"})\n        default <T> HolderLookup.RegistryLookup<T> lookupOrThrow(ResourceKey<? extends Registry<? extends T>> key) {\n            return dev.pumpkin.shim.Stubs.of(HolderLookup.RegistryLookup.class,\n                "net/minecraft/core/HolderLookup$RegistryLookup(" + key.identifier() + ") via HolderLookup$Provider.lookupOrThrow",\n                java.util.Map.of(\n                    "key", key,\n                    "listElements", (dev.pumpkin.shim.Stubs.Dynamic) args ->\n                        net.neoforged.neoforge.registries.DeferredHolder.pumpkinAllFor(key.identifier().toString())\n                            .stream()\n                            .map(holder -> Holder.Reference.pumpkinOf((ResourceKey) holder.getKey(), holder.get()))));\n        }'),
+])
+
+edit('net/minecraft/world/entity/EntityType.java', [
+    ('    public boolean trackDeltas() {\n        throw Unimplemented.forMember("net/minecraft/world/entity/EntityType.trackDeltas:()Z");\n    }',
+     '    public boolean pumpkinTrackDeltas = true;\n\n    public boolean trackDeltas() {\n        return pumpkinTrackDeltas;\n    }'),
+    ('        public EntityType.Builder<T> setShouldReceiveVelocityUpdates(boolean value) {\n            return this;\n        }',
+     '        boolean pumpkinTrackDeltas = true;\n\n        public EntityType.Builder<T> setShouldReceiveVelocityUpdates(boolean value) {\n            pumpkinTrackDeltas = value;\n            return this;\n        }'),
+    ('            type.spawnDimensionsScale = spawnDimensionsScale;',
+     '            type.spawnDimensionsScale = spawnDimensionsScale;\n            type.pumpkinTrackDeltas = pumpkinTrackDeltas;'),
+])
+
+edit('net/minecraft/world/entity/EntityType.java', [
+    ('    public int clientTrackingRange() {\n        throw Unimplemented.forMember("net/minecraft/world/entity/EntityType.clientTrackingRange:()I");\n    }',
+     '    public int clientTrackingRange() {\n        return clientTrackingRange;\n    }'),
+    ('    public int updateInterval() {\n        throw Unimplemented.forMember("net/minecraft/world/entity/EntityType.updateInterval:()I");\n    }',
+     '    public int updateInterval() {\n        return updateInterval;\n    }'),
+])
+
+edit('net/minecraft/core/component/DataComponentPatch.java', [
+    ('    public static final DataComponentPatch EMPTY = null;',
+     '    public static final DataComponentPatch EMPTY = new DataComponentPatch(null);'),
+    ('    DataComponentPatch(Reference2ObjectMap<DataComponentType<?>, Optional<?>> map) {\n    }',
+     '    // Pumpkin divergence: a patch really is a map -- Optional.of(value) sets,\n    // Optional.empty() removes.\n    public final java.util.LinkedHashMap<DataComponentType<?>, Optional<?>> pumpkinMap = new java.util.LinkedHashMap<>();\n\n    DataComponentPatch(Reference2ObjectMap<DataComponentType<?>, Optional<?>> map) {\n    }'),
+    ('    public static DataComponentPatch.Builder builder() {\n        throw Unimplemented.forMember("net/minecraft/core/component/DataComponentPatch.builder:()Lnet/minecraft/core/component/DataComponentPatch$Builder;");\n    }',
+     '    public static DataComponentPatch.Builder builder() {\n        return new Builder();\n    }'),
+    ('    public Set<Entry<DataComponentType<?>, Optional<?>>> entrySet() {\n        throw Unimplemented.forMember("net/minecraft/core/component/DataComponentPatch.entrySet:()Ljava/util/Set;");\n    }',
+     '    public Set<Entry<DataComponentType<?>, Optional<?>>> entrySet() {\n        return pumpkinMap.entrySet();\n    }'),
+    ('    public int size() {\n        throw Unimplemented.forMember("net/minecraft/core/component/DataComponentPatch.size:()I");\n    }',
+     '    public int size() {\n        return pumpkinMap.size();\n    }'),
+    ('    public boolean isEmpty() {\n        throw Unimplemented.forMember("net/minecraft/core/component/DataComponentPatch.isEmpty:()Z");\n    }',
+     '    public boolean isEmpty() {\n        return pumpkinMap.isEmpty();\n    }'),
+    ('    public boolean equals(Object obj) {\n        throw Unimplemented.forMember("net/minecraft/core/component/DataComponentPatch.equals:(Ljava/lang/Object;)Z");\n    }',
+     '    public boolean equals(Object obj) {\n        return obj instanceof DataComponentPatch other && pumpkinMap.equals(other.pumpkinMap);\n    }'),
+    ('    public int hashCode() {\n        throw Unimplemented.forMember("net/minecraft/core/component/DataComponentPatch.hashCode:()I");\n    }',
+     '    public int hashCode() {\n        return pumpkinMap.hashCode();\n    }'),
+    ('        public <T> DataComponentPatch.Builder set(DataComponentType<T> type, T value) {\n            throw Unimplemented.forMember("net/minecraft/core/component/DataComponentPatch$Builder.set:(Lnet/minecraft/core/component/DataComponentType;Ljava/lang/Object;)Lnet/minecraft/core/component/DataComponentPatch$Builder;");\n        }',
+     '        final DataComponentPatch pumpkinPatch = new DataComponentPatch(null);\n\n        public <T> DataComponentPatch.Builder set(DataComponentType<T> type, T value) {\n            pumpkinPatch.pumpkinMap.put(type, Optional.of(value));\n            return this;\n        }'),
+    ('        public <T> DataComponentPatch.Builder remove(DataComponentType<T> type) {\n            throw Unimplemented.forMember("net/minecraft/core/component/DataComponentPatch$Builder.remove:(Lnet/minecraft/core/component/DataComponentType;)Lnet/minecraft/core/component/DataComponentPatch$Builder;");\n        }',
+     '        public <T> DataComponentPatch.Builder remove(DataComponentType<T> type) {\n            pumpkinPatch.pumpkinMap.put(type, Optional.empty());\n            return this;\n        }'),
+    ('        public DataComponentPatch build() {\n            throw Unimplemented.forMember("net/minecraft/core/component/DataComponentPatch$Builder.build:()Lnet/minecraft/core/component/DataComponentPatch;");\n        }',
+     '        public DataComponentPatch build() {\n            return pumpkinPatch;\n        }'),
+])
+
+edit('net/minecraft/network/chat/contents/TranslatableContents.java', [
+    ('    public static boolean isAllowedPrimitiveArgument(Object object) {\n        throw Unimplemented.forMember("net/minecraft/network/chat/contents/TranslatableContents.isAllowedPrimitiveArgument:(Ljava/lang/Object;)Z");\n    }',
+     '    // Pumpkin divergence: vanilla body.\n    public static boolean isAllowedPrimitiveArgument(Object object) {\n        return object instanceof Number || object instanceof Boolean || object instanceof String;\n    }'),
+])
+
+edit('net/minecraft/world/entity/EntityDimensions.java', [
+    ('    public EntityDimensions scale(float scaleFactor) {\n        throw Unimplemented.forMember("net/minecraft/world/entity/EntityDimensions.scale:(F)Lnet/minecraft/world/entity/EntityDimensions;");\n    }\n\n    public EntityDimensions scale(float widthScaleFactor, float heightScaleFactor) {\n        throw Unimplemented.forMember("net/minecraft/world/entity/EntityDimensions.scale:(FF)Lnet/minecraft/world/entity/EntityDimensions;");\n    }',
+     '    // Pumpkin divergence: vanilla math -- eyeHeight is the LivingEntity default\n    // (0.85 * height); attachments stay null, the one part Pumpkin does not model.\n    public static EntityDimensions scalable(float width, float height) {\n        return new EntityDimensions(width, height, height * 0.85F, null, false);\n    }\n\n    public EntityDimensions scale(float scaleFactor) {\n        return scale(scaleFactor, scaleFactor);\n    }\n\n    public EntityDimensions scale(float widthScaleFactor, float heightScaleFactor) {\n        if (fixed || (widthScaleFactor == 1.0F && heightScaleFactor == 1.0F)) {\n            return this;\n        }\n        return new EntityDimensions(width * widthScaleFactor, height * heightScaleFactor, eyeHeight * heightScaleFactor, null, false);\n    }'),
+])
+
+edit('net/minecraft/world/entity/EntityType.java', [
+    ('    public EntityDimensions getDimensions() {\n        throw Unimplemented.forMember("net/minecraft/world/entity/EntityType.getDimensions:()Lnet/minecraft/world/entity/EntityDimensions;");\n    }',
+     '    public EntityDimensions pumpkinDimensions;\n\n    public EntityDimensions getDimensions() {\n        if (pumpkinDimensions == null) {\n            throw Unimplemented.forMember("net/minecraft/world/entity/EntityType.getDimensions:()Lnet/minecraft/world/entity/EntityDimensions;");\n        }\n        return pumpkinDimensions;\n    }'),
+    ('        public EntityType.Builder<T> sized(float width, float height) {\n            return this;\n        }',
+     '        EntityDimensions pumpkinDimensions = EntityDimensions.scalable(0.6F, 1.8F);\n\n        public EntityType.Builder<T> sized(float width, float height) {\n            pumpkinDimensions = EntityDimensions.scalable(width, height);\n            return this;\n        }'),
+    ('            type.pumpkinTrackDeltas = pumpkinTrackDeltas;',
+     '            type.pumpkinTrackDeltas = pumpkinTrackDeltas;\n            type.pumpkinDimensions = pumpkinDimensions;'),
+])
+
+edit('net/minecraft/world/entity/EntityTypes.java', [
+    ('    public static final EntityType<Bogged> BOGGED = pumpkinVanilla("bogged", MobCategory.MONSTER);',
+     '    public static final EntityType<Bogged> BOGGED = pumpkinVanillaSized("bogged", MobCategory.MONSTER, 0.6F, 1.99F);\n\n    // Pumpkin divergence: vanilla fact -- the mob\'s real hitbox size.\n    private static <T extends Entity> EntityType<T> pumpkinVanillaSized(String name, MobCategory category, float width, float height) {\n        EntityType<T> type = pumpkinVanilla(name, category);\n        type.pumpkinDimensions = EntityDimensions.scalable(width, height);\n        return type;\n    }'),
+    ('    public static final EntityType<Creeper> CREEPER = pumpkinVanilla("creeper", MobCategory.MONSTER);',
+     '    public static final EntityType<Creeper> CREEPER = pumpkinVanillaSized("creeper", MobCategory.MONSTER, 0.6F, 1.7F);'),
+    ('    public static final EntityType<EnderMan> ENDERMAN = pumpkinVanilla("enderman", MobCategory.MONSTER);',
+     '    public static final EntityType<EnderMan> ENDERMAN = pumpkinVanillaSized("enderman", MobCategory.MONSTER, 0.6F, 2.9F);'),
+    ('    public static final EntityType<Parched> PARCHED = pumpkinVanilla("parched", MobCategory.MONSTER);',
+     '    public static final EntityType<Parched> PARCHED = pumpkinVanillaSized("parched", MobCategory.MONSTER, 0.6F, 1.99F);'),
+    ('    public static final EntityType<Skeleton> SKELETON = pumpkinVanilla("skeleton", MobCategory.MONSTER);',
+     '    public static final EntityType<Skeleton> SKELETON = pumpkinVanillaSized("skeleton", MobCategory.MONSTER, 0.6F, 1.99F);'),
+    ('    public static final EntityType<Stray> STRAY = pumpkinVanilla("stray", MobCategory.MONSTER);',
+     '    public static final EntityType<Stray> STRAY = pumpkinVanillaSized("stray", MobCategory.MONSTER, 0.6F, 1.99F);'),
+    ('    public static final EntityType<WitherSkeleton> WITHER_SKELETON = pumpkinVanillaFireImmune("wither_skeleton", MobCategory.MONSTER);',
+     '    public static final EntityType<WitherSkeleton> WITHER_SKELETON = pumpkinVanillaFireImmune("wither_skeleton", MobCategory.MONSTER);\n    static {\n        WITHER_SKELETON.pumpkinDimensions = EntityDimensions.scalable(0.7F, 2.4F);\n    }'),
+])
+
+edit('net/minecraft/world/entity/EntityAttachments.java', [
+    ('    private final Map<EntityAttachment, List<Vec3>> attachments = null;\n\n    private EntityAttachments(Map<EntityAttachment, List<Vec3>> attachments) {\n    }',
+     '    // Pumpkin divergence: NeoForge access-transforms this field public; the map is\n    // real, and an EntityAttachments built without points carries the empty map.\n    public final Map<EntityAttachment, List<Vec3>> attachments;\n\n    private EntityAttachments(Map<EntityAttachment, List<Vec3>> attachments) {\n        this.attachments = attachments;\n    }\n\n    public static EntityAttachments pumpkinEmpty() {\n        return new EntityAttachments(Map.of());\n    }'),
+    ('    public EntityAttachments() {\n    }',
+     '    public EntityAttachments() {\n        this(Map.of());\n    }'),
+])
+
+edit('net/minecraft/world/entity/EntityDimensions.java', [
+    ('    // Pumpkin divergence: vanilla math -- eyeHeight is the LivingEntity default\n    // (0.85 * height); attachments stay null, the one part Pumpkin does not model.\n    public static EntityDimensions scalable(float width, float height) {\n        return new EntityDimensions(width, height, height * 0.85F, null, false);\n    }',
+     '    // Pumpkin divergence: vanilla math -- eyeHeight is the LivingEntity default\n    // (0.85 * height); attachment points are not modeled, so the map is real but empty.\n    public static EntityDimensions scalable(float width, float height) {\n        return new EntityDimensions(width, height, height * 0.85F, EntityAttachments.pumpkinEmpty(), false);\n    }'),
+    ('        return new EntityDimensions(width * widthScaleFactor, height * heightScaleFactor, eyeHeight * heightScaleFactor, null, false);',
+     '        return new EntityDimensions(width * widthScaleFactor, height * heightScaleFactor, eyeHeight * heightScaleFactor, EntityAttachments.pumpkinEmpty(), false);'),
+])
+
+edit('net/neoforged/neoforge/transfer/item/ItemResource.java', [
+    ('    public static ItemResource of(ItemLike item) {\n        throw Unimplemented.forMember("net/neoforged/neoforge/transfer/item/ItemResource.of:(Lnet/minecraft/world/level/ItemLike;)Lnet/neoforged/neoforge/transfer/item/ItemResource;");\n    }',
+     '    public static ItemResource of(ItemLike item) {\n        ItemResource resource = new ItemResource();\n        resource.pumpkinItem = item;\n        return resource;\n    }'),
+])
+
+edit('net/minecraft/world/item/CreativeModeTab.java', [
+    ('        public final CreativeModeTab.Builder withTabsBefore(net.minecraft.resources.ResourceKey<CreativeModeTab>... tabs) {\n            throw Unimplemented.forMember("net/minecraft/world/item/CreativeModeTab$Builder.withTabsBefore:([Lnet/minecraft/resources/ResourceKey;)Lnet/minecraft/world/item/CreativeModeTab$Builder;");\n        }',
+     '        // Pumpkin divergence: tab presentation, accepted and dropped; chain lives.\n        public final CreativeModeTab.Builder withTabsBefore(net.minecraft.resources.ResourceKey<CreativeModeTab>... tabs) {\n            return this;\n        }'),
+])
+
+edit('net/neoforged/neoforge/transfer/item/ItemResource.java', [
+    ('    private ItemLike pumpkinItem;',
+     '    private ItemLike pumpkinItem;\n\n    // Pumpkin divergence: the component patch is data the resource carries.\n    private DataComponentPatch pumpkinPatch = DataComponentPatch.EMPTY;\n\n    private ItemResource pumpkinWith(DataComponentPatch patch) {\n        ItemResource resource = new ItemResource();\n        resource.pumpkinItem = pumpkinItem;\n        resource.pumpkinPatch = patch;\n        return resource;\n    }'),
+    ('    public static ItemResource of(ItemLike item, DataComponentPatch patch) {\n        throw Unimplemented.forMember("net/neoforged/neoforge/transfer/item/ItemResource.of:(Lnet/minecraft/world/level/ItemLike;Lnet/minecraft/core/component/DataComponentPatch;)Lnet/neoforged/neoforge/transfer/item/ItemResource;");\n    }',
+     '    public static ItemResource of(ItemLike item, DataComponentPatch patch) {\n        return of(item).pumpkinWith(patch);\n    }'),
+    ('    public static ItemResource of(Holder<Item> holder, DataComponentPatch patch) {\n        throw Unimplemented.forMember("net/neoforged/neoforge/transfer/item/ItemResource.of:(Lnet/minecraft/core/Holder;Lnet/minecraft/core/component/DataComponentPatch;)Lnet/neoforged/neoforge/transfer/item/ItemResource;");\n    }',
+     '    public static ItemResource of(Holder<Item> holder, DataComponentPatch patch) {\n        return of(holder).pumpkinWith(patch);\n    }'),
+    ('    public boolean isComponentsPatchEmpty() {\n        throw Unimplemented.forMember("net/neoforged/neoforge/transfer/item/ItemResource.isComponentsPatchEmpty:()Z");\n    }',
+     '    public boolean isComponentsPatchEmpty() {\n        return pumpkinPatch.isEmpty();\n    }'),
+    ('    public ItemResource withMergedPatch(DataComponentPatch patch) {\n        throw Unimplemented.forMember("net/neoforged/neoforge/transfer/item/ItemResource.withMergedPatch:(Lnet/minecraft/core/component/DataComponentPatch;)Lnet/neoforged/neoforge/transfer/item/ItemResource;");\n    }',
+     '    public ItemResource withMergedPatch(DataComponentPatch patch) {\n        DataComponentPatch.Builder merged = DataComponentPatch.builder();\n        DataComponentPatch built = merged.build();\n        built.pumpkinMap.putAll(pumpkinPatch.pumpkinMap);\n        built.pumpkinMap.putAll(patch.pumpkinMap);\n        return pumpkinWith(built);\n    }'),
+    ('    public <D> ItemResource with(DataComponentType<D> type, D data) {\n        throw Unimplemented.forMember("net/neoforged/neoforge/transfer/item/ItemResource.with:(Lnet/minecraft/core/component/DataComponentType;Ljava/lang/Object;)Lnet/neoforged/neoforge/transfer/item/ItemResource;");\n    }',
+     '    public <D> ItemResource with(DataComponentType<D> type, D data) {\n        return withMergedPatch(DataComponentPatch.builder().set(type, data).build());\n    }'),
+    ('    public <D> ItemResource with(Supplier<? extends DataComponentType<D>> type, D data) {\n        throw Unimplemented.forMember("net/neoforged/neoforge/transfer/item/ItemResource.with:(Ljava/util/function/Supplier;Ljava/lang/Object;)Lnet/neoforged/neoforge/transfer/item/ItemResource;");\n    }',
+     '    public <D> ItemResource with(Supplier<? extends DataComponentType<D>> type, D data) {\n        return with(type.get(), data);\n    }'),
+    ('    public ItemResource without(DataComponentType<?> type) {\n        throw Unimplemented.forMember("net/neoforged/neoforge/transfer/item/ItemResource.without:(Lnet/minecraft/core/component/DataComponentType;)Lnet/neoforged/neoforge/transfer/item/ItemResource;");\n    }',
+     '    public ItemResource without(DataComponentType<?> type) {\n        return withMergedPatch(DataComponentPatch.builder().remove(type).build());\n    }'),
+    ('    public ItemResource without(Supplier<? extends DataComponentType<?>> type) {\n        throw Unimplemented.forMember("net/neoforged/neoforge/transfer/item/ItemResource.without:(Ljava/util/function/Supplier;)Lnet/neoforged/neoforge/transfer/item/ItemResource;");\n    }',
+     '    public ItemResource without(Supplier<? extends DataComponentType<?>> type) {\n        return without(type.get());\n    }'),
+    ('    public DataComponentPatch getComponentsPatch() {\n        throw Unimplemented.forMember("net/neoforged/neoforge/transfer/item/ItemResource.getComponentsPatch:()Lnet/minecraft/core/component/DataComponentPatch;");\n    }',
+     '    public DataComponentPatch getComponentsPatch() {\n        return pumpkinPatch;\n    }'),
+])
+
+edit('net/neoforged/neoforge/transfer/item/ItemResource.java', [
+    ('    public ItemStack toStack() {\n        throw Unimplemented.forMember("net/neoforged/neoforge/transfer/item/ItemResource.toStack:()Lnet/minecraft/world/item/ItemStack;");\n    }',
+     '    public ItemStack toStack() {\n        return toStack(1);\n    }'),
+])
+
+edit('net/minecraft/world/level/levelgen/blockpredicates/BlockPredicate.java', [
+    ('    Codec<BlockPredicate> CODEC = null;',
+     '    // Pumpkin divergence: a throwing codec, not null -- DFU composes through it at\n    // class-init; it throws by name on first real use.\n    Codec<BlockPredicate> CODEC = dev.pumpkin.shim.Stubs.throwingCodec("net/minecraft/world/level/levelgen/blockpredicates/BlockPredicate.CODEC");'),
+])
+
+edit('net/minecraft/util/valueproviders/IntProviders.java', [
+    ('    static {\n        if (true) {\n            throw Unimplemented.forMember("net/minecraft/util/valueproviders/IntProviders");\n        }\n    }\n',
+     '    // Pumpkin divergence: no throwing clinit -- the one static is already an inert\n    // throwing codec, so the class composes and fails by name on first real use.\n'),
+    ('import dev.pumpkin.shim.Unimplemented;\n', ''),
+])
+
+edit('net/minecraft/core/component/DataComponentMap.java', [
+    ('    Codec<DataComponentMap> CODEC = null;',
+     "    // Pumpkin divergence: a throwing codec, not null -- DFU composes through it\n    // at class-init; it throws by name on first real use.\n    Codec<DataComponentMap> CODEC = dev.pumpkin.shim.Stubs.throwingCodec(\"net/minecraft/core/component/DataComponentMap.CODEC\");"),
+])
+
+edit('net/minecraft/core/component/predicates/DataComponentPredicate.java', [
+    ('    Codec<Map<DataComponentPredicate.Type<?>, DataComponentPredicate>> CODEC = null;',
+     "    // Pumpkin divergence: a throwing codec, not null -- DFU composes through it\n    // at class-init; it throws by name on first real use.\n    Codec<Map<DataComponentPredicate.Type<?>, DataComponentPredicate>> CODEC = dev.pumpkin.shim.Stubs.throwingCodec(\"net/minecraft/core/component/predicates/DataComponentPredicate.CODEC\");"),
+])
+
+edit('net/minecraft/world/item/crafting/Recipe.java', [
+    ('    Codec<Recipe<?>> CODEC = null;',
+     "    // Pumpkin divergence: a throwing codec, not null -- DFU composes through it\n    // at class-init; it throws by name on first real use.\n    Codec<Recipe<?>> CODEC = dev.pumpkin.shim.Stubs.throwingCodec(\"net/minecraft/world/item/crafting/Recipe.CODEC\");"),
+])
+
+edit('net/minecraft/world/item/crafting/display/SlotDisplay.java', [
+    ('    Codec<SlotDisplay> CODEC = null;',
+     "    // Pumpkin divergence: a throwing codec, not null -- DFU composes through it\n    // at class-init; it throws by name on first real use.\n    Codec<SlotDisplay> CODEC = dev.pumpkin.shim.Stubs.throwingCodec(\"net/minecraft/world/item/crafting/display/SlotDisplay.CODEC\");"),
 ])
 
 commit()
