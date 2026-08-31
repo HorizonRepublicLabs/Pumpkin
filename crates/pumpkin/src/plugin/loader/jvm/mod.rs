@@ -355,6 +355,15 @@ impl JvmBlockBehaviour {
         let (x, y, z) = (position.0.x, position.0.y, position.0.z);
         let has_signal =
             crate::block::blocks::redstone::block_receives_redstone_power(world, position);
+        let player_uuid =
+            player.map_or_else(String::new, |player| player.gameprofile.id.to_string());
+        let sneaking = player.is_some_and(|player| {
+            player
+                .living_entity
+                .entity
+                .sneaking
+                .load(std::sync::atomic::Ordering::Relaxed)
+        });
 
         let reply = vm.call(move |env| {
             let block = env
@@ -369,10 +378,13 @@ impl JvmBlockBehaviour {
             let saved = env
                 .new_string(&saved_data)
                 .map_err(|err| VmError::Java(err.to_string()))?;
+            let uuid_string = env
+                .new_string(&player_uuid)
+                .map_err(|err| VmError::Java(err.to_string()))?;
             let returned = env.call_static_method(
                 "dev/pumpkin/bridge/PumpkinInteractions",
                 "useBlockOn",
-                "(Ljava/lang/String;Ljava/lang/String;IIILjava/lang/String;ILjava/lang/String;Z)Ljava/lang/String;",
+                "(Ljava/lang/String;Ljava/lang/String;IIILjava/lang/String;ILjava/lang/String;ZZLjava/lang/String;)Ljava/lang/String;",
                 &[
                     (&block).into(),
                     (&entity).into(),
@@ -383,6 +395,8 @@ impl JvmBlockBehaviour {
                     held_count.into(),
                     (&saved).into(),
                     has_signal.into(),
+                    sneaking.into(),
+                    (&uuid_string).into(),
                 ],
             );
             if env.exception_check().unwrap_or(false) {

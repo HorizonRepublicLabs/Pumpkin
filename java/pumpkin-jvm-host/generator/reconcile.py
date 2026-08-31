@@ -4327,4 +4327,179 @@ edit('net/minecraft/world/item/crafting/display/SlotDisplay.java', [
      "    // Pumpkin divergence: a throwing codec, not null -- DFU composes through it\n    // at class-init; it throws by name on first real use.\n    Codec<SlotDisplay> CODEC = dev.pumpkin.shim.Stubs.throwingCodec(\"net/minecraft/world/item/crafting/display/SlotDisplay.CODEC\");"),
 ])
 
+edit('net/minecraft/core/BlockPos.java', [
+    ('    public static int getX(long blockNode) {\n        throw Unimplemented.forMember("net/minecraft/core/BlockPos.getX:(J)I");\n    }',
+     '    // Pumpkin divergence: the vanilla 26/12/26 bit layout, real math throughout.\n    public static int getX(long blockNode) {\n        return (int) (blockNode << 0 >> 38);\n    }'),
+    ('    public long asLong() {\n        throw Unimplemented.forMember("net/minecraft/core/BlockPos.asLong:()J");\n    }',
+     '    public long asLong() {\n        return asLong(getX(), getY(), getZ());\n    }'),
+    ('    public static long asLong(int x, int y, int z) {\n        throw Unimplemented.forMember("net/minecraft/core/BlockPos.asLong:(III)J");\n    }',
+     '    public static long asLong(int x, int y, int z) {\n        return ((long) (x & 0x3FFFFFF) << 38) | ((long) (z & 0x3FFFFFF) << 12) | (y & 0xFFF);\n    }'),
+])
+
+edit('net/minecraft/core/BlockPos.java', [
+    ('    public static int getY(long blockNode) {\n        throw Unimplemented.forMember("net/minecraft/core/BlockPos.getY:(J)I");\n    }',
+     '    public static int getY(long blockNode) {\n        return (int) (blockNode << 52 >> 52);\n    }'),
+    ('    public static int getZ(long blockNode) {\n        throw Unimplemented.forMember("net/minecraft/core/BlockPos.getZ:(J)I");\n    }',
+     '    public static int getZ(long blockNode) {\n        return (int) (blockNode << 26 >> 38);\n    }'),
+    ('    public static BlockPos of(long blockNode) {\n        throw Unimplemented.forMember("net/minecraft/core/BlockPos.of:(J)Lnet/minecraft/core/BlockPos;");\n    }',
+     '    public static BlockPos of(long blockNode) {\n        return new BlockPos(getX(blockNode), getY(blockNode), getZ(blockNode));\n    }'),
+    ('    public static long offset(long blockNode, int stepX, int stepY, int stepZ) {\n        throw Unimplemented.forMember("net/minecraft/core/BlockPos.offset:(JIII)J");\n    }',
+     '    public static long offset(long blockNode, int stepX, int stepY, int stepZ) {\n        return asLong(getX(blockNode) + stepX, getY(blockNode) + stepY, getZ(blockNode) + stepZ);\n    }'),
+])
+
+edit('net/minecraft/world/InteractionResult.java', [
+    ('    InteractionResult.TryEmptyHandInteraction TRY_WITH_EMPTY_HAND = null;',
+     '    // Pumpkin divergence: real instance -- the default useItemOn answer must be\n    // distinguishable so the bridge can fall through to useWithoutItem.\n    InteractionResult.TryEmptyHandInteraction TRY_WITH_EMPTY_HAND = new TryEmptyHandInteraction();'),
+])
+
+edit('dev/pumpkin/bridge/PumpkinInteractions.java', [
+    ('        Method method = findMethod(block.getClass(), "useItemOn", 7);\n        method.setAccessible(true);\n        Object result = method.invoke(block, held, state, level, pos, player,\n                InteractionHand.MAIN_HAND, hit);\n',
+     '        Method method = findMethod(block.getClass(), "useItemOn", 7);\n        method.setAccessible(true);\n        Object result = method.invoke(block, held, state, level, pos, player,\n                InteractionHand.MAIN_HAND, hit);\n        // Vanilla fallthrough: TRY_WITH_EMPTY_HAND means "retry without the item" --\n        // machine GUIs live in useWithoutItem.\n        if (result instanceof InteractionResult.TryEmptyHandInteraction) {\n            Method withoutItem = findMethod(block.getClass(), "useWithoutItem", 5);\n            withoutItem.setAccessible(true);\n            result = withoutItem.invoke(block, state, level, pos, player, hit);\n        }\n'),
+])
+
+edit('net/minecraft/world/level/Level.java', [
+    ('    public boolean isInWorldBounds(BlockPos pos) {\n        throw Unimplemented.forMember("net/minecraft/world/level/Level.isInWorldBounds:(Lnet/minecraft/core/BlockPos;)Z");\n    }',
+     '    // Pumpkin divergence: vanilla logic -- inside the height range and the 30M border.\n    public boolean isInWorldBounds(BlockPos pos) {\n        return pos.getY() >= getMinY() && pos.getY() <= getMaxY()\n                && Math.abs(pos.getX()) < 30000000 && Math.abs(pos.getZ()) < 30000000;\n    }'),
+])
+
+edit('net/minecraft/world/level/LevelHeightAccessor.java', [
+    ('    default int getMaxY() {\n        throw Unimplemented.forMember("net/minecraft/world/level/LevelHeightAccessor.getMaxY:()I");\n    }',
+     '    // Pumpkin divergence: vanilla derivation from the two abstract facts.\n    default int getMaxY() {\n        return getMinY() + getHeight() - 1;\n    }'),
+])
+
+edit('dev/pumpkin/bridge/PumpkinLevel.java', [
+    ('    public int getHeight() {\n        throw Unimplemented.forMember("net/minecraft/world/level/Level.getHeight");\n    }',
+     "    // Pumpkin divergence: the overworld's real height range -- Pumpkin only routes\n    // overworld interactions through this level today.\n    public int getHeight() {\n        return 384;\n    }"),
+    ('    public int getMinY() {\n        throw Unimplemented.forMember("net/minecraft/world/level/Level.getMinY");\n    }',
+     '    public int getMinY() {\n        return -64;\n    }'),
+])
+
+edit('net/minecraft/core/SectionPos.java', [
+    ('    public static int blockToSectionCoord(int blockCoord) {\n        throw Unimplemented.forMember("net/minecraft/core/SectionPos.blockToSectionCoord:(I)I");\n    }',
+     '    // Pumpkin divergence: vanilla bodies -- section coordinate arithmetic.\n    public static int blockToSectionCoord(int blockCoord) {\n        return blockCoord >> 4;\n    }'),
+    ('    public static int blockToSectionCoord(double coord) {\n        throw Unimplemented.forMember("net/minecraft/core/SectionPos.blockToSectionCoord:(D)I");\n    }',
+     '    public static int blockToSectionCoord(double coord) {\n        return blockToSectionCoord((int) Math.floor(coord));\n    }'),
+    ('    public static int sectionRelative(int blockCoord) {\n        throw Unimplemented.forMember("net/minecraft/core/SectionPos.sectionRelative:(I)I");\n    }',
+     '    public static int sectionRelative(int blockCoord) {\n        return blockCoord & 15;\n    }'),
+    ('    public static int sectionToBlockCoord(int sectionCoord) {\n        throw Unimplemented.forMember("net/minecraft/core/SectionPos.sectionToBlockCoord:(I)I");\n    }',
+     '    public static int sectionToBlockCoord(int sectionCoord) {\n        return sectionCoord << 4;\n    }'),
+    ('    public static int sectionToBlockCoord(int sectionCoord, int offset) {\n        throw Unimplemented.forMember("net/minecraft/core/SectionPos.sectionToBlockCoord:(II)I");\n    }',
+     '    public static int sectionToBlockCoord(int sectionCoord, int offset) {\n        return sectionToBlockCoord(sectionCoord) + offset;\n    }'),
+])
+
+edit('dev/pumpkin/bridge/PumpkinLevel.java', [
+    ('    public boolean hasChunk(int chunkX, int chunkZ) {\n        throw Unimplemented.forMember("net/minecraft/world/level/Level.hasChunk");\n    }',
+     '    // Pumpkin divergence: truthful for this stand-in -- the bridge only runs for\n    // interactions on loaded blocks, so the neighborhood the mod asks about is loaded.\n    public boolean hasChunk(int chunkX, int chunkZ) {\n        return true;\n    }'),
+])
+
+edit('dev/pumpkin/bridge/PumpkinInteractions.java', [
+    ('    public static String useBlockOn(String blockId, String entityTypeId, int x, int y, int z,\n            String heldItemId, int heldCount, String savedData, boolean hasSignal)\n            throws Exception {\n        PumpkinLevel.pumpkinSetSignal(hasSignal);',
+     '    public static String useBlockOn(String blockId, String entityTypeId, int x, int y, int z,\n            String heldItemId, int heldCount, String savedData, boolean hasSignal,\n            boolean sneaking) throws Exception {\n        PumpkinLevel.pumpkinSetSignal(hasSignal);'),
+    ('        PumpkinPlayer player = new PumpkinPlayer(held, x + 0.5, y + 1.0, z + 0.5);',
+     '        PumpkinPlayer player = new PumpkinPlayer(held, x + 0.5, y + 1.0, z + 0.5);\n        player.pumpkinSetSneaking(sneaking);'),
+])
+
+edit('dev/pumpkin/bridge/PumpkinPlayer.java', [
+    ('    public PumpkinPlayer(ItemStack held, double x, double y, double z) {',
+     '    // Pumpkin divergence: the real sneak state of the interacting player, carried\n    // over the bridge. Crouching and shift answer the same fact here: the stand-in\n    // has no pose model to separate them.\n    private boolean pumpkinSneaking;\n\n    public void pumpkinSetSneaking(boolean sneaking) {\n        this.pumpkinSneaking = sneaking;\n    }\n\n    public boolean isShiftKeyDown() {\n        return pumpkinSneaking;\n    }\n\n    public boolean isCrouching() {\n        return pumpkinSneaking;\n    }\n\n    public PumpkinPlayer(ItemStack held, double x, double y, double z) {'),
+])
+
+edit('dev/pumpkin/bridge/PumpkinPlayer.java', [
+    ('    public PumpkinPlayer(ItemStack held, double x, double y, double z) {',
+     '    // Pumpkin divergence: the player lives in the shared one-interaction level.\n    public net.minecraft.world.level.Level level() {\n        return PumpkinInteractions.pumpkinLevel();\n    }\n\n    public PumpkinPlayer(ItemStack held, double x, double y, double z) {'),
+])
+
+edit('dev/pumpkin/bridge/PumpkinInteractions.java', [
+    ('    public static String useBlockOn(String blockId, String entityTypeId, int x, int y, int z,\n            String heldItemId, int heldCount, String savedData, boolean hasSignal,\n            boolean sneaking) throws Exception {',
+     '    public static String useBlockOn(String blockId, String entityTypeId, int x, int y, int z,\n            String heldItemId, int heldCount, String savedData, boolean hasSignal,\n            boolean sneaking, String playerUuid) throws Exception {'),
+    ('        player.pumpkinSetSneaking(sneaking);',
+     '        player.pumpkinSetSneaking(sneaking);\n        if (!playerUuid.isEmpty()) {\n            player.pumpkinSetUuid(java.util.UUID.fromString(playerUuid));\n        }'),
+])
+
+edit('dev/pumpkin/bridge/PumpkinPlayer.java', [
+    ('    // Pumpkin divergence: the player lives in the shared one-interaction level.',
+     '    // Pumpkin divergence: the real UUID of the interacting player, carried over the\n    // bridge -- mod machines record it as the owner.\n    private java.util.UUID pumpkinUuid;\n\n    public void pumpkinSetUuid(java.util.UUID uuid) {\n        this.pumpkinUuid = uuid;\n    }\n\n    public java.util.UUID getUUID() {\n        if (pumpkinUuid == null) {\n            throw dev.pumpkin.shim.Unimplemented.forMember(\n                "net/minecraft/world/entity/Entity.getUUID:()Ljava/util/UUID; (no player on this interaction)");\n        }\n        return pumpkinUuid;\n    }\n\n    // Pumpkin divergence: the player lives in the shared one-interaction level.'),
+])
+
+edit('net/minecraft/world/level/block/entity/BlockEntity.java', [
+    ('    // Pumpkin divergence: the position is kept; getBlockPos answers with it.\n    private BlockPos pumpkinPosition;\n\n    public BlockEntity(BlockEntityType<?> type, BlockPos worldPosition, BlockState blockState) {\n        this.pumpkinPosition = worldPosition;\n    }',
+     '    // Pumpkin divergence: position and state are kept; the getters answer with them.\n    private BlockPos pumpkinPosition;\n\n    private BlockState pumpkinBlockState;\n\n    public BlockEntity(BlockEntityType<?> type, BlockPos worldPosition, BlockState blockState) {\n        this.pumpkinPosition = worldPosition;\n        this.pumpkinBlockState = blockState;\n    }'),
+    ('    public BlockState getBlockState() {\n        throw Unimplemented.forMember("net/minecraft/world/level/block/entity/BlockEntity.getBlockState:()Lnet/minecraft/world/level/block/state/BlockState;");\n    }',
+     '    public BlockState getBlockState() {\n        if (pumpkinBlockState == null) {\n            throw Unimplemented.forMember("net/minecraft/world/level/block/entity/BlockEntity.getBlockState:()Lnet/minecraft/world/level/block/state/BlockState; (entity built without a state)");\n        }\n        return pumpkinBlockState;\n    }'),
+    ('    public void setBlockState(BlockState blockState) {\n        throw Unimplemented.forMember("net/minecraft/world/level/block/entity/BlockEntity.setBlockState:(Lnet/minecraft/world/level/block/state/BlockState;)V");\n    }',
+     '    public void setBlockState(BlockState blockState) {\n        this.pumpkinBlockState = blockState;\n    }'),
+    ('    public boolean hasLevel() {\n        throw Unimplemented.forMember("net/minecraft/world/level/block/entity/BlockEntity.hasLevel:()Z");\n    }',
+     '    public boolean hasLevel() {\n        return level != null;\n    }'),
+])
+
+edit('dev/pumpkin/bridge/PumpkinBlockEntities.java', [
+    ('    public static BlockEntity getOrCreate(BlockEntityType<?> type, int x, int y, int z) {\n        return BY_POSITION.computeIfAbsent(key(x, y, z), ignored -> {\n            BlockEntity entity = type.pumpkinCreate(new BlockPos(x, y, z), null);\n            entity.pumpkinSetLevel(PumpkinInteractions.pumpkinLevel());\n            return entity;\n        });\n    }',
+     "    public static BlockEntity getOrCreate(BlockEntityType<?> type, int x, int y, int z) {\n        return getOrCreate(type, x, y, z, null);\n    }\n\n    // Pumpkin divergence: the block's state travels in so the entity can answer\n    // getBlockState() -- mod machines read their own facing/active from it.\n    public static BlockEntity getOrCreate(BlockEntityType<?> type, int x, int y, int z,\n            net.minecraft.world.level.block.state.BlockState state) {\n        return BY_POSITION.computeIfAbsent(key(x, y, z), ignored -> {\n            BlockEntity entity = type.pumpkinCreate(new BlockPos(x, y, z), state);\n            entity.pumpkinSetLevel(PumpkinInteractions.pumpkinLevel());\n            return entity;\n        });\n    }"),
+])
+
+edit('dev/pumpkin/bridge/PumpkinInteractions.java', [
+    ('        net.minecraft.world.level.block.entity.BlockEntity blockEntity = null;\n        if (!entityTypeId.isEmpty()\n                && DeferredHolder.pumpkinResolve("minecraft:block_entity_type", entityTypeId)\n                        instanceof BlockEntityType<?> type) {\n            boolean existed = PumpkinBlockEntities.exists(x, y, z);\n            blockEntity = PumpkinBlockEntities.getOrCreate(type, x, y, z);',
+     '        net.minecraft.world.level.block.entity.BlockEntity blockEntity = null;\n        if (!entityTypeId.isEmpty()\n                && DeferredHolder.pumpkinResolve("minecraft:block_entity_type", entityTypeId)\n                        instanceof BlockEntityType<?> type) {\n            boolean existed = PumpkinBlockEntities.exists(x, y, z);\n            blockEntity = PumpkinBlockEntities.getOrCreate(type, x, y, z, block.defaultBlockState());'),
+])
+
+edit('net/neoforged/neoforge/common/extensions/ILevelExtension.java', [
+    ('    default <T, C extends Object> T getCapability(BlockCapability<T, C> cap, BlockPos pos, C context) {\n        throw Unimplemented.forMember("net/neoforged/neoforge/common/extensions/ILevelExtension.getCapability:(Lnet/neoforged/neoforge/capabilities/BlockCapability;Lnet/minecraft/core/BlockPos;Ljava/lang/Object;)Ljava/lang/Object;");\n    }',
+     '    // Pumpkin divergence: truthful absence -- no capability provider is ever\n    // registered with Pumpkin (RegisterCapabilitiesEvent does not accept them), so\n    // every lookup answers null, the NeoForge contract for "no provider".\n    default <T, C extends Object> T getCapability(BlockCapability<T, C> cap, BlockPos pos, C context) {\n        return null;\n    }'),
+    ('    default <T, C extends Object> T getCapability(BlockCapability<T, C> cap, BlockPos pos, BlockState state, BlockEntity blockEntity, C context) {\n        throw Unimplemented.forMember("net/neoforged/neoforge/common/extensions/ILevelExtension.getCapability:(Lnet/neoforged/neoforge/capabilities/BlockCapability;Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/state/BlockState;Lnet/minecraft/world/level/block/entity/BlockEntity;Ljava/lang/Object;)Ljava/lang/Object;");\n    }',
+     '    default <T, C extends Object> T getCapability(BlockCapability<T, C> cap, BlockPos pos, BlockState state, BlockEntity blockEntity, C context) {\n        return null;\n    }'),
+])
+
+edit('shim/src/main/java/dev/pumpkin/bridge/PumpkinPlayer.java', [
+    ('    // Pumpkin divergence: the player lives in the shared one-interaction level.',
+     '    // Pumpkin divergence: the hands hold what the bridge was told -- the real held\n    // stack in the main hand, nothing in the off hand.\n    public ItemStack getMainHandItem() {\n        return held;\n    }\n\n    public ItemStack getOffhandItem() {\n        return ItemStack.EMPTY;\n    }\n\n    // Pumpkin divergence: the player lives in the shared one-interaction level.'),
+])
+
+edit('net/minecraft/world/Nameable.java', [
+    ('    default String getPlainTextName() {\n        throw Unimplemented.forMember("net/minecraft/world/Nameable.getPlainTextName:()Ljava/lang/String;");\n    }\n\n    default boolean hasCustomName() {\n        throw Unimplemented.forMember("net/minecraft/world/Nameable.hasCustomName:()Z");\n    }\n\n    default Component getDisplayName() {\n        throw Unimplemented.forMember("net/minecraft/world/Nameable.getDisplayName:()Lnet/minecraft/network/chat/Component;");\n    }\n\n    default Component getCustomName() {\n        throw Unimplemented.forMember("net/minecraft/world/Nameable.getCustomName:()Lnet/minecraft/network/chat/Component;");\n    }',
+     '    // Pumpkin divergence: the vanilla default bodies -- no custom name unless a\n    // subclass carries one.\n    default String getPlainTextName() {\n        return getName().getString();\n    }\n\n    default boolean hasCustomName() {\n        return getCustomName() != null;\n    }\n\n    default Component getDisplayName() {\n        return getName();\n    }\n\n    default Component getCustomName() {\n        return null;\n    }'),
+])
+
+edit('net/minecraft/util/Util.java', [
+    ('    public static String makeDescriptionId(String prefix, Identifier location) {\n        throw Unimplemented.forMember("net/minecraft/util/Util.makeDescriptionId:(Ljava/lang/String;Lnet/minecraft/resources/Identifier;)Ljava/lang/String;");\n    }',
+     '    // Pumpkin divergence: vanilla body.\n    public static String makeDescriptionId(String prefix, Identifier location) {\n        return location == null\n                ? prefix + ".unregistered_sadface"\n                : prefix + "." + location.getNamespace() + "." + location.getPath().replace(\'/\', \'.\');\n    }'),
+])
+
+edit('shim/src/main/java/dev/pumpkin/bridge/PumpkinPlayer.java'.split('java/',1)[1], [
+    ('    public java.util.OptionalInt openMenu(net.minecraft.world.MenuProvider provider,\n            net.minecraft.core.BlockPos pos) {',
+     "    public java.util.OptionalInt openMenu(net.minecraft.world.MenuProvider provider,\n            java.util.function.Consumer<net.minecraft.network.RegistryFriendlyByteBuf> extraData) {\n        // NeoForge's extra-data overload: the buffer feeds the client-side menu ctor,\n        // which Pumpkin never runs -- the server menu is what matters here.\n        return openMenu(provider);\n    }\n\n    public java.util.OptionalInt openMenu(net.minecraft.world.MenuProvider provider,\n            net.minecraft.core.BlockPos pos) {"),
+])
+
+edit('net/minecraft/world/entity/player/Inventory.java', [
+    ('    public final Player player = null;\n\n    public Inventory(Player player, EntityEquipment equipment) {',
+     '    public final Player player;\n\n    public Inventory(Player player, EntityEquipment equipment) {\n        this.player = player;'),
+])
+
+edit('net/minecraft/world/entity/player/Inventory.java', [
+    ('    public Inventory() {\n    }',
+     '    public Inventory() {\n        this(null, null);\n    }'),
+])
+
+edit('dev/pumpkin/bridge/PumpkinPlayer.java', [
+    ('    private final net.minecraft.world.entity.player.Inventory inventory =\n            new net.minecraft.world.entity.player.Inventory();',
+     '    // Pumpkin divergence: the inventory really belongs to this player -- mod menus\n    // reach the level through inv.player.\n    private final net.minecraft.world.entity.player.Inventory inventory =\n            new net.minecraft.world.entity.player.Inventory(this, null);'),
+])
+
+edit('net/minecraft/world/entity/player/Inventory.java', [
+    ('    public int getSelectedSlot() {\n        throw Unimplemented.forMember("net/minecraft/world/entity/player/Inventory.getSelectedSlot:()I");\n    }',
+     '    // Pumpkin divergence: the bridge models the held stack in hotbar slot 0.\n    public int getSelectedSlot() {\n        return 0;\n    }'),
+    ('    public static int getSelectionSize() {\n        throw Unimplemented.forMember("net/minecraft/world/entity/player/Inventory.getSelectionSize:()I");\n    }',
+     '    // Pumpkin divergence: vanilla fact -- the hotbar is 9 wide.\n    public static int getSelectionSize() {\n        return 9;\n    }'),
+    ('    public NonNullList<ItemStack> getNonEquipmentItems() {\n        throw Unimplemented.forMember("net/minecraft/world/entity/player/Inventory.getNonEquipmentItems:()Lnet/minecraft/core/NonNullList;");\n    }',
+     '    public NonNullList<ItemStack> getNonEquipmentItems() {\n        return pumpkinItems;\n    }'),
+    ('    public int getContainerSize() {\n        throw Unimplemented.forMember("net/minecraft/world/entity/player/Inventory.getContainerSize:()I");\n    }',
+     '    public int getContainerSize() {\n        return pumpkinItems.size();\n    }'),
+    ('    public boolean stillValid(Player player) {\n        throw Unimplemented.forMember("net/minecraft/world/entity/player/Inventory.stillValid:(Lnet/minecraft/world/entity/player/Player;)Z");\n    }',
+     '    public boolean stillValid(Player player) {\n        return true;\n    }'),
+])
+
+edit('net/minecraft/world/entity/Entity.java', [
+    ('    public boolean equals(Object obj) {\n        throw Unimplemented.forMember("net/minecraft/world/entity/Entity.equals:(Ljava/lang/Object;)Z");\n    }\n\n    public int hashCode() {\n        throw Unimplemented.forMember("net/minecraft/world/entity/Entity.hashCode:()I");\n    }',
+     '    // Pumpkin divergence: identity semantics -- vanilla keys on the entity id, which\n    // stand-ins do not carry; identity is the honest equivalent.\n    public boolean equals(Object obj) {\n        return this == obj;\n    }\n\n    public int hashCode() {\n        return System.identityHashCode(this);\n    }'),
+])
+
 commit()

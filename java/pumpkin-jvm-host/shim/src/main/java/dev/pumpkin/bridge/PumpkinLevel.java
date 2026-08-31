@@ -362,8 +362,10 @@ public final class PumpkinLevel extends net.minecraft.server.level.ServerLevel {
 
 
     @Override
+    // Pumpkin divergence: truthful for this stand-in -- the bridge only runs for
+    // interactions on loaded blocks, so the neighborhood the mod asks about is loaded.
     public boolean hasChunk(int chunkX, int chunkZ) {
-        throw Unimplemented.forMember("net/minecraft/world/level/Level.hasChunk");
+        return true;
     }
 
 
@@ -383,8 +385,10 @@ public final class PumpkinLevel extends net.minecraft.server.level.ServerLevel {
     }
 
     @Override
+    // Pumpkin divergence: the overworld's real height range -- Pumpkin only routes
+    // overworld interactions through this level today.
     public int getHeight() {
-        throw Unimplemented.forMember("net/minecraft/world/level/Level.getHeight");
+        return 384;
     }
 
     @Override
@@ -394,7 +398,7 @@ public final class PumpkinLevel extends net.minecraft.server.level.ServerLevel {
 
     @Override
     public int getMinY() {
-        throw Unimplemented.forMember("net/minecraft/world/level/Level.getMinY");
+        return -64;
     }
 
     @Override

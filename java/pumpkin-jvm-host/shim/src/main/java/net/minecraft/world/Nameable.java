@@ -7,19 +7,21 @@ public interface Nameable {
 
     Component getName();
 
+    // Pumpkin divergence: the vanilla default bodies -- no custom name unless a
+    // subclass carries one.
     default String getPlainTextName() {
-        throw Unimplemented.forMember("net/minecraft/world/Nameable.getPlainTextName:()Ljava/lang/String;");
+        return getName().getString();
     }
 
     default boolean hasCustomName() {
-        throw Unimplemented.forMember("net/minecraft/world/Nameable.hasCustomName:()Z");
+        return getCustomName() != null;
     }
 
     default Component getDisplayName() {
-        throw Unimplemented.forMember("net/minecraft/world/Nameable.getDisplayName:()Lnet/minecraft/network/chat/Component;");
+        return getName();
     }
 
     default Component getCustomName() {
-        throw Unimplemented.forMember("net/minecraft/world/Nameable.getCustomName:()Lnet/minecraft/network/chat/Component;");
+        return null;
     }
 }

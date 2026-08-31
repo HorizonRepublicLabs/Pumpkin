@@ -19,25 +19,28 @@ public class Inventory implements Container, Nameable {
 
     public static final Int2ObjectMap<EquipmentSlot> EQUIPMENT_SLOT_MAPPING = null;
 
-    public final Player player = null;
+    public final Player player;
 
     public Inventory(Player player, EntityEquipment equipment) {
+        this.player = player;
     }
 
+    // Pumpkin divergence: the bridge models the held stack in hotbar slot 0.
     public int getSelectedSlot() {
-        throw Unimplemented.forMember("net/minecraft/world/entity/player/Inventory.getSelectedSlot:()I");
+        return 0;
     }
 
     public ItemStack getSelectedItem() {
         throw Unimplemented.forMember("net/minecraft/world/entity/player/Inventory.getSelectedItem:()Lnet/minecraft/world/item/ItemStack;");
     }
 
+    // Pumpkin divergence: vanilla fact -- the hotbar is 9 wide.
     public static int getSelectionSize() {
-        throw Unimplemented.forMember("net/minecraft/world/entity/player/Inventory.getSelectionSize:()I");
+        return 9;
     }
 
     public NonNullList<ItemStack> getNonEquipmentItems() {
-        throw Unimplemented.forMember("net/minecraft/world/entity/player/Inventory.getNonEquipmentItems:()Lnet/minecraft/core/NonNullList;");
+        return pumpkinItems;
     }
 
     public static boolean isHotbarSlot(int slot) {
@@ -83,7 +86,7 @@ public class Inventory implements Container, Nameable {
     }
 
     public int getContainerSize() {
-        throw Unimplemented.forMember("net/minecraft/world/entity/player/Inventory.getContainerSize:()I");
+        return pumpkinItems.size();
     }
 
     public boolean isEmpty() {
@@ -113,7 +116,7 @@ public class Inventory implements Container, Nameable {
     }
 
     public boolean stillValid(Player player) {
-        throw Unimplemented.forMember("net/minecraft/world/entity/player/Inventory.stillValid:(Lnet/minecraft/world/entity/player/Player;)Z");
+        return true;
     }
 
     public boolean contains(ItemStack searchStack) {
@@ -137,5 +140,6 @@ public class Inventory implements Container, Nameable {
     }
 
     public Inventory() {
+        this(null, null);
     }
 }

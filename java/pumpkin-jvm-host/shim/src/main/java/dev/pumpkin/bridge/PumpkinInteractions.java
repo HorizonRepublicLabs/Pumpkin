@@ -44,8 +44,8 @@ public final class PumpkinInteractions {
     }
 
     public static String useBlockOn(String blockId, String entityTypeId, int x, int y, int z,
-            String heldItemId, int heldCount, String savedData, boolean hasSignal)
-            throws Exception {
+            String heldItemId, int heldCount, String savedData, boolean hasSignal,
+            boolean sneaking, String playerUuid) throws Exception {
         PumpkinLevel.pumpkinSetSignal(hasSignal);
         Object blockObject = DeferredHolder.pumpkinResolve("minecraft:block", blockId);
         if (!(blockObject instanceof Block block)) {
@@ -57,7 +57,7 @@ public final class PumpkinInteractions {
                 && DeferredHolder.pumpkinResolve("minecraft:block_entity_type", entityTypeId)
                         instanceof BlockEntityType<?> type) {
             boolean existed = PumpkinBlockEntities.exists(x, y, z);
-            blockEntity = PumpkinBlockEntities.getOrCreate(type, x, y, z);
+            blockEntity = PumpkinBlockEntities.getOrCreate(type, x, y, z, block.defaultBlockState());
             // A freshly built entity whose position has saved state gets that state back
             // before the mod's code sees it -- this is where persistence re-enters.
             if (!existed && !savedData.isEmpty()) {
@@ -75,6 +75,10 @@ public final class PumpkinInteractions {
         PumpkinLevel level = LEVEL;
         level.pumpkinDrops().clear();
         PumpkinPlayer player = new PumpkinPlayer(held, x + 0.5, y + 1.0, z + 0.5);
+        player.pumpkinSetSneaking(sneaking);
+        if (!playerUuid.isEmpty()) {
+            player.pumpkinSetUuid(java.util.UUID.fromString(playerUuid));
+        }
         BlockPos pos = new BlockPos(x, y, z);
         BlockState state = block.defaultBlockState();
         BlockHitResult hit = new BlockHitResult(
@@ -84,6 +88,13 @@ public final class PumpkinInteractions {
         method.setAccessible(true);
         Object result = method.invoke(block, held, state, level, pos, player,
                 InteractionHand.MAIN_HAND, hit);
+        // Vanilla fallthrough: TRY_WITH_EMPTY_HAND means "retry without the item" --
+        // machine GUIs live in useWithoutItem.
+        if (result instanceof InteractionResult.TryEmptyHandInteraction) {
+            Method withoutItem = findMethod(block.getClass(), "useWithoutItem", 5);
+            withoutItem.setAccessible(true);
+            result = withoutItem.invoke(block, state, level, pos, player, hit);
+        }
 
         StringBuilder reply = new StringBuilder();
         reply.append(kindOf(result));

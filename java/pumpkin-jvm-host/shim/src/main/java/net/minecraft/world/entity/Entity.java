@@ -118,12 +118,14 @@ public abstract class Entity extends net.neoforged.neoforge.attachment.Attachmen
 
     protected abstract void defineSynchedData(SynchedEntityData.Builder entityData);
 
+    // Pumpkin divergence: identity semantics -- vanilla keys on the entity id, which
+    // stand-ins do not carry; identity is the honest equivalent.
     public boolean equals(Object obj) {
-        throw Unimplemented.forMember("net/minecraft/world/entity/Entity.equals:(Ljava/lang/Object;)Z");
+        return this == obj;
     }
 
     public int hashCode() {
-        throw Unimplemented.forMember("net/minecraft/world/entity/Entity.hashCode:()I");
+        return System.identityHashCode(this);
     }
 
     public void remove(Entity.RemovalReason reason) {

@@ -14,12 +14,15 @@ public interface ILevelExtension {
 
     public double increaseMaxEntityRadius(double value);
 
+    // Pumpkin divergence: truthful absence -- no capability provider is ever
+    // registered with Pumpkin (RegisterCapabilitiesEvent does not accept them), so
+    // every lookup answers null, the NeoForge contract for "no provider".
     default <T, C extends Object> T getCapability(BlockCapability<T, C> cap, BlockPos pos, C context) {
-        throw Unimplemented.forMember("net/neoforged/neoforge/common/extensions/ILevelExtension.getCapability:(Lnet/neoforged/neoforge/capabilities/BlockCapability;Lnet/minecraft/core/BlockPos;Ljava/lang/Object;)Ljava/lang/Object;");
+        return null;
     }
 
     default <T, C extends Object> T getCapability(BlockCapability<T, C> cap, BlockPos pos, BlockState state, BlockEntity blockEntity, C context) {
-        throw Unimplemented.forMember("net/neoforged/neoforge/common/extensions/ILevelExtension.getCapability:(Lnet/neoforged/neoforge/capabilities/BlockCapability;Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/state/BlockState;Lnet/minecraft/world/level/block/entity/BlockEntity;Ljava/lang/Object;)Ljava/lang/Object;");
+        return null;
     }
 
     default <T> T getCapability(BlockCapability<T, Void> cap, BlockPos pos) {

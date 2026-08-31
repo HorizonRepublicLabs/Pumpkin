@@ -33,23 +33,24 @@ public class BlockPos extends Vec3i {
     }
 
     public static long offset(long blockNode, int stepX, int stepY, int stepZ) {
-        throw Unimplemented.forMember("net/minecraft/core/BlockPos.offset:(JIII)J");
+        return asLong(getX(blockNode) + stepX, getY(blockNode) + stepY, getZ(blockNode) + stepZ);
     }
 
+    // Pumpkin divergence: the vanilla 26/12/26 bit layout, real math throughout.
     public static int getX(long blockNode) {
-        throw Unimplemented.forMember("net/minecraft/core/BlockPos.getX:(J)I");
+        return (int) (blockNode << 0 >> 38);
     }
 
     public static int getY(long blockNode) {
-        throw Unimplemented.forMember("net/minecraft/core/BlockPos.getY:(J)I");
+        return (int) (blockNode << 52 >> 52);
     }
 
     public static int getZ(long blockNode) {
-        throw Unimplemented.forMember("net/minecraft/core/BlockPos.getZ:(J)I");
+        return (int) (blockNode << 26 >> 38);
     }
 
     public static BlockPos of(long blockNode) {
-        throw Unimplemented.forMember("net/minecraft/core/BlockPos.of:(J)Lnet/minecraft/core/BlockPos;");
+        return new BlockPos(getX(blockNode), getY(blockNode), getZ(blockNode));
     }
 
     // Pumpkin divergence: vanilla bodies -- floor each coordinate into the block grid.
@@ -62,11 +63,11 @@ public class BlockPos extends Vec3i {
     }
 
     public long asLong() {
-        throw Unimplemented.forMember("net/minecraft/core/BlockPos.asLong:()J");
+        return asLong(getX(), getY(), getZ());
     }
 
     public static long asLong(int x, int y, int z) {
-        throw Unimplemented.forMember("net/minecraft/core/BlockPos.asLong:(III)J");
+        return ((long) (x & 0x3FFFFFF) << 38) | ((long) (z & 0x3FFFFFF) << 12) | (y & 0xFFF);
     }
 
     // Pumpkin divergence: vanilla bodies verbatim -- coordinate arithmetic, nothing else.

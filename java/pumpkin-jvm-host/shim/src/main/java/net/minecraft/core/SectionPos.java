@@ -33,24 +33,25 @@ public class SectionPos extends Vec3i {
         throw Unimplemented.forMember("net/minecraft/core/SectionPos.of:(J)Lnet/minecraft/core/SectionPos;");
     }
 
+    // Pumpkin divergence: vanilla bodies -- section coordinate arithmetic.
     public static int blockToSectionCoord(int blockCoord) {
-        throw Unimplemented.forMember("net/minecraft/core/SectionPos.blockToSectionCoord:(I)I");
+        return blockCoord >> 4;
     }
 
     public static int blockToSectionCoord(double coord) {
-        throw Unimplemented.forMember("net/minecraft/core/SectionPos.blockToSectionCoord:(D)I");
+        return blockToSectionCoord((int) Math.floor(coord));
     }
 
     public static int sectionRelative(int blockCoord) {
-        throw Unimplemented.forMember("net/minecraft/core/SectionPos.sectionRelative:(I)I");
+        return blockCoord & 15;
     }
 
     public static int sectionToBlockCoord(int sectionCoord) {
-        throw Unimplemented.forMember("net/minecraft/core/SectionPos.sectionToBlockCoord:(I)I");
+        return sectionCoord << 4;
     }
 
     public static int sectionToBlockCoord(int sectionCoord, int offset) {
-        throw Unimplemented.forMember("net/minecraft/core/SectionPos.sectionToBlockCoord:(II)I");
+        return sectionToBlockCoord(sectionCoord) + offset;
     }
 
     public int x() {

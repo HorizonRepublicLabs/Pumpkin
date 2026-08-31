@@ -82,8 +82,10 @@ public abstract class Level extends net.neoforged.neoforge.attachment.Attachment
         throw Unimplemented.forMember("net/minecraft/world/level/Level.getServer:()Lnet/minecraft/server/MinecraftServer;");
     }
 
+    // Pumpkin divergence: vanilla logic -- inside the height range and the 30M border.
     public boolean isInWorldBounds(BlockPos pos) {
-        throw Unimplemented.forMember("net/minecraft/world/level/Level.isInWorldBounds:(Lnet/minecraft/core/BlockPos;)Z");
+        return pos.getY() >= getMinY() && pos.getY() <= getMaxY()
+                && Math.abs(pos.getX()) < 30000000 && Math.abs(pos.getZ()) < 30000000;
     }
 
     public LevelChunk getChunk(int chunkX, int chunkZ) {

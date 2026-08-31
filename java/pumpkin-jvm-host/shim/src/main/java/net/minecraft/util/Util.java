@@ -18,8 +18,11 @@ public class Util {
         throw Unimplemented.forMember("net/minecraft/util/Util.getPropertyName:(Lnet/minecraft/world/level/block/state/properties/Property;Ljava/lang/Object;)Ljava/lang/String;");
     }
 
+    // Pumpkin divergence: vanilla body.
     public static String makeDescriptionId(String prefix, Identifier location) {
-        throw Unimplemented.forMember("net/minecraft/util/Util.makeDescriptionId:(Ljava/lang/String;Lnet/minecraft/resources/Identifier;)Ljava/lang/String;");
+        return location == null
+                ? prefix + ".unregistered_sadface"
+                : prefix + "." + location.getNamespace() + "." + location.getPath().replace('/', '.');
     }
 
     public static long getMillis() {

@@ -30,11 +30,14 @@ public abstract class BlockEntity extends net.neoforged.neoforge.attachment.Atta
 
     private DataComponentMap components;
 
-    // Pumpkin divergence: the position is kept; getBlockPos answers with it.
+    // Pumpkin divergence: position and state are kept; the getters answer with them.
     private BlockPos pumpkinPosition;
+
+    private BlockState pumpkinBlockState;
 
     public BlockEntity(BlockEntityType<?> type, BlockPos worldPosition, BlockState blockState) {
         this.pumpkinPosition = worldPosition;
+        this.pumpkinBlockState = blockState;
     }
 
     // Pumpkin divergence: real body over the protected field the bridge sets.
@@ -53,7 +56,7 @@ public abstract class BlockEntity extends net.neoforged.neoforge.attachment.Atta
     }
 
     public boolean hasLevel() {
-        throw Unimplemented.forMember("net/minecraft/world/level/block/entity/BlockEntity.hasLevel:()Z");
+        return level != null;
     }
 
     // Pumpkin divergence: the base writes vanilla bookkeeping (components) the shim does
@@ -101,7 +104,10 @@ public abstract class BlockEntity extends net.neoforged.neoforge.attachment.Atta
     }
 
     public BlockState getBlockState() {
-        throw Unimplemented.forMember("net/minecraft/world/level/block/entity/BlockEntity.getBlockState:()Lnet/minecraft/world/level/block/state/BlockState;");
+        if (pumpkinBlockState == null) {
+            throw Unimplemented.forMember("net/minecraft/world/level/block/entity/BlockEntity.getBlockState:()Lnet/minecraft/world/level/block/state/BlockState; (entity built without a state)");
+        }
+        return pumpkinBlockState;
     }
 
     public Packet<ClientGamePacketListener> getUpdatePacket() {
@@ -153,7 +159,7 @@ public abstract class BlockEntity extends net.neoforged.neoforge.attachment.Atta
     }
 
     public void setBlockState(BlockState blockState) {
-        throw Unimplemented.forMember("net/minecraft/world/level/block/entity/BlockEntity.setBlockState:(Lnet/minecraft/world/level/block/state/BlockState;)V");
+        this.pumpkinBlockState = blockState;
     }
 
     protected void applyImplicitComponents(DataComponentGetter components) {

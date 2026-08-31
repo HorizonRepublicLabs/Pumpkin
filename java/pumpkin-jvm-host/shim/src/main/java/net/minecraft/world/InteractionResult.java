@@ -19,7 +19,9 @@ public interface InteractionResult {
 
     InteractionResult.Pass PASS = new Pass();
 
-    InteractionResult.TryEmptyHandInteraction TRY_WITH_EMPTY_HAND = null;
+    // Pumpkin divergence: real instance -- the default useItemOn answer must be
+    // distinguishable so the bridge can fall through to useWithoutItem.
+    InteractionResult.TryEmptyHandInteraction TRY_WITH_EMPTY_HAND = new TryEmptyHandInteraction();
 
     default boolean consumesAction() {
         throw Unimplemented.forMember("net/minecraft/world/InteractionResult.consumesAction:()Z");

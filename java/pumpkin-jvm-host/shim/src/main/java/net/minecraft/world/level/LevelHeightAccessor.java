@@ -9,8 +9,9 @@ public interface LevelHeightAccessor {
 
     int getMinY();
 
+    // Pumpkin divergence: vanilla derivation from the two abstract facts.
     default int getMaxY() {
-        throw Unimplemented.forMember("net/minecraft/world/level/LevelHeightAccessor.getMaxY:()I");
+        return getMinY() + getHeight() - 1;
     }
 
     default int getMinSectionY() {

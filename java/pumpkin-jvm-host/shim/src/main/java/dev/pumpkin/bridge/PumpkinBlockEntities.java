@@ -30,8 +30,15 @@ public final class PumpkinBlockEntities {
 
     /** The entity at a position, building it with the type's factory on first use. */
     public static BlockEntity getOrCreate(BlockEntityType<?> type, int x, int y, int z) {
+        return getOrCreate(type, x, y, z, null);
+    }
+
+    // Pumpkin divergence: the block's state travels in so the entity can answer
+    // getBlockState() -- mod machines read their own facing/active from it.
+    public static BlockEntity getOrCreate(BlockEntityType<?> type, int x, int y, int z,
+            net.minecraft.world.level.block.state.BlockState state) {
         return BY_POSITION.computeIfAbsent(key(x, y, z), ignored -> {
-            BlockEntity entity = type.pumpkinCreate(new BlockPos(x, y, z), null);
+            BlockEntity entity = type.pumpkinCreate(new BlockPos(x, y, z), state);
             entity.pumpkinSetLevel(PumpkinInteractions.pumpkinLevel());
             return entity;
         });
