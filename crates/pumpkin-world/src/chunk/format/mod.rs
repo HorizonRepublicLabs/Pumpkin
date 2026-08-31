@@ -153,7 +153,13 @@ where
     let priority = TickPriority::try_from(nbt.get_int("p")?).ok()?;
     let res_loc_str = nbt.get_string("i")?;
     let res_loc = ResourceLocation::from_str(res_loc_str).ok()?;
-    let value = T::from_resource_location(&res_loc)?;
+    let Some(value) = T::from_resource_location(&res_loc) else {
+        // A tick naming something unresolvable would silently vanish -- and a mod
+        // block's tick genuinely does resolve or not depending on whether the dynamic
+        // registry is frozen yet, so the drop has to say its name.
+        tracing::warn!("dropping a saved scheduled tick naming unknown {res_loc_str}");
+        return None;
+    };
     Some(ScheduledTick {
         delay,
         priority,

@@ -57,6 +57,10 @@ pub struct GenerationSchedule {
     send_level: Arc<LevelChannel>,
 
     public_chunk_map: Arc<DashMap<Vector2<i32>, SyncChunk>>,
+    /// The tick harvest only walks chunks registered here; a chunk loaded from disk with
+    /// saved pending ticks has to be registered at publish time or those ticks never run
+    /// again -- a growth accelerator would go dormant across a restart.
+    chunks_with_scheduled_ticks: Arc<dashmap::DashSet<Vector2<i32>>>,
     chunk_map: HashMap<ChunkPos, ChunkHolder>,
     unload_chunks: HashSetType<ChunkPos>,
 
@@ -128,6 +132,7 @@ impl GenerationSchedule {
                     last_high_priority: Vec::new(),
                     send_level: level_channel,
                     public_chunk_map: level_sched.loaded_chunks.clone(),
+                    chunks_with_scheduled_ticks: level_sched.chunks_with_scheduled_ticks.clone(),
                     unload_chunks: HashSetType::default(),
                     waiting_for_chunks: HashSetType::default(),
                     io_lock,
@@ -897,6 +902,11 @@ impl GenerationSchedule {
                 match &chunk {
                     Chunk::Level(data) => {
                         self.apply_lighting_override(data);
+                        // A chunk arriving from disk with saved pending ticks has to
+                        // register for the tick harvest, or those ticks sleep forever.
+                        if data.block_ticks.has_ticks() || data.fluid_ticks.has_ticks() {
+                            self.chunks_with_scheduled_ticks.insert(pos);
+                        }
                         let result = self.public_chunk_map.insert(pos, data.clone());
                         if result.is_some() {
                             warn!(
@@ -966,6 +976,9 @@ impl GenerationSchedule {
                                 let was_public = holder.public;
                                 self.apply_lighting_override(&chunk);
                                 let public_chunk = chunk.clone();
+                                if chunk.block_ticks.has_ticks() || chunk.fluid_ticks.has_ticks() {
+                                    self.chunks_with_scheduled_ticks.insert(new_pos);
+                                }
                                 if was_public {
                                     self.public_chunk_map.insert(new_pos, public_chunk);
                                     info!(

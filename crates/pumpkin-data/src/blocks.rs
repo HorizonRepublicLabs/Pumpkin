@@ -108,7 +108,15 @@ impl Taggable for Block {
 
 impl ToResourceLocation for &'static Block {
     fn to_resource_location(&self) -> ResourceLocation {
-        format!("minecraft:{}", self.name)
+        // Vanilla names are bare; runtime-registered ones already carry their namespace,
+        // and prefixing those again writes "minecraft:mysticalagriculture:..." into the
+        // save -- a spelling the load path cannot resolve, which is how a growth
+        // accelerator's pending tick used to vanish across a restart.
+        if self.name.contains(':') {
+            self.name.to_string()
+        } else {
+            format!("minecraft:{}", self.name)
+        }
     }
 }
 
