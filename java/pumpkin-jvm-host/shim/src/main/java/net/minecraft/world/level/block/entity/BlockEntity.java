@@ -26,7 +26,8 @@ public abstract class BlockEntity extends net.neoforged.neoforge.attachment.Atta
 
     protected Level level;
 
-    protected final BlockPos worldPosition = null;
+    // Pumpkin divergence: real -- subclasses read the field directly.
+    protected BlockPos worldPosition;
 
     private DataComponentMap components;
 
@@ -37,6 +38,7 @@ public abstract class BlockEntity extends net.neoforged.neoforge.attachment.Atta
 
     public BlockEntity(BlockEntityType<?> type, BlockPos worldPosition, BlockState blockState) {
         this.pumpkinPosition = worldPosition;
+        this.worldPosition = worldPosition;
         this.pumpkinBlockState = blockState;
     }
 

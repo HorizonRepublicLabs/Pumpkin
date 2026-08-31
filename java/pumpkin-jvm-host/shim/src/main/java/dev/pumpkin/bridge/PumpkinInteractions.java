@@ -162,10 +162,17 @@ public final class PumpkinInteractions {
         }
         // A vanilla item has no holder here; a synthetic Item carrying the id is enough
         // for the mod to store and hand back, and the id survives the round trip.
-        Item stand_in = new Item(new Item.Properties());
-        stand_in.pumpkinSetRegisteredId(itemId);
-        return new ItemStack(stand_in, count);
+        // Interned: vanilla items are singletons, and mod recipe caches key on item
+        // identity -- two stand-ins for one id must be the same object.
+        return new ItemStack(VANILLA_STAND_INS.computeIfAbsent(itemId, id -> {
+            Item item = new Item(new Item.Properties());
+            item.pumpkinSetRegisteredId(id);
+            return item;
+        }), count);
     }
+
+    private static final java.util.concurrent.ConcurrentHashMap<String, Item> VANILLA_STAND_INS =
+            new java.util.concurrent.ConcurrentHashMap<>();
 
     /** The item's registered id and count, e.g. {@code mysticalagriculture:prosperity_shard:3}. */
     static String describe(ItemStack stack) {

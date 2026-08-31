@@ -114,6 +114,11 @@ pub fn bind(env: &mut JNIEnv) -> Result<(), VmError> {
                 sig: "(Ljava/lang/String;)Ljava/lang/String;".into(),
                 fn_ptr: block_tag_values_native as *mut std::ffi::c_void,
             },
+            NativeMethod {
+                name: "vanillaCookingRecipes".into(),
+                sig: "(Ljava/lang/String;)Ljava/lang/String;".into(),
+                fn_ptr: vanilla_cooking_recipes_native as *mut std::ffi::c_void,
+            },
         ],
     )
     .map_err(|err| VmError::Java(format!("Failed to bind PumpkinHost natives: {err}")))
@@ -578,5 +583,47 @@ extern "system" fn item_tag_values_native<'a>(
         .map(|values| values.join(","))
         .unwrap_or_default();
     env.new_string(joined)
+        .map_or(std::ptr::null_mut(), jni::objects::JString::into_raw)
+}
+
+/// The vanilla cooking recipes of one kind (`smelting`, `blasting`, `smoking`,
+/// `campfire_cooking`) as newline-separated `id|ingredient|result:count` lines, the
+/// ingredient a plain item id, `#tag`, or `;`-joined alternatives. The shim synthesizes
+/// real recipe objects from these so mod machines that wrap the vanilla furnace types
+/// (Mekanism's energized smelter) see the recipes a furnace would.
+extern "system" fn vanilla_cooking_recipes_native<'a>(
+    mut env: JNIEnv<'a>,
+    _class: JClass<'a>,
+    kind: JString<'a>,
+) -> jni::sys::jstring {
+    use std::fmt::Write;
+
+    use pumpkin_data::recipes::{CookingRecipeType, RECIPES_COOKING, RecipeIngredientTypes};
+    let Some(kind) = read_string(&mut env, &kind, "vanillaCookingRecipes kind") else {
+        return std::ptr::null_mut();
+    };
+    let mut out = String::new();
+    for entry in RECIPES_COOKING {
+        let (name, recipe) = match entry {
+            CookingRecipeType::Smelting(recipe) => ("smelting", recipe),
+            CookingRecipeType::Blasting(recipe) => ("blasting", recipe),
+            CookingRecipeType::Smoking(recipe) => ("smoking", recipe),
+            CookingRecipeType::CampfireCooking(recipe) => ("campfire_cooking", recipe),
+        };
+        if name != kind {
+            continue;
+        }
+        let ingredient = match &recipe.ingredient {
+            RecipeIngredientTypes::Simple(id) => (*id).to_string(),
+            RecipeIngredientTypes::Tagged(tag) => format!("#{tag}"),
+            RecipeIngredientTypes::OneOf(ids) => ids.join(";"),
+        };
+        let _ = writeln!(
+            out,
+            "{}|{}|{}:{}",
+            recipe.recipe_id, ingredient, recipe.result.id, recipe.result.count
+        );
+    }
+    env.new_string(&out)
         .map_or(std::ptr::null_mut(), jni::objects::JString::into_raw)
 }

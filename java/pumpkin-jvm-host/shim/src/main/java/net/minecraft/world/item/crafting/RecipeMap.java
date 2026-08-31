@@ -10,7 +10,17 @@ import dev.pumpkin.shim.Unimplemented;
 
 public class RecipeMap {
 
-    public static final RecipeMap EMPTY = null;
+    // Pumpkin divergence: function-backed view over whatever resolver built it;
+    // EMPTY is a real empty one. byType/getRecipesFor answer from the resolver.
+    private java.util.function.Function<RecipeType<?>, Collection<RecipeHolder<?>>> pumpkinResolver;
+
+    public static RecipeMap pumpkinOf(java.util.function.Function<RecipeType<?>, Collection<RecipeHolder<?>>> resolver) {
+        RecipeMap map = new RecipeMap(null, null);
+        map.pumpkinResolver = resolver;
+        return map;
+    }
+
+    public static final RecipeMap EMPTY = pumpkinOf(type -> java.util.List.of());
 
     private Multimap<RecipeType<?>, RecipeHolder<?>> byType;
 
@@ -27,8 +37,12 @@ public class RecipeMap {
         throw Unimplemented.forMember("net/minecraft/world/item/crafting/RecipeMap.order:(Lit/unimi/dsi/fastutil/objects/Object2IntMap;)V");
     }
 
+    @SuppressWarnings({"unchecked", "rawtypes"})
     public <I extends RecipeInput, T extends Recipe<I>> Collection<RecipeHolder<T>> byType(RecipeType<T> type) {
-        throw Unimplemented.forMember("net/minecraft/world/item/crafting/RecipeMap.byType:(Lnet/minecraft/world/item/crafting/RecipeType;)Ljava/util/Collection;");
+        if (pumpkinResolver == null) {
+            throw Unimplemented.forMember("net/minecraft/world/item/crafting/RecipeMap.byType:(Lnet/minecraft/world/item/crafting/RecipeType;)Ljava/util/Collection;");
+        }
+        return (Collection) pumpkinResolver.apply(type);
     }
 
     public RecipeHolder<?> byKey(ResourceKey<Recipe<?>> recipeId) {
@@ -36,7 +50,8 @@ public class RecipeMap {
     }
 
     public <I extends RecipeInput, T extends Recipe<I>> Stream<RecipeHolder<T>> getRecipesFor(RecipeType<T> type, I container, Level level) {
-        throw Unimplemented.forMember("net/minecraft/world/item/crafting/RecipeMap.getRecipesFor:(Lnet/minecraft/world/item/crafting/RecipeType;Lnet/minecraft/world/item/crafting/RecipeInput;Lnet/minecraft/world/level/Level;)Ljava/util/stream/Stream;");
+        return this.<I, T>byType(type).stream()
+                .filter(holder -> holder.value().matches(container, level));
     }
 
     public RecipeMap() {

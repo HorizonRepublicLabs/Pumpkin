@@ -34,8 +34,9 @@ public class LevelChunk extends ChunkAccess implements DebugValueSource, IAttach
     public LevelChunk(ServerLevel level, ProtoChunk protoChunk, LevelChunk.PostLoadProcessor postLoad) {
     }
 
+    // Pumpkin divergence: dirty-marking is persistence bookkeeping the bridge does
+    // itself -- entity data rides every interaction reply -- so there is nothing to mark.
     public void markUnsaved() {
-        throw Unimplemented.forMember("net/minecraft/world/level/chunk/LevelChunk.markUnsaved:()V");
     }
 
     public TickContainerAccess<Block> getBlockTicks() {

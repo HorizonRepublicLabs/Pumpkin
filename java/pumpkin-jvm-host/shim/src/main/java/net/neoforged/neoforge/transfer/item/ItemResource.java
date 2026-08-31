@@ -88,8 +88,12 @@ public final class ItemResource implements DataComponentHolderResource<Item> {
         return pumpkinItem == null ? null : pumpkinItem.asItem();
     }
 
+    // Pumpkin divergence: a real holder over the carried item, the same shape the
+    // ingredient values use.
+    @SuppressWarnings("unchecked")
     public Holder<Item> typeHolder() {
-        throw Unimplemented.forMember("net/neoforged/neoforge/transfer/item/ItemResource.typeHolder:()Lnet/minecraft/core/Holder;");
+        return (Holder<Item>) dev.pumpkin.shim.Stubs.of(Holder.class,
+                "net/minecraft/core/Holder(ItemResource)", java.util.Map.of("value", getItem()));
     }
 
     public boolean isEmpty() {
@@ -178,8 +182,12 @@ public final class ItemResource implements DataComponentHolderResource<Item> {
         return toStack(1);
     }
 
+    // Pumpkin divergence: the item's declared max stack size; 64, the vanilla
+    // default, when the mod did not say.
     public int getMaxStackSize() {
-        throw Unimplemented.forMember("net/neoforged/neoforge/transfer/item/ItemResource.getMaxStackSize:()I");
+        Item item = getItem();
+        int declared = item == null ? -1 : item.pumpkinMaxStackSize();
+        return declared > 0 ? declared : 64;
     }
 
     public Component getHoverName() {

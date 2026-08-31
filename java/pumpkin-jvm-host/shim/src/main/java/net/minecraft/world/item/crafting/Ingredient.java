@@ -66,6 +66,12 @@ public final class Ingredient implements Predicate<ItemStack>, StackedContents.I
     // never -- see test()).
     private java.util.List<String> pumpkinIds = java.util.List.of();
 
+    // Pumpkin divergence: no vanilla counterpart -- the bridge synthesizes vanilla
+    // cooking recipes and needs an ingredient over plain ids.
+    public static Ingredient pumpkinOfIds(java.util.List<String> ids) {
+        return pumpkinOf(ids);
+    }
+
     private static Ingredient pumpkinOf(java.util.List<String> ids) {
         Ingredient ingredient = new Ingredient((HolderSet<Item>) null);
         ingredient.pumpkinIds = ids;
@@ -75,7 +81,10 @@ public final class Ingredient implements Predicate<ItemStack>, StackedContents.I
     private Ingredient(HolderSet<Item> values) {
     }
 
+    private boolean pumpkinCustom;
+
     public Ingredient(net.neoforged.neoforge.common.crafting.ICustomIngredient customIngredient) {
+        this.pumpkinCustom = true;
     }
 
     public Stream<Holder<Item>> items() {
@@ -119,12 +128,31 @@ public final class Ingredient implements Predicate<ItemStack>, StackedContents.I
         throw Unimplemented.forMember("net/minecraft/world/item/crafting/Ingredient.hashCode:()I");
     }
 
+    // Pumpkin divergence: real holders over the decoded ids, tag entries expanded
+    // through the same tag tables test() consults.
+    @SuppressWarnings("unchecked")
     public HolderSet<Item> getValues() {
-        throw Unimplemented.forMember("net/minecraft/world/item/crafting/Ingredient.getValues:()Lnet/minecraft/core/HolderSet;");
+        java.util.ArrayList<Holder<Item>> holders = new java.util.ArrayList<>();
+        java.util.LinkedHashSet<String> ids = new java.util.LinkedHashSet<>();
+        for (String candidate : pumpkinIds) {
+            if (candidate.startsWith("#")) {
+                ids.addAll(dev.pumpkin.bridge.PumpkinTags.itemMembers(candidate.substring(1)));
+            } else {
+                ids.add(candidate);
+            }
+        }
+        for (String id : ids) {
+            Item item = dev.pumpkin.bridge.PumpkinInteractions.pumpkinBuildStack(id, 1).getItem();
+            holders.add((Holder<Item>) dev.pumpkin.shim.Stubs.of(Holder.class,
+                    "net/minecraft/core/Holder(" + id + ")", java.util.Map.of("value", item)));
+        }
+        return HolderSet.direct(holders);
     }
 
+    // Pumpkin divergence: NeoForge's own meaning -- simple unless custom logic hides
+    // behind it.
     public boolean isSimple() {
-        throw Unimplemented.forMember("net/minecraft/world/item/crafting/Ingredient.isSimple:()Z");
+        return !pumpkinCustom;
     }
 
     public net.neoforged.neoforge.common.crafting.ICustomIngredient getCustomIngredient() {

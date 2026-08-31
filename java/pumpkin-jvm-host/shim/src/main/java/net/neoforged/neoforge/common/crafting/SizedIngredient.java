@@ -20,23 +20,26 @@ public final class SizedIngredient {
 
     public static final StreamCodec<RegistryFriendlyByteBuf, SizedIngredient> STREAM_CODEC = Stubs.of(StreamCodec.class, "net/minecraft/network/codec/StreamCodec");
 
-    private final Ingredient ingredient = null;
+    // Pumpkin divergence: really an ingredient plus a count; NeoForge's own bodies.
+    private final Ingredient ingredient;
 
-    private final int count = 0;
+    private final int count;
 
     public SizedIngredient(Ingredient ingredient, int count) {
+        this.ingredient = ingredient;
+        this.count = count;
     }
 
     public Ingredient ingredient() {
-        throw Unimplemented.forMember("net/neoforged/neoforge/common/crafting/SizedIngredient.ingredient:()Lnet/minecraft/world/item/crafting/Ingredient;");
+        return ingredient;
     }
 
     public int count() {
-        throw Unimplemented.forMember("net/neoforged/neoforge/common/crafting/SizedIngredient.count:()I");
+        return count;
     }
 
     public boolean test(ItemStack stack) {
-        throw Unimplemented.forMember("net/neoforged/neoforge/common/crafting/SizedIngredient.test:(Lnet/minecraft/world/item/ItemStack;)Z");
+        return ingredient.test(stack) && stack.count() >= count;
     }
 
     public boolean equals(Object o) {
@@ -52,5 +55,6 @@ public final class SizedIngredient {
     }
 
     public SizedIngredient() {
+        this(null, 0);
     }
 }

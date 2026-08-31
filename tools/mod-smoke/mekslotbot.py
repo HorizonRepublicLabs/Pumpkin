@@ -57,16 +57,12 @@ def act(sock):
                        + struct.pack("b", button) + varint(mode)
                        + varint(0) + b"\x00" + b"\x00")
             send(sock, 18, payload)
-        # raw iron sits in hotbar slot 0, mapped at the end of the menu's slot list
+        # raw iron sits in hotbar slot 0, mapped at the end of the menu's slot list;
+        # shift-click lets the mod's own quickMoveStack route it
         pick_index = nslots - 9
-        container_click(pick_index, 0, 0)
-        print(f"BOT: picked raw iron from menu slot {pick_index}", flush=True)
-        time.sleep(1.5)
-        for target in range(0, nslots - 36):
-            container_click(target, 0, 0)
-            print(f"BOT: tried machine slot {target}", flush=True)
-            time.sleep(1.5)
-        time.sleep(3)
+        container_click(pick_index, 0, 1)
+        print(f"BOT: shift-clicked raw iron at menu slot {pick_index}", flush=True)
+        time.sleep(5)
         print("BOT: done", flush=True)
         os._exit(0)
     except Exception as e:
@@ -102,6 +98,16 @@ while time.time() < deadline:
             mtype, pos = rv(body, pos)
             sys.modules[__name__].window_id = wid
             print(f"BOT: OPEN_SCREEN window={wid} menu_type={mtype}", flush=True)
+        if pid == 20:
+            wid, pos = rv(body, 0)
+            st, pos = rv(body, pos)
+            slot = struct.unpack(">h", body[pos:pos+2])[0]; pos += 2
+            c, pos = rv(body, pos)
+            extra = ""
+            if c > 0:
+                iid, pos = rv(body, pos)
+                extra = f" item={iid} count={c}"
+            print(f"BOT: SET_SLOT window={wid} slot={slot}{extra}", flush=True)
         if pid == 18:
             wid, pos = rv(body, 0)
             if wid >= 100:

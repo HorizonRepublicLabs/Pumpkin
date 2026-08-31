@@ -37,12 +37,15 @@ public interface HolderSet<T> extends Iterable<Holder<T>>, IHolderSetExtension<T
         throw Unimplemented.forMember("net/minecraft/core/HolderSet.empty:()Lnet/minecraft/core/HolderSet;");
     }
 
+    // Pumpkin divergence: vanilla bodies over a really-stored list.
+    @SafeVarargs
     static <T> HolderSet.Direct<T> direct(Holder<T>... values) {
-        throw Unimplemented.forMember("net/minecraft/core/HolderSet.direct:([Lnet/minecraft/core/Holder;)Lnet/minecraft/core/HolderSet$Direct;");
+        return direct(List.of(values));
     }
 
+    @SuppressWarnings("unchecked")
     static <T> HolderSet.Direct<T> direct(List<? extends Holder<T>> values) {
-        throw Unimplemented.forMember("net/minecraft/core/HolderSet.direct:(Ljava/util/List;)Lnet/minecraft/core/HolderSet$Direct;");
+        return new Direct<>((List<Holder<T>>) List.copyOf(values));
     }
 
     static <E, T> HolderSet.Direct<T> direct(Function<E, Holder<T>> holderGetter, E... elements) {
@@ -55,11 +58,15 @@ public interface HolderSet<T> extends Iterable<Holder<T>>, IHolderSetExtension<T
 
     final class Direct<T> extends HolderSet.ListBacked<T> {
 
+        private List<Holder<T>> pumpkinContents = List.of();
+
         private Direct(List<Holder<T>> contents) {
+            this.pumpkinContents = contents;
         }
 
+        @Override
         protected List<Holder<T>> contents() {
-            throw Unimplemented.forMember("net/minecraft/core/HolderSet$Direct.contents:()Ljava/util/List;");
+            return pumpkinContents;
         }
 
         public boolean isBound() {
@@ -99,19 +106,19 @@ public interface HolderSet<T> extends Iterable<Holder<T>>, IHolderSetExtension<T
         protected abstract List<Holder<T>> contents();
 
         public int size() {
-            throw Unimplemented.forMember("net/minecraft/core/HolderSet$ListBacked.size:()I");
+            return contents().size();
         }
 
         public Spliterator<Holder<T>> spliterator() {
-            throw Unimplemented.forMember("net/minecraft/core/HolderSet$ListBacked.spliterator:()Ljava/util/Spliterator;");
+            return contents().spliterator();
         }
 
         public Iterator<Holder<T>> iterator() {
-            throw Unimplemented.forMember("net/minecraft/core/HolderSet$ListBacked.iterator:()Ljava/util/Iterator;");
+            return contents().iterator();
         }
 
         public Stream<Holder<T>> stream() {
-            throw Unimplemented.forMember("net/minecraft/core/HolderSet$ListBacked.stream:()Ljava/util/stream/Stream;");
+            return contents().stream();
         }
 
         public Optional<Holder<T>> getRandomElement(RandomSource random) {

@@ -149,4 +149,10 @@ public final class PumpkinHost {
 
     /** Comma-joined members of a vanilla block tag, or empty when no such tag exists. */
     public static native String blockTagValues(String tag);
+
+    /**
+     * The vanilla cooking recipes of one kind ("smelting", ...) as newline-separated
+     * {@code id|ingredient|result:count} lines; see the Rust native for the grammar.
+     */
+    public static native String vanillaCookingRecipes(String kind);
 }

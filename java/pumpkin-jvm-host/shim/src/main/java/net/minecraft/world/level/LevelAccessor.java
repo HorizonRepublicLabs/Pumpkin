@@ -33,8 +33,11 @@ public interface LevelAccessor extends CommonLevelAccessor, ScheduledTickAccess 
 
     LevelData getLevelData();
 
+    // Pumpkin divergence: a real monotonic clock in tick units. The stand-in level
+    // does not tick, but mods stamp caches and cooldowns with this; wall time over
+    // 50ms is the truthful equivalent of the server's tick counter.
     default long getGameTime() {
-        throw Unimplemented.forMember("net/minecraft/world/level/LevelAccessor.getGameTime:()J");
+        return System.nanoTime() / 50_000_000L;
     }
 
     MinecraftServer getServer();

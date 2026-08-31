@@ -56,6 +56,41 @@ public final class PumpkinValueIO {
                 json.add(name, items);
                 return;
             }
+            // A mod resource stack (Mekanism's LargeResourceStack and kin): a record of
+            // {resource, amount}, reached by reflection because the mod's class is not
+            // on this classpath. Item resources save in the same {id, count} shape as
+            // stacks; other resource kinds fail loudly below.
+            java.lang.reflect.Method resourceAccessor = null;
+            java.lang.reflect.Method amountAccessor = null;
+            for (java.lang.reflect.Method method : value.getClass().getMethods()) {
+                if (method.getParameterCount() != 0) {
+                    continue;
+                }
+                if (method.getName().equals("resource")) {
+                    resourceAccessor = method;
+                } else if (method.getName().equals("amount")) {
+                    amountAccessor = method;
+                }
+            }
+            if (resourceAccessor != null && amountAccessor != null) {
+                try {
+                    Object resource = resourceAccessor.invoke(value);
+                    Object amount = amountAccessor.invoke(value);
+                    if (resource instanceof net.neoforged.neoforge.transfer.item.ItemResource itemResource
+                            && amount instanceof Long count) {
+                        JsonObject stackJson = new JsonObject();
+                        if (!itemResource.isEmpty()) {
+                            stackJson.addProperty("id", PumpkinInteractions
+                                    .pumpkinItemId(itemResource.toStack(1)));
+                            stackJson.addProperty("count", count);
+                        }
+                        json.add(name, stackJson);
+                        return;
+                    }
+                } catch (ReflectiveOperationException ignored) {
+                    // Fall through to the loud refusal below.
+                }
+            }
             // A recipe id in progress-tracking saves.
             if (value instanceof net.minecraft.resources.Identifier identifier) {
                 json.addProperty(name, "pumpkin:identifier/" + identifier);

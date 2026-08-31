@@ -68,8 +68,9 @@ public class ResourceKey<T> implements Comparable<ResourceKey<?>> {
         return pumpkinRegistryName;
     }
 
+    // Pumpkin divergence: vanilla body -- the registry half as a registry key.
     public ResourceKey<Registry<T>> registryKey() {
-        throw Unimplemented.forMember("net/minecraft/resources/ResourceKey.registryKey:()Lnet/minecraft/resources/ResourceKey;");
+        return createRegistryKey(pumpkinRegistryName);
     }
 
     // Pumpkin divergence: real body.

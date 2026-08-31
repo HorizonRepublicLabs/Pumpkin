@@ -36,4 +36,13 @@ public class SmeltingRecipe extends AbstractCookingRecipe {
 
     public SmeltingRecipe() {
     }
+
+    // Pumpkin divergence: no vanilla counterpart -- a real recipe object synthesized
+    // from the vanilla cooking tables the Rust side carries.
+    public static SmeltingRecipe pumpkinVanilla(java.util.List<String> ingredientIds, String result) {
+        SmeltingRecipe recipe = new SmeltingRecipe();
+        recipe.pumpkinInput = Ingredient.pumpkinOfIds(ingredientIds);
+        recipe.pumpkinResult = result;
+        return recipe;
+    }
 }

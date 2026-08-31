@@ -29,6 +29,11 @@ public final class PumpkinTags {
         return members("item", tag, new HashSet<>()).contains(itemId);
     }
 
+    /** Every item wearing the tag; same walk as {@link #contains}. */
+    public static Set<String> itemMembers(String tag) {
+        return members("item", tag, new HashSet<>());
+    }
+
     /**
      * Whether the block wears the tag. Same datapack walk as items but over
      * {@code tags/block}, with the vanilla block-tag tables answering tags no

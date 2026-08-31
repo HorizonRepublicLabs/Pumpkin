@@ -262,9 +262,14 @@ public final class PumpkinLevel extends net.minecraft.server.level.ServerLevel {
         throw Unimplemented.forMember("net/minecraft/world/level/Level.getHeightmapPos");
     }
 
+    // Pumpkin divergence: one shared stand-in chunk; the only fact mods want from it
+    // here is markUnsaved, which the bridge's own persistence makes a no-op.
+    private static final net.minecraft.world.level.chunk.LevelChunk PUMPKIN_CHUNK =
+            new net.minecraft.world.level.chunk.LevelChunk(null, null);
+
     @Override
     public ChunkAccess getChunk(final int chunkX, final int chunkZ, final ChunkStatus targetStatus, final boolean loadOrGenerate) {
-        throw Unimplemented.forMember("net/minecraft/world/level/Level.getChunk");
+        return PUMPKIN_CHUNK;
     }
 
     @Override

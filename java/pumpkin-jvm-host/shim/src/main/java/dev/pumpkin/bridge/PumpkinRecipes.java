@@ -62,6 +62,24 @@ public final class PumpkinRecipes {
         }
 
         @Override
+        public net.minecraft.world.item.crafting.RecipeMap recipeMap() {
+            // Mekanism walks recipeAccess().recipeMap().byType(type); the view resolves
+            // a type to its registered name (mod types) or its own toString (vanilla
+            // simple() tokens) and answers from the same per-type cache as getRecipeFor.
+            return net.minecraft.world.item.crafting.RecipeMap.pumpkinOf(type -> {
+                String typeName = DeferredHolder.pumpkinResolveName("minecraft:recipe_type", type);
+                if (typeName == null) {
+                    String token = type.toString();
+                    typeName = token.contains(":") ? token : null;
+                }
+                if (typeName == null) {
+                    return java.util.List.of();
+                }
+                return BY_TYPE.computeIfAbsent(typeName, PumpkinRecipes::load);
+            });
+        }
+
+        @Override
         public <I extends RecipeInput, T extends Recipe<I>> Optional<RecipeHolder<T>> getRecipeFor(
                 RecipeType<T> type, I input, Level level) {
             String typeName = DeferredHolder.pumpkinResolveName("minecraft:recipe_type", type);
@@ -82,6 +100,38 @@ public final class PumpkinRecipes {
     /** Every recipe JSON of one type, decoded through the type's registered serializer. */
     private static List<RecipeHolder<?>> load(String typeName) {
         List<RecipeHolder<?>> recipes = new ArrayList<>();
+        // The vanilla furnace type answers with real recipe objects synthesized from
+        // the cooking tables the Rust side carries -- mod machines that wrap the
+        // furnace (Mekanism's energized smelter) see what a furnace would.
+        if (typeName.equals("minecraft:smelting")) {
+            String lines;
+            // Reflection because the host jar sits above this one in the build graph but
+            // below it at runtime -- the same route PumpkinTags takes.
+            try {
+                lines = (String) Class.forName("dev.pumpkin.jvmhost.PumpkinHost")
+                        .getMethod("vanillaCookingRecipes", String.class)
+                        .invoke(null, "smelting");
+            } catch (ReflectiveOperationException e) {
+                lines = null;
+                System.err.println("[pumpkin] minecraft:smelting: vanilla tables unreachable: " + e);
+            }
+            for (String line : lines == null ? new String[0] : lines.split("\n")) {
+                if (line.isEmpty()) {
+                    continue;
+                }
+                String[] parts = line.split("\\|");
+                java.util.List<String> ingredientIds = java.util.List.of(parts[1].split(";"));
+                recipes.add(new RecipeHolder<>(
+                        net.minecraft.resources.ResourceKey.create(
+                                net.minecraft.resources.ResourceKey.createRegistryKey(
+                                        Identifier.parse("minecraft:recipe")),
+                                Identifier.parse(parts[0])),
+                        net.minecraft.world.item.crafting.SmeltingRecipe
+                                .pumpkinVanilla(ingredientIds, parts[2])));
+            }
+            System.err.println("[pumpkin] minecraft:smelting: " + recipes.size()
+                    + " vanilla recipe(s) synthesized.");
+        }
         Path root = datapacksDir;
         if (root == null || !Files.isDirectory(root)) {
             return recipes;
