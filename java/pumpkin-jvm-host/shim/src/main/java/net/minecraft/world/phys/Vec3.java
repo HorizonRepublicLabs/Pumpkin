@@ -74,16 +74,17 @@ public class Vec3 implements Position {
         throw Unimplemented.forMember("net/minecraft/world/phys/Vec3.with:(Lnet/minecraft/core/Direction$Axis;D)Lnet/minecraft/world/phys/Vec3;");
     }
 
+    // Pumpkin divergence: vanilla bodies -- the record-style accessors over the fields.
     public final double x() {
-        throw Unimplemented.forMember("net/minecraft/world/phys/Vec3.x:()D");
+        return x;
     }
 
     public final double y() {
-        throw Unimplemented.forMember("net/minecraft/world/phys/Vec3.y:()D");
+        return y;
     }
 
     public final double z() {
-        throw Unimplemented.forMember("net/minecraft/world/phys/Vec3.z:()D");
+        return z;
     }
 
     public Vec3() {

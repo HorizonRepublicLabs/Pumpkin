@@ -39,8 +39,7 @@ impl CommandExecutor for Executor {
         server: &crate::server::Server,
         args: &ConsumedArgs,
     ) -> CommandResult {
-        let block = BlockArgumentConsumer::find_arg(args, ARG_BLOCK)?;
-        let block_state_id = block.default_state.id;
+        let (block, block_state_id) = BlockArgumentConsumer::find_state_arg(args, ARG_BLOCK)?;
         let mode = self.0;
         let world = sender
             .world_or_first(server)

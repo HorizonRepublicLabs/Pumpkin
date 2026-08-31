@@ -36,14 +36,7 @@ public final class PumpkinRandomTicks {
             return "PASS;STATE=unchanged;SOUNDS=";
         }
 
-        java.util.Map<String, BlockState> snapshot = new java.util.HashMap<>();
-        for (String entry : neighborhood.split(";")) {
-            if (entry.isEmpty()) {
-                continue;
-            }
-            int eq = entry.indexOf('=');
-            snapshot.put(entry.substring(0, eq), stateOf(entry.substring(eq + 1)));
-        }
+        java.util.Map<String, BlockState> snapshot = snapshotOf(neighborhood);
         BlockState state = withValues(block.defaultBlockState(), block, stateSpec);
         snapshot.put(x + "," + y + "," + z, state);
 
@@ -68,15 +61,29 @@ public final class PumpkinRandomTicks {
         }
     }
 
+
+    /** {@code x,y,z=id|prop=v;...} into per-position states, shared with the drops bridge. */
+    static java.util.Map<String, BlockState> snapshotOf(String neighborhood) {
+        java.util.Map<String, BlockState> snapshot = new java.util.HashMap<>();
+        for (String entry : neighborhood.split(";")) {
+            if (entry.isEmpty()) {
+                continue;
+            }
+            int eq = entry.indexOf('=');
+            snapshot.put(entry.substring(0, eq), stateOf(entry.substring(eq + 1)));
+        }
+        return snapshot;
+    }
+
     /** {@code namespace:path|prop=v,prop=v} into a state of the resolved block. */
-    private static BlockState stateOf(String spec) {
+    static BlockState stateOf(String spec) {
         int bar = spec.indexOf('|');
         String id = bar < 0 ? spec : spec.substring(0, bar);
         Block block = resolveBlock(id);
         return withValues(block.defaultBlockState(), block, bar < 0 ? "" : spec.substring(bar + 1));
     }
 
-    private static BlockState withValues(BlockState state, Block block, String values) {
+    static BlockState withValues(BlockState state, Block block, String values) {
         if (values.isEmpty()) {
             return state;
         }
@@ -112,7 +119,7 @@ public final class PumpkinRandomTicks {
      * against farmland. Anything else gets a transient stand-in whose identity matches
      * nothing, which is the honest answer for a block neither side handed to the mod.
      */
-    private static Block resolveBlock(String id) {
+    static Block resolveBlock(String id) {
         Object mod = DeferredHolder.pumpkinResolve("minecraft:block", id);
         if (mod instanceof Block block) {
             return block;
@@ -162,7 +169,7 @@ public final class PumpkinRandomTicks {
         return out.toString();
     }
 
-    private static Method findMethod(Class<?> type, String name, int parameterCount) {
+    static Method findMethod(Class<?> type, String name, int parameterCount) {
         for (Class<?> current = type; current != null; current = current.getSuperclass()) {
             for (Method method : current.getDeclaredMethods()) {
                 if (method.getName().equals(name)

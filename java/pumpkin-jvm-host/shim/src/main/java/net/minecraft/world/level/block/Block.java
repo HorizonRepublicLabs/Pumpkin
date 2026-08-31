@@ -202,8 +202,28 @@ public class Block extends BlockBehaviour implements ItemLike, IBlockExtension {
         throw Unimplemented.forMember("net/minecraft/world/level/block/Block.asBlock:()Lnet/minecraft/world/level/block/Block;");
     }
 
+    // Pumpkin divergence: real-enough body. Mods ask a block's holder one question --
+    // does it wear this tag -- so the holder answers that from the datapack block tags
+    // and throws for everything else. The block names itself by its registered id, or
+    // by its vanilla template when it stands in for a vanilla block.
     public Holder.Reference<Block> builtInRegistryHolder() {
-        throw Unimplemented.forMember("net/minecraft/world/level/block/Block.builtInRegistryHolder:()Lnet/minecraft/core/Holder$Reference;");
+        Block self = this;
+        return new Holder.Reference<>(null, null, null, self) {
+            @Override
+            public boolean is(net.minecraft.tags.TagKey<Block> tag) {
+                String id = self.pumpkinRegisteredId() != null
+                        ? self.pumpkinRegisteredId()
+                        : "minecraft:" + self.pumpkinTemplate();
+                net.minecraft.resources.Identifier location = tag.location();
+                return dev.pumpkin.bridge.PumpkinTags.containsBlock(
+                        location.getNamespace() + ":" + location.getPath(), id);
+            }
+
+            @Override
+            public Block value() {
+                return self;
+            }
+        };
     }
 
     private record ShapePairKey(VoxelShape first, VoxelShape second) {

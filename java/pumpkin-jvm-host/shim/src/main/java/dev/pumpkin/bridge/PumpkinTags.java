@@ -26,11 +26,21 @@ public final class PumpkinTags {
 
     /** Whether the item wears the tag; {@code tag} has no leading {@code #}. */
     public static boolean contains(String tag, String itemId) {
-        return members(tag, new HashSet<>()).contains(itemId);
+        return members("item", tag, new HashSet<>()).contains(itemId);
     }
 
-    private static Set<String> members(String tag, Set<String> visiting) {
-        Set<String> cached = MEMBERS.get(tag);
+    /**
+     * Whether the block wears the tag. Same datapack walk as items but over
+     * {@code tags/block}; block tags no datapack defines answer empty -- the vanilla
+     * block-tag tables have no native yet, and inventing membership would be worse
+     * than refusing it.
+     */
+    public static boolean containsBlock(String tag, String blockId) {
+        return members("block", tag, new HashSet<>()).contains(blockId);
+    }
+
+    private static Set<String> members(String kind, String tag, Set<String> visiting) {
+        Set<String> cached = MEMBERS.get(kind + "|" + tag);
         if (cached != null) {
             return cached;
         }
@@ -48,7 +58,7 @@ public final class PumpkinTags {
                 for (Path pack : packs
                         .filter(p -> p.getFileName().toString().startsWith("mod_")).toList()) {
                     Path file = pack.resolve("data").resolve(namespace).resolve("tags")
-                            .resolve("item").resolve(path + ".json");
+                            .resolve(kind).resolve(path + ".json");
                     if (!Files.isRegularFile(file)) {
                         continue;
                     }
@@ -60,7 +70,7 @@ public final class PumpkinTags {
                                 ? entry.getAsJsonObject().get("id").getAsString()
                                 : entry.getAsString();
                         if (value.startsWith("#")) {
-                            values.addAll(members(value.substring(1), visiting));
+                            values.addAll(members(kind, value.substring(1), visiting));
                         } else {
                             values.add(value);
                         }
@@ -70,11 +80,12 @@ public final class PumpkinTags {
                 System.err.println("[pumpkin] reading tag " + tag + " failed: " + e);
             }
         }
-        if (!defined) {
+        if (!defined && kind.equals("item")) {
             // Nothing in the datapacks defines it: the vanilla tables might. Reached by
             // reflection because the host jar sits above this one in the build graph but
             // beside it on the runtime classpath. Bare names come back namespaced so
-            // membership compares apples to apples.
+            // membership compares apples to apples. Only items have this native; an
+            // undefined block tag stays empty.
             try {
                 String vanilla = (String) Class.forName("dev.pumpkin.jvmhost.PumpkinHost")
                         .getMethod("itemTagValues", String.class).invoke(null, tag);
@@ -88,7 +99,7 @@ public final class PumpkinTags {
             }
         }
         Set<String> frozen = Set.copyOf(values);
-        MEMBERS.put(tag, frozen);
+        MEMBERS.put(kind + "|" + tag, frozen);
         return frozen;
     }
 }

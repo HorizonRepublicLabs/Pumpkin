@@ -2,18 +2,16 @@ package net.minecraft.world.level.storage.loot.parameters;
 
 import net.minecraft.util.context.ContextKey;
 import net.minecraft.world.phys.Vec3;
-import dev.pumpkin.shim.Unimplemented;
 
 public class LootContextParams {
 
-    public static final ContextKey<Vec3> ORIGIN = null;
+    // Pumpkin divergence: a real key. A mod's getDrops asks the loot builder for the
+    // break position through this; identity is all the lookup needs.
+    public static final ContextKey<Vec3> ORIGIN = new ContextKey<>(null);
 
     public LootContextParams() {
     }
 
-    static {
-        if (true) {
-            throw Unimplemented.forMember("net/minecraft/world/level/storage/loot/parameters/LootContextParams");
-        }
-    }
+    // Pumpkin divergence: no throwing initializer. ORIGIN above is real, and stopping the
+    // class over its other (still-null) keys would stop a mod that only wanted ORIGIN.
 }

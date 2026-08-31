@@ -2256,4 +2256,31 @@ edit('net/minecraft/world/level/block/state/properties/IntegerProperty.java', [
      "    // Pumpkin divergence: identity equality, as with EnumProperty -- every property a mod\n    // hands us is a static singleton, and StateHolder.setValue's Map.copyOf probes this.\n    public boolean equals(Object o) {\n        return this == o;\n    }"),
 ])
 
+edit('net/minecraft/world/level/storage/loot/parameters/LootContextParams.java', [
+    ('    public static final ContextKey<Vec3> ORIGIN = null;',
+     "    // Pumpkin divergence: a real key. A mod's getDrops asks the loot builder for the\n    // break position through this; identity is all the lookup needs.\n    public static final ContextKey<Vec3> ORIGIN = new ContextKey<>(null);"),
+])
+
+edit('net/minecraft/world/level/storage/loot/parameters/LootContextParams.java', [
+    ('    static {\n        if (true) {\n            throw Unimplemented.forMember("net/minecraft/world/level/storage/loot/parameters/LootContextParams");\n        }\n    }',
+     '    // Pumpkin divergence: no throwing initializer. ORIGIN above is real, and stopping the\n    // class over its other (still-null) keys would stop a mod that only wanted ORIGIN.'),
+    ('import dev.pumpkin.shim.Unimplemented;\n',
+     ''),
+])
+
+edit('net/minecraft/core/BlockPos.java', [
+    ('    public static BlockPos containing(double x, double y, double z) {\n        throw Unimplemented.forMember("net/minecraft/core/BlockPos.containing:(DDD)Lnet/minecraft/core/BlockPos;");\n    }\n\n    public static BlockPos containing(Position pos) {\n        throw Unimplemented.forMember("net/minecraft/core/BlockPos.containing:(Lnet/minecraft/core/Position;)Lnet/minecraft/core/BlockPos;");\n    }',
+     '    // Pumpkin divergence: vanilla bodies -- floor each coordinate into the block grid.\n    public static BlockPos containing(double x, double y, double z) {\n        return new BlockPos((int) Math.floor(x), (int) Math.floor(y), (int) Math.floor(z));\n    }\n\n    public static BlockPos containing(Position pos) {\n        return containing(pos.x(), pos.y(), pos.z());\n    }'),
+])
+
+edit('net/minecraft/world/phys/Vec3.java', [
+    ('    public final double x() {\n        throw Unimplemented.forMember("net/minecraft/world/phys/Vec3.x:()D");\n    }\n\n    public final double y() {\n        throw Unimplemented.forMember("net/minecraft/world/phys/Vec3.y:()D");\n    }\n\n    public final double z() {\n        throw Unimplemented.forMember("net/minecraft/world/phys/Vec3.z:()D");\n    }',
+     '    // Pumpkin divergence: vanilla bodies -- the record-style accessors over the fields.\n    public final double x() {\n        return x;\n    }\n\n    public final double y() {\n        return y;\n    }\n\n    public final double z() {\n        return z;\n    }'),
+])
+
+edit('net/minecraft/world/level/block/Block.java', [
+    ('    public Holder.Reference<Block> builtInRegistryHolder() {\n        throw Unimplemented.forMember("net/minecraft/world/level/block/Block.builtInRegistryHolder:()Lnet/minecraft/core/Holder$Reference;");\n    }',
+     '    // Pumpkin divergence: real-enough body. Mods ask a block\'s holder one question --\n    // does it wear this tag -- so the holder answers that from the datapack block tags\n    // and throws for everything else. The block names itself by its registered id, or\n    // by its vanilla template when it stands in for a vanilla block.\n    public Holder.Reference<Block> builtInRegistryHolder() {\n        Block self = this;\n        return new Holder.Reference<>(null, null, null, self) {\n            @Override\n            public boolean is(net.minecraft.tags.TagKey<Block> tag) {\n                String id = self.pumpkinRegisteredId() != null\n                        ? self.pumpkinRegisteredId()\n                        : "minecraft:" + self.pumpkinTemplate();\n                net.minecraft.resources.Identifier location = tag.location();\n                return dev.pumpkin.bridge.PumpkinTags.containsBlock(\n                        location.getNamespace() + ":" + location.getPath(), id);\n            }\n\n            @Override\n            public Block value() {\n                return self;\n            }\n        };\n    }'),
+])
+
 commit()

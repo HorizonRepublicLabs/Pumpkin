@@ -157,7 +157,7 @@ public final class PumpkinInteractions {
     }
 
     /** The item's registered id and count, e.g. {@code mysticalagriculture:prosperity_shard:3}. */
-    private static String describe(ItemStack stack) {
+    static String describe(ItemStack stack) {
         if (stack == null || stack.isEmpty()) {
             return "empty:0";
         }

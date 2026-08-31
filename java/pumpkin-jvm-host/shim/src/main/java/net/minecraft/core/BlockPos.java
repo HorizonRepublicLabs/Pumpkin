@@ -37,12 +37,13 @@ public class BlockPos extends Vec3i {
         throw Unimplemented.forMember("net/minecraft/core/BlockPos.getZ:(J)I");
     }
 
+    // Pumpkin divergence: vanilla bodies -- floor each coordinate into the block grid.
     public static BlockPos containing(double x, double y, double z) {
-        throw Unimplemented.forMember("net/minecraft/core/BlockPos.containing:(DDD)Lnet/minecraft/core/BlockPos;");
+        return new BlockPos((int) Math.floor(x), (int) Math.floor(y), (int) Math.floor(z));
     }
 
     public static BlockPos containing(Position pos) {
-        throw Unimplemented.forMember("net/minecraft/core/BlockPos.containing:(Lnet/minecraft/core/Position;)Lnet/minecraft/core/BlockPos;");
+        return containing(pos.x(), pos.y(), pos.z());
     }
 
     public long asLong() {

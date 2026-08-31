@@ -1142,6 +1142,79 @@ impl crate::block::BlockBehaviour for JvmBlockBehaviour {
                 .map(|_| ())
                 .map_err(|err| VmError::Java(err.to_string()))
             });
+
+            // Some blocks compute their drops in code -- a crop reads its age and rolls
+            // its chances in getDrops. Ask the mod first; only a PASS (no override) falls
+            // back to the drops parsed from loot tables.
+            let position = *args.position;
+            let state_spec =
+                pumpkin_data::dynamic::block_state_values(self.block_id, args.state.id)
+                    .map(|values| join_state_values(&values))
+                    .unwrap_or_default();
+            let neighborhood = tick_neighborhood(args.world, &position);
+            let block_name = self.block_name.clone();
+            let reply = vm.call(move |env| {
+                let block = env
+                    .new_string(&block_name)
+                    .map_err(|err| VmError::Java(err.to_string()))?;
+                let state = env
+                    .new_string(&state_spec)
+                    .map_err(|err| VmError::Java(err.to_string()))?;
+                let snapshot = env
+                    .new_string(&neighborhood)
+                    .map_err(|err| VmError::Java(err.to_string()))?;
+                let returned = env.call_static_method(
+                    "dev/pumpkin/bridge/PumpkinBlockDrops",
+                    "getDrops",
+                    "(Ljava/lang/String;IIILjava/lang/String;Ljava/lang/String;)Ljava/lang/String;",
+                    &[
+                        (&block).into(),
+                        x.into(),
+                        y.into(),
+                        z.into(),
+                        (&state).into(),
+                        (&snapshot).into(),
+                    ],
+                );
+                if env.exception_check().unwrap_or(false) {
+                    let _ = env.exception_describe();
+                    let _ = env.exception_clear();
+                    return Err(VmError::Java("getDrops threw".into()));
+                }
+                let object = returned
+                    .and_then(jni::objects::JValueGen::l)
+                    .map_err(|err| VmError::Java(err.to_string()))?;
+                env.get_string(&jni::objects::JString::from(object))
+                    .map(Into::into)
+                    .map_err(|err| VmError::Java(err.to_string()))
+            });
+            let reply: Result<String, VmError> = reply;
+            match reply {
+                Ok(reply) if !reply.starts_with("PASS") => {
+                    tracing::info!(
+                        "{} broken at {position:?}: mod dropped {reply}",
+                        self.block_name
+                    );
+                    for part in reply.split(';') {
+                        if let Some(drops) = part.strip_prefix("DROPS=") {
+                            for spec in drops.split(',').filter(|spec| !spec.is_empty()) {
+                                if let Some(stack) = parse_stack(spec)
+                                    && !stack.is_empty()
+                                {
+                                    args.world.drop_stack(&position, stack);
+                                }
+                            }
+                        }
+                    }
+                    // The mod's answer IS the loot resolution; the static model would
+                    // double-drop on top of it.
+                    return;
+                }
+                Ok(_) => {}
+                Err(err) => {
+                    tracing::warn!("{}: getDrops stopped in the mod: {err}", self.block_name);
+                }
+            }
         }
         self.inner.broken(args);
     }

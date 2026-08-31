@@ -43,6 +43,45 @@ impl DefaultNameArgConsumer for BlockArgumentConsumer {
     }
 }
 
+impl BlockArgumentConsumer {
+    /// The block and the exact state a `block_id[prop=value,...]` argument names.
+    ///
+    /// Without a property list this is the block's default state. Properties resolve
+    /// through the dynamic registry first -- a runtime-registered crop's states live
+    /// there -- and fall back to the generated tables for vanilla blocks.
+    pub fn find_state_arg(
+        args: &super::ConsumedArgs,
+        name: &str,
+    ) -> Result<(&'static Block, pumpkin_data::BlockStateId), CommandError> {
+        let raw = match args.get(name) {
+            Some(Arg::Block(raw)) => *raw,
+            _ => return Err(CommandError::InvalidConsumption(Some(name.to_string()))),
+        };
+        let (base, properties) = match raw.split_once('[') {
+            Some((base, rest)) => (base, rest.strip_suffix(']').unwrap_or(rest)),
+            None => (raw, ""),
+        };
+        let Some(block) = Block::from_name(base) else {
+            return Err(CommandError::CommandFailed(TextComponent::translate_cross(
+                translation::java::ARGUMENT_BLOCK_ID_INVALID,
+                translation::java::ARGUMENT_BLOCK_ID_INVALID,
+                [TextComponent::text(base.to_string())],
+            )));
+        };
+        if properties.is_empty() {
+            return Ok((block, block.default_state.id));
+        }
+        let values: Vec<(&str, &str)> = properties
+            .split(',')
+            .filter_map(|pair| pair.split_once('='))
+            .map(|(key, value)| (key.trim(), value.trim()))
+            .collect();
+        let state_id = pumpkin_data::dynamic::block_state_for(block.id, &values)
+            .unwrap_or_else(|| block.from_properties(&values).to_state_id(block));
+        Ok((block, state_id))
+    }
+}
+
 impl<'a> FindArg<'a> for BlockArgumentConsumer {
     type Data = &'static Block;
 
