@@ -416,6 +416,77 @@ impl JvmBlockBehaviour {
 }
 
 impl JvmBlockBehaviour {
+    /// Honours a reply's `SCHEDULE=<ticks>` by scheduling a real block tick.
+    #[allow(clippy::unused_self)] // sits beside the other reply appliers, which do use it
+    fn apply_schedule(
+        &self,
+        reply: &str,
+        world: &Arc<crate::world::World>,
+        position: &pumpkin_util::math::position::BlockPos,
+    ) {
+        for part in reply.split(';') {
+            if let Some(delay) = part.strip_prefix("SCHEDULE=")
+                && let Ok(delay) = delay.parse::<u32>()
+            {
+                // The scheduler's delay is a u8; a mod asking for longer (a growth
+                // accelerator's ~200-tick cooldown fits, but a config could not) gets
+                // the longest wait the server has rather than a silent wrap.
+                #[allow(clippy::cast_possible_truncation)]
+                let delay = delay.min(u32::from(u8::MAX)) as u8;
+                world.schedule_block_tick(
+                    pumpkin_data::Block::from_state_id(world.get_block_state_id(position)),
+                    *position,
+                    delay,
+                    pumpkin_world::tick::TickPriority::Normal,
+                );
+            }
+        }
+    }
+
+    /// Applies a reply's `WRITES=x,y,z:prop=v,prop=v&...` -- states the mod set at
+    /// arbitrary positions (an accelerator growing the crop above itself).
+    fn apply_writes(&self, reply: &str, world: &Arc<crate::world::World>) {
+        for part in reply.split(';') {
+            let Some(writes) = part.strip_prefix("WRITES=") else {
+                continue;
+            };
+            for write in writes.split('&').filter(|write| !write.is_empty()) {
+                let Some((pos, values)) = write.split_once(':') else {
+                    continue;
+                };
+                let mut coords = pos.split(',').filter_map(|c| c.parse::<i32>().ok());
+                let (Some(x), Some(y), Some(z)) = (coords.next(), coords.next(), coords.next())
+                else {
+                    continue;
+                };
+                let target = pumpkin_util::math::position::BlockPos::new(x, y, z);
+                let block = world.get_block(&target);
+                let values: Vec<(&str, &str)> = values
+                    .split(',')
+                    .filter_map(|pair| pair.split_once('='))
+                    .collect();
+                if let Some(new_state) = pumpkin_data::dynamic::block_state_for(block.id, &values) {
+                    tracing::info!(
+                        "{}: scheduled tick set {} to {values:?}",
+                        self.block_name,
+                        block.name
+                    );
+                    world.set_block_state(
+                        &target,
+                        new_state,
+                        crate::world::BlockFlags::NOTIFY_LISTENERS,
+                    );
+                } else {
+                    tracing::warn!(
+                        "{}: a scheduled tick wrote {values:?} to {}, which has no such state",
+                        self.block_name,
+                        block.name
+                    );
+                }
+            }
+        }
+    }
+
     /// One bonemeal question over the bridge: `valid`, `success`, or `perform`.
     ///
     /// Carries the same state-and-neighborhood context as a random tick; the mod's
@@ -530,6 +601,73 @@ fn join_state_values(values: &[(&str, &str)]) -> String {
         .map(|(name, value)| format!("{name}={value}"))
         .collect::<Vec<_>>()
         .join(",")
+}
+
+/// The states a scheduled tick's column scan reads: a 3x3 slab from the ticked block up
+/// eighteen -- enough for every growth accelerator range the mod ships, and any read
+/// beyond it still fails loudly in the level stand-in.
+fn column_neighborhood(
+    world: &Arc<crate::world::World>,
+    position: &pumpkin_util::math::position::BlockPos,
+) -> String {
+    use std::fmt::Write;
+
+    let mut out = String::new();
+    for dy in 0..=18 {
+        for dx in -1..=1 {
+            for dz in -1..=1 {
+                if dx == 0 && dy == 0 && dz == 0 {
+                    continue;
+                }
+                let (x, y, z) = (position.0.x + dx, position.0.y + dy, position.0.z + dz);
+                let neighbor = pumpkin_util::math::position::BlockPos::new(x, y, z);
+                let (block, state) = world.get_block_and_state(&neighbor);
+                let props = block
+                    .properties(state.id)
+                    .map(|p| {
+                        p.to_props()
+                            .into_iter()
+                            .map(|(name, value)| format!("{name}={value}"))
+                            .collect::<Vec<_>>()
+                            .join(",")
+                    })
+                    .or_else(|| {
+                        pumpkin_data::dynamic::block_state_values(block.id, state.id)
+                            .map(|values| join_state_values(&values))
+                    })
+                    .unwrap_or_default();
+                if !out.is_empty() {
+                    out.push(';');
+                }
+                let _ = write!(out, "{x},{y},{z}={}", block.name);
+                if !props.is_empty() {
+                    let _ = write!(out, "|{props}");
+                }
+            }
+        }
+    }
+    out
+}
+
+/// Light along the scanned column, measured per position -- the crop an accelerator
+/// reaches keeps its own daylight gate.
+fn column_brightness(
+    world: &Arc<crate::world::World>,
+    position: &pumpkin_util::math::position::BlockPos,
+) -> String {
+    use std::fmt::Write;
+
+    let mut out = String::new();
+    for dy in 0..=18 {
+        let (x, y, z) = (position.0.x, position.0.y + dy, position.0.z);
+        let level = world
+            .get_max_local_raw_brightness(&pumpkin_util::math::position::BlockPos::new(x, y, z));
+        if !out.is_empty() {
+            out.push(';');
+        }
+        let _ = write!(out, "{x},{y},{z}:{level}");
+    }
+    out
 }
 
 /// The states around a ticked position that growth logic reads: the 3x3 soil square
@@ -1129,7 +1267,135 @@ fn parse_stack(spec: &str) -> Option<pumpkin_data::item_stack::ItemStack> {
 
 impl crate::block::BlockBehaviour for JvmBlockBehaviour {
     fn player_placed(&self, args: crate::block::PlayerPlacedArgs<'_>) {
+        let position = *args.position;
+        let state_id = args.state_id;
+        let world = args.world.clone();
         self.inner.player_placed(args);
+
+        // A block that schedules work at placement (a growth accelerator asking for its
+        // first tick) says so through onPlace; the captured delay becomes a real
+        // scheduled tick and the tick handler keeps the chain going from there.
+        let Some(vm) = vm::current() else {
+            return;
+        };
+        let (x, y, z) = (position.0.x, position.0.y, position.0.z);
+        let state_spec = pumpkin_data::dynamic::block_state_values(self.block_id, state_id)
+            .map(|values| join_state_values(&values))
+            .unwrap_or_default();
+        let block_name = self.block_name.clone();
+        let reply = vm.call(move |env| {
+            let block = env
+                .new_string(&block_name)
+                .map_err(|err| VmError::Java(err.to_string()))?;
+            let state = env
+                .new_string(&state_spec)
+                .map_err(|err| VmError::Java(err.to_string()))?;
+            let returned = env.call_static_method(
+                "dev/pumpkin/bridge/PumpkinScheduledTicks",
+                "onPlace",
+                "(Ljava/lang/String;IIILjava/lang/String;)Ljava/lang/String;",
+                &[
+                    (&block).into(),
+                    x.into(),
+                    y.into(),
+                    z.into(),
+                    (&state).into(),
+                ],
+            );
+            if env.exception_check().unwrap_or(false) {
+                let _ = env.exception_describe();
+                let _ = env.exception_clear();
+                return Err(VmError::Java("onPlace threw".into()));
+            }
+            let object = returned
+                .and_then(jni::objects::JValueGen::l)
+                .map_err(|err| VmError::Java(err.to_string()))?;
+            env.get_string(&jni::objects::JString::from(object))
+                .map(Into::into)
+                .map_err(|err| VmError::Java(err.to_string()))
+        });
+        let reply: Result<String, VmError> = reply;
+        match reply {
+            Ok(reply) => self.apply_schedule(&reply, &world, &position),
+            Err(err) => {
+                tracing::warn!("{}: onPlace stopped in the mod: {err}", self.block_name);
+            }
+        }
+    }
+
+    fn on_scheduled_tick(&self, args: crate::block::OnScheduledTickArgs<'_>) {
+        let Some(vm) = vm::current() else {
+            return;
+        };
+        let position = *args.position;
+        let (x, y, z) = (position.0.x, position.0.y, position.0.z);
+        let state_id = args.world.get_block_state_id(&position);
+        let state_spec = pumpkin_data::dynamic::block_state_values(self.block_id, state_id)
+            .map(|values| join_state_values(&values))
+            .unwrap_or_default();
+        let neighborhood = column_neighborhood(args.world, &position);
+        let brightness = column_brightness(args.world, &position);
+        let block_name = self.block_name.clone();
+        let reply = vm.call(move |env| {
+            let block = env
+                .new_string(&block_name)
+                .map_err(|err| VmError::Java(err.to_string()))?;
+            let state = env
+                .new_string(&state_spec)
+                .map_err(|err| VmError::Java(err.to_string()))?;
+            let snapshot = env
+                .new_string(&neighborhood)
+                .map_err(|err| VmError::Java(err.to_string()))?;
+            let light = env
+                .new_string(&brightness)
+                .map_err(|err| VmError::Java(err.to_string()))?;
+            let returned = env.call_static_method(
+                "dev/pumpkin/bridge/PumpkinScheduledTicks",
+                "tick",
+                "(Ljava/lang/String;IIILjava/lang/String;Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;",
+                &[
+                    (&block).into(),
+                    x.into(),
+                    y.into(),
+                    z.into(),
+                    (&state).into(),
+                    (&snapshot).into(),
+                    (&light).into(),
+                ],
+            );
+            if env.exception_check().unwrap_or(false) {
+                let _ = env.exception_describe();
+                let _ = env.exception_clear();
+                return Err(VmError::Java("scheduled tick threw".into()));
+            }
+            let object = returned
+                .and_then(jni::objects::JValueGen::l)
+                .map_err(|err| VmError::Java(err.to_string()))?;
+            env.get_string(&jni::objects::JString::from(object))
+                .map(Into::into)
+                .map_err(|err| VmError::Java(err.to_string()))
+        });
+        let reply: Result<String, VmError> = reply;
+        match reply {
+            Ok(reply) if !reply.starts_with("PASS") => {
+                self.apply_writes(&reply, args.world);
+                self.apply_schedule(&reply, args.world, &position);
+                for part in reply.split(';') {
+                    if let Some(sounds) = part.strip_prefix("SOUNDS=") {
+                        for sound in sounds.split(',').filter(|sound| !sound.is_empty()) {
+                            play_mod_sound(args.world, sound);
+                        }
+                    }
+                }
+            }
+            Ok(_) => {}
+            Err(err) => {
+                tracing::warn!(
+                    "{}: scheduled tick stopped in the mod: {err}",
+                    self.block_name
+                );
+            }
+        }
     }
 
     fn is_valid_bonemeal_target(&self, args: crate::block::BonemealArgs<'_>) -> bool {

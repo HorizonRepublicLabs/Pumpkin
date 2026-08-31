@@ -117,8 +117,37 @@ public abstract class BlockBehaviour implements FeatureElement {
             throw Unimplemented.forMember("net/minecraft/world/level/block/state/BlockBehaviour$BlockStateBase.getCollisionShape:(Lnet/minecraft/world/level/BlockGetter;Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/phys/shapes/CollisionContext;)Lnet/minecraft/world/phys/shapes/VoxelShape;");
         }
 
+        // Pumpkin divergence: vanilla body in spirit -- dispatch to the owning block's
+        // randomTick. Reflection because the method is protected in another package;
+        // this is how a growth accelerator forces a tick on the crop above it.
         public void randomTick(ServerLevel level, BlockPos pos, RandomSource random) {
-            throw Unimplemented.forMember("net/minecraft/world/level/block/state/BlockBehaviour$BlockStateBase.randomTick:(Lnet/minecraft/server/level/ServerLevel;Lnet/minecraft/core/BlockPos;Lnet/minecraft/util/RandomSource;)V");
+            try {
+                java.lang.reflect.Method method = null;
+                for (Class<?> type = getBlock().getClass(); type != null; type = type.getSuperclass()) {
+                    for (java.lang.reflect.Method candidate : type.getDeclaredMethods()) {
+                        if (candidate.getName().equals("randomTick")
+                                && candidate.getParameterCount() == 4) {
+                            method = candidate;
+                            break;
+                        }
+                    }
+                    if (method != null) {
+                        break;
+                    }
+                }
+                if (method == null) {
+                    return;
+                }
+                method.setAccessible(true);
+                method.invoke(getBlock(), this, level, pos, random);
+            } catch (java.lang.reflect.InvocationTargetException e) {
+                if (e.getCause() instanceof RuntimeException cause) {
+                    throw cause;
+                }
+                throw new IllegalStateException(e.getCause());
+            } catch (ReflectiveOperationException e) {
+                throw new IllegalStateException(e);
+            }
         }
 
         public boolean is(TagKey<Block> tag, Predicate<BlockBehaviour.BlockStateBase> predicate) {

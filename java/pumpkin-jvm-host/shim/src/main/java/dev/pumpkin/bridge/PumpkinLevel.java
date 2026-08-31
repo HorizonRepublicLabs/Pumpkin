@@ -482,6 +482,8 @@ public final class PumpkinLevel extends net.minecraft.server.level.ServerLevel {
     // wrote so the bridge can carry the new state back to the server.
 
     private int pumpkinBrightness;
+    private java.util.Map<String, Integer> pumpkinBrightnessMap = java.util.Map.of();
+    private Integer pumpkinScheduledDelay;
     private java.util.Map<String, net.minecraft.world.level.block.state.BlockState> pumpkinSnapshot =
             java.util.Map.of();
     private final java.util.Map<String, net.minecraft.world.level.block.state.BlockState> pumpkinWrites =
@@ -489,14 +491,48 @@ public final class PumpkinLevel extends net.minecraft.server.level.ServerLevel {
 
     void pumpkinSetRandomTickContext(int brightness,
             java.util.Map<String, net.minecraft.world.level.block.state.BlockState> snapshot) {
+        pumpkinSetRandomTickContext(brightness, java.util.Map.of(), snapshot);
+    }
+
+    // A scheduled tick can touch a whole column (a growth accelerator forcing the crop
+    // above), so light arrives per position where the caller measured it; positions the
+    // map does not name fall back to the scalar.
+    void pumpkinSetRandomTickContext(int brightness, java.util.Map<String, Integer> perPosition,
+            java.util.Map<String, net.minecraft.world.level.block.state.BlockState> snapshot) {
         pumpkinBrightness = brightness;
+        pumpkinBrightnessMap = perPosition;
         pumpkinSnapshot = snapshot;
+        pumpkinScheduledDelay = null;
         pumpkinWrites.clear();
     }
 
     void pumpkinClearRandomTickContext() {
         pumpkinSnapshot = java.util.Map.of();
+        pumpkinBrightnessMap = java.util.Map.of();
+        pumpkinScheduledDelay = null;
         pumpkinWrites.clear();
+    }
+
+    /** Every state the mod wrote this call, keyed {@code x,y,z}. */
+    java.util.Map<String, net.minecraft.world.level.block.state.BlockState> pumpkinWrites() {
+        return pumpkinWrites;
+    }
+
+    /** The block-tick delay the mod asked for this call, or null. */
+    Integer pumpkinScheduledDelay() {
+        return pumpkinScheduledDelay;
+    }
+
+    @Override
+    public void scheduleTick(BlockPos pos, net.minecraft.world.level.block.Block type,
+            int tickDelay) {
+        pumpkinScheduledDelay = tickDelay;
+    }
+
+    @Override
+    public void scheduleTick(BlockPos pos, net.minecraft.world.level.block.Block type,
+            int tickDelay, net.minecraft.world.ticks.TickPriority priority) {
+        pumpkinScheduledDelay = tickDelay;
     }
 
     net.minecraft.world.level.block.state.BlockState pumpkinWrittenState(int x, int y, int z) {
@@ -506,7 +542,8 @@ public final class PumpkinLevel extends net.minecraft.server.level.ServerLevel {
     // The bridge measures light at the ticked position; a mod asking about another
     // position gets the same answer, which is the best fact this level holds.
     public int getRawBrightness(BlockPos pos, int amount) {
-        return pumpkinBrightness;
+        Integer at = pumpkinBrightnessMap.get(pos.getX() + "," + pos.getY() + "," + pos.getZ());
+        return at != null ? at : pumpkinBrightness;
     }
 
     @Override

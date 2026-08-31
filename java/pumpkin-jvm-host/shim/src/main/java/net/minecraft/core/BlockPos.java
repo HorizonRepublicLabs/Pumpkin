@@ -103,8 +103,18 @@ public class BlockPos extends Vec3i {
         throw Unimplemented.forMember("net/minecraft/core/BlockPos.betweenClosed:(Lnet/minecraft/core/BlockPos;Lnet/minecraft/core/BlockPos;)Ljava/lang/Iterable;");
     }
 
+    // Pumpkin divergence: real body -- every position in the closed box, y rising first
+    // so a column scan (the growth accelerator's use) finds the lowest match first.
     public static Stream<BlockPos> betweenClosedStream(BlockPos a, BlockPos b) {
-        throw Unimplemented.forMember("net/minecraft/core/BlockPos.betweenClosedStream:(Lnet/minecraft/core/BlockPos;Lnet/minecraft/core/BlockPos;)Ljava/util/stream/Stream;");
+        java.util.List<BlockPos> positions = new java.util.ArrayList<>();
+        for (int y = Math.min(a.getY(), b.getY()); y <= Math.max(a.getY(), b.getY()); y++) {
+            for (int x = Math.min(a.getX(), b.getX()); x <= Math.max(a.getX(), b.getX()); x++) {
+                for (int z = Math.min(a.getZ(), b.getZ()); z <= Math.max(a.getZ(), b.getZ()); z++) {
+                    positions.add(new BlockPos(x, y, z));
+                }
+            }
+        }
+        return positions.stream();
     }
 
     public static Stream<BlockPos> betweenClosedStream(BoundingBox boundingBox) {
