@@ -28,5 +28,21 @@ public interface CollisionGetter extends BlockGetter {
         throw Unimplemented.forMember("net/minecraft/world/level/CollisionGetter.isUnobstructed:(Lnet/minecraft/world/entity/Entity;)Z");
     }
 
+    default boolean noCollision(AABB aabb) {
+        throw Unimplemented.forMember("net/minecraft/world/level/CollisionGetter.noCollision:(Lnet/minecraft/world/phys/AABB;)Z");
+    }
+
+    default boolean noCollision(Entity source) {
+        throw Unimplemented.forMember("net/minecraft/world/level/CollisionGetter.noCollision:(Lnet/minecraft/world/entity/Entity;)Z");
+    }
+
+    default boolean noCollision(Entity entity, AABB aabb) {
+        throw Unimplemented.forMember("net/minecraft/world/level/CollisionGetter.noCollision:(Lnet/minecraft/world/entity/Entity;Lnet/minecraft/world/phys/AABB;)Z");
+    }
+
+    default boolean noCollision(Entity entity, AABB aabb, boolean alwaysCollideWithFluids) {
+        throw Unimplemented.forMember("net/minecraft/world/level/CollisionGetter.noCollision:(Lnet/minecraft/world/entity/Entity;Lnet/minecraft/world/phys/AABB;Z)Z");
+    }
+
     List<VoxelShape> getEntityCollisions(final Entity source, final AABB testArea);
 }

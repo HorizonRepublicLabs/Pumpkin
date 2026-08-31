@@ -4,6 +4,8 @@ import dev.pumpkin.shim.Unimplemented;
 
 public abstract class AbstractContainerEventHandler implements ContainerEventHandler {
 
+    private boolean isDragging;
+
     public final boolean isDragging() {
         throw Unimplemented.forMember("net/minecraft/client/gui/components/events/AbstractContainerEventHandler.isDragging:()Z");
     }

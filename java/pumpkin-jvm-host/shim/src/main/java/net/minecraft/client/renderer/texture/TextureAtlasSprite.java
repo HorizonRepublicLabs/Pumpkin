@@ -5,6 +5,10 @@ import dev.pumpkin.shim.Unimplemented;
 
 public class TextureAtlasSprite implements AutoCloseable {
 
+    private final Identifier atlasLocation = null;
+
+    private final SpriteContents contents = null;
+
     protected TextureAtlasSprite(Identifier atlasLocation, SpriteContents contents, int atlasWidth, int atlasHeight, int x, int y, int padding) {
     }
 
@@ -42,6 +46,10 @@ public class TextureAtlasSprite implements AutoCloseable {
 
     public float getV(float offset) {
         throw Unimplemented.forMember("net/minecraft/client/renderer/texture/TextureAtlasSprite.getV:(F)F");
+    }
+
+    public Identifier atlasLocation() {
+        throw Unimplemented.forMember("net/minecraft/client/renderer/texture/TextureAtlasSprite.atlasLocation:()Lnet/minecraft/resources/Identifier;");
     }
 
     public String toString() {

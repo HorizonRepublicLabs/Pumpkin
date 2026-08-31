@@ -10,6 +10,8 @@ import dev.pumpkin.shim.Unimplemented;
 
 public class InputConstants {
 
+    public static final InputConstants.Key UNKNOWN = null;
+
     public static InputConstants.Key getKey(KeyEvent event) {
         throw Unimplemented.forMember("com/mojang/blaze3d/platform/InputConstants.getKey:(Lnet/minecraft/client/input/KeyEvent;)Lcom/mojang/blaze3d/platform/InputConstants$Key;");
     }
@@ -29,6 +31,10 @@ public class InputConstants {
 
         public InputConstants.Type getType() {
             throw Unimplemented.forMember("com/mojang/blaze3d/platform/InputConstants$Key.getType:()Lcom/mojang/blaze3d/platform/InputConstants$Type;");
+        }
+
+        public int getValue() {
+            throw Unimplemented.forMember("com/mojang/blaze3d/platform/InputConstants$Key.getValue:()I");
         }
 
         public String getName() {
@@ -57,7 +63,11 @@ public class InputConstants {
 
     public enum Type {
 
-        KEYSYM, SCANCODE, MOUSE
+        KEYSYM, SCANCODE, MOUSE;
+
+        public InputConstants.Key getOrCreate(int value) {
+            throw Unimplemented.forMember("com/mojang/blaze3d/platform/InputConstants$Type.getOrCreate:(I)Lcom/mojang/blaze3d/platform/InputConstants$Key;");
+        }
     }
 
     @Retention(RetentionPolicy.CLASS)
@@ -66,5 +76,11 @@ public class InputConstants {
     }
 
     public InputConstants() {
+    }
+
+    static {
+        if (true) {
+            throw Unimplemented.forMember("com/mojang/blaze3d/platform/InputConstants");
+        }
     }
 }

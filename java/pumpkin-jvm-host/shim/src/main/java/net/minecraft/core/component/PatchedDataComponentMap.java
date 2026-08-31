@@ -14,6 +14,10 @@ public final class PatchedDataComponentMap implements DataComponentMap {
     private PatchedDataComponentMap(DataComponentMap prototype, Reference2ObjectMap<DataComponentType<?>, Optional<?>> patch, boolean copyOnWrite) {
     }
 
+    public static PatchedDataComponentMap fromPatch(DataComponentMap prototype, DataComponentPatch patch) {
+        throw Unimplemented.forMember("net/minecraft/core/component/PatchedDataComponentMap.fromPatch:(Lnet/minecraft/core/component/DataComponentMap;Lnet/minecraft/core/component/DataComponentPatch;)Lnet/minecraft/core/component/PatchedDataComponentMap;");
+    }
+
     public <T> T get(DataComponentType<? extends T> type) {
         throw Unimplemented.forMember("net/minecraft/core/component/PatchedDataComponentMap.get:(Lnet/minecraft/core/component/DataComponentType;)Ljava/lang/Object;");
     }

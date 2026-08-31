@@ -30,7 +30,11 @@ public class BackendCreationException extends Exception {
         VULKAN_MISSING_EXTENSION,
         VULKAN_MISSING_FEATURE,
         OPENGL_MISSING,
-        OTHER
+        OTHER;
+
+        public String displayName() {
+            throw Unimplemented.forMember("com/mojang/blaze3d/systems/BackendCreationException$Reason.displayName:()Ljava/lang/String;");
+        }
     }
 
     public BackendCreationException() {

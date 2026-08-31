@@ -26,6 +26,10 @@ public abstract class FlowingFluid extends Fluid {
 
     public abstract Fluid getSource();
 
+    public FluidState getSource(boolean falling) {
+        throw Unimplemented.forMember("net/minecraft/world/level/material/FlowingFluid.getSource:(Z)Lnet/minecraft/world/level/material/FluidState;");
+    }
+
     public boolean canConvertToSource(FluidState state, ServerLevel level, BlockPos pos) {
         throw Unimplemented.forMember("net/minecraft/world/level/material/FlowingFluid.canConvertToSource:(Lnet/minecraft/world/level/material/FluidState;Lnet/minecraft/server/level/ServerLevel;Lnet/minecraft/core/BlockPos;)Z");
     }

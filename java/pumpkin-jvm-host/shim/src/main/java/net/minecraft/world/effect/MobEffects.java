@@ -6,6 +6,8 @@ import dev.pumpkin.shim.Unimplemented;
 
 public class MobEffects {
 
+    public static final Holder<MobEffect> SPEED = Stubs.of(Holder.class, "net/minecraft/core/Holder");
+
     public static final Holder<MobEffect> SLOWNESS = Stubs.of(Holder.class, "net/minecraft/core/Holder");
 
     public static final Holder<MobEffect> HASTE = Stubs.of(Holder.class, "net/minecraft/core/Holder");

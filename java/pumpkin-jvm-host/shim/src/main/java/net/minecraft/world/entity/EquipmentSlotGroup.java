@@ -18,6 +18,10 @@ public enum EquipmentSlotGroup implements StringRepresentable, Iterable<Equipmen
     BODY,
     SADDLE;
 
+    public static EquipmentSlotGroup bySlot(EquipmentSlot slot) {
+        throw Unimplemented.forMember("net/minecraft/world/entity/EquipmentSlotGroup.bySlot:(Lnet/minecraft/world/entity/EquipmentSlot;)Lnet/minecraft/world/entity/EquipmentSlotGroup;");
+    }
+
     public String getSerializedName() {
         throw Unimplemented.forMember("net/minecraft/world/entity/EquipmentSlotGroup.getSerializedName:()Ljava/lang/String;");
     }

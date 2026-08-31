@@ -1,6 +1,7 @@
 package net.minecraft.world.item;
 
 import net.minecraft.util.StringRepresentable;
+import net.minecraft.world.level.material.MapColor;
 import dev.pumpkin.shim.Unimplemented;
 
 public enum DyeColor implements StringRepresentable {
@@ -28,6 +29,10 @@ public enum DyeColor implements StringRepresentable {
 
     public String getName() {
         throw Unimplemented.forMember("net/minecraft/world/item/DyeColor.getName:()Ljava/lang/String;");
+    }
+
+    public MapColor getMapColor() {
+        throw Unimplemented.forMember("net/minecraft/world/item/DyeColor.getMapColor:()Lnet/minecraft/world/level/material/MapColor;");
     }
 
     public static DyeColor byId(int id) {

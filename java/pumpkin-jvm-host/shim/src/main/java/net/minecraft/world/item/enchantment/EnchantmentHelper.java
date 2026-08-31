@@ -1,8 +1,14 @@
 package net.minecraft.world.item.enchantment;
 
 import net.minecraft.core.Holder;
+import net.minecraft.core.RegistryAccess;
+import net.minecraft.core.component.DataComponentType;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.util.RandomSource;
+import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.item.ItemInstance;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.enchantment.providers.EnchantmentProvider;
 import dev.pumpkin.shim.Unimplemented;
 
 public class EnchantmentHelper {
@@ -21,6 +27,14 @@ public class EnchantmentHelper {
 
     public static ItemStack createBook(EnchantmentInstance enchant) {
         throw Unimplemented.forMember("net/minecraft/world/item/enchantment/EnchantmentHelper.createBook:(Lnet/minecraft/world/item/enchantment/EnchantmentInstance;)Lnet/minecraft/world/item/ItemStack;");
+    }
+
+    public static boolean has(ItemStack item, DataComponentType<?> effectType) {
+        throw Unimplemented.forMember("net/minecraft/world/item/enchantment/EnchantmentHelper.has:(Lnet/minecraft/world/item/ItemStack;Lnet/minecraft/core/component/DataComponentType;)Z");
+    }
+
+    public static void enchantItemFromProvider(ItemStack itemStack, RegistryAccess registryAccess, ResourceKey<EnchantmentProvider> providerKey, DifficultyInstance difficulty, RandomSource random) {
+        throw Unimplemented.forMember("net/minecraft/world/item/enchantment/EnchantmentHelper.enchantItemFromProvider:(Lnet/minecraft/world/item/ItemStack;Lnet/minecraft/core/RegistryAccess;Lnet/minecraft/resources/ResourceKey;Lnet/minecraft/world/DifficultyInstance;Lnet/minecraft/util/RandomSource;)V");
     }
 
     public interface EnchantmentInSlotVisitor {

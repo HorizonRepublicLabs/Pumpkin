@@ -1,6 +1,7 @@
 package net.minecraft.client;
 
 import net.minecraft.core.BlockPos;
+import net.minecraft.world.attribute.EnvironmentAttributeProbe;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.waypoints.TrackedWaypoint;
@@ -10,12 +11,20 @@ public class Camera implements TrackedWaypoint.Camera {
 
     private Entity entity;
 
+    private Vec3 position;
+
+    private final EnvironmentAttributeProbe attributeProbe = null;
+
     public void tick() {
         throw Unimplemented.forMember("net/minecraft/client/Camera.tick:()V");
     }
 
     public void update(DeltaTracker deltaTracker) {
         throw Unimplemented.forMember("net/minecraft/client/Camera.update:(Lnet/minecraft/client/DeltaTracker;)V");
+    }
+
+    protected void setRotation(float yRot, float xRot, float roll) {
+        throw Unimplemented.forMember("net/minecraft/client/Camera.setRotation:(FFF)V");
     }
 
     public Vec3 position() {
@@ -36,6 +45,10 @@ public class Camera implements TrackedWaypoint.Camera {
 
     public boolean isInitialized() {
         throw Unimplemented.forMember("net/minecraft/client/Camera.isInitialized:()Z");
+    }
+
+    public EnvironmentAttributeProbe attributeProbe() {
+        throw Unimplemented.forMember("net/minecraft/client/Camera.attributeProbe:()Lnet/minecraft/world/attribute/EnvironmentAttributeProbe;");
     }
 
     public void reset() {

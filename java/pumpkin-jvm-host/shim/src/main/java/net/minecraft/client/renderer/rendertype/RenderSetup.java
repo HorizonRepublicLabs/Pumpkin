@@ -37,6 +37,8 @@ public final class RenderSetup {
 
         private boolean affectsCrumbling;
 
+        private boolean sortOnUpload;
+
         private RenderSetupBuilder(RenderPipeline pipeline) {
         }
 
@@ -58,6 +60,14 @@ public final class RenderSetup {
 
         public RenderSetup.RenderSetupBuilder affectsCrumbling() {
             throw Unimplemented.forMember("net/minecraft/client/renderer/rendertype/RenderSetup$RenderSetupBuilder.affectsCrumbling:()Lnet/minecraft/client/renderer/rendertype/RenderSetup$RenderSetupBuilder;");
+        }
+
+        public RenderSetup.RenderSetupBuilder sortOnUpload() {
+            throw Unimplemented.forMember("net/minecraft/client/renderer/rendertype/RenderSetup$RenderSetupBuilder.sortOnUpload:()Lnet/minecraft/client/renderer/rendertype/RenderSetup$RenderSetupBuilder;");
+        }
+
+        public RenderSetup.RenderSetupBuilder setTextureTransform(TextureTransform textureTransform) {
+            throw Unimplemented.forMember("net/minecraft/client/renderer/rendertype/RenderSetup$RenderSetupBuilder.setTextureTransform:(Lnet/minecraft/client/renderer/rendertype/TextureTransform;)Lnet/minecraft/client/renderer/rendertype/RenderSetup$RenderSetupBuilder;");
         }
 
         public RenderSetup.RenderSetupBuilder setOutline(RenderSetup.OutlineProperty outlineProperty) {

@@ -1,6 +1,7 @@
 package net.minecraft.server.network;
 
 import com.mojang.authlib.GameProfile;
+import java.util.Set;
 import net.minecraft.network.Connection;
 import net.minecraft.network.DisconnectionDetails;
 import net.minecraft.network.TickablePacketListener;
@@ -70,9 +71,13 @@ import net.minecraft.network.protocol.game.ServerboundUseItemPacket;
 import net.minecraft.network.protocol.ping.ServerboundPingRequestPacket;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.PositionMoveRotation;
+import net.minecraft.world.entity.Relative;
 import dev.pumpkin.shim.Unimplemented;
 
 public class ServerGamePacketListenerImpl extends ServerCommonPacketListenerImpl implements ServerGamePacketListener, ServerPlayerConnection, TickablePacketListener, GameProtocols.Context {
+
+    private int aboveGroundTickCount;
 
     public ServerGamePacketListenerImpl(MinecraftServer server, Connection connection, ServerPlayer player, CommonListenerCookie cookie) {
     }
@@ -199,6 +204,14 @@ public class ServerGamePacketListenerImpl extends ServerCommonPacketListenerImpl
 
     public void handleMovePlayer(ServerboundMovePlayerPacket packet) {
         throw Unimplemented.forMember("net/minecraft/server/network/ServerGamePacketListenerImpl.handleMovePlayer:(Lnet/minecraft/network/protocol/game/ServerboundMovePlayerPacket;)V");
+    }
+
+    public void teleport(double x, double y, double z, float yRot, float xRot) {
+        throw Unimplemented.forMember("net/minecraft/server/network/ServerGamePacketListenerImpl.teleport:(DDDFF)V");
+    }
+
+    public void teleport(PositionMoveRotation destination, Set<Relative> relatives) {
+        throw Unimplemented.forMember("net/minecraft/server/network/ServerGamePacketListenerImpl.teleport:(Lnet/minecraft/world/entity/PositionMoveRotation;Ljava/util/Set;)V");
     }
 
     public void handlePlayerAction(ServerboundPlayerActionPacket packet) {

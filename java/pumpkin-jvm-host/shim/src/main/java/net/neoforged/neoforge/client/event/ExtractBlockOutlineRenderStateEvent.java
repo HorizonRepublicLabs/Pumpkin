@@ -30,6 +30,10 @@ public final class ExtractBlockOutlineRenderStateEvent extends Event implements 
         throw Unimplemented.forMember("net/neoforged/neoforge/client/event/ExtractBlockOutlineRenderStateEvent.getBlockPos:()Lnet/minecraft/core/BlockPos;");
     }
 
+    public BlockState getBlockState() {
+        throw Unimplemented.forMember("net/neoforged/neoforge/client/event/ExtractBlockOutlineRenderStateEvent.getBlockState:()Lnet/minecraft/world/level/block/state/BlockState;");
+    }
+
     public BlockHitResult getHitResult() {
         throw Unimplemented.forMember("net/neoforged/neoforge/client/event/ExtractBlockOutlineRenderStateEvent.getHitResult:()Lnet/minecraft/world/phys/BlockHitResult;");
     }

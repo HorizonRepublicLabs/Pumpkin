@@ -28,6 +28,10 @@ public class BlockPlaceContext extends UseOnContext {
         throw Unimplemented.forMember("net/minecraft/world/item/context/BlockPlaceContext.getClickedPos:()Lnet/minecraft/core/BlockPos;");
     }
 
+    public boolean replacingClickedOnBlock() {
+        throw Unimplemented.forMember("net/minecraft/world/item/context/BlockPlaceContext.replacingClickedOnBlock:()Z");
+    }
+
     public BlockPlaceContext() {
     }
 }

@@ -287,11 +287,10 @@ for field, registry_name in NEOFORGE_IDENTITIES.items():
                 % (field, match.group(2), match.group(3), registry_name))
     s = s[:match.start()] + upgraded + s[match.end():]
 
-if "import net.minecraft.resources.ResourceKey;" not in s:
-    s = s.replace("import dev.pumpkin.shim.Stubs;",
-                  "import net.minecraft.resources.Identifier;\n"
-                  "import net.minecraft.resources.ResourceKey;\n"
-                  "import dev.pumpkin.shim.Stubs;", 1)
+for needed in ("net.minecraft.resources.Identifier", "net.minecraft.resources.ResourceKey"):
+    if "import " + needed + ";" not in s:
+        s = s.replace("import dev.pumpkin.shim.Stubs;",
+                      "import " + needed + ";\nimport dev.pumpkin.shim.Stubs;", 1)
 PENDING[p] = s
 
 # ------------------------------------------------------------ ModConfigSpec
@@ -355,6 +354,20 @@ NAMES = {
     "ENTITY_TYPE": "entity_type", "FEATURE": "worldgen/feature", "ITEM": "item",
     "MENU": "menu", "RECIPE_SERIALIZER": "recipe_serializer", "RECIPE_TYPE": "recipe_type",
     "ENCHANTMENT": "enchantment", "RECIPE": "recipe",
+    # The Mekanism family references these; names verified against the decompiled
+    # vanilla Registries.java, worldgen/ prefixes and all.
+    "DATA_COMPONENT_PREDICATE_TYPE": "data_component_predicate_type",
+    "FLUID": "fluid", "GAME_EVENT": "game_event",
+    "HEIGHT_PROVIDER_TYPE": "height_provider_type",
+    "INT_PROVIDER_TYPE": "int_provider_type",
+    "LOOT_FUNCTION_TYPE": "loot_function_type", "MOB_EFFECT": "mob_effect",
+    "PARTICLE_TYPE": "particle_type",
+    "PLACEMENT_MODIFIER_TYPE": "worldgen/placement_modifier_type",
+    "RECIPE_DISPLAY": "recipe_display", "SLOT_DISPLAY": "slot_display",
+    "SOUND_EVENT": "sound_event", "BIOME": "worldgen/biome",
+    "DAMAGE_TYPE": "damage_type", "DIMENSION_TYPE": "dimension_type",
+    "PLACED_FEATURE": "worldgen/placed_feature", "STRUCTURE": "worldgen/structure",
+    "TRIGGER_TYPE": "trigger_type",
 }
 for field, name in NAMES.items():
     pat = re.compile(r"(public static final ResourceKey<Registry<[^;]*?>> " + field + r") = null;")
@@ -390,7 +403,7 @@ new = """    // Pumpkin divergence from the generated shim: every key above is i
     //
     // Re-apply by hand after any regeneration -- grep for "Pumpkin divergence".
     private static <T> ResourceKey<Registry<T>> pumpkinRegistryKey(String name) {
-        return ResourceKey.createRegistryKey(Identifier.fromNamespaceAndPath("minecraft", name));
+        return ResourceKey.createRegistryKey(net.minecraft.resources.Identifier.fromNamespaceAndPath("minecraft", name));
     }
 }"""
 if old not in s:
@@ -992,8 +1005,14 @@ edit("net/minecraft/network/codec/StreamCodec.java", [
 edit('net/minecraft/core/component/DataComponentMap.java', [
     ('    static DataComponentMap.Builder builder() {\n        throw Unimplemented.forMember("net/minecraft/core/component/DataComponentMap.builder:()Lnet/minecraft/core/component/DataComponentMap$Builder;");\n    }',
      '    // Pumpkin divergence: real body. A component map is a real map -- small surface,\n    // genuine behaviour, nothing to stub.\n    static DataComponentMap.Builder builder() {\n        return new Builder();\n    }'),
-    ('        public <T> T get(DataComponentType<? extends T> type) {\n            throw Unimplemented.forMember("net/minecraft/core/component/DataComponentMap$Builder.get:(Lnet/minecraft/core/component/DataComponentType;)Ljava/lang/Object;");\n        }\n\n        public <T> DataComponentMap.Builder set(DataComponentType<T> type, T value) {\n            throw Unimplemented.forMember("net/minecraft/core/component/DataComponentMap$Builder.set:(Lnet/minecraft/core/component/DataComponentType;Ljava/lang/Object;)Lnet/minecraft/core/component/DataComponentMap$Builder;");\n        }\n\n        public DataComponentMap build() {\n            throw Unimplemented.forMember("net/minecraft/core/component/DataComponentMap$Builder.build:()Lnet/minecraft/core/component/DataComponentMap;");\n        }',
-     '        // Pumpkin divergence: real bodies over a plain LinkedHashMap.\n        final java.util.Map<DataComponentType<?>, Object> pumpkinMap = new java.util.LinkedHashMap<>();\n\n        @SuppressWarnings("unchecked")\n        public <T> T get(DataComponentType<? extends T> type) {\n            return (T) pumpkinMap.get(type);\n        }\n\n        public <T> DataComponentMap.Builder set(DataComponentType<T> type, T value) {\n            pumpkinMap.put(type, value);\n            return this;\n        }\n\n        public DataComponentMap build() {\n            final java.util.Map<DataComponentType<?>, Object> built =\n                    java.util.Collections.unmodifiableMap(new java.util.LinkedHashMap<>(pumpkinMap));\n            return new DataComponentMap() {\n                @Override\n                @SuppressWarnings("unchecked")\n                public <T> T get(DataComponentType<? extends T> type) {\n                    return (T) built.get(type);\n                }\n\n                @Override\n                public boolean has(DataComponentType<?> type) {\n                    return built.containsKey(type);\n                }\n\n                @Override\n                public Set<DataComponentType<?>> keySet() {\n                    return built.keySet();\n                }\n\n                @Override\n                public boolean isEmpty() {\n                    return built.isEmpty();\n                }\n\n                @Override\n                public int size() {\n                    return built.size();\n                }\n            };\n        }'),
+    ('        public <T> T get(DataComponentType<? extends T> type) {\n            throw Unimplemented.forMember("net/minecraft/core/component/DataComponentMap$Builder.get:(Lnet/minecraft/core/component/DataComponentType;)Ljava/lang/Object;");\n        }',
+     '        // Pumpkin divergence: real bodies over a plain LinkedHashMap.\n        final java.util.Map<DataComponentType<?>, Object> pumpkinMap = new java.util.LinkedHashMap<>();\n\n        @SuppressWarnings("unchecked")\n        public <T> T get(DataComponentType<? extends T> type) {\n            return (T) pumpkinMap.get(type);\n        }'),
+    ('        public <T> DataComponentMap.Builder set(DataComponentType<T> type, T value) {\n            throw Unimplemented.forMember("net/minecraft/core/component/DataComponentMap$Builder.set:(Lnet/minecraft/core/component/DataComponentType;Ljava/lang/Object;)Lnet/minecraft/core/component/DataComponentMap$Builder;");\n        }',
+     '        public <T> DataComponentMap.Builder set(DataComponentType<T> type, T value) {\n            pumpkinMap.put(type, value);\n            return this;\n        }'),
+    ('        public DataComponentMap.Builder addAll(DataComponentMap map) {\n            throw Unimplemented.forMember("net/minecraft/core/component/DataComponentMap$Builder.addAll:(Lnet/minecraft/core/component/DataComponentMap;)Lnet/minecraft/core/component/DataComponentMap$Builder;");\n        }',
+     '        // Pumpkin divergence: real body -- copy the other map\'s entries in.\n        public DataComponentMap.Builder addAll(DataComponentMap map) {\n            for (DataComponentType<?> type : map.keySet()) {\n                pumpkinMap.put(type, map.get(type));\n            }\n            return this;\n        }'),
+    ('        public DataComponentMap build() {\n            throw Unimplemented.forMember("net/minecraft/core/component/DataComponentMap$Builder.build:()Lnet/minecraft/core/component/DataComponentMap;");\n        }',
+     '        public DataComponentMap build() {\n            final java.util.Map<DataComponentType<?>, Object> built =\n                    java.util.Collections.unmodifiableMap(new java.util.LinkedHashMap<>(pumpkinMap));\n            return new DataComponentMap() {\n                @Override\n                @SuppressWarnings("unchecked")\n                public <T> T get(DataComponentType<? extends T> type) {\n                    return (T) built.get(type);\n                }\n\n                @Override\n                public boolean has(DataComponentType<?> type) {\n                    return built.containsKey(type);\n                }\n\n                @Override\n                public Set<DataComponentType<?>> keySet() {\n                    return built.keySet();\n                }\n\n                @Override\n                public boolean isEmpty() {\n                    return built.isEmpty();\n                }\n\n                @Override\n                public int size() {\n                    return built.size();\n                }\n            };\n        }'),
 ])
 
 edit('net/neoforged/neoforge/common/extensions/IDataComponentMapBuilderExtensions.java', [
@@ -1041,21 +1060,21 @@ edit('net/minecraft/tags/BlockTags.java', [
     ('    public static final TagKey<Block> CROPS = null;',
      '    // Pumpkin divergence: real value, named as vanilla names it.\n    public static final TagKey<Block> CROPS = create(Identifier.fromNamespaceAndPath("minecraft", "crops"));'),
     ('    public static TagKey<Block> create(Identifier name) {\n        throw Unimplemented.forMember("net/minecraft/tags/BlockTags.create:(Lnet/minecraft/resources/Identifier;)Lnet/minecraft/tags/TagKey;");\n    }',
-     '    // Pumpkin divergence: real body -- TagKey.create over the block registry\'s key.\n    public static TagKey<Block> create(Identifier name) {\n        return TagKey.create(net.minecraft.resources.ResourceKey.createRegistryKey(Identifier.fromNamespaceAndPath("minecraft", "block")), name);\n    }'),
+     '    // Pumpkin divergence: real body -- TagKey.create over the block registry\'s key.\n    public static TagKey<Block> create(Identifier name) {\n        return TagKey.create(net.minecraft.resources.ResourceKey.createRegistryKey(net.minecraft.resources.Identifier.fromNamespaceAndPath("minecraft", "block")), name);\n    }'),
     ('\n    static {\n        if (true) {\n            throw Unimplemented.forMember("net/minecraft/tags/BlockTags");\n        }\n    }\n',
      '\n'),
 ])
 
 edit('net/minecraft/tags/ItemTags.java', [
     ('    public static TagKey<Item> create(final Identifier name) {\n        throw Unimplemented.forMember("net/minecraft/tags/ItemTags.create:(Lnet/minecraft/resources/Identifier;)Lnet/minecraft/tags/TagKey;");\n    }',
-     '    // Pumpkin divergence: real body -- TagKey.create over the item registry\'s key.\n    public static TagKey<Item> create(final Identifier name) {\n        return TagKey.create(net.minecraft.resources.ResourceKey.createRegistryKey(Identifier.fromNamespaceAndPath("minecraft", "item")), name);\n    }'),
+     '    // Pumpkin divergence: real body -- TagKey.create over the item registry\'s key.\n    public static TagKey<Item> create(final Identifier name) {\n        return TagKey.create(net.minecraft.resources.ResourceKey.createRegistryKey(net.minecraft.resources.Identifier.fromNamespaceAndPath("minecraft", "item")), name);\n    }'),
 ])
 
 edit('net/minecraft/tags/FluidTags.java', [
     ('    public static final TagKey<Fluid> WATER = null;',
      '    // Pumpkin divergence: real value, named as vanilla names it.\n    public static final TagKey<Fluid> WATER = create(Identifier.fromNamespaceAndPath("minecraft", "water"));'),
     ('    public static TagKey<Fluid> create(Identifier name) {\n        throw Unimplemented.forMember("net/minecraft/tags/FluidTags.create:(Lnet/minecraft/resources/Identifier;)Lnet/minecraft/tags/TagKey;");\n    }',
-     '    // Pumpkin divergence: real body.\n    public static TagKey<Fluid> create(Identifier name) {\n        return TagKey.create(net.minecraft.resources.ResourceKey.createRegistryKey(Identifier.fromNamespaceAndPath("minecraft", "fluid")), name);\n    }'),
+     '    // Pumpkin divergence: real body.\n    public static TagKey<Fluid> create(Identifier name) {\n        return TagKey.create(net.minecraft.resources.ResourceKey.createRegistryKey(net.minecraft.resources.Identifier.fromNamespaceAndPath("minecraft", "fluid")), name);\n    }'),
     ('\n    static {\n        if (true) {\n            throw Unimplemented.forMember("net/minecraft/tags/FluidTags");\n        }\n    }\n',
      '\n'),
 ])
@@ -1569,8 +1588,16 @@ edit("net/minecraft/world/phys/Vec3.java", [
 
 # ------------------------------------------------------ interaction results, real
 edit("net/minecraft/world/InteractionResult.java", [
-    ('    InteractionResult.Success SUCCESS = null;\n\n    InteractionResult.Fail FAIL = null;\n\n    InteractionResult.Pass PASS = null;',
-     "    // Pumpkin divergence: real instances -- vanilla's own values. A null here made every\n    // handler's return indistinguishable from every other.\n    InteractionResult.Success SUCCESS = new Success(SwingSource.CLIENT, new ItemContext(true, null));\n\n    InteractionResult.Fail FAIL = new Fail();\n\n    InteractionResult.Pass PASS = new Pass();"),
+    ('    InteractionResult.Success SUCCESS = null;',
+     "    // Pumpkin divergence: real instances -- vanilla's own values. A null here made every\n    // handler's return indistinguishable from every other.\n    InteractionResult.Success SUCCESS = new Success(SwingSource.CLIENT, new ItemContext(true, null));"),
+    ('    InteractionResult.Success SUCCESS_SERVER = null;',
+     '    // Pumpkin divergence: real instance, per vanilla -- swing decided server-side.\n    InteractionResult.Success SUCCESS_SERVER = new Success(SwingSource.SERVER, new ItemContext(true, null));'),
+    ('    InteractionResult.Success CONSUME = null;',
+     '    // Pumpkin divergence: real instance, per vanilla -- success with no swing.\n    InteractionResult.Success CONSUME = new Success(SwingSource.NONE, new ItemContext(true, null));'),
+    ('    InteractionResult.Fail FAIL = null;',
+     '    InteractionResult.Fail FAIL = new Fail();'),
+    ('    InteractionResult.Pass PASS = null;',
+     '    InteractionResult.Pass PASS = new Pass();'),
 ])
 
 
@@ -2306,6 +2333,104 @@ edit('net/minecraft/core/BlockPos.java', [
 edit('net/minecraft/world/level/block/state/BlockBehaviour.java', [
     ('        public void randomTick(ServerLevel level, BlockPos pos, RandomSource random) {\n            throw Unimplemented.forMember("net/minecraft/world/level/block/state/BlockBehaviour$BlockStateBase.randomTick:(Lnet/minecraft/server/level/ServerLevel;Lnet/minecraft/core/BlockPos;Lnet/minecraft/util/RandomSource;)V");\n        }',
      '        // Pumpkin divergence: vanilla body in spirit -- dispatch to the owning block\'s\n        // randomTick. Reflection because the method is protected in another package;\n        // this is how a growth accelerator forces a tick on the crop above it.\n        public void randomTick(ServerLevel level, BlockPos pos, RandomSource random) {\n            try {\n                java.lang.reflect.Method method = null;\n                for (Class<?> type = getBlock().getClass(); type != null; type = type.getSuperclass()) {\n                    for (java.lang.reflect.Method candidate : type.getDeclaredMethods()) {\n                        if (candidate.getName().equals("randomTick")\n                                && candidate.getParameterCount() == 4) {\n                            method = candidate;\n                            break;\n                        }\n                    }\n                    if (method != null) {\n                        break;\n                    }\n                }\n                if (method == null) {\n                    return;\n                }\n                method.setAccessible(true);\n                method.invoke(getBlock(), this, level, pos, random);\n            } catch (java.lang.reflect.InvocationTargetException e) {\n                if (e.getCause() instanceof RuntimeException cause) {\n                    throw cause;\n                }\n                throw new IllegalStateException(e.getCause());\n            } catch (ReflectiveOperationException e) {\n                throw new IllegalStateException(e);\n            }\n        }'),
+])
+
+
+# ----------------------------------------------- Mekanism regen: dedupe and repair
+# The Mekanism family widened the used set, so the generator now emits stubs for
+# members this file used to hand-add, and pulled in classes whose supers need real
+# constructor chains. Each edit below either deletes the newly generated duplicate
+# (the hand-written body elsewhere in the file stands) or completes what the
+# generator could not know.
+
+edit('net/minecraft/resources/ResourceKey.java', [
+    ('    public static <T> ResourceKey<Registry<T>> createRegistryKey(Identifier identifier) {\n        throw Unimplemented.forMember("net/minecraft/resources/ResourceKey.createRegistryKey:(Lnet/minecraft/resources/Identifier;)Lnet/minecraft/resources/ResourceKey;");\n    }\n\n',
+     ''),
+])
+
+edit('net/minecraft/world/inventory/AbstractContainerMenu.java', [
+    ('    public final int containerId = 0;\n\n', ''),
+    ('    public void setCarried(ItemStack carried) {\n        throw Unimplemented.forMember("net/minecraft/world/inventory/AbstractContainerMenu.setCarried:(Lnet/minecraft/world/item/ItemStack;)V");\n    }\n\n',
+     ''),
+    ('    public ItemStack getCarried() {\n        throw Unimplemented.forMember("net/minecraft/world/inventory/AbstractContainerMenu.getCarried:()Lnet/minecraft/world/item/ItemStack;");\n    }\n\n',
+     ''),
+])
+
+edit('net/minecraft/world/inventory/Slot.java', [
+    ('    public boolean mayPickup(Player player) {\n        throw Unimplemented.forMember("net/minecraft/world/inventory/Slot.mayPickup:(Lnet/minecraft/world/entity/player/Player;)Z");\n    }\n\n',
+     ''),
+])
+
+edit('net/minecraft/world/level/block/Block.java', [
+    ('    protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {\n        throw Unimplemented.forMember("net/minecraft/world/level/block/Block.createBlockStateDefinition:(Lnet/minecraft/world/level/block/state/StateDefinition$Builder;)V");\n    }\n\n',
+     ''),
+])
+
+edit('net/neoforged/neoforge/registries/DeferredRegister.java', [
+    ('        default int registerBlock(String id, String template, Float destroyTime,\n                Float explosionResistance, boolean requiresTool) {\n            return registerBlock(id, template);\n        }',
+     '        default int registerBlock(String id, String template, Float destroyTime,\n                Float explosionResistance, boolean requiresTool) {\n            return registerBlock(id, template);\n        }\n\n        // Pumpkin divergence: wider still -- the block\'s declared state properties, as\n        // "name:v|v|v;name:v|v". A block with properties gets one server-side state per\n        // combination, which is what lets a crop\'s age exist at all.\n        default int registerBlock(String id, String template, Float destroyTime,\n                Float explosionResistance, boolean requiresTool, String stateProperties) {\n            return registerBlock(id, template, destroyTime, explosionResistance, requiresTool);\n        }'),
+])
+
+edit('net/minecraft/nbt/NbtOps.java', [
+    ('    private class NbtRecordBuilder extends AbstractStringBuilder<Tag, CompoundTag> {\n\n        protected NbtRecordBuilder() {\n        }',
+     "    private class NbtRecordBuilder extends AbstractStringBuilder<Tag, CompoundTag> {\n\n        // Pumpkin divergence: DFU's AbstractStringBuilder has no no-arg constructor; it\n        // takes the ops it builds against, and the enclosing NbtOps is exactly that.\n        protected NbtRecordBuilder() {\n            super(NbtOps.this);\n        }"),
+])
+
+# DynamicOps.remove became load-bearing in the used set; NbtOps must declare it.
+_p = os.path.join(ROOT, 'net/minecraft/nbt/NbtOps.java')
+_s = PENDING.get(_p) or open(_p).read()
+_anchor = '    private class NbtRecordBuilder'
+assert _anchor in _s
+_stubs = [
+    ("Tag empty()", "empty:()Lnet/minecraft/nbt/Tag;"),
+    ("<U> U convertTo(com.mojang.serialization.DynamicOps<U> ops, Tag input)",
+     "convertTo:(Lcom/mojang/serialization/DynamicOps;Lnet/minecraft/nbt/Tag;)Ljava/lang/Object;"),
+    ("com.mojang.serialization.DataResult<Number> getNumberValue(Tag input)",
+     "getNumberValue:(Lnet/minecraft/nbt/Tag;)Lcom/mojang/serialization/DataResult;"),
+    ("Tag createNumeric(Number value)", "createNumeric:(Ljava/lang/Number;)Lnet/minecraft/nbt/Tag;"),
+    ("com.mojang.serialization.DataResult<String> getStringValue(Tag input)",
+     "getStringValue:(Lnet/minecraft/nbt/Tag;)Lcom/mojang/serialization/DataResult;"),
+    ("Tag createString(String value)", "createString:(Ljava/lang/String;)Lnet/minecraft/nbt/Tag;"),
+    ("com.mojang.serialization.DataResult<Tag> mergeToList(Tag list, Tag value)",
+     "mergeToList:(Lnet/minecraft/nbt/Tag;Lnet/minecraft/nbt/Tag;)Lcom/mojang/serialization/DataResult;"),
+    ("com.mojang.serialization.DataResult<Tag> mergeToMap(Tag map, Tag key, Tag value)",
+     "mergeToMap:(Lnet/minecraft/nbt/Tag;Lnet/minecraft/nbt/Tag;Lnet/minecraft/nbt/Tag;)Lcom/mojang/serialization/DataResult;"),
+    ("com.mojang.serialization.DataResult<java.util.stream.Stream<com.mojang.datafixers.util.Pair<Tag, Tag>>> getMapValues(Tag input)",
+     "getMapValues:(Lnet/minecraft/nbt/Tag;)Lcom/mojang/serialization/DataResult;"),
+    ("Tag createMap(java.util.stream.Stream<com.mojang.datafixers.util.Pair<Tag, Tag>> entries)",
+     "createMap:(Ljava/util/stream/Stream;)Lnet/minecraft/nbt/Tag;"),
+    ("com.mojang.serialization.DataResult<java.util.stream.Stream<Tag>> getStream(Tag input)",
+     "getStream:(Lnet/minecraft/nbt/Tag;)Lcom/mojang/serialization/DataResult;"),
+    ("Tag createList(java.util.stream.Stream<Tag> input)",
+     "createList:(Ljava/util/stream/Stream;)Lnet/minecraft/nbt/Tag;"),
+    ("Tag remove(Tag input, String key)",
+     "remove:(Lnet/minecraft/nbt/Tag;Ljava/lang/String;)Lnet/minecraft/nbt/Tag;"),
+]
+# DynamicOps' abstract surface: the generator emitted NbtOps without it (nothing in the
+# used set called these on NbtOps directly), but javac needs the class to be complete.
+# Throwing stubs, each naming its member -- real serialisation still routes elsewhere.
+_member = ""
+for _sig, _key in _stubs:
+    _member += ("    public " + _sig + " {\n"
+                + '        throw Unimplemented.forMember("net/minecraft/nbt/NbtOps.' + _key + '");\n'
+                + "    }\n\n")
+PENDING[_p] = _s.replace(_anchor, _member + _anchor, 1)
+
+# CuboidFace is named in kept signatures but was never generated; a minimal class
+# lets its siblings compile. Nothing constructs one server-side.
+_face = os.path.join(ROOT, 'net/minecraft/client/resources/model/cuboid/CuboidFace.java')
+PENDING[_face] = (
+    'package net.minecraft.client.resources.model.cuboid;\n\n'
+    '// Hand-restored by reconcile: named in kept signatures (CuboidModelElement.faces)\n'
+    '// but outside the used set, so the generator never emits it. A model face is\n'
+    '// client rendering data; nothing on the server reads one.\n'
+    'public class CuboidFace {\n}\n')
+
+edit('net/neoforged/neoforge/common/util/InsertableLinkedOpenCustomHashSet.java', [
+    ('    public InsertableLinkedOpenCustomHashSet() {\n    }',
+     "    // Pumpkin divergence: the fastutil super has no no-arg constructor; chain the\n    // strategies vanilla would. Identity strategy for the no-arg form, per NeoForge.\n    public InsertableLinkedOpenCustomHashSet() {\n        super(it.unimi.dsi.fastutil.Hash.DEFAULT_INITIAL_SIZE, it.unimi.dsi.fastutil.Hash.DEFAULT_LOAD_FACTOR,\n                new Hash.Strategy<T>() {\n                    public int hashCode(T o) {\n                        return java.util.Objects.hashCode(o);\n                    }\n\n                    public boolean equals(T a, T b) {\n                        return java.util.Objects.equals(a, b);\n                    }\n                });\n    }"),
+    ('    public InsertableLinkedOpenCustomHashSet(Hash.Strategy<? super T> strategy) {\n    }',
+     '    public InsertableLinkedOpenCustomHashSet(Hash.Strategy<? super T> strategy) {\n        super(strategy);\n    }'),
 ])
 
 commit()

@@ -62,6 +62,10 @@ public final class NativeImage implements AutoCloseable {
         throw Unimplemented.forMember("com/mojang/blaze3d/platform/NativeImage.format:()Lcom/mojang/blaze3d/platform/NativeImage$Format;");
     }
 
+    public int getPixel(int x, int y) {
+        throw Unimplemented.forMember("com/mojang/blaze3d/platform/NativeImage.getPixel:(II)I");
+    }
+
     public enum Format {
 
         RGBA, RGB, LUMINANCE_ALPHA, LUMINANCE;

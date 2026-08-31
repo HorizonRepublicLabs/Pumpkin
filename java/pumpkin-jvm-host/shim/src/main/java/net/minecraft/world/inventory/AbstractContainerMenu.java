@@ -35,8 +35,24 @@ public abstract class AbstractContainerMenu {
         throw Unimplemented.forMember("net/minecraft/world/inventory/AbstractContainerMenu.addDataSlots:(Lnet/minecraft/world/inventory/ContainerData;)V");
     }
 
+    public void addSlotListener(ContainerListener listener) {
+        throw Unimplemented.forMember("net/minecraft/world/inventory/AbstractContainerMenu.addSlotListener:(Lnet/minecraft/world/inventory/ContainerListener;)V");
+    }
+
+    public void sendAllDataToRemote() {
+        throw Unimplemented.forMember("net/minecraft/world/inventory/AbstractContainerMenu.sendAllDataToRemote:()V");
+    }
+
+    public void removeSlotListener(ContainerListener listener) {
+        throw Unimplemented.forMember("net/minecraft/world/inventory/AbstractContainerMenu.removeSlotListener:(Lnet/minecraft/world/inventory/ContainerListener;)V");
+    }
+
     public NonNullList<ItemStack> getItems() {
         throw Unimplemented.forMember("net/minecraft/world/inventory/AbstractContainerMenu.getItems:()Lnet/minecraft/core/NonNullList;");
+    }
+
+    public void broadcastChanges() {
+        throw Unimplemented.forMember("net/minecraft/world/inventory/AbstractContainerMenu.broadcastChanges:()V");
     }
 
     public Slot getSlot(int index) {
@@ -44,6 +60,18 @@ public abstract class AbstractContainerMenu {
     }
 
     public abstract ItemStack quickMoveStack(final Player player, final int slotIndex);
+
+    public void clicked(int slotIndex, int buttonNum, ContainerInput containerInput, Player player) {
+        throw Unimplemented.forMember("net/minecraft/world/inventory/AbstractContainerMenu.clicked:(IILnet/minecraft/world/inventory/ContainerInput;Lnet/minecraft/world/entity/player/Player;)V");
+    }
+
+    public boolean canTakeItemForPickAll(ItemStack carried, Slot target) {
+        throw Unimplemented.forMember("net/minecraft/world/inventory/AbstractContainerMenu.canTakeItemForPickAll:(Lnet/minecraft/world/item/ItemStack;Lnet/minecraft/world/inventory/Slot;)Z");
+    }
+
+    public void removed(Player player) {
+        throw Unimplemented.forMember("net/minecraft/world/inventory/AbstractContainerMenu.removed:(Lnet/minecraft/world/entity/player/Player;)V");
+    }
 
     public void slotsChanged(Container container) {
         throw Unimplemented.forMember("net/minecraft/world/inventory/AbstractContainerMenu.slotsChanged:(Lnet/minecraft/world/Container;)V");
@@ -114,6 +142,18 @@ public abstract class AbstractContainerMenu {
 
     public void setCarried(ItemStack stack) {
         this.pumpkinCarried = stack;
+    }
+
+    public static boolean canItemQuickReplace(Slot slot, ItemStack itemStack, boolean ignoreSize) {
+        throw Unimplemented.forMember("net/minecraft/world/inventory/AbstractContainerMenu.canItemQuickReplace:(Lnet/minecraft/world/inventory/Slot;Lnet/minecraft/world/item/ItemStack;Z)Z");
+    }
+
+    public static int getQuickCraftPlaceCount(int quickCraftSlotsSize, int quickCraftingType, ItemStack itemStack) {
+        throw Unimplemented.forMember("net/minecraft/world/inventory/AbstractContainerMenu.getQuickCraftPlaceCount:(IILnet/minecraft/world/item/ItemStack;)I");
+    }
+
+    public boolean canDragTo(Slot slot) {
+        throw Unimplemented.forMember("net/minecraft/world/inventory/AbstractContainerMenu.canDragTo:(Lnet/minecraft/world/inventory/Slot;)Z");
     }
 
     public AbstractContainerMenu() {

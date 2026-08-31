@@ -5,6 +5,22 @@ import dev.pumpkin.shim.Unimplemented;
 
 public class ARGB {
 
+    public static int alpha(int color) {
+        throw Unimplemented.forMember("net/minecraft/util/ARGB.alpha:(I)I");
+    }
+
+    public static int red(int color) {
+        throw Unimplemented.forMember("net/minecraft/util/ARGB.red:(I)I");
+    }
+
+    public static int green(int color) {
+        throw Unimplemented.forMember("net/minecraft/util/ARGB.green:(I)I");
+    }
+
+    public static int blue(int color) {
+        throw Unimplemented.forMember("net/minecraft/util/ARGB.blue:(I)I");
+    }
+
     // Pumpkin divergence: real body, copied from vanilla. Pure arithmetic over primitives
     // -- there is nothing here for the shim to be missing, so stubbing it would refuse to
     // answer a question that has one right answer.
@@ -19,6 +35,22 @@ public class ARGB {
 
     public static int color(Vec3 vec) {
         throw Unimplemented.forMember("net/minecraft/util/ARGB.color:(Lnet/minecraft/world/phys/Vec3;)I");
+    }
+
+    public static int multiply(int lhs, int rhs) {
+        throw Unimplemented.forMember("net/minecraft/util/ARGB.multiply:(II)I");
+    }
+
+    public static int srgbLerp(float alpha, int p0, int p1) {
+        throw Unimplemented.forMember("net/minecraft/util/ARGB.srgbLerp:(FII)I");
+    }
+
+    public static int opaque(int color) {
+        throw Unimplemented.forMember("net/minecraft/util/ARGB.opaque:(I)I");
+    }
+
+    public static int transparent(int color) {
+        throw Unimplemented.forMember("net/minecraft/util/ARGB.transparent:(I)I");
     }
 
     // Pumpkin divergence: real body, copied from vanilla. This is the one four
@@ -39,8 +71,32 @@ public class ARGB {
         throw Unimplemented.forMember("net/minecraft/util/ARGB.white:(I)I");
     }
 
+    public static int black(float alpha) {
+        throw Unimplemented.forMember("net/minecraft/util/ARGB.black:(F)I");
+    }
+
+    public static int black(int alpha) {
+        throw Unimplemented.forMember("net/minecraft/util/ARGB.black:(I)I");
+    }
+
     public static int colorFromFloat(float alpha, float red, float green, float blue) {
         throw Unimplemented.forMember("net/minecraft/util/ARGB.colorFromFloat:(FFFF)I");
+    }
+
+    public static int as8BitChannel(float value) {
+        throw Unimplemented.forMember("net/minecraft/util/ARGB.as8BitChannel:(F)I");
+    }
+
+    public static float redFloat(int color) {
+        throw Unimplemented.forMember("net/minecraft/util/ARGB.redFloat:(I)F");
+    }
+
+    public static float greenFloat(int color) {
+        throw Unimplemented.forMember("net/minecraft/util/ARGB.greenFloat:(I)F");
+    }
+
+    public static float blueFloat(int color) {
+        throw Unimplemented.forMember("net/minecraft/util/ARGB.blueFloat:(I)F");
     }
 
     public ARGB() {

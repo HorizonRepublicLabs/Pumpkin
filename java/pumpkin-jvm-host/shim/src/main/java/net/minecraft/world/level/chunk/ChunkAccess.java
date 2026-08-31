@@ -76,9 +76,21 @@ public abstract class ChunkAccess implements LightChunk, StructureAccess, BiomeM
         throw Unimplemented.forMember("net/minecraft/world/level/chunk/ChunkAccess.setAllReferences:(Ljava/util/Map;)V");
     }
 
+    public boolean isYSpaceEmpty(int yStartInclusive, int yEndInclusive) {
+        throw Unimplemented.forMember("net/minecraft/world/level/chunk/ChunkAccess.isYSpaceEmpty:(II)Z");
+    }
+
+    public void markUnsaved() {
+        throw Unimplemented.forMember("net/minecraft/world/level/chunk/ChunkAccess.markUnsaved:()V");
+    }
+
     public abstract ChunkStatus getPersistedStatus();
 
     public abstract void removeBlockEntity(BlockPos pos);
+
+    public void markPosForPostProcessing(BlockPos blockPos) {
+        throw Unimplemented.forMember("net/minecraft/world/level/chunk/ChunkAccess.markPosForPostProcessing:(Lnet/minecraft/core/BlockPos;)V");
+    }
 
     public abstract CompoundTag getBlockEntityNbtForSaving(BlockPos blockPos, HolderLookup.Provider registryAccess);
 

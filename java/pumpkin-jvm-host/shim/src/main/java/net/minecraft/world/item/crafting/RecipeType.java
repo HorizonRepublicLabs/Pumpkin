@@ -6,6 +6,8 @@ import dev.pumpkin.shim.Unimplemented;
 
 public interface RecipeType<T extends Recipe<?>> {
 
+    RecipeType<CraftingRecipe> CRAFTING = Stubs.of(RecipeType.class, "net/minecraft/world/item/crafting/RecipeType");
+
     RecipeType<SmeltingRecipe> SMELTING = Stubs.of(RecipeType.class, "net/minecraft/world/item/crafting/RecipeType");
 
     static <T extends Recipe<?>> RecipeType<T> register(String name) {

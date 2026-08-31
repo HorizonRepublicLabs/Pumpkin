@@ -11,6 +11,10 @@ public interface ChunkResult<T> {
 
     T orElse(T orElse);
 
+    static <R> R orElse(ChunkResult<? extends R> chunkResult, R orElse) {
+        throw Unimplemented.forMember("net/minecraft/server/level/ChunkResult.orElse:(Lnet/minecraft/server/level/ChunkResult;Ljava/lang/Object;)Ljava/lang/Object;");
+    }
+
     String getError();
 
     ChunkResult<T> ifSuccess(Consumer<T> consumer);

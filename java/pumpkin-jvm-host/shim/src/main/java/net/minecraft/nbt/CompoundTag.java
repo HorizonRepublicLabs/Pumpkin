@@ -14,6 +14,8 @@ import dev.pumpkin.shim.Unimplemented;
 
 public final class CompoundTag implements Tag {
 
+    public static final Codec<CompoundTag> CODEC = null;
+
     CompoundTag(Map<String, Tag> tags) {
     }
 
@@ -53,6 +55,10 @@ public final class CompoundTag implements Tag {
 
     public int size() {
         throw Unimplemented.forMember("net/minecraft/nbt/CompoundTag.size:()I");
+    }
+
+    public Tag put(String name, Tag tag) {
+        throw Unimplemented.forMember("net/minecraft/nbt/CompoundTag.put:(Ljava/lang/String;Lnet/minecraft/nbt/Tag;)Lnet/minecraft/nbt/Tag;");
     }
 
     public void putByte(String name, byte value) {
@@ -205,6 +211,10 @@ public final class CompoundTag implements Tag {
 
     public <T> Optional<T> read(String name, Codec<T> codec) {
         throw Unimplemented.forMember("net/minecraft/nbt/CompoundTag.read:(Ljava/lang/String;Lcom/mojang/serialization/Codec;)Ljava/util/Optional;");
+    }
+
+    public <T> Optional<T> read(String name, Codec<T> codec, DynamicOps<Tag> ops) {
+        throw Unimplemented.forMember("net/minecraft/nbt/CompoundTag.read:(Ljava/lang/String;Lcom/mojang/serialization/Codec;Lcom/mojang/serialization/DynamicOps;)Ljava/util/Optional;");
     }
 
     public <T> Optional<T> read(MapCodec<T> codec) {

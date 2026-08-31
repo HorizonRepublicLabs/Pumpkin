@@ -34,6 +34,10 @@ public class ModifiableBiomeInfo {
                 throw Unimplemented.forMember("net/neoforged/neoforge/common/world/ModifiableBiomeInfo$BiomeInfo$Builder.getGenerationSettings:()Lnet/neoforged/neoforge/common/world/BiomeGenerationSettingsBuilder;");
             }
 
+            public MobSpawnSettingsBuilder getMobSpawnSettings() {
+                throw Unimplemented.forMember("net/neoforged/neoforge/common/world/ModifiableBiomeInfo$BiomeInfo$Builder.getMobSpawnSettings:()Lnet/neoforged/neoforge/common/world/MobSpawnSettingsBuilder;");
+            }
+
             public Builder() {
             }
         }

@@ -24,6 +24,8 @@ import dev.pumpkin.shim.Unimplemented;
 
 public class EntityRenderDispatcher implements ResourceManagerReloadListener {
 
+    public Camera camera;
+
     public EntityRenderDispatcher(Minecraft minecraft, TextureManager textureManager, BlockModelResolver blockModelResolver, ItemModelResolver itemModelResolver, MapRenderer mapRenderer, AtlasManager atlasManager, Font font, Options options, Supplier<EntityModelSet> entityModels, EquipmentAssetManager equipmentAssets, PlayerSkinRenderCache playerSkinRenderCache) {
     }
 

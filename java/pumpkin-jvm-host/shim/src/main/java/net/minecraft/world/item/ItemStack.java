@@ -1,5 +1,8 @@
 package net.minecraft.world.item;
 
+import java.util.List;
+import java.util.Optional;
+import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
@@ -12,35 +15,55 @@ import net.minecraft.core.component.DataComponentPatch;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.component.PatchedDataComponentMap;
 import net.minecraft.core.component.TypedDataComponent;
+import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.entity.EquipmentSlotGroup;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.ai.attributes.Attribute;
+import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.tooltip.TooltipComponent;
+import net.minecraft.world.item.component.ItemAttributeModifiers;
 import net.minecraft.world.item.component.TooltipDisplay;
 import net.minecraft.world.item.component.TooltipProvider;
 import net.minecraft.world.item.context.UseOnContext;
+import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.item.enchantment.ItemEnchantments;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
+import org.apache.commons.lang3.function.TriConsumer;
 import net.neoforged.neoforge.common.MutableDataComponentHolder;
 import net.neoforged.neoforge.common.extensions.IItemStackExtension;
+import dev.pumpkin.shim.Stubs;
 import dev.pumpkin.shim.Unimplemented;
 
 public final class ItemStack implements DataComponentHolder, ItemInstance, IItemStackExtension, MutableDataComponentHolder {
+
+    public static final StreamCodec<RegistryFriendlyByteBuf, ItemStack> OPTIONAL_STREAM_CODEC = Stubs.of(StreamCodec.class, "net/minecraft/network/codec/StreamCodec");
 
     // Pumpkin divergence: a real empty stack, because everything compares against it.
     public static final ItemStack EMPTY = new ItemStack((ItemLike) null, 0);
 
     private int count;
 
+    public Optional<TooltipComponent> getTooltipImage() {
+        throw Unimplemented.forMember("net/minecraft/world/item/ItemStack.getTooltipImage:()Ljava/util/Optional;");
+    }
+
     public DataComponentMap getComponents() {
         throw Unimplemented.forMember("net/minecraft/world/item/ItemStack.getComponents:()Lnet/minecraft/core/component/DataComponentMap;");
+    }
+
+    public DataComponentMap getPrototype() {
+        throw Unimplemented.forMember("net/minecraft/world/item/ItemStack.getPrototype:()Lnet/minecraft/core/component/DataComponentMap;");
     }
 
     public DataComponentPatch getComponentsPatch() {
@@ -133,6 +156,10 @@ public final class ItemStack implements DataComponentHolder, ItemInstance, IItem
         throw Unimplemented.forMember("net/minecraft/world/item/ItemStack.isDamageableItem:()Z");
     }
 
+    public boolean isDamaged() {
+        throw Unimplemented.forMember("net/minecraft/world/item/ItemStack.isDamaged:()Z");
+    }
+
     public int getDamageValue() {
         throw Unimplemented.forMember("net/minecraft/world/item/ItemStack.getDamageValue:()I");
     }
@@ -207,8 +234,16 @@ public final class ItemStack implements DataComponentHolder, ItemInstance, IItem
         throw Unimplemented.forMember("net/minecraft/world/item/ItemStack.isSameItemSameComponents:(Lnet/minecraft/world/item/ItemStack;Lnet/minecraft/world/item/ItemStackTemplate;)Z");
     }
 
+    public static int hashItemAndComponents(ItemStack item) {
+        throw Unimplemented.forMember("net/minecraft/world/item/ItemStack.hashItemAndComponents:(Lnet/minecraft/world/item/ItemStack;)I");
+    }
+
     public String toString() {
         throw Unimplemented.forMember("net/minecraft/world/item/ItemStack.toString:()Ljava/lang/String;");
+    }
+
+    public void onCraftedBy(Player player, int craftCount) {
+        throw Unimplemented.forMember("net/minecraft/world/item/ItemStack.onCraftedBy:(Lnet/minecraft/world/entity/player/Player;I)V");
     }
 
     public int getUseDuration(LivingEntity user) {
@@ -270,8 +305,28 @@ public final class ItemStack implements DataComponentHolder, ItemInstance, IItem
         throw Unimplemented.forMember("net/minecraft/world/item/ItemStack.addToTooltip:(Lnet/minecraft/core/component/DataComponentType;Lnet/minecraft/world/item/Item$TooltipContext;Lnet/minecraft/world/item/component/TooltipDisplay;Ljava/util/function/Consumer;Lnet/minecraft/world/item/TooltipFlag;)V");
     }
 
+    public List<Component> getTooltipLines(Item.TooltipContext context, Player player, TooltipFlag tooltipFlag) {
+        throw Unimplemented.forMember("net/minecraft/world/item/ItemStack.getTooltipLines:(Lnet/minecraft/world/item/Item$TooltipContext;Lnet/minecraft/world/entity/player/Player;Lnet/minecraft/world/item/TooltipFlag;)Ljava/util/List;");
+    }
+
+    public boolean hasFoil() {
+        throw Unimplemented.forMember("net/minecraft/world/item/ItemStack.hasFoil:()Z");
+    }
+
+    public void enchant(Holder<Enchantment> enchantment, int level) {
+        throw Unimplemented.forMember("net/minecraft/world/item/ItemStack.enchant:(Lnet/minecraft/core/Holder;I)V");
+    }
+
     public ItemEnchantments getTagEnchantments() {
         throw Unimplemented.forMember("net/minecraft/world/item/ItemStack.getTagEnchantments:()Lnet/minecraft/world/item/enchantment/ItemEnchantments;");
+    }
+
+    public void forEachModifier(EquipmentSlotGroup slot, TriConsumer<Holder<Attribute>, AttributeModifier, ItemAttributeModifiers.Display> consumer) {
+        throw Unimplemented.forMember("net/minecraft/world/item/ItemStack.forEachModifier:(Lnet/minecraft/world/entity/EquipmentSlotGroup;Lorg/apache/commons/lang3/function/TriConsumer;)V");
+    }
+
+    public void forEachModifier(EquipmentSlot slot, BiConsumer<Holder<Attribute>, AttributeModifier> consumer) {
+        throw Unimplemented.forMember("net/minecraft/world/item/ItemStack.forEachModifier:(Lnet/minecraft/world/entity/EquipmentSlot;Ljava/util/function/BiConsumer;)V");
     }
 
     public Component getDisplayName() {
@@ -291,8 +346,16 @@ public final class ItemStack implements DataComponentHolder, ItemInstance, IItem
         throw Unimplemented.forMember("net/minecraft/world/item/ItemStack.setCount:(I)V");
     }
 
+    public void grow(int amount) {
+        throw Unimplemented.forMember("net/minecraft/world/item/ItemStack.grow:(I)V");
+    }
+
     public void shrink(int amount) {
         throw Unimplemented.forMember("net/minecraft/world/item/ItemStack.shrink:(I)V");
+    }
+
+    public void consume(int amount, LivingEntity owner) {
+        throw Unimplemented.forMember("net/minecraft/world/item/ItemStack.consume:(ILnet/minecraft/world/entity/LivingEntity;)V");
     }
 
     public void onDestroyed(ItemEntity itemEntity) {

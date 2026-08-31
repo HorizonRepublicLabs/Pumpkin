@@ -5,11 +5,17 @@ import dev.pumpkin.shim.Unimplemented;
 
 public class SoundType {
 
+    public static final SoundType GRASS = null;
+
     public static final SoundType STONE = null;
 
     public static final SoundType METAL = null;
 
     public static final SoundType GLASS = null;
+
+    public static final SoundType SAND = null;
+
+    public static final SoundType WET_GRASS = null;
 
     public static final SoundType DEEPSLATE = null;
 
@@ -22,6 +28,10 @@ public class SoundType {
 
     public float getPitch() {
         throw Unimplemented.forMember("net/minecraft/world/level/block/SoundType.getPitch:()F");
+    }
+
+    public SoundEvent getStepSound() {
+        throw Unimplemented.forMember("net/minecraft/world/level/block/SoundType.getStepSound:()Lnet/minecraft/sounds/SoundEvent;");
     }
 
     public SoundType() {

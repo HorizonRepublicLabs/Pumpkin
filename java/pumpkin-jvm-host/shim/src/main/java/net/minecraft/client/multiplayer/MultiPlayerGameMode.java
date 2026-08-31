@@ -8,6 +8,10 @@ public class MultiPlayerGameMode {
     public MultiPlayerGameMode(Minecraft minecraft, ClientPacketListener connection) {
     }
 
+    public boolean canHurtPlayer() {
+        throw Unimplemented.forMember("net/minecraft/client/multiplayer/MultiPlayerGameMode.canHurtPlayer:()Z");
+    }
+
     public void tick() {
         throw Unimplemented.forMember("net/minecraft/client/multiplayer/MultiPlayerGameMode.tick:()V");
     }

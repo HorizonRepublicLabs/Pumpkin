@@ -59,6 +59,10 @@ public class RegisterEvent extends Event implements IModBusEvent {
         });
     }
 
+    public ResourceKey<? extends Registry<?>> getRegistryKey() {
+        throw Unimplemented.forMember("net/neoforged/neoforge/registries/RegisterEvent.getRegistryKey:()Lnet/minecraft/resources/ResourceKey;");
+    }
+
     public interface RegisterHelper<T> {
 
         default void register(ResourceKey<T> key, T value) {

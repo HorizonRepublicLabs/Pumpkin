@@ -5,6 +5,7 @@ import net.minecraft.core.Holder;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvent;
+import net.minecraft.world.Container;
 import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
@@ -206,6 +207,10 @@ public abstract class AbstractHorse extends Animal implements PlayerRideableJump
 
     public SpawnGroupData finalizeSpawn(ServerLevelAccessor level, DifficultyInstance difficulty, EntitySpawnReason spawnReason, SpawnGroupData groupData) {
         throw Unimplemented.forMember("net/minecraft/world/entity/animal/equine/AbstractHorse.finalizeSpawn:(Lnet/minecraft/world/level/ServerLevelAccessor;Lnet/minecraft/world/DifficultyInstance;Lnet/minecraft/world/entity/EntitySpawnReason;Lnet/minecraft/world/entity/SpawnGroupData;)Lnet/minecraft/world/entity/SpawnGroupData;");
+    }
+
+    public net.minecraft.world.Container getInventory() {
+        throw Unimplemented.forMember("net/minecraft/world/entity/animal/equine/AbstractHorse.getInventory:()Lnet/minecraft/world/Container;");
     }
 
     protected Vec3 getPassengerAttachmentPoint(Entity passenger, EntityDimensions dimensions, float scale) {

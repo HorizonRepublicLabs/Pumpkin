@@ -15,6 +15,10 @@ public class AdvancementProgress implements Comparable<AdvancementProgress> {
         throw Unimplemented.forMember("net/minecraft/advancements/AdvancementProgress.update:(Lnet/minecraft/advancements/AdvancementRequirements;)V");
     }
 
+    public boolean isDone() {
+        throw Unimplemented.forMember("net/minecraft/advancements/AdvancementProgress.isDone:()Z");
+    }
+
     public String toString() {
         throw Unimplemented.forMember("net/minecraft/advancements/AdvancementProgress.toString:()Ljava/lang/String;");
     }

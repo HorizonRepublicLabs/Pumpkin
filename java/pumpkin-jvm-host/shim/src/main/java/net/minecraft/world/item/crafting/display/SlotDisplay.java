@@ -1,5 +1,6 @@
 package net.minecraft.world.item.crafting.display;
 
+import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import java.util.List;
 import java.util.stream.Stream;
@@ -14,13 +15,26 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.ItemStackTemplate;
 import net.minecraft.world.item.equipment.trim.TrimPattern;
+import dev.pumpkin.shim.Stubs;
 import dev.pumpkin.shim.Unimplemented;
 
 public interface SlotDisplay {
 
+    Codec<SlotDisplay> CODEC = null;
+
+    StreamCodec<RegistryFriendlyByteBuf, SlotDisplay> STREAM_CODEC = Stubs.of(StreamCodec.class, "net/minecraft/network/codec/StreamCodec");
+
     <T> Stream<T> resolve(ContextMap context, DisplayContentsFactory<T> builder);
 
     SlotDisplay.Type<? extends SlotDisplay> type();
+
+    default boolean isEnabled(FeatureFlagSet enabledFeatures) {
+        throw Unimplemented.forMember("net/minecraft/world/item/crafting/display/SlotDisplay.isEnabled:(Lnet/minecraft/world/flag/FeatureFlagSet;)Z");
+    }
+
+    default List<ItemStack> resolveForStacks(ContextMap context) {
+        throw Unimplemented.forMember("net/minecraft/world/item/crafting/display/SlotDisplay.resolveForStacks:(Lnet/minecraft/util/context/ContextMap;)Ljava/util/List;");
+    }
 
     default ItemStack resolveForFirstStack(ContextMap context) {
         throw Unimplemented.forMember("net/minecraft/world/item/crafting/display/SlotDisplay.resolveForFirstStack:(Lnet/minecraft/util/context/ContextMap;)Lnet/minecraft/world/item/ItemStack;");
@@ -110,6 +124,8 @@ public interface SlotDisplay {
     }
 
     class ItemStackContentsFactory implements DisplayContentsFactory.ForStacks<ItemStack> {
+
+        public static final SlotDisplay.ItemStackContentsFactory INSTANCE = null;
 
         public ItemStack forStack(ItemStack stack) {
             throw Unimplemented.forMember("net/minecraft/world/item/crafting/display/SlotDisplay$ItemStackContentsFactory.forStack:(Lnet/minecraft/world/item/ItemStack;)Lnet/minecraft/world/item/ItemStack;");

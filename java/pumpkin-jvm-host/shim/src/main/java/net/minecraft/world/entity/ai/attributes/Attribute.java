@@ -8,6 +8,10 @@ public class Attribute implements IAttributeExtension {
     protected Attribute(String descriptionId, double defaultValue) {
     }
 
+    public double getDefaultValue() {
+        throw Unimplemented.forMember("net/minecraft/world/entity/ai/attributes/Attribute.getDefaultValue:()D");
+    }
+
     public net.minecraft.network.chat.TextColor getMergedStyle(boolean isPositive) {
         throw Unimplemented.forMember("net/minecraft/world/entity/ai/attributes/Attribute.getMergedStyle:(Z)Lnet/minecraft/network/chat/TextColor;");
     }

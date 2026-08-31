@@ -21,6 +21,8 @@ public interface DataComponentType<T> {
 
     class Builder<T> {
 
+        private boolean cacheEncoding;
+
         // Pumpkin divergence: real body. The codec would matter when components are
         // saved; Pumpkin does not persist them yet, so it is accepted and dropped and the
         // chain returns `this`.
@@ -32,6 +34,10 @@ public interface DataComponentType<T> {
         // matter when a component crosses the wire, which none does yet.
         public DataComponentType.Builder<T> networkSynchronized(StreamCodec<? super RegistryFriendlyByteBuf, T> streamCodec) {
             return this;
+        }
+
+        public DataComponentType.Builder<T> cacheEncoding() {
+            throw Unimplemented.forMember("net/minecraft/core/component/DataComponentType$Builder.cacheEncoding:()Lnet/minecraft/core/component/DataComponentType$Builder;");
         }
 
         // Pumpkin divergence: real body. The type is an interface, so the stub stands in:

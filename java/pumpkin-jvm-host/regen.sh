@@ -44,6 +44,10 @@ done
  --neoforge-sources ../../../NeoForge/src/client/java \
  --mod-jar ../../../MysticalAgriculture/build/libs/MysticalAgriculture-26.2-9.0.7.jar \
  --mod-jar ../../../Cucumber/build/libs/Cucumber-26.2-9.0.5.jar \
+ --mod-jar ../../mods/Mekanism-26.2-10.8.0.homebaked.jar \
+ --mod-jar ../../mods/MekanismAdditions-26.2-10.8.0.homebaked.jar \
+ --mod-jar ../../mods/MekanismGenerators-26.2-10.8.0.homebaked.jar \
+ --mod-jar ../../mods/MekanismTools-26.2-10.8.0.homebaked.jar \
  --mod-jar testmod/build/libs/testmod.jar \
  --absent-type com.mojang.authlib.yggdrasil.response.NameAndId \
  --out-shim shim/src/main/java --out-fml shim/src/main/java \

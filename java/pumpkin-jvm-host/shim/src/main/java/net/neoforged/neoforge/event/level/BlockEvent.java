@@ -30,6 +30,10 @@ public abstract class BlockEvent extends Event {
         throw Unimplemented.forMember("net/neoforged/neoforge/event/level/BlockEvent.getPos:()Lnet/minecraft/core/BlockPos;");
     }
 
+    public BlockState getState() {
+        throw Unimplemented.forMember("net/neoforged/neoforge/event/level/BlockEvent.getState:()Lnet/minecraft/world/level/block/state/BlockState;");
+    }
+
     public static class EntityPlaceEvent extends BlockEvent implements ICancellableEvent {
 
         public EntityPlaceEvent(BlockSnapshot blockSnapshot, BlockState placedAgainst, Entity entity) {

@@ -11,12 +11,19 @@ import net.minecraft.client.gui.narration.NarratableEntry;
 import net.minecraft.client.gui.navigation.ScreenRectangle;
 import net.minecraft.client.input.KeyEvent;
 import net.minecraft.network.chat.Component;
+import net.minecraft.world.item.ItemStack;
 import dev.pumpkin.shim.Stubs;
 import dev.pumpkin.shim.Unimplemented;
 
 public abstract class Screen extends AbstractContainerEventHandler implements Renderable {
 
     protected final Component title = Stubs.of(Component.class, "net/minecraft/network/chat/Component");
+
+    private final List<GuiEventListener> children = null;
+
+    protected final Minecraft minecraft = null;
+
+    public final List<Renderable> renderables = null;
 
     protected final Font font = null;
 
@@ -34,12 +41,36 @@ public abstract class Screen extends AbstractContainerEventHandler implements Re
         throw Unimplemented.forMember("net/minecraft/client/gui/screens/Screen.keyPressed:(Lnet/minecraft/client/input/KeyEvent;)Z");
     }
 
+    protected void setInitialFocus() {
+        throw Unimplemented.forMember("net/minecraft/client/gui/screens/Screen.setInitialFocus:()V");
+    }
+
+    protected void setInitialFocus(GuiEventListener target) {
+        throw Unimplemented.forMember("net/minecraft/client/gui/screens/Screen.setInitialFocus:(Lnet/minecraft/client/gui/components/events/GuiEventListener;)V");
+    }
+
+    public void clearFocus() {
+        throw Unimplemented.forMember("net/minecraft/client/gui/screens/Screen.clearFocus:()V");
+    }
+
+    public void onClose() {
+        throw Unimplemented.forMember("net/minecraft/client/gui/screens/Screen.onClose:()V");
+    }
+
     protected <T extends GuiEventListener & Renderable & NarratableEntry> T addRenderableWidget(T widget) {
         throw Unimplemented.forMember("net/minecraft/client/gui/screens/Screen.addRenderableWidget:(Lnet/minecraft/client/gui/components/events/GuiEventListener;)Lnet/minecraft/client/gui/components/events/GuiEventListener;");
     }
 
+    public static List<Component> getTooltipFromItem(Minecraft minecraft, ItemStack itemStack) {
+        throw Unimplemented.forMember("net/minecraft/client/gui/screens/Screen.getTooltipFromItem:(Lnet/minecraft/client/Minecraft;Lnet/minecraft/world/item/ItemStack;)Ljava/util/List;");
+    }
+
     public final void init(int width, int height) {
         throw Unimplemented.forMember("net/minecraft/client/gui/screens/Screen.init:(II)V");
+    }
+
+    protected void rebuildWidgets() {
+        throw Unimplemented.forMember("net/minecraft/client/gui/screens/Screen.rebuildWidgets:()V");
     }
 
     public List<? extends GuiEventListener> children() {
@@ -54,8 +85,16 @@ public abstract class Screen extends AbstractContainerEventHandler implements Re
         throw Unimplemented.forMember("net/minecraft/client/gui/screens/Screen.tick:()V");
     }
 
+    public void removed() {
+        throw Unimplemented.forMember("net/minecraft/client/gui/screens/Screen.removed:()V");
+    }
+
     public void extractBackground(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float a) {
         throw Unimplemented.forMember("net/minecraft/client/gui/screens/Screen.extractBackground:(Lnet/minecraft/client/gui/GuiGraphicsExtractor;IIF)V");
+    }
+
+    protected void repositionElements() {
+        throw Unimplemented.forMember("net/minecraft/client/gui/screens/Screen.repositionElements:()V");
     }
 
     public boolean isMouseOver(double mouseX, double mouseY) {

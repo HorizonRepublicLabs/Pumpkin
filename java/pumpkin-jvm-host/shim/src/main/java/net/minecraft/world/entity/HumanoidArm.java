@@ -7,6 +7,10 @@ public enum HumanoidArm implements StringRepresentable {
 
     LEFT, RIGHT;
 
+    public HumanoidArm getOpposite() {
+        throw Unimplemented.forMember("net/minecraft/world/entity/HumanoidArm.getOpposite:()Lnet/minecraft/world/entity/HumanoidArm;");
+    }
+
     public String getSerializedName() {
         throw Unimplemented.forMember("net/minecraft/world/entity/HumanoidArm.getSerializedName:()Ljava/lang/String;");
     }

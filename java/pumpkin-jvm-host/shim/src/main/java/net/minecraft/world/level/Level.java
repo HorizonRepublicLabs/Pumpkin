@@ -27,10 +27,12 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.item.alchemy.PotionBrewing;
 import net.minecraft.world.item.crafting.RecipeAccess;
 import net.minecraft.world.level.biome.BiomeManager;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.FuelValues;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.ChunkAccess;
+import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.level.chunk.status.ChunkStatus;
 import net.minecraft.world.level.dimension.DimensionType;
 import net.minecraft.world.level.entity.EntityTypeTest;
@@ -38,11 +40,13 @@ import net.minecraft.world.level.entity.LevelEntityGetter;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.lighting.LevelLightEngine;
 import net.minecraft.world.level.material.FluidState;
+import net.minecraft.world.level.redstone.Orientation;
 import net.minecraft.world.level.saveddata.maps.MapId;
 import net.minecraft.world.level.saveddata.maps.MapItemSavedData;
 import net.minecraft.world.level.storage.LevelData;
 import net.minecraft.world.level.storage.WritableLevelData;
 import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.scores.Scoreboard;
 import net.neoforged.neoforge.common.extensions.ILevelExtension;
 import dev.pumpkin.shim.Stubs;
@@ -50,11 +54,21 @@ import dev.pumpkin.shim.Unimplemented;
 
 public abstract class Level extends net.neoforged.neoforge.attachment.AttachmentHolder implements LevelAccessor, AutoCloseable, ILevelExtension {
 
+    public static final ResourceKey<Level> NETHER = null;
+
+    private static final WeightedList<ExplosionParticleInfo> DEFAULT_EXPLOSION_BLOCK_PARTICLES = null;
+
+    private final Holder<DimensionType> dimensionTypeRegistration = Stubs.of(Holder.class, "net/minecraft/core/Holder");
+
     private final boolean isClientSide = false;
+
+    private final ResourceKey<Level> dimension = null;
 
     private final RegistryAccess registryAccess = Stubs.of(RegistryAccess.class, "net/minecraft/core/RegistryAccess");
 
     private final DamageSources damageSources = null;
+
+    public boolean restoringBlockSnapshots;
 
     protected Level(WritableLevelData levelData, ResourceKey<Level> dimension, RegistryAccess registryAccess, Holder<DimensionType> dimensionTypeRegistration, boolean isClientSide, boolean isDebug, long biomeZoomSeed, int maxChainedNeighborUpdates) {
     }
@@ -66,6 +80,14 @@ public abstract class Level extends net.neoforged.neoforge.attachment.Attachment
 
     public MinecraftServer getServer() {
         throw Unimplemented.forMember("net/minecraft/world/level/Level.getServer:()Lnet/minecraft/server/MinecraftServer;");
+    }
+
+    public boolean isInWorldBounds(BlockPos pos) {
+        throw Unimplemented.forMember("net/minecraft/world/level/Level.isInWorldBounds:(Lnet/minecraft/core/BlockPos;)Z");
+    }
+
+    public LevelChunk getChunk(int chunkX, int chunkZ) {
+        throw Unimplemented.forMember("net/minecraft/world/level/Level.getChunk:(II)Lnet/minecraft/world/level/chunk/LevelChunk;");
     }
 
     public ChunkAccess getChunk(int chunkX, int chunkZ, ChunkStatus status, boolean loadOrGenerate) {
@@ -93,6 +115,14 @@ public abstract class Level extends net.neoforged.neoforge.attachment.Attachment
     }
 
     public abstract void sendBlockUpdated(BlockPos pos, BlockState old, BlockState current, int updateFlags);
+
+    public void updateNeighborsAt(BlockPos pos, Block sourceBlock, Orientation orientation) {
+        throw Unimplemented.forMember("net/minecraft/world/level/Level.updateNeighborsAt:(Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/Block;Lnet/minecraft/world/level/redstone/Orientation;)V");
+    }
+
+    public void updateNeighborsAtExceptFromFacing(BlockPos pos, Block blockObject, Direction skipDirection, Orientation orientation) {
+        throw Unimplemented.forMember("net/minecraft/world/level/Level.updateNeighborsAtExceptFromFacing:(Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/Block;Lnet/minecraft/core/Direction;Lnet/minecraft/world/level/redstone/Orientation;)V");
+    }
 
     public void neighborShapeChanged(Direction direction, BlockPos pos, BlockPos neighborPos, BlockState neighborState, int updateFlags, int updateLimit) {
         throw Unimplemented.forMember("net/minecraft/world/level/Level.neighborShapeChanged:(Lnet/minecraft/core/Direction;Lnet/minecraft/core/BlockPos;Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/state/BlockState;II)V");
@@ -150,6 +180,30 @@ public abstract class Level extends net.neoforged.neoforge.attachment.Attachment
         throw Unimplemented.forMember("net/minecraft/world/level/Level.addParticle:(Lnet/minecraft/core/particles/ParticleOptions;ZZDDDDDD)V");
     }
 
+    public boolean shouldTickBlocksAt(long chunkPos) {
+        throw Unimplemented.forMember("net/minecraft/world/level/Level.shouldTickBlocksAt:(J)Z");
+    }
+
+    public boolean shouldTickBlocksAt(BlockPos pos) {
+        throw Unimplemented.forMember("net/minecraft/world/level/Level.shouldTickBlocksAt:(Lnet/minecraft/core/BlockPos;)Z");
+    }
+
+    public void explode(Entity source, double x, double y, double z, float r, Level.ExplosionInteraction blockInteraction) {
+        throw Unimplemented.forMember("net/minecraft/world/level/Level.explode:(Lnet/minecraft/world/entity/Entity;DDDFLnet/minecraft/world/level/Level$ExplosionInteraction;)V");
+    }
+
+    public void explode(Entity source, double x, double y, double z, float r, boolean fire, Level.ExplosionInteraction blockInteraction) {
+        throw Unimplemented.forMember("net/minecraft/world/level/Level.explode:(Lnet/minecraft/world/entity/Entity;DDDFZLnet/minecraft/world/level/Level$ExplosionInteraction;)V");
+    }
+
+    public void explode(Entity source, DamageSource damageSource, ExplosionDamageCalculator damageCalculator, Vec3 boomPos, float r, boolean fire, Level.ExplosionInteraction blockInteraction) {
+        throw Unimplemented.forMember("net/minecraft/world/level/Level.explode:(Lnet/minecraft/world/entity/Entity;Lnet/minecraft/world/damagesource/DamageSource;Lnet/minecraft/world/level/ExplosionDamageCalculator;Lnet/minecraft/world/phys/Vec3;FZLnet/minecraft/world/level/Level$ExplosionInteraction;)V");
+    }
+
+    public void explode(Entity source, DamageSource damageSource, ExplosionDamageCalculator damageCalculator, double x, double y, double z, float r, boolean fire, Level.ExplosionInteraction interactionType) {
+        throw Unimplemented.forMember("net/minecraft/world/level/Level.explode:(Lnet/minecraft/world/entity/Entity;Lnet/minecraft/world/damagesource/DamageSource;Lnet/minecraft/world/level/ExplosionDamageCalculator;DDDFZLnet/minecraft/world/level/Level$ExplosionInteraction;)V");
+    }
+
     public abstract void explode(final Entity source, final DamageSource damageSource, final ExplosionDamageCalculator damageCalculator, final double x, final double y, final double z, final float r, final boolean fire, final Level.ExplosionInteraction interactionType, final ParticleOptions smallExplosionParticles, final ParticleOptions largeExplosionParticles, final WeightedList<ExplosionParticleInfo> blockParticles, final Holder<SoundEvent> explosionSound);
 
     public abstract String gatherChunkSourceStats();
@@ -186,6 +240,14 @@ public abstract class Level extends net.neoforged.neoforge.attachment.Attachment
         throw Unimplemented.forMember("net/minecraft/world/level/Level.getEntities:(Lnet/minecraft/world/level/entity/EntityTypeTest;Lnet/minecraft/world/phys/AABB;Ljava/util/function/Predicate;)Ljava/util/List;");
     }
 
+    public <T extends Entity> void getEntities(EntityTypeTest<Entity, T> type, AABB bb, Predicate<? super T> selector, List<? super T> output) {
+        throw Unimplemented.forMember("net/minecraft/world/level/Level.getEntities:(Lnet/minecraft/world/level/entity/EntityTypeTest;Lnet/minecraft/world/phys/AABB;Ljava/util/function/Predicate;Ljava/util/List;)V");
+    }
+
+    public <T extends Entity> void getEntities(EntityTypeTest<Entity, T> type, AABB bb, Predicate<? super T> selector, List<? super T> output, int maxResults) {
+        throw Unimplemented.forMember("net/minecraft/world/level/Level.getEntities:(Lnet/minecraft/world/level/entity/EntityTypeTest;Lnet/minecraft/world/phys/AABB;Ljava/util/function/Predicate;Ljava/util/List;I)V");
+    }
+
     public abstract Entity getEntity(int id);
 
     public Entity getEntity(UUID uuid) {
@@ -200,6 +262,10 @@ public abstract class Level extends net.neoforged.neoforge.attachment.Attachment
 
     public boolean mayInteract(Entity entity, BlockPos pos) {
         throw Unimplemented.forMember("net/minecraft/world/level/Level.mayInteract:(Lnet/minecraft/world/entity/Entity;Lnet/minecraft/core/BlockPos;)Z");
+    }
+
+    public void blockEvent(BlockPos pos, Block block, int b0, int b1) {
+        throw Unimplemented.forMember("net/minecraft/world/level/Level.blockEvent:(Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/Block;II)V");
     }
 
     public LevelData getLevelData() {
@@ -218,12 +284,24 @@ public abstract class Level extends net.neoforged.neoforge.attachment.Attachment
 
     public abstract Scoreboard getScoreboard();
 
+    public void updateNeighbourForOutputSignal(BlockPos pos, Block changedBlock) {
+        throw Unimplemented.forMember("net/minecraft/world/level/Level.updateNeighbourForOutputSignal:(Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/Block;)V");
+    }
+
     public int getSkyDarken() {
         throw Unimplemented.forMember("net/minecraft/world/level/Level.getSkyDarken:()I");
     }
 
     public DimensionType dimensionType() {
         throw Unimplemented.forMember("net/minecraft/world/level/Level.dimensionType:()Lnet/minecraft/world/level/dimension/DimensionType;");
+    }
+
+    public Holder<DimensionType> dimensionTypeRegistration() {
+        throw Unimplemented.forMember("net/minecraft/world/level/Level.dimensionTypeRegistration:()Lnet/minecraft/core/Holder;");
+    }
+
+    public ResourceKey<Level> dimension() {
+        throw Unimplemented.forMember("net/minecraft/world/level/Level.dimension:()Lnet/minecraft/resources/ResourceKey;");
     }
 
     public RandomSource getRandom() {

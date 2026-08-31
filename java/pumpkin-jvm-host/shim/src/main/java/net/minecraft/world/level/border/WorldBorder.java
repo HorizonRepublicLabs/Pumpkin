@@ -1,6 +1,10 @@
 package net.minecraft.world.level.border;
 
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.saveddata.SavedData;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import dev.pumpkin.shim.Unimplemented;
 
@@ -10,6 +14,34 @@ public class WorldBorder extends SavedData {
     }
 
     public WorldBorder(WorldBorder.Settings settings) {
+    }
+
+    public boolean isWithinBounds(BlockPos pos) {
+        throw Unimplemented.forMember("net/minecraft/world/level/border/WorldBorder.isWithinBounds:(Lnet/minecraft/core/BlockPos;)Z");
+    }
+
+    public boolean isWithinBounds(Vec3 pos) {
+        throw Unimplemented.forMember("net/minecraft/world/level/border/WorldBorder.isWithinBounds:(Lnet/minecraft/world/phys/Vec3;)Z");
+    }
+
+    public boolean isWithinBounds(ChunkPos pos) {
+        throw Unimplemented.forMember("net/minecraft/world/level/border/WorldBorder.isWithinBounds:(Lnet/minecraft/world/level/ChunkPos;)Z");
+    }
+
+    public boolean isWithinBounds(AABB aabb) {
+        throw Unimplemented.forMember("net/minecraft/world/level/border/WorldBorder.isWithinBounds:(Lnet/minecraft/world/phys/AABB;)Z");
+    }
+
+    private boolean isWithinBounds(double minX, double minZ, double maxX, double maxZ) {
+        throw Unimplemented.forMember("net/minecraft/world/level/border/WorldBorder.isWithinBounds:(DDDD)Z");
+    }
+
+    public boolean isWithinBounds(double x, double z) {
+        throw Unimplemented.forMember("net/minecraft/world/level/border/WorldBorder.isWithinBounds:(DD)Z");
+    }
+
+    public boolean isWithinBounds(double x, double z, double margin) {
+        throw Unimplemented.forMember("net/minecraft/world/level/border/WorldBorder.isWithinBounds:(DDD)Z");
     }
 
     public VoxelShape getCollisionShape() {

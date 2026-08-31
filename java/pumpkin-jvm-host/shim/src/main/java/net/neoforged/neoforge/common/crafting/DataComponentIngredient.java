@@ -17,6 +17,8 @@ import dev.pumpkin.shim.Unimplemented;
 
 public class DataComponentIngredient implements ICustomIngredient {
 
+    private final DataComponentPatch components = null;
+
     public DataComponentIngredient(HolderSet<Item> items, DataComponentPatch components, boolean exhaustive) {
     }
 
@@ -40,8 +42,16 @@ public class DataComponentIngredient implements ICustomIngredient {
         throw Unimplemented.forMember("net/neoforged/neoforge/common/crafting/DataComponentIngredient.display:()Lnet/minecraft/world/item/crafting/display/SlotDisplay;");
     }
 
+    public HolderSet<Item> itemSet() {
+        throw Unimplemented.forMember("net/neoforged/neoforge/common/crafting/DataComponentIngredient.itemSet:()Lnet/minecraft/core/HolderSet;");
+    }
+
     public DataComponentPatch components() {
         throw Unimplemented.forMember("net/neoforged/neoforge/common/crafting/DataComponentIngredient.components:()Lnet/minecraft/core/component/DataComponentPatch;");
+    }
+
+    public boolean componentsExhaustive() {
+        throw Unimplemented.forMember("net/neoforged/neoforge/common/crafting/DataComponentIngredient.componentsExhaustive:()Z");
     }
 
     public static Ingredient of(boolean exhaustive, ItemStack stack) {

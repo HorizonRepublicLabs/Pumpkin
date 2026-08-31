@@ -5,18 +5,25 @@ import java.util.function.Consumer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderLookup;
+import net.minecraft.core.component.DataComponentInitializers;
 import net.minecraft.core.component.DataComponentMap;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.flag.FeatureElement;
 import net.minecraft.world.flag.FeatureFlagSet;
+import net.minecraft.world.item.component.ItemAttributeModifiers;
 import net.minecraft.world.item.component.TooltipDisplay;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.item.equipment.ArmorMaterial;
@@ -42,6 +49,10 @@ public class Item implements ItemLike, FeatureElement, IItemExtension {
     // composition and throws on first real serialisation, naming the field.
 
     public static final Codec<Holder<Item>> CODEC_WITH_BOUND_COMPONENTS = dev.pumpkin.shim.Stubs.throwingCodec("net/minecraft/world/item/Item.CODEC_WITH_BOUND_COMPONENTS");
+
+    public static final Identifier BASE_ATTACK_DAMAGE_ID = null;
+
+    public static final Identifier BASE_ATTACK_SPEED_ID = null;
 
     private final Holder.Reference<Item> builtInRegistryHolder = null;
 
@@ -128,6 +139,10 @@ public class Item implements ItemLike, FeatureElement, IItemExtension {
         throw Unimplemented.forMember("net/minecraft/world/item/Item.use:(Lnet/minecraft/world/level/Level;Lnet/minecraft/world/entity/player/Player;Lnet/minecraft/world/InteractionHand;)Lnet/minecraft/world/InteractionResult;");
     }
 
+    public void postHurtEnemy(ItemStack itemStack, LivingEntity mob, LivingEntity attacker) {
+        throw Unimplemented.forMember("net/minecraft/world/item/Item.postHurtEnemy:(Lnet/minecraft/world/item/ItemStack;Lnet/minecraft/world/entity/LivingEntity;Lnet/minecraft/world/entity/LivingEntity;)V");
+    }
+
     public boolean mineBlock(ItemStack itemStack, Level level, BlockState state, BlockPos pos, LivingEntity owner) {
         throw Unimplemented.forMember("net/minecraft/world/item/Item.mineBlock:(Lnet/minecraft/world/item/ItemStack;Lnet/minecraft/world/level/Level;Lnet/minecraft/world/level/block/state/BlockState;Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/entity/LivingEntity;)Z");
     }
@@ -148,12 +163,28 @@ public class Item implements ItemLike, FeatureElement, IItemExtension {
         throw Unimplemented.forMember("net/minecraft/world/item/Item.getCraftingRemainder:()Lnet/minecraft/world/item/ItemStackTemplate;");
     }
 
+    public void inventoryTick(ItemStack itemStack, ServerLevel level, Entity owner, EquipmentSlot slot) {
+        throw Unimplemented.forMember("net/minecraft/world/item/Item.inventoryTick:(Lnet/minecraft/world/item/ItemStack;Lnet/minecraft/server/level/ServerLevel;Lnet/minecraft/world/entity/Entity;Lnet/minecraft/world/entity/EquipmentSlot;)V");
+    }
+
+    public void onCraftedBy(ItemStack itemStack, Player player) {
+        throw Unimplemented.forMember("net/minecraft/world/item/Item.onCraftedBy:(Lnet/minecraft/world/item/ItemStack;Lnet/minecraft/world/entity/player/Player;)V");
+    }
+
     public int getUseDuration(ItemStack itemStack, LivingEntity user) {
         throw Unimplemented.forMember("net/minecraft/world/item/Item.getUseDuration:(Lnet/minecraft/world/item/ItemStack;Lnet/minecraft/world/entity/LivingEntity;)I");
     }
 
+    public boolean releaseUsing(ItemStack itemStack, Level level, LivingEntity entity, int remainingTime) {
+        throw Unimplemented.forMember("net/minecraft/world/item/Item.releaseUsing:(Lnet/minecraft/world/item/ItemStack;Lnet/minecraft/world/level/Level;Lnet/minecraft/world/entity/LivingEntity;I)Z");
+    }
+
     public void appendHoverText(ItemStack itemStack, Item.TooltipContext context, TooltipDisplay display, Consumer<Component> builder, TooltipFlag tooltipFlag) {
         throw Unimplemented.forMember("net/minecraft/world/item/Item.appendHoverText:(Lnet/minecraft/world/item/ItemStack;Lnet/minecraft/world/item/Item$TooltipContext;Lnet/minecraft/world/item/component/TooltipDisplay;Ljava/util/function/Consumer;Lnet/minecraft/world/item/TooltipFlag;)V");
+    }
+
+    public final String getDescriptionId() {
+        throw Unimplemented.forMember("net/minecraft/world/item/Item.getDescriptionId:()Ljava/lang/String;");
     }
 
     public Component getName(ItemStack itemStack) {
@@ -172,6 +203,10 @@ public class Item implements ItemLike, FeatureElement, IItemExtension {
         throw Unimplemented.forMember("net/minecraft/world/item/Item.isCombineRepairable:(Lnet/minecraft/world/item/ItemStack;)Z");
     }
 
+    public ItemStack getDefaultInstance() {
+        throw Unimplemented.forMember("net/minecraft/world/item/Item.getDefaultInstance:()Lnet/minecraft/world/item/ItemStack;");
+    }
+
     public final FeatureFlagSet requiredFeatures() {
         throw Unimplemented.forMember("net/minecraft/world/item/Item.requiredFeatures:()Lnet/minecraft/world/flag/FeatureFlagSet;");
     }
@@ -186,6 +221,10 @@ public class Item implements ItemLike, FeatureElement, IItemExtension {
 
             return this;
 
+        }
+
+        public Item.Properties usingConvertsTo(Item item) {
+            throw Unimplemented.forMember("net/minecraft/world/item/Item$Properties.usingConvertsTo:(Lnet/minecraft/world/item/Item;)Lnet/minecraft/world/item/Item$Properties;");
         }
 
         // Pumpkin divergence: real body. Recorded so the registration sink can carry it;
@@ -233,6 +272,30 @@ public class Item implements ItemLike, FeatureElement, IItemExtension {
 
         }
 
+        public Item.Properties rarity(Rarity rarity) {
+            throw Unimplemented.forMember("net/minecraft/world/item/Item$Properties.rarity:(Lnet/minecraft/world/item/Rarity;)Lnet/minecraft/world/item/Item$Properties;");
+        }
+
+        public Item.Properties fireResistant() {
+            throw Unimplemented.forMember("net/minecraft/world/item/Item$Properties.fireResistant:()Lnet/minecraft/world/item/Item$Properties;");
+        }
+
+        public Item.Properties enchantable(int value) {
+            throw Unimplemented.forMember("net/minecraft/world/item/Item$Properties.enchantable:(I)Lnet/minecraft/world/item/Item$Properties;");
+        }
+
+        public Item.Properties repairable(Item repairItem) {
+            throw Unimplemented.forMember("net/minecraft/world/item/Item$Properties.repairable:(Lnet/minecraft/world/item/Item;)Lnet/minecraft/world/item/Item$Properties;");
+        }
+
+        public Item.Properties repairable(TagKey<Item> repairItems) {
+            throw Unimplemented.forMember("net/minecraft/world/item/Item$Properties.repairable:(Lnet/minecraft/tags/TagKey;)Lnet/minecraft/world/item/Item$Properties;");
+        }
+
+        public Item.Properties equippableUnswappable(EquipmentSlot slot) {
+            throw Unimplemented.forMember("net/minecraft/world/item/Item$Properties.equippableUnswappable:(Lnet/minecraft/world/entity/EquipmentSlot;)Lnet/minecraft/world/item/Item$Properties;");
+        }
+
         // Pumpkin divergence: real body. Item metadata Pumpkin does not model yet;
 
         // accepted and dropped, chain returns `this`.
@@ -271,6 +334,10 @@ public class Item implements ItemLike, FeatureElement, IItemExtension {
 
             return this;
 
+        }
+
+        public Item.Properties spawnEgg(EntityType<?> type) {
+            throw Unimplemented.forMember("net/minecraft/world/item/Item$Properties.spawnEgg:(Lnet/minecraft/world/entity/EntityType;)Lnet/minecraft/world/item/Item$Properties;");
         }
 
         // Pumpkin divergence: real body. Item metadata Pumpkin does not model yet;
@@ -323,11 +390,21 @@ public class Item implements ItemLike, FeatureElement, IItemExtension {
 
         }
 
+        public <T> Item.Properties delayedComponent(DataComponentType<T> type, DataComponentInitializers.SingleComponentInitializer<T> initializer) {
+            throw Unimplemented.forMember("net/minecraft/world/item/Item$Properties.delayedComponent:(Lnet/minecraft/core/component/DataComponentType;Lnet/minecraft/core/component/DataComponentInitializers$SingleComponentInitializer;)Lnet/minecraft/world/item/Item$Properties;");
+        }
+
+        public Item.Properties attributes(ItemAttributeModifiers attributes) {
+            throw Unimplemented.forMember("net/minecraft/world/item/Item$Properties.attributes:(Lnet/minecraft/world/item/component/ItemAttributeModifiers;)Lnet/minecraft/world/item/Item$Properties;");
+        }
+
         public Properties() {
         }
     }
 
     public interface TooltipContext {
+
+        Item.TooltipContext EMPTY = null;
 
         HolderLookup.Provider registries();
 
@@ -343,6 +420,18 @@ public class Item implements ItemLike, FeatureElement, IItemExtension {
 
         default Player player() {
             throw Unimplemented.forMember("net/minecraft/world/item/Item$TooltipContext.player:()Lnet/minecraft/world/entity/player/Player;");
+        }
+
+        static Item.TooltipContext of(Level level) {
+            throw Unimplemented.forMember("net/minecraft/world/item/Item$TooltipContext.of:(Lnet/minecraft/world/level/Level;)Lnet/minecraft/world/item/Item$TooltipContext;");
+        }
+
+        static Item.TooltipContext of(Level pLevel, Player player) {
+            throw Unimplemented.forMember("net/minecraft/world/item/Item$TooltipContext.of:(Lnet/minecraft/world/level/Level;Lnet/minecraft/world/entity/player/Player;)Lnet/minecraft/world/item/Item$TooltipContext;");
+        }
+
+        static Item.TooltipContext of(HolderLookup.Provider registries) {
+            throw Unimplemented.forMember("net/minecraft/world/item/Item$TooltipContext.of:(Lnet/minecraft/core/HolderLookup$Provider;)Lnet/minecraft/world/item/Item$TooltipContext;");
         }
     }
 

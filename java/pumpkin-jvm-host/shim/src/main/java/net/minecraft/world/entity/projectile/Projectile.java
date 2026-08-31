@@ -8,6 +8,7 @@ import net.minecraft.server.level.ServerEntity;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityReference;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.TraceableEntity;
@@ -15,11 +16,21 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.HitResult;
 import dev.pumpkin.shim.Unimplemented;
 
 public abstract class Projectile extends Entity implements TraceableEntity {
 
     protected Projectile(EntityType<? extends Projectile> type, Level level) {
+    }
+
+    protected void setOwner(EntityReference<Entity> owner) {
+        throw Unimplemented.forMember("net/minecraft/world/entity/projectile/Projectile.setOwner:(Lnet/minecraft/world/entity/EntityReference;)V");
+    }
+
+    public void setOwner(Entity owner) {
+        throw Unimplemented.forMember("net/minecraft/world/entity/projectile/Projectile.setOwner:(Lnet/minecraft/world/entity/Entity;)V");
     }
 
     public Entity getOwner() {
@@ -42,12 +53,28 @@ public abstract class Projectile extends Entity implements TraceableEntity {
         throw Unimplemented.forMember("net/minecraft/world/entity/projectile/Projectile.tick:()V");
     }
 
+    public void shootFromRotation(Entity source, float xRot, float yRot, float yOffset, float pow, float uncertainty) {
+        throw Unimplemented.forMember("net/minecraft/world/entity/projectile/Projectile.shootFromRotation:(Lnet/minecraft/world/entity/Entity;FFFFF)V");
+    }
+
     public void onAboveBubbleColumn(boolean dragDown, BlockPos pos) {
         throw Unimplemented.forMember("net/minecraft/world/entity/projectile/Projectile.onAboveBubbleColumn:(ZLnet/minecraft/core/BlockPos;)V");
     }
 
     public void onInsideBubbleColumn(boolean dragDown) {
         throw Unimplemented.forMember("net/minecraft/world/entity/projectile/Projectile.onInsideBubbleColumn:(Z)V");
+    }
+
+    protected void onHit(HitResult hitResult) {
+        throw Unimplemented.forMember("net/minecraft/world/entity/projectile/Projectile.onHit:(Lnet/minecraft/world/phys/HitResult;)V");
+    }
+
+    protected void onHitBlock(BlockHitResult hitResult) {
+        throw Unimplemented.forMember("net/minecraft/world/entity/projectile/Projectile.onHitBlock:(Lnet/minecraft/world/phys/BlockHitResult;)V");
+    }
+
+    protected boolean canHitEntity(Entity entity) {
+        throw Unimplemented.forMember("net/minecraft/world/entity/projectile/Projectile.canHitEntity:(Lnet/minecraft/world/entity/Entity;)Z");
     }
 
     public Packet<ClientGamePacketListener> getAddEntityPacket(ServerEntity serverEntity) {

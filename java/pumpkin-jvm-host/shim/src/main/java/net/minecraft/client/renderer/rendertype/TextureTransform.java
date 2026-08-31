@@ -6,6 +6,8 @@ import dev.pumpkin.shim.Unimplemented;
 
 public class TextureTransform {
 
+    public static final TextureTransform ARMOR_ENTITY_GLINT_TEXTURING = null;
+
     public TextureTransform(String name, Supplier<Matrix4f> matrix) {
     }
 

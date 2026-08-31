@@ -6,15 +6,43 @@ import com.mojang.serialization.DataResult;
 import com.mojang.serialization.DynamicOps;
 import com.mojang.serialization.MapLike;
 import com.mojang.serialization.codecs.BaseMapCodec;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import net.minecraft.core.HolderSet;
 import net.minecraft.resources.Identifier;
 import dev.pumpkin.shim.Unimplemented;
 
 public class ExtraCodecs {
 
+    public static final Codec<Integer> RGB_COLOR_CODEC = null;
+
+    public static final Codec<Integer> ARGB_COLOR_CODEC = null;
+
+    public static final Codec<Integer> STRING_ARGB_COLOR = null;
+
+    public static final Codec<Integer> NON_NEGATIVE_INT = null;
+
+    public static final Codec<Integer> POSITIVE_INT = null;
+
+    public static final Codec<Long> NON_NEGATIVE_LONG = null;
+
+    public static final Codec<String> NON_EMPTY_STRING = null;
+
     public static <K, V> ExtraCodecs.StrictUnboundedMapCodec<K, V> strictUnboundedMap(Codec<K> keyCodec, Codec<V> elementCodec) {
         throw Unimplemented.forMember("net/minecraft/util/ExtraCodecs.strictUnboundedMap:(Lcom/mojang/serialization/Codec;Lcom/mojang/serialization/Codec;)Lnet/minecraft/util/ExtraCodecs$StrictUnboundedMapCodec;");
+    }
+
+    public static Codec<Integer> intRange(int minInclusive, int maxInclusive) {
+        throw Unimplemented.forMember("net/minecraft/util/ExtraCodecs.intRange:(II)Lcom/mojang/serialization/Codec;");
+    }
+
+    public static <T> Codec<List<T>> nonEmptyList(Codec<List<T>> listCodec) {
+        throw Unimplemented.forMember("net/minecraft/util/ExtraCodecs.nonEmptyList:(Lcom/mojang/serialization/Codec;)Lcom/mojang/serialization/Codec;");
+    }
+
+    public static <T> Codec<HolderSet<T>> nonEmptyHolderSet(Codec<HolderSet<T>> listCodec) {
+        throw Unimplemented.forMember("net/minecraft/util/ExtraCodecs.nonEmptyHolderSet:(Lcom/mojang/serialization/Codec;)Lcom/mojang/serialization/Codec;");
     }
 
     // Pumpkin divergence: real-enough body -- inert codec; encode/decode throw the key.
@@ -59,5 +87,11 @@ public class ExtraCodecs {
     }
 
     public ExtraCodecs() {
+    }
+
+    static {
+        if (true) {
+            throw Unimplemented.forMember("net/minecraft/util/ExtraCodecs");
+        }
     }
 }

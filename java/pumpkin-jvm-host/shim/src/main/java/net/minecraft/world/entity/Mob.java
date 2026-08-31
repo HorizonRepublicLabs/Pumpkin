@@ -6,17 +6,23 @@ import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.TagKey;
+import net.minecraft.util.RandomSource;
 import net.minecraft.util.debug.DebugValueSource;
 import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.ai.attributes.Attribute;
+import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
+import net.minecraft.world.entity.ai.control.LookControl;
+import net.minecraft.world.entity.ai.goal.GoalSelector;
+import net.minecraft.world.entity.ai.navigation.PathNavigation;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.level.material.Fluid;
+import net.minecraft.world.level.pathfinder.PathType;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
 import net.minecraft.world.level.storage.loot.LootTable;
@@ -25,7 +31,35 @@ import dev.pumpkin.shim.Unimplemented;
 
 public abstract class Mob extends LivingEntity implements Targeting, EquipmentUser, Leashable {
 
+    protected int xpReward;
+
+    public final GoalSelector goalSelector = null;
+
     protected Mob(EntityType<? extends Mob> type, Level level) {
+    }
+
+    protected void registerGoals() {
+        throw Unimplemented.forMember("net/minecraft/world/entity/Mob.registerGoals:()V");
+    }
+
+    public static AttributeSupplier.Builder createMobAttributes() {
+        throw Unimplemented.forMember("net/minecraft/world/entity/Mob.createMobAttributes:()Lnet/minecraft/world/entity/ai/attributes/AttributeSupplier$Builder;");
+    }
+
+    public float getPathfindingMalus(PathType pathType) {
+        throw Unimplemented.forMember("net/minecraft/world/entity/Mob.getPathfindingMalus:(Lnet/minecraft/world/level/pathfinder/PathType;)F");
+    }
+
+    public void setPathfindingMalus(PathType pathType, float cost) {
+        throw Unimplemented.forMember("net/minecraft/world/entity/Mob.setPathfindingMalus:(Lnet/minecraft/world/level/pathfinder/PathType;F)V");
+    }
+
+    public LookControl getLookControl() {
+        throw Unimplemented.forMember("net/minecraft/world/entity/Mob.getLookControl:()Lnet/minecraft/world/entity/ai/control/LookControl;");
+    }
+
+    public PathNavigation getNavigation() {
+        throw Unimplemented.forMember("net/minecraft/world/entity/Mob.getNavigation:()Lnet/minecraft/world/entity/ai/navigation/PathNavigation;");
     }
 
     public LivingEntity getControllingPassenger() {
@@ -34,6 +68,14 @@ public abstract class Mob extends LivingEntity implements Targeting, EquipmentUs
 
     public LivingEntity getTarget() {
         throw Unimplemented.forMember("net/minecraft/world/entity/Mob.getTarget:()Lnet/minecraft/world/entity/LivingEntity;");
+    }
+
+    public LivingEntity getTargetUnchecked() {
+        throw Unimplemented.forMember("net/minecraft/world/entity/Mob.getTargetUnchecked:()Lnet/minecraft/world/entity/LivingEntity;");
+    }
+
+    public void setTarget(LivingEntity target) {
+        throw Unimplemented.forMember("net/minecraft/world/entity/Mob.setTarget:(Lnet/minecraft/world/entity/LivingEntity;)V");
     }
 
     public boolean canAttack(LivingEntity target) {
@@ -104,12 +146,20 @@ public abstract class Mob extends LivingEntity implements Targeting, EquipmentUs
         throw Unimplemented.forMember("net/minecraft/world/entity/Mob.serverAiStep:()V");
     }
 
+    public int getMaxHeadXRot() {
+        throw Unimplemented.forMember("net/minecraft/world/entity/Mob.getMaxHeadXRot:()I");
+    }
+
     public int getMaxFallDistance() {
         throw Unimplemented.forMember("net/minecraft/world/entity/Mob.getMaxFallDistance:()I");
     }
 
     protected void dropCustomDeathLoot(ServerLevel level, DamageSource source, boolean killedByPlayer) {
         throw Unimplemented.forMember("net/minecraft/world/entity/Mob.dropCustomDeathLoot:(Lnet/minecraft/server/level/ServerLevel;Lnet/minecraft/world/damagesource/DamageSource;Z)V");
+    }
+
+    protected void populateDefaultEquipmentSlots(RandomSource random, DifficultyInstance difficulty) {
+        throw Unimplemented.forMember("net/minecraft/world/entity/Mob.populateDefaultEquipmentSlots:(Lnet/minecraft/util/RandomSource;Lnet/minecraft/world/DifficultyInstance;)V");
     }
 
     public SpawnGroupData finalizeSpawn(ServerLevelAccessor level, DifficultyInstance difficulty, EntitySpawnReason spawnReason, SpawnGroupData groupData) {
@@ -130,6 +180,14 @@ public abstract class Mob extends LivingEntity implements Targeting, EquipmentUs
 
     public InteractionResult interact(Player player, InteractionHand hand, Vec3 location) {
         throw Unimplemented.forMember("net/minecraft/world/entity/Mob.interact:(Lnet/minecraft/world/entity/player/Player;Lnet/minecraft/world/InteractionHand;Lnet/minecraft/world/phys/Vec3;)Lnet/minecraft/world/InteractionResult;");
+    }
+
+    public <T extends Mob> T convertTo(EntityType<T> entityType, ConversionParams params, EntitySpawnReason spawnReason, ConversionParams.AfterConversion<T> afterConversion) {
+        throw Unimplemented.forMember("net/minecraft/world/entity/Mob.convertTo:(Lnet/minecraft/world/entity/EntityType;Lnet/minecraft/world/entity/ConversionParams;Lnet/minecraft/world/entity/EntitySpawnReason;Lnet/minecraft/world/entity/ConversionParams$AfterConversion;)Lnet/minecraft/world/entity/Mob;");
+    }
+
+    public <T extends Mob> T convertTo(EntityType<T> entityType, ConversionParams params, ConversionParams.AfterConversion<T> afterConversion) {
+        throw Unimplemented.forMember("net/minecraft/world/entity/Mob.convertTo:(Lnet/minecraft/world/entity/EntityType;Lnet/minecraft/world/entity/ConversionParams;Lnet/minecraft/world/entity/ConversionParams$AfterConversion;)Lnet/minecraft/world/entity/Mob;");
     }
 
     public Leashable.LeashData getLeashData() {

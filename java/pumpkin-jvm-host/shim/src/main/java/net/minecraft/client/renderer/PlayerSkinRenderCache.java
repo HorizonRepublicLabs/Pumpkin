@@ -4,6 +4,7 @@ import com.mojang.authlib.GameProfile;
 import com.mojang.blaze3d.textures.GpuTextureView;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
+import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.client.renderer.texture.TextureManager;
 import net.minecraft.client.resources.SkinManager;
 import net.minecraft.server.players.ProfileResolver;
@@ -23,6 +24,10 @@ public class PlayerSkinRenderCache {
     public final class RenderInfo {
 
         public RenderInfo(GameProfile gameProfile, PlayerSkin playerSkin, PlayerSkin.Patch patch) {
+        }
+
+        public RenderType renderType() {
+            throw Unimplemented.forMember("net/minecraft/client/renderer/PlayerSkinRenderCache$RenderInfo.renderType:()Lnet/minecraft/client/renderer/rendertype/RenderType;");
         }
 
         public GpuTextureView textureView() {

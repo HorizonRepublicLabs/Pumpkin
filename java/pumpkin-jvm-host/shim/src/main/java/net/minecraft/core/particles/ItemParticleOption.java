@@ -16,6 +16,10 @@ public class ItemParticleOption implements ParticleOptions {
         throw Unimplemented.forMember("net/minecraft/core/particles/ItemParticleOption.getType:()Lnet/minecraft/core/particles/ParticleType;");
     }
 
+    public ItemStackTemplate getItem() {
+        throw Unimplemented.forMember("net/minecraft/core/particles/ItemParticleOption.getItem:()Lnet/minecraft/world/item/ItemStackTemplate;");
+    }
+
     public ItemParticleOption() {
     }
 }

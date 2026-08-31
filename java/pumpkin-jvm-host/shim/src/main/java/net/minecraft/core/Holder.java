@@ -42,6 +42,10 @@ public interface Holder<T> extends IHolderExtension<T> {
 
     boolean canSerializeIn(HolderOwner<T> registry);
 
+    default String getRegisteredName() {
+        throw Unimplemented.forMember("net/minecraft/core/Holder.getRegisteredName:()Ljava/lang/String;");
+    }
+
     record Direct<T>(T value, DataComponentMap components) implements Holder<T> {
 
         public boolean isBound() {

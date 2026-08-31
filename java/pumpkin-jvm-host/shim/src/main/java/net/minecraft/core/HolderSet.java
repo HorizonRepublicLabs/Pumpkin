@@ -132,6 +132,8 @@ public interface HolderSet<T> extends Iterable<Holder<T>>, IHolderSetExtension<T
 
     class Named<T> extends HolderSet.ListBacked<T> {
 
+        private final TagKey<T> key = null;
+
         Named(HolderOwner<T> owner, TagKey<T> key) {
         }
 

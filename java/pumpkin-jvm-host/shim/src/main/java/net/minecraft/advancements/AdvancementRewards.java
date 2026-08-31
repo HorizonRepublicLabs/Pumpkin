@@ -12,6 +12,10 @@ public record AdvancementRewards(int experience, List<ResourceKey<LootTable>> lo
 
     public static class Builder {
 
+        public static AdvancementRewards.Builder recipe(ResourceKey<Recipe<?>> id) {
+            throw Unimplemented.forMember("net/minecraft/advancements/AdvancementRewards$Builder.recipe:(Lnet/minecraft/resources/ResourceKey;)Lnet/minecraft/advancements/AdvancementRewards$Builder;");
+        }
+
         public AdvancementRewards build() {
             throw Unimplemented.forMember("net/minecraft/advancements/AdvancementRewards$Builder.build:()Lnet/minecraft/advancements/AdvancementRewards;");
         }

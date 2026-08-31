@@ -93,6 +93,8 @@ public class CreativeModeTab {
 
     public static class Builder {
 
+        private Identifier backgroundTexture;
+
         public Builder(CreativeModeTab.Row row, int column) {
         }
 
@@ -120,6 +122,30 @@ public class CreativeModeTab {
         public CreativeModeTab.Builder displayItems(CreativeModeTab.DisplayItemsGenerator displayItemsGenerator) {
             this.pumpkinDisplayItemsGenerator = displayItemsGenerator;
             return this;
+        }
+
+        public CreativeModeTab.Builder backgroundTexture(Identifier backgroundTexture) {
+            throw Unimplemented.forMember("net/minecraft/world/item/CreativeModeTab$Builder.backgroundTexture:(Lnet/minecraft/resources/Identifier;)Lnet/minecraft/world/item/CreativeModeTab$Builder;");
+        }
+
+        public CreativeModeTab.Builder withSearchBar() {
+            throw Unimplemented.forMember("net/minecraft/world/item/CreativeModeTab$Builder.withSearchBar:()Lnet/minecraft/world/item/CreativeModeTab$Builder;");
+        }
+
+        public CreativeModeTab.Builder withSearchBar(int searchBarWidth) {
+            throw Unimplemented.forMember("net/minecraft/world/item/CreativeModeTab$Builder.withSearchBar:(I)Lnet/minecraft/world/item/CreativeModeTab$Builder;");
+        }
+
+        public CreativeModeTab.Builder withTabFactory(java.util.function.Function<CreativeModeTab.Builder, CreativeModeTab> tabFactory) {
+            throw Unimplemented.forMember("net/minecraft/world/item/CreativeModeTab$Builder.withTabFactory:(Ljava/util/function/Function;)Lnet/minecraft/world/item/CreativeModeTab$Builder;");
+        }
+
+        public CreativeModeTab.Builder withTabsBefore(net.minecraft.resources.Identifier... tabs) {
+            throw Unimplemented.forMember("net/minecraft/world/item/CreativeModeTab$Builder.withTabsBefore:([Lnet/minecraft/resources/Identifier;)Lnet/minecraft/world/item/CreativeModeTab$Builder;");
+        }
+
+        public final CreativeModeTab.Builder withTabsBefore(net.minecraft.resources.ResourceKey<CreativeModeTab>... tabs) {
+            throw Unimplemented.forMember("net/minecraft/world/item/CreativeModeTab$Builder.withTabsBefore:([Lnet/minecraft/resources/ResourceKey;)Lnet/minecraft/world/item/CreativeModeTab$Builder;");
         }
 
         // Pumpkin divergence: accepted and dropped -- client-side presentation.

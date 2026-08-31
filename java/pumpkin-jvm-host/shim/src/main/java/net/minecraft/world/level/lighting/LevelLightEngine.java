@@ -3,6 +3,7 @@ package net.minecraft.world.level.lighting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.SectionPos;
 import net.minecraft.world.level.ChunkPos;
+import net.minecraft.world.level.LightLayer;
 import net.minecraft.world.level.chunk.LightChunkGetter;
 import dev.pumpkin.shim.Unimplemented;
 
@@ -36,5 +37,9 @@ public class LevelLightEngine implements LightEventListener {
 
     public void propagateLightSources(ChunkPos pos) {
         throw Unimplemented.forMember("net/minecraft/world/level/lighting/LevelLightEngine.propagateLightSources:(Lnet/minecraft/world/level/ChunkPos;)V");
+    }
+
+    public LayerLightEventListener getLayerListener(LightLayer layer) {
+        throw Unimplemented.forMember("net/minecraft/world/level/lighting/LevelLightEngine.getLayerListener:(Lnet/minecraft/world/level/LightLayer;)Lnet/minecraft/world/level/lighting/LayerLightEventListener;");
     }
 }

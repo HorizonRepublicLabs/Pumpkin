@@ -1,5 +1,7 @@
 package com.mojang.blaze3d;
 
+import dev.pumpkin.shim.Unimplemented;
+
 public enum GpuFormat {
 
     R8_UNORM,
@@ -58,6 +60,10 @@ public enum GpuFormat {
     D24_UNORM_S8_UINT,
     D16_UNORM,
     S8_UINT;
+
+    public GpuFormat.ComponentType componentType() {
+        throw Unimplemented.forMember("com/mojang/blaze3d/GpuFormat.componentType:()Lcom/mojang/blaze3d/GpuFormat$ComponentType;");
+    }
 
     public enum ComponentType {
 

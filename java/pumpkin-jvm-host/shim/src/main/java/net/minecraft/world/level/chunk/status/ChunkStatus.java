@@ -6,6 +6,8 @@ import dev.pumpkin.shim.Unimplemented;
 
 public class ChunkStatus {
 
+    public static final ChunkStatus FULL = null;
+
     protected ChunkStatus(ChunkStatus parent, EnumSet<Heightmap.Types> heightmapsAfter, ChunkType chunkType) {
     }
 

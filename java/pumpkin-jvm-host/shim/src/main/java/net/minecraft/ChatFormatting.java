@@ -27,6 +27,8 @@ public enum ChatFormatting {
     ITALIC,
     RESET;
 
+    private final String toString = null;
+
     public String toString() {
         throw Unimplemented.forMember("net/minecraft/ChatFormatting.toString:()Ljava/lang/String;");
     }

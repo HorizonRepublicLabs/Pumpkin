@@ -6,6 +6,8 @@ import dev.pumpkin.shim.Unimplemented;
 
 public class MobEffectInstance implements Comparable<MobEffectInstance> {
 
+    private MobEffectInstance hiddenEffect;
+
     public MobEffectInstance(Holder<MobEffect> effect) {
     }
 
@@ -30,8 +32,28 @@ public class MobEffectInstance implements Comparable<MobEffectInstance> {
     private MobEffectInstance(Holder<MobEffect> effect, MobEffectInstance.Details details) {
     }
 
+    private void setDetailsFrom(MobEffectInstance copy) {
+        throw Unimplemented.forMember("net/minecraft/world/effect/MobEffectInstance.setDetailsFrom:(Lnet/minecraft/world/effect/MobEffectInstance;)V");
+    }
+
     public boolean update(MobEffectInstance takeOver) {
         throw Unimplemented.forMember("net/minecraft/world/effect/MobEffectInstance.update:(Lnet/minecraft/world/effect/MobEffectInstance;)Z");
+    }
+
+    public Holder<MobEffect> getEffect() {
+        throw Unimplemented.forMember("net/minecraft/world/effect/MobEffectInstance.getEffect:()Lnet/minecraft/core/Holder;");
+    }
+
+    public int getDuration() {
+        throw Unimplemented.forMember("net/minecraft/world/effect/MobEffectInstance.getDuration:()I");
+    }
+
+    public int getAmplifier() {
+        throw Unimplemented.forMember("net/minecraft/world/effect/MobEffectInstance.getAmplifier:()I");
+    }
+
+    private void tickDownDuration() {
+        throw Unimplemented.forMember("net/minecraft/world/effect/MobEffectInstance.tickDownDuration:()V");
     }
 
     public String toString() {

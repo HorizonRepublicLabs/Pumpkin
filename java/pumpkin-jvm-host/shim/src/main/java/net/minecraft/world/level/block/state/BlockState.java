@@ -1,11 +1,14 @@
 package net.minecraft.world.level.block.state;
 
+import com.mojang.serialization.Codec;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.properties.Property;
 import net.neoforged.neoforge.common.extensions.IBlockStateExtension;
 import dev.pumpkin.shim.Unimplemented;
 
 public class BlockState extends BlockBehaviour.BlockStateBase implements IBlockStateExtension {
+
+    public static final Codec<BlockState> CODEC = null;
 
     public BlockState(Block owner, Property<?>[] propertyKeys, Comparable<?>[] propertyValues) {
     }

@@ -1,5 +1,6 @@
 package net.neoforged.neoforge.registries;
 
+import java.util.Collection;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import net.minecraft.core.Registry;
@@ -239,6 +240,10 @@ public class DeferredRegister<T> {
         throw Unimplemented.forMember("net/neoforged/neoforge/registries/DeferredRegister.register:(Ljava/lang/String;Ljava/util/function/Function;)Lnet/neoforged/neoforge/registries/DeferredHolder;");
     }
 
+    protected <I extends T> DeferredHolder<T, I> createHolder(ResourceKey<? extends Registry<T>> registryKey, Identifier key) {
+        throw Unimplemented.forMember("net/neoforged/neoforge/registries/DeferredRegister.createHolder:(Lnet/minecraft/resources/ResourceKey;Lnet/minecraft/resources/Identifier;)Lnet/neoforged/neoforge/registries/DeferredHolder;");
+    }
+
     public void addAlias(Identifier from, Identifier to) {
         throw Unimplemented.forMember("net/neoforged/neoforge/registries/DeferredRegister.addAlias:(Lnet/minecraft/resources/Identifier;Lnet/minecraft/resources/Identifier;)V");
     }
@@ -282,6 +287,18 @@ public class DeferredRegister<T> {
                         holder.getId().toString());
             }
         }
+    }
+
+    public Collection<DeferredHolder<T, ? extends T>> getEntries() {
+        throw Unimplemented.forMember("net/neoforged/neoforge/registries/DeferredRegister.getEntries:()Ljava/util/Collection;");
+    }
+
+    public ResourceKey<? extends Registry<T>> getRegistryKey() {
+        throw Unimplemented.forMember("net/neoforged/neoforge/registries/DeferredRegister.getRegistryKey:()Lnet/minecraft/resources/ResourceKey;");
+    }
+
+    public String getNamespace() {
+        throw Unimplemented.forMember("net/neoforged/neoforge/registries/DeferredRegister.getNamespace:()Ljava/lang/String;");
     }
 
     public static class Blocks extends DeferredRegister<Block> {

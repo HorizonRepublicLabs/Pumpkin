@@ -11,6 +11,6 @@ public final class ItemTags {
 
     // Pumpkin divergence: real body -- TagKey.create over the item registry's key.
     public static TagKey<Item> create(final Identifier name) {
-        return TagKey.create(net.minecraft.resources.ResourceKey.createRegistryKey(Identifier.fromNamespaceAndPath("minecraft", "item")), name);
+        return TagKey.create(net.minecraft.resources.ResourceKey.createRegistryKey(net.minecraft.resources.Identifier.fromNamespaceAndPath("minecraft", "item")), name);
     }
 }

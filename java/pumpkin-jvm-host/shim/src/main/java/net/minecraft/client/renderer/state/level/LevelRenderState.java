@@ -6,6 +6,8 @@ public class LevelRenderState extends net.neoforged.neoforge.client.renderstate.
 
     public CameraRenderState cameraRenderState;
 
+    public long gameTime;
+
     public void reset() {
         throw Unimplemented.forMember("net/minecraft/client/renderer/state/level/LevelRenderState.reset:()V");
     }

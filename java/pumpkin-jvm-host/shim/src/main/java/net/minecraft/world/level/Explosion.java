@@ -8,6 +8,10 @@ import dev.pumpkin.shim.Unimplemented;
 
 public interface Explosion {
 
+    static LivingEntity getIndirectSourceEntity(Entity source) {
+        throw Unimplemented.forMember("net/minecraft/world/level/Explosion.getIndirectSourceEntity:(Lnet/minecraft/world/entity/Entity;)Lnet/minecraft/world/entity/LivingEntity;");
+    }
+
     ServerLevel level();
 
     Explosion.BlockInteraction getBlockInteraction();

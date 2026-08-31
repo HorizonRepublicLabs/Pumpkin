@@ -8,18 +8,24 @@ import java.lang.annotation.Target;
 import java.util.List;
 import java.util.function.Supplier;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.core.Holder;
+import net.minecraft.core.IdMapper;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemInstance;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
+import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
@@ -38,6 +44,10 @@ public class Block extends BlockBehaviour implements ItemLike, IBlockExtension {
     private final BlockBehaviour.Properties pumpkinProperties;
 
     private final Holder.Reference<Block> builtInRegistryHolder = null;
+
+    public static final IdMapper<BlockState> BLOCK_STATE_REGISTRY = null;
+
+    protected final StateDefinition<Block, BlockState> stateDefinition = null;
 
     private BlockState defaultBlockState;
 
@@ -59,6 +69,10 @@ public class Block extends BlockBehaviour implements ItemLike, IBlockExtension {
     // member throws with a name if anything ever reads the geometry.
     public static VoxelShape box(double minX, double minY, double minZ, double maxX, double maxY, double maxZ) {
         return VoxelShape.pumpkinInert();
+    }
+
+    public static BlockState updateFromNeighbourShapes(BlockState state, LevelAccessor level, BlockPos pos) {
+        throw Unimplemented.forMember("net/minecraft/world/level/block/Block.updateFromNeighbourShapes:(Lnet/minecraft/world/level/block/state/BlockState;Lnet/minecraft/world/level/LevelAccessor;Lnet/minecraft/core/BlockPos;)Lnet/minecraft/world/level/block/state/BlockState;");
     }
 
     // Pumpkin divergence: real body. Vanilla's constructor builds a state definition and a
@@ -113,6 +127,14 @@ public class Block extends BlockBehaviour implements ItemLike, IBlockExtension {
         return pumpkinProperties;
     }
 
+    public static boolean canSupportCenter(LevelReader level, BlockPos belowPos, Direction direction) {
+        throw Unimplemented.forMember("net/minecraft/world/level/block/Block.canSupportCenter:(Lnet/minecraft/world/level/LevelReader;Lnet/minecraft/core/BlockPos;Lnet/minecraft/core/Direction;)Z");
+    }
+
+    public void animateTick(BlockState state, Level level, BlockPos pos, RandomSource random) {
+        throw Unimplemented.forMember("net/minecraft/world/level/block/Block.animateTick:(Lnet/minecraft/world/level/block/state/BlockState;Lnet/minecraft/world/level/Level;Lnet/minecraft/core/BlockPos;Lnet/minecraft/util/RandomSource;)V");
+    }
+
     public void destroy(LevelAccessor level, BlockPos pos, BlockState state) {
         throw Unimplemented.forMember("net/minecraft/world/level/block/Block.destroy:(Lnet/minecraft/world/level/LevelAccessor;Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/state/BlockState;)V");
     }
@@ -129,6 +151,10 @@ public class Block extends BlockBehaviour implements ItemLike, IBlockExtension {
         throw Unimplemented.forMember("net/minecraft/world/level/block/Block.popResource:(Lnet/minecraft/world/level/Level;Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/item/ItemStack;)V");
     }
 
+    public static void popResourceFromFace(Level level, BlockPos pos, Direction face, ItemStack itemStack) {
+        throw Unimplemented.forMember("net/minecraft/world/level/block/Block.popResourceFromFace:(Lnet/minecraft/world/level/Level;Lnet/minecraft/core/BlockPos;Lnet/minecraft/core/Direction;Lnet/minecraft/world/item/ItemStack;)V");
+    }
+
     private static void popResource(Level level, Supplier<ItemEntity> entityFactory, ItemStack itemStack) {
         throw Unimplemented.forMember("net/minecraft/world/level/block/Block.popResource:(Lnet/minecraft/world/level/Level;Ljava/util/function/Supplier;Lnet/minecraft/world/item/ItemStack;)V");
     }
@@ -141,12 +167,24 @@ public class Block extends BlockBehaviour implements ItemLike, IBlockExtension {
         throw Unimplemented.forMember("net/minecraft/world/level/block/Block.getExplosionResistance:()F");
     }
 
+    public BlockState getStateForPlacement(BlockPlaceContext context) {
+        throw Unimplemented.forMember("net/minecraft/world/level/block/Block.getStateForPlacement:(Lnet/minecraft/world/item/context/BlockPlaceContext;)Lnet/minecraft/world/level/block/state/BlockState;");
+    }
+
     public void playerDestroy(Level level, Player player, BlockPos pos, BlockState state, BlockEntity blockEntity, ItemStack destroyedWith) {
         throw Unimplemented.forMember("net/minecraft/world/level/block/Block.playerDestroy:(Lnet/minecraft/world/level/Level;Lnet/minecraft/world/entity/player/Player;Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/state/BlockState;Lnet/minecraft/world/level/block/entity/BlockEntity;Lnet/minecraft/world/item/ItemStack;)V");
     }
 
+    public void setPlacedBy(Level level, BlockPos pos, BlockState state, LivingEntity by, ItemStack itemStack) {
+        throw Unimplemented.forMember("net/minecraft/world/level/block/Block.setPlacedBy:(Lnet/minecraft/world/level/Level;Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/state/BlockState;Lnet/minecraft/world/entity/LivingEntity;Lnet/minecraft/world/item/ItemStack;)V");
+    }
+
     public MutableComponent getName() {
         throw Unimplemented.forMember("net/minecraft/world/level/block/Block.getName:()Lnet/minecraft/network/chat/MutableComponent;");
+    }
+
+    public BlockState playerWillDestroy(Level level, BlockPos pos, BlockState state, Player player) {
+        throw Unimplemented.forMember("net/minecraft/world/level/block/Block.playerWillDestroy:(Lnet/minecraft/world/level/Level;Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/state/BlockState;Lnet/minecraft/world/entity/player/Player;)Lnet/minecraft/world/level/block/state/BlockState;");
     }
 
     // Pumpkin divergence: real body. Lazily built; any() answers this block's default

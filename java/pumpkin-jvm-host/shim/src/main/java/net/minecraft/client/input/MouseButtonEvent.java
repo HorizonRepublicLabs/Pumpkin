@@ -8,6 +8,10 @@ public record MouseButtonEvent(double x, double y, MouseButtonInfo buttonInfo) i
         throw Unimplemented.forMember("net/minecraft/client/input/MouseButtonEvent.input:()I");
     }
 
+    public int button() {
+        throw Unimplemented.forMember("net/minecraft/client/input/MouseButtonEvent.button:()I");
+    }
+
     public int modifiers() {
         throw Unimplemented.forMember("net/minecraft/client/input/MouseButtonEvent.modifiers:()I");
     }

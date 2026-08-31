@@ -1,9 +1,12 @@
 package net.minecraft.core;
 
+import com.mojang.serialization.DynamicOps;
 import com.mojang.serialization.Lifecycle;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.Predicate;
 import java.util.stream.Stream;
+import net.minecraft.resources.RegistryOps;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.tags.TagKey;
 import net.neoforged.neoforge.common.extensions.IHolderLookupProviderExtension;
@@ -21,6 +24,14 @@ public interface HolderLookup<T> extends HolderGetter<T> {
 
         <T> Optional<? extends HolderLookup.RegistryLookup<T>> lookup(final ResourceKey<? extends Registry<? extends T>> key);
 
+        default <T> HolderLookup.RegistryLookup<T> lookupOrThrow(ResourceKey<? extends Registry<? extends T>> key) {
+            throw Unimplemented.forMember("net/minecraft/core/HolderLookup$Provider.lookupOrThrow:(Lnet/minecraft/resources/ResourceKey;)Lnet/minecraft/core/HolderLookup$RegistryLookup;");
+        }
+
+        default <V> RegistryOps<V> createSerializationContext(DynamicOps<V> parent) {
+            throw Unimplemented.forMember("net/minecraft/core/HolderLookup$Provider.createSerializationContext:(Lcom/mojang/serialization/DynamicOps;)Lnet/minecraft/resources/RegistryOps;");
+        }
+
         static HolderLookup.Provider create(Stream<HolderLookup.RegistryLookup<?>> lookups) {
             throw Unimplemented.forMember("net/minecraft/core/HolderLookup$Provider.create:(Ljava/util/stream/Stream;)Lnet/minecraft/core/HolderLookup$Provider;");
         }
@@ -31,6 +42,10 @@ public interface HolderLookup<T> extends HolderGetter<T> {
         ResourceKey<? extends Registry<? extends T>> key();
 
         Lifecycle registryLifecycle();
+
+        default HolderLookup.RegistryLookup<T> filterElements(Predicate<T> filter) {
+            throw Unimplemented.forMember("net/minecraft/core/HolderLookup$RegistryLookup.filterElements:(Ljava/util/function/Predicate;)Lnet/minecraft/core/HolderLookup$RegistryLookup;");
+        }
 
         default <A> Map<ResourceKey<T>, A> getDataMap(net.neoforged.neoforge.registries.datamaps.DataMapType<T, A> type) {
             throw Unimplemented.forMember("net/minecraft/core/HolderLookup$RegistryLookup.getDataMap:(Lnet/neoforged/neoforge/registries/datamaps/DataMapType;)Ljava/util/Map;");

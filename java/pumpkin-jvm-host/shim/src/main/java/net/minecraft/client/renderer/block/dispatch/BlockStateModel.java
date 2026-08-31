@@ -17,6 +17,10 @@ public interface BlockStateModel extends BlockStateModelExtension {
 
     int materialFlags();
 
+    default boolean hasMaterialFlag(int flag) {
+        throw Unimplemented.forMember("net/minecraft/client/renderer/block/dispatch/BlockStateModel.hasMaterialFlag:(I)Z");
+    }
+
     class SimpleCachedUnbakedRoot implements BlockStateModel.UnbakedRoot {
 
         public SimpleCachedUnbakedRoot(BlockStateModel.Unbaked contents) {

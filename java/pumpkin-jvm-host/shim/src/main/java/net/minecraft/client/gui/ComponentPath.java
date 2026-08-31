@@ -6,6 +6,18 @@ import dev.pumpkin.shim.Unimplemented;
 
 public interface ComponentPath {
 
+    static ComponentPath leaf(GuiEventListener component) {
+        throw Unimplemented.forMember("net/minecraft/client/gui/ComponentPath.leaf:(Lnet/minecraft/client/gui/components/events/GuiEventListener;)Lnet/minecraft/client/gui/ComponentPath;");
+    }
+
+    static ComponentPath path(ContainerEventHandler container, ComponentPath childPath) {
+        throw Unimplemented.forMember("net/minecraft/client/gui/ComponentPath.path:(Lnet/minecraft/client/gui/components/events/ContainerEventHandler;Lnet/minecraft/client/gui/ComponentPath;)Lnet/minecraft/client/gui/ComponentPath;");
+    }
+
+    static ComponentPath path(GuiEventListener target, ContainerEventHandler... containerPath) {
+        throw Unimplemented.forMember("net/minecraft/client/gui/ComponentPath.path:(Lnet/minecraft/client/gui/components/events/GuiEventListener;[Lnet/minecraft/client/gui/components/events/ContainerEventHandler;)Lnet/minecraft/client/gui/ComponentPath;");
+    }
+
     GuiEventListener component();
 
     void applyFocus(boolean focused);

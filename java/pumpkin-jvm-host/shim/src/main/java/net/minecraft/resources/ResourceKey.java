@@ -1,6 +1,9 @@
 package net.minecraft.resources;
 
+import com.mojang.serialization.Codec;
+import io.netty.buffer.ByteBuf;
 import net.minecraft.core.Registry;
+import net.minecraft.network.codec.StreamCodec;
 import dev.pumpkin.shim.Unimplemented;
 
 public class ResourceKey<T> implements Comparable<ResourceKey<?>> {
@@ -13,6 +16,14 @@ public class ResourceKey<T> implements Comparable<ResourceKey<?>> {
     private final Identifier pumpkinRegistryName;
 
     private final Identifier identifier;
+
+    public static <T> Codec<ResourceKey<T>> codec(ResourceKey<? extends Registry<T>> registryName) {
+        throw Unimplemented.forMember("net/minecraft/resources/ResourceKey.codec:(Lnet/minecraft/resources/ResourceKey;)Lcom/mojang/serialization/Codec;");
+    }
+
+    public static <T> StreamCodec<ByteBuf, ResourceKey<T>> streamCodec(ResourceKey<? extends Registry<T>> registryName) {
+        throw Unimplemented.forMember("net/minecraft/resources/ResourceKey.streamCodec:(Lnet/minecraft/resources/ResourceKey;)Lnet/minecraft/network/codec/StreamCodec;");
+    }
 
     // Pumpkin divergence: real body.
     public static <T> ResourceKey<T> create(ResourceKey<? extends Registry<T>> registryName, Identifier location) {
@@ -51,6 +62,10 @@ public class ResourceKey<T> implements Comparable<ResourceKey<?>> {
     // need to rebuild a registry key from a value key -- DeferredHolder.create(key) does.
     public Identifier pumpkinRegistry() {
         return pumpkinRegistryName;
+    }
+
+    public ResourceKey<Registry<T>> registryKey() {
+        throw Unimplemented.forMember("net/minecraft/resources/ResourceKey.registryKey:()Lnet/minecraft/resources/ResourceKey;");
     }
 
     // Pumpkin divergence: real body.

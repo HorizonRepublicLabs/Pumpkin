@@ -1,6 +1,7 @@
 package net.minecraft.client.gui.components.events;
 
 import java.util.List;
+import java.util.Optional;
 import net.minecraft.client.gui.ComponentPath;
 import net.minecraft.client.gui.navigation.FocusNavigationEvent;
 import net.minecraft.client.gui.navigation.ScreenDirection;
@@ -14,6 +15,10 @@ import dev.pumpkin.shim.Unimplemented;
 public interface ContainerEventHandler extends GuiEventListener {
 
     List<? extends GuiEventListener> children();
+
+    default Optional<GuiEventListener> getChildAt(double x, double y) {
+        throw Unimplemented.forMember("net/minecraft/client/gui/components/events/ContainerEventHandler.getChildAt:(DD)Ljava/util/Optional;");
+    }
 
     default boolean mouseClicked(MouseButtonEvent event, boolean doubleClick) {
         throw Unimplemented.forMember("net/minecraft/client/gui/components/events/ContainerEventHandler.mouseClicked:(Lnet/minecraft/client/input/MouseButtonEvent;Z)Z");
@@ -73,5 +78,13 @@ public interface ContainerEventHandler extends GuiEventListener {
 
     default ComponentPath nextFocusPath(FocusNavigationEvent navigationEvent) {
         throw Unimplemented.forMember("net/minecraft/client/gui/components/events/ContainerEventHandler.nextFocusPath:(Lnet/minecraft/client/gui/navigation/FocusNavigationEvent;)Lnet/minecraft/client/gui/ComponentPath;");
+    }
+
+    private ComponentPath handleTabNavigation(FocusNavigationEvent.TabNavigation tabNavigation) {
+        throw Unimplemented.forMember("net/minecraft/client/gui/components/events/ContainerEventHandler.handleTabNavigation:(Lnet/minecraft/client/gui/navigation/FocusNavigationEvent$TabNavigation;)Lnet/minecraft/client/gui/ComponentPath;");
+    }
+
+    private ComponentPath handleArrowNavigation(FocusNavigationEvent.ArrowNavigation arrowNavigation) {
+        throw Unimplemented.forMember("net/minecraft/client/gui/components/events/ContainerEventHandler.handleArrowNavigation:(Lnet/minecraft/client/gui/navigation/FocusNavigationEvent$ArrowNavigation;)Lnet/minecraft/client/gui/ComponentPath;");
     }
 }

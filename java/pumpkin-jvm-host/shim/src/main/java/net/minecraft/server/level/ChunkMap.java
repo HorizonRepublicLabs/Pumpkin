@@ -30,7 +30,13 @@ import dev.pumpkin.shim.Unimplemented;
 
 public class ChunkMap extends SimpleRegionStorage implements ChunkHolder.PlayerProvider, GeneratingChunkMap {
 
+    private final PlayerMap playerMap = null;
+
     public ChunkMap(ServerLevel level, LevelStorageSource.LevelStorageAccess levelStorage, DataFixer dataFixer, StructureTemplateManager structureManager, Executor executor, BlockableEventLoop<Runnable> mainThreadExecutor, LightChunkGetter chunkGetter, ChunkGenerator generator, ChunkStatusUpdateListener chunkStatusListener, Supplier<SavedDataStorage> overworldDataStorage, TicketStorage ticketStorage, int serverViewDistance, boolean syncWrites) {
+    }
+
+    public boolean isChunkTracked(ServerPlayer player, int chunkX, int chunkZ) {
+        throw Unimplemented.forMember("net/minecraft/server/level/ChunkMap.isChunkTracked:(Lnet/minecraft/server/level/ServerPlayer;II)Z");
     }
 
     protected ThreadedLevelLightEngine getLightEngine() {

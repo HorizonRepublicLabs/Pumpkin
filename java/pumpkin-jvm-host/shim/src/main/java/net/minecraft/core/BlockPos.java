@@ -1,12 +1,22 @@
 package net.minecraft.core;
 
+import com.mojang.serialization.Codec;
+import io.netty.buffer.ByteBuf;
 import java.util.stream.Stream;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
 import net.minecraft.world.phys.AABB;
+import dev.pumpkin.shim.Stubs;
 import dev.pumpkin.shim.Unimplemented;
 
 public class BlockPos extends Vec3i {
+
+    public static final Codec<BlockPos> CODEC = null;
+
+    public static final StreamCodec<ByteBuf, BlockPos> STREAM_CODEC = Stubs.of(StreamCodec.class, "net/minecraft/network/codec/StreamCodec");
+
+    public static final BlockPos ZERO = null;
 
     // Pumpkin divergence: coordinates flow into Vec3i's real fields.
     public BlockPos(int x, int y, int z) {
@@ -37,6 +47,10 @@ public class BlockPos extends Vec3i {
         throw Unimplemented.forMember("net/minecraft/core/BlockPos.getZ:(J)I");
     }
 
+    public static BlockPos of(long blockNode) {
+        throw Unimplemented.forMember("net/minecraft/core/BlockPos.of:(J)Lnet/minecraft/core/BlockPos;");
+    }
+
     // Pumpkin divergence: vanilla bodies -- floor each coordinate into the block grid.
     public static BlockPos containing(double x, double y, double z) {
         return new BlockPos((int) Math.floor(x), (int) Math.floor(y), (int) Math.floor(z));
@@ -63,6 +77,10 @@ public class BlockPos extends Vec3i {
         return offset(vec.getX(), vec.getY(), vec.getZ());
     }
 
+    public BlockPos subtract(Vec3i vec) {
+        throw Unimplemented.forMember("net/minecraft/core/BlockPos.subtract:(Lnet/minecraft/core/Vec3i;)Lnet/minecraft/core/BlockPos;");
+    }
+
     public BlockPos above() {
         return offset(0, 1, 0);
     }
@@ -79,6 +97,22 @@ public class BlockPos extends Vec3i {
         return offset(0, -steps, 0);
     }
 
+    public BlockPos north() {
+        throw Unimplemented.forMember("net/minecraft/core/BlockPos.north:()Lnet/minecraft/core/BlockPos;");
+    }
+
+    public BlockPos north(int steps) {
+        throw Unimplemented.forMember("net/minecraft/core/BlockPos.north:(I)Lnet/minecraft/core/BlockPos;");
+    }
+
+    public BlockPos west() {
+        throw Unimplemented.forMember("net/minecraft/core/BlockPos.west:()Lnet/minecraft/core/BlockPos;");
+    }
+
+    public BlockPos west(int steps) {
+        throw Unimplemented.forMember("net/minecraft/core/BlockPos.west:(I)Lnet/minecraft/core/BlockPos;");
+    }
+
     public BlockPos relative(Direction direction) {
         throw Unimplemented.forMember("net/minecraft/core/BlockPos.relative:(Lnet/minecraft/core/Direction;)Lnet/minecraft/core/BlockPos;");
     }
@@ -93,6 +127,10 @@ public class BlockPos extends Vec3i {
 
     public BlockPos immutable() {
         throw Unimplemented.forMember("net/minecraft/core/BlockPos.immutable:()Lnet/minecraft/core/BlockPos;");
+    }
+
+    public BlockPos.MutableBlockPos mutable() {
+        throw Unimplemented.forMember("net/minecraft/core/BlockPos.mutable:()Lnet/minecraft/core/BlockPos$MutableBlockPos;");
     }
 
     public static Iterable<BlockPos> betweenClosed(AABB box) {
@@ -182,6 +220,34 @@ public class BlockPos extends Vec3i {
 
         public BlockPos.MutableBlockPos set(AxisCycle transform, int x, int y, int z) {
             throw Unimplemented.forMember("net/minecraft/core/BlockPos$MutableBlockPos.set:(Lnet/minecraft/core/AxisCycle;III)Lnet/minecraft/core/BlockPos$MutableBlockPos;");
+        }
+
+        public BlockPos.MutableBlockPos setWithOffset(Vec3i pos, Direction direction) {
+            throw Unimplemented.forMember("net/minecraft/core/BlockPos$MutableBlockPos.setWithOffset:(Lnet/minecraft/core/Vec3i;Lnet/minecraft/core/Direction;)Lnet/minecraft/core/BlockPos$MutableBlockPos;");
+        }
+
+        public BlockPos.MutableBlockPos setWithOffset(Vec3i pos, int x, int y, int z) {
+            throw Unimplemented.forMember("net/minecraft/core/BlockPos$MutableBlockPos.setWithOffset:(Lnet/minecraft/core/Vec3i;III)Lnet/minecraft/core/BlockPos$MutableBlockPos;");
+        }
+
+        public BlockPos.MutableBlockPos setWithOffset(Vec3i pos, Vec3i offset) {
+            throw Unimplemented.forMember("net/minecraft/core/BlockPos$MutableBlockPos.setWithOffset:(Lnet/minecraft/core/Vec3i;Lnet/minecraft/core/Vec3i;)Lnet/minecraft/core/BlockPos$MutableBlockPos;");
+        }
+
+        public BlockPos.MutableBlockPos move(Direction direction) {
+            throw Unimplemented.forMember("net/minecraft/core/BlockPos$MutableBlockPos.move:(Lnet/minecraft/core/Direction;)Lnet/minecraft/core/BlockPos$MutableBlockPos;");
+        }
+
+        public BlockPos.MutableBlockPos move(Direction direction, int steps) {
+            throw Unimplemented.forMember("net/minecraft/core/BlockPos$MutableBlockPos.move:(Lnet/minecraft/core/Direction;I)Lnet/minecraft/core/BlockPos$MutableBlockPos;");
+        }
+
+        public BlockPos.MutableBlockPos move(int x, int y, int z) {
+            throw Unimplemented.forMember("net/minecraft/core/BlockPos$MutableBlockPos.move:(III)Lnet/minecraft/core/BlockPos$MutableBlockPos;");
+        }
+
+        public BlockPos.MutableBlockPos move(Vec3i pos) {
+            throw Unimplemented.forMember("net/minecraft/core/BlockPos$MutableBlockPos.move:(Lnet/minecraft/core/Vec3i;)Lnet/minecraft/core/BlockPos$MutableBlockPos;");
         }
 
         public BlockPos.MutableBlockPos setX(int x) {

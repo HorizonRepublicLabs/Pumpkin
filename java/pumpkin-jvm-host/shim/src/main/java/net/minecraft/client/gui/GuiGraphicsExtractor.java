@@ -8,10 +8,12 @@ import java.util.Optional;
 import java.util.function.Consumer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.navigation.ScreenRectangle;
+import net.minecraft.client.gui.render.TextureSetup;
 import net.minecraft.client.gui.screens.inventory.tooltip.ClientTooltipPositioner;
 import net.minecraft.client.renderer.entity.state.EntityRenderState;
 import net.minecraft.client.renderer.state.MapRenderState;
 import net.minecraft.client.renderer.state.gui.GuiRenderState;
+import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.Style;
@@ -31,14 +33,28 @@ public class GuiGraphicsExtractor implements GuiGraphicsExtractorExtension {
 
     private final Matrix3x2fStack pose = null;
 
+    private final TextureAtlas guiSprites = null;
+
     private GuiGraphicsExtractor(Minecraft minecraft, Matrix3x2fStack pose, GuiRenderState guiRenderState, int mouseX, int mouseY) {
     }
 
     public GuiGraphicsExtractor(Minecraft minecraft, GuiRenderState guiRenderState, int mouseX, int mouseY) {
     }
 
+    public int guiWidth() {
+        throw Unimplemented.forMember("net/minecraft/client/gui/GuiGraphicsExtractor.guiWidth:()I");
+    }
+
+    public int guiHeight() {
+        throw Unimplemented.forMember("net/minecraft/client/gui/GuiGraphicsExtractor.guiHeight:()I");
+    }
+
     public Matrix3x2fStack pose() {
         throw Unimplemented.forMember("net/minecraft/client/gui/GuiGraphicsExtractor.pose:()Lorg/joml/Matrix3x2fStack;");
+    }
+
+    public void nextStratum() {
+        throw Unimplemented.forMember("net/minecraft/client/gui/GuiGraphicsExtractor.nextStratum:()V");
     }
 
     public void enableScissor(int x0, int y0, int x1, int y1) {
@@ -49,8 +65,24 @@ public class GuiGraphicsExtractor implements GuiGraphicsExtractorExtension {
         throw Unimplemented.forMember("net/minecraft/client/gui/GuiGraphicsExtractor.disableScissor:()V");
     }
 
+    public boolean containsPointInScissor(int x, int y) {
+        throw Unimplemented.forMember("net/minecraft/client/gui/GuiGraphicsExtractor.containsPointInScissor:(II)Z");
+    }
+
     public void fill(int x0, int y0, int x1, int y1, int col) {
         throw Unimplemented.forMember("net/minecraft/client/gui/GuiGraphicsExtractor.fill:(IIIII)V");
+    }
+
+    public void fill(RenderPipeline pipeline, int x0, int y0, int x1, int y1, int col) {
+        throw Unimplemented.forMember("net/minecraft/client/gui/GuiGraphicsExtractor.fill:(Lcom/mojang/blaze3d/pipeline/RenderPipeline;IIIII)V");
+    }
+
+    public void fill(RenderPipeline renderPipeline, TextureSetup textureSetup, int x0, int y0, int x1, int y1) {
+        throw Unimplemented.forMember("net/minecraft/client/gui/GuiGraphicsExtractor.fill:(Lcom/mojang/blaze3d/pipeline/RenderPipeline;Lnet/minecraft/client/gui/render/TextureSetup;IIII)V");
+    }
+
+    public void outline(int x, int y, int width, int height, int color) {
+        throw Unimplemented.forMember("net/minecraft/client/gui/GuiGraphicsExtractor.outline:(IIIII)V");
     }
 
     public void text(Font font, String str, int x, int y, int color) {
@@ -131,6 +163,10 @@ public class GuiGraphicsExtractor implements GuiGraphicsExtractorExtension {
 
     private void blitSprite(RenderPipeline renderPipeline, TextureAtlasSprite sprite, int spriteWidth, int spriteHeight, int textureX, int textureY, int x, int y, int width, int height, int color) {
         throw Unimplemented.forMember("net/minecraft/client/gui/GuiGraphicsExtractor.blitSprite:(Lcom/mojang/blaze3d/pipeline/RenderPipeline;Lnet/minecraft/client/renderer/texture/TextureAtlasSprite;IIIIIIIII)V");
+    }
+
+    private void blitTiledSprite(RenderPipeline renderPipeline, TextureAtlasSprite sprite, int x, int y, int width, int height, int textureX, int textureY, int tileWidth, int tileHeight, int spriteWidth, int spriteHeight, int color) {
+        throw Unimplemented.forMember("net/minecraft/client/gui/GuiGraphicsExtractor.blitTiledSprite:(Lcom/mojang/blaze3d/pipeline/RenderPipeline;Lnet/minecraft/client/renderer/texture/TextureAtlasSprite;IIIIIIIIIII)V");
     }
 
     public void item(ItemStack itemStack, int x, int y) {
@@ -223,6 +259,18 @@ public class GuiGraphicsExtractor implements GuiGraphicsExtractorExtension {
 
     public void setTooltipForNextFrame(Font font, List<FormattedCharSequence> tooltip, ClientTooltipPositioner positioner, int xo, int yo, boolean replaceExisting) {
         throw Unimplemented.forMember("net/minecraft/client/gui/GuiGraphicsExtractor.setTooltipForNextFrame:(Lnet/minecraft/client/gui/Font;Ljava/util/List;Lnet/minecraft/client/gui/screens/inventory/tooltip/ClientTooltipPositioner;IIZ)V");
+    }
+
+    public void submitGuiElementRenderState(net.minecraft.client.renderer.state.gui.GuiElementRenderState renderState) {
+        throw Unimplemented.forMember("net/minecraft/client/gui/GuiGraphicsExtractor.submitGuiElementRenderState:(Lnet/minecraft/client/renderer/state/gui/GuiElementRenderState;)V");
+    }
+
+    public void submitPictureInPictureRenderState(net.minecraft.client.renderer.state.gui.pip.PictureInPictureRenderState renderState) {
+        throw Unimplemented.forMember("net/minecraft/client/gui/GuiGraphicsExtractor.submitPictureInPictureRenderState:(Lnet/minecraft/client/renderer/state/gui/pip/PictureInPictureRenderState;)V");
+    }
+
+    public ScreenRectangle peekScissorStack() {
+        throw Unimplemented.forMember("net/minecraft/client/gui/GuiGraphicsExtractor.peekScissorStack:()Lnet/minecraft/client/gui/navigation/ScreenRectangle;");
     }
 
     public enum HoveredTextEffects {

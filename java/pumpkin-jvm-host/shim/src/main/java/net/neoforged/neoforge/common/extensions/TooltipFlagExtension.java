@@ -15,4 +15,8 @@ public interface TooltipFlagExtension {
     default boolean hasAltDown() {
         throw Unimplemented.forMember("net/neoforged/neoforge/common/extensions/TooltipFlagExtension.hasAltDown:()Z");
     }
+
+    default boolean shouldDisplayAllInformation() {
+        throw Unimplemented.forMember("net/neoforged/neoforge/common/extensions/TooltipFlagExtension.shouldDisplayAllInformation:()Z");
+    }
 }

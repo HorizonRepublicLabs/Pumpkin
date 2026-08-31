@@ -127,6 +127,14 @@ public final class Ingredient implements Predicate<ItemStack>, StackedContents.I
         throw Unimplemented.forMember("net/minecraft/world/item/crafting/Ingredient.isSimple:()Z");
     }
 
+    public net.neoforged.neoforge.common.crafting.ICustomIngredient getCustomIngredient() {
+        throw Unimplemented.forMember("net/minecraft/world/item/crafting/Ingredient.getCustomIngredient:()Lnet/neoforged/neoforge/common/crafting/ICustomIngredient;");
+    }
+
+    public boolean isCustom() {
+        throw Unimplemented.forMember("net/minecraft/world/item/crafting/Ingredient.isCustom:()Z");
+    }
+
     public static Ingredient of(ItemLike itemLike) {
         throw Unimplemented.forMember("net/minecraft/world/item/crafting/Ingredient.of:(Lnet/minecraft/world/level/ItemLike;)Lnet/minecraft/world/item/crafting/Ingredient;");
     }

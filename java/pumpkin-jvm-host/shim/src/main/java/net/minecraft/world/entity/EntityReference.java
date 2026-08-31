@@ -5,6 +5,7 @@ import io.netty.buffer.ByteBuf;
 import java.util.UUID;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.entity.UUIDLookup;
 import net.minecraft.world.level.entity.UniquelyIdentifyable;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
@@ -26,8 +27,24 @@ public final class EntityReference<StoredEntityType extends UniquelyIdentifyable
     private EntityReference(UUID uuid) {
     }
 
+    public static <T extends UniquelyIdentifyable> EntityReference<T> of(T entity) {
+        throw Unimplemented.forMember("net/minecraft/world/entity/EntityReference.of:(Lnet/minecraft/world/level/entity/UniquelyIdentifyable;)Lnet/minecraft/world/entity/EntityReference;");
+    }
+
+    public static <T extends UniquelyIdentifyable> EntityReference<T> of(UUID uuid) {
+        throw Unimplemented.forMember("net/minecraft/world/entity/EntityReference.of:(Ljava/util/UUID;)Lnet/minecraft/world/entity/EntityReference;");
+    }
+
     public UUID getUUID() {
         throw Unimplemented.forMember("net/minecraft/world/entity/EntityReference.getUUID:()Ljava/util/UUID;");
+    }
+
+    public StoredEntityType getEntity(UUIDLookup<? extends UniquelyIdentifyable> lookup, Class<StoredEntityType> clazz) {
+        throw Unimplemented.forMember("net/minecraft/world/entity/EntityReference.getEntity:(Lnet/minecraft/world/level/entity/UUIDLookup;Ljava/lang/Class;)Lnet/minecraft/world/level/entity/UniquelyIdentifyable;");
+    }
+
+    public StoredEntityType getEntity(Level level, Class<StoredEntityType> clazz) {
+        throw Unimplemented.forMember("net/minecraft/world/entity/EntityReference.getEntity:(Lnet/minecraft/world/level/Level;Ljava/lang/Class;)Lnet/minecraft/world/level/entity/UniquelyIdentifyable;");
     }
 
     private StoredEntityType resolve(UniquelyIdentifyable entity, Class<StoredEntityType> clazz) {
@@ -48,6 +65,10 @@ public final class EntityReference<StoredEntityType extends UniquelyIdentifyable
 
     public static <StoredEntityType extends UniquelyIdentifyable> StoredEntityType get(EntityReference<StoredEntityType> reference, Level level, Class<StoredEntityType> clazz) {
         throw Unimplemented.forMember("net/minecraft/world/entity/EntityReference.get:(Lnet/minecraft/world/entity/EntityReference;Lnet/minecraft/world/level/Level;Ljava/lang/Class;)Lnet/minecraft/world/level/entity/UniquelyIdentifyable;");
+    }
+
+    public static Entity getEntity(EntityReference<Entity> reference, Level level) {
+        throw Unimplemented.forMember("net/minecraft/world/entity/EntityReference.getEntity:(Lnet/minecraft/world/entity/EntityReference;Lnet/minecraft/world/level/Level;)Lnet/minecraft/world/entity/Entity;");
     }
 
     public static <StoredEntityType extends UniquelyIdentifyable> EntityReference<StoredEntityType> read(ValueInput input, String key) {

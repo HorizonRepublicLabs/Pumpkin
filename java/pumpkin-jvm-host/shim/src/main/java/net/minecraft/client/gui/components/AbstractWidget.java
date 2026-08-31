@@ -10,6 +10,8 @@ import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.gui.navigation.FocusNavigationEvent;
 import net.minecraft.client.gui.navigation.ScreenRectangle;
 import net.minecraft.client.input.MouseButtonEvent;
+import net.minecraft.client.input.MouseButtonInfo;
+import net.minecraft.client.sounds.SoundManager;
 import net.minecraft.network.chat.Component;
 import dev.pumpkin.shim.Unimplemented;
 
@@ -22,6 +24,12 @@ public abstract class AbstractWidget implements LayoutElement, Renderable, GuiEv
     protected boolean isHovered;
 
     public boolean active;
+
+    public boolean visible;
+
+    protected float alpha;
+
+    private boolean focused;
 
     private final WidgetTooltipHolder tooltip = null;
 
@@ -36,7 +44,23 @@ public abstract class AbstractWidget implements LayoutElement, Renderable, GuiEv
         throw Unimplemented.forMember("net/minecraft/client/gui/components/AbstractWidget.extractRenderState:(Lnet/minecraft/client/gui/GuiGraphicsExtractor;IIF)V");
     }
 
+    public void setTooltip(Tooltip tooltip) {
+        throw Unimplemented.forMember("net/minecraft/client/gui/components/AbstractWidget.setTooltip:(Lnet/minecraft/client/gui/components/Tooltip;)V");
+    }
+
     protected abstract void extractWidgetRenderState(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float a);
+
+    public void onClick(MouseButtonEvent event, boolean doubleClick) {
+        throw Unimplemented.forMember("net/minecraft/client/gui/components/AbstractWidget.onClick:(Lnet/minecraft/client/input/MouseButtonEvent;Z)V");
+    }
+
+    public void onRelease(MouseButtonEvent event) {
+        throw Unimplemented.forMember("net/minecraft/client/gui/components/AbstractWidget.onRelease:(Lnet/minecraft/client/input/MouseButtonEvent;)V");
+    }
+
+    protected void onDrag(MouseButtonEvent event, double dx, double dy) {
+        throw Unimplemented.forMember("net/minecraft/client/gui/components/AbstractWidget.onDrag:(Lnet/minecraft/client/input/MouseButtonEvent;DD)V");
+    }
 
     public boolean mouseClicked(MouseButtonEvent event, boolean doubleClick) {
         throw Unimplemented.forMember("net/minecraft/client/gui/components/AbstractWidget.mouseClicked:(Lnet/minecraft/client/input/MouseButtonEvent;Z)Z");
@@ -44,6 +68,10 @@ public abstract class AbstractWidget implements LayoutElement, Renderable, GuiEv
 
     public boolean mouseReleased(MouseButtonEvent event) {
         throw Unimplemented.forMember("net/minecraft/client/gui/components/AbstractWidget.mouseReleased:(Lnet/minecraft/client/input/MouseButtonEvent;)Z");
+    }
+
+    protected boolean isValidClickButton(MouseButtonInfo buttonInfo) {
+        throw Unimplemented.forMember("net/minecraft/client/gui/components/AbstractWidget.isValidClickButton:(Lnet/minecraft/client/input/MouseButtonInfo;)Z");
     }
 
     public boolean mouseDragged(MouseButtonEvent event, double dx, double dy) {
@@ -58,8 +86,20 @@ public abstract class AbstractWidget implements LayoutElement, Renderable, GuiEv
         throw Unimplemented.forMember("net/minecraft/client/gui/components/AbstractWidget.isMouseOver:(DD)Z");
     }
 
+    public void playDownSound(SoundManager soundManager) {
+        throw Unimplemented.forMember("net/minecraft/client/gui/components/AbstractWidget.playDownSound:(Lnet/minecraft/client/sounds/SoundManager;)V");
+    }
+
     public int getWidth() {
         throw Unimplemented.forMember("net/minecraft/client/gui/components/AbstractWidget.getWidth:()I");
+    }
+
+    public void setWidth(int width) {
+        throw Unimplemented.forMember("net/minecraft/client/gui/components/AbstractWidget.setWidth:(I)V");
+    }
+
+    public Component getMessage() {
+        throw Unimplemented.forMember("net/minecraft/client/gui/components/AbstractWidget.getMessage:()Lnet/minecraft/network/chat/Component;");
     }
 
     public boolean isFocused() {
@@ -80,6 +120,12 @@ public abstract class AbstractWidget implements LayoutElement, Renderable, GuiEv
 
     public void setFocused(boolean focused) {
         throw Unimplemented.forMember("net/minecraft/client/gui/components/AbstractWidget.setFocused:(Z)V");
+    }
+
+    protected int packedFGColor;
+
+    public int getFGColor() {
+        throw Unimplemented.forMember("net/minecraft/client/gui/components/AbstractWidget.getFGColor:()I");
     }
 
     public NarratableEntry.NarrationPriority narrationPriority() {
@@ -106,6 +152,14 @@ public abstract class AbstractWidget implements LayoutElement, Renderable, GuiEv
 
     public void setY(int y) {
         throw Unimplemented.forMember("net/minecraft/client/gui/components/AbstractWidget.setY:(I)V");
+    }
+
+    public int getRight() {
+        throw Unimplemented.forMember("net/minecraft/client/gui/components/AbstractWidget.getRight:()I");
+    }
+
+    public int getBottom() {
+        throw Unimplemented.forMember("net/minecraft/client/gui/components/AbstractWidget.getBottom:()I");
     }
 
     public void visitWidgets(Consumer<AbstractWidget> widgetVisitor) {

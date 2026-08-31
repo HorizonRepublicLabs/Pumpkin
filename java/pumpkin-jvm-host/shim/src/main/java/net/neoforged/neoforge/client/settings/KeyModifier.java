@@ -99,6 +99,10 @@ public enum KeyModifier {
     }
     ;
 
+    public static boolean isKeyCodeModifier(InputConstants.Key key) {
+        throw Unimplemented.forMember("net/neoforged/neoforge/client/settings/KeyModifier.isKeyCodeModifier:(Lcom/mojang/blaze3d/platform/InputConstants$Key;)Z");
+    }
+
     public abstract boolean matches(InputConstants.Key key);
 
     public abstract boolean isActive(IKeyConflictContext conflictContext);

@@ -8,6 +8,10 @@ import dev.pumpkin.shim.Unimplemented;
 
 public abstract class ChunkSource implements AutoCloseable, LightChunkGetter {
 
+    public LevelChunk getChunkNow(int x, int z) {
+        throw Unimplemented.forMember("net/minecraft/world/level/chunk/ChunkSource.getChunkNow:(II)Lnet/minecraft/world/level/chunk/LevelChunk;");
+    }
+
     public LightChunk getChunkForLighting(int x, int z) {
         throw Unimplemented.forMember("net/minecraft/world/level/chunk/ChunkSource.getChunkForLighting:(II)Lnet/minecraft/world/level/chunk/LightChunk;");
     }

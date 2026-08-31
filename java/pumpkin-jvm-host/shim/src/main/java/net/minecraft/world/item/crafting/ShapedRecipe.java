@@ -9,6 +9,10 @@ import dev.pumpkin.shim.Unimplemented;
 
 public class ShapedRecipe extends NormalCraftingRecipe {
 
+    public final ShapedRecipePattern pattern = null;
+
+    private final ItemStackTemplate result = null;
+
     public ShapedRecipe(Recipe.CommonInfo commonInfo, CraftingRecipe.CraftingBookInfo bookInfo, ShapedRecipePattern pattern, ItemStackTemplate result) {
     }
 

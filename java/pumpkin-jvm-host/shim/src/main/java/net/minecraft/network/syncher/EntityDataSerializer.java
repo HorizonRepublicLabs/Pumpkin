@@ -10,6 +10,10 @@ public interface EntityDataSerializer<T> {
 
     T copy(T value);
 
+    static <T> EntityDataSerializer<T> forValueType(StreamCodec<? super RegistryFriendlyByteBuf, T> codec) {
+        throw Unimplemented.forMember("net/minecraft/network/syncher/EntityDataSerializer.forValueType:(Lnet/minecraft/network/codec/StreamCodec;)Lnet/minecraft/network/syncher/EntityDataSerializer;");
+    }
+
     interface ForValueType<T> extends EntityDataSerializer<T> {
 
         default T copy(T value) {

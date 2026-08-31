@@ -10,6 +10,28 @@ public record GameEvent(int notificationRadius) {
 
     public static final Holder.Reference<GameEvent> BLOCK_CHANGE = null;
 
+    public static final Holder.Reference<GameEvent> BLOCK_DESTROY = null;
+
+    public static final Holder.Reference<GameEvent> BLOCK_PLACE = null;
+
+    public static final Holder.Reference<GameEvent> DRINK = null;
+
+    public static final Holder.Reference<GameEvent> ENTITY_DAMAGE = null;
+
+    public static final Holder.Reference<GameEvent> ENTITY_INTERACT = null;
+
+    public static final Holder.Reference<GameEvent> ENTITY_PLACE = null;
+
+    public static final Holder.Reference<GameEvent> EXPLODE = null;
+
+    public static final Holder.Reference<GameEvent> FLUID_PICKUP = null;
+
+    public static final Holder.Reference<GameEvent> FLUID_PLACE = null;
+
+    public static final Holder.Reference<GameEvent> PRIME_FUSE = null;
+
+    public static final Holder.Reference<GameEvent> SHEAR = null;
+
     private static Holder.Reference<GameEvent> register(String name) {
         throw Unimplemented.forMember("net/minecraft/world/level/gameevent/GameEvent.register:(Ljava/lang/String;)Lnet/minecraft/core/Holder$Reference;");
     }

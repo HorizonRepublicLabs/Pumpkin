@@ -11,6 +11,10 @@ public class OnDatapackSyncEvent extends Event {
     public OnDatapackSyncEvent(PlayerList playerList, ServerPlayer player) {
     }
 
+    public PlayerList getPlayerList() {
+        throw Unimplemented.forMember("net/neoforged/neoforge/event/OnDatapackSyncEvent.getPlayerList:()Lnet/minecraft/server/players/PlayerList;");
+    }
+
     public ServerPlayer getPlayer() {
         throw Unimplemented.forMember("net/neoforged/neoforge/event/OnDatapackSyncEvent.getPlayer:()Lnet/minecraft/server/level/ServerPlayer;");
     }

@@ -1,5 +1,7 @@
 package net.minecraft.world.level.block.state;
 
+import java.util.Optional;
+import java.util.stream.Stream;
 import net.minecraft.world.level.block.state.properties.Property;
 import dev.pumpkin.shim.Unimplemented;
 
@@ -24,11 +26,14 @@ public abstract class StateHolder<O, S> {
         throw Unimplemented.forMember("net/minecraft/world/level/block/state/StateHolder.hashCode:()I");
     }
 
+    public boolean hasProperty(Property<?> property) {
+        throw Unimplemented.forMember("net/minecraft/world/level/block/state/StateHolder.hasProperty:(Lnet/minecraft/world/level/block/state/properties/Property;)Z");
+    }
+
     // Pumpkin divergence: real bodies over a copy-on-write property map. Enough for
     // registration and the mods' own reads; NOT interned, so vanilla's states-are-identity
     // guarantee does not hold yet -- that arrives with the Rust state binding. A property
     // never set fails loudly with the property's name, not a null.
-    // Public because Block fills the default state's values from another package.
     public java.util.Map<Property<?>, Comparable<?>> pumpkinValues = java.util.Map.of();
 
     @SuppressWarnings("unchecked")
@@ -38,6 +43,10 @@ public abstract class StateHolder<O, S> {
             throw new IllegalArgumentException("property " + property + " was never set on " + this);
         }
         return (T) value;
+    }
+
+    public <T extends Comparable<T>> Optional<T> getOptionalValue(Property<T> property) {
+        throw Unimplemented.forMember("net/minecraft/world/level/block/state/StateHolder.getOptionalValue:(Lnet/minecraft/world/level/block/state/properties/Property;)Ljava/util/Optional;");
     }
 
     // Pumpkin divergence: real body. Returns a sibling state with one value changed --
@@ -55,6 +64,10 @@ public abstract class StateHolder<O, S> {
     // override to preserve it; BlockState keeps its owning block this way.
     protected StateHolder<O, S> pumpkinSibling() {
         throw new UnsupportedOperationException(getClass().getName() + " cannot copy itself");
+    }
+
+    public Stream<Property.Value<?>> getValues() {
+        throw Unimplemented.forMember("net/minecraft/world/level/block/state/StateHolder.getValues:()Ljava/util/stream/Stream;");
     }
 
     public StateHolder() {

@@ -9,6 +9,8 @@ public final class FluidTags {
     // Pumpkin divergence: real value, named as vanilla names it.
     public static final TagKey<Fluid> WATER = create(Identifier.fromNamespaceAndPath("minecraft", "water"));
 
+    public static final TagKey<Fluid> LAVA = null;
+
     protected FluidTags() {
     }
 
@@ -18,7 +20,7 @@ public final class FluidTags {
 
     // Pumpkin divergence: real body.
     public static TagKey<Fluid> create(Identifier name) {
-        return TagKey.create(net.minecraft.resources.ResourceKey.createRegistryKey(Identifier.fromNamespaceAndPath("minecraft", "fluid")), name);
+        return TagKey.create(net.minecraft.resources.ResourceKey.createRegistryKey(net.minecraft.resources.Identifier.fromNamespaceAndPath("minecraft", "fluid")), name);
     }
 
 }

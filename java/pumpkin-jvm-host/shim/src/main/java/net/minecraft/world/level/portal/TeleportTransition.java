@@ -8,6 +8,8 @@ import net.minecraft.world.phys.Vec3;
 
 public record TeleportTransition(ServerLevel newLevel, Vec3 position, Vec3 deltaMovement, float yRot, float xRot, boolean missingRespawnBlock, boolean asPassenger, Set<Relative> relatives, TeleportTransition.PostTeleportTransition postTeleportTransition) {
 
+    public static final TeleportTransition.PostTeleportTransition DO_NOTHING = null;
+
     public TeleportTransition(ServerLevel newLevel, Vec3 pos, Vec3 speed, float yRot, float xRot, TeleportTransition.PostTeleportTransition postTeleportTransition) {
         this((ServerLevel) null, (Vec3) null, (Vec3) null, (float) 0.0F, (float) 0.0F, (boolean) false, (boolean) false, (Set<Relative>) null, (TeleportTransition.PostTeleportTransition) null);
     }

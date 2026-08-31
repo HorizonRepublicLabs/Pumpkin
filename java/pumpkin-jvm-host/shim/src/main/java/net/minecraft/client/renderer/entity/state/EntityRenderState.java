@@ -1,14 +1,21 @@
 package net.minecraft.client.renderer.entity.state;
 
+import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
 public class EntityRenderState extends net.neoforged.neoforge.client.renderstate.BaseRenderState {
+
+    public EntityType<?> entityType;
 
     public float boundingBoxWidth;
 
     public float boundingBoxHeight;
 
     public int lightCoords;
+
+    public int outlineColor;
+
+    public float partialTick;
 
     public static class LeashState {
 

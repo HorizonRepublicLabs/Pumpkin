@@ -72,6 +72,14 @@ public class ItemEntity extends Entity implements TraceableEntity {
         throw Unimplemented.forMember("net/minecraft/world/entity/item/ItemEntity.getBlockPosBelowThatAffectsMyMovement:()Lnet/minecraft/core/BlockPos;");
     }
 
+    public static ItemStack merge(ItemStack toStack, ItemStack fromStack, int maxCount) {
+        throw Unimplemented.forMember("net/minecraft/world/entity/item/ItemEntity.merge:(Lnet/minecraft/world/item/ItemStack;Lnet/minecraft/world/item/ItemStack;I)Lnet/minecraft/world/item/ItemStack;");
+    }
+
+    private static void merge(ItemEntity toItem, ItemStack toStack, ItemStack fromStack) {
+        throw Unimplemented.forMember("net/minecraft/world/entity/item/ItemEntity.merge:(Lnet/minecraft/world/entity/item/ItemEntity;Lnet/minecraft/world/item/ItemStack;Lnet/minecraft/world/item/ItemStack;)V");
+    }
+
     public boolean fireImmune() {
         throw Unimplemented.forMember("net/minecraft/world/entity/item/ItemEntity.fireImmune:()Z");
     }
@@ -116,14 +124,34 @@ public class ItemEntity extends Entity implements TraceableEntity {
         throw Unimplemented.forMember("net/minecraft/world/entity/item/ItemEntity.teleport:(Lnet/minecraft/world/level/portal/TeleportTransition;)Lnet/minecraft/world/entity/Entity;");
     }
 
+    public ItemStack getItem() {
+        throw Unimplemented.forMember("net/minecraft/world/entity/item/ItemEntity.getItem:()Lnet/minecraft/world/item/ItemStack;");
+    }
+
+    public void setItem(ItemStack itemStack) {
+        throw Unimplemented.forMember("net/minecraft/world/entity/item/ItemEntity.setItem:(Lnet/minecraft/world/item/ItemStack;)V");
+    }
+
+    public void setTarget(UUID target) {
+        throw Unimplemented.forMember("net/minecraft/world/entity/item/ItemEntity.setTarget:(Ljava/util/UUID;)V");
+    }
+
     public UUID getTarget() {
         throw Unimplemented.forMember("net/minecraft/world/entity/item/ItemEntity.getTarget:()Ljava/util/UUID;");
+    }
+
+    public void setDefaultPickUpDelay() {
+        throw Unimplemented.forMember("net/minecraft/world/entity/item/ItemEntity.setDefaultPickUpDelay:()V");
     }
 
     // Pumpkin divergence: accepted and dropped. The bridge captures the entity's stack
     // and hands it to the real world, which applies its own pickup rules; this entity is
     // never spawned, so it has no delay to clear.
     public void setNoPickUpDelay() {
+    }
+
+    public boolean hasPickUpDelay() {
+        throw Unimplemented.forMember("net/minecraft/world/entity/item/ItemEntity.hasPickUpDelay:()Z");
     }
 
     public SoundSource getSoundSource() {

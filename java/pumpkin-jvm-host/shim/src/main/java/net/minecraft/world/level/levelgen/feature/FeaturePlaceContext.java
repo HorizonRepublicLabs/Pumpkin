@@ -11,7 +11,11 @@ import dev.pumpkin.shim.Unimplemented;
 
 public class FeaturePlaceContext<FC extends FeatureConfiguration> {
 
+    private final Optional<ConfiguredFeature<?, ?>> topFeature = null;
+
     private final WorldGenLevel level = Stubs.of(WorldGenLevel.class, "net/minecraft/world/level/WorldGenLevel");
+
+    private final ChunkGenerator chunkGenerator = null;
 
     private final RandomSource random = Stubs.of(RandomSource.class, "net/minecraft/util/RandomSource");
 
@@ -22,8 +26,16 @@ public class FeaturePlaceContext<FC extends FeatureConfiguration> {
     public FeaturePlaceContext(Optional<ConfiguredFeature<?, ?>> topFeature, WorldGenLevel level, ChunkGenerator chunkGenerator, RandomSource random, BlockPos origin, FC config) {
     }
 
+    public Optional<ConfiguredFeature<?, ?>> topFeature() {
+        throw Unimplemented.forMember("net/minecraft/world/level/levelgen/feature/FeaturePlaceContext.topFeature:()Ljava/util/Optional;");
+    }
+
     public WorldGenLevel level() {
         throw Unimplemented.forMember("net/minecraft/world/level/levelgen/feature/FeaturePlaceContext.level:()Lnet/minecraft/world/level/WorldGenLevel;");
+    }
+
+    public ChunkGenerator chunkGenerator() {
+        throw Unimplemented.forMember("net/minecraft/world/level/levelgen/feature/FeaturePlaceContext.chunkGenerator:()Lnet/minecraft/world/level/chunk/ChunkGenerator;");
     }
 
     public RandomSource random() {

@@ -23,6 +23,10 @@ public class QuadCollection {
 
     public static class Builder {
 
+        public QuadCollection.Builder addAll(QuadCollection quadCollection) {
+            throw Unimplemented.forMember("net/minecraft/client/resources/model/geometry/QuadCollection$Builder.addAll:(Lnet/minecraft/client/resources/model/geometry/QuadCollection;)Lnet/minecraft/client/resources/model/geometry/QuadCollection$Builder;");
+        }
+
         public QuadCollection build() {
             throw Unimplemented.forMember("net/minecraft/client/resources/model/geometry/QuadCollection$Builder.build:()Lnet/minecraft/client/resources/model/geometry/QuadCollection;");
         }

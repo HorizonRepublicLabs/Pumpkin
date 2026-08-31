@@ -5,6 +5,7 @@ import net.minecraft.core.NonNullList;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.state.BlockState;
 import dev.pumpkin.shim.Unimplemented;
 
 public class Containers {
@@ -27,6 +28,10 @@ public class Containers {
 
     public static void dropItemStack(Level level, double x, double y, double z, ItemStack itemStack) {
         throw Unimplemented.forMember("net/minecraft/world/Containers.dropItemStack:(Lnet/minecraft/world/level/Level;DDDLnet/minecraft/world/item/ItemStack;)V");
+    }
+
+    public static void updateNeighboursAfterDestroy(BlockState state, Level level, BlockPos pos) {
+        throw Unimplemented.forMember("net/minecraft/world/Containers.updateNeighboursAfterDestroy:(Lnet/minecraft/world/level/block/state/BlockState;Lnet/minecraft/world/level/Level;Lnet/minecraft/core/BlockPos;)V");
     }
 
     public Containers() {

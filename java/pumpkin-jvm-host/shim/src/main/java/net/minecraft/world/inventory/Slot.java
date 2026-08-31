@@ -1,5 +1,7 @@
 package net.minecraft.world.inventory;
 
+import java.util.Optional;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.Container;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -7,6 +9,8 @@ import dev.pumpkin.shim.Stubs;
 import dev.pumpkin.shim.Unimplemented;
 
 public class Slot {
+
+    private final int slot = 0;
 
     // Pumpkin divergence: a slot really points at its container and position; the menu
     // machinery reads all four.
@@ -37,6 +41,10 @@ public class Slot {
 
     protected void onQuickCraft(ItemStack picked, int count) {
         throw Unimplemented.forMember("net/minecraft/world/inventory/Slot.onQuickCraft:(Lnet/minecraft/world/item/ItemStack;I)V");
+    }
+
+    protected void checkTakeAchievements(ItemStack carried) {
+        throw Unimplemented.forMember("net/minecraft/world/inventory/Slot.checkTakeAchievements:(Lnet/minecraft/world/item/ItemStack;)V");
     }
 
     public void onTake(Player player, ItemStack carried) {
@@ -102,6 +110,22 @@ public class Slot {
 
     public boolean isActive() {
         throw Unimplemented.forMember("net/minecraft/world/inventory/Slot.isActive:()Z");
+    }
+
+    public int getSlotIndex() {
+        throw Unimplemented.forMember("net/minecraft/world/inventory/Slot.getSlotIndex:()I");
+    }
+
+    public Slot setBackground(Identifier sprite) {
+        throw Unimplemented.forMember("net/minecraft/world/inventory/Slot.setBackground:(Lnet/minecraft/resources/Identifier;)Lnet/minecraft/world/inventory/Slot;");
+    }
+
+    public Optional<ItemStack> tryRemove(int amount, int maxAmount, Player player) {
+        throw Unimplemented.forMember("net/minecraft/world/inventory/Slot.tryRemove:(IILnet/minecraft/world/entity/player/Player;)Ljava/util/Optional;");
+    }
+
+    public boolean isHighlightable() {
+        throw Unimplemented.forMember("net/minecraft/world/inventory/Slot.isHighlightable:()Z");
     }
 
     public Slot() {

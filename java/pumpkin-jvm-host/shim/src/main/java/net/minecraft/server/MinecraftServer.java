@@ -21,10 +21,12 @@ import net.minecraft.server.packs.resources.CloseableResourceManager;
 import net.minecraft.server.permissions.LevelBasedPermissionSet;
 import net.minecraft.server.permissions.PermissionSet;
 import net.minecraft.server.players.NameAndId;
+import net.minecraft.server.players.PlayerList;
 import net.minecraft.util.debugchart.SampleLogger;
 import net.minecraft.util.thread.ReentrantBlockableEventLoop;
 import net.minecraft.world.clock.ServerClockManager;
 import net.minecraft.world.item.alchemy.PotionBrewing;
+import net.minecraft.world.item.crafting.RecipeManager;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.FuelValues;
@@ -34,9 +36,14 @@ import net.minecraft.world.level.gamerules.GameRule;
 import net.minecraft.world.level.gamerules.GameRules;
 import net.minecraft.world.level.storage.LevelData;
 import net.minecraft.world.level.storage.LevelStorageSource;
+import net.minecraft.world.level.storage.SavedDataStorage;
 import dev.pumpkin.shim.Unimplemented;
 
 public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTask> implements CommandSource, ServerInfo, ChunkIOErrorReporter {
+
+    protected final Services services = null;
+
+    private final ServerTickRateManager tickRateManager = null;
 
     public MinecraftServer(Thread serverThread, LevelStorageSource.LevelStorageAccess storageSource, PackRepository packRepository, WorldStem worldStem, Optional<GameRules> gameRules, Proxy proxy, DataFixer fixerUpper, Services services, LevelLoadListener levelLoadListener, boolean propagatesCrashes, NotificationManager notificationManager) {
     }
@@ -77,8 +84,16 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
 
     public abstract boolean isTickTimeLoggingEnabled();
 
+    public final ServerLevel overworld() {
+        throw Unimplemented.forMember("net/minecraft/server/MinecraftServer.overworld:()Lnet/minecraft/server/level/ServerLevel;");
+    }
+
     public ServerLevel getLevel(ResourceKey<Level> dimension) {
         throw Unimplemented.forMember("net/minecraft/server/MinecraftServer.getLevel:(Lnet/minecraft/resources/ResourceKey;)Lnet/minecraft/server/level/ServerLevel;");
+    }
+
+    public Iterable<ServerLevel> getAllLevels() {
+        throw Unimplemented.forMember("net/minecraft/server/MinecraftServer.getAllLevels:()Ljava/lang/Iterable;");
     }
 
     public String getServerVersion() {
@@ -121,10 +136,18 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
         throw Unimplemented.forMember("net/minecraft/server/MinecraftServer.isStopped:()Z");
     }
 
+    public PlayerList getPlayerList() {
+        throw Unimplemented.forMember("net/minecraft/server/MinecraftServer.getPlayerList:()Lnet/minecraft/server/players/PlayerList;");
+    }
+
     public abstract boolean isPublished();
 
     public ServerConnectionListener getConnection() {
         throw Unimplemented.forMember("net/minecraft/server/MinecraftServer.getConnection:()Lnet/minecraft/server/network/ServerConnectionListener;");
+    }
+
+    public Services services() {
+        throw Unimplemented.forMember("net/minecraft/server/MinecraftServer.services:()Lnet/minecraft/server/Services;");
     }
 
     public ServerStatus getStatus() {
@@ -141,6 +164,10 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
 
     public Thread getRunningThread() {
         throw Unimplemented.forMember("net/minecraft/server/MinecraftServer.getRunningThread:()Ljava/lang/Thread;");
+    }
+
+    public ServerAdvancementManager getAdvancements() {
+        throw Unimplemented.forMember("net/minecraft/server/MinecraftServer.getAdvancements:()Lnet/minecraft/server/ServerAdvancementManager;");
     }
 
     public void setRespawnData(LevelData.RespawnData respawnData) {
@@ -160,6 +187,10 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
     }
 
     public abstract boolean shouldInformAdmins();
+
+    public RecipeManager getRecipeManager() {
+        throw Unimplemented.forMember("net/minecraft/server/MinecraftServer.getRecipeManager:()Lnet/minecraft/world/item/crafting/RecipeManager;");
+    }
 
     public ServerScoreboard getScoreboard() {
         throw Unimplemented.forMember("net/minecraft/server/MinecraftServer.getScoreboard:()Lnet/minecraft/server/ServerScoreboard;");
@@ -181,6 +212,10 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
 
     public <T> void onGameRuleChanged(GameRule<T> rule, T value) {
         throw Unimplemented.forMember("net/minecraft/server/MinecraftServer.onGameRuleChanged:(Lnet/minecraft/world/level/gamerules/GameRule;Ljava/lang/Object;)V");
+    }
+
+    public SavedDataStorage getDataStorage() {
+        throw Unimplemented.forMember("net/minecraft/server/MinecraftServer.getDataStorage:()Lnet/minecraft/world/level/storage/SavedDataStorage;");
     }
 
     public void reportChunkLoadFailure(Throwable throwable, RegionStorageInfo storageInfo, ChunkPos pos) {

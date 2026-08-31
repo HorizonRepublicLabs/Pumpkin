@@ -9,6 +9,8 @@ public abstract class SingleItemRecipe implements Recipe<SingleRecipeInput> {
 
     private final Ingredient input = null;
 
+    private final ItemStackTemplate result = null;
+
     public SingleItemRecipe(Recipe.CommonInfo commonInfo, Ingredient input, ItemStackTemplate result) {
     }
 

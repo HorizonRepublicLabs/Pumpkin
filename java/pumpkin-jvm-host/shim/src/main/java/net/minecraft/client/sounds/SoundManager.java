@@ -8,10 +8,13 @@ import net.minecraft.resources.Identifier;
 import net.minecraft.server.packs.resources.Resource;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.server.packs.resources.SimplePreparableReloadListener;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.profiling.ProfilerFiller;
 import dev.pumpkin.shim.Unimplemented;
 
 public class SoundManager extends SimplePreparableReloadListener<SoundManager.Preparations> {
+
+    private final SoundEngine soundEngine = null;
 
     public SoundManager(Options options) {
     }
@@ -32,8 +35,20 @@ public class SoundManager extends SimplePreparableReloadListener<SoundManager.Pr
         throw Unimplemented.forMember("net/minecraft/client/sounds/SoundManager.play:(Lnet/minecraft/client/resources/sounds/SoundInstance;)Lnet/minecraft/client/sounds/SoundEngine$PlayResult;");
     }
 
+    public void stop() {
+        throw Unimplemented.forMember("net/minecraft/client/sounds/SoundManager.stop:()V");
+    }
+
+    public void stop(SoundInstance soundInstance) {
+        throw Unimplemented.forMember("net/minecraft/client/sounds/SoundManager.stop:(Lnet/minecraft/client/resources/sounds/SoundInstance;)V");
+    }
+
     public boolean isActive(SoundInstance instance) {
         throw Unimplemented.forMember("net/minecraft/client/sounds/SoundManager.isActive:(Lnet/minecraft/client/resources/sounds/SoundInstance;)Z");
+    }
+
+    public void stop(Identifier sound, SoundSource source) {
+        throw Unimplemented.forMember("net/minecraft/client/sounds/SoundManager.stop:(Lnet/minecraft/resources/Identifier;Lnet/minecraft/sounds/SoundSource;)V");
     }
 
     protected static class Preparations {

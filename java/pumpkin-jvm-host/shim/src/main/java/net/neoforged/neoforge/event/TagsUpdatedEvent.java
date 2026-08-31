@@ -10,6 +10,10 @@ public class TagsUpdatedEvent extends Event {
     protected TagsUpdatedEvent(RegistryAccess registries) {
     }
 
+    public RegistryAccess getRegistries() {
+        throw Unimplemented.forMember("net/neoforged/neoforge/event/TagsUpdatedEvent.getRegistries:()Lnet/minecraft/core/RegistryAccess;");
+    }
+
     public boolean shouldUpdateStaticData() {
         throw Unimplemented.forMember("net/neoforged/neoforge/event/TagsUpdatedEvent.shouldUpdateStaticData:()Z");
     }

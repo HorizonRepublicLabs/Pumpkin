@@ -38,6 +38,14 @@ public class RenderPipeline {
             throw Unimplemented.forMember("com/mojang/blaze3d/pipeline/RenderPipeline$Builder.withLocation:(Lnet/minecraft/resources/Identifier;)Lcom/mojang/blaze3d/pipeline/RenderPipeline$Builder;");
         }
 
+        public RenderPipeline.Builder withFragmentShader(String fragmentShader) {
+            throw Unimplemented.forMember("com/mojang/blaze3d/pipeline/RenderPipeline$Builder.withFragmentShader:(Ljava/lang/String;)Lcom/mojang/blaze3d/pipeline/RenderPipeline$Builder;");
+        }
+
+        public RenderPipeline.Builder withFragmentShader(Identifier fragmentShader) {
+            throw Unimplemented.forMember("com/mojang/blaze3d/pipeline/RenderPipeline$Builder.withFragmentShader:(Lnet/minecraft/resources/Identifier;)Lcom/mojang/blaze3d/pipeline/RenderPipeline$Builder;");
+        }
+
         public RenderPipeline.Builder withVertexShader(String vertexShader) {
             throw Unimplemented.forMember("com/mojang/blaze3d/pipeline/RenderPipeline$Builder.withVertexShader:(Ljava/lang/String;)Lcom/mojang/blaze3d/pipeline/RenderPipeline$Builder;");
         }
@@ -58,6 +66,14 @@ public class RenderPipeline {
             throw Unimplemented.forMember("com/mojang/blaze3d/pipeline/RenderPipeline$Builder.withShaderDefine:(Ljava/lang/String;F)Lcom/mojang/blaze3d/pipeline/RenderPipeline$Builder;");
         }
 
+        public RenderPipeline.Builder withBindGroupLayout(BindGroupLayout bindGroupLayout) {
+            throw Unimplemented.forMember("com/mojang/blaze3d/pipeline/RenderPipeline$Builder.withBindGroupLayout:(Lcom/mojang/blaze3d/pipeline/BindGroupLayout;)Lcom/mojang/blaze3d/pipeline/RenderPipeline$Builder;");
+        }
+
+        public RenderPipeline.Builder withCull(boolean cull) {
+            throw Unimplemented.forMember("com/mojang/blaze3d/pipeline/RenderPipeline$Builder.withCull:(Z)Lcom/mojang/blaze3d/pipeline/RenderPipeline$Builder;");
+        }
+
         public RenderPipeline.Builder withColorTargetState(int index, ColorTargetState colorTargetState) {
             throw Unimplemented.forMember("com/mojang/blaze3d/pipeline/RenderPipeline$Builder.withColorTargetState:(ILcom/mojang/blaze3d/pipeline/ColorTargetState;)Lcom/mojang/blaze3d/pipeline/RenderPipeline$Builder;");
         }
@@ -72,6 +88,14 @@ public class RenderPipeline {
 
         public RenderPipeline.Builder withDepthStencilState(Optional<DepthStencilState> depthStencilState) {
             throw Unimplemented.forMember("com/mojang/blaze3d/pipeline/RenderPipeline$Builder.withDepthStencilState:(Ljava/util/Optional;)Lcom/mojang/blaze3d/pipeline/RenderPipeline$Builder;");
+        }
+
+        public RenderPipeline.Builder withVertexBinding(int bindingIndex, VertexFormat vertexFormat) {
+            throw Unimplemented.forMember("com/mojang/blaze3d/pipeline/RenderPipeline$Builder.withVertexBinding:(ILcom/mojang/blaze3d/vertex/VertexFormat;)Lcom/mojang/blaze3d/pipeline/RenderPipeline$Builder;");
+        }
+
+        public RenderPipeline.Builder withPrimitiveTopology(PrimitiveTopology primitiveTopology) {
+            throw Unimplemented.forMember("com/mojang/blaze3d/pipeline/RenderPipeline$Builder.withPrimitiveTopology:(Lcom/mojang/blaze3d/PrimitiveTopology;)Lcom/mojang/blaze3d/pipeline/RenderPipeline$Builder;");
         }
 
         public RenderPipeline build() {

@@ -7,6 +7,8 @@ import dev.pumpkin.shim.Unimplemented;
 
 public class EntityAttachments {
 
+    private final Map<EntityAttachment, List<Vec3>> attachments = null;
+
     private EntityAttachments(Map<EntityAttachment, List<Vec3>> attachments) {
     }
 

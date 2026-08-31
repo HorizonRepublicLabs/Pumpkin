@@ -19,6 +19,10 @@ public class ServerAdvancementManager extends SimpleJsonResourceReloadListener<A
         throw Unimplemented.forMember("net/minecraft/server/ServerAdvancementManager.apply:(Ljava/util/Map;Lnet/minecraft/server/packs/resources/ResourceManager;Lnet/minecraft/util/profiling/ProfilerFiller;)V");
     }
 
+    private void validate(Identifier id, Advancement advancement) {
+        throw Unimplemented.forMember("net/minecraft/server/ServerAdvancementManager.validate:(Lnet/minecraft/resources/Identifier;Lnet/minecraft/advancements/Advancement;)V");
+    }
+
     public AdvancementHolder get(Identifier id) {
         throw Unimplemented.forMember("net/minecraft/server/ServerAdvancementManager.get:(Lnet/minecraft/resources/Identifier;)Lnet/minecraft/advancements/AdvancementHolder;");
     }

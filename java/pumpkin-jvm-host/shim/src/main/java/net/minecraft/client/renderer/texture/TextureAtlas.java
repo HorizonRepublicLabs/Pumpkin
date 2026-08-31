@@ -9,6 +9,12 @@ public class TextureAtlas extends AbstractTexture implements TickableTexture, Du
 
     public static final Identifier LOCATION_BLOCKS = null;
 
+    public static final Identifier LOCATION_ITEMS = null;
+
+    private TextureAtlasSprite missingSprite;
+
+    private final Identifier location = null;
+
     public TextureAtlas(Identifier location) {
     }
 
@@ -22,6 +28,10 @@ public class TextureAtlas extends AbstractTexture implements TickableTexture, Du
 
     public TextureAtlasSprite getSprite(Identifier location) {
         throw Unimplemented.forMember("net/minecraft/client/renderer/texture/TextureAtlas.getSprite:(Lnet/minecraft/resources/Identifier;)Lnet/minecraft/client/renderer/texture/TextureAtlasSprite;");
+    }
+
+    public TextureAtlasSprite missingSprite() {
+        throw Unimplemented.forMember("net/minecraft/client/renderer/texture/TextureAtlas.missingSprite:()Lnet/minecraft/client/renderer/texture/TextureAtlasSprite;");
     }
 
     protected void releaseTextures() {

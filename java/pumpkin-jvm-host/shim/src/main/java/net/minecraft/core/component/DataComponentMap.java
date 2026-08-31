@@ -1,5 +1,6 @@
 package net.minecraft.core.component;
 
+import com.mojang.serialization.Codec;
 import it.unimi.dsi.fastutil.objects.Reference2ObjectMap;
 import java.util.Iterator;
 import java.util.Set;
@@ -12,6 +13,8 @@ public interface DataComponentMap extends Iterable<TypedDataComponent<?>>, DataC
 
     DataComponentMap EMPTY = Stubs.of(DataComponentMap.class, "net/minecraft/core/component/DataComponentMap");
 
+    Codec<DataComponentMap> CODEC = null;
+
     // Pumpkin divergence: real body. A component map is a real map -- small surface,
     // genuine behaviour, nothing to stub.
     static DataComponentMap.Builder builder() {
@@ -19,6 +22,10 @@ public interface DataComponentMap extends Iterable<TypedDataComponent<?>>, DataC
     }
 
     Set<DataComponentType<?>> keySet();
+
+    default boolean has(DataComponentType<?> type) {
+        throw Unimplemented.forMember("net/minecraft/core/component/DataComponentMap.has:(Lnet/minecraft/core/component/DataComponentType;)Z");
+    }
 
     default Iterator<TypedDataComponent<?>> iterator() {
         throw Unimplemented.forMember("net/minecraft/core/component/DataComponentMap.iterator:()Ljava/util/Iterator;");
@@ -51,6 +58,14 @@ public interface DataComponentMap extends Iterable<TypedDataComponent<?>>, DataC
 
         public <T> DataComponentMap.Builder set(DataComponentType<T> type, T value) {
             pumpkinMap.put(type, value);
+            return this;
+        }
+
+        // Pumpkin divergence: real body -- copy the other map's entries in.
+        public DataComponentMap.Builder addAll(DataComponentMap map) {
+            for (DataComponentType<?> type : map.keySet()) {
+                pumpkinMap.put(type, map.get(type));
+            }
             return this;
         }
 

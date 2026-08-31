@@ -1,5 +1,6 @@
 package net.minecraft.world.entity;
 
+import java.util.Collection;
 import java.util.Optional;
 import net.minecraft.commands.arguments.EntityAnchorArgument;
 import net.minecraft.core.BlockPos;
@@ -18,6 +19,8 @@ import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.entity.ai.attributes.AttributeInstance;
+import net.minecraft.world.entity.ai.attributes.AttributeMap;
+import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
@@ -31,9 +34,19 @@ import dev.pumpkin.shim.Unimplemented;
 
 public abstract class LivingEntity extends Entity implements Attackable, WaypointTransmitter, ILivingEntityExtension {
 
+    public boolean swinging;
+
+    public float yBodyRot;
+
+    public float yHeadRot;
+
+    protected boolean dead;
+
     public float xxa;
 
     public float zza;
+
+    private boolean effectsDirty;
 
     protected LivingEntity(EntityType<? extends LivingEntity> type, Level level) {
     }
@@ -54,6 +67,10 @@ public abstract class LivingEntity extends Entity implements Attackable, Waypoin
         throw Unimplemented.forMember("net/minecraft/world/entity/LivingEntity.checkFallDamage:(DZLnet/minecraft/world/level/block/state/BlockState;Lnet/minecraft/core/BlockPos;)V");
     }
 
+    public float getSwimAmount(float a) {
+        throw Unimplemented.forMember("net/minecraft/world/entity/LivingEntity.getSwimAmount:(F)F");
+    }
+
     public void baseTick() {
         throw Unimplemented.forMember("net/minecraft/world/entity/LivingEntity.baseTick:()V");
     }
@@ -62,8 +79,24 @@ public abstract class LivingEntity extends Entity implements Attackable, Waypoin
         throw Unimplemented.forMember("net/minecraft/world/entity/LivingEntity.getBlockSpeedFactor:()F");
     }
 
+    public boolean isBaby() {
+        throw Unimplemented.forMember("net/minecraft/world/entity/LivingEntity.isBaby:()Z");
+    }
+
+    public LivingEntity getLastHurtByMob() {
+        throw Unimplemented.forMember("net/minecraft/world/entity/LivingEntity.getLastHurtByMob:()Lnet/minecraft/world/entity/LivingEntity;");
+    }
+
     public LivingEntity getLastAttacker() {
         throw Unimplemented.forMember("net/minecraft/world/entity/LivingEntity.getLastAttacker:()Lnet/minecraft/world/entity/LivingEntity;");
+    }
+
+    public void setLastHurtByMob(LivingEntity hurtBy) {
+        throw Unimplemented.forMember("net/minecraft/world/entity/LivingEntity.setLastHurtByMob:(Lnet/minecraft/world/entity/LivingEntity;)V");
+    }
+
+    public void onEquipItem(EquipmentSlot slot, ItemStack oldStack, ItemStack stack) {
+        throw Unimplemented.forMember("net/minecraft/world/entity/LivingEntity.onEquipItem:(Lnet/minecraft/world/entity/EquipmentSlot;Lnet/minecraft/world/item/ItemStack;Lnet/minecraft/world/item/ItemStack;)V");
     }
 
     public void remove(Entity.RemovalReason reason) {
@@ -74,8 +107,16 @@ public abstract class LivingEntity extends Entity implements Attackable, Waypoin
         throw Unimplemented.forMember("net/minecraft/world/entity/LivingEntity.onRemoval:(Lnet/minecraft/world/entity/Entity$RemovalReason;)V");
     }
 
+    protected void triggerOnDeathMobEffects(ServerLevel level, Entity.RemovalReason reason) {
+        throw Unimplemented.forMember("net/minecraft/world/entity/LivingEntity.triggerOnDeathMobEffects:(Lnet/minecraft/server/level/ServerLevel;Lnet/minecraft/world/entity/Entity$RemovalReason;)V");
+    }
+
     protected void addAdditionalSaveData(ValueOutput output) {
         throw Unimplemented.forMember("net/minecraft/world/entity/LivingEntity.addAdditionalSaveData:(Lnet/minecraft/world/level/storage/ValueOutput;)V");
+    }
+
+    public ItemEntity drop(ItemStack itemStack, boolean randomly, boolean thrownFromHand) {
+        throw Unimplemented.forMember("net/minecraft/world/entity/LivingEntity.drop:(Lnet/minecraft/world/item/ItemStack;ZZ)Lnet/minecraft/world/entity/item/ItemEntity;");
     }
 
     protected void readAdditionalSaveData(ValueInput input) {
@@ -86,8 +127,20 @@ public abstract class LivingEntity extends Entity implements Attackable, Waypoin
         throw Unimplemented.forMember("net/minecraft/world/entity/LivingEntity.updateDataBeforeSync:()V");
     }
 
+    public boolean canAttack(LivingEntity target) {
+        throw Unimplemented.forMember("net/minecraft/world/entity/LivingEntity.canAttack:(Lnet/minecraft/world/entity/LivingEntity;)Z");
+    }
+
+    public Collection<MobEffectInstance> getActiveEffects() {
+        throw Unimplemented.forMember("net/minecraft/world/entity/LivingEntity.getActiveEffects:()Ljava/util/Collection;");
+    }
+
     public boolean hasEffect(Holder<MobEffect> effect) {
         throw Unimplemented.forMember("net/minecraft/world/entity/LivingEntity.hasEffect:(Lnet/minecraft/core/Holder;)Z");
+    }
+
+    public MobEffectInstance getEffect(Holder<MobEffect> effect) {
+        throw Unimplemented.forMember("net/minecraft/world/entity/LivingEntity.getEffect:(Lnet/minecraft/core/Holder;)Lnet/minecraft/world/effect/MobEffectInstance;");
     }
 
     public final boolean addEffect(MobEffectInstance newEffect) {
@@ -100,6 +153,14 @@ public abstract class LivingEntity extends Entity implements Attackable, Waypoin
 
     public boolean removeEffect(Holder<MobEffect> effect) {
         throw Unimplemented.forMember("net/minecraft/world/entity/LivingEntity.removeEffect:(Lnet/minecraft/core/Holder;)Z");
+    }
+
+    public void sendEffectToPassengers(MobEffectInstance effect) {
+        throw Unimplemented.forMember("net/minecraft/world/entity/LivingEntity.sendEffectToPassengers:(Lnet/minecraft/world/effect/MobEffectInstance;)V");
+    }
+
+    private void refreshDirtyAttributes() {
+        throw Unimplemented.forMember("net/minecraft/world/entity/LivingEntity.refreshDirtyAttributes:()V");
     }
 
     public float getHealth() {
@@ -146,8 +207,20 @@ public abstract class LivingEntity extends Entity implements Attackable, Waypoin
         throw Unimplemented.forMember("net/minecraft/world/entity/LivingEntity.animateHurt:(F)V");
     }
 
+    protected void actuallyHurt(ServerLevel level, DamageSource source, float dmg) {
+        throw Unimplemented.forMember("net/minecraft/world/entity/LivingEntity.actuallyHurt:(Lnet/minecraft/server/level/ServerLevel;Lnet/minecraft/world/damagesource/DamageSource;F)V");
+    }
+
     public final float getMaxHealth() {
         throw Unimplemented.forMember("net/minecraft/world/entity/LivingEntity.getMaxHealth:()F");
+    }
+
+    public void swing(InteractionHand hand) {
+        throw Unimplemented.forMember("net/minecraft/world/entity/LivingEntity.swing:(Lnet/minecraft/world/InteractionHand;)V");
+    }
+
+    public void swing(InteractionHand hand, boolean sendToSwingingEntity) {
+        throw Unimplemented.forMember("net/minecraft/world/entity/LivingEntity.swing:(Lnet/minecraft/world/InteractionHand;Z)V");
     }
 
     public void handleDamageEvent(DamageSource source) {
@@ -168,6 +241,14 @@ public abstract class LivingEntity extends Entity implements Attackable, Waypoin
 
     public AttributeInstance getAttribute(Holder<Attribute> attribute) {
         throw Unimplemented.forMember("net/minecraft/world/entity/LivingEntity.getAttribute:(Lnet/minecraft/core/Holder;)Lnet/minecraft/world/entity/ai/attributes/AttributeInstance;");
+    }
+
+    public double getAttributeValue(Holder<Attribute> attribute) {
+        throw Unimplemented.forMember("net/minecraft/world/entity/LivingEntity.getAttributeValue:(Lnet/minecraft/core/Holder;)D");
+    }
+
+    public AttributeMap getAttributes() {
+        throw Unimplemented.forMember("net/minecraft/world/entity/LivingEntity.getAttributes:()Lnet/minecraft/world/entity/ai/attributes/AttributeMap;");
     }
 
     public ItemStack getMainHandItem() {
@@ -198,6 +279,10 @@ public abstract class LivingEntity extends Entity implements Attackable, Waypoin
         throw Unimplemented.forMember("net/minecraft/world/entity/LivingEntity.setItemSlot:(Lnet/minecraft/world/entity/EquipmentSlot;Lnet/minecraft/world/item/ItemStack;)V");
     }
 
+    public void setItemSlot(EquipmentSlot slot, ItemStack itemStack, boolean insideTransaction) {
+        throw Unimplemented.forMember("net/minecraft/world/entity/LivingEntity.setItemSlot:(Lnet/minecraft/world/entity/EquipmentSlot;Lnet/minecraft/world/item/ItemStack;Z)V");
+    }
+
     public void setSprinting(boolean isSprinting) {
         throw Unimplemented.forMember("net/minecraft/world/entity/LivingEntity.setSprinting:(Z)V");
     }
@@ -226,6 +311,10 @@ public abstract class LivingEntity extends Entity implements Attackable, Waypoin
         throw Unimplemented.forMember("net/minecraft/world/entity/LivingEntity.tick:()V");
     }
 
+    public boolean isAutoSpinAttack() {
+        throw Unimplemented.forMember("net/minecraft/world/entity/LivingEntity.isAutoSpinAttack:()Z");
+    }
+
     public void stopRiding() {
         throw Unimplemented.forMember("net/minecraft/world/entity/LivingEntity.stopRiding:()V");
     }
@@ -240,6 +329,10 @@ public abstract class LivingEntity extends Entity implements Attackable, Waypoin
 
     public void lerpHeadTo(float yRot, int steps) {
         throw Unimplemented.forMember("net/minecraft/world/entity/LivingEntity.lerpHeadTo:(FI)V");
+    }
+
+    public void take(Entity entity, int orgCount) {
+        throw Unimplemented.forMember("net/minecraft/world/entity/LivingEntity.take:(Lnet/minecraft/world/entity/Entity;I)V");
     }
 
     public float getViewYRot(float a) {
@@ -308,8 +401,20 @@ public abstract class LivingEntity extends Entity implements Attackable, Waypoin
         throw Unimplemented.forMember("net/minecraft/world/entity/LivingEntity.releaseUsingItem:()V");
     }
 
+    public ItemStack getItemBlockingWith() {
+        throw Unimplemented.forMember("net/minecraft/world/entity/LivingEntity.getItemBlockingWith:()Lnet/minecraft/world/item/ItemStack;");
+    }
+
+    public boolean isFallFlying() {
+        throw Unimplemented.forMember("net/minecraft/world/entity/LivingEntity.isFallFlying:()Z");
+    }
+
     public boolean isVisuallySwimming() {
         throw Unimplemented.forMember("net/minecraft/world/entity/LivingEntity.isVisuallySwimming:()Z");
+    }
+
+    public int getFallFlyingTicks() {
+        throw Unimplemented.forMember("net/minecraft/world/entity/LivingEntity.getFallFlyingTicks:()I");
     }
 
     public final EntityDimensions getDimensions(Pose pose) {
@@ -318,6 +423,10 @@ public abstract class LivingEntity extends Entity implements Attackable, Waypoin
 
     public boolean canUsePortal(boolean ignorePassenger) {
         throw Unimplemented.forMember("net/minecraft/world/entity/LivingEntity.canUsePortal:(Z)Z");
+    }
+
+    public boolean isSleeping() {
+        throw Unimplemented.forMember("net/minecraft/world/entity/LivingEntity.isSleeping:()Z");
     }
 
     public boolean isInWall() {
@@ -362,6 +471,14 @@ public abstract class LivingEntity extends Entity implements Attackable, Waypoin
 
     public boolean hasInfiniteMaterials() {
         throw Unimplemented.forMember("net/minecraft/world/entity/LivingEntity.hasInfiniteMaterials:()Z");
+    }
+
+    public boolean isInvulnerableTo(ServerLevel level, DamageSource source) {
+        throw Unimplemented.forMember("net/minecraft/world/entity/LivingEntity.isInvulnerableTo:(Lnet/minecraft/server/level/ServerLevel;Lnet/minecraft/world/damagesource/DamageSource;)Z");
+    }
+
+    public static boolean canGlideUsing(ItemStack itemStack, EquipmentSlot slot) {
+        throw Unimplemented.forMember("net/minecraft/world/entity/LivingEntity.canGlideUsing:(Lnet/minecraft/world/item/ItemStack;Lnet/minecraft/world/entity/EquipmentSlot;)Z");
     }
 
     public boolean isTransmittingWaypoint() {

@@ -4,6 +4,8 @@ import dev.pumpkin.shim.Unimplemented;
 
 public class Abilities {
 
+    public boolean invulnerable;
+
     public boolean flying;
 
     public boolean instabuild;

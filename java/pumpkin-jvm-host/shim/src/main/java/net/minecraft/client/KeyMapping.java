@@ -2,11 +2,14 @@ package net.minecraft.client;
 
 import com.mojang.blaze3d.platform.InputConstants;
 import net.minecraft.client.input.KeyEvent;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.neoforged.neoforge.client.extensions.IKeyMappingExtension;
 import dev.pumpkin.shim.Unimplemented;
 
 public class KeyMapping implements Comparable<KeyMapping>, IKeyMappingExtension {
+
+    boolean isDown;
 
     public static void set(InputConstants.Key key, boolean state) {
         throw Unimplemented.forMember("net/minecraft/client/KeyMapping.set:(Lcom/mojang/blaze3d/platform/InputConstants$Key;Z)V");
@@ -57,6 +60,10 @@ public class KeyMapping implements Comparable<KeyMapping>, IKeyMappingExtension 
         throw Unimplemented.forMember("net/minecraft/client/KeyMapping.setKeyModifierAndCode:(Lnet/neoforged/neoforge/client/settings/KeyModifier;Lcom/mojang/blaze3d/platform/InputConstants$Key;)V");
     }
 
+    public boolean isDown() {
+        throw Unimplemented.forMember("net/minecraft/client/KeyMapping.isDown:()Z");
+    }
+
     protected void release() {
         throw Unimplemented.forMember("net/minecraft/client/KeyMapping.release:()V");
     }
@@ -79,6 +86,14 @@ public class KeyMapping implements Comparable<KeyMapping>, IKeyMappingExtension 
 
     public boolean matches(InputConstants.Key key) {
         throw Unimplemented.forMember("net/minecraft/client/KeyMapping.matches:(Lcom/mojang/blaze3d/platform/InputConstants$Key;)Z");
+    }
+
+    public Component getTranslatedKeyMessage() {
+        throw Unimplemented.forMember("net/minecraft/client/KeyMapping.getTranslatedKeyMessage:()Lnet/minecraft/network/chat/Component;");
+    }
+
+    public void setDown(boolean down) {
+        throw Unimplemented.forMember("net/minecraft/client/KeyMapping.setDown:(Z)V");
     }
 
     public static KeyMapping get(String name) {

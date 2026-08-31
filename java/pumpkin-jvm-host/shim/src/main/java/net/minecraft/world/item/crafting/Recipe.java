@@ -1,5 +1,6 @@
 package net.minecraft.world.item.crafting;
 
+import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import java.util.List;
 import java.util.function.BiFunction;
@@ -12,6 +13,8 @@ import dev.pumpkin.shim.Stubs;
 import dev.pumpkin.shim.Unimplemented;
 
 public interface Recipe<T extends RecipeInput> {
+
+    Codec<Recipe<?>> CODEC = null;
 
     StreamCodec<RegistryFriendlyByteBuf, Recipe<?>> STREAM_CODEC = Stubs.of(StreamCodec.class, "net/minecraft/network/codec/StreamCodec");
 

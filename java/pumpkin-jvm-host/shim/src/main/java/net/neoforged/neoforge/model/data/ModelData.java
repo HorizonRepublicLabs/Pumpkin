@@ -8,8 +8,16 @@ public final class ModelData {
     private ModelData(Map<ModelProperty<?>, Object> properties) {
     }
 
+    public boolean has(ModelProperty<?> property) {
+        throw Unimplemented.forMember("net/neoforged/neoforge/model/data/ModelData.has:(Lnet/neoforged/neoforge/model/data/ModelProperty;)Z");
+    }
+
     public <T> T get(ModelProperty<T> property) {
         throw Unimplemented.forMember("net/neoforged/neoforge/model/data/ModelData.get:(Lnet/neoforged/neoforge/model/data/ModelProperty;)Ljava/lang/Object;");
+    }
+
+    public static <T> ModelData of(ModelProperty<T> property, T value) {
+        throw Unimplemented.forMember("net/neoforged/neoforge/model/data/ModelData.of:(Lnet/neoforged/neoforge/model/data/ModelProperty;Ljava/lang/Object;)Lnet/neoforged/neoforge/model/data/ModelData;");
     }
 
     public static final class Builder {

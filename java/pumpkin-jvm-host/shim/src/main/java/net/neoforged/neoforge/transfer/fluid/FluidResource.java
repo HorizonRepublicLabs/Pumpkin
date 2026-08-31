@@ -1,19 +1,30 @@
 package net.neoforged.neoforge.transfer.fluid;
 
+import com.mojang.serialization.Codec;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 import net.minecraft.core.Holder;
 import net.minecraft.core.component.DataComponentMap;
 import net.minecraft.core.component.DataComponentPatch;
 import net.minecraft.core.component.DataComponentType;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.level.material.Fluid;
 import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.fluids.FluidStackTemplate;
 import net.neoforged.neoforge.fluids.FluidType;
 import net.neoforged.neoforge.transfer.resource.DataComponentHolderResource;
+import dev.pumpkin.shim.Stubs;
 import dev.pumpkin.shim.Unimplemented;
 
 public final class FluidResource implements DataComponentHolderResource<Fluid> {
+
+    public static final FluidResource EMPTY = null;
+
+    public static final Codec<FluidResource> CODEC = null;
+
+    public static final StreamCodec<RegistryFriendlyByteBuf, FluidResource> STREAM_CODEC = Stubs.of(StreamCodec.class, "net/minecraft/network/codec/StreamCodec");
 
     public static FluidResource of(FluidStack stack) {
         throw Unimplemented.forMember("net/neoforged/neoforge/transfer/fluid/FluidResource.of:(Lnet/neoforged/neoforge/fluids/FluidStack;)Lnet/neoforged/neoforge/transfer/fluid/FluidResource;");
@@ -90,6 +101,10 @@ public final class FluidResource implements DataComponentHolderResource<Fluid> {
         throw Unimplemented.forMember("net/neoforged/neoforge/transfer/fluid/FluidResource.getComponentsPatch:()Lnet/minecraft/core/component/DataComponentPatch;");
     }
 
+    public FluidStack toStack(int amount) {
+        throw Unimplemented.forMember("net/neoforged/neoforge/transfer/fluid/FluidResource.toStack:(I)Lnet/neoforged/neoforge/fluids/FluidStack;");
+    }
+
     public boolean isComponentsPatchEmpty() {
         throw Unimplemented.forMember("net/neoforged/neoforge/transfer/fluid/FluidResource.isComponentsPatchEmpty:()Z");
     }
@@ -108,6 +123,10 @@ public final class FluidResource implements DataComponentHolderResource<Fluid> {
 
     public boolean test(Predicate<FluidStack> predicate) {
         throw Unimplemented.forMember("net/neoforged/neoforge/transfer/fluid/FluidResource.test:(Ljava/util/function/Predicate;)Z");
+    }
+
+    public Component getHoverName() {
+        throw Unimplemented.forMember("net/neoforged/neoforge/transfer/fluid/FluidResource.getHoverName:()Lnet/minecraft/network/chat/Component;");
     }
 
     public boolean equals(Object obj) {

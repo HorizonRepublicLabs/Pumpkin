@@ -6,6 +6,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockState;
 import dev.pumpkin.shim.Unimplemented;
 
 public class BlockItem extends Item {
@@ -30,6 +31,10 @@ public class BlockItem extends Item {
 
     public InteractionResult place(BlockPlaceContext placeContext) {
         throw Unimplemented.forMember("net/minecraft/world/item/BlockItem.place:(Lnet/minecraft/world/item/context/BlockPlaceContext;)Lnet/minecraft/world/InteractionResult;");
+    }
+
+    protected boolean canPlace(BlockPlaceContext context, BlockState stateForPlacement) {
+        throw Unimplemented.forMember("net/minecraft/world/item/BlockItem.canPlace:(Lnet/minecraft/world/item/context/BlockPlaceContext;Lnet/minecraft/world/level/block/state/BlockState;)Z");
     }
 
     public boolean shouldPrintOpWarning(ItemStack stack, Player player) {

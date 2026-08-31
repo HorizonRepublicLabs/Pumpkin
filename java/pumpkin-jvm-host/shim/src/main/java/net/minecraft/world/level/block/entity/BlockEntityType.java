@@ -2,12 +2,15 @@ package net.minecraft.world.level.block.entity;
 
 import java.util.Set;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Holder;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import dev.pumpkin.shim.Unimplemented;
 
 public class BlockEntityType<T extends BlockEntity> {
+
+    private final Holder.Reference<BlockEntityType<?>> builtInRegistryHolder = null;
 
     // Pumpkin divergence: the valid blocks are kept, not discarded. They are how the
     // registration sink learns which placed block should get this entity -- the type
@@ -48,6 +51,14 @@ public class BlockEntityType<T extends BlockEntity> {
 
     public T create(BlockPos worldPosition, BlockState blockState) {
         throw Unimplemented.forMember("net/minecraft/world/level/block/entity/BlockEntityType.create:(Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/state/BlockState;)Lnet/minecraft/world/level/block/entity/BlockEntity;");
+    }
+
+    public boolean isValid(BlockState state) {
+        throw Unimplemented.forMember("net/minecraft/world/level/block/entity/BlockEntityType.isValid:(Lnet/minecraft/world/level/block/state/BlockState;)Z");
+    }
+
+    public Holder.Reference<BlockEntityType<?>> builtInRegistryHolder() {
+        throw Unimplemented.forMember("net/minecraft/world/level/block/entity/BlockEntityType.builtInRegistryHolder:()Lnet/minecraft/core/Holder$Reference;");
     }
 
     public T getBlockEntity(BlockGetter level, BlockPos pos) {

@@ -8,6 +8,14 @@ public class StringUtil {
         throw Unimplemented.forMember("net/minecraft/util/StringUtil.truncateStringIfNecessary:(Ljava/lang/String;IZ)Ljava/lang/String;");
     }
 
+    public static boolean isAllowedChatCharacter(int ch) {
+        throw Unimplemented.forMember("net/minecraft/util/StringUtil.isAllowedChatCharacter:(I)Z");
+    }
+
+    public static boolean isValidPlayerName(String name) {
+        throw Unimplemented.forMember("net/minecraft/util/StringUtil.isValidPlayerName:(Ljava/lang/String;)Z");
+    }
+
     public StringUtil() {
     }
 }

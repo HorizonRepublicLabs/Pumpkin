@@ -14,4 +14,8 @@ public interface DataComponentHolder extends DataComponentGetter, IDataComponent
     default <T> T getOrDefault(DataComponentType<? extends T> type, T defaultValue) {
         throw Unimplemented.forMember("net/minecraft/core/component/DataComponentHolder.getOrDefault:(Lnet/minecraft/core/component/DataComponentType;Ljava/lang/Object;)Ljava/lang/Object;");
     }
+
+    default boolean has(DataComponentType<?> type) {
+        throw Unimplemented.forMember("net/minecraft/core/component/DataComponentHolder.has:(Lnet/minecraft/core/component/DataComponentType;)Z");
+    }
 }

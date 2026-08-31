@@ -1,13 +1,22 @@
 package net.minecraft.world.phys.shapes;
 
 import it.unimi.dsi.fastutil.doubles.DoubleList;
+import java.util.List;
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.Vec3i;
 import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.Vec3;
 import dev.pumpkin.shim.Unimplemented;
 
 public abstract class VoxelShape {
 
     protected VoxelShape(DiscreteVoxelShape shape) {
+    }
+
+    public double max(Direction.Axis axis) {
+        throw Unimplemented.forMember("net/minecraft/world/phys/shapes/VoxelShape.max:(Lnet/minecraft/core/Direction$Axis;)D");
     }
 
     public AABB bounds() {
@@ -22,6 +31,42 @@ public abstract class VoxelShape {
 
     public boolean isEmpty() {
         throw Unimplemented.forMember("net/minecraft/world/phys/shapes/VoxelShape.isEmpty:()Z");
+    }
+
+    public VoxelShape move(Vec3 delta) {
+        throw Unimplemented.forMember("net/minecraft/world/phys/shapes/VoxelShape.move:(Lnet/minecraft/world/phys/Vec3;)Lnet/minecraft/world/phys/shapes/VoxelShape;");
+    }
+
+    public VoxelShape move(Vec3i delta) {
+        throw Unimplemented.forMember("net/minecraft/world/phys/shapes/VoxelShape.move:(Lnet/minecraft/core/Vec3i;)Lnet/minecraft/world/phys/shapes/VoxelShape;");
+    }
+
+    public VoxelShape move(double dx, double dy, double dz) {
+        throw Unimplemented.forMember("net/minecraft/world/phys/shapes/VoxelShape.move:(DDD)Lnet/minecraft/world/phys/shapes/VoxelShape;");
+    }
+
+    public VoxelShape optimize() {
+        throw Unimplemented.forMember("net/minecraft/world/phys/shapes/VoxelShape.optimize:()Lnet/minecraft/world/phys/shapes/VoxelShape;");
+    }
+
+    public void forAllBoxes(Shapes.DoubleLineConsumer consumer) {
+        throw Unimplemented.forMember("net/minecraft/world/phys/shapes/VoxelShape.forAllBoxes:(Lnet/minecraft/world/phys/shapes/Shapes$DoubleLineConsumer;)V");
+    }
+
+    public List<AABB> toAabbs() {
+        throw Unimplemented.forMember("net/minecraft/world/phys/shapes/VoxelShape.toAabbs:()Ljava/util/List;");
+    }
+
+    public double max(Direction.Axis aAxis, double b, double c) {
+        throw Unimplemented.forMember("net/minecraft/world/phys/shapes/VoxelShape.max:(Lnet/minecraft/core/Direction$Axis;DD)D");
+    }
+
+    public BlockHitResult clip(Vec3 from, Vec3 to, BlockPos pos) {
+        throw Unimplemented.forMember("net/minecraft/world/phys/shapes/VoxelShape.clip:(Lnet/minecraft/world/phys/Vec3;Lnet/minecraft/world/phys/Vec3;Lnet/minecraft/core/BlockPos;)Lnet/minecraft/world/phys/BlockHitResult;");
+    }
+
+    public VoxelShape getFaceShape(Direction direction) {
+        throw Unimplemented.forMember("net/minecraft/world/phys/shapes/VoxelShape.getFaceShape:(Lnet/minecraft/core/Direction;)Lnet/minecraft/world/phys/shapes/VoxelShape;");
     }
 
     public boolean equals(Object obj) {

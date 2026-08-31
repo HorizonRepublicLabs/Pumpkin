@@ -48,7 +48,10 @@ ext.gameLibraries = [
 // The single library the hand-written `fml` classes name; see project(':fml') below.
 // Two libraries, not one: ASM for ModFileScanData's annotationType, and DataFixerUpper
 // for Stubs' throwing codecs -- both real libraries the shim runs against anyway.
-ext.fmlLibraries = ['org.ow2.asm:asm:9.9', 'com.mojang:datafixerupper:8.0.16']
+// slf4j joined for com.mojang.logging.LogUtils -- the real facade over the logger
+// every mod's static initializer grabs first.
+ext.fmlLibraries = ['org.ow2.asm:asm:9.9', 'com.mojang:datafixerupper:8.0.16',
+        'org.slf4j:slf4j-api:2.0.16']
 
 // The shim compiles against the game libraries but does not bundle them, so a JVM booted
 // on shim+fml+host alone cannot load it: the first real mod dies on

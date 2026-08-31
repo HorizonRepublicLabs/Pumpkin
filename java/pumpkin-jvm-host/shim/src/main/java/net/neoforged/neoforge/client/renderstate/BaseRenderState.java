@@ -14,6 +14,10 @@ public abstract class BaseRenderState implements IRenderStateExtension {
         throw Unimplemented.forMember("net/neoforged/neoforge/client/renderstate/BaseRenderState.setRenderData:(Lnet/minecraft/util/context/ContextKey;Ljava/lang/Object;)V");
     }
 
+    public void overrideModelPartVisibility(String modelPart, boolean visible) {
+        throw Unimplemented.forMember("net/neoforged/neoforge/client/renderstate/BaseRenderState.overrideModelPartVisibility:(Ljava/lang/String;Z)V");
+    }
+
     public BaseRenderState() {
     }
 }

@@ -28,6 +28,14 @@ public class WorldgenRandom extends LegacyRandomSource {
         throw Unimplemented.forMember("net/minecraft/world/level/levelgen/WorldgenRandom.setSeed:(J)V");
     }
 
+    public long setDecorationSeed(long seed, int chunkX, int chunkZ) {
+        throw Unimplemented.forMember("net/minecraft/world/level/levelgen/WorldgenRandom.setDecorationSeed:(JII)J");
+    }
+
+    public void setFeatureSeed(long seed, int index, int step) {
+        throw Unimplemented.forMember("net/minecraft/world/level/levelgen/WorldgenRandom.setFeatureSeed:(JII)V");
+    }
+
     public enum Algorithm {
 
         LEGACY, XOROSHIRO

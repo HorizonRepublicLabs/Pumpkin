@@ -25,6 +25,10 @@ public class ServerboundSelectTradePacket implements Packet<ServerGamePacketList
         throw Unimplemented.forMember("net/minecraft/network/protocol/game/ServerboundSelectTradePacket.handle:(Lnet/minecraft/network/protocol/game/ServerGamePacketListener;)V");
     }
 
+    public int getItem() {
+        throw Unimplemented.forMember("net/minecraft/network/protocol/game/ServerboundSelectTradePacket.getItem:()I");
+    }
+
     public ServerboundSelectTradePacket() {
     }
 }

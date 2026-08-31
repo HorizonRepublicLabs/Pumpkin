@@ -1,6 +1,7 @@
 package net.neoforged.neoforge.client.model.standalone;
 
 import net.minecraft.client.renderer.block.dispatch.BlockStateModel;
+import net.minecraft.client.renderer.block.dispatch.BlockStateModelPart;
 import net.minecraft.client.renderer.block.dispatch.ModelState;
 import net.minecraft.client.resources.model.ModelBaker;
 import net.minecraft.client.resources.model.ModelDebugName;
@@ -19,6 +20,14 @@ public final class SimpleUnbakedStandaloneModel<T> implements UnbakedStandaloneM
 
     public void resolveDependencies(Resolver resolver) {
         throw Unimplemented.forMember("net/neoforged/neoforge/client/model/standalone/SimpleUnbakedStandaloneModel.resolveDependencies:(Lnet/neoforged/neoforge/client/model/standalone/Resolver;)V");
+    }
+
+    public static SimpleUnbakedStandaloneModel<BlockStateModelPart> simpleModelWrapper(Identifier modelId) {
+        throw Unimplemented.forMember("net/neoforged/neoforge/client/model/standalone/SimpleUnbakedStandaloneModel.simpleModelWrapper:(Lnet/minecraft/resources/Identifier;)Lnet/neoforged/neoforge/client/model/standalone/SimpleUnbakedStandaloneModel;");
+    }
+
+    public static SimpleUnbakedStandaloneModel<BlockStateModelPart> simpleModelWrapper(Identifier modelId, ModelState modelState) {
+        throw Unimplemented.forMember("net/neoforged/neoforge/client/model/standalone/SimpleUnbakedStandaloneModel.simpleModelWrapper:(Lnet/minecraft/resources/Identifier;Lnet/minecraft/client/renderer/block/dispatch/ModelState;)Lnet/neoforged/neoforge/client/model/standalone/SimpleUnbakedStandaloneModel;");
     }
 
     public static SimpleUnbakedStandaloneModel<BlockStateModel> blockStateModel(Identifier modelId) {

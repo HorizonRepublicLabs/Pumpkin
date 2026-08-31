@@ -12,6 +12,8 @@ import dev.pumpkin.shim.Unimplemented;
 
 public class BucketItem extends Item implements DispensibleContainerItem {
 
+    public final Fluid content = null;
+
     public BucketItem(Fluid content, Item.Properties properties) {
     }
 

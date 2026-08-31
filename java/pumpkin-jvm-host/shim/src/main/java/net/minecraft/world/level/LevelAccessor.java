@@ -10,6 +10,7 @@ import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.Difficulty;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.chunk.ChunkSource;
 import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.level.storage.LevelData;
@@ -49,6 +50,10 @@ public interface LevelAccessor extends CommonLevelAccessor, ScheduledTickAccess 
     }
 
     RandomSource getRandom();
+
+    default void updateNeighborsAt(BlockPos pos, Block sourceBlock) {
+        throw Unimplemented.forMember("net/minecraft/world/level/LevelAccessor.updateNeighborsAt:(Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/Block;)V");
+    }
 
     default void playSound(Entity except, BlockPos pos, SoundEvent soundEvent, SoundSource source) {
         throw Unimplemented.forMember("net/minecraft/world/level/LevelAccessor.playSound:(Lnet/minecraft/world/entity/Entity;Lnet/minecraft/core/BlockPos;Lnet/minecraft/sounds/SoundEvent;Lnet/minecraft/sounds/SoundSource;)V");

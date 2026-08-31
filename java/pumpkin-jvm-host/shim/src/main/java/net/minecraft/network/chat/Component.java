@@ -65,6 +65,14 @@ public interface Component extends Message, FormattedText {
 
     }
 
+    static MutableComponent translatableWithFallback(String key, String fallback) {
+        throw Unimplemented.forMember("net/minecraft/network/chat/Component.translatableWithFallback:(Ljava/lang/String;Ljava/lang/String;)Lnet/minecraft/network/chat/MutableComponent;");
+    }
+
+    static MutableComponent translatableWithFallback(String key, String fallback, Object... args) {
+        throw Unimplemented.forMember("net/minecraft/network/chat/Component.translatableWithFallback:(Ljava/lang/String;Ljava/lang/String;[Ljava/lang/Object;)Lnet/minecraft/network/chat/MutableComponent;");
+    }
+
     static MutableComponent empty() {
 
         return MutableComponent.pumpkinOf("");

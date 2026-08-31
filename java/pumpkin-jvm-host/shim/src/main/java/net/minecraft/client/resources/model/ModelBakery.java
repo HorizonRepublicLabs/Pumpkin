@@ -20,6 +20,8 @@ import dev.pumpkin.shim.Unimplemented;
 
 public class ModelBakery {
 
+    private final Map<Identifier, ResolvedModel> resolvedModels = null;
+
     public ModelBakery(EntityModelSet entityModelSet, SpriteGetter sprites, PlayerSkinRenderCache playerSkinRenderCache, Map<BlockState, BlockStateModel.UnbakedRoot> unbakedBlockStateModels, Map<Identifier, ClientItem> clientInfos, Map<Identifier, ResolvedModel> resolvedModels, ResolvedModel missingModel) {
     }
 

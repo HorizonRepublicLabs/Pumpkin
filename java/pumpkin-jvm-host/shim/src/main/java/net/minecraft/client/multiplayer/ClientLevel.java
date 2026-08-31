@@ -8,6 +8,7 @@ import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.renderer.block.BlockAndTintGetter;
 import net.minecraft.client.renderer.extract.LevelExtractor;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.core.Holder;
 import net.minecraft.core.particles.ExplosionParticleInfo;
 import net.minecraft.core.particles.ParticleOptions;
@@ -259,6 +260,14 @@ public class ClientLevel extends Level implements BlockAndTintGetter, CacheSlot.
 
     public void addDestroyBlockEffect(BlockPos pos, BlockState blockState) {
         throw Unimplemented.forMember("net/minecraft/client/multiplayer/ClientLevel.addDestroyBlockEffect:(Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/state/BlockState;)V");
+    }
+
+    public void addBreakingBlockEffect(BlockPos pos, Direction direction) {
+        throw Unimplemented.forMember("net/minecraft/client/multiplayer/ClientLevel.addBreakingBlockEffect:(Lnet/minecraft/core/BlockPos;Lnet/minecraft/core/Direction;)V");
+    }
+
+    public void addBreakingBlockEffect(BlockPos pos, Direction direction, net.minecraft.world.phys.HitResult hitResult) {
+        throw Unimplemented.forMember("net/minecraft/client/multiplayer/ClientLevel.addBreakingBlockEffect:(Lnet/minecraft/core/BlockPos;Lnet/minecraft/core/Direction;Lnet/minecraft/world/phys/HitResult;)V");
     }
 
     public FeatureFlagSet enabledFeatures() {

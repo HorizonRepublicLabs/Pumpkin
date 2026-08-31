@@ -15,6 +15,12 @@ import dev.pumpkin.shim.Unimplemented;
 
 public class SpriteContents implements AutoCloseable, Stitcher.Entry {
 
+    private final Identifier name = null;
+
+    private final int width = 0;
+
+    private final int height = 0;
+
     public SpriteContents(Identifier name, FrameSize frameSize, NativeImage image) {
     }
 

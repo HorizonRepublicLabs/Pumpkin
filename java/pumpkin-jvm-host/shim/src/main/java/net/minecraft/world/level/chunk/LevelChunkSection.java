@@ -18,8 +18,24 @@ public class LevelChunkSection {
     public LevelChunkSection(PalettedContainerFactory containerFactory) {
     }
 
+    public BlockState getBlockState(int sectionX, int sectionY, int sectionZ) {
+        throw Unimplemented.forMember("net/minecraft/world/level/chunk/LevelChunkSection.getBlockState:(III)Lnet/minecraft/world/level/block/state/BlockState;");
+    }
+
+    public void acquire() {
+        throw Unimplemented.forMember("net/minecraft/world/level/chunk/LevelChunkSection.acquire:()V");
+    }
+
     public void release() {
         throw Unimplemented.forMember("net/minecraft/world/level/chunk/LevelChunkSection.release:()V");
+    }
+
+    public BlockState setBlockState(int sectionX, int sectionY, int sectionZ, BlockState state) {
+        throw Unimplemented.forMember("net/minecraft/world/level/chunk/LevelChunkSection.setBlockState:(IIILnet/minecraft/world/level/block/state/BlockState;)Lnet/minecraft/world/level/block/state/BlockState;");
+    }
+
+    public BlockState setBlockState(int sectionX, int sectionY, int sectionZ, BlockState state, boolean checkThreading) {
+        throw Unimplemented.forMember("net/minecraft/world/level/chunk/LevelChunkSection.setBlockState:(IIILnet/minecraft/world/level/block/state/BlockState;Z)Lnet/minecraft/world/level/block/state/BlockState;");
     }
 
     public void read(FriendlyByteBuf buffer) {

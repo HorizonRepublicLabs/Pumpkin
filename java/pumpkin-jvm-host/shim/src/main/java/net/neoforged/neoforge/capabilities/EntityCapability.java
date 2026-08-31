@@ -11,6 +11,10 @@ public final class EntityCapability<T, C extends Object> extends BaseCapability<
         throw Unimplemented.forMember("net/neoforged/neoforge/capabilities/EntityCapability.create:(Lnet/minecraft/resources/Identifier;Ljava/lang/Class;Ljava/lang/Class;)Lnet/neoforged/neoforge/capabilities/EntityCapability;");
     }
 
+    public static <T> EntityCapability<T, Void> createVoid(Identifier name, Class<T> typeClass) {
+        throw Unimplemented.forMember("net/neoforged/neoforge/capabilities/EntityCapability.createVoid:(Lnet/minecraft/resources/Identifier;Ljava/lang/Class;)Lnet/neoforged/neoforge/capabilities/EntityCapability;");
+    }
+
     public static synchronized List<EntityCapability<?, ?>> getAll() {
         throw Unimplemented.forMember("net/neoforged/neoforge/capabilities/EntityCapability.getAll:()Ljava/util/List;");
     }

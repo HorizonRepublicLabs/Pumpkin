@@ -15,6 +15,10 @@ public class SavedDataStorage implements AutoCloseable {
     public SavedDataStorage(net.minecraft.server.level.ServerLevel level, Path dataFolder, DataFixer fixerUpper, HolderLookup.Provider registries) {
     }
 
+    public <T extends SavedData> T computeIfAbsent(SavedDataType<T> type) {
+        throw Unimplemented.forMember("net/minecraft/world/level/storage/SavedDataStorage.computeIfAbsent:(Lnet/minecraft/world/level/saveddata/SavedDataType;)Lnet/minecraft/world/level/saveddata/SavedData;");
+    }
+
     public <T extends SavedData> T get(SavedDataType<T> type) {
         throw Unimplemented.forMember("net/minecraft/world/level/storage/SavedDataStorage.get:(Lnet/minecraft/world/level/saveddata/SavedDataType;)Lnet/minecraft/world/level/saveddata/SavedData;");
     }

@@ -1,5 +1,6 @@
 package com.mojang.blaze3d.vertex;
 
+import org.joml.Matrix3x2fc;
 import org.joml.Matrix4fc;
 import org.joml.Vector3fc;
 import net.neoforged.neoforge.client.extensions.IVertexConsumerExtension;
@@ -35,6 +36,10 @@ public interface VertexConsumer extends IVertexConsumerExtension {
         throw Unimplemented.forMember("com/mojang/blaze3d/vertex/VertexConsumer.setLight:(I)Lcom/mojang/blaze3d/vertex/VertexConsumer;");
     }
 
+    default VertexConsumer setOverlay(int packedOverlayCoords) {
+        throw Unimplemented.forMember("com/mojang/blaze3d/vertex/VertexConsumer.setOverlay:(I)Lcom/mojang/blaze3d/vertex/VertexConsumer;");
+    }
+
     default VertexConsumer addVertex(Vector3fc position) {
         throw Unimplemented.forMember("com/mojang/blaze3d/vertex/VertexConsumer.addVertex:(Lorg/joml/Vector3fc;)Lcom/mojang/blaze3d/vertex/VertexConsumer;");
     }
@@ -49,6 +54,10 @@ public interface VertexConsumer extends IVertexConsumerExtension {
 
     default VertexConsumer addVertex(Matrix4fc pose, float x, float y, float z) {
         throw Unimplemented.forMember("com/mojang/blaze3d/vertex/VertexConsumer.addVertex:(Lorg/joml/Matrix4fc;FFF)Lcom/mojang/blaze3d/vertex/VertexConsumer;");
+    }
+
+    default VertexConsumer addVertexWith2DPose(Matrix3x2fc pose, float x, float y) {
+        throw Unimplemented.forMember("com/mojang/blaze3d/vertex/VertexConsumer.addVertexWith2DPose:(Lorg/joml/Matrix3x2fc;FF)Lcom/mojang/blaze3d/vertex/VertexConsumer;");
     }
 
     default VertexConsumer setNormal(PoseStack.Pose pose, float x, float y, float z) {

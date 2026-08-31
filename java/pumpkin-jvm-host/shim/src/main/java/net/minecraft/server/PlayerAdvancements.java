@@ -24,6 +24,10 @@ public class PlayerAdvancements {
         throw Unimplemented.forMember("net/minecraft/server/PlayerAdvancements.save:()V");
     }
 
+    public AdvancementProgress getOrStartProgress(AdvancementHolder advancement) {
+        throw Unimplemented.forMember("net/minecraft/server/PlayerAdvancements.getOrStartProgress:(Lnet/minecraft/advancements/AdvancementHolder;)Lnet/minecraft/advancements/AdvancementProgress;");
+    }
+
     private record Data(Map<Identifier, AdvancementProgress> map) {
 
         public void forEach(BiConsumer<Identifier, AdvancementProgress> consumer) {

@@ -49,6 +49,7 @@ import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.level.gamerules.GameRules;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.redstone.Orientation;
+import net.minecraft.world.level.saveddata.WeatherData;
 import net.minecraft.world.level.saveddata.maps.MapId;
 import net.minecraft.world.level.saveddata.maps.MapItemSavedData;
 import net.minecraft.world.level.storage.LevelData;
@@ -59,6 +60,8 @@ import net.minecraft.world.ticks.LevelTicks;
 import dev.pumpkin.shim.Unimplemented;
 
 public class ServerLevel extends Level implements WorldGenLevel, ServerEntityGetter {
+
+    private final List<ServerPlayer> players = null;
 
     public ServerLevel(MinecraftServer server, Executor executor, LevelStorageSource.LevelStorageAccess levelStorage, ServerLevelData levelData, ResourceKey<Level> dimension, LevelStem levelStem, boolean isDebug, long biomeZoomSeed, List<CustomSpawner> customSpawners, boolean tickTime) {
     }
@@ -95,8 +98,16 @@ public class ServerLevel extends Level implements WorldGenLevel, ServerEntityGet
         throw Unimplemented.forMember("net/minecraft/server/level/ServerLevel.mayInteract:(Lnet/minecraft/world/entity/Entity;Lnet/minecraft/core/BlockPos;)Z");
     }
 
+    public <T extends Entity> List<? extends T> getEntities(EntityTypeTest<Entity, T> type, Predicate<? super T> selector) {
+        throw Unimplemented.forMember("net/minecraft/server/level/ServerLevel.getEntities:(Lnet/minecraft/world/level/entity/EntityTypeTest;Ljava/util/function/Predicate;)Ljava/util/List;");
+    }
+
     public <T extends Entity> void getEntities(EntityTypeTest<Entity, T> type, Predicate<? super T> selector, List<? super T> result) {
         throw Unimplemented.forMember("net/minecraft/server/level/ServerLevel.getEntities:(Lnet/minecraft/world/level/entity/EntityTypeTest;Ljava/util/function/Predicate;Ljava/util/List;)V");
+    }
+
+    public <T extends Entity> void getEntities(EntityTypeTest<Entity, T> type, Predicate<? super T> selector, List<? super T> result, int maxResults) {
+        throw Unimplemented.forMember("net/minecraft/server/level/ServerLevel.getEntities:(Lnet/minecraft/world/level/entity/EntityTypeTest;Ljava/util/function/Predicate;Ljava/util/List;I)V");
     }
 
     public List<ServerPlayer> getPlayers(Predicate<? super ServerPlayer> selector, int maxResults) {
@@ -267,6 +278,10 @@ public class ServerLevel extends Level implements WorldGenLevel, ServerEntityGet
         throw Unimplemented.forMember("net/minecraft/server/level/ServerLevel.getSeed:()J");
     }
 
+    public WeatherData getWeatherData() {
+        throw Unimplemented.forMember("net/minecraft/server/level/ServerLevel.getWeatherData:()Lnet/minecraft/world/level/saveddata/WeatherData;");
+    }
+
     public ServerLevel getLevel() {
         throw Unimplemented.forMember("net/minecraft/server/level/ServerLevel.getLevel:()Lnet/minecraft/server/level/ServerLevel;");
     }
@@ -309,6 +324,10 @@ public class ServerLevel extends Level implements WorldGenLevel, ServerEntityGet
 
     public void onBlockEntityAdded(BlockEntity blockEntity) {
         throw Unimplemented.forMember("net/minecraft/server/level/ServerLevel.onBlockEntityAdded:(Lnet/minecraft/world/level/block/entity/BlockEntity;)V");
+    }
+
+    public boolean isAllowedToEnterPortal(Level toLevel) {
+        throw Unimplemented.forMember("net/minecraft/server/level/ServerLevel.isAllowedToEnterPortal:(Lnet/minecraft/world/level/Level;)Z");
     }
 
     private final class EntityCallbacks implements LevelCallback<Entity> {

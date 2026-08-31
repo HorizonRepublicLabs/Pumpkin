@@ -24,12 +24,24 @@ public class Inventory implements Container, Nameable {
     public Inventory(Player player, EntityEquipment equipment) {
     }
 
+    public int getSelectedSlot() {
+        throw Unimplemented.forMember("net/minecraft/world/entity/player/Inventory.getSelectedSlot:()I");
+    }
+
     public ItemStack getSelectedItem() {
         throw Unimplemented.forMember("net/minecraft/world/entity/player/Inventory.getSelectedItem:()Lnet/minecraft/world/item/ItemStack;");
     }
 
+    public static int getSelectionSize() {
+        throw Unimplemented.forMember("net/minecraft/world/entity/player/Inventory.getSelectionSize:()I");
+    }
+
     public NonNullList<ItemStack> getNonEquipmentItems() {
         throw Unimplemented.forMember("net/minecraft/world/entity/player/Inventory.getNonEquipmentItems:()Lnet/minecraft/core/NonNullList;");
+    }
+
+    public static boolean isHotbarSlot(int slot) {
+        throw Unimplemented.forMember("net/minecraft/world/entity/player/Inventory.isHotbarSlot:(I)Z");
     }
 
     public void tick() {
@@ -118,6 +130,10 @@ public class Inventory implements Container, Nameable {
 
     public void clearContent() {
         throw Unimplemented.forMember("net/minecraft/world/entity/player/Inventory.clearContent:()V");
+    }
+
+    public void fillStackedContents(StackedItemContents contents) {
+        throw Unimplemented.forMember("net/minecraft/world/entity/player/Inventory.fillStackedContents:(Lnet/minecraft/world/entity/player/StackedItemContents;)V");
     }
 
     public Inventory() {

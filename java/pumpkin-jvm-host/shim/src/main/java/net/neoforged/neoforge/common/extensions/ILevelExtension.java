@@ -2,6 +2,7 @@ package net.neoforged.neoforge.common.extensions;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
+import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.neoforge.capabilities.BlockCapability;
@@ -27,6 +28,14 @@ public interface ILevelExtension {
 
     default <T> T getCapability(BlockCapability<T, Void> cap, BlockPos pos, BlockState state, BlockEntity blockEntity) {
         throw Unimplemented.forMember("net/neoforged/neoforge/common/extensions/ILevelExtension.getCapability:(Lnet/neoforged/neoforge/capabilities/BlockCapability;Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/state/BlockState;Lnet/minecraft/world/level/block/entity/BlockEntity;)Ljava/lang/Object;");
+    }
+
+    default void invalidateCapabilities(BlockPos pos) {
+        throw Unimplemented.forMember("net/neoforged/neoforge/common/extensions/ILevelExtension.invalidateCapabilities:(Lnet/minecraft/core/BlockPos;)V");
+    }
+
+    default void invalidateCapabilities(ChunkPos pos) {
+        throw Unimplemented.forMember("net/neoforged/neoforge/common/extensions/ILevelExtension.invalidateCapabilities:(Lnet/minecraft/world/level/ChunkPos;)V");
     }
 
     default Component getDescription() {

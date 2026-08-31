@@ -35,6 +35,8 @@ import dev.pumpkin.shim.Unimplemented;
 
 public class CommandSourceStack implements SharedSuggestionProvider, ExecutionCommandSource<CommandSourceStack>, ICommandSourceStackExtension {
 
+    public final CommandSource source = Stubs.of(CommandSource.class, "net/minecraft/commands/CommandSource");
+
     private final PermissionSet permissions = Stubs.of(PermissionSet.class, "net/minecraft/server/permissions/PermissionSet");
 
     public CommandSourceStack(CommandSource source, Vec3 position, Vec2 rotation, ServerLevel level, PermissionSet permissions, String textName, Component displayName, MinecraftServer server, Entity entity) {
@@ -55,8 +57,16 @@ public class CommandSourceStack implements SharedSuggestionProvider, ExecutionCo
         throw Unimplemented.forMember("net/minecraft/commands/CommandSourceStack.permissions:()Lnet/minecraft/server/permissions/PermissionSet;");
     }
 
+    public Vec3 getPosition() {
+        throw Unimplemented.forMember("net/minecraft/commands/CommandSourceStack.getPosition:()Lnet/minecraft/world/phys/Vec3;");
+    }
+
     public ServerLevel getLevel() {
         throw Unimplemented.forMember("net/minecraft/commands/CommandSourceStack.getLevel:()Lnet/minecraft/server/level/ServerLevel;");
+    }
+
+    public Entity getEntity() {
+        throw Unimplemented.forMember("net/minecraft/commands/CommandSourceStack.getEntity:()Lnet/minecraft/world/entity/Entity;");
     }
 
     public ServerPlayer getPlayerOrException() throws CommandSyntaxException {

@@ -6,6 +6,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.ActiveTextCollector;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.gui.screens.ChatScreen;
 import net.minecraft.client.multiplayer.chat.GuiMessage;
 import net.minecraft.client.multiplayer.chat.GuiMessageTag;
 import net.minecraft.network.chat.MessageSignature;
@@ -41,6 +42,10 @@ public class ChatComponent {
 
     public static int getHeight(double pct) {
         throw Unimplemented.forMember("net/minecraft/client/gui/components/ChatComponent.getHeight:(D)I");
+    }
+
+    public <T extends ChatScreen> T createScreen(ChatComponent.ChatMethod chatMethod, ChatScreen.ChatConstructor<T> chat) {
+        throw Unimplemented.forMember("net/minecraft/client/gui/components/ChatComponent.createScreen:(Lnet/minecraft/client/gui/components/ChatComponent$ChatMethod;Lnet/minecraft/client/gui/screens/ChatScreen$ChatConstructor;)Lnet/minecraft/client/gui/screens/ChatScreen;");
     }
 
     private interface AlphaCalculator {

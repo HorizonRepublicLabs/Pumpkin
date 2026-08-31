@@ -5,6 +5,8 @@ import dev.pumpkin.shim.Unimplemented;
 
 public class ContextKeySet {
 
+    public static final ContextKeySet EMPTY = null;
+
     private ContextKeySet(Set<ContextKey<?>> required, Set<ContextKey<?>> optional) {
     }
 

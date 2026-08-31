@@ -27,6 +27,10 @@ public interface RandomSource {
 
     int nextInt(int bound);
 
+    default int nextIntBetweenInclusive(int min, int maxInclusive) {
+        throw Unimplemented.forMember("net/minecraft/util/RandomSource.nextIntBetweenInclusive:(II)I");
+    }
+
     long nextLong();
 
     boolean nextBoolean();
@@ -36,6 +40,14 @@ public interface RandomSource {
     double nextDouble();
 
     double nextGaussian();
+
+    default double triangle(double mean, double spread) {
+        throw Unimplemented.forMember("net/minecraft/util/RandomSource.triangle:(DD)D");
+    }
+
+    default float triangle(float mean, float spread) {
+        throw Unimplemented.forMember("net/minecraft/util/RandomSource.triangle:(FF)F");
+    }
 
     default int nextInt(int origin, int bound) {
         throw Unimplemented.forMember("net/minecraft/util/RandomSource.nextInt:(II)I");

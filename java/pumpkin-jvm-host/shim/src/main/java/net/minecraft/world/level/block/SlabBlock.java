@@ -13,6 +13,8 @@ import net.minecraft.world.level.ScheduledTickAccess;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
+import net.minecraft.world.level.block.state.properties.EnumProperty;
+import net.minecraft.world.level.block.state.properties.SlabType;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.pathfinder.PathComputationType;
@@ -21,6 +23,8 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 import dev.pumpkin.shim.Unimplemented;
 
 public class SlabBlock extends Block implements SimpleWaterloggedBlock {
+
+    public static final EnumProperty<SlabType> TYPE = null;
 
     public MapCodec<? extends SlabBlock> codec() {
         throw Unimplemented.forMember("net/minecraft/world/level/block/SlabBlock.codec:()Lcom/mojang/serialization/MapCodec;");

@@ -8,6 +8,10 @@ public class SynchedEntityData {
     private SynchedEntityData(SyncedDataHolder entity, SynchedEntityData.DataItem<?>[] itemsById) {
     }
 
+    public static <T> EntityDataAccessor<T> defineId(Class<? extends SyncedDataHolder> clazz, EntityDataSerializer<T> type) {
+        throw Unimplemented.forMember("net/minecraft/network/syncher/SynchedEntityData.defineId:(Ljava/lang/Class;Lnet/minecraft/network/syncher/EntityDataSerializer;)Lnet/minecraft/network/syncher/EntityDataAccessor;");
+    }
+
     private <T> SynchedEntityData.DataItem<T> getItem(EntityDataAccessor<T> accessor) {
         throw Unimplemented.forMember("net/minecraft/network/syncher/SynchedEntityData.getItem:(Lnet/minecraft/network/syncher/EntityDataAccessor;)Lnet/minecraft/network/syncher/SynchedEntityData$DataItem;");
     }
@@ -27,6 +31,10 @@ public class SynchedEntityData {
     public static class Builder {
 
         public Builder(SyncedDataHolder entity) {
+        }
+
+        public <T> SynchedEntityData.Builder define(EntityDataAccessor<T> accessor, T value) {
+            throw Unimplemented.forMember("net/minecraft/network/syncher/SynchedEntityData$Builder.define:(Lnet/minecraft/network/syncher/EntityDataAccessor;Ljava/lang/Object;)Lnet/minecraft/network/syncher/SynchedEntityData$Builder;");
         }
 
         public SynchedEntityData build() {

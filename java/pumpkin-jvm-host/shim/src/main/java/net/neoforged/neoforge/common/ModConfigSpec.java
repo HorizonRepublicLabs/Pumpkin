@@ -4,6 +4,7 @@ import com.electronwill.nightconfig.core.Config;
 import com.electronwill.nightconfig.core.EnumGetMethod;
 import com.electronwill.nightconfig.core.UnmodifiableCommentedConfig;
 import com.electronwill.nightconfig.core.UnmodifiableConfig;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.function.BooleanSupplier;
@@ -33,6 +34,10 @@ public class ModConfigSpec implements IConfigSpec {
 
     public void validateSpec(ModConfig config) {
         throw Unimplemented.forMember("net/neoforged/neoforge/common/ModConfigSpec.validateSpec:(Lnet/neoforged/fml/config/ModConfig;)V");
+    }
+
+    public boolean isLoaded() {
+        throw Unimplemented.forMember("net/neoforged/neoforge/common/ModConfigSpec.isLoaded:()Z");
     }
 
     public void save() {
@@ -97,6 +102,118 @@ public class ModConfigSpec implements IConfigSpec {
 
         public <V extends Comparable<? super V>> ConfigValue<V> defineInRange(List<String> path, Supplier<V> defaultSupplier, V min, V max, Class<V> clazz) {
             throw Unimplemented.forMember("net/neoforged/neoforge/common/ModConfigSpec$Builder.defineInRange:(Ljava/util/List;Ljava/util/function/Supplier;Ljava/lang/Comparable;Ljava/lang/Comparable;Ljava/lang/Class;)Lnet/neoforged/neoforge/common/ModConfigSpec$ConfigValue;");
+        }
+
+        public <T> ConfigValue<List<? extends T>> defineListAllowEmpty(String path, List<? extends T> defaultValue, Predicate<Object> elementValidator) {
+            throw Unimplemented.forMember("net/neoforged/neoforge/common/ModConfigSpec$Builder.defineListAllowEmpty:(Ljava/lang/String;Ljava/util/List;Ljava/util/function/Predicate;)Lnet/neoforged/neoforge/common/ModConfigSpec$ConfigValue;");
+        }
+
+        public <T> ConfigValue<List<? extends T>> defineListAllowEmpty(String path, List<? extends T> defaultValue, Supplier<T> newElementSupplier, Predicate<Object> elementValidator) {
+            throw Unimplemented.forMember("net/neoforged/neoforge/common/ModConfigSpec$Builder.defineListAllowEmpty:(Ljava/lang/String;Ljava/util/List;Ljava/util/function/Supplier;Ljava/util/function/Predicate;)Lnet/neoforged/neoforge/common/ModConfigSpec$ConfigValue;");
+        }
+
+        public <T> ConfigValue<List<? extends T>> defineListAllowEmpty(String path, Supplier<List<? extends T>> defaultSupplier, Predicate<Object> elementValidator) {
+            throw Unimplemented.forMember("net/neoforged/neoforge/common/ModConfigSpec$Builder.defineListAllowEmpty:(Ljava/lang/String;Ljava/util/function/Supplier;Ljava/util/function/Predicate;)Lnet/neoforged/neoforge/common/ModConfigSpec$ConfigValue;");
+        }
+
+        public <T> ConfigValue<List<? extends T>> defineListAllowEmpty(String path, Supplier<List<? extends T>> defaultSupplier, Supplier<T> newElementSupplier, Predicate<Object> elementValidator) {
+            throw Unimplemented.forMember("net/neoforged/neoforge/common/ModConfigSpec$Builder.defineListAllowEmpty:(Ljava/lang/String;Ljava/util/function/Supplier;Ljava/util/function/Supplier;Ljava/util/function/Predicate;)Lnet/neoforged/neoforge/common/ModConfigSpec$ConfigValue;");
+        }
+
+        public <T> ConfigValue<List<? extends T>> defineListAllowEmpty(List<String> path, List<? extends T> defaultValue, Predicate<Object> elementValidator) {
+            throw Unimplemented.forMember("net/neoforged/neoforge/common/ModConfigSpec$Builder.defineListAllowEmpty:(Ljava/util/List;Ljava/util/List;Ljava/util/function/Predicate;)Lnet/neoforged/neoforge/common/ModConfigSpec$ConfigValue;");
+        }
+
+        public <T> ConfigValue<List<? extends T>> defineListAllowEmpty(List<String> path, List<? extends T> defaultValue, Supplier<T> newElementSupplier, Predicate<Object> elementValidator) {
+            throw Unimplemented.forMember("net/neoforged/neoforge/common/ModConfigSpec$Builder.defineListAllowEmpty:(Ljava/util/List;Ljava/util/List;Ljava/util/function/Supplier;Ljava/util/function/Predicate;)Lnet/neoforged/neoforge/common/ModConfigSpec$ConfigValue;");
+        }
+
+        public <T> ConfigValue<List<? extends T>> defineListAllowEmpty(List<String> path, Supplier<List<? extends T>> defaultSupplier, Predicate<Object> elementValidator) {
+            throw Unimplemented.forMember("net/neoforged/neoforge/common/ModConfigSpec$Builder.defineListAllowEmpty:(Ljava/util/List;Ljava/util/function/Supplier;Ljava/util/function/Predicate;)Lnet/neoforged/neoforge/common/ModConfigSpec$ConfigValue;");
+        }
+
+        public <T> ConfigValue<List<? extends T>> defineListAllowEmpty(List<String> path, Supplier<List<? extends T>> defaultSupplier, Supplier<T> newElementSupplier, Predicate<Object> elementValidator) {
+            throw Unimplemented.forMember("net/neoforged/neoforge/common/ModConfigSpec$Builder.defineListAllowEmpty:(Ljava/util/List;Ljava/util/function/Supplier;Ljava/util/function/Supplier;Ljava/util/function/Predicate;)Lnet/neoforged/neoforge/common/ModConfigSpec$ConfigValue;");
+        }
+
+        public <V extends Enum<V>> EnumValue<V> defineEnum(String path, V defaultValue) {
+            throw Unimplemented.forMember("net/neoforged/neoforge/common/ModConfigSpec$Builder.defineEnum:(Ljava/lang/String;Ljava/lang/Enum;)Lnet/neoforged/neoforge/common/ModConfigSpec$EnumValue;");
+        }
+
+        public <V extends Enum<V>> EnumValue<V> defineEnum(String path, V defaultValue, EnumGetMethod converter) {
+            throw Unimplemented.forMember("net/neoforged/neoforge/common/ModConfigSpec$Builder.defineEnum:(Ljava/lang/String;Ljava/lang/Enum;Lcom/electronwill/nightconfig/core/EnumGetMethod;)Lnet/neoforged/neoforge/common/ModConfigSpec$EnumValue;");
+        }
+
+        public <V extends Enum<V>> EnumValue<V> defineEnum(List<String> path, V defaultValue) {
+            throw Unimplemented.forMember("net/neoforged/neoforge/common/ModConfigSpec$Builder.defineEnum:(Ljava/util/List;Ljava/lang/Enum;)Lnet/neoforged/neoforge/common/ModConfigSpec$EnumValue;");
+        }
+
+        public <V extends Enum<V>> EnumValue<V> defineEnum(List<String> path, V defaultValue, EnumGetMethod converter) {
+            throw Unimplemented.forMember("net/neoforged/neoforge/common/ModConfigSpec$Builder.defineEnum:(Ljava/util/List;Ljava/lang/Enum;Lcom/electronwill/nightconfig/core/EnumGetMethod;)Lnet/neoforged/neoforge/common/ModConfigSpec$EnumValue;");
+        }
+
+        public <V extends Enum<V>> EnumValue<V> defineEnum(String path, V defaultValue, V... acceptableValues) {
+            throw Unimplemented.forMember("net/neoforged/neoforge/common/ModConfigSpec$Builder.defineEnum:(Ljava/lang/String;Ljava/lang/Enum;[Ljava/lang/Enum;)Lnet/neoforged/neoforge/common/ModConfigSpec$EnumValue;");
+        }
+
+        public <V extends Enum<V>> EnumValue<V> defineEnum(String path, V defaultValue, EnumGetMethod converter, V... acceptableValues) {
+            throw Unimplemented.forMember("net/neoforged/neoforge/common/ModConfigSpec$Builder.defineEnum:(Ljava/lang/String;Ljava/lang/Enum;Lcom/electronwill/nightconfig/core/EnumGetMethod;[Ljava/lang/Enum;)Lnet/neoforged/neoforge/common/ModConfigSpec$EnumValue;");
+        }
+
+        public <V extends Enum<V>> EnumValue<V> defineEnum(List<String> path, V defaultValue, V... acceptableValues) {
+            throw Unimplemented.forMember("net/neoforged/neoforge/common/ModConfigSpec$Builder.defineEnum:(Ljava/util/List;Ljava/lang/Enum;[Ljava/lang/Enum;)Lnet/neoforged/neoforge/common/ModConfigSpec$EnumValue;");
+        }
+
+        public <V extends Enum<V>> EnumValue<V> defineEnum(List<String> path, V defaultValue, EnumGetMethod converter, V... acceptableValues) {
+            throw Unimplemented.forMember("net/neoforged/neoforge/common/ModConfigSpec$Builder.defineEnum:(Ljava/util/List;Ljava/lang/Enum;Lcom/electronwill/nightconfig/core/EnumGetMethod;[Ljava/lang/Enum;)Lnet/neoforged/neoforge/common/ModConfigSpec$EnumValue;");
+        }
+
+        public <V extends Enum<V>> EnumValue<V> defineEnum(String path, V defaultValue, Collection<V> acceptableValues) {
+            throw Unimplemented.forMember("net/neoforged/neoforge/common/ModConfigSpec$Builder.defineEnum:(Ljava/lang/String;Ljava/lang/Enum;Ljava/util/Collection;)Lnet/neoforged/neoforge/common/ModConfigSpec$EnumValue;");
+        }
+
+        public <V extends Enum<V>> EnumValue<V> defineEnum(String path, V defaultValue, EnumGetMethod converter, Collection<V> acceptableValues) {
+            throw Unimplemented.forMember("net/neoforged/neoforge/common/ModConfigSpec$Builder.defineEnum:(Ljava/lang/String;Ljava/lang/Enum;Lcom/electronwill/nightconfig/core/EnumGetMethod;Ljava/util/Collection;)Lnet/neoforged/neoforge/common/ModConfigSpec$EnumValue;");
+        }
+
+        public <V extends Enum<V>> EnumValue<V> defineEnum(List<String> path, V defaultValue, Collection<V> acceptableValues) {
+            throw Unimplemented.forMember("net/neoforged/neoforge/common/ModConfigSpec$Builder.defineEnum:(Ljava/util/List;Ljava/lang/Enum;Ljava/util/Collection;)Lnet/neoforged/neoforge/common/ModConfigSpec$EnumValue;");
+        }
+
+        public <V extends Enum<V>> EnumValue<V> defineEnum(List<String> path, V defaultValue, EnumGetMethod converter, Collection<V> acceptableValues) {
+            throw Unimplemented.forMember("net/neoforged/neoforge/common/ModConfigSpec$Builder.defineEnum:(Ljava/util/List;Ljava/lang/Enum;Lcom/electronwill/nightconfig/core/EnumGetMethod;Ljava/util/Collection;)Lnet/neoforged/neoforge/common/ModConfigSpec$EnumValue;");
+        }
+
+        public <V extends Enum<V>> EnumValue<V> defineEnum(String path, V defaultValue, Predicate<Object> validator) {
+            throw Unimplemented.forMember("net/neoforged/neoforge/common/ModConfigSpec$Builder.defineEnum:(Ljava/lang/String;Ljava/lang/Enum;Ljava/util/function/Predicate;)Lnet/neoforged/neoforge/common/ModConfigSpec$EnumValue;");
+        }
+
+        public <V extends Enum<V>> EnumValue<V> defineEnum(String path, V defaultValue, EnumGetMethod converter, Predicate<Object> validator) {
+            throw Unimplemented.forMember("net/neoforged/neoforge/common/ModConfigSpec$Builder.defineEnum:(Ljava/lang/String;Ljava/lang/Enum;Lcom/electronwill/nightconfig/core/EnumGetMethod;Ljava/util/function/Predicate;)Lnet/neoforged/neoforge/common/ModConfigSpec$EnumValue;");
+        }
+
+        public <V extends Enum<V>> EnumValue<V> defineEnum(List<String> path, V defaultValue, Predicate<Object> validator) {
+            throw Unimplemented.forMember("net/neoforged/neoforge/common/ModConfigSpec$Builder.defineEnum:(Ljava/util/List;Ljava/lang/Enum;Ljava/util/function/Predicate;)Lnet/neoforged/neoforge/common/ModConfigSpec$EnumValue;");
+        }
+
+        public <V extends Enum<V>> EnumValue<V> defineEnum(List<String> path, V defaultValue, EnumGetMethod converter, Predicate<Object> validator) {
+            throw Unimplemented.forMember("net/neoforged/neoforge/common/ModConfigSpec$Builder.defineEnum:(Ljava/util/List;Ljava/lang/Enum;Lcom/electronwill/nightconfig/core/EnumGetMethod;Ljava/util/function/Predicate;)Lnet/neoforged/neoforge/common/ModConfigSpec$EnumValue;");
+        }
+
+        public <V extends Enum<V>> EnumValue<V> defineEnum(String path, Supplier<V> defaultSupplier, Predicate<Object> validator, Class<V> clazz) {
+            throw Unimplemented.forMember("net/neoforged/neoforge/common/ModConfigSpec$Builder.defineEnum:(Ljava/lang/String;Ljava/util/function/Supplier;Ljava/util/function/Predicate;Ljava/lang/Class;)Lnet/neoforged/neoforge/common/ModConfigSpec$EnumValue;");
+        }
+
+        public <V extends Enum<V>> EnumValue<V> defineEnum(String path, Supplier<V> defaultSupplier, EnumGetMethod converter, Predicate<Object> validator, Class<V> clazz) {
+            throw Unimplemented.forMember("net/neoforged/neoforge/common/ModConfigSpec$Builder.defineEnum:(Ljava/lang/String;Ljava/util/function/Supplier;Lcom/electronwill/nightconfig/core/EnumGetMethod;Ljava/util/function/Predicate;Ljava/lang/Class;)Lnet/neoforged/neoforge/common/ModConfigSpec$EnumValue;");
+        }
+
+        public <V extends Enum<V>> EnumValue<V> defineEnum(List<String> path, Supplier<V> defaultSupplier, Predicate<Object> validator, Class<V> clazz) {
+            throw Unimplemented.forMember("net/neoforged/neoforge/common/ModConfigSpec$Builder.defineEnum:(Ljava/util/List;Ljava/util/function/Supplier;Ljava/util/function/Predicate;Ljava/lang/Class;)Lnet/neoforged/neoforge/common/ModConfigSpec$EnumValue;");
+        }
+
+        public <V extends Enum<V>> EnumValue<V> defineEnum(List<String> path, Supplier<V> defaultSupplier, EnumGetMethod converter, Predicate<Object> validator, Class<V> clazz) {
+            throw Unimplemented.forMember("net/neoforged/neoforge/common/ModConfigSpec$Builder.defineEnum:(Ljava/util/List;Ljava/util/function/Supplier;Lcom/electronwill/nightconfig/core/EnumGetMethod;Ljava/util/function/Predicate;Ljava/lang/Class;)Lnet/neoforged/neoforge/common/ModConfigSpec$EnumValue;");
         }
 
         // Pumpkin divergence: real body.
@@ -181,6 +298,18 @@ public class ModConfigSpec implements IConfigSpec {
             return this;
         }
 
+        public Builder translation(String translationKey) {
+            throw Unimplemented.forMember("net/neoforged/neoforge/common/ModConfigSpec$Builder.translation:(Ljava/lang/String;)Lnet/neoforged/neoforge/common/ModConfigSpec$Builder;");
+        }
+
+        public Builder worldRestart() {
+            throw Unimplemented.forMember("net/neoforged/neoforge/common/ModConfigSpec$Builder.worldRestart:()Lnet/neoforged/neoforge/common/ModConfigSpec$Builder;");
+        }
+
+        public Builder gameRestart() {
+            throw Unimplemented.forMember("net/neoforged/neoforge/common/ModConfigSpec$Builder.gameRestart:()Lnet/neoforged/neoforge/common/ModConfigSpec$Builder;");
+        }
+
         // Pumpkin divergence: real body. Sections nest, and a value's key is the whole path
         // -- two mods defining "enabled" under different sections must not collide.
         public Builder push(String path) {
@@ -219,6 +348,14 @@ public class ModConfigSpec implements IConfigSpec {
     }
 
     private static class BuilderContext {
+
+        private void validate(Object value, String message) {
+            throw Unimplemented.forMember("net/neoforged/neoforge/common/ModConfigSpec$BuilderContext.validate:(Ljava/lang/Object;Ljava/lang/String;)V");
+        }
+
+        private void validate(boolean value, String message) {
+            throw Unimplemented.forMember("net/neoforged/neoforge/common/ModConfigSpec$BuilderContext.validate:(ZLjava/lang/String;)V");
+        }
 
         protected BuilderContext() {
         }
@@ -291,6 +428,10 @@ public class ModConfigSpec implements IConfigSpec {
 
         public T getRaw() {
             throw Unimplemented.forMember("net/neoforged/neoforge/common/ModConfigSpec$ConfigValue.getRaw:()Ljava/lang/Object;");
+        }
+
+        public T getDefault() {
+            throw Unimplemented.forMember("net/neoforged/neoforge/common/ModConfigSpec$ConfigValue.getDefault:()Ljava/lang/Object;");
         }
 
         public Builder next() {

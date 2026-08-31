@@ -5,6 +5,10 @@ import dev.pumpkin.shim.Unimplemented;
 
 public final class Shapes {
 
+    public static VoxelShape empty() {
+        throw Unimplemented.forMember("net/minecraft/world/phys/shapes/Shapes.empty:()Lnet/minecraft/world/phys/shapes/VoxelShape;");
+    }
+
     // Pumpkin divergence: real-enough body -- see VoxelShape.pumpkinInert.
 
     public static VoxelShape block() {
@@ -51,6 +55,18 @@ public final class Shapes {
 
         return VoxelShape.pumpkinInert();
 
+    }
+
+    public static VoxelShape joinUnoptimized(VoxelShape first, VoxelShape second, BooleanOp op) {
+        throw Unimplemented.forMember("net/minecraft/world/phys/shapes/Shapes.joinUnoptimized:(Lnet/minecraft/world/phys/shapes/VoxelShape;Lnet/minecraft/world/phys/shapes/VoxelShape;Lnet/minecraft/world/phys/shapes/BooleanOp;)Lnet/minecraft/world/phys/shapes/VoxelShape;");
+    }
+
+    public static boolean joinIsNotEmpty(VoxelShape first, VoxelShape second, BooleanOp op) {
+        throw Unimplemented.forMember("net/minecraft/world/phys/shapes/Shapes.joinIsNotEmpty:(Lnet/minecraft/world/phys/shapes/VoxelShape;Lnet/minecraft/world/phys/shapes/VoxelShape;Lnet/minecraft/world/phys/shapes/BooleanOp;)Z");
+    }
+
+    private static boolean joinIsNotEmpty(IndexMerger xMerger, IndexMerger yMerger, IndexMerger zMerger, DiscreteVoxelShape first, DiscreteVoxelShape second, BooleanOp op) {
+        throw Unimplemented.forMember("net/minecraft/world/phys/shapes/Shapes.joinIsNotEmpty:(Lnet/minecraft/world/phys/shapes/IndexMerger;Lnet/minecraft/world/phys/shapes/IndexMerger;Lnet/minecraft/world/phys/shapes/IndexMerger;Lnet/minecraft/world/phys/shapes/DiscreteVoxelShape;Lnet/minecraft/world/phys/shapes/DiscreteVoxelShape;Lnet/minecraft/world/phys/shapes/BooleanOp;)Z");
     }
 
     public interface DoubleLineConsumer {

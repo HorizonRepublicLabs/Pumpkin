@@ -1,6 +1,8 @@
 package net.minecraft.client.gui.components;
 
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
+import net.minecraft.client.gui.navigation.ScreenRectangle;
 import dev.pumpkin.shim.Unimplemented;
 
 public class WidgetTooltipHolder {
@@ -11,6 +13,10 @@ public class WidgetTooltipHolder {
 
     public Tooltip get() {
         throw Unimplemented.forMember("net/minecraft/client/gui/components/WidgetTooltipHolder.get:()Lnet/minecraft/client/gui/components/Tooltip;");
+    }
+
+    public void refreshTooltipForNextRenderPass(GuiGraphicsExtractor graphics, int mouseX, int mouseY, boolean isHovered, boolean isFocused, ScreenRectangle screenRectangle) {
+        throw Unimplemented.forMember("net/minecraft/client/gui/components/WidgetTooltipHolder.refreshTooltipForNextRenderPass:(Lnet/minecraft/client/gui/GuiGraphicsExtractor;IIZZLnet/minecraft/client/gui/navigation/ScreenRectangle;)V");
     }
 
     public void updateNarration(NarrationElementOutput output) {

@@ -10,6 +10,8 @@ import dev.pumpkin.shim.Unimplemented;
 
 public abstract class AbstractSoundInstance implements SoundInstance {
 
+    protected Sound sound;
+
     protected float volume;
 
     protected double x;
@@ -19,6 +21,12 @@ public abstract class AbstractSoundInstance implements SoundInstance {
     protected double z;
 
     protected boolean looping;
+
+    protected int delay;
+
+    protected SoundInstance.Attenuation attenuation;
+
+    protected boolean relative;
 
     protected AbstractSoundInstance(SoundEvent event, SoundSource source, RandomSource random) {
     }

@@ -1,11 +1,22 @@
 package net.minecraft.tags;
 
+import com.mojang.serialization.Codec;
+import io.netty.buffer.ByteBuf;
 import net.minecraft.core.Registry;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
 import dev.pumpkin.shim.Unimplemented;
 
 public record TagKey<T>(ResourceKey<? extends Registry<T>> registry, Identifier location) {
+
+    public static <T> Codec<TagKey<T>> codec(ResourceKey<? extends Registry<T>> registryName) {
+        throw Unimplemented.forMember("net/minecraft/tags/TagKey.codec:(Lnet/minecraft/resources/ResourceKey;)Lcom/mojang/serialization/Codec;");
+    }
+
+    public static <T> StreamCodec<ByteBuf, TagKey<T>> streamCodec(ResourceKey<? extends Registry<T>> registryName) {
+        throw Unimplemented.forMember("net/minecraft/tags/TagKey.streamCodec:(Lnet/minecraft/resources/ResourceKey;)Lnet/minecraft/network/codec/StreamCodec;");
+    }
 
     // Pumpkin divergence: real body. A tag key is its two names -- the record's own
     // canonical constructor is the whole implementation.

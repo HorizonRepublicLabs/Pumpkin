@@ -9,6 +9,10 @@ public class CraftingInput implements RecipeInput {
 
     public static final CraftingInput EMPTY = null;
 
+    private final int width = 0;
+
+    private final int height = 0;
+
     private final List<ItemStack> items = null;
 
     private final StackedItemContents stackedContents = null;
@@ -32,6 +36,10 @@ public class CraftingInput implements RecipeInput {
         input.pumpkinHeight = height;
         input.pumpkinItems = items;
         return input;
+    }
+
+    public static CraftingInput.Positioned ofPositioned(int width, int height, List<ItemStack> items) {
+        throw Unimplemented.forMember("net/minecraft/world/item/crafting/CraftingInput.ofPositioned:(IILjava/util/List;)Lnet/minecraft/world/item/crafting/CraftingInput$Positioned;");
     }
 
     public ItemStack getItem(int index) {
@@ -86,6 +94,8 @@ public class CraftingInput implements RecipeInput {
     }
 
     public record Positioned(CraftingInput input, int left, int top) {
+
+        public static final CraftingInput.Positioned EMPTY = null;
     }
 
     public CraftingInput() {

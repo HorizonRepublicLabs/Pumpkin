@@ -4,8 +4,10 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.TypedInstance;
+import net.minecraft.core.component.DataComponentGetter;
 import net.minecraft.core.component.DataComponentMap;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.server.level.ServerLevel;
@@ -20,7 +22,13 @@ import dev.pumpkin.shim.Unimplemented;
 
 public abstract class BlockEntity extends net.neoforged.neoforge.attachment.AttachmentHolder implements DebugValueSource, TypedInstance<BlockEntityType<?>>, IBlockEntityExtension {
 
+    private final BlockEntityType<?> type = null;
+
     protected Level level;
+
+    protected final BlockPos worldPosition = null;
+
+    private DataComponentMap components;
 
     // Pumpkin divergence: the position is kept; getBlockPos answers with it.
     private BlockPos pumpkinPosition;
@@ -40,10 +48,22 @@ public abstract class BlockEntity extends net.neoforged.neoforge.attachment.Atta
         this.level = level;
     }
 
+    public void setLevel(Level level) {
+        throw Unimplemented.forMember("net/minecraft/world/level/block/entity/BlockEntity.setLevel:(Lnet/minecraft/world/level/Level;)V");
+    }
+
+    public boolean hasLevel() {
+        throw Unimplemented.forMember("net/minecraft/world/level/block/entity/BlockEntity.hasLevel:()Z");
+    }
+
     // Pumpkin divergence: the base writes vanilla bookkeeping (components) the shim does
     // not model; a subclass's own state is what persistence carries, and it calls super
     // first. Accepting quietly here is what lets that state through.
     protected void loadAdditional(ValueInput input) {
+    }
+
+    public final void loadWithComponents(ValueInput input) {
+        throw Unimplemented.forMember("net/minecraft/world/level/block/entity/BlockEntity.loadWithComponents:(Lnet/minecraft/world/level/storage/ValueInput;)V");
     }
 
     protected void saveAdditional(ValueOutput output) {
@@ -92,8 +112,20 @@ public abstract class BlockEntity extends net.neoforged.neoforge.attachment.Atta
         throw Unimplemented.forMember("net/minecraft/world/level/block/entity/BlockEntity.isRemoved:()Z");
     }
 
+    public void setRemoved() {
+        throw Unimplemented.forMember("net/minecraft/world/level/block/entity/BlockEntity.setRemoved:()V");
+    }
+
+    public void clearRemoved() {
+        throw Unimplemented.forMember("net/minecraft/world/level/block/entity/BlockEntity.clearRemoved:()V");
+    }
+
     public void preRemoveSideEffects(BlockPos pos, BlockState state) {
         throw Unimplemented.forMember("net/minecraft/world/level/block/entity/BlockEntity.preRemoveSideEffects:(Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/state/BlockState;)V");
+    }
+
+    public boolean triggerEvent(int b0, int b1) {
+        throw Unimplemented.forMember("net/minecraft/world/level/block/entity/BlockEntity.triggerEvent:(II)Z");
     }
 
     public BlockEntityType<?> getType() {
@@ -120,8 +152,40 @@ public abstract class BlockEntity extends net.neoforged.neoforge.attachment.Atta
         throw Unimplemented.forMember("net/minecraft/world/level/block/entity/BlockEntity.typeHolder:()Lnet/minecraft/core/Holder;");
     }
 
+    public void setBlockState(BlockState blockState) {
+        throw Unimplemented.forMember("net/minecraft/world/level/block/entity/BlockEntity.setBlockState:(Lnet/minecraft/world/level/block/state/BlockState;)V");
+    }
+
+    protected void applyImplicitComponents(DataComponentGetter components) {
+        throw Unimplemented.forMember("net/minecraft/world/level/block/entity/BlockEntity.applyImplicitComponents:(Lnet/minecraft/core/component/DataComponentGetter;)V");
+    }
+
+    protected void collectImplicitComponents(DataComponentMap.Builder components) {
+        throw Unimplemented.forMember("net/minecraft/world/level/block/entity/BlockEntity.collectImplicitComponents:(Lnet/minecraft/core/component/DataComponentMap$Builder;)V");
+    }
+
+    public void removeComponentsFromTag(ValueOutput output) {
+        throw Unimplemented.forMember("net/minecraft/world/level/block/entity/BlockEntity.removeComponentsFromTag:(Lnet/minecraft/world/level/storage/ValueOutput;)V");
+    }
+
+    public final DataComponentMap collectComponents() {
+        throw Unimplemented.forMember("net/minecraft/world/level/block/entity/BlockEntity.collectComponents:()Lnet/minecraft/core/component/DataComponentMap;");
+    }
+
     public DataComponentMap components() {
         throw Unimplemented.forMember("net/minecraft/world/level/block/entity/BlockEntity.components:()Lnet/minecraft/core/component/DataComponentMap;");
+    }
+
+    public void setComponents(DataComponentMap components) {
+        throw Unimplemented.forMember("net/minecraft/world/level/block/entity/BlockEntity.setComponents:(Lnet/minecraft/core/component/DataComponentMap;)V");
+    }
+
+    public static Component parseCustomNameSafe(ValueInput input, String name) {
+        throw Unimplemented.forMember("net/minecraft/world/level/block/entity/BlockEntity.parseCustomNameSafe:(Lnet/minecraft/world/level/storage/ValueInput;Ljava/lang/String;)Lnet/minecraft/network/chat/Component;");
+    }
+
+    public ProblemReporter.PathElement problemPath() {
+        throw Unimplemented.forMember("net/minecraft/world/level/block/entity/BlockEntity.problemPath:()Lnet/minecraft/util/ProblemReporter$PathElement;");
     }
 
     public void registerDebugValues(ServerLevel level, DebugValueSource.Registration registration) {

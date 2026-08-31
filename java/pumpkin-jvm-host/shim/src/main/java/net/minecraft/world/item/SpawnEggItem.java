@@ -27,6 +27,10 @@ public class SpawnEggItem extends Item {
         throw Unimplemented.forMember("net/minecraft/world/item/SpawnEggItem.byId:(Lnet/minecraft/world/entity/EntityType;)Ljava/util/Optional;");
     }
 
+    public static EntityType<?> getType(ItemStack itemStack) {
+        throw Unimplemented.forMember("net/minecraft/world/item/SpawnEggItem.getType:(Lnet/minecraft/world/item/ItemStack;)Lnet/minecraft/world/entity/EntityType;");
+    }
+
     public boolean shouldPrintOpWarning(ItemStack stack, Player player) {
         throw Unimplemented.forMember("net/minecraft/world/item/SpawnEggItem.shouldPrintOpWarning:(Lnet/minecraft/world/item/ItemStack;Lnet/minecraft/world/entity/player/Player;)Z");
     }

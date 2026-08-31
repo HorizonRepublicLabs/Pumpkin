@@ -1,5 +1,6 @@
 package net.neoforged.neoforge.fluids;
 
+import java.util.List;
 import java.util.function.Predicate;
 import net.minecraft.core.Holder;
 import net.minecraft.core.component.DataComponentMap;
@@ -7,11 +8,19 @@ import net.minecraft.core.component.DataComponentPatch;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.component.PatchedDataComponentMap;
 import net.minecraft.core.component.TypedDataComponent;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.material.Fluid;
 import net.neoforged.neoforge.common.MutableDataComponentHolder;
 import dev.pumpkin.shim.Unimplemented;
 
 public final class FluidStack implements MutableDataComponentHolder, FluidInstance {
+
+    public static final FluidStack EMPTY = null;
+
+    private int amount;
 
     public DataComponentMap getComponents() {
         throw Unimplemented.forMember("net/neoforged/neoforge/fluids/FluidStack.getComponents:()Lnet/minecraft/core/component/DataComponentMap;");
@@ -63,6 +72,10 @@ public final class FluidStack implements MutableDataComponentHolder, FluidInstan
         throw Unimplemented.forMember("net/neoforged/neoforge/fluids/FluidStack.copy:()Lnet/neoforged/neoforge/fluids/FluidStack;");
     }
 
+    public FluidStack copyWithAmount(int amount) {
+        throw Unimplemented.forMember("net/neoforged/neoforge/fluids/FluidStack.copyWithAmount:(I)Lnet/neoforged/neoforge/fluids/FluidStack;");
+    }
+
     public static boolean matches(FluidStack first, FluidStack second) {
         throw Unimplemented.forMember("net/neoforged/neoforge/fluids/FluidStack.matches:(Lnet/neoforged/neoforge/fluids/FluidStack;Lnet/neoforged/neoforge/fluids/FluidStack;)Z");
     }
@@ -71,8 +84,16 @@ public final class FluidStack implements MutableDataComponentHolder, FluidInstan
         throw Unimplemented.forMember("net/neoforged/neoforge/fluids/FluidStack.matches:(Lnet/neoforged/neoforge/fluids/FluidStack;Lnet/neoforged/neoforge/fluids/FluidStackTemplate;)Z");
     }
 
+    public static int hashFluidAndComponents(FluidStack stack) {
+        throw Unimplemented.forMember("net/neoforged/neoforge/fluids/FluidStack.hashFluidAndComponents:(Lnet/neoforged/neoforge/fluids/FluidStack;)I");
+    }
+
     public String toString() {
         throw Unimplemented.forMember("net/neoforged/neoforge/fluids/FluidStack.toString:()Ljava/lang/String;");
+    }
+
+    public List<Component> getTooltipLines(Item.TooltipContext context, Player player, TooltipFlag flag) {
+        throw Unimplemented.forMember("net/neoforged/neoforge/fluids/FluidStack.getTooltipLines:(Lnet/minecraft/world/item/Item$TooltipContext;Lnet/minecraft/world/entity/player/Player;Lnet/minecraft/world/item/TooltipFlag;)Ljava/util/List;");
     }
 
     public <T> T set(DataComponentType<T> type, T component) {
@@ -93,6 +114,10 @@ public final class FluidStack implements MutableDataComponentHolder, FluidInstan
 
     public void applyComponents(DataComponentMap components) {
         throw Unimplemented.forMember("net/neoforged/neoforge/fluids/FluidStack.applyComponents:(Lnet/minecraft/core/component/DataComponentMap;)V");
+    }
+
+    public Component getHoverName() {
+        throw Unimplemented.forMember("net/neoforged/neoforge/fluids/FluidStack.getHoverName:()Lnet/minecraft/network/chat/Component;");
     }
 
     public int amount() {

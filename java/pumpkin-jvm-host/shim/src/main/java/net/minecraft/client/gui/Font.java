@@ -1,5 +1,6 @@
 package net.minecraft.client.gui;
 
+import java.util.List;
 import net.minecraft.client.gui.font.glyphs.BakedGlyph;
 import net.minecraft.client.gui.font.glyphs.EffectGlyph;
 import net.minecraft.client.gui.navigation.ScreenRectangle;
@@ -26,6 +27,14 @@ public class Font implements IFontExtension {
 
     public int width(FormattedCharSequence text) {
         throw Unimplemented.forMember("net/minecraft/client/gui/Font.width:(Lnet/minecraft/util/FormattedCharSequence;)I");
+    }
+
+    public List<FormattedCharSequence> split(FormattedText input, int maxWidth) {
+        throw Unimplemented.forMember("net/minecraft/client/gui/Font.split:(Lnet/minecraft/network/chat/FormattedText;I)Ljava/util/List;");
+    }
+
+    public boolean isBidirectional() {
+        throw Unimplemented.forMember("net/minecraft/client/gui/Font.isBidirectional:()Z");
     }
 
     public enum DisplayMode {

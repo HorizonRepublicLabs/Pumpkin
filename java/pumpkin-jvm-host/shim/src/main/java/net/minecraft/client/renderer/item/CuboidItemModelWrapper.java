@@ -7,12 +7,14 @@ import java.util.Optional;
 import net.minecraft.client.color.item.ItemTintSource;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.resources.model.ResolvableModel;
+import net.minecraft.client.resources.model.geometry.BakedQuad;
 import net.minecraft.client.resources.model.geometry.QuadCollection;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.ItemOwner;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 import org.joml.Matrix4fc;
+import org.joml.Vector3fc;
 import dev.pumpkin.shim.Unimplemented;
 
 public class CuboidItemModelWrapper implements ItemModel {
@@ -20,11 +22,17 @@ public class CuboidItemModelWrapper implements ItemModel {
     public CuboidItemModelWrapper(List<ItemTintSource> tints, QuadCollection quads, ModelRenderProperties properties, Matrix4fc transformation) {
     }
 
+    public static Vector3fc[] computeExtents(List<BakedQuad> quads) {
+        throw Unimplemented.forMember("net/minecraft/client/renderer/item/CuboidItemModelWrapper.computeExtents:(Ljava/util/List;)[Lorg/joml/Vector3fc;");
+    }
+
     public void update(ItemStackRenderState output, ItemStack item, ItemModelResolver resolver, ItemDisplayContext displayContext, ClientLevel level, ItemOwner owner, int seed) {
         throw Unimplemented.forMember("net/minecraft/client/renderer/item/CuboidItemModelWrapper.update:(Lnet/minecraft/client/renderer/item/ItemStackRenderState;Lnet/minecraft/world/item/ItemStack;Lnet/minecraft/client/renderer/item/ItemModelResolver;Lnet/minecraft/world/item/ItemDisplayContext;Lnet/minecraft/client/multiplayer/ClientLevel;Lnet/minecraft/world/entity/ItemOwner;I)V");
     }
 
     public record Unbaked(Identifier model, Optional<Transformation> transformation, List<ItemTintSource> tints) implements ItemModel.Unbaked {
+
+        public static final MapCodec<CuboidItemModelWrapper.Unbaked> MAP_CODEC = null;
 
         public void resolveDependencies(ResolvableModel.Resolver resolver) {
             throw Unimplemented.forMember("net/minecraft/client/renderer/item/CuboidItemModelWrapper$Unbaked.resolveDependencies:(Lnet/minecraft/client/resources/model/ResolvableModel$Resolver;)V");

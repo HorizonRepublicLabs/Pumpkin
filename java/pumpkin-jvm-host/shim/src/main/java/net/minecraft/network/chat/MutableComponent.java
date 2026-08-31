@@ -37,6 +37,10 @@ public final class MutableComponent implements Component {
         throw Unimplemented.forMember("net/minecraft/network/chat/MutableComponent.getSiblings:()Ljava/util/List;");
     }
 
+    public MutableComponent setStyle(Style style) {
+        throw Unimplemented.forMember("net/minecraft/network/chat/MutableComponent.setStyle:(Lnet/minecraft/network/chat/Style;)Lnet/minecraft/network/chat/MutableComponent;");
+    }
+
     public Style getStyle() {
         throw Unimplemented.forMember("net/minecraft/network/chat/MutableComponent.getStyle:()Lnet/minecraft/network/chat/Style;");
     }
@@ -69,6 +73,14 @@ public final class MutableComponent implements Component {
 
     public MutableComponent withStyle(ChatFormatting format) {
         throw Unimplemented.forMember("net/minecraft/network/chat/MutableComponent.withStyle:(Lnet/minecraft/ChatFormatting;)Lnet/minecraft/network/chat/MutableComponent;");
+    }
+
+    public MutableComponent withColor(int color) {
+        throw Unimplemented.forMember("net/minecraft/network/chat/MutableComponent.withColor:(I)Lnet/minecraft/network/chat/MutableComponent;");
+    }
+
+    public MutableComponent withColor(TextColor color) {
+        throw Unimplemented.forMember("net/minecraft/network/chat/MutableComponent.withColor:(Lnet/minecraft/network/chat/TextColor;)Lnet/minecraft/network/chat/MutableComponent;");
     }
 
     public FormattedCharSequence getVisualOrderText() {

@@ -3,6 +3,7 @@ package net.minecraft.world.level.material;
 import java.util.Optional;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.Holder;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.tags.TagKey;
@@ -17,7 +18,15 @@ import dev.pumpkin.shim.Unimplemented;
 
 public abstract class Fluid implements IFluidExtension {
 
+    private FluidState defaultFluidState;
+
+    private final Holder.Reference<Fluid> builtInRegistryHolder = null;
+
     protected Fluid() {
+    }
+
+    public final FluidState defaultFluidState() {
+        throw Unimplemented.forMember("net/minecraft/world/level/material/Fluid.defaultFluidState:()Lnet/minecraft/world/level/material/FluidState;");
     }
 
     public abstract Item getBucket();
@@ -48,6 +57,10 @@ public abstract class Fluid implements IFluidExtension {
 
     public abstract int getAmount(FluidState fluidState);
 
+    public boolean isSame(Fluid other) {
+        throw Unimplemented.forMember("net/minecraft/world/level/material/Fluid.isSame:(Lnet/minecraft/world/level/material/Fluid;)Z");
+    }
+
     public boolean is(TagKey<Fluid> tag) {
         throw Unimplemented.forMember("net/minecraft/world/level/material/Fluid.is:(Lnet/minecraft/tags/TagKey;)Z");
     }
@@ -60,6 +73,10 @@ public abstract class Fluid implements IFluidExtension {
 
     public Optional<SoundEvent> getPickupSound() {
         throw Unimplemented.forMember("net/minecraft/world/level/material/Fluid.getPickupSound:()Ljava/util/Optional;");
+    }
+
+    public Holder.Reference<Fluid> builtInRegistryHolder() {
+        throw Unimplemented.forMember("net/minecraft/world/level/material/Fluid.builtInRegistryHolder:()Lnet/minecraft/core/Holder$Reference;");
     }
 
     public net.neoforged.neoforge.fluids.FluidType getFluidType() {

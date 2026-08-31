@@ -1,6 +1,7 @@
 package net.minecraft.world.clock;
 
 import net.minecraft.core.Holder;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.level.saveddata.SavedData;
 import dev.pumpkin.shim.Unimplemented;
 
@@ -11,6 +12,10 @@ public class ServerClockManager extends SavedData implements ClockManager {
 
     public void tick() {
         throw Unimplemented.forMember("net/minecraft/world/clock/ServerClockManager.tick:()V");
+    }
+
+    public boolean moveToTimeMarker(Holder<WorldClock> clock, ResourceKey<ClockTimeMarker> timeMarkerId) {
+        throw Unimplemented.forMember("net/minecraft/world/clock/ServerClockManager.moveToTimeMarker:(Lnet/minecraft/core/Holder;Lnet/minecraft/resources/ResourceKey;)Z");
     }
 
     public void setRate(Holder<WorldClock> clock, float rate) {

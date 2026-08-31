@@ -9,6 +9,14 @@ public class DefaultDispenseItemBehavior implements DispenseItemBehavior {
         throw Unimplemented.forMember("net/minecraft/core/dispenser/DefaultDispenseItemBehavior.dispense:(Lnet/minecraft/core/dispenser/BlockSource;Lnet/minecraft/world/item/ItemStack;)Lnet/minecraft/world/item/ItemStack;");
     }
 
+    protected ItemStack execute(BlockSource source, ItemStack dispensed) {
+        throw Unimplemented.forMember("net/minecraft/core/dispenser/DefaultDispenseItemBehavior.execute:(Lnet/minecraft/core/dispenser/BlockSource;Lnet/minecraft/world/item/ItemStack;)Lnet/minecraft/world/item/ItemStack;");
+    }
+
+    protected ItemStack consumeWithRemainder(BlockSource source, ItemStack dispensed, ItemStack remainder) {
+        throw Unimplemented.forMember("net/minecraft/core/dispenser/DefaultDispenseItemBehavior.consumeWithRemainder:(Lnet/minecraft/core/dispenser/BlockSource;Lnet/minecraft/world/item/ItemStack;Lnet/minecraft/world/item/ItemStack;)Lnet/minecraft/world/item/ItemStack;");
+    }
+
     public DefaultDispenseItemBehavior() {
     }
 }

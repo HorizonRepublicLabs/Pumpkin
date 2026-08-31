@@ -1,6 +1,7 @@
 package net.neoforged.neoforge.event.entity.player;
 
 import java.io.File;
+import java.util.Optional;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
@@ -45,6 +46,22 @@ public abstract class PlayerEvent extends LivingEvent {
     public static class BreakSpeed extends PlayerEvent implements ICancellableEvent {
 
         public BreakSpeed(Player player, BlockState state, float original, BlockPos pos) {
+        }
+
+        public BlockState getState() {
+            throw Unimplemented.forMember("net/neoforged/neoforge/event/entity/player/PlayerEvent$BreakSpeed.getState:()Lnet/minecraft/world/level/block/state/BlockState;");
+        }
+
+        public float getNewSpeed() {
+            throw Unimplemented.forMember("net/neoforged/neoforge/event/entity/player/PlayerEvent$BreakSpeed.getNewSpeed:()F");
+        }
+
+        public void setNewSpeed(float newSpeed) {
+            throw Unimplemented.forMember("net/neoforged/neoforge/event/entity/player/PlayerEvent$BreakSpeed.setNewSpeed:(F)V");
+        }
+
+        public Optional<BlockPos> getPosition() {
+            throw Unimplemented.forMember("net/neoforged/neoforge/event/entity/player/PlayerEvent$BreakSpeed.getPosition:()Ljava/util/Optional;");
         }
 
         public BreakSpeed() {
@@ -129,6 +146,14 @@ public abstract class PlayerEvent extends LivingEvent {
     public static class ItemCraftedEvent extends PlayerEvent {
 
         public ItemCraftedEvent(Player player, ItemStack crafting, Container craftMatrix) {
+        }
+
+        public ItemStack getCrafting() {
+            throw Unimplemented.forMember("net/neoforged/neoforge/event/entity/player/PlayerEvent$ItemCraftedEvent.getCrafting:()Lnet/minecraft/world/item/ItemStack;");
+        }
+
+        public Container getInventory() {
+            throw Unimplemented.forMember("net/neoforged/neoforge/event/entity/player/PlayerEvent$ItemCraftedEvent.getInventory:()Lnet/minecraft/world/Container;");
         }
 
         public ItemCraftedEvent() {

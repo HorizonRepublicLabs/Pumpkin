@@ -6,8 +6,12 @@ import dev.pumpkin.shim.Unimplemented;
 
 public final class BlockTags {
 
+    public static final TagKey<Block> LEAVES = null;
+
     // Pumpkin divergence: real value, named as vanilla names it.
     public static final TagKey<Block> CROPS = create(Identifier.fromNamespaceAndPath("minecraft", "crops"));
+
+    public static final TagKey<Block> REPLACEABLE_BY_TREES = null;
 
     protected BlockTags() {
     }
@@ -18,7 +22,7 @@ public final class BlockTags {
 
     // Pumpkin divergence: real body -- TagKey.create over the block registry's key.
     public static TagKey<Block> create(Identifier name) {
-        return TagKey.create(net.minecraft.resources.ResourceKey.createRegistryKey(Identifier.fromNamespaceAndPath("minecraft", "block")), name);
+        return TagKey.create(net.minecraft.resources.ResourceKey.createRegistryKey(net.minecraft.resources.Identifier.fromNamespaceAndPath("minecraft", "block")), name);
     }
 
 }

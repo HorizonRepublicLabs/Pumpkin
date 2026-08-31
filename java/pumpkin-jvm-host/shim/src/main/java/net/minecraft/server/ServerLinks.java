@@ -13,6 +13,10 @@ public record ServerLinks(List<ServerLinks.Entry> entries) {
     }
 
     public record Entry(Either<ServerLinks.KnownLinkType, Component> type, URI link) {
+
+        public Component displayName() {
+            throw Unimplemented.forMember("net/minecraft/server/ServerLinks$Entry.displayName:()Lnet/minecraft/network/chat/Component;");
+        }
     }
 
     public enum KnownLinkType {
@@ -27,6 +31,10 @@ public record ServerLinks(List<ServerLinks.Entry> entries) {
         FORUMS,
         NEWS,
         ANNOUNCEMENTS;
+
+        private Component displayName() {
+            throw Unimplemented.forMember("net/minecraft/server/ServerLinks$KnownLinkType.displayName:()Lnet/minecraft/network/chat/Component;");
+        }
 
         public ServerLinks.Entry create(URI link) {
             throw Unimplemented.forMember("net/minecraft/server/ServerLinks$KnownLinkType.create:(Ljava/net/URI;)Lnet/minecraft/server/ServerLinks$Entry;");

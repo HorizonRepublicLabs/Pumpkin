@@ -5,6 +5,8 @@ import dev.pumpkin.shim.Unimplemented;
 
 public abstract class BaseCapability<T, C extends Object> {
 
+    private final Identifier name = null;
+
     protected BaseCapability(Identifier name, Class<T> typeClass, Class<C> contextClass) {
     }
 

@@ -23,6 +23,10 @@ public class JigsawBlockEntity extends BlockEntity {
         throw Unimplemented.forMember("net/minecraft/world/level/block/entity/JigsawBlockEntity.getTarget:()Lnet/minecraft/resources/Identifier;");
     }
 
+    public void setTarget(Identifier target) {
+        throw Unimplemented.forMember("net/minecraft/world/level/block/entity/JigsawBlockEntity.setTarget:(Lnet/minecraft/resources/Identifier;)V");
+    }
+
     protected void saveAdditional(ValueOutput output) {
         throw Unimplemented.forMember("net/minecraft/world/level/block/entity/JigsawBlockEntity.saveAdditional:(Lnet/minecraft/world/level/storage/ValueOutput;)V");
     }

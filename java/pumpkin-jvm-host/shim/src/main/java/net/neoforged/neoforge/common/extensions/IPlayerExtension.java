@@ -16,4 +16,8 @@ public interface IPlayerExtension {
     default OptionalInt openMenu(MenuProvider menuProvider, Consumer<RegistryFriendlyByteBuf> extraDataWriter) {
         throw Unimplemented.forMember("net/neoforged/neoforge/common/extensions/IPlayerExtension.openMenu:(Lnet/minecraft/world/MenuProvider;Ljava/util/function/Consumer;)Ljava/util/OptionalInt;");
     }
+
+    default boolean isFakePlayer() {
+        throw Unimplemented.forMember("net/neoforged/neoforge/common/extensions/IPlayerExtension.isFakePlayer:()Z");
+    }
 }

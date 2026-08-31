@@ -13,9 +13,12 @@ import net.minecraft.core.Holder;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.PlayerAdvancements;
 import net.minecraft.server.dialog.Dialog;
 import net.minecraft.server.network.ServerGamePacketListenerImpl;
 import net.minecraft.server.permissions.PermissionSet;
+import net.minecraft.stats.ServerRecipeBook;
+import net.minecraft.stats.ServerStatsCounter;
 import net.minecraft.stats.Stat;
 import net.minecraft.util.Unit;
 import net.minecraft.world.Container;
@@ -327,8 +330,24 @@ public class ServerPlayer extends Player {
         throw Unimplemented.forMember("net/minecraft/server/level/ServerPlayer.sendOverlayMessage:(Lnet/minecraft/network/chat/Component;)V");
     }
 
+    public void sendSystemMessage(Component message, boolean overlay) {
+        throw Unimplemented.forMember("net/minecraft/server/level/ServerPlayer.sendSystemMessage:(Lnet/minecraft/network/chat/Component;Z)V");
+    }
+
+    public String getIpAddress() {
+        throw Unimplemented.forMember("net/minecraft/server/level/ServerPlayer.getIpAddress:()Ljava/lang/String;");
+    }
+
     public PermissionSet permissions() {
         throw Unimplemented.forMember("net/minecraft/server/level/ServerPlayer.permissions:()Lnet/minecraft/server/permissions/PermissionSet;");
+    }
+
+    public ServerStatsCounter getStats() {
+        throw Unimplemented.forMember("net/minecraft/server/level/ServerPlayer.getStats:()Lnet/minecraft/stats/ServerStatsCounter;");
+    }
+
+    public ServerRecipeBook getRecipeBook() {
+        throw Unimplemented.forMember("net/minecraft/server/level/ServerPlayer.getRecipeBook:()Lnet/minecraft/stats/ServerRecipeBook;");
     }
 
     protected void updateInvisibilityStatus() {
@@ -343,8 +362,16 @@ public class ServerPlayer extends Player {
         throw Unimplemented.forMember("net/minecraft/server/level/ServerPlayer.swing:(Lnet/minecraft/world/InteractionHand;)V");
     }
 
+    public PlayerAdvancements getAdvancements() {
+        throw Unimplemented.forMember("net/minecraft/server/level/ServerPlayer.getAdvancements:()Lnet/minecraft/server/PlayerAdvancements;");
+    }
+
     public ItemEntity drop(ItemStack itemStack, boolean randomly, boolean thrownFromHand) {
         throw Unimplemented.forMember("net/minecraft/server/level/ServerPlayer.drop:(Lnet/minecraft/world/item/ItemStack;ZZ)Lnet/minecraft/world/entity/item/ItemEntity;");
+    }
+
+    public void setServerLevel(ServerLevel level) {
+        throw Unimplemented.forMember("net/minecraft/server/level/ServerPlayer.setServerLevel:(Lnet/minecraft/server/level/ServerLevel;)V");
     }
 
     public boolean isTextFilteringEnabled() {

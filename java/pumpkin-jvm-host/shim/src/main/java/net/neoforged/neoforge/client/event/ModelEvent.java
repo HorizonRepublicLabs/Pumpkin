@@ -36,6 +36,14 @@ public abstract class ModelEvent extends Event {
         public BakingCompleted(ModelManager modelManager, ModelBakery.BakingResult bakingResult, ModelBakery modelBakery) {
         }
 
+        public ModelBakery.BakingResult getBakingResult() {
+            throw Unimplemented.forMember("net/neoforged/neoforge/client/event/ModelEvent$BakingCompleted.getBakingResult:()Lnet/minecraft/client/resources/model/ModelBakery$BakingResult;");
+        }
+
+        public ModelBakery getModelBakery() {
+            throw Unimplemented.forMember("net/neoforged/neoforge/client/event/ModelEvent$BakingCompleted.getModelBakery:()Lnet/minecraft/client/resources/model/ModelBakery;");
+        }
+
         public BakingCompleted() {
         }
     }

@@ -18,6 +18,10 @@ public interface CraftingRecipe extends Recipe<CraftingInput> {
 
     CraftingBookCategory category();
 
+    default NonNullList<ItemStack> getRemainingItems(CraftingInput input) {
+        throw Unimplemented.forMember("net/minecraft/world/item/crafting/CraftingRecipe.getRemainingItems:(Lnet/minecraft/world/item/crafting/CraftingInput;)Lnet/minecraft/core/NonNullList;");
+    }
+
     static NonNullList<ItemStack> defaultCraftingReminder(CraftingInput input) {
         throw Unimplemented.forMember("net/minecraft/world/item/crafting/CraftingRecipe.defaultCraftingReminder:(Lnet/minecraft/world/item/crafting/CraftingInput;)Lnet/minecraft/core/NonNullList;");
     }

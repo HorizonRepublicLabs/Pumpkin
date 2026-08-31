@@ -5,7 +5,21 @@ import dev.pumpkin.shim.Unimplemented;
 
 public class RenderPipelines {
 
+    public static final RenderPipeline.Snippet MATRICES_FOG_SNIPPET = null;
+
+    public static final RenderPipeline.Snippet MATRICES_FOG_LIGHT_DIR_SNIPPET = null;
+
     public static final RenderPipeline.Snippet BLOCK_SNIPPET = null;
+
+    public static final RenderPipeline.Snippet GUI_SNIPPET = null;
+
+    public static final RenderPipeline.Snippet GUI_TEXTURED_SNIPPET = null;
+
+    public static final RenderPipeline GLINT = null;
+
+    public static final RenderPipeline LIGHTNING = null;
+
+    public static final RenderPipeline GUI = null;
 
     public static final RenderPipeline GUI_TEXTURED = null;
 

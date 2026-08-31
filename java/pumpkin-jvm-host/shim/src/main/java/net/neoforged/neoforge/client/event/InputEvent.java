@@ -46,6 +46,10 @@ public abstract class InputEvent extends Event {
         public MouseScrollingEvent(double scrollDeltaX, double scrollDeltaY, Vector2ic accumulatedScroll, boolean leftDown, boolean middleDown, boolean rightDown, double mouseX, double mouseY) {
         }
 
+        public double getScrollDeltaY() {
+            throw Unimplemented.forMember("net/neoforged/neoforge/client/event/InputEvent$MouseScrollingEvent.getScrollDeltaY:()D");
+        }
+
         public MouseScrollingEvent() {
         }
     }

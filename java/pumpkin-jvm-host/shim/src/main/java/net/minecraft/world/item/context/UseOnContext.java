@@ -7,6 +7,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.Vec3;
 import dev.pumpkin.shim.Unimplemented;
 
 public class UseOnContext {
@@ -23,6 +24,14 @@ public class UseOnContext {
 
     public Direction getClickedFace() {
         throw Unimplemented.forMember("net/minecraft/world/item/context/UseOnContext.getClickedFace:()Lnet/minecraft/core/Direction;");
+    }
+
+    public Vec3 getClickLocation() {
+        throw Unimplemented.forMember("net/minecraft/world/item/context/UseOnContext.getClickLocation:()Lnet/minecraft/world/phys/Vec3;");
+    }
+
+    public boolean isInside() {
+        throw Unimplemented.forMember("net/minecraft/world/item/context/UseOnContext.isInside:()Z");
     }
 
     public ItemStack getItemInHand() {

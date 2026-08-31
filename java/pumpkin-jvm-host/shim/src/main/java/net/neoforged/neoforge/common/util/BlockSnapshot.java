@@ -25,12 +25,20 @@ public class BlockSnapshot {
         throw Unimplemented.forMember("net/neoforged/neoforge/common/util/BlockSnapshot.getPos:()Lnet/minecraft/core/BlockPos;");
     }
 
+    public int getFlags() {
+        throw Unimplemented.forMember("net/neoforged/neoforge/common/util/BlockSnapshot.getFlags:()I");
+    }
+
     public LevelAccessor getLevel() {
         throw Unimplemented.forMember("net/neoforged/neoforge/common/util/BlockSnapshot.getLevel:()Lnet/minecraft/world/level/LevelAccessor;");
     }
 
     public boolean restore(int flags) {
         throw Unimplemented.forMember("net/neoforged/neoforge/common/util/BlockSnapshot.restore:(I)Z");
+    }
+
+    public boolean restore() {
+        throw Unimplemented.forMember("net/neoforged/neoforge/common/util/BlockSnapshot.restore:()Z");
     }
 
     public boolean equals(Object obj) {

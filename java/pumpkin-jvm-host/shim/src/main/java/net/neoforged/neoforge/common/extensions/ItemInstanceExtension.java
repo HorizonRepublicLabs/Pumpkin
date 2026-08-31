@@ -3,9 +3,14 @@ package net.neoforged.neoforge.common.extensions;
 import net.minecraft.core.Holder;
 import net.minecraft.world.item.ItemStackTemplate;
 import net.minecraft.world.item.enchantment.Enchantment;
+import net.neoforged.neoforge.common.ItemAbility;
 import dev.pumpkin.shim.Unimplemented;
 
 public interface ItemInstanceExtension {
+
+    default boolean canPerformAction(ItemAbility itemAbility) {
+        throw Unimplemented.forMember("net/neoforged/neoforge/common/extensions/ItemInstanceExtension.canPerformAction:(Lnet/neoforged/neoforge/common/ItemAbility;)Z");
+    }
 
     default int getEnchantmentLevel(Holder<Enchantment> enchantment) {
         throw Unimplemented.forMember("net/neoforged/neoforge/common/extensions/ItemInstanceExtension.getEnchantmentLevel:(Lnet/minecraft/core/Holder;)I");

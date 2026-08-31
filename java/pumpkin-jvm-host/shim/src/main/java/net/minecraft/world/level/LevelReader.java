@@ -66,8 +66,28 @@ public interface LevelReader extends BlockAndLightGetter, CollisionGetter, Signa
         throw Unimplemented.forMember("net/minecraft/world/level/LevelReader.getChunk:(Lnet/minecraft/core/BlockPos;)Lnet/minecraft/world/level/chunk/ChunkAccess;");
     }
 
+    default ChunkAccess getChunk(int chunkX, int chunkZ) {
+        throw Unimplemented.forMember("net/minecraft/world/level/LevelReader.getChunk:(II)Lnet/minecraft/world/level/chunk/ChunkAccess;");
+    }
+
+    default ChunkAccess getChunk(int chunkX, int chunkZ, ChunkStatus status) {
+        throw Unimplemented.forMember("net/minecraft/world/level/LevelReader.getChunk:(IILnet/minecraft/world/level/chunk/status/ChunkStatus;)Lnet/minecraft/world/level/chunk/ChunkAccess;");
+    }
+
     default BlockGetter getChunkForCollisions(int chunkX, int chunkZ) {
         throw Unimplemented.forMember("net/minecraft/world/level/LevelReader.getChunkForCollisions:(II)Lnet/minecraft/world/level/BlockGetter;");
+    }
+
+    default boolean hasChunksAt(BlockPos pos0, BlockPos pos1) {
+        throw Unimplemented.forMember("net/minecraft/world/level/LevelReader.hasChunksAt:(Lnet/minecraft/core/BlockPos;Lnet/minecraft/core/BlockPos;)Z");
+    }
+
+    default boolean hasChunksAt(int x0, int y0, int z0, int x1, int y1, int z1) {
+        throw Unimplemented.forMember("net/minecraft/world/level/LevelReader.hasChunksAt:(IIIIII)Z");
+    }
+
+    default boolean hasChunksAt(int x0, int z0, int x1, int z1) {
+        throw Unimplemented.forMember("net/minecraft/world/level/LevelReader.hasChunksAt:(IIII)Z");
     }
 
     RegistryAccess registryAccess();

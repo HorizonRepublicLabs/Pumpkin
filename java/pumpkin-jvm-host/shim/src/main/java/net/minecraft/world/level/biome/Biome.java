@@ -20,6 +20,14 @@ public final class Biome {
     private Biome(Biome.ClimateSettings climateSettings, EnvironmentAttributeMap attributes, BiomeSpecialEffects specialEffects, BiomeGenerationSettings generationSettings, MobSpawnSettings mobSettings) {
     }
 
+    public Biome.Precipitation getPrecipitationAt(BlockPos pos, int seaLevel) {
+        throw Unimplemented.forMember("net/minecraft/world/level/biome/Biome.getPrecipitationAt:(Lnet/minecraft/core/BlockPos;I)Lnet/minecraft/world/level/biome/Biome$Precipitation;");
+    }
+
+    private float getTemperature(BlockPos pos, int seaLevel) {
+        throw Unimplemented.forMember("net/minecraft/world/level/biome/Biome.getTemperature:(Lnet/minecraft/core/BlockPos;I)F");
+    }
+
     public static class BiomeBuilder {
 
         public Biome build() {
@@ -71,6 +79,10 @@ public final class Biome {
         public String getSerializedName() {
             throw Unimplemented.forMember("net/minecraft/world/level/biome/Biome$TemperatureModifier.getSerializedName:()Ljava/lang/String;");
         }
+    }
+
+    public ClimateSettings getModifiedClimateSettings() {
+        throw Unimplemented.forMember("net/minecraft/world/level/biome/Biome.getModifiedClimateSettings:()Lnet/minecraft/world/level/biome/Biome$ClimateSettings;");
     }
 
     public Biome() {

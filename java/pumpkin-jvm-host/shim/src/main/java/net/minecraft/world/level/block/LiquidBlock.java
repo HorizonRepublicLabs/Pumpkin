@@ -29,6 +29,8 @@ import dev.pumpkin.shim.Unimplemented;
 
 public class LiquidBlock extends Block implements BucketPickup {
 
+    public final FlowingFluid fluid = null;
+
     public MapCodec<LiquidBlock> codec() {
         throw Unimplemented.forMember("net/minecraft/world/level/block/LiquidBlock.codec:()Lcom/mojang/serialization/MapCodec;");
     }

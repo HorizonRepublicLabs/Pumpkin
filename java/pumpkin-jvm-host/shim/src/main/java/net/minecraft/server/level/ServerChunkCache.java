@@ -3,10 +3,13 @@ package net.minecraft.server.level;
 import com.mojang.datafixers.DataFixer;
 import it.unimi.dsi.fastutil.longs.LongSet;
 import java.io.IOException;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 import java.util.function.BooleanSupplier;
 import java.util.function.Supplier;
 import net.minecraft.core.SectionPos;
+import net.minecraft.network.protocol.Packet;
+import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.util.thread.BlockableEventLoop;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.ChunkPos;
@@ -27,6 +30,8 @@ import dev.pumpkin.shim.Unimplemented;
 
 public class ServerChunkCache extends ChunkSource implements IServerChunkCacheExtension {
 
+    public final ChunkMap chunkMap = null;
+
     public ServerChunkCache(ServerLevel level, LevelStorageSource.LevelStorageAccess levelStorage, DataFixer fixerUpper, StructureTemplateManager structureTemplateManager, Executor executor, ChunkGenerator generator, int viewDistance, int simulationDistance, boolean syncWrites, ChunkStatusUpdateListener chunkStatusListener, Supplier<SavedDataStorage> overworldDataStorage) {
     }
 
@@ -40,6 +45,10 @@ public class ServerChunkCache extends ChunkSource implements IServerChunkCacheEx
 
     public LevelChunk getChunkNow(int x, int z) {
         throw Unimplemented.forMember("net/minecraft/server/level/ServerChunkCache.getChunkNow:(II)Lnet/minecraft/world/level/chunk/LevelChunk;");
+    }
+
+    public CompletableFuture<ChunkResult<ChunkAccess>> getChunkFuture(int x, int z, ChunkStatus targetStatus, boolean loadOrGenerate) {
+        throw Unimplemented.forMember("net/minecraft/server/level/ServerChunkCache.getChunkFuture:(IILnet/minecraft/world/level/chunk/status/ChunkStatus;Z)Ljava/util/concurrent/CompletableFuture;");
     }
 
     public boolean hasChunk(int x, int z) {
@@ -78,6 +87,10 @@ public class ServerChunkCache extends ChunkSource implements IServerChunkCacheEx
         throw Unimplemented.forMember("net/minecraft/server/level/ServerChunkCache.onLightUpdate:(Lnet/minecraft/world/level/LightLayer;Lnet/minecraft/core/SectionPos;)V");
     }
 
+    public void addTicketWithRadius(TicketType type, ChunkPos pos, int radius) {
+        throw Unimplemented.forMember("net/minecraft/server/level/ServerChunkCache.addTicketWithRadius:(Lnet/minecraft/server/level/TicketType;Lnet/minecraft/world/level/ChunkPos;I)V");
+    }
+
     public boolean updateChunkForced(ChunkPos pos, boolean forced) {
         throw Unimplemented.forMember("net/minecraft/server/level/ServerChunkCache.updateChunkForced:(Lnet/minecraft/world/level/ChunkPos;Z)Z");
     }
@@ -88,6 +101,10 @@ public class ServerChunkCache extends ChunkSource implements IServerChunkCacheEx
 
     public void addEntity(Entity entity) {
         throw Unimplemented.forMember("net/minecraft/server/level/ServerChunkCache.addEntity:(Lnet/minecraft/world/entity/Entity;)V");
+    }
+
+    public void sendToTrackingPlayers(Entity entity, Packet<? super ClientGamePacketListener> packet) {
+        throw Unimplemented.forMember("net/minecraft/server/level/ServerChunkCache.sendToTrackingPlayers:(Lnet/minecraft/world/entity/Entity;Lnet/minecraft/network/protocol/Packet;)V");
     }
 
     public void setSpawnSettings(boolean spawnEnemies) {

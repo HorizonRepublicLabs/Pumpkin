@@ -9,6 +9,10 @@ import dev.pumpkin.shim.Unimplemented;
 
 public class PalettedContainer<T> implements PaletteResize<T>, PalettedContainerRO<T> {
 
+    public void acquire() {
+        throw Unimplemented.forMember("net/minecraft/world/level/chunk/PalettedContainer.acquire:()V");
+    }
+
     public void release() {
         throw Unimplemented.forMember("net/minecraft/world/level/chunk/PalettedContainer.release:()V");
     }

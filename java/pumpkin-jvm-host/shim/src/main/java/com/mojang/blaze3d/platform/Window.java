@@ -7,6 +7,8 @@ import dev.pumpkin.shim.Unimplemented;
 
 public final class Window implements AutoCloseable {
 
+    private final long handle = 0L;
+
     public Window(WindowEventHandler eventHandler, DisplayData displayData, String fullscreenVideoModeString, boolean exclusiveFullscreen, String title, MonitorManager monitorManager, GpuBackend backend) throws BackendCreationException {
     }
 

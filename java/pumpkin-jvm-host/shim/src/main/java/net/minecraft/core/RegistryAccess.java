@@ -13,6 +13,10 @@ public interface RegistryAccess extends HolderLookup.Provider {
 
     <E> Optional<Registry<E>> lookup(final ResourceKey<? extends Registry<? extends E>> registryKey);
 
+    default <E> Registry<E> lookupOrThrow(ResourceKey<? extends Registry<? extends E>> name) {
+        throw Unimplemented.forMember("net/minecraft/core/RegistryAccess.lookupOrThrow:(Lnet/minecraft/resources/ResourceKey;)Lnet/minecraft/core/Registry;");
+    }
+
     Stream<RegistryAccess.RegistryEntry<?>> registries();
 
     default Stream<ResourceKey<? extends Registry<?>>> listRegistryKeys() {

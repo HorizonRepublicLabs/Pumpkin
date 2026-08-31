@@ -16,9 +16,21 @@ import dev.pumpkin.shim.Unimplemented;
 
 public record ItemAttributeModifiers(List<ItemAttributeModifiers.Entry> modifiers) {
 
+    public static ItemAttributeModifiers.Builder builder() {
+        throw Unimplemented.forMember("net/minecraft/world/item/component/ItemAttributeModifiers.builder:()Lnet/minecraft/world/item/component/ItemAttributeModifiers$Builder;");
+    }
+
     public static class Builder {
 
         protected Builder() {
+        }
+
+        public ItemAttributeModifiers.Builder add(Holder<Attribute> attribute, AttributeModifier modifier, EquipmentSlotGroup slot) {
+            throw Unimplemented.forMember("net/minecraft/world/item/component/ItemAttributeModifiers$Builder.add:(Lnet/minecraft/core/Holder;Lnet/minecraft/world/entity/ai/attributes/AttributeModifier;Lnet/minecraft/world/entity/EquipmentSlotGroup;)Lnet/minecraft/world/item/component/ItemAttributeModifiers$Builder;");
+        }
+
+        public ItemAttributeModifiers.Builder add(Holder<Attribute> attribute, AttributeModifier modifier, EquipmentSlotGroup slot, ItemAttributeModifiers.Display display) {
+            throw Unimplemented.forMember("net/minecraft/world/item/component/ItemAttributeModifiers$Builder.add:(Lnet/minecraft/core/Holder;Lnet/minecraft/world/entity/ai/attributes/AttributeModifier;Lnet/minecraft/world/entity/EquipmentSlotGroup;Lnet/minecraft/world/item/component/ItemAttributeModifiers$Display;)Lnet/minecraft/world/item/component/ItemAttributeModifiers$Builder;");
         }
 
         public ItemAttributeModifiers build() {

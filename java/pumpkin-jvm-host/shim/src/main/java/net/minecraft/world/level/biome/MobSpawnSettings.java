@@ -13,6 +13,10 @@ public class MobSpawnSettings {
 
     public static class Builder {
 
+        public MobSpawnSettings.Builder addMobCharge(EntityType<?> type, double charge, double energyBudget) {
+            throw Unimplemented.forMember("net/minecraft/world/level/biome/MobSpawnSettings$Builder.addMobCharge:(Lnet/minecraft/world/entity/EntityType;DD)Lnet/minecraft/world/level/biome/MobSpawnSettings$Builder;");
+        }
+
         public MobSpawnSettings build() {
             throw Unimplemented.forMember("net/minecraft/world/level/biome/MobSpawnSettings$Builder.build:()Lnet/minecraft/world/level/biome/MobSpawnSettings;");
         }

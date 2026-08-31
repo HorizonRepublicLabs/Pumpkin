@@ -25,17 +25,23 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.tags.TagKey;
 import net.minecraft.util.ProblemReporter;
 import net.minecraft.util.RandomSource;
 import net.minecraft.util.debug.DebugValueSource;
 import net.minecraft.world.Nameable;
 import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.damagesource.DamageSources;
 import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.entity.EntityAccess;
 import net.minecraft.world.level.entity.EntityInLevelCallback;
+import net.minecraft.world.level.gameevent.GameEvent;
+import net.minecraft.world.level.material.Fluid;
+import net.minecraft.world.level.portal.TeleportTransition;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
 import net.minecraft.world.level.storage.loot.LootTable;
@@ -44,11 +50,20 @@ import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.scores.ScoreHolder;
 import net.minecraft.world.scores.Team;
 import net.neoforged.neoforge.common.extensions.IEntityExtension;
+import dev.pumpkin.shim.Stubs;
 import dev.pumpkin.shim.Unimplemented;
 
 public abstract class Entity extends net.neoforged.neoforge.attachment.AttachmentHolder implements Nameable, EntityAccess, ScoreHolder, SyncedDataHolder, DataComponentGetter, ItemOwner, SlotProvider, DebugValueSource, TypedInstance<EntityType<?>>, IEntityExtension {
 
+    public boolean blocksBuilding;
+
     private Level level;
+
+    public double xo;
+
+    public double yo;
+
+    public double zo;
 
     private Vec3 position;
 
@@ -58,9 +73,23 @@ public abstract class Entity extends net.neoforged.neoforge.attachment.Attachmen
         this.position = position;
     }
 
+    private BlockPos blockPosition;
+
     private boolean onGround;
 
+    protected final RandomSource random = Stubs.of(RandomSource.class, "net/minecraft/util/RandomSource");
+
+    public int tickCount;
+
+    protected final SynchedEntityData entityData = null;
+
+    public boolean needsSync;
+
     public Entity(EntityType<?> type, Level level) {
+    }
+
+    public int getTeamColor() {
+        throw Unimplemented.forMember("net/minecraft/world/entity/Entity.getTeamColor:()I");
     }
 
     public boolean isSpectator() {
@@ -101,8 +130,44 @@ public abstract class Entity extends net.neoforged.neoforge.attachment.Attachmen
         throw Unimplemented.forMember("net/minecraft/world/entity/Entity.remove:(Lnet/minecraft/world/entity/Entity$RemovalReason;)V");
     }
 
+    public final void setPos(Vec3 pos) {
+        throw Unimplemented.forMember("net/minecraft/world/entity/Entity.setPos:(Lnet/minecraft/world/phys/Vec3;)V");
+    }
+
+    public void setPos(double x, double y, double z) {
+        throw Unimplemented.forMember("net/minecraft/world/entity/Entity.setPos:(DDD)V");
+    }
+
+    protected final AABB makeBoundingBox() {
+        throw Unimplemented.forMember("net/minecraft/world/entity/Entity.makeBoundingBox:()Lnet/minecraft/world/phys/AABB;");
+    }
+
+    protected AABB makeBoundingBox(Vec3 position) {
+        throw Unimplemented.forMember("net/minecraft/world/entity/Entity.makeBoundingBox:(Lnet/minecraft/world/phys/Vec3;)Lnet/minecraft/world/phys/AABB;");
+    }
+
     public void tick() {
         throw Unimplemented.forMember("net/minecraft/world/entity/Entity.tick:()V");
+    }
+
+    public void baseTick() {
+        throw Unimplemented.forMember("net/minecraft/world/entity/Entity.baseTick:()V");
+    }
+
+    public final void igniteForSeconds(float numberOfSeconds) {
+        throw Unimplemented.forMember("net/minecraft/world/entity/Entity.igniteForSeconds:(F)V");
+    }
+
+    public void igniteForTicks(int numberOfTicks) {
+        throw Unimplemented.forMember("net/minecraft/world/entity/Entity.igniteForTicks:(I)V");
+    }
+
+    public void setRemainingFireTicks(int remainingTicks) {
+        throw Unimplemented.forMember("net/minecraft/world/entity/Entity.setRemainingFireTicks:(I)V");
+    }
+
+    public int getRemainingFireTicks() {
+        throw Unimplemented.forMember("net/minecraft/world/entity/Entity.getRemainingFireTicks:()I");
     }
 
     public void clearFire() {
@@ -113,12 +178,28 @@ public abstract class Entity extends net.neoforged.neoforge.attachment.Attachmen
         throw Unimplemented.forMember("net/minecraft/world/entity/Entity.onGround:()Z");
     }
 
+    public void move(MoverType moverType, Vec3 delta) {
+        throw Unimplemented.forMember("net/minecraft/world/entity/Entity.move:(Lnet/minecraft/world/entity/MoverType;Lnet/minecraft/world/phys/Vec3;)V");
+    }
+
     public BlockPos getOnPos() {
         throw Unimplemented.forMember("net/minecraft/world/entity/Entity.getOnPos:()Lnet/minecraft/core/BlockPos;");
     }
 
     protected BlockPos getOnPos(float offset) {
         throw Unimplemented.forMember("net/minecraft/world/entity/Entity.getOnPos:(F)Lnet/minecraft/core/BlockPos;");
+    }
+
+    public void gameEvent(Holder<GameEvent> event, Entity sourceEntity) {
+        throw Unimplemented.forMember("net/minecraft/world/entity/Entity.gameEvent:(Lnet/minecraft/core/Holder;Lnet/minecraft/world/entity/Entity;)V");
+    }
+
+    public void gameEvent(Holder<GameEvent> event) {
+        throw Unimplemented.forMember("net/minecraft/world/entity/Entity.gameEvent:(Lnet/minecraft/core/Holder;)V");
+    }
+
+    protected void playStepSound(BlockPos pos, BlockState blockState) {
+        throw Unimplemented.forMember("net/minecraft/world/entity/Entity.playStepSound:(Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/state/BlockState;)V");
     }
 
     public void playSound(SoundEvent sound, float volume, float pitch) {
@@ -133,6 +214,10 @@ public abstract class Entity extends net.neoforged.neoforge.attachment.Attachmen
         throw Unimplemented.forMember("net/minecraft/world/entity/Entity.isSilent:()Z");
     }
 
+    public boolean fireImmune() {
+        throw Unimplemented.forMember("net/minecraft/world/entity/Entity.fireImmune:()Z");
+    }
+
     public boolean causeFallDamage(double fallDistance, float damageModifier, DamageSource damageSource) {
         throw Unimplemented.forMember("net/minecraft/world/entity/Entity.causeFallDamage:(DFLnet/minecraft/world/damagesource/DamageSource;)Z");
     }
@@ -141,8 +226,64 @@ public abstract class Entity extends net.neoforged.neoforge.attachment.Attachmen
         throw Unimplemented.forMember("net/minecraft/world/entity/Entity.isInWater:()Z");
     }
 
+    private boolean isInRain() {
+        throw Unimplemented.forMember("net/minecraft/world/entity/Entity.isInRain:()Z");
+    }
+
+    public boolean isEyeInFluid(TagKey<Fluid> type) {
+        throw Unimplemented.forMember("net/minecraft/world/entity/Entity.isEyeInFluid:(Lnet/minecraft/tags/TagKey;)Z");
+    }
+
+    public boolean isEyeInFluid(net.neoforged.neoforge.fluids.FluidType type) {
+        throw Unimplemented.forMember("net/minecraft/world/entity/Entity.isEyeInFluid:(Lnet/neoforged/neoforge/fluids/FluidType;)Z");
+    }
+
     public void moveRelative(float speed, Vec3 input) {
         throw Unimplemented.forMember("net/minecraft/world/entity/Entity.moveRelative:(FLnet/minecraft/world/phys/Vec3;)V");
+    }
+
+    public void absSnapTo(double x, double y, double z, float yRot, float xRot) {
+        throw Unimplemented.forMember("net/minecraft/world/entity/Entity.absSnapTo:(DDDFF)V");
+    }
+
+    public void absSnapTo(double x, double y, double z) {
+        throw Unimplemented.forMember("net/minecraft/world/entity/Entity.absSnapTo:(DDD)V");
+    }
+
+    public void snapTo(Vec3 pos) {
+        throw Unimplemented.forMember("net/minecraft/world/entity/Entity.snapTo:(Lnet/minecraft/world/phys/Vec3;)V");
+    }
+
+    public void snapTo(double x, double y, double z) {
+        throw Unimplemented.forMember("net/minecraft/world/entity/Entity.snapTo:(DDD)V");
+    }
+
+    public void snapTo(BlockPos spawnPos, float yRot, float xRot) {
+        throw Unimplemented.forMember("net/minecraft/world/entity/Entity.snapTo:(Lnet/minecraft/core/BlockPos;FF)V");
+    }
+
+    public void snapTo(Vec3 spawnPos, float yRot, float xRot) {
+        throw Unimplemented.forMember("net/minecraft/world/entity/Entity.snapTo:(Lnet/minecraft/world/phys/Vec3;FF)V");
+    }
+
+    public void snapTo(double x, double y, double z, float yRot, float xRot) {
+        throw Unimplemented.forMember("net/minecraft/world/entity/Entity.snapTo:(DDDFF)V");
+    }
+
+    protected void setOldPos() {
+        throw Unimplemented.forMember("net/minecraft/world/entity/Entity.setOldPos:()V");
+    }
+
+    private void setOldPos(Vec3 position) {
+        throw Unimplemented.forMember("net/minecraft/world/entity/Entity.setOldPos:(Lnet/minecraft/world/phys/Vec3;)V");
+    }
+
+    public final Vec3 oldPosition() {
+        throw Unimplemented.forMember("net/minecraft/world/entity/Entity.oldPosition:()Lnet/minecraft/world/phys/Vec3;");
+    }
+
+    public float distanceTo(Entity entity) {
+        throw Unimplemented.forMember("net/minecraft/world/entity/Entity.distanceTo:(Lnet/minecraft/world/entity/Entity;)F");
     }
 
     public double distanceToSqr(double x2, double y2, double z2) {
@@ -171,12 +312,28 @@ public abstract class Entity extends net.neoforged.neoforge.attachment.Attachmen
 
     public abstract boolean hurtServer(ServerLevel level, DamageSource source, float damage);
 
+    public final Vec3 getViewVector(float a) {
+        throw Unimplemented.forMember("net/minecraft/world/entity/Entity.getViewVector:(F)Lnet/minecraft/world/phys/Vec3;");
+    }
+
+    public float getViewYRot(float a) {
+        throw Unimplemented.forMember("net/minecraft/world/entity/Entity.getViewYRot:(F)F");
+    }
+
     public float getXRot(float partialTicks) {
         throw Unimplemented.forMember("net/minecraft/world/entity/Entity.getXRot:(F)F");
     }
 
     public float getYRot(float partialTicks) {
         throw Unimplemented.forMember("net/minecraft/world/entity/Entity.getYRot:(F)F");
+    }
+
+    public final Vec3 calculateViewVector(float xRot, float yRot) {
+        throw Unimplemented.forMember("net/minecraft/world/entity/Entity.calculateViewVector:(FF)Lnet/minecraft/world/phys/Vec3;");
+    }
+
+    public final Vec3 getUpVector(float a) {
+        throw Unimplemented.forMember("net/minecraft/world/entity/Entity.getUpVector:(F)Lnet/minecraft/world/phys/Vec3;");
     }
 
     public final Vec3 getEyePosition() {
@@ -203,6 +360,26 @@ public abstract class Entity extends net.neoforged.neoforge.attachment.Attachmen
         throw Unimplemented.forMember("net/minecraft/world/entity/Entity.isAlive:()Z");
     }
 
+    public boolean shearOffAllLeashConnections(Player player) {
+        throw Unimplemented.forMember("net/minecraft/world/entity/Entity.shearOffAllLeashConnections:(Lnet/minecraft/world/entity/player/Player;)Z");
+    }
+
+    public Vec3 getVehicleAttachmentPoint(Entity vehicle) {
+        throw Unimplemented.forMember("net/minecraft/world/entity/Entity.getVehicleAttachmentPoint:(Lnet/minecraft/world/entity/Entity;)Lnet/minecraft/world/phys/Vec3;");
+    }
+
+    public void stopRiding() {
+        throw Unimplemented.forMember("net/minecraft/world/entity/Entity.stopRiding:()V");
+    }
+
+    public Vec3 getLookAngle() {
+        throw Unimplemented.forMember("net/minecraft/world/entity/Entity.getLookAngle:()Lnet/minecraft/world/phys/Vec3;");
+    }
+
+    public void lerpMotion(Vec3 movement) {
+        throw Unimplemented.forMember("net/minecraft/world/entity/Entity.lerpMotion:(Lnet/minecraft/world/phys/Vec3;)V");
+    }
+
     public void handleDamageEvent(DamageSource source) {
         throw Unimplemented.forMember("net/minecraft/world/entity/Entity.handleDamageEvent:(Lnet/minecraft/world/damagesource/DamageSource;)V");
     }
@@ -213,6 +390,10 @@ public abstract class Entity extends net.neoforged.neoforge.attachment.Attachmen
 
     public boolean isOnFire() {
         throw Unimplemented.forMember("net/minecraft/world/entity/Entity.isOnFire:()Z");
+    }
+
+    public boolean isPassenger() {
+        throw Unimplemented.forMember("net/minecraft/world/entity/Entity.isPassenger:()Z");
     }
 
     public boolean isShiftKeyDown() {
@@ -235,12 +416,36 @@ public abstract class Entity extends net.neoforged.neoforge.attachment.Attachmen
         throw Unimplemented.forMember("net/minecraft/world/entity/Entity.isSwimming:()Z");
     }
 
+    public boolean isVisuallySwimming() {
+        throw Unimplemented.forMember("net/minecraft/world/entity/Entity.isVisuallySwimming:()Z");
+    }
+
     public final boolean isAlliedTo(Entity other) {
         throw Unimplemented.forMember("net/minecraft/world/entity/Entity.isAlliedTo:(Lnet/minecraft/world/entity/Entity;)Z");
     }
 
     public boolean isAlliedTo(Team other) {
         throw Unimplemented.forMember("net/minecraft/world/entity/Entity.isAlliedTo:(Lnet/minecraft/world/scores/Team;)Z");
+    }
+
+    public int getMaxAirSupply() {
+        throw Unimplemented.forMember("net/minecraft/world/entity/Entity.getMaxAirSupply:()I");
+    }
+
+    public int getAirSupply() {
+        throw Unimplemented.forMember("net/minecraft/world/entity/Entity.getAirSupply:()I");
+    }
+
+    public void setAirSupply(int supply) {
+        throw Unimplemented.forMember("net/minecraft/world/entity/Entity.setAirSupply:(I)V");
+    }
+
+    public void thunderHit(ServerLevel level, LightningBolt lightningBolt) {
+        throw Unimplemented.forMember("net/minecraft/world/entity/Entity.thunderHit:(Lnet/minecraft/server/level/ServerLevel;Lnet/minecraft/world/entity/LightningBolt;)V");
+    }
+
+    public void resetFallDistance() {
+        throw Unimplemented.forMember("net/minecraft/world/entity/Entity.resetFallDistance:()V");
     }
 
     public Component getName() {
@@ -251,12 +456,32 @@ public abstract class Entity extends net.neoforged.neoforge.attachment.Attachmen
         throw Unimplemented.forMember("net/minecraft/world/entity/Entity.is:(Lnet/minecraft/world/entity/Entity;)Z");
     }
 
+    public float getYHeadRot() {
+        throw Unimplemented.forMember("net/minecraft/world/entity/Entity.getYHeadRot:()F");
+    }
+
     public String toString() {
         throw Unimplemented.forMember("net/minecraft/world/entity/Entity.toString:()Ljava/lang/String;");
     }
 
+    protected final boolean isInvulnerableToBase(DamageSource source) {
+        throw Unimplemented.forMember("net/minecraft/world/entity/Entity.isInvulnerableToBase:(Lnet/minecraft/world/damagesource/DamageSource;)Z");
+    }
+
+    public Entity teleport(TeleportTransition transition) {
+        throw Unimplemented.forMember("net/minecraft/world/entity/Entity.teleport:(Lnet/minecraft/world/level/portal/TeleportTransition;)Lnet/minecraft/world/entity/Entity;");
+    }
+
     public void forceSetRotation(float yRot, boolean relativeY, float xRot, boolean relativeX) {
         throw Unimplemented.forMember("net/minecraft/world/entity/Entity.forceSetRotation:(FZFZ)V");
+    }
+
+    public boolean canUsePortal(boolean ignorePassenger) {
+        throw Unimplemented.forMember("net/minecraft/world/entity/Entity.canUsePortal:(Z)Z");
+    }
+
+    public boolean canTeleport(Level from, Level to) {
+        throw Unimplemented.forMember("net/minecraft/world/entity/Entity.canTeleport:(Lnet/minecraft/world/level/Level;Lnet/minecraft/world/level/Level;)Z");
     }
 
     public void setUUID(UUID uuid) {
@@ -275,6 +500,10 @@ public abstract class Entity extends net.neoforged.neoforge.attachment.Attachmen
         throw Unimplemented.forMember("net/minecraft/world/entity/Entity.getDisplayName:()Lnet/minecraft/network/chat/Component;");
     }
 
+    public void setCustomName(Component name) {
+        throw Unimplemented.forMember("net/minecraft/world/entity/Entity.setCustomName:(Lnet/minecraft/network/chat/Component;)V");
+    }
+
     public Component getCustomName() {
         throw Unimplemented.forMember("net/minecraft/world/entity/Entity.getCustomName:()Lnet/minecraft/network/chat/Component;");
     }
@@ -283,8 +512,16 @@ public abstract class Entity extends net.neoforged.neoforge.attachment.Attachmen
         throw Unimplemented.forMember("net/minecraft/world/entity/Entity.hasCustomName:()Z");
     }
 
+    public void setCustomNameVisible(boolean visible) {
+        throw Unimplemented.forMember("net/minecraft/world/entity/Entity.setCustomNameVisible:(Z)V");
+    }
+
     public boolean teleportTo(ServerLevel level, double x, double y, double z, Set<Relative> relatives, float newYRot, float newXRot, boolean resetCamera) {
         throw Unimplemented.forMember("net/minecraft/world/entity/Entity.teleportTo:(Lnet/minecraft/server/level/ServerLevel;DDDLjava/util/Set;FFZ)Z");
+    }
+
+    public void dismountTo(double x, double y, double z) {
+        throw Unimplemented.forMember("net/minecraft/world/entity/Entity.dismountTo:(DDD)V");
     }
 
     public void teleportTo(double x, double y, double z) {
@@ -307,8 +544,24 @@ public abstract class Entity extends net.neoforged.neoforge.attachment.Attachmen
         throw Unimplemented.forMember("net/minecraft/world/entity/Entity.getBoundingBox:()Lnet/minecraft/world/phys/AABB;");
     }
 
+    public final float getEyeHeight(Pose pose) {
+        throw Unimplemented.forMember("net/minecraft/world/entity/Entity.getEyeHeight:(Lnet/minecraft/world/entity/Pose;)F");
+    }
+
+    public final float getEyeHeight() {
+        throw Unimplemented.forMember("net/minecraft/world/entity/Entity.getEyeHeight:()F");
+    }
+
     public SlotAccess getSlot(int slot) {
         throw Unimplemented.forMember("net/minecraft/world/entity/Entity.getSlot:(I)Lnet/minecraft/world/entity/SlotAccess;");
+    }
+
+    public LivingEntity getControllingPassenger() {
+        throw Unimplemented.forMember("net/minecraft/world/entity/Entity.getControllingPassenger:()Lnet/minecraft/world/entity/LivingEntity;");
+    }
+
+    public final List<Entity> getPassengers() {
+        throw Unimplemented.forMember("net/minecraft/world/entity/Entity.getPassengers:()Ljava/util/List;");
     }
 
     public Stream<Entity> getSelfAndPassengers() {
@@ -317,6 +570,14 @@ public abstract class Entity extends net.neoforged.neoforge.attachment.Attachmen
 
     public Stream<Entity> getPassengersAndSelf() {
         throw Unimplemented.forMember("net/minecraft/world/entity/Entity.getPassengersAndSelf:()Ljava/util/stream/Stream;");
+    }
+
+    public Iterable<Entity> getIndirectPassengers() {
+        throw Unimplemented.forMember("net/minecraft/world/entity/Entity.getIndirectPassengers:()Ljava/lang/Iterable;");
+    }
+
+    public Entity getVehicle() {
+        throw Unimplemented.forMember("net/minecraft/world/entity/Entity.getVehicle:()Lnet/minecraft/world/entity/Entity;");
     }
 
     public SoundSource getSoundSource() {
@@ -339,6 +600,26 @@ public abstract class Entity extends net.neoforged.neoforge.attachment.Attachmen
         throw Unimplemented.forMember("net/minecraft/world/entity/Entity.blockPosition:()Lnet/minecraft/core/BlockPos;");
     }
 
+    public Vec3 getDeltaMovement() {
+        throw Unimplemented.forMember("net/minecraft/world/entity/Entity.getDeltaMovement:()Lnet/minecraft/world/phys/Vec3;");
+    }
+
+    public void setDeltaMovement(Vec3 deltaMovement) {
+        throw Unimplemented.forMember("net/minecraft/world/entity/Entity.setDeltaMovement:(Lnet/minecraft/world/phys/Vec3;)V");
+    }
+
+    public void addDeltaMovement(Vec3 momentum) {
+        throw Unimplemented.forMember("net/minecraft/world/entity/Entity.addDeltaMovement:(Lnet/minecraft/world/phys/Vec3;)V");
+    }
+
+    public void setDeltaMovement(double xd, double yd, double zd) {
+        throw Unimplemented.forMember("net/minecraft/world/entity/Entity.setDeltaMovement:(DDD)V");
+    }
+
+    public final int getBlockX() {
+        throw Unimplemented.forMember("net/minecraft/world/entity/Entity.getBlockX:()I");
+    }
+
     // Pumpkin divergence: real body over the position field the bridge sets.
     public final double getX() {
         return position == null ? 0.0 : position.x;
@@ -346,6 +627,10 @@ public abstract class Entity extends net.neoforged.neoforge.attachment.Attachmen
 
     public double getX(double progress) {
         throw Unimplemented.forMember("net/minecraft/world/entity/Entity.getX:(D)D");
+    }
+
+    public final int getBlockY() {
+        throw Unimplemented.forMember("net/minecraft/world/entity/Entity.getBlockY:()I");
     }
 
     // Pumpkin divergence: real body over the position field the bridge sets.
@@ -357,6 +642,14 @@ public abstract class Entity extends net.neoforged.neoforge.attachment.Attachmen
         throw Unimplemented.forMember("net/minecraft/world/entity/Entity.getY:(D)D");
     }
 
+    public double getEyeY() {
+        throw Unimplemented.forMember("net/minecraft/world/entity/Entity.getEyeY:()D");
+    }
+
+    public final int getBlockZ() {
+        throw Unimplemented.forMember("net/minecraft/world/entity/Entity.getBlockZ:()I");
+    }
+
     // Pumpkin divergence: real body over the position field the bridge sets.
     public final double getZ() {
         return position == null ? 0.0 : position.z;
@@ -364,6 +657,10 @@ public abstract class Entity extends net.neoforged.neoforge.attachment.Attachmen
 
     public double getZ(double progress) {
         throw Unimplemented.forMember("net/minecraft/world/entity/Entity.getZ:(D)D");
+    }
+
+    public final void setPosRaw(double x, double y, double z) {
+        throw Unimplemented.forMember("net/minecraft/world/entity/Entity.setPosRaw:(DDD)V");
     }
 
     public ItemStack getPickResult() {
@@ -446,8 +743,16 @@ public abstract class Entity extends net.neoforged.neoforge.attachment.Attachmen
         throw Unimplemented.forMember("net/minecraft/world/entity/Entity.getCapability:(Lnet/neoforged/neoforge/capabilities/EntityCapability;Ljava/lang/Object;)Ljava/lang/Object;");
     }
 
+    public final <T> T getCapability(net.neoforged.neoforge.capabilities.EntityCapability<T, Void> capability) {
+        throw Unimplemented.forMember("net/minecraft/world/entity/Entity.getCapability:(Lnet/neoforged/neoforge/capabilities/EntityCapability;)Ljava/lang/Object;");
+    }
+
     public Level level() {
         throw Unimplemented.forMember("net/minecraft/world/entity/Entity.level:()Lnet/minecraft/world/level/Level;");
+    }
+
+    public DamageSources damageSources() {
+        throw Unimplemented.forMember("net/minecraft/world/entity/Entity.damageSources:()Lnet/minecraft/world/damagesource/DamageSources;");
     }
 
     public RegistryAccess registryAccess() {

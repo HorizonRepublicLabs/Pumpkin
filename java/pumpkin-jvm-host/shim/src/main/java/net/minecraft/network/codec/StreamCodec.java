@@ -33,6 +33,10 @@ public interface StreamCodec<B, V> extends StreamEncoder<B, V>, StreamDecoder<B,
         };
     }
 
+    static <B, V> StreamCodec<B, V> ofMember(StreamMemberEncoder<B, V> encoder, StreamDecoder<B, V> decoder) {
+        throw Unimplemented.forMember("net/minecraft/network/codec/StreamCodec.ofMember:(Lnet/minecraft/network/codec/StreamMemberEncoder;Lnet/minecraft/network/codec/StreamDecoder;)Lnet/minecraft/network/codec/StreamCodec;");
+    }
+
     // Pumpkin divergence: real-enough body. A stream codec carries wire logic Pumpkin
 
     // never invokes -- nothing serialises components yet -- so composition survives and
@@ -47,6 +51,10 @@ public interface StreamCodec<B, V> extends StreamEncoder<B, V>, StreamDecoder<B,
     // Pumpkin divergence: vanilla body verbatim -- pure composition, no game state.
     default <O> StreamCodec<B, O> apply(StreamCodec.CodecOperation<B, V, O> operation) {
         return operation.apply(this);
+    }
+
+    default <O> StreamCodec<B, O> map(Function<? super V, ? extends O> to, Function<? super O, ? extends V> from) {
+        throw Unimplemented.forMember("net/minecraft/network/codec/StreamCodec.map:(Ljava/util/function/Function;Ljava/util/function/Function;)Lnet/minecraft/network/codec/StreamCodec;");
     }
 
     default <U> StreamCodec<B, U> dispatch(Function<? super U, ? extends V> type, Function<? super V, ? extends StreamCodec<? super B, ? extends U>> codec) {
@@ -195,6 +203,10 @@ public interface StreamCodec<B, V> extends StreamEncoder<B, V>, StreamDecoder<B,
 
         return dev.pumpkin.shim.Stubs.of(StreamCodec.class, "net/minecraft/network/codec/StreamCodec");
 
+    }
+
+    default <S extends B> StreamCodec<S, V> cast() {
+        throw Unimplemented.forMember("net/minecraft/network/codec/StreamCodec.cast:()Lnet/minecraft/network/codec/StreamCodec;");
     }
 
     interface CodecOperation<B, S, T> {

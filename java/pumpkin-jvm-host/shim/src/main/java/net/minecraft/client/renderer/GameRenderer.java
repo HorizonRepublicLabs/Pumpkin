@@ -1,5 +1,6 @@
 package net.minecraft.client.renderer;
 
+import com.mojang.blaze3d.platform.Lighting;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.state.GameRenderState;
@@ -11,6 +12,8 @@ import dev.pumpkin.shim.Unimplemented;
 public class GameRenderer implements AutoCloseable, TrackedWaypoint.Projector {
 
     private final GameRenderState gameRenderState = null;
+
+    private final Lighting lighting = null;
 
     public GameRenderer(Minecraft minecraft, ItemInHandRenderer itemInHandRenderer, ModelManager modelManager) {
     }
@@ -45,6 +48,10 @@ public class GameRenderer implements AutoCloseable, TrackedWaypoint.Projector {
 
     public double projectHorizonToScreen() {
         throw Unimplemented.forMember("net/minecraft/client/renderer/GameRenderer.projectHorizonToScreen:()D");
+    }
+
+    public Lighting lighting() {
+        throw Unimplemented.forMember("net/minecraft/client/renderer/GameRenderer.lighting:()Lcom/mojang/blaze3d/platform/Lighting;");
     }
 
     public GameRenderer() {

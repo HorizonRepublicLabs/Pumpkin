@@ -32,4 +32,8 @@ public interface ResourceHandler<T extends Resource> {
     default int extract(T resource, int amount, TransactionContext transaction) {
         throw Unimplemented.forMember("net/neoforged/neoforge/transfer/ResourceHandler.extract:(Lnet/neoforged/neoforge/transfer/resource/Resource;ILnet/neoforged/neoforge/transfer/transaction/TransactionContext;)I");
     }
+
+    static <T extends Resource> Class<ResourceHandler<T>> asClass() {
+        throw Unimplemented.forMember("net/neoforged/neoforge/transfer/ResourceHandler.asClass:()Ljava/lang/Class;");
+    }
 }

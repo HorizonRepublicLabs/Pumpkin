@@ -1,20 +1,28 @@
 package net.minecraft.world.item.enchantment;
 
+import com.mojang.serialization.Codec;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Object2IntMap.Entry;
 import java.util.Set;
 import java.util.function.Consumer;
 import net.minecraft.core.Holder;
 import net.minecraft.core.component.DataComponentGetter;
+import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.component.TooltipProvider;
+import dev.pumpkin.shim.Stubs;
 import dev.pumpkin.shim.Unimplemented;
 
 public class ItemEnchantments implements TooltipProvider {
 
     public static final ItemEnchantments EMPTY = null;
+
+    public static final Codec<ItemEnchantments> CODEC = null;
+
+    public static final StreamCodec<RegistryFriendlyByteBuf, ItemEnchantments> STREAM_CODEC = Stubs.of(StreamCodec.class, "net/minecraft/network/codec/StreamCodec");
 
     private ItemEnchantments(Object2IntOpenHashMap<Holder<Enchantment>> enchantments) {
     }
@@ -62,6 +70,10 @@ public class ItemEnchantments implements TooltipProvider {
 
         public void set(Holder<Enchantment> enchantment, int level) {
             throw Unimplemented.forMember("net/minecraft/world/item/enchantment/ItemEnchantments$Mutable.set:(Lnet/minecraft/core/Holder;I)V");
+        }
+
+        public void upgrade(Holder<Enchantment> enchantment, int level) {
+            throw Unimplemented.forMember("net/minecraft/world/item/enchantment/ItemEnchantments$Mutable.upgrade:(Lnet/minecraft/core/Holder;I)V");
         }
 
         public int getLevel(Holder<Enchantment> enchantment) {

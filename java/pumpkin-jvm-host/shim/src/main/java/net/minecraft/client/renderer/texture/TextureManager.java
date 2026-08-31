@@ -16,6 +16,10 @@ public class TextureManager implements PreparableReloadListener, AutoCloseable {
         throw Unimplemented.forMember("net/minecraft/client/renderer/texture/TextureManager.register:(Lnet/minecraft/resources/Identifier;Lnet/minecraft/client/renderer/texture/AbstractTexture;)V");
     }
 
+    public AbstractTexture getTexture(Identifier location) {
+        throw Unimplemented.forMember("net/minecraft/client/renderer/texture/TextureManager.getTexture:(Lnet/minecraft/resources/Identifier;)Lnet/minecraft/client/renderer/texture/AbstractTexture;");
+    }
+
     public void tick() {
         throw Unimplemented.forMember("net/minecraft/client/renderer/texture/TextureManager.tick:()V");
     }

@@ -30,6 +30,12 @@ import dev.pumpkin.shim.Unimplemented;
 
 public class LocalPlayer extends AbstractClientPlayer {
 
+    public final ClientPacketListener connection = null;
+
+    public ClientInput input;
+
+    public int experienceDisplayStartTick;
+
     public LocalPlayer(Minecraft minecraft, ClientLevel level, ClientPacketListener connection, StatsCounter stats, ClientRecipeBook recipeBook, Input lastSentInput, boolean wasSprinting, ChatAbilities chatAbilities) {
     }
 

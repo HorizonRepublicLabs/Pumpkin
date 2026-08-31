@@ -23,6 +23,10 @@ public class ItemAttributeModifierEvent extends Event {
         throw Unimplemented.forMember("net/neoforged/neoforge/event/ItemAttributeModifierEvent.addModifier:(Lnet/minecraft/core/Holder;Lnet/minecraft/world/entity/ai/attributes/AttributeModifier;Lnet/minecraft/world/entity/EquipmentSlotGroup;)Z");
     }
 
+    public void replaceModifier(Holder<Attribute> attribute, AttributeModifier modifier, EquipmentSlotGroup slot) {
+        throw Unimplemented.forMember("net/neoforged/neoforge/event/ItemAttributeModifierEvent.replaceModifier:(Lnet/minecraft/core/Holder;Lnet/minecraft/world/entity/ai/attributes/AttributeModifier;Lnet/minecraft/world/entity/EquipmentSlotGroup;)V");
+    }
+
     public ItemAttributeModifiers build() {
         throw Unimplemented.forMember("net/neoforged/neoforge/event/ItemAttributeModifierEvent.build:()Lnet/minecraft/world/item/component/ItemAttributeModifiers;");
     }

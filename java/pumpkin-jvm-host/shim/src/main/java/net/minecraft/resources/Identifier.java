@@ -53,6 +53,18 @@ public final class Identifier implements Comparable<Identifier> {
                 : new Identifier(identifier.substring(0, colon), identifier.substring(colon + 1));
     }
 
+    public static Identifier withDefaultNamespace(String path) {
+        throw Unimplemented.forMember("net/minecraft/resources/Identifier.withDefaultNamespace:(Ljava/lang/String;)Lnet/minecraft/resources/Identifier;");
+    }
+
+    public static Identifier tryParse(String identifier) {
+        throw Unimplemented.forMember("net/minecraft/resources/Identifier.tryParse:(Ljava/lang/String;)Lnet/minecraft/resources/Identifier;");
+    }
+
+    public static Identifier tryBuild(String namespace, String path) {
+        throw Unimplemented.forMember("net/minecraft/resources/Identifier.tryBuild:(Ljava/lang/String;Ljava/lang/String;)Lnet/minecraft/resources/Identifier;");
+    }
+
     public static DataResult<Identifier> read(String input) {
         throw Unimplemented.forMember("net/minecraft/resources/Identifier.read:(Ljava/lang/String;)Lcom/mojang/serialization/DataResult;");
     }
@@ -65,6 +77,10 @@ public final class Identifier implements Comparable<Identifier> {
     // Pumpkin divergence: real body.
     public String getNamespace() {
         return pumpkinNamespace;
+    }
+
+    public Identifier withPrefix(String prefix) {
+        throw Unimplemented.forMember("net/minecraft/resources/Identifier.withPrefix:(Ljava/lang/String;)Lnet/minecraft/resources/Identifier;");
     }
 
     // Pumpkin divergence: real body.
@@ -90,14 +106,50 @@ public final class Identifier implements Comparable<Identifier> {
         return 31 * pumpkinNamespace.hashCode() + pumpkinPath.hashCode();
     }
 
+    public int compareNamespaced(Identifier o) {
+        throw Unimplemented.forMember("net/minecraft/resources/Identifier.compareNamespaced:(Lnet/minecraft/resources/Identifier;)I");
+    }
+
     // Pumpkin divergence: real body.
     public int compareTo(Identifier o) {
         int byPath = pumpkinPath.compareTo(o.pumpkinPath);
         return byPath != 0 ? byPath : pumpkinNamespace.compareTo(o.pumpkinNamespace);
     }
 
+    public String toDebugFileName() {
+        throw Unimplemented.forMember("net/minecraft/resources/Identifier.toDebugFileName:()Ljava/lang/String;");
+    }
+
+    public String toLanguageKey() {
+        throw Unimplemented.forMember("net/minecraft/resources/Identifier.toLanguageKey:()Ljava/lang/String;");
+    }
+
+    public String toLanguageKey(String prefix) {
+        throw Unimplemented.forMember("net/minecraft/resources/Identifier.toLanguageKey:(Ljava/lang/String;)Ljava/lang/String;");
+    }
+
+    public String toLanguageKey(String prefix, String suffix) {
+        throw Unimplemented.forMember("net/minecraft/resources/Identifier.toLanguageKey:(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;");
+    }
+
     public static Identifier read(StringReader reader) throws CommandSyntaxException {
         throw Unimplemented.forMember("net/minecraft/resources/Identifier.read:(Lcom/mojang/brigadier/StringReader;)Lnet/minecraft/resources/Identifier;");
+    }
+
+    public static boolean isAllowedInIdentifier(char c) {
+        throw Unimplemented.forMember("net/minecraft/resources/Identifier.isAllowedInIdentifier:(C)Z");
+    }
+
+    public static boolean isValidNamespace(String namespace) {
+        throw Unimplemented.forMember("net/minecraft/resources/Identifier.isValidNamespace:(Ljava/lang/String;)Z");
+    }
+
+    public static boolean validPathChar(char c) {
+        throw Unimplemented.forMember("net/minecraft/resources/Identifier.validPathChar:(C)Z");
+    }
+
+    public static boolean validNamespaceChar(char c) {
+        throw Unimplemented.forMember("net/minecraft/resources/Identifier.validNamespaceChar:(C)Z");
     }
 
     // Pumpkin divergence: the generator synthesises an empty no-argument constructor for

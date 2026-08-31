@@ -54,6 +54,14 @@ public abstract class ClientPlayerNetworkEvent extends Event {
         public Clone(final MultiPlayerGameMode pc, final LocalPlayer oldPlayer, final LocalPlayer newPlayer, final Connection networkManager) {
         }
 
+        public LocalPlayer getOldPlayer() {
+            throw Unimplemented.forMember("net/neoforged/neoforge/client/event/ClientPlayerNetworkEvent$Clone.getOldPlayer:()Lnet/minecraft/client/player/LocalPlayer;");
+        }
+
+        public LocalPlayer getNewPlayer() {
+            throw Unimplemented.forMember("net/neoforged/neoforge/client/event/ClientPlayerNetworkEvent$Clone.getNewPlayer:()Lnet/minecraft/client/player/LocalPlayer;");
+        }
+
         public LocalPlayer getPlayer() {
             throw Unimplemented.forMember("net/neoforged/neoforge/client/event/ClientPlayerNetworkEvent$Clone.getPlayer:()Lnet/minecraft/client/player/LocalPlayer;");
         }

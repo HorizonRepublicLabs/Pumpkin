@@ -33,6 +33,10 @@ public abstract class StackCopySlot extends Slot {
         throw Unimplemented.forMember("net/neoforged/neoforge/world/inventory/StackCopySlot.remove:(I)Lnet/minecraft/world/item/ItemStack;");
     }
 
+    protected void clearCachedReturnStack() {
+        throw Unimplemented.forMember("net/neoforged/neoforge/world/inventory/StackCopySlot.clearCachedReturnStack:()V");
+    }
+
     public StackCopySlot() {
     }
 }

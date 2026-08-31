@@ -80,6 +80,10 @@ public final class WeightedList<E> {
             throw Unimplemented.forMember("net/minecraft/util/random/WeightedList$Builder.remove:(Ljava/lang/Object;)Lnet/minecraft/util/random/WeightedList$Builder;");
         }
 
+        public List<Weighted<E>> getList() {
+            throw Unimplemented.forMember("net/minecraft/util/random/WeightedList$Builder.getList:()Ljava/util/List;");
+        }
+
         public WeightedList<E> build() {
             throw Unimplemented.forMember("net/minecraft/util/random/WeightedList$Builder.build:()Lnet/minecraft/util/random/WeightedList;");
         }

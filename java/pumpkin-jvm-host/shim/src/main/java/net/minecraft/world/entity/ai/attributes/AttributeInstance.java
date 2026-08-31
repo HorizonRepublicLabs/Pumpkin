@@ -15,6 +15,10 @@ public class AttributeInstance {
         throw Unimplemented.forMember("net/minecraft/world/entity/ai/attributes/AttributeInstance.getModifier:(Lnet/minecraft/resources/Identifier;)Lnet/minecraft/world/entity/ai/attributes/AttributeModifier;");
     }
 
+    public void addTransientModifier(AttributeModifier modifier) {
+        throw Unimplemented.forMember("net/minecraft/world/entity/ai/attributes/AttributeInstance.addTransientModifier:(Lnet/minecraft/world/entity/ai/attributes/AttributeModifier;)V");
+    }
+
     public void addOrReplacePermanentModifier(AttributeModifier modifier) {
         throw Unimplemented.forMember("net/minecraft/world/entity/ai/attributes/AttributeInstance.addOrReplacePermanentModifier:(Lnet/minecraft/world/entity/ai/attributes/AttributeModifier;)V");
     }

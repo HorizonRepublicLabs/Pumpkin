@@ -36,6 +36,10 @@ public class Sound implements Weighted<Sound> {
         throw Unimplemented.forMember("net/minecraft/client/resources/sounds/Sound.getType:()Lnet/minecraft/client/resources/sounds/Sound$Type;");
     }
 
+    public int getAttenuationDistance() {
+        throw Unimplemented.forMember("net/minecraft/client/resources/sounds/Sound.getAttenuationDistance:()I");
+    }
+
     public String toString() {
         throw Unimplemented.forMember("net/minecraft/client/resources/sounds/Sound.toString:()Ljava/lang/String;");
     }

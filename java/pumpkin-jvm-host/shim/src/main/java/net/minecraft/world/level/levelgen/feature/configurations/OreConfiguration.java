@@ -33,6 +33,8 @@ public class OreConfiguration implements FeatureConfiguration {
 
     public static class TargetBlockState {
 
+        public static final Codec<OreConfiguration.TargetBlockState> CODEC = null;
+
         public final RuleTest target = null;
 
         public final BlockState state = null;

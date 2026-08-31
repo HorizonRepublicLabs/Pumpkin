@@ -6,6 +6,12 @@ import dev.pumpkin.shim.Unimplemented;
 
 public class BlockHitResult extends HitResult {
 
+    private final boolean miss = false;
+
+    public static BlockHitResult miss(Vec3 location, Direction direction, BlockPos pos) {
+        throw Unimplemented.forMember("net/minecraft/world/phys/BlockHitResult.miss:(Lnet/minecraft/world/phys/Vec3;Lnet/minecraft/core/Direction;Lnet/minecraft/core/BlockPos;)Lnet/minecraft/world/phys/BlockHitResult;");
+    }
+
     public BlockHitResult(Vec3 location, Direction direction, BlockPos pos, boolean inside) {
     }
 
@@ -13,6 +19,10 @@ public class BlockHitResult extends HitResult {
     }
 
     private BlockHitResult(boolean miss, Vec3 location, Direction direction, BlockPos blockPos, boolean inside, boolean worldBorderHit) {
+    }
+
+    public BlockHitResult withPosition(BlockPos blockPos) {
+        throw Unimplemented.forMember("net/minecraft/world/phys/BlockHitResult.withPosition:(Lnet/minecraft/core/BlockPos;)Lnet/minecraft/world/phys/BlockHitResult;");
     }
 
     public BlockPos getBlockPos() {
@@ -25,6 +35,10 @@ public class BlockHitResult extends HitResult {
 
     public HitResult.Type getType() {
         throw Unimplemented.forMember("net/minecraft/world/phys/BlockHitResult.getType:()Lnet/minecraft/world/phys/HitResult$Type;");
+    }
+
+    public boolean isInside() {
+        throw Unimplemented.forMember("net/minecraft/world/phys/BlockHitResult.isInside:()Z");
     }
 
     public BlockHitResult() {

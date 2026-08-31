@@ -2,6 +2,8 @@ package net.minecraft.world.entity.player;
 
 import com.google.common.collect.ImmutableList;
 import com.mojang.authlib.GameProfile;
+import java.util.Collection;
+import java.util.List;
 import java.util.OptionalInt;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -10,6 +12,7 @@ import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.permissions.PermissionSet;
+import net.minecraft.server.players.NameAndId;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.stats.Stat;
@@ -24,9 +27,13 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.MoverType;
 import net.minecraft.world.entity.Pose;
 import net.minecraft.world.entity.SlotAccess;
+import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.food.FoodData;
+import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.item.ItemCooldowns;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.ResolvableProfile;
+import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.ContainerOpenersCounter;
@@ -38,6 +45,8 @@ import net.neoforged.neoforge.common.extensions.IPlayerExtension;
 import dev.pumpkin.shim.Unimplemented;
 
 public abstract class Player extends Avatar implements ContainerUser, IPlayerExtension {
+
+    public AbstractContainerMenu containerMenu;
 
     public int experienceLevel;
 
@@ -108,6 +117,10 @@ public abstract class Player extends Avatar implements ContainerUser, IPlayerExt
         throw Unimplemented.forMember("net/minecraft/world/entity/player/Player.handleEntityEvent:(B)V");
     }
 
+    public void closeContainer() {
+        throw Unimplemented.forMember("net/minecraft/world/entity/player/Player.closeContainer:()V");
+    }
+
     public void rideTick() {
         throw Unimplemented.forMember("net/minecraft/world/entity/player/Player.rideTick:()V");
     }
@@ -140,6 +153,10 @@ public abstract class Player extends Avatar implements ContainerUser, IPlayerExt
         throw Unimplemented.forMember("net/minecraft/world/entity/player/Player.getDeathSound:()Lnet/minecraft/sounds/SoundEvent;");
     }
 
+    public ItemEntity drop(ItemStack itemStack, boolean thrownFromHand) {
+        throw Unimplemented.forMember("net/minecraft/world/entity/player/Player.drop:(Lnet/minecraft/world/item/ItemStack;Z)Lnet/minecraft/world/entity/item/ItemEntity;");
+    }
+
     protected void readAdditionalSaveData(ValueInput input) {
         throw Unimplemented.forMember("net/minecraft/world/entity/player/Player.readAdditionalSaveData:(Lnet/minecraft/world/level/storage/ValueInput;)V");
     }
@@ -162,6 +179,10 @@ public abstract class Player extends Avatar implements ContainerUser, IPlayerExt
 
     public boolean canBeSeenAsEnemy() {
         throw Unimplemented.forMember("net/minecraft/world/entity/player/Player.canBeSeenAsEnemy:()Z");
+    }
+
+    public boolean canHarmPlayer(Player target) {
+        throw Unimplemented.forMember("net/minecraft/world/entity/player/Player.canHarmPlayer:(Lnet/minecraft/world/entity/player/Player;)Z");
     }
 
     protected void hurtArmor(DamageSource damageSource, float damage) {
@@ -236,6 +257,10 @@ public abstract class Player extends Avatar implements ContainerUser, IPlayerExt
         throw Unimplemented.forMember("net/minecraft/world/entity/player/Player.getGameProfile:()Lcom/mojang/authlib/GameProfile;");
     }
 
+    public NameAndId nameAndId() {
+        throw Unimplemented.forMember("net/minecraft/world/entity/player/Player.nameAndId:()Lnet/minecraft/server/players/NameAndId;");
+    }
+
     public Inventory getInventory() {
         throw Unimplemented.forMember("net/minecraft/world/entity/player/Player.getInventory:()Lnet/minecraft/world/entity/player/Inventory;");
     }
@@ -256,6 +281,10 @@ public abstract class Player extends Avatar implements ContainerUser, IPlayerExt
         throw Unimplemented.forMember("net/minecraft/world/entity/player/Player.sendSystemMessage:(Lnet/minecraft/network/chat/Component;)V");
     }
 
+    public void sendOverlayMessage(Component message) {
+        throw Unimplemented.forMember("net/minecraft/world/entity/player/Player.sendOverlayMessage:(Lnet/minecraft/network/chat/Component;)V");
+    }
+
     public void awardStat(Identifier location) {
         throw Unimplemented.forMember("net/minecraft/world/entity/player/Player.awardStat:(Lnet/minecraft/resources/Identifier;)V");
     }
@@ -270,6 +299,14 @@ public abstract class Player extends Avatar implements ContainerUser, IPlayerExt
 
     public void awardStat(Stat<?> stat, int count) {
         throw Unimplemented.forMember("net/minecraft/world/entity/player/Player.awardStat:(Lnet/minecraft/stats/Stat;I)V");
+    }
+
+    public int awardRecipes(Collection<RecipeHolder<?>> recipes) {
+        throw Unimplemented.forMember("net/minecraft/world/entity/player/Player.awardRecipes:(Ljava/util/Collection;)I");
+    }
+
+    public void triggerRecipeCrafted(RecipeHolder<?> recipe, List<ItemStack> itemStacks) {
+        throw Unimplemented.forMember("net/minecraft/world/entity/player/Player.triggerRecipeCrafted:(Lnet/minecraft/world/item/crafting/RecipeHolder;Ljava/util/List;)V");
     }
 
     public void travel(Vec3 input) {
@@ -316,6 +353,14 @@ public abstract class Player extends Avatar implements ContainerUser, IPlayerExt
         throw Unimplemented.forMember("net/minecraft/world/entity/player/Player.getXpNeededForNextLevel:()I");
     }
 
+    public FoodData getFoodData() {
+        throw Unimplemented.forMember("net/minecraft/world/entity/player/Player.getFoodData:()Lnet/minecraft/world/food/FoodData;");
+    }
+
+    public boolean canEat(boolean canAlwaysEat) {
+        throw Unimplemented.forMember("net/minecraft/world/entity/player/Player.canEat:(Z)Z");
+    }
+
     public boolean mayUseItemAt(BlockPos pos, Direction direction, ItemStack itemStack) {
         throw Unimplemented.forMember("net/minecraft/world/entity/player/Player.mayUseItemAt:(Lnet/minecraft/core/BlockPos;Lnet/minecraft/core/Direction;Lnet/minecraft/world/item/ItemStack;)Z");
     }
@@ -350,6 +395,10 @@ public abstract class Player extends Avatar implements ContainerUser, IPlayerExt
 
     protected boolean doesEmitEquipEvent(EquipmentSlot slot) {
         throw Unimplemented.forMember("net/minecraft/world/entity/player/Player.doesEmitEquipEvent:(Lnet/minecraft/world/entity/EquipmentSlot;)Z");
+    }
+
+    public boolean addItem(ItemStack itemStack) {
+        throw Unimplemented.forMember("net/minecraft/world/entity/player/Player.addItem:(Lnet/minecraft/world/item/ItemStack;)Z");
     }
 
     public abstract GameType gameMode();
@@ -464,6 +513,10 @@ public abstract class Player extends Avatar implements ContainerUser, IPlayerExt
 
     public double getContainerInteractionRange() {
         throw Unimplemented.forMember("net/minecraft/world/entity/player/Player.getContainerInteractionRange:()D");
+    }
+
+    public double blockInteractionRange() {
+        throw Unimplemented.forMember("net/minecraft/world/entity/player/Player.blockInteractionRange:()D");
     }
 
     public boolean onClimbable() {

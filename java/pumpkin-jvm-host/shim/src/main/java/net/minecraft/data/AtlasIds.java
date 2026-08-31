@@ -7,6 +7,10 @@ public class AtlasIds {
 
     public static final Identifier BLOCKS = null;
 
+    public static final Identifier ITEMS = null;
+
+    public static final Identifier GUI = null;
+
     public AtlasIds() {
     }
 

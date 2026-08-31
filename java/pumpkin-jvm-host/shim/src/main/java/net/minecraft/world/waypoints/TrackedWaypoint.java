@@ -38,6 +38,10 @@ public abstract class TrackedWaypoint implements Waypoint {
 
     public abstract double distanceSquared(final Entity fromEntity);
 
+    public Waypoint.Icon icon() {
+        throw Unimplemented.forMember("net/minecraft/world/waypoints/TrackedWaypoint.icon:()Lnet/minecraft/world/waypoints/Waypoint$Icon;");
+    }
+
     private static class AzimuthWaypoint extends TrackedWaypoint {
 
         public AzimuthWaypoint(UUID identifier, Waypoint.Icon icon, float angle) {

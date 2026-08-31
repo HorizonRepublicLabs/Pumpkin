@@ -5,4 +5,6 @@ import net.minecraft.resources.ResourceKey;
 public interface DamageTypes {
 
     ResourceKey<DamageType> PLAYER_ATTACK = null;
+
+    ResourceKey<DamageType> GENERIC_KILL = null;
 }

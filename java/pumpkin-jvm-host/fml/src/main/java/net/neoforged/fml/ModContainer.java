@@ -27,6 +27,26 @@ public abstract class ModContainer {
      * <p>Throwing instead would stop both real mods in their constructors over settings they
      * are only declaring, never reading, at that point.
      */
+    /**
+     * The mod's id. Real body: the container is created for a named mod, and identity
+     * questions have answers -- the same line FMLEnvironment draws.
+     */
+    public String getModId() {
+        return toString();
+    }
+
+    /**
+     * The mod's declared info. Answers the identity facts a display-info override reads
+     * (id, description from the id); everything else throws by name.
+     */
+    public net.neoforged.neoforgespi.language.IModInfo getModInfo() {
+        String modId = getModId();
+        return dev.pumpkin.shim.Stubs.of(
+                net.neoforged.neoforgespi.language.IModInfo.class,
+                "net/neoforged/neoforgespi/language/IModInfo",
+                java.util.Map.of("getModId", modId, "getDescription", modId));
+    }
+
     public void registerConfig(ModConfig.Type type, IConfigSpec spec) {
         pumpkinWarnOnce();
     }

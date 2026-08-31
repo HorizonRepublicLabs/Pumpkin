@@ -17,6 +17,10 @@ public class LootContext {
     private LootContext(LootParams params, RandomSource random, HolderGetter.Provider lootDataResolver) {
     }
 
+    public <T> T getParameter(ContextKey<T> key) {
+        throw Unimplemented.forMember("net/minecraft/world/level/storage/loot/LootContext.getParameter:(Lnet/minecraft/util/context/ContextKey;)Ljava/lang/Object;");
+    }
+
     public RandomSource getRandom() {
         throw Unimplemented.forMember("net/minecraft/world/level/storage/loot/LootContext.getRandom:()Lnet/minecraft/util/RandomSource;");
     }

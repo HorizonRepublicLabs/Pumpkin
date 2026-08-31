@@ -31,6 +31,10 @@ public abstract class PropertyDispatch<V> {
         throw Unimplemented.forMember("net/minecraft/client/data/models/blockstates/PropertyDispatch.initial:(Lnet/minecraft/world/level/block/state/properties/Property;Lnet/minecraft/world/level/block/state/properties/Property;Lnet/minecraft/world/level/block/state/properties/Property;Lnet/minecraft/world/level/block/state/properties/Property;Lnet/minecraft/world/level/block/state/properties/Property;)Lnet/minecraft/client/data/models/blockstates/PropertyDispatch$C5;");
     }
 
+    public static <T1 extends Comparable<T1>, T2 extends Comparable<T2>> PropertyDispatch.C2<VariantMutator, T1, T2> modify(Property<T1> property1, Property<T2> property2) {
+        throw Unimplemented.forMember("net/minecraft/client/data/models/blockstates/PropertyDispatch.modify:(Lnet/minecraft/world/level/block/state/properties/Property;Lnet/minecraft/world/level/block/state/properties/Property;)Lnet/minecraft/client/data/models/blockstates/PropertyDispatch$C2;");
+    }
+
     public static <T1 extends Comparable<T1>, T2 extends Comparable<T2>, T3 extends Comparable<T3>> PropertyDispatch.C3<VariantMutator, T1, T2, T3> modify(Property<T1> property1, Property<T2> property2, Property<T3> property3) {
         throw Unimplemented.forMember("net/minecraft/client/data/models/blockstates/PropertyDispatch.modify:(Lnet/minecraft/world/level/block/state/properties/Property;Lnet/minecraft/world/level/block/state/properties/Property;Lnet/minecraft/world/level/block/state/properties/Property;)Lnet/minecraft/client/data/models/blockstates/PropertyDispatch$C3;");
     }

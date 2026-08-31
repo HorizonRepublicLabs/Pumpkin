@@ -1,23 +1,33 @@
 package net.neoforged.neoforge.transfer.item;
 
+import com.mojang.serialization.Codec;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 import net.minecraft.core.Holder;
 import net.minecraft.core.component.DataComponentMap;
 import net.minecraft.core.component.DataComponentPatch;
 import net.minecraft.core.component.DataComponentType;
+import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.ItemStackTemplate;
 import net.minecraft.world.level.ItemLike;
 import net.neoforged.neoforge.transfer.resource.DataComponentHolderResource;
+import dev.pumpkin.shim.Stubs;
 import dev.pumpkin.shim.Unimplemented;
 
 public final class ItemResource implements DataComponentHolderResource<Item> {
 
     // Pumpkin divergence: a real empty resource; a null here NPEs every isEmpty check.
     public static final ItemResource EMPTY = new ItemResource();
+
+    public static final Codec<ItemResource> CODEC = null;
+
+    public static final Codec<ItemResource> OPTIONAL_CODEC = null;
+
+    public static final StreamCodec<RegistryFriendlyByteBuf, ItemResource> STREAM_CODEC = Stubs.of(StreamCodec.class, "net/minecraft/network/codec/StreamCodec");
 
     // Pumpkin divergence: real bodies for the stack-shaped subset the interaction path
     // uses. A resource is an item reference without a count; EMPTY-ness follows the item.

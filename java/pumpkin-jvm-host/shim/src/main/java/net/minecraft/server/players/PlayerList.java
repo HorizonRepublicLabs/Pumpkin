@@ -1,6 +1,7 @@
 package net.minecraft.server.players;
 
 import java.util.List;
+import java.util.UUID;
 import net.minecraft.core.LayeredRegistryAccess;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.RegistryLayer;
@@ -23,6 +24,10 @@ public abstract class PlayerList implements IPlayerListExtension {
         throw Unimplemented.forMember("net/minecraft/server/players/PlayerList.tick:()V");
     }
 
+    public boolean isOp(NameAndId nameAndId) {
+        throw Unimplemented.forMember("net/minecraft/server/players/PlayerList.isOp:(Lnet/minecraft/server/players/NameAndId;)Z");
+    }
+
     public int getPlayerCount() {
         throw Unimplemented.forMember("net/minecraft/server/players/PlayerList.getPlayerCount:()I");
     }
@@ -31,12 +36,24 @@ public abstract class PlayerList implements IPlayerListExtension {
         throw Unimplemented.forMember("net/minecraft/server/players/PlayerList.getMaxPlayers:()I");
     }
 
+    public int getViewDistance() {
+        throw Unimplemented.forMember("net/minecraft/server/players/PlayerList.getViewDistance:()I");
+    }
+
     public MinecraftServer getServer() {
         throw Unimplemented.forMember("net/minecraft/server/players/PlayerList.getServer:()Lnet/minecraft/server/MinecraftServer;");
     }
 
     public List<ServerPlayer> getPlayers() {
         throw Unimplemented.forMember("net/minecraft/server/players/PlayerList.getPlayers:()Ljava/util/List;");
+    }
+
+    public ServerPlayer getPlayer(UUID uuid) {
+        throw Unimplemented.forMember("net/minecraft/server/players/PlayerList.getPlayer:(Ljava/util/UUID;)Lnet/minecraft/server/level/ServerPlayer;");
+    }
+
+    public ServerPlayer getPlayer(String playerName) {
+        throw Unimplemented.forMember("net/minecraft/server/players/PlayerList.getPlayer:(Ljava/lang/String;)Lnet/minecraft/server/level/ServerPlayer;");
     }
 
     public PlayerList() {

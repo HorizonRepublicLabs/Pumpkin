@@ -5,6 +5,8 @@ import dev.pumpkin.shim.Unimplemented;
 
 public interface TooltipFlag extends TooltipFlagExtension {
 
+    TooltipFlag.Default NORMAL = null;
+
     boolean isAdvanced();
 
     boolean isCreative();

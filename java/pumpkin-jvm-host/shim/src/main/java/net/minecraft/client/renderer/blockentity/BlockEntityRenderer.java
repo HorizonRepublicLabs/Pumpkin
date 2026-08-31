@@ -19,4 +19,8 @@ public interface BlockEntityRenderer<T extends BlockEntity, S extends BlockEntit
     }
 
     void submit(final S state, final PoseStack poseStack, final SubmitNodeCollector submitNodeCollector, final CameraRenderState camera);
+
+    default boolean shouldRender(T blockEntity, Vec3 cameraPosition) {
+        throw Unimplemented.forMember("net/minecraft/client/renderer/blockentity/BlockEntityRenderer.shouldRender:(Lnet/minecraft/world/level/block/entity/BlockEntity;Lnet/minecraft/world/phys/Vec3;)Z");
+    }
 }

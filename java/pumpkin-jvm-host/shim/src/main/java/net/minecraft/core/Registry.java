@@ -28,6 +28,10 @@ public interface Registry<T> extends IdMap<T>, Keyable, HolderLookup.RegistryLoo
         return dev.pumpkin.shim.Stubs.throwingCodec("net/minecraft/core/Registry.byNameCodec:()Lcom/mojang/serialization/Codec;");
     }
 
+    default Codec<Holder<T>> holderByNameCodec() {
+        throw Unimplemented.forMember("net/minecraft/core/Registry.holderByNameCodec:()Lcom/mojang/serialization/Codec;");
+    }
+
     <A> java.util.Map<ResourceKey<T>, A> getDataMap(net.neoforged.neoforge.registries.datamaps.DataMapType<T, A> type);
 
     default <U> Stream<U> keys(DynamicOps<U> ops) {
@@ -55,6 +59,10 @@ public interface Registry<T> extends IdMap<T>, Keyable, HolderLookup.RegistryLoo
     }
 
     Optional<Holder.Reference<T>> getAny();
+
+    default T getValueOrThrow(ResourceKey<T> key) {
+        throw Unimplemented.forMember("net/minecraft/core/Registry.getValueOrThrow:(Lnet/minecraft/resources/ResourceKey;)Ljava/lang/Object;");
+    }
 
     Set<Identifier> keySet();
 

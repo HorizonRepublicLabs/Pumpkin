@@ -7,7 +7,35 @@ import dev.pumpkin.shim.Unimplemented;
 
 public class GameRules {
 
+    public static final GameRule<Boolean> ADVANCE_TIME = null;
+
+    public static final GameRule<Boolean> ADVANCE_WEATHER = null;
+
+    public static final GameRule<Boolean> BLOCK_EXPLOSION_DROP_DECAY = null;
+
+    public static final GameRule<Boolean> KEEP_INVENTORY = null;
+
+    public static final GameRule<Boolean> LAVA_SOURCE_CONVERSION = null;
+
+    public static final GameRule<Boolean> LIMITED_CRAFTING = null;
+
     public static final GameRule<Boolean> MOB_DROPS = null;
+
+    public static final GameRule<Boolean> MOB_GRIEFING = null;
+
+    public static final GameRule<Boolean> SPAWN_MOBS = null;
+
+    public static final GameRule<Boolean> SPAWN_MONSTERS = null;
+
+    public static final GameRule<Boolean> SPAWN_PATROLS = null;
+
+    public static final GameRule<Boolean> SPAWN_PHANTOMS = null;
+
+    public static final GameRule<Boolean> SPAWN_WANDERING_TRADERS = null;
+
+    public static final GameRule<Boolean> TNT_EXPLODES = null;
+
+    public static final GameRule<Boolean> WATER_SOURCE_CONVERSION = null;
 
     public GameRules(FeatureFlagSet enabledFeatures, GameRuleMap map) {
     }

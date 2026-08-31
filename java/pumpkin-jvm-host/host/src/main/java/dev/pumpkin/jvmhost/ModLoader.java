@@ -74,8 +74,19 @@ public final class ModLoader {
                 String className = name.substring(0, name.length() - ".class".length()).replace('/', '.');
                 try {
                     Class<?> candidate = Class.forName(className, false, loader);
-                    if (candidate.isAnnotationPresent(Mod.class)) {
-                        return candidate;
+                    Mod annotation = candidate.getAnnotation(Mod.class);
+                    if (annotation != null) {
+                        // A client-only entry point never constructs on a dedicated
+                        // server; the jar's real entry is another class further along.
+                        boolean serverSide = false;
+                        for (net.neoforged.api.distmarker.Dist dist : annotation.dist()) {
+                            if (dist == net.neoforged.api.distmarker.Dist.DEDICATED_SERVER) {
+                                serverSide = true;
+                            }
+                        }
+                        if (serverSide) {
+                            return candidate;
+                        }
                     }
                 } catch (ClassNotFoundException | NoClassDefFoundError e) {
                     // A class referencing shim types that do not exist yet is expected while

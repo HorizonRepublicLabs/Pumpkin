@@ -7,13 +7,16 @@ import java.util.concurrent.Executor;
 import net.minecraft.client.color.block.BlockColors;
 import net.minecraft.client.model.geom.EntityModelSet;
 import net.minecraft.client.renderer.PlayerSkinRenderCache;
+import net.minecraft.client.renderer.block.BlockStateModelSet;
 import net.minecraft.client.renderer.block.FluidModel;
+import net.minecraft.client.renderer.block.FluidStateModelSet;
 import net.minecraft.client.renderer.block.dispatch.BlockStateModel;
 import net.minecraft.client.renderer.block.model.BlockModel;
 import net.minecraft.client.renderer.texture.SpriteLoader;
 import net.minecraft.client.resources.model.sprite.AtlasManager;
 import net.minecraft.client.resources.model.sprite.Material;
 import net.minecraft.client.resources.model.sprite.MaterialBaker;
+import net.minecraft.resources.FileToIdConverter;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.packs.resources.PreparableReloadListener;
 import net.minecraft.world.level.block.state.BlockState;
@@ -22,7 +25,17 @@ import dev.pumpkin.shim.Unimplemented;
 
 public class ModelManager implements PreparableReloadListener {
 
+    private static final FileToIdConverter MODEL_LISTER = null;
+
     public ModelManager(BlockColors blockColors, AtlasManager atlasManager, PlayerSkinRenderCache playerSkinRenderCache) {
+    }
+
+    public BlockStateModelSet getBlockStateModelSet() {
+        throw Unimplemented.forMember("net/minecraft/client/resources/model/ModelManager.getBlockStateModelSet:()Lnet/minecraft/client/renderer/block/BlockStateModelSet;");
+    }
+
+    public FluidStateModelSet getFluidStateModelSet() {
+        throw Unimplemented.forMember("net/minecraft/client/resources/model/ModelManager.getFluidStateModelSet:()Lnet/minecraft/client/renderer/block/FluidStateModelSet;");
     }
 
     public final CompletableFuture<Void> reload(PreparableReloadListener.SharedState currentReload, Executor taskExecutor, PreparableReloadListener.PreparationBarrier preparationBarrier, Executor reloadExecutor) {

@@ -27,6 +27,11 @@ public final class PumpkinModContainer extends ModContainer {
     }
 
     @Override
+    public String getModId() {
+        return modId;
+    }
+
+    @Override
     public String toString() {
         return "PumpkinModContainer[" + modId + "]";
     }

@@ -44,6 +44,8 @@ public record AdvancementRequirements(List<List<String>> requirements) {
 
     public interface Strategy {
 
+        AdvancementRequirements.Strategy OR = null;
+
         AdvancementRequirements create(Collection<String> criteria);
     }
 }
