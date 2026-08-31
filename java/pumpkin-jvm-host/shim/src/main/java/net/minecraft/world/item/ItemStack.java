@@ -141,8 +141,12 @@ public final class ItemStack implements DataComponentHolder, ItemInstance, IItem
         return pumpkinItem == null ? null : pumpkinItem.asItem();
     }
 
+    // Pumpkin divergence: a real holder over the carried item, the same shape the
+    // ingredient values use.
+    @SuppressWarnings("unchecked")
     public Holder<Item> typeHolder() {
-        throw Unimplemented.forMember("net/minecraft/world/item/ItemStack.typeHolder:()Lnet/minecraft/core/Holder;");
+        return (Holder<Item>) dev.pumpkin.shim.Stubs.of(Holder.class,
+                "net/minecraft/core/Holder(ItemStack)", java.util.Map.of("value", getItem()));
     }
 
     public boolean is(Predicate<Holder<Item>> item) {
@@ -157,8 +161,11 @@ public final class ItemStack implements DataComponentHolder, ItemInstance, IItem
         throw Unimplemented.forMember("net/minecraft/world/item/ItemStack.getDestroySpeed:(Lnet/minecraft/world/level/block/state/BlockState;)F");
     }
 
+    // Pumpkin divergence: the item's declared max stack size; 64, the vanilla
+    // default, when the mod did not say.
     public int getMaxStackSize() {
-        throw Unimplemented.forMember("net/minecraft/world/item/ItemStack.getMaxStackSize:()I");
+        int declared = getItem() == null ? -1 : getItem().pumpkinMaxStackSize();
+        return declared > 0 ? declared : 64;
     }
 
     public boolean isDamageableItem() {

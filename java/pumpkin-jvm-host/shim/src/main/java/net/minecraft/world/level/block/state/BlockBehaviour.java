@@ -198,8 +198,20 @@ public abstract class BlockBehaviour implements FeatureElement {
             throw Unimplemented.forMember("net/minecraft/world/level/block/state/BlockBehaviour$BlockStateBase.getLightEmission:()I");
         }
 
+        // Pumpkin divergence: a vanilla fact answered from the block's identity --
+        // registered id for mod blocks, template name for vanilla stand-ins. Only the
+        // three air blocks are air.
         public boolean isAir() {
-            throw Unimplemented.forMember("net/minecraft/world/level/block/state/BlockBehaviour$BlockStateBase.isAir:()Z");
+            net.minecraft.world.level.block.Block block = getBlock();
+            String name = block.pumpkinRegisteredId();
+            if (name == null) {
+                name = block.pumpkinTemplate();
+            }
+            if (name == null) {
+                return false;
+            }
+            String path = name.startsWith("minecraft:") ? name.substring("minecraft:".length()) : name;
+            return path.equals("air") || path.equals("cave_air") || path.equals("void_air");
         }
 
         public boolean liquid() {

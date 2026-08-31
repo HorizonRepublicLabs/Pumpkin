@@ -1,142 +1,165 @@
 package net.minecraft.util;
 
 import net.minecraft.world.phys.Vec3;
-import dev.pumpkin.shim.Unimplemented;
 
+// Pumpkin divergence: real throughout -- Mth is pure math, and the vanilla bodies are
+// the well-known formulas. sin/cos skip vanilla's lookup table for Math's own answers,
+// a difference below the table's own quantisation error.
 public class Mth {
 
-    public static final float SQRT_OF_TWO = 0.0F;
+    public static final float SQRT_OF_TWO = (float) Math.sqrt(2.0);
 
     public static float sin(double i) {
-        throw Unimplemented.forMember("net/minecraft/util/Mth.sin:(D)F");
+        return (float) Math.sin(i);
     }
 
     public static float cos(double i) {
-        throw Unimplemented.forMember("net/minecraft/util/Mth.cos:(D)F");
+        return (float) Math.cos(i);
     }
 
     public static float sqrt(float x) {
-        throw Unimplemented.forMember("net/minecraft/util/Mth.sqrt:(F)F");
+        return (float) Math.sqrt(x);
     }
 
     public static int floor(float v) {
-        throw Unimplemented.forMember("net/minecraft/util/Mth.floor:(F)I");
+        return (int) Math.floor(v);
     }
 
     public static int floor(double v) {
-        throw Unimplemented.forMember("net/minecraft/util/Mth.floor:(D)I");
+        return (int) Math.floor(v);
     }
 
     public static int ceil(float v) {
-        throw Unimplemented.forMember("net/minecraft/util/Mth.ceil:(F)I");
+        return (int) Math.ceil(v);
     }
 
     public static int ceil(double v) {
-        throw Unimplemented.forMember("net/minecraft/util/Mth.ceil:(D)I");
+        return (int) Math.ceil(v);
     }
 
     public static int clamp(int value, int min, int max) {
-        throw Unimplemented.forMember("net/minecraft/util/Mth.clamp:(III)I");
+        return Math.min(Math.max(value, min), max);
     }
 
     public static long clamp(long value, long min, long max) {
-        throw Unimplemented.forMember("net/minecraft/util/Mth.clamp:(JJJ)J");
+        return Math.min(Math.max(value, min), max);
     }
 
     public static float clamp(float value, float min, float max) {
-        throw Unimplemented.forMember("net/minecraft/util/Mth.clamp:(FFF)F");
+        return value < min ? min : Math.min(value, max);
     }
 
     public static double clamp(double value, double min, double max) {
-        throw Unimplemented.forMember("net/minecraft/util/Mth.clamp:(DDD)D");
+        return value < min ? min : Math.min(value, max);
     }
 
     public static int nextInt(RandomSource random, int minInclusive, int maxInclusive) {
-        throw Unimplemented.forMember("net/minecraft/util/Mth.nextInt:(Lnet/minecraft/util/RandomSource;II)I");
+        return minInclusive >= maxInclusive
+                ? minInclusive
+                : random.nextInt(maxInclusive - minInclusive + 1) + minInclusive;
     }
 
     public static double nextDouble(RandomSource random, double min, double max) {
-        throw Unimplemented.forMember("net/minecraft/util/Mth.nextDouble:(Lnet/minecraft/util/RandomSource;DD)D");
+        return min >= max ? min : random.nextDouble() * (max - min) + min;
     }
 
     public static boolean equal(float a, float b) {
-        throw Unimplemented.forMember("net/minecraft/util/Mth.equal:(FF)Z");
+        return Math.abs(b - a) < 1.0E-5F;
     }
 
     public static boolean equal(double a, double b) {
-        throw Unimplemented.forMember("net/minecraft/util/Mth.equal:(DD)Z");
+        return Math.abs(b - a) < 9.999999747378752E-6;
     }
 
     public static int wrapDegrees(int angle) {
-        throw Unimplemented.forMember("net/minecraft/util/Mth.wrapDegrees:(I)I");
+        int wrapped = angle % 360;
+        if (wrapped >= 180) {
+            wrapped -= 360;
+        }
+        if (wrapped < -180) {
+            wrapped += 360;
+        }
+        return wrapped;
     }
 
     public static float wrapDegrees(long angle) {
-        throw Unimplemented.forMember("net/minecraft/util/Mth.wrapDegrees:(J)F");
+        return wrapDegrees((float) angle);
     }
 
     public static float wrapDegrees(float angle) {
-        throw Unimplemented.forMember("net/minecraft/util/Mth.wrapDegrees:(F)F");
+        float wrapped = angle % 360.0F;
+        if (wrapped >= 180.0F) {
+            wrapped -= 360.0F;
+        }
+        if (wrapped < -180.0F) {
+            wrapped += 360.0F;
+        }
+        return wrapped;
     }
 
     public static double wrapDegrees(double angle) {
-        throw Unimplemented.forMember("net/minecraft/util/Mth.wrapDegrees:(D)D");
+        double wrapped = angle % 360.0;
+        if (wrapped >= 180.0) {
+            wrapped -= 360.0;
+        }
+        if (wrapped < -180.0) {
+            wrapped += 360.0;
+        }
+        return wrapped;
     }
 
     public static double atan2(double y, double x) {
-        throw Unimplemented.forMember("net/minecraft/util/Mth.atan2:(DD)D");
+        return Math.atan2(y, x);
     }
 
     public static int lerpDiscrete(float alpha1, int p0, int p1) {
-        throw Unimplemented.forMember("net/minecraft/util/Mth.lerpDiscrete:(FII)I");
+        return p0 + floor(alpha1 * (float) (p1 - p0));
     }
 
     public static float lerp(float alpha1, float p0, float p1) {
-        throw Unimplemented.forMember("net/minecraft/util/Mth.lerp:(FFF)F");
+        return p0 + alpha1 * (p1 - p0);
     }
 
     public static Vec3 lerp(double alpha, Vec3 p1, Vec3 p2) {
-        throw Unimplemented.forMember("net/minecraft/util/Mth.lerp:(DLnet/minecraft/world/phys/Vec3;Lnet/minecraft/world/phys/Vec3;)Lnet/minecraft/world/phys/Vec3;");
+        return new Vec3(
+                lerp(alpha, p1.x, p2.x), lerp(alpha, p1.y, p2.y), lerp(alpha, p1.z, p2.z));
     }
 
     public static double lerp(double alpha1, double p0, double p1) {
-        throw Unimplemented.forMember("net/minecraft/util/Mth.lerp:(DDD)D");
+        return p0 + alpha1 * (p1 - p0);
     }
 
     public static int sign(double number) {
-        throw Unimplemented.forMember("net/minecraft/util/Mth.sign:(D)I");
+        if (number == 0.0) {
+            return 0;
+        }
+        return number > 0.0 ? 1 : -1;
     }
 
     public static float rotLerp(float a, float from, float to) {
-        throw Unimplemented.forMember("net/minecraft/util/Mth.rotLerp:(FFF)F");
+        return from + a * wrapDegrees(to - from);
     }
 
     public static double rotLerp(double a, double from, double to) {
-        throw Unimplemented.forMember("net/minecraft/util/Mth.rotLerp:(DDD)D");
+        return from + a * wrapDegrees(to - from);
     }
 
     public static float randomBetween(RandomSource random, float min, float maxExclusive) {
-        throw Unimplemented.forMember("net/minecraft/util/Mth.randomBetween:(Lnet/minecraft/util/RandomSource;FF)F");
+        return random.nextFloat() * (maxExclusive - min) + min;
     }
 
     public static double length(double x, double y) {
-        throw Unimplemented.forMember("net/minecraft/util/Mth.length:(DD)D");
+        return Math.sqrt(x * x + y * y);
     }
 
     public static float length(float x, float y) {
-        throw Unimplemented.forMember("net/minecraft/util/Mth.length:(FF)F");
+        return (float) Math.sqrt(x * x + y * y);
     }
 
     public static double length(double x, double y, double z) {
-        throw Unimplemented.forMember("net/minecraft/util/Mth.length:(DDD)D");
+        return Math.sqrt(x * x + y * y + z * z);
     }
 
     public Mth() {
-    }
-
-    static {
-        if (true) {
-            throw Unimplemented.forMember("net/minecraft/util/Mth");
-        }
     }
 }

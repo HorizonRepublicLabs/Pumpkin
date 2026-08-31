@@ -120,8 +120,9 @@ public record ItemStackTemplate(Holder<Item> item, int count, DataComponentPatch
         throw Unimplemented.forMember("net/minecraft/world/item/ItemStackTemplate.apply:(ILnet/minecraft/core/component/DataComponentPatch;)Lnet/minecraft/world/item/ItemStack;");
     }
 
+    // Pumpkin divergence: the record's own item field is the holder.
     public Holder<Item> typeHolder() {
-        throw Unimplemented.forMember("net/minecraft/world/item/ItemStackTemplate.typeHolder:()Lnet/minecraft/core/Holder;");
+        return item();
     }
 
     public <T> T get(DataComponentType<? extends T> type) {

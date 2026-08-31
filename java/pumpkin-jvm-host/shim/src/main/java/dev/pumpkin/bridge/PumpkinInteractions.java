@@ -233,7 +233,7 @@ public final class PumpkinInteractions {
 
         boolean existed = PumpkinBlockEntities.exists(x, y, z);
         net.minecraft.world.level.block.entity.BlockEntity entity =
-                PumpkinBlockEntities.getOrCreate(type, x, y, z);
+                PumpkinBlockEntities.getOrCreate(type, x, y, z, state);
         if (!existed && !savedData.isEmpty()) {
             com.google.gson.JsonObject parsed = com.google.gson.JsonParser
                     .parseString(new String(java.util.Base64.getDecoder().decode(savedData),
@@ -285,6 +285,13 @@ public final class PumpkinInteractions {
                 if (method.getName().equals(name) && method.getParameterCount() == parameterCount) {
                     return method;
                 }
+            }
+        }
+        // Interface default methods (EntityBlock.getTicker and kin) live on interfaces
+        // the class walk above never visits.
+        for (Method method : type.getMethods()) {
+            if (method.getName().equals(name) && method.getParameterCount() == parameterCount) {
+                return method;
             }
         }
         throw new NoSuchMethodException(type.getName() + " has no " + name

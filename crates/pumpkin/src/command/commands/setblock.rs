@@ -84,6 +84,25 @@ impl CommandExecutor for Executor {
         };
 
         if success {
+            // Vanilla creates the block's entity on any placement; player placement
+            // routes through PluginBlockBehaviour::player_placed, but a command has no
+            // player, so the same dynamic link answers here. Without it a machine set
+            // by command has nowhere to keep its contents and never ticks.
+            let state = world.get_block_state(&pos);
+            let block = world.get_block(&pos);
+            let block_entity_type = if state.block_entity_type == u16::MAX {
+                pumpkin_data::dynamic::block_entity_type_for_block(block.id.as_u16())
+                    .unwrap_or(u16::MAX)
+            } else {
+                state.block_entity_type
+            };
+            if block_entity_type != u16::MAX
+                && world.get_block_entity(&pos).is_none()
+                && let Some(entity) =
+                    crate::block::entities::create_block_entity(block_entity_type, pos)
+            {
+                world.add_block_entity(entity);
+            }
             sender.send_message(TextComponent::translate_cross(
                 pumpkin_data::translation::java::COMMANDS_SETBLOCK_SUCCESS,
                 pumpkin_data::translation::bedrock::COMMANDS_SETBLOCK_SUCCESS,

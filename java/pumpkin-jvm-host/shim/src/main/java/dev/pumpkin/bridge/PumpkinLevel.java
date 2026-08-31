@@ -341,8 +341,11 @@ public final class PumpkinLevel extends net.minecraft.server.level.ServerLevel {
     }
 
     @Override
+    // Pumpkin divergence: an inert access whose default methods (lookupOrThrow and
+    // kin carry real bodies) run; only truly-absent members throw, by name.
     public RegistryAccess registryAccess() {
-        throw Unimplemented.forMember("net/minecraft/world/level/Level.registryAccess");
+        return dev.pumpkin.shim.Stubs.of(net.minecraft.core.RegistryAccess.class,
+                "net/minecraft/core/RegistryAccess via Level.registryAccess");
     }
 
     @Override

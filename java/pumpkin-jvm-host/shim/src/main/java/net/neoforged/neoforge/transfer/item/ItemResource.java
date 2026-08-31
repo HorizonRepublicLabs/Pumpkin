@@ -53,7 +53,9 @@ public final class ItemResource implements DataComponentHolderResource<Item> {
     }
 
     public static ItemResource of(ItemStackTemplate template) {
-        throw Unimplemented.forMember("net/neoforged/neoforge/transfer/item/ItemResource.of:(Lnet/minecraft/world/item/ItemStackTemplate;)Lnet/neoforged/neoforge/transfer/item/ItemResource;");
+        ItemResource resource = new ItemResource();
+        resource.pumpkinItem = template.item() == null ? null : template.item().value();
+        return resource;
     }
 
     public static ItemResource of(ItemLike item) {
@@ -194,12 +196,16 @@ public final class ItemResource implements DataComponentHolderResource<Item> {
         throw Unimplemented.forMember("net/neoforged/neoforge/transfer/item/ItemResource.getHoverName:()Lnet/minecraft/network/chat/Component;");
     }
 
+    // Pumpkin divergence: value semantics over the two facts a resource carries --
+    // its item and its component patch. NeoForge's own meaning.
     public boolean equals(Object obj) {
-        throw Unimplemented.forMember("net/neoforged/neoforge/transfer/item/ItemResource.equals:(Ljava/lang/Object;)Z");
+        return obj instanceof ItemResource other
+                && pumpkinItem == other.pumpkinItem
+                && pumpkinPatch.equals(other.pumpkinPatch);
     }
 
     public int hashCode() {
-        throw Unimplemented.forMember("net/neoforged/neoforge/transfer/item/ItemResource.hashCode:()I");
+        return java.util.Objects.hash(pumpkinItem, pumpkinPatch);
     }
 
     public String toString() {
