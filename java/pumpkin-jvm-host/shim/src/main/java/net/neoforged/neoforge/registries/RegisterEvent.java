@@ -11,7 +11,20 @@ import dev.pumpkin.shim.Unimplemented;
 
 public class RegisterEvent extends Event implements IModBusEvent {
 
+    // Pumpkin divergence: the event carries its registry; Bootstrap posts one event per
+    // known registry, the way NeoForge fires one per real registry.
+    private ResourceKey<? extends Registry<?>> pumpkinRegistryKey;
+
     RegisterEvent(ResourceKey<? extends Registry<?>> registryKey, Registry<?> registry) {
+        this.pumpkinRegistryKey = registryKey;
+    }
+
+    public RegisterEvent(ResourceKey<? extends Registry<?>> registryKey) {
+        this.pumpkinRegistryKey = registryKey;
+    }
+
+    public ResourceKey<? extends Registry<?>> getRegistryKey() {
+        return pumpkinRegistryKey;
     }
 
     public <T> void register(ResourceKey<? extends Registry<T>> registryKey, Identifier name, Supplier<T> valueSupplier) {
@@ -27,6 +40,12 @@ public class RegisterEvent extends Event implements IModBusEvent {
     // else stops loudly rather than being dropped -- a silently ignored registration is a mod
     // whose content simply is not there, with nothing to say why.
     public <T> void register(ResourceKey<? extends Registry<T>> registryKey, Consumer<RegisterHelper<T>> consumer) {
+        // With one event per registry, a helper aimed at another registry waits for its
+        // own event -- otherwise every registration would replay once per event.
+        if (pumpkinRegistryKey != null
+                && !registryKey.identifier().toString().equals(pumpkinRegistryKey.identifier().toString())) {
+            return;
+        }
         consumer.accept((name, value) -> {
             DeferredHolder.pumpkinRecordValue(registryKey.identifier().toString(), name, value);
             if (value instanceof net.minecraft.world.level.block.Block block) {
@@ -57,10 +76,6 @@ public class RegisterEvent extends Event implements IModBusEvent {
                 DeferredRegister.pumpkinWarnUnsupported(registryKey.identifier().toString(), name.toString());
             }
         });
-    }
-
-    public ResourceKey<? extends Registry<?>> getRegistryKey() {
-        throw Unimplemented.forMember("net/neoforged/neoforge/registries/RegisterEvent.getRegistryKey:()Lnet/minecraft/resources/ResourceKey;");
     }
 
     public interface RegisterHelper<T> {

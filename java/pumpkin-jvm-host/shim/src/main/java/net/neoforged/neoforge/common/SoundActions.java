@@ -7,13 +7,9 @@ public final class SoundActions {
     protected SoundActions() {
     }
 
-    public static final SoundAction BUCKET_FILL = null;
+    public static final SoundAction BUCKET_FILL = SoundAction.get("bucket_fill");
 
-    public static final SoundAction BUCKET_EMPTY = null;
+    public static final SoundAction BUCKET_EMPTY = SoundAction.get("bucket_empty");
 
-    static {
-        if (true) {
-            throw Unimplemented.forMember("net/neoforged/neoforge/common/SoundActions");
-        }
-    }
+    // Pumpkin divergence: no throwing initializer -- the actions above are real.
 }

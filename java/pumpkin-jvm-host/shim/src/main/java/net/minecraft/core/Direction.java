@@ -27,7 +27,8 @@ public enum Direction implements StringRepresentable {
 
     public static final StreamCodec<ByteBuf, Direction> STREAM_CODEC = Stubs.of(StreamCodec.class, "net/minecraft/network/codec/StreamCodec");
 
-    public static final Codec<Direction> LEGACY_ID_CODEC = null;
+    public static final Codec<Direction> LEGACY_ID_CODEC =
+            dev.pumpkin.shim.Stubs.throwingCodec("net.minecraft.core.Direction.LEGACY_ID_CODEC");
 
     public static Stream<Direction> stream() {
         throw Unimplemented.forMember("net/minecraft/core/Direction.stream:()Ljava/util/stream/Stream;");
@@ -45,8 +46,16 @@ public enum Direction implements StringRepresentable {
         throw Unimplemented.forMember("net/minecraft/core/Direction.getAxisDirection:()Lnet/minecraft/core/Direction$AxisDirection;");
     }
 
+    // Pumpkin divergence: vanilla body.
     public Direction getOpposite() {
-        throw Unimplemented.forMember("net/minecraft/core/Direction.getOpposite:()Lnet/minecraft/core/Direction;");
+        return switch (this) {
+            case DOWN -> UP;
+            case UP -> DOWN;
+            case NORTH -> SOUTH;
+            case SOUTH -> NORTH;
+            case WEST -> EAST;
+            case EAST -> WEST;
+        };
     }
 
     public Direction getClockWise(Direction.Axis axis) {
@@ -57,24 +66,53 @@ public enum Direction implements StringRepresentable {
         throw Unimplemented.forMember("net/minecraft/core/Direction.getCounterClockWise:(Lnet/minecraft/core/Direction$Axis;)Lnet/minecraft/core/Direction;");
     }
 
+    // Pumpkin divergence: vanilla body.
     public Direction getClockWise() {
-        throw Unimplemented.forMember("net/minecraft/core/Direction.getClockWise:()Lnet/minecraft/core/Direction;");
+        return switch (this) {
+            case NORTH -> EAST;
+            case EAST -> SOUTH;
+            case SOUTH -> WEST;
+            case WEST -> NORTH;
+            default -> throw new IllegalStateException("no horizontal rotation for " + this);
+        };
     }
 
+    // Pumpkin divergence: vanilla body.
     public Direction getCounterClockWise() {
-        throw Unimplemented.forMember("net/minecraft/core/Direction.getCounterClockWise:()Lnet/minecraft/core/Direction;");
+        return switch (this) {
+            case NORTH -> WEST;
+            case WEST -> SOUTH;
+            case SOUTH -> EAST;
+            case EAST -> NORTH;
+            default -> throw new IllegalStateException("no horizontal rotation for " + this);
+        };
     }
 
+    // Pumpkin divergence: vanilla body.
     public int getStepX() {
-        throw Unimplemented.forMember("net/minecraft/core/Direction.getStepX:()I");
+        return switch (this) {
+            case WEST -> -1;
+            case EAST -> 1;
+            default -> 0;
+        };
     }
 
+    // Pumpkin divergence: vanilla body.
     public int getStepY() {
-        throw Unimplemented.forMember("net/minecraft/core/Direction.getStepY:()I");
+        return switch (this) {
+            case DOWN -> -1;
+            case UP -> 1;
+            default -> 0;
+        };
     }
 
+    // Pumpkin divergence: vanilla body.
     public int getStepZ() {
-        throw Unimplemented.forMember("net/minecraft/core/Direction.getStepZ:()I");
+        return switch (this) {
+            case NORTH -> -1;
+            case SOUTH -> 1;
+            default -> 0;
+        };
     }
 
     public Vector3f step() {

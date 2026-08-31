@@ -24,6 +24,12 @@ public final class EntityCapability<T, C extends Object> extends BaseCapability<
         return create(name, typeClass, Void.class);
     }
 
+    // Real NeoForge member the pruner never saw a direct call to; Capabilities' holders
+    // build through it.
+    public static <T> EntityCapability<T, net.minecraft.core.Direction> createSided(Identifier name, Class<T> typeClass) {
+        return create(name, typeClass, net.minecraft.core.Direction.class);
+    }
+
     public static synchronized List<EntityCapability<?, ?>> getAll() {
         throw Unimplemented.forMember("net/neoforged/neoforge/capabilities/EntityCapability.getAll:()Ljava/util/List;");
     }

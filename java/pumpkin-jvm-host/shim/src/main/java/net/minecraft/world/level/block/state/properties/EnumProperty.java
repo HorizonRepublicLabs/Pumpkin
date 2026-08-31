@@ -59,8 +59,18 @@ public final class EnumProperty<T extends Enum<T> & StringRepresentable> extends
         throw Unimplemented.forMember("net/minecraft/world/level/block/state/properties/EnumProperty.create:(Ljava/lang/String;Ljava/lang/Class;Ljava/util/function/Predicate;)Lnet/minecraft/world/level/block/state/properties/EnumProperty;");
     }
 
+    // Pumpkin divergence: real body -- an explicit subset, in the order given, which is
+    // the order vanilla numbers the states in.
+    @SafeVarargs
     public static <T extends Enum<T> & StringRepresentable> EnumProperty<T> create(String name, Class<T> clazz, T... values) {
-        throw Unimplemented.forMember("net/minecraft/world/level/block/state/properties/EnumProperty.create:(Ljava/lang/String;Ljava/lang/Class;[Ljava/lang/Enum;)Lnet/minecraft/world/level/block/state/properties/EnumProperty;");
+        EnumProperty<T> property = new EnumProperty<>();
+        property.pumpkinName = name;
+        property.pumpkinValues = List.of(values);
+        for (T value : property.pumpkinValues) {
+            property.pumpkinPossibleValues.add(value.getSerializedName());
+            property.pumpkinParse.put(value.getSerializedName(), value);
+        }
+        return property;
     }
 
     public static <T extends Enum<T> & StringRepresentable> EnumProperty<T> create(String name, Class<T> clazz, List<T> values) {

@@ -65,8 +65,11 @@ public class DeferredHolder<R, T extends R> implements Holder<R>, Supplier<T> {
     }
 
     // Pumpkin divergence: real body.
+    private ResourceKey<R> pumpkinKey;
+
     protected DeferredHolder(ResourceKey<R> key) {
         this(key.identifier(), null);
+        this.pumpkinKey = key;
     }
 
     // Pumpkin divergence: no vanilla counterpart. DeferredRegister.register builds holders
@@ -135,8 +138,15 @@ public class DeferredHolder<R, T extends R> implements Holder<R>, Supplier<T> {
         return pumpkinId;
     }
 
+    // Pumpkin divergence: real body where the holder was built with its full key; a
+    // holder that never learned its registry still fails loudly by name.
     public ResourceKey<R> getKey() {
-        throw Unimplemented.forMember("net/neoforged/neoforge/registries/DeferredHolder.getKey:()Lnet/minecraft/resources/ResourceKey;");
+        if (pumpkinKey == null) {
+            throw Unimplemented.forMember(
+                    "net/neoforged/neoforge/registries/DeferredHolder.getKey (no registry recorded for "
+                            + pumpkinId + ")");
+        }
+        return pumpkinKey;
     }
 
     public boolean equals(Object obj) {

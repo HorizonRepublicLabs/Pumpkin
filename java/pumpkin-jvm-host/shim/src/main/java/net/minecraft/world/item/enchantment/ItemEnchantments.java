@@ -20,7 +20,8 @@ public class ItemEnchantments implements TooltipProvider {
 
     public static final ItemEnchantments EMPTY = null;
 
-    public static final Codec<ItemEnchantments> CODEC = null;
+    public static final Codec<ItemEnchantments> CODEC =
+            dev.pumpkin.shim.Stubs.throwingCodec("net.minecraft.world.item.enchantment.ItemEnchantments.CODEC");
 
     public static final StreamCodec<RegistryFriendlyByteBuf, ItemEnchantments> STREAM_CODEC = Stubs.of(StreamCodec.class, "net/minecraft/network/codec/StreamCodec");
 

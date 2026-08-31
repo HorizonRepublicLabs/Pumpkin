@@ -8,7 +8,9 @@ import dev.pumpkin.shim.Unimplemented;
 
 public class BlockState extends BlockBehaviour.BlockStateBase implements IBlockStateExtension {
 
-    public static final Codec<BlockState> CODEC = null;
+    // Pumpkin divergence: inert codec -- composes at class-init, throws by name on use.
+    public static final Codec<BlockState> CODEC =
+            dev.pumpkin.shim.Stubs.throwingCodec("net/minecraft/world/level/block/state/BlockState.CODEC");
 
     public BlockState(Block owner, Property<?>[] propertyKeys, Comparable<?>[] propertyValues) {
     }

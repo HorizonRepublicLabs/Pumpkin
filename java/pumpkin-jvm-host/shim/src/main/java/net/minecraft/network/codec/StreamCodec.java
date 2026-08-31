@@ -33,8 +33,19 @@ public interface StreamCodec<B, V> extends StreamEncoder<B, V>, StreamDecoder<B,
         };
     }
 
+    // Pumpkin divergence: real body, mirroring of() -- the member-encoder spelling.
     static <B, V> StreamCodec<B, V> ofMember(StreamMemberEncoder<B, V> encoder, StreamDecoder<B, V> decoder) {
-        throw Unimplemented.forMember("net/minecraft/network/codec/StreamCodec.ofMember:(Lnet/minecraft/network/codec/StreamMemberEncoder;Lnet/minecraft/network/codec/StreamDecoder;)Lnet/minecraft/network/codec/StreamCodec;");
+        return new StreamCodec<B, V>() {
+            @Override
+            public V decode(B input) {
+                return decoder.decode(input);
+            }
+
+            @Override
+            public void encode(B output, V value) {
+                encoder.encode(value, output);
+            }
+        };
     }
 
     // Pumpkin divergence: real-enough body. A stream codec carries wire logic Pumpkin
@@ -53,8 +64,21 @@ public interface StreamCodec<B, V> extends StreamEncoder<B, V>, StreamDecoder<B,
         return operation.apply(this);
     }
 
+    // Pumpkin divergence: real composition, as vanilla -- inertness propagates from
+    // the source codec, so a mapped inert codec still throws its origin's key on use.
     default <O> StreamCodec<B, O> map(Function<? super V, ? extends O> to, Function<? super O, ? extends V> from) {
-        throw Unimplemented.forMember("net/minecraft/network/codec/StreamCodec.map:(Ljava/util/function/Function;Ljava/util/function/Function;)Lnet/minecraft/network/codec/StreamCodec;");
+        StreamCodec<B, V> self = this;
+        return new StreamCodec<B, O>() {
+            @Override
+            public O decode(B input) {
+                return to.apply(self.decode(input));
+            }
+
+            @Override
+            public void encode(B output, O value) {
+                self.encode(output, from.apply(value));
+            }
+        };
     }
 
     default <U> StreamCodec<B, U> dispatch(Function<? super U, ? extends V> type, Function<? super V, ? extends StreamCodec<? super B, ? extends U>> codec) {

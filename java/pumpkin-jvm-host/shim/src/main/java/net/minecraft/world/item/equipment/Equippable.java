@@ -12,8 +12,12 @@ import dev.pumpkin.shim.Unimplemented;
 
 public record Equippable(EquipmentSlot slot, Holder<SoundEvent> equipSound, Optional<ResourceKey<EquipmentAsset>> assetId, Optional<Identifier> cameraOverlay, Optional<HolderSet<EntityType<?>>> allowedEntities, boolean dispensable, boolean swappable, boolean damageOnHurt, boolean equipOnInteract, boolean canBeSheared, Holder<SoundEvent> shearingSound) {
 
+    // Pumpkin divergence: real chain -- the built component carries the slot, the one
+    // fact the mod declared; presentation fields stay empty.
     public static Equippable.Builder builder(EquipmentSlot slot) {
-        throw Unimplemented.forMember("net/minecraft/world/item/equipment/Equippable.builder:(Lnet/minecraft/world/entity/EquipmentSlot;)Lnet/minecraft/world/item/equipment/Equippable$Builder;");
+        Builder builder = new Builder();
+        builder.pumpkinSlot = slot;
+        return builder;
     }
 
     public static class Builder {
@@ -21,20 +25,23 @@ public record Equippable(EquipmentSlot slot, Holder<SoundEvent> equipSound, Opti
         private Builder(EquipmentSlot slot) {
         }
 
+        EquipmentSlot pumpkinSlot;
+
         public Equippable.Builder setEquipSound(Holder<SoundEvent> equipSound) {
-            throw Unimplemented.forMember("net/minecraft/world/item/equipment/Equippable$Builder.setEquipSound:(Lnet/minecraft/core/Holder;)Lnet/minecraft/world/item/equipment/Equippable$Builder;");
+            return this;
         }
 
         public Equippable.Builder setAsset(ResourceKey<EquipmentAsset> assetId) {
-            throw Unimplemented.forMember("net/minecraft/world/item/equipment/Equippable$Builder.setAsset:(Lnet/minecraft/resources/ResourceKey;)Lnet/minecraft/world/item/equipment/Equippable$Builder;");
+            return this;
         }
 
         public Equippable.Builder setDamageOnHurt(boolean damageOnHurt) {
-            throw Unimplemented.forMember("net/minecraft/world/item/equipment/Equippable$Builder.setDamageOnHurt:(Z)Lnet/minecraft/world/item/equipment/Equippable$Builder;");
+            return this;
         }
 
         public Equippable build() {
-            throw Unimplemented.forMember("net/minecraft/world/item/equipment/Equippable$Builder.build:()Lnet/minecraft/world/item/equipment/Equippable;");
+            return new Equippable(pumpkinSlot, null, Optional.empty(), Optional.empty(),
+                    Optional.empty(), false, false, false, false, false, null);
         }
 
         public Builder() {

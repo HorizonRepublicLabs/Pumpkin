@@ -434,7 +434,9 @@ public abstract class BlockBehaviour implements FeatureElement {
 
         private Function<BlockState, MapColor> mapColor;
 
-        private ToIntFunction<BlockState> lightEmission;
+        // Pumpkin divergence: public, as NeoForge's access transformer makes it --
+        // Mekanism writes light levels straight onto the field.
+        public ToIntFunction<BlockState> lightEmission;
 
         private boolean requiresCorrectToolForDrops;
 
@@ -490,20 +492,24 @@ public abstract class BlockBehaviour implements FeatureElement {
             throw Unimplemented.forMember("net/minecraft/world/level/block/state/BlockBehaviour$Properties.ofLegacyCopy:(Lnet/minecraft/world/level/block/state/BlockBehaviour;)Lnet/minecraft/world/level/block/state/BlockBehaviour$Properties;");
         }
 
+        // Pumpkin divergence: declared block metadata, accepted and dropped.
         public BlockBehaviour.Properties mapColor(DyeColor dyeColor) {
-            throw Unimplemented.forMember("net/minecraft/world/level/block/state/BlockBehaviour$Properties.mapColor:(Lnet/minecraft/world/item/DyeColor;)Lnet/minecraft/world/level/block/state/BlockBehaviour$Properties;");
+            return this;
         }
 
+        // Pumpkin divergence: declared block metadata, accepted and dropped.
         public BlockBehaviour.Properties mapColor(MapColor mapColor) {
-            throw Unimplemented.forMember("net/minecraft/world/level/block/state/BlockBehaviour$Properties.mapColor:(Lnet/minecraft/world/level/material/MapColor;)Lnet/minecraft/world/level/block/state/BlockBehaviour$Properties;");
+            return this;
         }
 
+        // Pumpkin divergence: declared block metadata, accepted and dropped.
         public BlockBehaviour.Properties mapColor(Function<BlockState, MapColor> mapColor) {
-            throw Unimplemented.forMember("net/minecraft/world/level/block/state/BlockBehaviour$Properties.mapColor:(Ljava/util/function/Function;)Lnet/minecraft/world/level/block/state/BlockBehaviour$Properties;");
+            return this;
         }
 
+        // Pumpkin divergence: declared block metadata, accepted and dropped.
         public BlockBehaviour.Properties noCollision() {
-            throw Unimplemented.forMember("net/minecraft/world/level/block/state/BlockBehaviour$Properties.noCollision:()Lnet/minecraft/world/level/block/state/BlockBehaviour$Properties;");
+            return this;
         }
 
         // Pumpkin divergence: real body. Accepted and dropped -- occlusion is a client-side rendering concern.
@@ -512,8 +518,9 @@ public abstract class BlockBehaviour implements FeatureElement {
             return this;
         }
 
+        // Pumpkin divergence: declared block metadata, accepted and dropped.
         public BlockBehaviour.Properties friction(float friction) {
-            throw Unimplemented.forMember("net/minecraft/world/level/block/state/BlockBehaviour$Properties.friction:(F)Lnet/minecraft/world/level/block/state/BlockBehaviour$Properties;");
+            return this;
         }
 
         // Pumpkin divergence: real body. Accepted and dropped -- Pumpkin has no per-block sound table yet.
@@ -522,8 +529,9 @@ public abstract class BlockBehaviour implements FeatureElement {
             return this;
         }
 
+        // Pumpkin divergence: declared block metadata, accepted and dropped.
         public BlockBehaviour.Properties lightLevel(ToIntFunction<BlockState> lightEmission) {
-            throw Unimplemented.forMember("net/minecraft/world/level/block/state/BlockBehaviour$Properties.lightLevel:(Ljava/util/function/ToIntFunction;)Lnet/minecraft/world/level/block/state/BlockBehaviour$Properties;");
+            return this;
         }
 
         // Pumpkin divergence: real body, and the one that loses information.
@@ -547,24 +555,29 @@ public abstract class BlockBehaviour implements FeatureElement {
             return strength(destroyTime, destroyTime);
         }
 
+        // Pumpkin divergence: declared block metadata, accepted and dropped.
         public BlockBehaviour.Properties dynamicShape() {
-            throw Unimplemented.forMember("net/minecraft/world/level/block/state/BlockBehaviour$Properties.dynamicShape:()Lnet/minecraft/world/level/block/state/BlockBehaviour$Properties;");
+            return this;
         }
 
+        // Pumpkin divergence: declared block metadata, accepted and dropped.
         public BlockBehaviour.Properties noLootTable() {
-            throw Unimplemented.forMember("net/minecraft/world/level/block/state/BlockBehaviour$Properties.noLootTable:()Lnet/minecraft/world/level/block/state/BlockBehaviour$Properties;");
+            return this;
         }
 
+        // Pumpkin divergence: declared block metadata, accepted and dropped.
         public BlockBehaviour.Properties ignitedByLava() {
-            throw Unimplemented.forMember("net/minecraft/world/level/block/state/BlockBehaviour$Properties.ignitedByLava:()Lnet/minecraft/world/level/block/state/BlockBehaviour$Properties;");
+            return this;
         }
 
+        // Pumpkin divergence: declared block metadata, accepted and dropped.
         public BlockBehaviour.Properties liquid() {
-            throw Unimplemented.forMember("net/minecraft/world/level/block/state/BlockBehaviour$Properties.liquid:()Lnet/minecraft/world/level/block/state/BlockBehaviour$Properties;");
+            return this;
         }
 
+        // Pumpkin divergence: declared block metadata, accepted and dropped.
         public BlockBehaviour.Properties pushReaction(PushReaction pushReaction) {
-            throw Unimplemented.forMember("net/minecraft/world/level/block/state/BlockBehaviour$Properties.pushReaction:(Lnet/minecraft/world/level/material/PushReaction;)Lnet/minecraft/world/level/block/state/BlockBehaviour$Properties;");
+            return this;
         }
 
         // Pumpkin divergence: real body. A spawn/render predicate Pumpkin does not
@@ -607,8 +620,9 @@ public abstract class BlockBehaviour implements FeatureElement {
 
         }
 
+        // Pumpkin divergence: declared block metadata, accepted and dropped.
         public BlockBehaviour.Properties emissiveRendering(Predicate<BlockState> emissiveRendering) {
-            throw Unimplemented.forMember("net/minecraft/world/level/block/state/BlockBehaviour$Properties.emissiveRendering:(Ljava/util/function/Predicate;)Lnet/minecraft/world/level/block/state/BlockBehaviour$Properties;");
+            return this;
         }
 
         // Pumpkin divergence: real body. Recorded, and dropped at the sink for the same
@@ -618,12 +632,14 @@ public abstract class BlockBehaviour implements FeatureElement {
             return this;
         }
 
+        // Pumpkin divergence: declared block metadata, accepted and dropped.
         public BlockBehaviour.Properties instrument(NoteBlockInstrument instrument) {
-            throw Unimplemented.forMember("net/minecraft/world/level/block/state/BlockBehaviour$Properties.instrument:(Lnet/minecraft/world/level/block/state/properties/NoteBlockInstrument;)Lnet/minecraft/world/level/block/state/BlockBehaviour$Properties;");
+            return this;
         }
 
+        // Pumpkin divergence: declared block metadata, accepted and dropped.
         public BlockBehaviour.Properties replaceable() {
-            throw Unimplemented.forMember("net/minecraft/world/level/block/state/BlockBehaviour$Properties.replaceable:()Lnet/minecraft/world/level/block/state/BlockBehaviour$Properties;");
+            return this;
         }
 
         // Pumpkin divergence: real body. The id arrives again at registration, from the

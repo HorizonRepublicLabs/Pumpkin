@@ -36,6 +36,8 @@ ext.gameLibraries = [
         'it.unimi.dsi:fastutil:8.5.15',
         'io.netty:netty-buffer:4.2.2.Final',
         'io.netty:netty-transport:4.2.2.Final',
+        // codec joined for Mekanism: its packet layer touches DecoderException at class-init.
+        'io.netty:netty-codec:4.2.2.Final',
         'org.joml:joml:1.10.8',
         'org.slf4j:slf4j-api:2.0.16',
         'org.apache.commons:commons-lang3:3.17.0',

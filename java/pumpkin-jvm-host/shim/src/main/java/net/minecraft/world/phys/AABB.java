@@ -9,19 +9,16 @@ public class AABB {
 
     public static final AABB INFINITE = null;
 
-    public final double minX = 0.0;
-
-    public final double minY = 0.0;
-
-    public final double minZ = 0.0;
-
-    public final double maxX = 0.0;
-
-    public final double maxY = 0.0;
-
-    public final double maxZ = 0.0;
+    // Pumpkin divergence: real fields -- a box is its bounds.
+    public double minX, minY, minZ, maxX, maxY, maxZ;
 
     public AABB(double minX, double minY, double minZ, double maxX, double maxY, double maxZ) {
+        this.minX = minX;
+        this.minY = minY;
+        this.minZ = minZ;
+        this.maxX = maxX;
+        this.maxY = maxY;
+        this.maxZ = maxZ;
     }
 
     public AABB(BlockPos pos) {
@@ -54,40 +51,48 @@ public class AABB {
         throw Unimplemented.forMember("net/minecraft/world/phys/AABB.expandTowards:(Lnet/minecraft/world/phys/Vec3;)Lnet/minecraft/world/phys/AABB;");
     }
 
+    // Pumpkin divergence: vanilla arithmetic over the real bounds.
     public AABB expandTowards(double xa, double ya, double za) {
-        throw Unimplemented.forMember("net/minecraft/world/phys/AABB.expandTowards:(DDD)Lnet/minecraft/world/phys/AABB;");
+        return new AABB(xa < 0.0 ? minX + xa : minX, ya < 0.0 ? minY + ya : minY, za < 0.0 ? minZ + za : minZ, xa > 0.0 ? maxX + xa : maxX, ya > 0.0 ? maxY + ya : maxY, za > 0.0 ? maxZ + za : maxZ);
     }
 
+    // Pumpkin divergence: vanilla arithmetic over the real bounds.
     public AABB inflate(double xAdd, double yAdd, double zAdd) {
-        throw Unimplemented.forMember("net/minecraft/world/phys/AABB.inflate:(DDD)Lnet/minecraft/world/phys/AABB;");
+        return new AABB(minX - xAdd, minY - yAdd, minZ - zAdd, maxX + xAdd, maxY + yAdd, maxZ + zAdd);
     }
 
+    // Pumpkin divergence: vanilla arithmetic over the real bounds.
     public AABB inflate(double amountToAddInAllDirections) {
-        throw Unimplemented.forMember("net/minecraft/world/phys/AABB.inflate:(D)Lnet/minecraft/world/phys/AABB;");
+        return inflate(amountToAddInAllDirections, amountToAddInAllDirections, amountToAddInAllDirections);
     }
 
+    // Pumpkin divergence: vanilla arithmetic over the real bounds.
     public AABB move(double xa, double ya, double za) {
-        throw Unimplemented.forMember("net/minecraft/world/phys/AABB.move:(DDD)Lnet/minecraft/world/phys/AABB;");
+        return new AABB(minX + xa, minY + ya, minZ + za, maxX + xa, maxY + ya, maxZ + za);
     }
 
+    // Pumpkin divergence: vanilla arithmetic over the real bounds.
     public AABB move(BlockPos pos) {
-        throw Unimplemented.forMember("net/minecraft/world/phys/AABB.move:(Lnet/minecraft/core/BlockPos;)Lnet/minecraft/world/phys/AABB;");
+        return move(pos.getX(), pos.getY(), pos.getZ());
     }
 
+    // Pumpkin divergence: vanilla arithmetic over the real bounds.
     public AABB move(Vec3 pos) {
-        throw Unimplemented.forMember("net/minecraft/world/phys/AABB.move:(Lnet/minecraft/world/phys/Vec3;)Lnet/minecraft/world/phys/AABB;");
+        return move(pos.x, pos.y, pos.z);
     }
 
     public AABB move(Vector3f pos) {
         throw Unimplemented.forMember("net/minecraft/world/phys/AABB.move:(Lorg/joml/Vector3f;)Lnet/minecraft/world/phys/AABB;");
     }
 
+    // Pumpkin divergence: vanilla arithmetic over the real bounds.
     public boolean intersects(AABB aabb) {
-        throw Unimplemented.forMember("net/minecraft/world/phys/AABB.intersects:(Lnet/minecraft/world/phys/AABB;)Z");
+        return intersects(aabb.minX, aabb.minY, aabb.minZ, aabb.maxX, aabb.maxY, aabb.maxZ);
     }
 
+    // Pumpkin divergence: vanilla arithmetic over the real bounds.
     public boolean intersects(double minX, double minY, double minZ, double maxX, double maxY, double maxZ) {
-        throw Unimplemented.forMember("net/minecraft/world/phys/AABB.intersects:(DDDDDD)Z");
+        return this.minX < maxX && this.maxX > minX && this.minY < maxY && this.maxY > minY && this.minZ < maxZ && this.maxZ > minZ;
     }
 
     public boolean intersects(Vec3 min, Vec3 max) {
@@ -102,24 +107,28 @@ public class AABB {
         throw Unimplemented.forMember("net/minecraft/world/phys/AABB.contains:(Lnet/minecraft/world/phys/Vec3;)Z");
     }
 
+    // Pumpkin divergence: vanilla arithmetic over the real bounds.
     public boolean contains(double x, double y, double z) {
-        throw Unimplemented.forMember("net/minecraft/world/phys/AABB.contains:(DDD)Z");
+        return x >= minX && x < maxX && y >= minY && y < maxY && z >= minZ && z < maxZ;
     }
 
     public double getSize() {
         throw Unimplemented.forMember("net/minecraft/world/phys/AABB.getSize:()D");
     }
 
+    // Pumpkin divergence: vanilla arithmetic over the real bounds.
     public double getXsize() {
-        throw Unimplemented.forMember("net/minecraft/world/phys/AABB.getXsize:()D");
+        return maxX - minX;
     }
 
+    // Pumpkin divergence: vanilla arithmetic over the real bounds.
     public double getYsize() {
-        throw Unimplemented.forMember("net/minecraft/world/phys/AABB.getYsize:()D");
+        return maxY - minY;
     }
 
+    // Pumpkin divergence: vanilla arithmetic over the real bounds.
     public double getZsize() {
-        throw Unimplemented.forMember("net/minecraft/world/phys/AABB.getZsize:()D");
+        return maxZ - minZ;
     }
 
     public AABB deflate(double xSubstract, double ySubtract, double zSubtract) {
@@ -142,8 +151,9 @@ public class AABB {
         throw Unimplemented.forMember("net/minecraft/world/phys/AABB.toString:()Ljava/lang/String;");
     }
 
+    // Pumpkin divergence: vanilla arithmetic over the real bounds.
     public Vec3 getCenter() {
-        throw Unimplemented.forMember("net/minecraft/world/phys/AABB.getCenter:()Lnet/minecraft/world/phys/Vec3;");
+        return new Vec3((minX + maxX) / 2.0, (minY + maxY) / 2.0, (minZ + maxZ) / 2.0);
     }
 
     public static AABB ofSize(Vec3 center, double sizeX, double sizeY, double sizeZ) {

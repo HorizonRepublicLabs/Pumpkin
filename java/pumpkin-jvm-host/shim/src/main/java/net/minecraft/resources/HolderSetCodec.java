@@ -11,8 +11,9 @@ import dev.pumpkin.shim.Unimplemented;
 
 public class HolderSetCodec<E> implements Codec<HolderSet<E>> {
 
+    // Pumpkin divergence: inert codec -- throws its key on first use.
     public static <E> Codec<HolderSet<E>> create(ResourceKey<? extends Registry<E>> registryKey, Codec<Holder<E>> elementCodec, boolean alwaysUseList) {
-        throw Unimplemented.forMember("net/minecraft/resources/HolderSetCodec.create:(Lnet/minecraft/resources/ResourceKey;Lcom/mojang/serialization/Codec;Z)Lcom/mojang/serialization/Codec;");
+        return dev.pumpkin.shim.Stubs.throwingCodec("net/minecraft/resources/HolderSetCodec.create:(Lnet/minecraft/resources/ResourceKey;Lcom/mojang/serialization/Codec;Z)Lcom/mojang/serialization/Codec;");
     }
 
     private HolderSetCodec(ResourceKey<? extends Registry<E>> registryKey, Codec<Holder<E>> elementCodec, boolean alwaysUseList) {

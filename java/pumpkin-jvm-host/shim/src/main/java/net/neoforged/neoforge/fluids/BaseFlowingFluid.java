@@ -126,11 +126,11 @@ public abstract class BaseFlowingFluid extends FlowingFluid {
         }
 
         public Properties bucket(Supplier<? extends Item> bucket) {
-            throw Unimplemented.forMember("net/neoforged/neoforge/fluids/BaseFlowingFluid$Properties.bucket:(Ljava/util/function/Supplier;)Lnet/neoforged/neoforge/fluids/BaseFlowingFluid$Properties;");
+            return this;
         }
 
         public Properties block(Supplier<? extends LiquidBlock> block) {
-            throw Unimplemented.forMember("net/neoforged/neoforge/fluids/BaseFlowingFluid$Properties.block:(Ljava/util/function/Supplier;)Lnet/neoforged/neoforge/fluids/BaseFlowingFluid$Properties;");
+            return this;
         }
 
         public Properties() {

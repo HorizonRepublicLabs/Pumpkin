@@ -26,7 +26,8 @@ public class EntityType<T extends Entity> implements EntityTypeTest<Entity, T>, 
 
     private final Holder.Reference<EntityType<?>> builtInRegistryHolder = null;
 
-    public static final Codec<EntityType<?>> CODEC = null;
+    public static final Codec<EntityType<?>> CODEC =
+            dev.pumpkin.shim.Stubs.throwingCodec("net.minecraft.world.entity.EntityType.CODEC");
 
     private final TagKey<Block> immuneTo = null;
 
@@ -281,6 +282,10 @@ public class EntityType<T extends Entity> implements EntityTypeTest<Entity, T>, 
 
         T create(final EntityType<T> entityType, final Level level);
     }
+
+    // Pumpkin divergence: no vanilla counterpart -- the name a vanilla stand-in from
+    // EntityTypes carries.
+    public String pumpkinVanillaName;
 
     public EntityType() {
     }

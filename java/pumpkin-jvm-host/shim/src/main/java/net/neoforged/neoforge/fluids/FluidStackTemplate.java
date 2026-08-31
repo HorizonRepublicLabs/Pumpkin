@@ -12,7 +12,8 @@ import dev.pumpkin.shim.Unimplemented;
 
 public record FluidStackTemplate(Holder<Fluid> fluid, int amount, DataComponentPatch components) implements FluidInstance {
 
-    public static final Codec<FluidStackTemplate> CODEC = null;
+    public static final Codec<FluidStackTemplate> CODEC =
+            dev.pumpkin.shim.Stubs.throwingCodec("net.neoforged.neoforge.fluids.FluidStackTemplate.CODEC");
 
     public static final StreamCodec<RegistryFriendlyByteBuf, FluidStackTemplate> STREAM_CODEC = Stubs.of(StreamCodec.class, "net/minecraft/network/codec/StreamCodec");
 

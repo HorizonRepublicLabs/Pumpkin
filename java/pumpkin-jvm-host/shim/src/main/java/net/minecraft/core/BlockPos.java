@@ -12,7 +12,8 @@ import dev.pumpkin.shim.Unimplemented;
 
 public class BlockPos extends Vec3i {
 
-    public static final Codec<BlockPos> CODEC = null;
+    public static final Codec<BlockPos> CODEC =
+            dev.pumpkin.shim.Stubs.throwingCodec("net.minecraft.core.BlockPos.CODEC");
 
     public static final StreamCodec<ByteBuf, BlockPos> STREAM_CODEC = Stubs.of(StreamCodec.class, "net/minecraft/network/codec/StreamCodec");
 

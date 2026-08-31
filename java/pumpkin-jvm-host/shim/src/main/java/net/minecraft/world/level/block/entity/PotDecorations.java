@@ -15,7 +15,8 @@ public record PotDecorations(Optional<Item> back, Optional<Item> left, Optional<
 
     public static final PotDecorations EMPTY = null;
 
-    public static final Codec<PotDecorations> CODEC = null;
+    public static final Codec<PotDecorations> CODEC =
+            dev.pumpkin.shim.Stubs.throwingCodec("net.minecraft.world.level.block.entity.PotDecorations.CODEC");
 
     private PotDecorations(List<Item> items) {
         this((Optional<Item>) null, (Optional<Item>) null, (Optional<Item>) null, (Optional<Item>) null);

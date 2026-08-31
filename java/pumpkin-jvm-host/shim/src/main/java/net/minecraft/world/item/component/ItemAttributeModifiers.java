@@ -16,8 +16,10 @@ import dev.pumpkin.shim.Unimplemented;
 
 public record ItemAttributeModifiers(List<ItemAttributeModifiers.Entry> modifiers) {
 
+    // Pumpkin divergence: real chain; the built component is declared item metadata the
+    // Rust side does not consume yet.
     public static ItemAttributeModifiers.Builder builder() {
-        throw Unimplemented.forMember("net/minecraft/world/item/component/ItemAttributeModifiers.builder:()Lnet/minecraft/world/item/component/ItemAttributeModifiers$Builder;");
+        return new Builder();
     }
 
     public static class Builder {
@@ -26,15 +28,15 @@ public record ItemAttributeModifiers(List<ItemAttributeModifiers.Entry> modifier
         }
 
         public ItemAttributeModifiers.Builder add(Holder<Attribute> attribute, AttributeModifier modifier, EquipmentSlotGroup slot) {
-            throw Unimplemented.forMember("net/minecraft/world/item/component/ItemAttributeModifiers$Builder.add:(Lnet/minecraft/core/Holder;Lnet/minecraft/world/entity/ai/attributes/AttributeModifier;Lnet/minecraft/world/entity/EquipmentSlotGroup;)Lnet/minecraft/world/item/component/ItemAttributeModifiers$Builder;");
+            return this;
         }
 
         public ItemAttributeModifiers.Builder add(Holder<Attribute> attribute, AttributeModifier modifier, EquipmentSlotGroup slot, ItemAttributeModifiers.Display display) {
-            throw Unimplemented.forMember("net/minecraft/world/item/component/ItemAttributeModifiers$Builder.add:(Lnet/minecraft/core/Holder;Lnet/minecraft/world/entity/ai/attributes/AttributeModifier;Lnet/minecraft/world/entity/EquipmentSlotGroup;Lnet/minecraft/world/item/component/ItemAttributeModifiers$Display;)Lnet/minecraft/world/item/component/ItemAttributeModifiers$Builder;");
+            return this;
         }
 
         public ItemAttributeModifiers build() {
-            throw Unimplemented.forMember("net/minecraft/world/item/component/ItemAttributeModifiers$Builder.build:()Lnet/minecraft/world/item/component/ItemAttributeModifiers;");
+            return new ItemAttributeModifiers(java.util.List.of());
         }
     }
 

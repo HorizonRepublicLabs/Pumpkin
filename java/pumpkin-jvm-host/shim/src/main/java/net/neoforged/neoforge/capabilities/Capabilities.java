@@ -11,58 +11,61 @@ import dev.pumpkin.shim.Unimplemented;
 
 public final class Capabilities {
 
+    // NeoForge's create(): the neoforge namespace.
+    private static net.minecraft.resources.Identifier pumpkinName(String path) {
+        return net.minecraft.resources.Identifier.fromNamespaceAndPath("neoforge", path);
+    }
+
+
     public static final class Energy {
 
-        public static final BlockCapability<EnergyHandler, Direction> BLOCK = null;
+        public static final BlockCapability<EnergyHandler, Direction> BLOCK =
+                BlockCapability.createSided(pumpkinName("energy_handler"), EnergyHandler.class);
 
-        public static final EntityCapability<EnergyHandler, Direction> ENTITY = null;
+        public static final EntityCapability<EnergyHandler, Direction> ENTITY =
+                EntityCapability.createSided(pumpkinName("energy_handler"), EnergyHandler.class);
 
-        public static final ItemCapability<EnergyHandler, ItemAccess> ITEM = null;
+        public static final ItemCapability<EnergyHandler, ItemAccess> ITEM =
+                ItemCapability.create(pumpkinName("energy_handler"), EnergyHandler.class, ItemAccess.class);
 
         protected Energy() {
         }
 
-        static {
-            if (true) {
-                throw Unimplemented.forMember("net/neoforged/neoforge/capabilities/Capabilities$Energy");
-            }
-        }
+        // Pumpkin divergence: no throwing initializer -- the tokens above are real.
     }
 
     public static final class Fluid {
 
-        public static final BlockCapability<ResourceHandler<FluidResource>, Direction> BLOCK = null;
+        public static final BlockCapability<ResourceHandler<FluidResource>, Direction> BLOCK =
+                BlockCapability.createSided(pumpkinName("fluid_handler"), ResourceHandler.asClass());
 
-        public static final EntityCapability<ResourceHandler<FluidResource>, Direction> ENTITY = null;
+        public static final EntityCapability<ResourceHandler<FluidResource>, Direction> ENTITY =
+                EntityCapability.createSided(pumpkinName("fluid_handler"), ResourceHandler.asClass());
 
-        public static final ItemCapability<ResourceHandler<FluidResource>, ItemAccess> ITEM = null;
+        public static final ItemCapability<ResourceHandler<FluidResource>, ItemAccess> ITEM =
+                ItemCapability.create(pumpkinName("fluid_handler"), ResourceHandler.asClass(), ItemAccess.class);
 
         protected Fluid() {
         }
 
-        static {
-            if (true) {
-                throw Unimplemented.forMember("net/neoforged/neoforge/capabilities/Capabilities$Fluid");
-            }
-        }
+        // Pumpkin divergence: no throwing initializer -- the tokens above are real.
     }
 
     public static final class Item {
 
-        public static final BlockCapability<ResourceHandler<ItemResource>, Direction> BLOCK = null;
+        public static final BlockCapability<ResourceHandler<ItemResource>, Direction> BLOCK =
+                BlockCapability.createSided(pumpkinName("item_handler"), ResourceHandler.asClass());
 
-        public static final EntityCapability<ResourceHandler<ItemResource>, Void> ENTITY = null;
+        public static final EntityCapability<ResourceHandler<ItemResource>, Void> ENTITY =
+                EntityCapability.createVoid(pumpkinName("item_handler"), ResourceHandler.asClass());
 
-        public static final ItemCapability<ResourceHandler<ItemResource>, ItemAccess> ITEM = null;
+        public static final ItemCapability<ResourceHandler<ItemResource>, ItemAccess> ITEM =
+                ItemCapability.create(pumpkinName("item_handler"), ResourceHandler.asClass(), ItemAccess.class);
 
         protected Item() {
         }
 
-        static {
-            if (true) {
-                throw Unimplemented.forMember("net/neoforged/neoforge/capabilities/Capabilities$Item");
-            }
-        }
+        // Pumpkin divergence: no throwing initializer -- the tokens above are real.
     }
 
     private static Identifier create(String path) {

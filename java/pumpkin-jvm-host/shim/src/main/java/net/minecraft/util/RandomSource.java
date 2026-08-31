@@ -5,16 +5,63 @@ import dev.pumpkin.shim.Unimplemented;
 
 public interface RandomSource {
 
+    // Pumpkin divergence: a real random over java.util.Random -- the same choice the
+    // interaction bridge's level makes. Mods want noise, not stubs, from these.
+    private static RandomSource pumpkinRandom(java.util.Random random) {
+        return new RandomSource() {
+            public RandomSource fork() {
+                return pumpkinRandom(new java.util.Random(random.nextLong()));
+            }
+
+            public net.minecraft.world.level.levelgen.PositionalRandomFactory forkPositional() {
+                throw dev.pumpkin.shim.Unimplemented.forMember("net/minecraft/util/RandomSource.forkPositional:()Lnet/minecraft/world/level/levelgen/PositionalRandomFactory;");
+            }
+
+            public void setSeed(long seed) {
+                random.setSeed(seed);
+            }
+
+            public int nextInt() {
+                return random.nextInt();
+            }
+
+            public int nextInt(int bound) {
+                return random.nextInt(bound);
+            }
+
+            public long nextLong() {
+                return random.nextLong();
+            }
+
+            public boolean nextBoolean() {
+                return random.nextBoolean();
+            }
+
+            public float nextFloat() {
+                return random.nextFloat();
+            }
+
+            public double nextDouble() {
+                return random.nextDouble();
+            }
+
+            public double nextGaussian() {
+                return random.nextGaussian();
+            }
+        };
+    }
+
+
     static RandomSource create() {
-        throw Unimplemented.forMember("net/minecraft/util/RandomSource.create:()Lnet/minecraft/util/RandomSource;");
+        return pumpkinRandom(new java.util.Random());
     }
 
     static RandomSource createThreadSafe() {
-        throw Unimplemented.forMember("net/minecraft/util/RandomSource.createThreadSafe:()Lnet/minecraft/util/RandomSource;");
+        return pumpkinRandom(new java.util.Random());
     }
 
     static RandomSource create(long seed) {
-        throw Unimplemented.forMember("net/minecraft/util/RandomSource.create:(J)Lnet/minecraft/util/RandomSource;");
+        return pumpkinRandom(new java.util.Random(seed));
     }
 
     RandomSource fork();

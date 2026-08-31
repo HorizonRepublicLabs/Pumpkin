@@ -9,7 +9,8 @@ public enum Unit {
 
     INSTANCE;
 
-    public static final Codec<Unit> CODEC = null;
+    public static final Codec<Unit> CODEC =
+            dev.pumpkin.shim.Stubs.throwingCodec("net.minecraft.util.Unit.CODEC");
 
     public static final StreamCodec<ByteBuf, Unit> STREAM_CODEC = Stubs.of(StreamCodec.class, "net/minecraft/network/codec/StreamCodec");
 }

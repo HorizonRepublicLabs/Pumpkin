@@ -11,7 +11,8 @@ import dev.pumpkin.shim.Unimplemented;
 
 public final class EntityPredicate {
 
-    public static final Codec<ContextAwarePredicate> ADVANCEMENT_CODEC = null;
+    public static final Codec<ContextAwarePredicate> ADVANCEMENT_CODEC =
+            dev.pumpkin.shim.Stubs.throwingCodec("net.minecraft.advancements.predicates.entity.EntityPredicate.ADVANCEMENT_CODEC");
 
     public EntityPredicate(Map<Codec<? extends EntitySubPredicate>, EntitySubPredicate> parts) {
     }

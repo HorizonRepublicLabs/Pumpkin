@@ -5,7 +5,8 @@ import dev.pumpkin.shim.Unimplemented;
 
 public final class TextColor {
 
-    public static final Codec<TextColor> CODEC = null;
+    public static final Codec<TextColor> CODEC =
+            dev.pumpkin.shim.Stubs.throwingCodec("net.minecraft.network.chat.TextColor.CODEC");
 
     // Pumpkin divergence: a color really carries its value.
     private int pumpkinValue;

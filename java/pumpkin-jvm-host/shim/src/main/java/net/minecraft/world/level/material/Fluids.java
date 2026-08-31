@@ -5,7 +5,9 @@ import dev.pumpkin.shim.Unimplemented;
 
 public class Fluids {
 
-    public static final Fluid EMPTY = null;
+
+    // Pumpkin divergence: a real inert stand-in; see Fluid.pumpkinInert.
+    public static final Fluid EMPTY = Fluid.pumpkinInert("empty");
 
     public static final FlowingFluid WATER = null;
 
@@ -18,9 +20,6 @@ public class Fluids {
     public Fluids() {
     }
 
-    static {
-        if (true) {
-            throw Unimplemented.forMember("net/minecraft/world/level/material/Fluids");
-        }
-    }
+    // Pumpkin divergence: no throwing initializer; WATER and LAVA stay null and any
+    // read of them will say so by NPE site -- flowing fluids are a wider surface.
 }

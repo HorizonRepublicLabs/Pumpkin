@@ -117,36 +117,38 @@ public class FluidType {
         protected Properties() {
         }
 
+        // Pumpkin divergence: real body; the chain methods below accept and drop --
+        // fluid presentation is client rendering the server never consults.
         public static Properties create() {
-            throw Unimplemented.forMember("net/neoforged/neoforge/fluids/FluidType$Properties.create:()Lnet/neoforged/neoforge/fluids/FluidType$Properties;");
+            return new Properties();
         }
 
         public Properties descriptionId(String descriptionId) {
-            throw Unimplemented.forMember("net/neoforged/neoforge/fluids/FluidType$Properties.descriptionId:(Ljava/lang/String;)Lnet/neoforged/neoforge/fluids/FluidType$Properties;");
+            return this;
         }
 
         public Properties canConvertToSource(boolean canConvertToSource) {
-            throw Unimplemented.forMember("net/neoforged/neoforge/fluids/FluidType$Properties.canConvertToSource:(Z)Lnet/neoforged/neoforge/fluids/FluidType$Properties;");
+            return this;
         }
 
         public Properties sound(SoundAction action, SoundEvent sound) {
-            throw Unimplemented.forMember("net/neoforged/neoforge/fluids/FluidType$Properties.sound:(Lnet/neoforged/neoforge/common/SoundAction;Lnet/minecraft/sounds/SoundEvent;)Lnet/neoforged/neoforge/fluids/FluidType$Properties;");
+            return this;
         }
 
         public Properties lightLevel(int lightLevel) {
-            throw Unimplemented.forMember("net/neoforged/neoforge/fluids/FluidType$Properties.lightLevel:(I)Lnet/neoforged/neoforge/fluids/FluidType$Properties;");
+            return this;
         }
 
         public Properties density(int density) {
-            throw Unimplemented.forMember("net/neoforged/neoforge/fluids/FluidType$Properties.density:(I)Lnet/neoforged/neoforge/fluids/FluidType$Properties;");
+            return this;
         }
 
         public Properties temperature(int temperature) {
-            throw Unimplemented.forMember("net/neoforged/neoforge/fluids/FluidType$Properties.temperature:(I)Lnet/neoforged/neoforge/fluids/FluidType$Properties;");
+            return this;
         }
 
         public Properties viscosity(int viscosity) {
-            throw Unimplemented.forMember("net/neoforged/neoforge/fluids/FluidType$Properties.viscosity:(I)Lnet/neoforged/neoforge/fluids/FluidType$Properties;");
+            return this;
         }
     }
 

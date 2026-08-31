@@ -18,8 +18,18 @@ public enum EquipmentSlotGroup implements StringRepresentable, Iterable<Equipmen
     BODY,
     SADDLE;
 
+    // Pumpkin divergence: vanilla mapping -- the group containing exactly that slot.
     public static EquipmentSlotGroup bySlot(EquipmentSlot slot) {
-        throw Unimplemented.forMember("net/minecraft/world/entity/EquipmentSlotGroup.bySlot:(Lnet/minecraft/world/entity/EquipmentSlot;)Lnet/minecraft/world/entity/EquipmentSlotGroup;");
+        return switch (slot) {
+            case MAINHAND -> MAINHAND;
+            case OFFHAND -> OFFHAND;
+            case FEET -> FEET;
+            case LEGS -> LEGS;
+            case CHEST -> CHEST;
+            case HEAD -> HEAD;
+            case BODY -> BODY;
+            case SADDLE -> SADDLE;
+        };
     }
 
     public String getSerializedName() {

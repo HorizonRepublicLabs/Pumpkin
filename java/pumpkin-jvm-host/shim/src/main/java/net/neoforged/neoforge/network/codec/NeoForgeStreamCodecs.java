@@ -7,8 +7,9 @@ import dev.pumpkin.shim.Unimplemented;
 
 public final class NeoForgeStreamCodecs {
 
+    // Pumpkin divergence: inert codec -- throws its key on first encode/decode.
     public static <B, V> StreamCodec<B, V> lazy(Supplier<StreamCodec<B, V>> streamCodecSupplier) {
-        throw Unimplemented.forMember("net/neoforged/neoforge/network/codec/NeoForgeStreamCodecs.lazy:(Ljava/util/function/Supplier;)Lnet/minecraft/network/codec/StreamCodec;");
+        return dev.pumpkin.shim.Stubs.of(net.minecraft.network.codec.StreamCodec.class, "net/neoforged/neoforge/network/codec/NeoForgeStreamCodecs.lazy:(Ljava/util/function/Supplier;)Lnet/minecraft/network/codec/StreamCodec;");
     }
 
     private static class LazyStreamCodec<B, V> implements StreamCodec<B, V> {
@@ -28,8 +29,9 @@ public final class NeoForgeStreamCodecs {
         }
     }
 
+    // Pumpkin divergence: inert codec -- throws its key on first encode/decode.
     public static <B extends FriendlyByteBuf, V extends Enum<V>> StreamCodec<B, V> enumCodec(Class<V> enumClass) {
-        throw Unimplemented.forMember("net/neoforged/neoforge/network/codec/NeoForgeStreamCodecs.enumCodec:(Ljava/lang/Class;)Lnet/minecraft/network/codec/StreamCodec;");
+        return dev.pumpkin.shim.Stubs.of(net.minecraft.network.codec.StreamCodec.class, "net/neoforged/neoforge/network/codec/NeoForgeStreamCodecs.enumCodec:(Ljava/lang/Class;)Lnet/minecraft/network/codec/StreamCodec;");
     }
 
     public NeoForgeStreamCodecs() {

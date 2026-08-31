@@ -7,5 +7,6 @@ import net.minecraft.world.level.levelgen.feature.stateproviders.BlockStateProvi
 
 public record DiskConfiguration(BlockStateProvider stateProvider, BlockPredicate target, IntProvider radius, int halfHeight) implements FeatureConfiguration {
 
-    public static final Codec<DiskConfiguration> CODEC = null;
+    public static final Codec<DiskConfiguration> CODEC =
+            dev.pumpkin.shim.Stubs.throwingCodec("net.minecraft.world.level.levelgen.feature.configurations.DiskConfiguration.CODEC");
 }

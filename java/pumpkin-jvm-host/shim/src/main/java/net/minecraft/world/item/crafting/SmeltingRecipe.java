@@ -10,7 +10,8 @@ import dev.pumpkin.shim.Unimplemented;
 
 public class SmeltingRecipe extends AbstractCookingRecipe {
 
-    public static final MapCodec<SmeltingRecipe> MAP_CODEC = null;
+    public static final MapCodec<SmeltingRecipe> MAP_CODEC =
+            dev.pumpkin.shim.Stubs.throwingMapCodec("net.minecraft.world.item.crafting.SmeltingRecipe.MAP_CODEC");
 
     public static final StreamCodec<RegistryFriendlyByteBuf, SmeltingRecipe> STREAM_CODEC = Stubs.of(StreamCodec.class, "net/minecraft/network/codec/StreamCodec");
 

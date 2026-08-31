@@ -13,7 +13,8 @@ import dev.pumpkin.shim.Unimplemented;
 
 public record EntityTypePredicate(HolderSet<EntityType<?>> types) implements EntitySubPredicate {
 
-    public static final Codec<EntityTypePredicate> CODEC = null;
+    public static final Codec<EntityTypePredicate> CODEC =
+            dev.pumpkin.shim.Stubs.throwingCodec("net.minecraft.advancements.predicates.entity.EntityTypePredicate.CODEC");
 
     public static EntityTypePredicate of(HolderGetter<EntityType<?>> lookup, EntityType<?> type) {
         throw Unimplemented.forMember("net/minecraft/advancements/predicates/entity/EntityTypePredicate.of:(Lnet/minecraft/core/HolderGetter;Lnet/minecraft/world/entity/EntityType;)Lnet/minecraft/advancements/predicates/entity/EntityTypePredicate;");

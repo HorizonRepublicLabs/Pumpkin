@@ -33,28 +33,59 @@ public abstract class VoxelShape {
         throw Unimplemented.forMember("net/minecraft/world/phys/shapes/VoxelShape.isEmpty:()Z");
     }
 
+    // Pumpkin divergence: real over known boxes -- shift each; unknown geometry stays loud.
     public VoxelShape move(Vec3 delta) {
-        throw Unimplemented.forMember("net/minecraft/world/phys/shapes/VoxelShape.move:(Lnet/minecraft/world/phys/Vec3;)Lnet/minecraft/world/phys/shapes/VoxelShape;");
+        if (pumpkinBoxes == null) {
+            throw Unimplemented.forMember("net/minecraft/world/phys/shapes/VoxelShape.move (a shape with unknown geometry)");
+        }
+        java.util.List<net.minecraft.world.phys.AABB> moved = new java.util.ArrayList<>();
+        for (net.minecraft.world.phys.AABB box : pumpkinBoxes) {
+            moved.add(box.move(delta));
+        }
+        return pumpkinOfBoxes(moved);
     }
 
     public VoxelShape move(Vec3i delta) {
-        throw Unimplemented.forMember("net/minecraft/world/phys/shapes/VoxelShape.move:(Lnet/minecraft/core/Vec3i;)Lnet/minecraft/world/phys/shapes/VoxelShape;");
+        return move(delta.getX(), delta.getY(), delta.getZ());
     }
 
+    // Pumpkin divergence: real over known boxes -- shift each; unknown geometry stays loud.
     public VoxelShape move(double dx, double dy, double dz) {
-        throw Unimplemented.forMember("net/minecraft/world/phys/shapes/VoxelShape.move:(DDD)Lnet/minecraft/world/phys/shapes/VoxelShape;");
+        if (pumpkinBoxes == null) {
+            throw Unimplemented.forMember("net/minecraft/world/phys/shapes/VoxelShape.move (a shape with unknown geometry)");
+        }
+        java.util.List<net.minecraft.world.phys.AABB> moved = new java.util.ArrayList<>();
+        for (net.minecraft.world.phys.AABB box : pumpkinBoxes) {
+            moved.add(box.move(dx, dy, dz));
+        }
+        return pumpkinOfBoxes(moved);
     }
 
+    // Pumpkin divergence: real-enough body -- optimizing an inert shape is the shape.
     public VoxelShape optimize() {
-        throw Unimplemented.forMember("net/minecraft/world/phys/shapes/VoxelShape.optimize:()Lnet/minecraft/world/phys/shapes/VoxelShape;");
+        return this;
     }
 
     public void forAllBoxes(Shapes.DoubleLineConsumer consumer) {
         throw Unimplemented.forMember("net/minecraft/world/phys/shapes/VoxelShape.forAllBoxes:(Lnet/minecraft/world/phys/shapes/Shapes$DoubleLineConsumer;)V");
     }
 
+    // Pumpkin divergence: real where the shape was built from boxes -- the mod's own
+    // numbers coming back out. A shape with unknown geometry still fails loudly.
+    java.util.List<net.minecraft.world.phys.AABB> pumpkinBoxes;
+
     public List<AABB> toAabbs() {
-        throw Unimplemented.forMember("net/minecraft/world/phys/shapes/VoxelShape.toAabbs:()Ljava/util/List;");
+        if (pumpkinBoxes == null) {
+            throw Unimplemented.forMember("net/minecraft/world/phys/shapes/VoxelShape.toAabbs:()Ljava/util/List; (a shape with unknown geometry)");
+        }
+        return pumpkinBoxes;
+    }
+
+    // Pumpkin divergence: no vanilla counterpart -- an inert shape that knows its boxes.
+    public static VoxelShape pumpkinOfBoxes(java.util.List<net.minecraft.world.phys.AABB> boxes) {
+        VoxelShape shape = pumpkinInert();
+        shape.pumpkinBoxes = java.util.List.copyOf(boxes);
+        return shape;
     }
 
     public double max(Direction.Axis aAxis, double b, double c) {

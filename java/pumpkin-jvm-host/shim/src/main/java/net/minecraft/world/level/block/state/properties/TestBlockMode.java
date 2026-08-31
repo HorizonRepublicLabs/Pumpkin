@@ -8,8 +8,9 @@ public enum TestBlockMode implements StringRepresentable {
 
     START, LOG, FAIL, ACCEPT;
 
+    // Pumpkin divergence: vanilla body -- the lowercase constant name.
     public String getSerializedName() {
-        throw Unimplemented.forMember("net/minecraft/world/level/block/state/properties/TestBlockMode.getSerializedName:()Ljava/lang/String;");
+        return name().toLowerCase(java.util.Locale.ROOT);
     }
 
     public Component getDisplayName() {

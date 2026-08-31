@@ -28,8 +28,9 @@ public interface Registry<T> extends IdMap<T>, Keyable, HolderLookup.RegistryLoo
         return dev.pumpkin.shim.Stubs.throwingCodec("net/minecraft/core/Registry.byNameCodec:()Lcom/mojang/serialization/Codec;");
     }
 
+    // Pumpkin divergence: inert, like byNameCodec above.
     default Codec<Holder<T>> holderByNameCodec() {
-        throw Unimplemented.forMember("net/minecraft/core/Registry.holderByNameCodec:()Lcom/mojang/serialization/Codec;");
+        return dev.pumpkin.shim.Stubs.throwingCodec("net/minecraft/core/Registry.holderByNameCodec:()Lcom/mojang/serialization/Codec;");
     }
 
     <A> java.util.Map<ResourceKey<T>, A> getDataMap(net.neoforged.neoforge.registries.datamaps.DataMapType<T, A> type);

@@ -20,9 +20,12 @@ import dev.pumpkin.shim.Unimplemented;
 
 public final class FluidResource implements DataComponentHolderResource<Fluid> {
 
-    public static final FluidResource EMPTY = null;
+    // Pumpkin divergence: a real empty instance -- mods null-check it at class-init --
+    // and an inert codec that throws its name on first use.
+    public static final FluidResource EMPTY = new FluidResource();
 
-    public static final Codec<FluidResource> CODEC = null;
+    public static final Codec<FluidResource> CODEC =
+            dev.pumpkin.shim.Stubs.throwingCodec("net/neoforged/neoforge/transfer/fluid/FluidResource.CODEC");
 
     public static final StreamCodec<RegistryFriendlyByteBuf, FluidResource> STREAM_CODEC = Stubs.of(StreamCodec.class, "net/minecraft/network/codec/StreamCodec");
 
@@ -69,8 +72,12 @@ public final class FluidResource implements DataComponentHolderResource<Fluid> {
         throw Unimplemented.forMember("net/neoforged/neoforge/transfer/fluid/FluidResource.getFluidType:()Lnet/neoforged/neoforge/fluids/FluidType;");
     }
 
+    // Pumpkin divergence: real body -- the shared EMPTY instance is the empty one; a
+    // resource built by an of() overload will carry its fluid when those get bodies.
+    private Fluid pumpkinFluid;
+
     public boolean isEmpty() {
-        throw Unimplemented.forMember("net/neoforged/neoforge/transfer/fluid/FluidResource.isEmpty:()Z");
+        return pumpkinFluid == null;
     }
 
     public FluidResource withMergedPatch(DataComponentPatch patch) {

@@ -10,7 +10,8 @@ import dev.pumpkin.shim.Unimplemented;
 
 public final class SizedFluidIngredient {
 
-    public static final Codec<SizedFluidIngredient> CODEC = null;
+    public static final Codec<SizedFluidIngredient> CODEC =
+            dev.pumpkin.shim.Stubs.throwingCodec("net.neoforged.neoforge.fluids.crafting.SizedFluidIngredient.CODEC");
 
     public static final StreamCodec<RegistryFriendlyByteBuf, SizedFluidIngredient> STREAM_CODEC = Stubs.of(StreamCodec.class, "net/minecraft/network/codec/StreamCodec");
 

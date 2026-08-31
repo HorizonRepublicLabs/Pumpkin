@@ -9,7 +9,8 @@ import dev.pumpkin.shim.Unimplemented;
 
 public class SimpleStateProvider extends BlockStateProvider {
 
-    public static final MapCodec<SimpleStateProvider> CODEC = null;
+    public static final MapCodec<SimpleStateProvider> CODEC =
+            dev.pumpkin.shim.Stubs.throwingMapCodec("net.minecraft.world.level.levelgen.feature.stateproviders.SimpleStateProvider.CODEC");
 
     protected SimpleStateProvider(BlockState state) {
     }

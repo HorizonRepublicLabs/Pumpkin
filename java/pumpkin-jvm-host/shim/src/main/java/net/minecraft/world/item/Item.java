@@ -103,11 +103,12 @@ public class Item implements ItemLike, FeatureElement, IItemExtension {
 
     // Pumpkin divergence: no vanilla counterpart. Pumpkin registers an item by copying an
     // existing one's definition, and "stone" is the deliberate default template -- the
-    // same choice Block's registration path makes. It is a stand-in, not a guess at the
-    // mod's intent: stack size and components come from stone until item behaviour gets
-    // its own slice.
+    // same choice Block's registration path makes. A vanilla stand-in from Items sets its
+    // own name here, so identity checks and template copies see the real item.
+    public String pumpkinVanillaName;
+
     public String pumpkinTemplate() {
-        return "stone";
+        return pumpkinVanillaName != null ? pumpkinVanillaName : "stone";
     }
 
     public Holder.Reference<Item> builtInRegistryHolder() {
@@ -223,8 +224,9 @@ public class Item implements ItemLike, FeatureElement, IItemExtension {
 
         }
 
+        // Pumpkin divergence: declared item metadata, accepted and dropped.
         public Item.Properties usingConvertsTo(Item item) {
-            throw Unimplemented.forMember("net/minecraft/world/item/Item$Properties.usingConvertsTo:(Lnet/minecraft/world/item/Item;)Lnet/minecraft/world/item/Item$Properties;");
+            return this;
         }
 
         // Pumpkin divergence: real body. Recorded so the registration sink can carry it;
@@ -272,28 +274,34 @@ public class Item implements ItemLike, FeatureElement, IItemExtension {
 
         }
 
+        // Pumpkin divergence: declared item metadata, accepted and dropped.
         public Item.Properties rarity(Rarity rarity) {
-            throw Unimplemented.forMember("net/minecraft/world/item/Item$Properties.rarity:(Lnet/minecraft/world/item/Rarity;)Lnet/minecraft/world/item/Item$Properties;");
+            return this;
         }
 
+        // Pumpkin divergence: declared item metadata, accepted and dropped.
         public Item.Properties fireResistant() {
-            throw Unimplemented.forMember("net/minecraft/world/item/Item$Properties.fireResistant:()Lnet/minecraft/world/item/Item$Properties;");
+            return this;
         }
 
+        // Pumpkin divergence: declared item metadata, accepted and dropped.
         public Item.Properties enchantable(int value) {
-            throw Unimplemented.forMember("net/minecraft/world/item/Item$Properties.enchantable:(I)Lnet/minecraft/world/item/Item$Properties;");
+            return this;
         }
 
+        // Pumpkin divergence: declared item metadata, accepted and dropped.
         public Item.Properties repairable(Item repairItem) {
-            throw Unimplemented.forMember("net/minecraft/world/item/Item$Properties.repairable:(Lnet/minecraft/world/item/Item;)Lnet/minecraft/world/item/Item$Properties;");
+            return this;
         }
 
+        // Pumpkin divergence: declared item metadata, accepted and dropped.
         public Item.Properties repairable(TagKey<Item> repairItems) {
-            throw Unimplemented.forMember("net/minecraft/world/item/Item$Properties.repairable:(Lnet/minecraft/tags/TagKey;)Lnet/minecraft/world/item/Item$Properties;");
+            return this;
         }
 
+        // Pumpkin divergence: declared item metadata, accepted and dropped.
         public Item.Properties equippableUnswappable(EquipmentSlot slot) {
-            throw Unimplemented.forMember("net/minecraft/world/item/Item$Properties.equippableUnswappable:(Lnet/minecraft/world/entity/EquipmentSlot;)Lnet/minecraft/world/item/Item$Properties;");
+            return this;
         }
 
         // Pumpkin divergence: real body. Item metadata Pumpkin does not model yet;
@@ -336,8 +344,9 @@ public class Item implements ItemLike, FeatureElement, IItemExtension {
 
         }
 
+        // Pumpkin divergence: declared item metadata, accepted and dropped.
         public Item.Properties spawnEgg(EntityType<?> type) {
-            throw Unimplemented.forMember("net/minecraft/world/item/Item$Properties.spawnEgg:(Lnet/minecraft/world/entity/EntityType;)Lnet/minecraft/world/item/Item$Properties;");
+            return this;
         }
 
         // Pumpkin divergence: real body. Item metadata Pumpkin does not model yet;
@@ -390,12 +399,14 @@ public class Item implements ItemLike, FeatureElement, IItemExtension {
 
         }
 
+        // Pumpkin divergence: declared item metadata, accepted and dropped.
         public <T> Item.Properties delayedComponent(DataComponentType<T> type, DataComponentInitializers.SingleComponentInitializer<T> initializer) {
-            throw Unimplemented.forMember("net/minecraft/world/item/Item$Properties.delayedComponent:(Lnet/minecraft/core/component/DataComponentType;Lnet/minecraft/core/component/DataComponentInitializers$SingleComponentInitializer;)Lnet/minecraft/world/item/Item$Properties;");
+            return this;
         }
 
+        // Pumpkin divergence: declared item metadata, accepted and dropped.
         public Item.Properties attributes(ItemAttributeModifiers attributes) {
-            throw Unimplemented.forMember("net/minecraft/world/item/Item$Properties.attributes:(Lnet/minecraft/world/item/component/ItemAttributeModifiers;)Lnet/minecraft/world/item/Item$Properties;");
+            return this;
         }
 
         public Properties() {

@@ -5,7 +5,8 @@ import dev.pumpkin.shim.Unimplemented;
 
 public class IntProviders {
 
-    public static final Codec<IntProvider> CODEC = null;
+    public static final Codec<IntProvider> CODEC =
+            dev.pumpkin.shim.Stubs.throwingCodec("net.minecraft.util.valueproviders.IntProviders.CODEC");
 
     public IntProviders() {
     }

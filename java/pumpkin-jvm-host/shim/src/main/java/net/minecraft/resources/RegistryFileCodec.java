@@ -10,12 +10,14 @@ import dev.pumpkin.shim.Unimplemented;
 
 public final class RegistryFileCodec<E> implements Codec<Holder<E>> {
 
+    // Pumpkin divergence: real construction, inert behaviour -- the codec exists and
+    // composes; encode/decode below still throw their member keys on first use.
     public static <E> RegistryFileCodec<E> create(ResourceKey<? extends Registry<E>> registryKey, Codec<E> elementCodec) {
-        throw Unimplemented.forMember("net/minecraft/resources/RegistryFileCodec.create:(Lnet/minecraft/resources/ResourceKey;Lcom/mojang/serialization/Codec;)Lnet/minecraft/resources/RegistryFileCodec;");
+        return new RegistryFileCodec<>(registryKey, elementCodec, true);
     }
 
     public static <E> RegistryFileCodec<E> create(ResourceKey<? extends Registry<E>> registryKey, Codec<E> elementCodec, boolean allowInline) {
-        throw Unimplemented.forMember("net/minecraft/resources/RegistryFileCodec.create:(Lnet/minecraft/resources/ResourceKey;Lcom/mojang/serialization/Codec;Z)Lnet/minecraft/resources/RegistryFileCodec;");
+        return new RegistryFileCodec<>(registryKey, elementCodec, allowInline);
     }
 
     private RegistryFileCodec(ResourceKey<? extends Registry<E>> registryKey, Codec<E> elementCodec, boolean allowInline) {
@@ -29,8 +31,9 @@ public final class RegistryFileCodec<E> implements Codec<Holder<E>> {
         throw Unimplemented.forMember("net/minecraft/resources/RegistryFileCodec.decode:(Lcom/mojang/serialization/DynamicOps;Ljava/lang/Object;)Lcom/mojang/serialization/DataResult;");
     }
 
+    // Pumpkin divergence: real body -- DFU prints codecs while composing them.
     public String toString() {
-        throw Unimplemented.forMember("net/minecraft/resources/RegistryFileCodec.toString:()Ljava/lang/String;");
+        return "RegistryFileCodec[pumpkin inert]";
     }
 
     public RegistryFileCodec() {

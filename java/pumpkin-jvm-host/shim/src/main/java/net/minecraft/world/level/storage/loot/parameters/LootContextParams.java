@@ -10,7 +10,7 @@ public class LootContextParams {
     // break position through this; identity is all the lookup needs.
     public static final ContextKey<Vec3> ORIGIN = new ContextKey<>(null);
 
-    public static final ContextKey<BlockEntity> BLOCK_ENTITY = null;
+    public static final ContextKey<BlockEntity> BLOCK_ENTITY = new ContextKey<>(null);
 
     public LootContextParams() {
     }

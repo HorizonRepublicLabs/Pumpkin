@@ -12,8 +12,15 @@ public enum ArmorType implements StringRepresentable {
         throw Unimplemented.forMember("net/minecraft/world/item/equipment/ArmorType.getDurability:(I)I");
     }
 
+    // Pumpkin divergence: vanilla mapping.
     public EquipmentSlot getSlot() {
-        throw Unimplemented.forMember("net/minecraft/world/item/equipment/ArmorType.getSlot:()Lnet/minecraft/world/entity/EquipmentSlot;");
+        return switch (this) {
+            case HELMET -> EquipmentSlot.HEAD;
+            case CHESTPLATE -> EquipmentSlot.CHEST;
+            case LEGGINGS -> EquipmentSlot.LEGS;
+            case BOOTS -> EquipmentSlot.FEET;
+            case BODY -> EquipmentSlot.BODY;
+        };
     }
 
     // Pumpkin divergence: vanilla body -- the lowercase constant name.

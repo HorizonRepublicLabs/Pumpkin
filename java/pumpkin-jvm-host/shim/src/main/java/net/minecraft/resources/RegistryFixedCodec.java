@@ -10,8 +10,10 @@ import dev.pumpkin.shim.Unimplemented;
 
 public final class RegistryFixedCodec<E> implements Codec<Holder<E>> {
 
+    // Pumpkin divergence: real construction, inert behaviour -- encode/decode still
+    // throw their member keys on first use.
     public static <E> RegistryFixedCodec<E> create(ResourceKey<? extends Registry<E>> registryKey) {
-        throw Unimplemented.forMember("net/minecraft/resources/RegistryFixedCodec.create:(Lnet/minecraft/resources/ResourceKey;)Lnet/minecraft/resources/RegistryFixedCodec;");
+        return new RegistryFixedCodec<>(registryKey);
     }
 
     private RegistryFixedCodec(ResourceKey<? extends Registry<E>> registryKey) {
@@ -25,8 +27,9 @@ public final class RegistryFixedCodec<E> implements Codec<Holder<E>> {
         throw Unimplemented.forMember("net/minecraft/resources/RegistryFixedCodec.decode:(Lcom/mojang/serialization/DynamicOps;Ljava/lang/Object;)Lcom/mojang/serialization/DataResult;");
     }
 
+    // Pumpkin divergence: real body -- DFU prints codecs while composing them.
     public String toString() {
-        throw Unimplemented.forMember("net/minecraft/resources/RegistryFixedCodec.toString:()Ljava/lang/String;");
+        return "RegistryFixedCodec[pumpkin inert]";
     }
 
     public RegistryFixedCodec() {

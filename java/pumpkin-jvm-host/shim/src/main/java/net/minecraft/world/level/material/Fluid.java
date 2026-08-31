@@ -18,6 +18,61 @@ import dev.pumpkin.shim.Unimplemented;
 
 public abstract class Fluid implements IFluidExtension {
 
+    // Pumpkin divergence: no vanilla counterpart. The stand-in Fluids hands out --
+    // identity-stable, self-naming, every behaviour member throwing by name. Fluid
+    // simulation runs on the Rust side; mods carry these tokens around.
+    public String pumpkinVanillaName;
+
+    static Fluid pumpkinInert(String name) {
+        Fluid fluid = new Fluid() {
+            public Item getBucket() {
+                throw dev.pumpkin.shim.Unimplemented.forMember("net/minecraft/world/level/material/Fluid.getBucket (inert stand-in)");
+            }
+
+            protected boolean canBeReplacedWith(FluidState state, BlockGetter level, BlockPos pos, Fluid other, Direction direction) {
+                throw dev.pumpkin.shim.Unimplemented.forMember("net/minecraft/world/level/material/Fluid.canBeReplacedWith (inert stand-in)");
+            }
+
+            protected Vec3 getFlow(BlockGetter level, BlockPos pos, FluidState fluidState) {
+                throw dev.pumpkin.shim.Unimplemented.forMember("net/minecraft/world/level/material/Fluid.getFlow (inert stand-in)");
+            }
+
+            public int getTickDelay(LevelReader level) {
+                throw dev.pumpkin.shim.Unimplemented.forMember("net/minecraft/world/level/material/Fluid.getTickDelay (inert stand-in)");
+            }
+
+            protected float getExplosionResistance() {
+                throw dev.pumpkin.shim.Unimplemented.forMember("net/minecraft/world/level/material/Fluid.getExplosionResistance (inert stand-in)");
+            }
+
+            public float getHeight(FluidState fluidState, BlockGetter level, BlockPos pos) {
+                throw dev.pumpkin.shim.Unimplemented.forMember("net/minecraft/world/level/material/Fluid.getHeight (inert stand-in)");
+            }
+
+            public float getOwnHeight(FluidState fluidState) {
+                throw dev.pumpkin.shim.Unimplemented.forMember("net/minecraft/world/level/material/Fluid.getOwnHeight (inert stand-in)");
+            }
+
+            protected BlockState createLegacyBlock(FluidState fluidState) {
+                throw dev.pumpkin.shim.Unimplemented.forMember("net/minecraft/world/level/material/Fluid.createLegacyBlock (inert stand-in)");
+            }
+
+            public boolean isSource(FluidState fluidState) {
+                throw dev.pumpkin.shim.Unimplemented.forMember("net/minecraft/world/level/material/Fluid.isSource (inert stand-in)");
+            }
+
+            public int getAmount(FluidState fluidState) {
+                throw dev.pumpkin.shim.Unimplemented.forMember("net/minecraft/world/level/material/Fluid.getAmount (inert stand-in)");
+            }
+
+            public VoxelShape getShape(FluidState state, BlockGetter level, BlockPos pos) {
+                throw dev.pumpkin.shim.Unimplemented.forMember("net/minecraft/world/level/material/Fluid.getShape (inert stand-in)");
+            }
+        };
+        fluid.pumpkinVanillaName = name;
+        return fluid;
+    }
+
     private FluidState defaultFluidState;
 
     private final Holder.Reference<Fluid> builtInRegistryHolder = null;

@@ -10,8 +10,9 @@ import dev.pumpkin.shim.Unimplemented;
 
 public record TagKey<T>(ResourceKey<? extends Registry<T>> registry, Identifier location) {
 
+    // Pumpkin divergence: inert codec -- throws its key on first use.
     public static <T> Codec<TagKey<T>> codec(ResourceKey<? extends Registry<T>> registryName) {
-        throw Unimplemented.forMember("net/minecraft/tags/TagKey.codec:(Lnet/minecraft/resources/ResourceKey;)Lcom/mojang/serialization/Codec;");
+        return dev.pumpkin.shim.Stubs.throwingCodec("net/minecraft/tags/TagKey.codec:(Lnet/minecraft/resources/ResourceKey;)Lcom/mojang/serialization/Codec;");
     }
 
     public static <T> StreamCodec<ByteBuf, TagKey<T>> streamCodec(ResourceKey<? extends Registry<T>> registryName) {

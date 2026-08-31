@@ -8,7 +8,8 @@ import net.minecraft.world.level.block.state.BlockState;
 
 public abstract class BlockStateProvider {
 
-    public static final Codec<BlockStateProvider> CODEC = null;
+    public static final Codec<BlockStateProvider> CODEC =
+            dev.pumpkin.shim.Stubs.throwingCodec("net.minecraft.world.level.levelgen.feature.stateproviders.BlockStateProvider.CODEC");
 
     protected abstract BlockStateProviderType<?> type();
 

@@ -65,7 +65,15 @@ class ManifestConsistencyTest {
             "net/neoforged/neoforge/common/conditions/IContext",
             "net/neoforged/neoforge/registries/Kind",
             "net/neoforged/neoforge/registries/R",
-            "net/neoforged/neoforge/registries/T");
+            "net/neoforged/neoforge/registries/T",
+            // Mekanism widened the used set; these are the same two shapes again --
+            // type variables the resolver read as classes, and nested types it lifted.
+            "net/minecraft/client/renderer/T",
+            "net/minecraft/network/codec/B",
+            "net/neoforged/neoforge/client/extensions/T",
+            "net/neoforged/neoforge/client/model/GuiLight",
+            "net/neoforged/neoforge/registries/holdersets/SerializationType",
+            "net/neoforged/neoforge/transfer/item/SlotWrapper");
 
     @Test
     void everyManifestClassHasAFileOrIsHandWrittenOrIsAResolverArtifact() throws IOException {
@@ -95,6 +103,11 @@ class ManifestConsistencyTest {
         SortedSet<String> manifestClasses = manifestClasses();
         SortedSet<String> orphans = new TreeSet<>();
         for (String internalName : classesUnder(shimRoot())) {
+            // dev/pumpkin/bridge is the hand-written bridge the regeneration script
+            // deliberately leaves in place; it is not generated and has no manifest line.
+            if (internalName.startsWith("dev/pumpkin/")) {
+                continue;
+            }
             if (!manifestClasses.contains(internalName)) {
                 orphans.add(internalName);
             }

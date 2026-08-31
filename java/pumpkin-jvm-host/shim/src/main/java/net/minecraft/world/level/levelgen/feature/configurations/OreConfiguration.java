@@ -33,7 +33,8 @@ public class OreConfiguration implements FeatureConfiguration {
 
     public static class TargetBlockState {
 
-        public static final Codec<OreConfiguration.TargetBlockState> CODEC = null;
+        public static final Codec<OreConfiguration.TargetBlockState> CODEC =
+                dev.pumpkin.shim.Stubs.throwingCodec("net.minecraft.world.level.levelgen.feature.configurations.OreConfiguration.CODEC");
 
         public final RuleTest target = null;
 

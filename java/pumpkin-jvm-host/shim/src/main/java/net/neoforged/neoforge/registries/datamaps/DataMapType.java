@@ -11,12 +11,18 @@ public class DataMapType<R, T> {
     DataMapType(ResourceKey<Registry<R>> registryKey, Identifier id, Codec<T> codec, Codec<T> networkCodec, boolean mandatorySync) {
     }
 
+    // Pumpkin divergence: real construction -- a data map type is its id; the data
+    // itself is datapack content nothing loads yet, and reads fail loudly on Registry.
+    private Identifier pumpkinId;
+
     public static <T, R> Builder<T, R> builder(Identifier id, ResourceKey<Registry<R>> registry, Codec<T> codec) {
-        throw Unimplemented.forMember("net/neoforged/neoforge/registries/datamaps/DataMapType.builder:(Lnet/minecraft/resources/Identifier;Lnet/minecraft/resources/ResourceKey;Lcom/mojang/serialization/Codec;)Lnet/neoforged/neoforge/registries/datamaps/DataMapType$Builder;");
+        Builder<T, R> builder = new Builder<>();
+        builder.pumpkinId = id;
+        return builder;
     }
 
     public Identifier id() {
-        throw Unimplemented.forMember("net/neoforged/neoforge/registries/datamaps/DataMapType.id:()Lnet/minecraft/resources/Identifier;");
+        return pumpkinId;
     }
 
     public Codec<T> codec() {
@@ -28,12 +34,16 @@ public class DataMapType<R, T> {
         Builder(ResourceKey<Registry<R>> registryKey, Identifier id, Codec<T> codec) {
         }
 
+        Identifier pumpkinId;
+
         public Builder<T, R> synced(Codec<T> networkCodec, boolean mandatory) {
-            throw Unimplemented.forMember("net/neoforged/neoforge/registries/datamaps/DataMapType$Builder.synced:(Lcom/mojang/serialization/Codec;Z)Lnet/neoforged/neoforge/registries/datamaps/DataMapType$Builder;");
+            return this;
         }
 
         public DataMapType<R, T> build() {
-            throw Unimplemented.forMember("net/neoforged/neoforge/registries/datamaps/DataMapType$Builder.build:()Lnet/neoforged/neoforge/registries/datamaps/DataMapType;");
+            DataMapType<R, T> type = new DataMapType<>();
+            type.pumpkinId = pumpkinId;
+            return type;
         }
 
         public Builder() {

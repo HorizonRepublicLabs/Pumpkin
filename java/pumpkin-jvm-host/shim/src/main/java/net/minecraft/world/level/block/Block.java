@@ -63,12 +63,12 @@ public class Block extends BlockBehaviour implements ItemLike, IBlockExtension {
         throw Unimplemented.forMember("net/minecraft/world/level/block/Block.byItem:(Lnet/minecraft/world/item/Item;)Lnet/minecraft/world/level/block/Block;");
     }
 
-    // Pumpkin divergence: real-enough body. A collision shape is geometry Pumpkin never
-    // consults -- the server's own collision runs in Rust. Mods build these in statics and
-    // hand them back from getShape; an inert instance satisfies both, and its one abstract
-    // member throws with a name if anything ever reads the geometry.
+    // Pumpkin divergence: vanilla body -- pixel coordinates over sixteen, carried as a
+    // real box so a mod can decompose and rotate what it built. The server's own
+    // collision still runs in Rust; this exists for the mods' own geometry math.
     public static VoxelShape box(double minX, double minY, double minZ, double maxX, double maxY, double maxZ) {
-        return VoxelShape.pumpkinInert();
+        return net.minecraft.world.phys.shapes.Shapes.box(
+                minX / 16.0, minY / 16.0, minZ / 16.0, maxX / 16.0, maxY / 16.0, maxZ / 16.0);
     }
 
     public static BlockState updateFromNeighbourShapes(BlockState state, LevelAccessor level, BlockPos pos) {

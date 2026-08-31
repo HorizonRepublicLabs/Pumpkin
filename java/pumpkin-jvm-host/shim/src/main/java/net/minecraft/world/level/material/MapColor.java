@@ -4,6 +4,21 @@ import dev.pumpkin.shim.Unimplemented;
 
 public class MapColor {
 
+    // Pumpkin divergence: a map color really carries its packed rgb, and the id-indexed
+    // table vanilla keeps (NeoForge's access transformer makes it public, and Mekanism
+    // reads it directly) fills as the constants construct.
+    public static final MapColor[] MATERIAL_COLORS = new MapColor[64];
+
+    public final int col;
+
+    public final int id;
+
+    private MapColor(int id, int col) {
+        this.id = id;
+        this.col = col;
+        MATERIAL_COLORS[id] = this;
+    }
+
     public static final MapColor NONE = new MapColor(0, 0);
 
     public static final MapColor GRASS = new MapColor(1, 8368696);
@@ -96,12 +111,6 @@ public class MapColor {
     public static final MapColor RAW_IRON = new MapColor(60, 14200723);
     public static final MapColor GLOW_LICHEN = new MapColor(61, 8365974);
 
-    // Pumpkin divergence: a map color really carries its packed rgb.
-    public final int col;
-
-    private MapColor(int id, int col) {
-        this.col = col;
-    }
 
     public static MapColor byId(int id) {
         throw Unimplemented.forMember("net/minecraft/world/level/material/MapColor.byId:(I)Lnet/minecraft/world/level/material/MapColor;");

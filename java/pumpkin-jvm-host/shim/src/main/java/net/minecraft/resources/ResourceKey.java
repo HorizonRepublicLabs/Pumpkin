@@ -17,12 +17,16 @@ public class ResourceKey<T> implements Comparable<ResourceKey<?>> {
 
     private final Identifier identifier;
 
-    public static <T> Codec<ResourceKey<T>> codec(ResourceKey<? extends Registry<T>> registryName) {
-        throw Unimplemented.forMember("net/minecraft/resources/ResourceKey.codec:(Lnet/minecraft/resources/ResourceKey;)Lcom/mojang/serialization/Codec;");
+    // Pumpkin divergence: inert codec -- composes at class-init, throws by name on use.
+    public static <T> Codec<ResourceKey<T>> codec(ResourceKey<? extends Registry<T>> registryKey) {
+        return dev.pumpkin.shim.Stubs.throwingCodec("net/minecraft/resources/ResourceKey.codec:(Lnet/minecraft/resources/ResourceKey;)Lcom/mojang/serialization/Codec;");
     }
 
+    // Pumpkin divergence: inert stream codec -- same contract as codec() above.
+    @SuppressWarnings("unchecked")
     public static <T> StreamCodec<ByteBuf, ResourceKey<T>> streamCodec(ResourceKey<? extends Registry<T>> registryName) {
-        throw Unimplemented.forMember("net/minecraft/resources/ResourceKey.streamCodec:(Lnet/minecraft/resources/ResourceKey;)Lnet/minecraft/network/codec/StreamCodec;");
+        return dev.pumpkin.shim.Stubs.of(net.minecraft.network.codec.StreamCodec.class,
+                "net/minecraft/resources/ResourceKey.streamCodec:(Lnet/minecraft/resources/ResourceKey;)Lnet/minecraft/network/codec/StreamCodec;");
     }
 
     // Pumpkin divergence: real body.

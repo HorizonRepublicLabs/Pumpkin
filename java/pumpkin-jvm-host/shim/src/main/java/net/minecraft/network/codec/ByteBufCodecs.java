@@ -71,12 +71,16 @@ public interface ByteBufCodecs {
         return dev.pumpkin.shim.Stubs.of(StreamCodec.class, "net/minecraft/network/codec/ByteBufCodecs.collection:(Ljava/util/function/IntFunction;Lnet/minecraft/network/codec/StreamCodec;I)Lnet/minecraft/network/codec/StreamCodec;");
     }
 
+    // Pumpkin divergence: an operation whose result is inert -- the composed codec
+    // throws this key on first encode/decode; the composition itself succeeds.
     static <B extends ByteBuf, V, C extends Collection<V>> StreamCodec.CodecOperation<B, V, C> collection(IntFunction<C> constructor) {
-        throw Unimplemented.forMember("net/minecraft/network/codec/ByteBufCodecs.collection:(Ljava/util/function/IntFunction;)Lnet/minecraft/network/codec/StreamCodec$CodecOperation;");
+        return original -> dev.pumpkin.shim.Stubs.of(StreamCodec.class, "net/minecraft/network/codec/ByteBufCodecs.collection:(Ljava/util/function/IntFunction;)Lnet/minecraft/network/codec/StreamCodec$CodecOperation;");
     }
 
+    // Pumpkin divergence: an operation whose result is inert -- the composed codec
+    // throws this key on first encode/decode; the composition itself succeeds.
     static <B extends ByteBuf, V, C extends Collection<V>> StreamCodec.CodecOperation<B, V, C> collection(IntFunction<C> constructor, int maxSize) {
-        throw Unimplemented.forMember("net/minecraft/network/codec/ByteBufCodecs.collection:(Ljava/util/function/IntFunction;I)Lnet/minecraft/network/codec/StreamCodec$CodecOperation;");
+        return original -> dev.pumpkin.shim.Stubs.of(StreamCodec.class, "net/minecraft/network/codec/ByteBufCodecs.collection:(Ljava/util/function/IntFunction;I)Lnet/minecraft/network/codec/StreamCodec$CodecOperation;");
     }
     // Pumpkin divergence: real-enough body. The operation composes a list codec Pumpkin
     // never invokes -- nothing serialises yet -- so composition survives and the first

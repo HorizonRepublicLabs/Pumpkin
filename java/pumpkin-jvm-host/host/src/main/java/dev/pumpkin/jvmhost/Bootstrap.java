@@ -142,7 +142,27 @@ public final class Bootstrap {
                     cause);
         }
 
-        bus.post(new RegisterEvent());
+        // One event per registry, blocks before items before the rest -- NeoForge's own
+        // firing order, which block-item links depend on. Keys are built by name here
+        // rather than through Registries' constants, whose field types drag the whole
+        // codec surface onto this module's compile classpath. The trailing null-key
+        // event catches listeners for registries not named here.
+        for (String registryName : java.util.List.of(
+                "block", "item", "block_entity_type", "menu", "sound_event",
+                "data_component_type", "creative_mode_tab", "recipe_type",
+                "recipe_serializer", "entity_type", "fluid", "mob_effect",
+                "particle_type", "game_event", "loot_function_type", "trigger_type",
+                "enchantment", "worldgen/feature")) {
+            bus.post(new RegisterEvent(net.minecraft.resources.ResourceKey.createRegistryKey(
+                    net.minecraft.resources.Identifier.fromNamespaceAndPath("minecraft", registryName))));
+        }
+        // The registries this mod created for itself get their events too -- their
+        // registrations flush into the acknowledged-and-counted path. No catch-all
+        // event: one existed briefly and re-fired every listener, double-registering.
+        for (net.minecraft.resources.ResourceKey<? extends net.minecraft.core.Registry<?>> created
+                : net.neoforged.neoforge.registries.RegistryBuilder.pumpkinCreatedKeys()) {
+            bus.post(new RegisterEvent(created));
+        }
         // Told after construction, not before: a mod that failed to construct is not loaded,
         // and claiming otherwise would have the next mod take an integration path against
         // something that is not there.

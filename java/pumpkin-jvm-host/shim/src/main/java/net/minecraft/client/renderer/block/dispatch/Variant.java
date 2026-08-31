@@ -9,7 +9,8 @@ import dev.pumpkin.shim.Unimplemented;
 
 public record Variant(Identifier modelLocation, Variant.SimpleModelState modelState) implements BlockStateModelPart.Unbaked {
 
-    public static final MapCodec<Variant> MAP_CODEC = null;
+    public static final MapCodec<Variant> MAP_CODEC =
+            dev.pumpkin.shim.Stubs.throwingMapCodec("net.minecraft.client.renderer.block.dispatch.Variant.MAP_CODEC");
 
     public Variant(Identifier modelLocation) {
         this((Identifier) null, (Variant.SimpleModelState) null);
@@ -29,7 +30,8 @@ public record Variant(Identifier modelLocation, Variant.SimpleModelState modelSt
 
     public record SimpleModelState(Quadrant x, Quadrant y, Quadrant z, boolean uvLock) {
 
-        public static final MapCodec<Variant.SimpleModelState> MAP_CODEC = null;
+        public static final MapCodec<Variant.SimpleModelState> MAP_CODEC =
+                dev.pumpkin.shim.Stubs.throwingMapCodec("net.minecraft.client.renderer.block.dispatch.Variant.MAP_CODEC");
 
         public static final Variant.SimpleModelState DEFAULT = null;
 

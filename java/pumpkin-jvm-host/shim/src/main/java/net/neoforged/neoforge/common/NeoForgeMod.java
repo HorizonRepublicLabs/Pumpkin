@@ -25,8 +25,10 @@ public class NeoForgeMod {
 
     public static final DeferredHolder<Fluid, Fluid> MILK = null;
 
+    // Pumpkin divergence: real body -- the flag flips, as in NeoForge. The MILK holder
+    // itself stays null until something actually reads it, and that read will say so.
     public static void enableMilkFluid() {
-        throw Unimplemented.forMember("net/neoforged/neoforge/common/NeoForgeMod.enableMilkFluid:()V");
+        enableMilkFluid = true;
     }
 
     public NeoForgeMod(IEventBus modEventBus, Dist dist, ModContainer container) {

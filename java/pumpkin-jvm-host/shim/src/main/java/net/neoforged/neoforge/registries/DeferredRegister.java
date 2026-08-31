@@ -245,18 +245,33 @@ public class DeferredRegister<T> {
         return register(name, () -> func.apply(Identifier.fromNamespaceAndPath(pumpkinNamespace, name)));
     }
 
-    // Pumpkin divergence: real body -- the factory method subclasses override.
+    // Pumpkin divergence: real body -- the factory method subclasses override. Built
+    // with the full key so getKey() has its answer.
     protected <I extends T> DeferredHolder<T, I> createHolder(ResourceKey<? extends Registry<T>> registryKey, Identifier key) {
-        return new DeferredHolder<>(key, null);
+        return new PumpkinKeyedHolder<>(ResourceKey.create(registryKey, key));
+    }
+
+    // DeferredHolder's key-taking constructor is protected; the smallest door to it.
+    private static final class PumpkinKeyedHolder<R, I extends R> extends DeferredHolder<R, I> {
+        PumpkinKeyedHolder(ResourceKey<R> key) {
+            super(key);
+        }
     }
 
     public void addAlias(Identifier from, Identifier to) {
         throw Unimplemented.forMember("net/neoforged/neoforge/registries/DeferredRegister.addAlias:(Lnet/minecraft/resources/Identifier;Lnet/minecraft/resources/Identifier;)V");
     }
 
-    // Pumpkin divergence: real body.
+    // Pumpkin divergence: real body. Flush fires on this register's own event only --
+    // Bootstrap posts one RegisterEvent per registry.
     public void register(IEventBus bus) {
-        bus.addListener(RegisterEvent.class, event -> pumpkinFlush());
+        bus.addListener(RegisterEvent.class, event -> {
+            if (event.getRegistryKey() == null
+                    || event.getRegistryKey().identifier().toString()
+                            .equals(pumpkinRegistryKey.identifier().toString())) {
+                pumpkinFlush();
+            }
+        });
     }
 
     // Pumpkin divergence: no vanilla counterpart. Replays every recorded registration into
@@ -295,12 +310,14 @@ public class DeferredRegister<T> {
         }
     }
 
+    // Pumpkin divergence: real body -- everything this register recorded.
     public Collection<DeferredHolder<T, ? extends T>> getEntries() {
-        throw Unimplemented.forMember("net/neoforged/neoforge/registries/DeferredRegister.getEntries:()Ljava/util/Collection;");
+        return java.util.Collections.unmodifiableCollection(pumpkinPending);
     }
 
+    // Pumpkin divergence: real body.
     public ResourceKey<? extends Registry<T>> getRegistryKey() {
-        throw Unimplemented.forMember("net/neoforged/neoforge/registries/DeferredRegister.getRegistryKey:()Lnet/minecraft/resources/ResourceKey;");
+        return pumpkinRegistryKey;
     }
 
     // Pumpkin divergence: real body.

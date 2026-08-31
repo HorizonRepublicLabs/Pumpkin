@@ -8,8 +8,9 @@ public enum StructureMode implements StringRepresentable {
 
     SAVE, LOAD, CORNER, DATA;
 
+    // Pumpkin divergence: vanilla body -- the lowercase constant name.
     public String getSerializedName() {
-        throw Unimplemented.forMember("net/minecraft/world/level/block/state/properties/StructureMode.getSerializedName:()Ljava/lang/String;");
+        return name().toLowerCase(java.util.Locale.ROOT);
     }
 
     public Component getDisplayName() {

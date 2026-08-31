@@ -32,7 +32,8 @@ public class CuboidItemModelWrapper implements ItemModel {
 
     public record Unbaked(Identifier model, Optional<Transformation> transformation, List<ItemTintSource> tints) implements ItemModel.Unbaked {
 
-        public static final MapCodec<CuboidItemModelWrapper.Unbaked> MAP_CODEC = null;
+        public static final MapCodec<CuboidItemModelWrapper.Unbaked> MAP_CODEC =
+                dev.pumpkin.shim.Stubs.throwingMapCodec("net.minecraft.client.renderer.item.CuboidItemModelWrapper.MAP_CODEC");
 
         public void resolveDependencies(ResolvableModel.Resolver resolver) {
             throw Unimplemented.forMember("net/minecraft/client/renderer/item/CuboidItemModelWrapper$Unbaked.resolveDependencies:(Lnet/minecraft/client/resources/model/ResolvableModel$Resolver;)V");

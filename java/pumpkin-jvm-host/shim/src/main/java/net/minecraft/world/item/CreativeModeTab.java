@@ -124,24 +124,29 @@ public class CreativeModeTab {
             return this;
         }
 
+        // Pumpkin divergence: tab presentation, accepted and dropped; chain lives.
         public CreativeModeTab.Builder backgroundTexture(Identifier backgroundTexture) {
-            throw Unimplemented.forMember("net/minecraft/world/item/CreativeModeTab$Builder.backgroundTexture:(Lnet/minecraft/resources/Identifier;)Lnet/minecraft/world/item/CreativeModeTab$Builder;");
+            return this;
         }
 
+        // Pumpkin divergence: tab presentation, accepted and dropped; chain lives.
         public CreativeModeTab.Builder withSearchBar() {
-            throw Unimplemented.forMember("net/minecraft/world/item/CreativeModeTab$Builder.withSearchBar:()Lnet/minecraft/world/item/CreativeModeTab$Builder;");
+            return this;
         }
 
+        // Pumpkin divergence: tab presentation, accepted and dropped; chain lives.
         public CreativeModeTab.Builder withSearchBar(int searchBarWidth) {
-            throw Unimplemented.forMember("net/minecraft/world/item/CreativeModeTab$Builder.withSearchBar:(I)Lnet/minecraft/world/item/CreativeModeTab$Builder;");
+            return this;
         }
 
+        // Pumpkin divergence: tab presentation, accepted and dropped; chain lives.
         public CreativeModeTab.Builder withTabFactory(java.util.function.Function<CreativeModeTab.Builder, CreativeModeTab> tabFactory) {
-            throw Unimplemented.forMember("net/minecraft/world/item/CreativeModeTab$Builder.withTabFactory:(Ljava/util/function/Function;)Lnet/minecraft/world/item/CreativeModeTab$Builder;");
+            return this;
         }
 
+        // Pumpkin divergence: tab presentation, accepted and dropped; chain lives.
         public CreativeModeTab.Builder withTabsBefore(net.minecraft.resources.Identifier... tabs) {
-            throw Unimplemented.forMember("net/minecraft/world/item/CreativeModeTab$Builder.withTabsBefore:([Lnet/minecraft/resources/Identifier;)Lnet/minecraft/world/item/CreativeModeTab$Builder;");
+            return this;
         }
 
         public final CreativeModeTab.Builder withTabsBefore(net.minecraft.resources.ResourceKey<CreativeModeTab>... tabs) {

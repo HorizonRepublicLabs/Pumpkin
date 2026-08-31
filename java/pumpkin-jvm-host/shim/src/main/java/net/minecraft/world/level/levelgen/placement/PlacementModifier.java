@@ -7,7 +7,8 @@ import net.minecraft.util.RandomSource;
 
 public abstract class PlacementModifier {
 
-    public static final Codec<PlacementModifier> CODEC = null;
+    public static final Codec<PlacementModifier> CODEC =
+            dev.pumpkin.shim.Stubs.throwingCodec("net.minecraft.world.level.levelgen.placement.PlacementModifier.CODEC");
 
     public abstract Stream<BlockPos> getPositions(PlacementContext context, RandomSource random, BlockPos origin);
 

@@ -9,7 +9,8 @@ import dev.pumpkin.shim.Unimplemented;
 
 public record SpawnData(CompoundTag entityToSpawn, Optional<SpawnData.CustomSpawnRules> customSpawnRules, Optional<EquipmentTable> equipment) {
 
-    public static final Codec<SpawnData> CODEC = null;
+    public static final Codec<SpawnData> CODEC =
+            dev.pumpkin.shim.Stubs.throwingCodec("net.minecraft.world.level.SpawnData.CODEC");
 
     public SpawnData() {
         this((CompoundTag) null, (Optional<SpawnData.CustomSpawnRules>) null, (Optional<EquipmentTable>) null);

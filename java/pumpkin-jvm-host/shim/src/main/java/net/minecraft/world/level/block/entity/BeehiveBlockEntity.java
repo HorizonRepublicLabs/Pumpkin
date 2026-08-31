@@ -71,7 +71,8 @@ public class BeehiveBlockEntity extends BlockEntity {
 
     public record Occupant(TypedEntityData<EntityType<?>> entityData, int ticksInHive, int minTicksInHive) {
 
-        public static final Codec<List<BeehiveBlockEntity.Occupant>> LIST_CODEC = null;
+        public static final Codec<List<BeehiveBlockEntity.Occupant>> LIST_CODEC =
+                dev.pumpkin.shim.Stubs.throwingCodec("net.minecraft.world.level.block.entity.BeehiveBlockEntity.LIST_CODEC");
 
         public static BeehiveBlockEntity.Occupant create(int ticksInHive) {
             throw Unimplemented.forMember("net/minecraft/world/level/block/entity/BeehiveBlockEntity$Occupant.create:(I)Lnet/minecraft/world/level/block/entity/BeehiveBlockEntity$Occupant;");

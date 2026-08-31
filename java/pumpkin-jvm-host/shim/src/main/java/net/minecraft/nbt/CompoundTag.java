@@ -14,7 +14,8 @@ import dev.pumpkin.shim.Unimplemented;
 
 public final class CompoundTag implements Tag {
 
-    public static final Codec<CompoundTag> CODEC = null;
+    public static final Codec<CompoundTag> CODEC =
+            dev.pumpkin.shim.Stubs.throwingCodec("net.minecraft.nbt.CompoundTag.CODEC");
 
     CompoundTag(Map<String, Tag> tags) {
     }

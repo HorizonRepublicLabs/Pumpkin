@@ -2969,31 +2969,822 @@ _vanilla = open(os.path.join(os.path.dirname(ROOT),
     "../../../NeoForge/projects/neoforge/src/main/java/net/minecraft/world/level/material/MapColor.java")).read()
 _pairs = dict(re.findall(r"MapColor ([A-Z_0-9]+) = new MapColor\((\d+, -?\d+)\)", _vanilla))
 _m = re.search(r"    (?:private |public )?MapColor\(int [\w]+, int [\w]+\) \{\n    \}", _s)
-_ctor = """    // Pumpkin divergence: a map color really carries its packed rgb.
+_ctor = """    // Pumpkin divergence: a map color really carries its packed rgb, and the id-indexed
+    // table vanilla keeps (NeoForge's access transformer makes it public, and Mekanism
+    // reads it directly) fills as the constants construct.
+    public static final MapColor[] MATERIAL_COLORS = new MapColor[64];
+
     public final int col;
 
+    public final int id;
+
     private MapColor(int id, int col) {
+        this.id = id;
         this.col = col;
+        MATERIAL_COLORS[id] = this;
     }"""
 _s = _s.replace("    public final int col = 0;\n\n", "", 1)
 if _m:
-    _s = _s.replace(_m.group(0), _ctor, 1)
-else:
-    _s = _s.replace("public class MapColor {", "public class MapColor {\n\n" + _ctor, 1)
+    _s = _s.replace(_m.group(0), "", 1)
+# the table must initialise before any constant constructs into it -- first thing in
+# the class, ahead of the appended constants too.
+_s = _s.replace("public class MapColor {", "public class MapColor {\n\n" + _ctor, 1)
 for _name, _args in _pairs.items():
     _target = "public static final MapColor %s = null;" % _name
     if _target in _s:
         _s = _s.replace(_target,
                         "public static final MapColor %s = new MapColor(%s);" % (_name, _args), 1)
     elif ("MapColor %s " % _name) not in _s:
-        # pruned away entirely, but the dye table below may name it: append it.
-        _s = _s.replace("public class MapColor {",
-                        "public class MapColor {\n    public static final MapColor %s = new MapColor(%s);"
+        # pruned away entirely, but the dye table below may name it: append after the
+        # id table so static initialisation order stays correct.
+        _s = _s.replace("        MATERIAL_COLORS[id] = this;\n    }",
+                        "        MATERIAL_COLORS[id] = this;\n    }\n\n    public static final MapColor %s = new MapColor(%s);"
                         % (_name, _args), 1)
 _s = re.sub(r"    private static final MapColor\[\] MATERIAL_COLORS = null;\n\n?", "", _s)
 _s = re.sub(r"    static \{\n        if \(true\) \{\n            throw Unimplemented\.forMember\(\"net/minecraft/world/level/material/MapColor\"\);\n        \}\n    \}\n",
             "    // Pumpkin divergence: no throwing initializer -- the constants are vanilla's values.\n", _s)
 _s = _s.replace("    public MapColor() {\n    }", "    public MapColor() {\n        this(0, 0);\n    }")
 PENDING[_p] = _s
+
+edit('net/minecraft/world/item/Item.java', [
+    ('    // Pumpkin divergence: no vanilla counterpart. Pumpkin registers an item by copying an\n    // existing one\'s definition, and "stone" is the deliberate default template -- the\n    // same choice Block\'s registration path makes. It is a stand-in, not a guess at the\n    // mod\'s intent: stack size and components come from stone until item behaviour gets\n    // its own slice.\n    public String pumpkinTemplate() {\n        return "stone";\n    }',
+     '    // Pumpkin divergence: no vanilla counterpart. Pumpkin registers an item by copying an\n    // existing one\'s definition, and "stone" is the deliberate default template -- the\n    // same choice Block\'s registration path makes. A vanilla stand-in from Items sets its\n    // own name here, so identity checks and template copies see the real item.\n    public String pumpkinVanillaName;\n\n    public String pumpkinTemplate() {\n        return pumpkinVanillaName != null ? pumpkinVanillaName : "stone";\n    }'),
+])
+
+edit('net/neoforged/neoforge/common/ItemAbility.java', [
+    ('    public static ItemAbility get(String name) {\n        throw Unimplemented.forMember("net/neoforged/neoforge/common/ItemAbility.get:(Ljava/lang/String;)Lnet/neoforged/neoforge/common/ItemAbility;");\n    }\n\n    public String name() {\n        throw Unimplemented.forMember("net/neoforged/neoforge/common/ItemAbility.name:()Ljava/lang/String;");\n    }\n\n    public String toString() {\n        throw Unimplemented.forMember("net/neoforged/neoforge/common/ItemAbility.toString:()Ljava/lang/String;");\n    }\n\n    private ItemAbility(String name) {\n    }',
+     "    // Pumpkin divergence: real, interned by name -- NeoForge's own contract, and mods\n    // compare abilities by identity.\n    private static final java.util.concurrent.ConcurrentHashMap<String, ItemAbility> PUMPKIN_INTERNED =\n            new java.util.concurrent.ConcurrentHashMap<>();\n\n    public static ItemAbility get(String name) {\n        return PUMPKIN_INTERNED.computeIfAbsent(name, ItemAbility::new);\n    }\n\n    public String name() {\n        return pumpkinName;\n    }\n\n    public String toString() {\n        return pumpkinName;\n    }\n\n    private String pumpkinName;\n\n    private ItemAbility(String name) {\n        this.pumpkinName = name;\n    }"),
+])
+
+edit('net/neoforged/neoforge/common/NeoForgeMod.java', [
+    ('    public static void enableMilkFluid() {\n        throw Unimplemented.forMember("net/neoforged/neoforge/common/NeoForgeMod.enableMilkFluid:()V");\n    }',
+     '    // Pumpkin divergence: real body -- the flag flips, as in NeoForge. The MILK holder\n    // itself stays null until something actually reads it, and that read will say so.\n    public static void enableMilkFluid() {\n        enableMilkFluid = true;\n    }'),
+])
+
+edit('net/neoforged/neoforge/registries/DeferredHolder.java', [
+    ('    // Pumpkin divergence: real body.\n    protected DeferredHolder(ResourceKey<R> key) {\n        this(key.identifier(), null);\n    }',
+     '    // Pumpkin divergence: real body.\n    private ResourceKey<R> pumpkinKey;\n\n    protected DeferredHolder(ResourceKey<R> key) {\n        this(key.identifier(), null);\n        this.pumpkinKey = key;\n    }'),
+])
+
+edit('net/neoforged/neoforge/registries/DeferredHolder.java', [
+    ('    public ResourceKey<R> getKey() {\n        throw Unimplemented.forMember("net/neoforged/neoforge/registries/DeferredHolder.getKey:()Lnet/minecraft/resources/ResourceKey;");\n    }',
+     '    // Pumpkin divergence: real body where the holder was built with its full key; a\n    // holder that never learned its registry still fails loudly by name.\n    public ResourceKey<R> getKey() {\n        if (pumpkinKey == null) {\n            throw Unimplemented.forMember(\n                    "net/neoforged/neoforge/registries/DeferredHolder.getKey (no registry recorded for "\n                            + pumpkinId + ")");\n        }\n        return pumpkinKey;\n    }'),
+])
+
+edit('net/neoforged/neoforge/registries/DeferredRegister.java', [
+    ('    // Pumpkin divergence: real body -- the factory method subclasses override.\n    protected <I extends T> DeferredHolder<T, I> createHolder(ResourceKey<? extends Registry<T>> registryKey, Identifier key) {\n        return new DeferredHolder<>(key, null);\n    }',
+     "    // Pumpkin divergence: real body -- the factory method subclasses override. Built\n    // with the full key so getKey() has its answer.\n    protected <I extends T> DeferredHolder<T, I> createHolder(ResourceKey<? extends Registry<T>> registryKey, Identifier key) {\n        return new PumpkinKeyedHolder<>(ResourceKey.create(registryKey, key));\n    }\n\n    // DeferredHolder's key-taking constructor is protected; the smallest door to it.\n    private static final class PumpkinKeyedHolder<R, I extends R> extends DeferredHolder<R, I> {\n        PumpkinKeyedHolder(ResourceKey<R> key) {\n            super(key);\n        }\n    }"),
+])
+
+
+# Items: every pruned-null vanilla constant becomes a self-naming stand-in.
+_p = os.path.join(ROOT, "net/minecraft/world/item/Items.java")
+_s = PENDING.get(_p) or open(_p).read()
+for _m in list(re.finditer(r"public static final Item ([A-Z_0-9]+) = null;", _s)):
+    _s = _s.replace(_m.group(0),
+                    'public static final Item %s = pumpkinVanilla("%s");' % (_m.group(1), _m.group(1).lower()), 1)
+_helper = """
+    // Pumpkin divergence: a vanilla stand-in carries its own name -- identity-stable, and
+    // the registration path can copy the real item's definition from it.
+    private static Item pumpkinVanilla(String name) {
+        Item item = new Item(new Item.Properties());
+        item.pumpkinVanillaName = name;
+        return item;
+    }
+"""
+_s = re.sub(r"(public (?:final )?class Items \{)", lambda m2: m2.group(1) + _helper, _s, count=1)
+_s = re.sub(r"    static \{\n        if \(true\) \{\n            throw Unimplemented\.forMember\(\"net/minecraft/world/item/Items\"\);\n        \}\n    \}\n",
+            "    // Pumpkin divergence: no throwing initializer -- every stand-in above is real.\n", _s)
+PENDING[_p] = _s
+
+
+# ItemAbilities + NeoForgeRegistries.Keys: names from NeoForge's own tables.
+_nf = os.path.join(os.path.dirname(ROOT), "../../../NeoForge/src/main/java")
+_vanilla = open(os.path.join(_nf, "net/neoforged/neoforge/common/ItemAbilities.java")).read()
+_table = dict(re.findall(r"([A-Z_0-9]+) = ItemAbility\.get\(\"([a-z_]+)\"\)", _vanilla))
+_p = os.path.join(ROOT, "net/neoforged/neoforge/common/ItemAbilities.java")
+_s = PENDING.get(_p) or open(_p).read()
+for _m in list(re.finditer(r"public static final ItemAbility ([A-Z_0-9]+) = null;", _s)):
+    _name = _table.get(_m.group(1))
+    if _name:
+        _s = _s.replace(_m.group(0),
+                        'public static final ItemAbility %s = ItemAbility.get("%s");' % (_m.group(1), _name), 1)
+_s = re.sub(r"    static \{\n        if \(true\) \{\n            throw Unimplemented\.forMember\(\"net/neoforged/neoforge/common/ItemAbilities\"\);\n        \}\n    \}\n",
+            "    // Pumpkin divergence: no throwing initializer -- names from NeoForge's own table.\n", _s)
+PENDING[_p] = _s
+_vanilla = open(os.path.join(_nf, "net/neoforged/neoforge/registries/NeoForgeRegistries.java")).read()
+_keys = dict(re.findall(r"([A-Z_0-9]+) = key\(\"([a-z_:]+)\"\)", _vanilla))
+_p = os.path.join(ROOT, "net/neoforged/neoforge/registries/NeoForgeRegistries.java")
+_s = PENDING.get(_p) or open(_p).read()
+for _m in list(re.finditer(r"public static final ResourceKey<([^;=]+?)> ([A-Z_0-9]+) = null;", _s)):
+    _name = _keys.get(_m.group(2))
+    if _name:
+        _s = _s.replace(_m.group(0),
+                        'public static final ResourceKey<%s> %s = ResourceKey.createRegistryKey(\n                net.minecraft.resources.Identifier.fromNamespaceAndPath("neoforge", "%s"));'
+                        % (_m.group(1), _m.group(2), _name), 1)
+_s = re.sub(r"        static \{\n            if \(true\) \{\n                throw Unimplemented\.forMember\(\"net/neoforged/neoforge/registries/NeoForgeRegistries\$Keys\"\);\n            \}\n        \}\n",
+            "        // Pumpkin divergence: no throwing initializer -- names from NeoForge's table.\n", _s)
+PENDING[_p] = _s
+
+edit('net/minecraft/resources/RegistryFileCodec.java', [
+    ('    public static <E> RegistryFileCodec<E> create(ResourceKey<? extends Registry<E>> registryKey, Codec<E> elementCodec) {\n        throw Unimplemented.forMember("net/minecraft/resources/RegistryFileCodec.create:(Lnet/minecraft/resources/ResourceKey;Lcom/mojang/serialization/Codec;)Lnet/minecraft/resources/RegistryFileCodec;");\n    }\n\n    public static <E> RegistryFileCodec<E> create(ResourceKey<? extends Registry<E>> registryKey, Codec<E> elementCodec, boolean allowInline) {\n        throw Unimplemented.forMember("net/minecraft/resources/RegistryFileCodec.create:(Lnet/minecraft/resources/ResourceKey;Lcom/mojang/serialization/Codec;Z)Lnet/minecraft/resources/RegistryFileCodec;");\n    }',
+     '    // Pumpkin divergence: real construction, inert behaviour -- the codec exists and\n    // composes; encode/decode below still throw their member keys on first use.\n    public static <E> RegistryFileCodec<E> create(ResourceKey<? extends Registry<E>> registryKey, Codec<E> elementCodec) {\n        return new RegistryFileCodec<>(registryKey, elementCodec, true);\n    }\n\n    public static <E> RegistryFileCodec<E> create(ResourceKey<? extends Registry<E>> registryKey, Codec<E> elementCodec, boolean allowInline) {\n        return new RegistryFileCodec<>(registryKey, elementCodec, allowInline);\n    }'),
+])
+
+
+# ItemAbilities set constants: NeoForge's own groupings, resolved through get() so a
+# pruned singleton constant cannot break the set.
+_p = os.path.join(ROOT, "net/neoforged/neoforge/common/ItemAbilities.java")
+_s = PENDING.get(_p) or open(_p).read()
+_vanilla = open(os.path.join(_nf, "net/neoforged/neoforge/common/ItemAbilities.java")).read()
+_sets = dict(re.findall(r"Set<ItemAbility> ([A-Z_0-9]+) = of\(([A-Z_, 0-9]+)\)", _vanilla))
+_singles = dict(re.findall(r"([A-Z_0-9]+) = ItemAbility\.get\(\"([a-z_]+)\"\)", _vanilla))
+for _m in list(re.finditer(r"public static final Set<ItemAbility> ([A-Z_0-9]+) = null;", _s)):
+    _members = _sets.get(_m.group(1))
+    if _members:
+        _refs = ", ".join('ItemAbility.get("%s")' % _singles[x.strip()] for x in _members.split(","))
+        _s = _s.replace(_m.group(0),
+                        "public static final Set<ItemAbility> %s = Set.of(%s);" % (_m.group(1), _refs), 1)
+PENDING[_p] = _s
+
+
+# RegistryCodecs: inert codecs, same contract as ExtraCodecs.
+_p = os.path.join(ROOT, "net/minecraft/core/RegistryCodecs.java")
+_s = PENDING.get(_p) or open(_p).read()
+_pattern = re.compile(
+    r"    public static (?P<head>[^\n(]+) homogeneousList\((?P<params>[^)]*)\) \{\n"
+    r"        throw Unimplemented\.forMember\(\"(?P<key>[^\"]+)\"\);\n    \}")
+def _rc_replace(m):
+    return ("    // Pumpkin divergence: inert codec -- throws its key on first use.\n"
+            "    public static " + m.group("head") + " homogeneousList(" + m.group("params") + ") {\n"
+            "        return dev.pumpkin.shim.Stubs.throwingCodec(\"" + m.group("key") + "\");\n    }")
+PENDING[_p] = _pattern.sub(_rc_replace, _s)
+
+edit('net/minecraft/resources/RegistryFileCodec.java', [
+    ('    public String toString() {\n        throw Unimplemented.forMember("net/minecraft/resources/RegistryFileCodec.toString:()Ljava/lang/String;");\n    }',
+     '    // Pumpkin divergence: real body -- DFU prints codecs while composing them.\n    public String toString() {\n        return "RegistryFileCodec[pumpkin inert]";\n    }'),
+])
+
+edit('net/minecraft/network/codec/StreamCodec.java', [
+    ('    default <O> StreamCodec<B, O> map(Function<? super V, ? extends O> to, Function<? super O, ? extends V> from) {\n        throw Unimplemented.forMember("net/minecraft/network/codec/StreamCodec.map:(Ljava/util/function/Function;Ljava/util/function/Function;)Lnet/minecraft/network/codec/StreamCodec;");\n    }',
+     "    // Pumpkin divergence: real composition, as vanilla -- inertness propagates from\n    // the source codec, so a mapped inert codec still throws its origin's key on use.\n    default <O> StreamCodec<B, O> map(Function<? super V, ? extends O> to, Function<? super O, ? extends V> from) {\n        StreamCodec<B, V> self = this;\n        return new StreamCodec<B, O>() {\n            @Override\n            public O decode(B input) {\n                return to.apply(self.decode(input));\n            }\n\n            @Override\n            public void encode(B output, O value) {\n                self.encode(output, from.apply(value));\n            }\n        };\n    }"),
+])
+
+edit('net/minecraft/network/codec/StreamCodec.java', [
+    ('    static <B, V> StreamCodec<B, V> ofMember(StreamMemberEncoder<B, V> encoder, StreamDecoder<B, V> decoder) {\n        throw Unimplemented.forMember("net/minecraft/network/codec/StreamCodec.ofMember:(Lnet/minecraft/network/codec/StreamMemberEncoder;Lnet/minecraft/network/codec/StreamDecoder;)Lnet/minecraft/network/codec/StreamCodec;");\n    }',
+     '    // Pumpkin divergence: real body, mirroring of() -- the member-encoder spelling.\n    static <B, V> StreamCodec<B, V> ofMember(StreamMemberEncoder<B, V> encoder, StreamDecoder<B, V> decoder) {\n        return new StreamCodec<B, V>() {\n            @Override\n            public V decode(B input) {\n                return decoder.decode(input);\n            }\n\n            @Override\n            public void encode(B output, V value) {\n                encoder.encode(value, output);\n            }\n        };\n    }'),
+])
+
+edit('net/neoforged/neoforge/transfer/fluid/FluidResource.java', [
+    ('    public static final FluidResource EMPTY = null;\n\n    public static final Codec<FluidResource> CODEC = null;',
+     '    // Pumpkin divergence: a real empty instance -- mods null-check it at class-init --\n    // and an inert codec that throws its name on first use.\n    public static final FluidResource EMPTY = new FluidResource();\n\n    public static final Codec<FluidResource> CODEC =\n            dev.pumpkin.shim.Stubs.throwingCodec("net/neoforged/neoforge/transfer/fluid/FluidResource.CODEC");'),
+])
+
+edit('net/neoforged/neoforge/transfer/item/ItemResource.java', [
+    ('    public static final Codec<ItemResource> CODEC = null;\n\n    public static final Codec<ItemResource> OPTIONAL_CODEC = null;',
+     '    // Pumpkin divergence: inert codecs -- compose at class-init, throw by name on use.\n    public static final Codec<ItemResource> CODEC =\n            dev.pumpkin.shim.Stubs.throwingCodec("net/neoforged/neoforge/transfer/item/ItemResource.CODEC");\n\n    public static final Codec<ItemResource> OPTIONAL_CODEC =\n            dev.pumpkin.shim.Stubs.throwingCodec("net/neoforged/neoforge/transfer/item/ItemResource.OPTIONAL_CODEC");'),
+])
+
+edit('net/neoforged/neoforge/registries/DeferredRegister.java', [
+    ('    public ResourceKey<? extends Registry<T>> getRegistryKey() {\n        throw Unimplemented.forMember("net/neoforged/neoforge/registries/DeferredRegister.getRegistryKey:()Lnet/minecraft/resources/ResourceKey;");\n    }',
+     '    // Pumpkin divergence: real body.\n    public ResourceKey<? extends Registry<T>> getRegistryKey() {\n        return pumpkinRegistryKey;\n    }'),
+])
+
+edit('net/neoforged/neoforge/transfer/fluid/FluidResource.java', [
+    ('    public boolean isEmpty() {\n        throw Unimplemented.forMember("net/neoforged/neoforge/transfer/fluid/FluidResource.isEmpty:()Z");\n    }',
+     '    // Pumpkin divergence: real body -- the shared EMPTY instance is the empty one; a\n    // resource built by an of() overload will carry its fluid when those get bodies.\n    private Fluid pumpkinFluid;\n\n    public boolean isEmpty() {\n        return pumpkinFluid == null;\n    }'),
+])
+
+edit('net/neoforged/neoforge/common/ModConfigSpec.java', [
+    ('        throw Unimplemented.forMember("net/neoforged/neoforge/common/ModConfigSpec.isLoaded:()Z");',
+     '        // Pumpkin divergence: real answer. No config file ever loads here, and saying so\n        // routes mods to their declared defaults -- the same values our ConfigValues hold.\n        return false;'),
+])
+
+edit('net/minecraft/world/entity/EntityType.java', [
+    ('    public EntityType() {',
+     '    // Pumpkin divergence: no vanilla counterpart -- the name a vanilla stand-in from\n    // EntityTypes carries.\n    public String pumpkinVanillaName;\n\n    public EntityType() {'),
+])
+
+
+# EntityTypes: self-naming stand-ins, like Items.
+_p = os.path.join(ROOT, "net/minecraft/world/entity/EntityTypes.java")
+_s = PENDING.get(_p) or open(_p).read()
+for _m in list(re.finditer(r"public static final EntityType<[^>]*>+ ([A-Z_0-9]+) = null;", _s)):
+    _s = _s.replace(_m.group(0), _m.group(0).replace(" = null;", ' = pumpkinVanilla("%s");' % _m.group(1).lower()), 1)
+_et_helper = """
+
+    // Pumpkin divergence: a vanilla stand-in carries its own name; nothing constructs
+    // entities through it, and anything deeper fails loudly on the member it needs.
+    @SuppressWarnings({\"unchecked\", \"rawtypes\"})
+    private static <T extends Entity> EntityType<T> pumpkinVanilla(String name) {
+        EntityType type = new EntityType();
+        type.pumpkinVanillaName = name;
+        return type;
+    }
+"""
+_m2 = re.search(r"(public (?:final )?class EntityTypes \{)", _s)
+_s = _s.replace(_m2.group(1), _m2.group(1) + _et_helper, 1)
+_s = re.sub(r"    static \{\n        if \(true\) \{\n            throw Unimplemented\.forMember\(\"net/minecraft/world/entity/EntityTypes\"\);\n        \}\n    \}\n",
+            "    // Pumpkin divergence: no throwing initializer -- stand-ins above are real.\n", _s)
+PENDING[_p] = _s
+
+edit('net/minecraft/network/chat/ComponentSerialization.java', [
+    ('    public static final Codec<Component> CODEC = null;',
+     '    // Pumpkin divergence: inert codec -- composes at class-init, throws by name on use.\n    public static final Codec<Component> CODEC =\n            dev.pumpkin.shim.Stubs.throwingCodec("net/minecraft/network/chat/ComponentSerialization.CODEC");'),
+])
+
+edit('net/minecraft/network/chat/ComponentSerialization.java', [
+    ('    static {\n        if (true) {\n            throw Unimplemented.forMember("net/minecraft/network/chat/ComponentSerialization");\n        }\n    }',
+     '    // Pumpkin divergence: no throwing initializer -- the fields above answer inertly.'),
+])
+
+
+# NeoForgeExtraCodecs: inert codecs, same contract as ExtraCodecs.
+_p = os.path.join(ROOT, "net/neoforged/neoforge/common/util/NeoForgeExtraCodecs.java")
+_s = PENDING.get(_p) or open(_p).read()
+_pattern = re.compile(
+    r"    public static (?P<head>[^\n(]+) (?P<name>\w+)\((?P<params>[^)]*)\) \{\n"
+    r"        throw Unimplemented\.forMember\(\"(?P<key>[^\"]+)\"\);\n    \}")
+def _nfec_replace(m):
+    _ret = m.group("head").strip().split(" ")[-1]
+    if _ret.startswith("MapCodec"):
+        _f = "throwingMapCodec"
+    elif _ret.startswith("Codec"):
+        _f = "throwingCodec"
+    else:
+        return m.group(0)
+    return ("    // Pumpkin divergence: inert codec -- throws its key on first use.\n"
+            "    public static " + m.group("head") + " " + m.group("name") + "(" + m.group("params") + ") {\n"
+            "        return dev.pumpkin.shim.Stubs." + _f + "(\"" + m.group("key") + "\");\n    }")
+PENDING[_p] = _pattern.sub(_nfec_replace, _s)
+
+edit('net/minecraft/resources/RegistryFixedCodec.java', [
+    ('    public static <E> RegistryFixedCodec<E> create(ResourceKey<? extends Registry<E>> registryKey) {\n        throw Unimplemented.forMember("net/minecraft/resources/RegistryFixedCodec.create:(Lnet/minecraft/resources/ResourceKey;)Lnet/minecraft/resources/RegistryFixedCodec;");\n    }',
+     '    // Pumpkin divergence: real construction, inert behaviour -- encode/decode still\n    // throw their member keys on first use.\n    public static <E> RegistryFixedCodec<E> create(ResourceKey<? extends Registry<E>> registryKey) {\n        return new RegistryFixedCodec<>(registryKey);\n    }'),
+])
+
+edit('net/minecraft/resources/RegistryFixedCodec.java', [
+    ('    public String toString() {\n        throw Unimplemented.forMember("net/minecraft/resources/RegistryFixedCodec.toString:()Ljava/lang/String;");\n    }',
+     '    // Pumpkin divergence: real body -- DFU prints codecs while composing them.\n    public String toString() {\n        return "RegistryFixedCodec[pumpkin inert]";\n    }'),
+])
+
+edit('net/minecraft/core/Registry.java', [
+    ('    default Codec<Holder<T>> holderByNameCodec() {\n        throw Unimplemented.forMember("net/minecraft/core/Registry.holderByNameCodec:()Lcom/mojang/serialization/Codec;");\n    }',
+     '    // Pumpkin divergence: inert, like byNameCodec above.\n    default Codec<Holder<T>> holderByNameCodec() {\n        return dev.pumpkin.shim.Stubs.throwingCodec("net/minecraft/core/Registry.holderByNameCodec:()Lcom/mojang/serialization/Codec;");\n    }'),
+])
+
+edit('net/minecraft/resources/ResourceKey.java', [
+    ('    public static <T> Codec<ResourceKey<T>> codec(ResourceKey<? extends Registry<T>> registryName) {\n        throw Unimplemented.forMember("net/minecraft/resources/ResourceKey.codec:(Lnet/minecraft/resources/ResourceKey;)Lcom/mojang/serialization/Codec;");\n    }',
+     '    // Pumpkin divergence: inert codec -- composes at class-init, throws by name on use.\n    public static <T> Codec<ResourceKey<T>> codec(ResourceKey<? extends Registry<T>> registryKey) {\n        return dev.pumpkin.shim.Stubs.throwingCodec("net/minecraft/resources/ResourceKey.codec:(Lnet/minecraft/resources/ResourceKey;)Lcom/mojang/serialization/Codec;");\n    }'),
+])
+
+edit('net/minecraft/resources/ResourceKey.java', [
+    ('    public static <T> StreamCodec<ByteBuf, ResourceKey<T>> streamCodec(ResourceKey<? extends Registry<T>> registryName) {\n        throw Unimplemented.forMember("net/minecraft/resources/ResourceKey.streamCodec:(Lnet/minecraft/resources/ResourceKey;)Lnet/minecraft/network/codec/StreamCodec;");\n    }',
+     '    // Pumpkin divergence: inert stream codec -- same contract as codec() above.\n    @SuppressWarnings("unchecked")\n    public static <T> StreamCodec<ByteBuf, ResourceKey<T>> streamCodec(ResourceKey<? extends Registry<T>> registryName) {\n        return dev.pumpkin.shim.Stubs.of(net.minecraft.network.codec.StreamCodec.class,\n                "net/minecraft/resources/ResourceKey.streamCodec:(Lnet/minecraft/resources/ResourceKey;)Lnet/minecraft/network/codec/StreamCodec;");\n    }'),
+])
+
+edit('net/minecraft/core/UUIDUtil.java', [
+    ('public static final Codec<UUID> CODEC = null;',
+     'public static final Codec<UUID> CODEC =\n            dev.pumpkin.shim.Stubs.throwingCodec("net/minecraft/core/UUIDUtil.CODEC");'),
+])
+
+edit('net/minecraft/core/UUIDUtil.java', [
+    ('public static final Codec<UUID> STRING_CODEC = null;',
+     'public static final Codec<UUID> STRING_CODEC =\n            dev.pumpkin.shim.Stubs.throwingCodec("net/minecraft/core/UUIDUtil.STRING_CODEC");'),
+])
+
+edit('net/minecraft/core/UUIDUtil.java', [
+    ('public static final Codec<UUID> LENIENT_CODEC = null;',
+     'public static final Codec<UUID> LENIENT_CODEC =\n            dev.pumpkin.shim.Stubs.throwingCodec("net/minecraft/core/UUIDUtil.LENIENT_CODEC");'),
+])
+
+edit('net/minecraft/core/UUIDUtil.java', [
+    ('    static {\n        if (true) {\n            throw Unimplemented.forMember("net/minecraft/core/UUIDUtil");\n        }\n    }',
+     '    // Pumpkin divergence: no throwing initializer -- the codecs answer inertly.'),
+])
+
+
+# ByteBufCodecs CodecOperation factories: inert composition.
+_p = os.path.join(ROOT, "net/minecraft/network/codec/ByteBufCodecs.java")
+_s = PENDING.get(_p) or open(_p).read()
+_pattern = re.compile(
+    r"    static (?P<head>[^\n(]*?CodecOperation<[^\n(]*) (?P<name>\w+)\((?P<params>[^)]*)\) \{\n"
+    r"        throw Unimplemented\.forMember\(\"(?P<key>[^\"]+)\"\);\n    \}")
+def _bbop_replace(m):
+    return ("    // Pumpkin divergence: an operation whose result is inert -- the composed codec\n"
+            "    // throws this key on first encode/decode; the composition itself succeeds.\n"
+            "    static " + m.group("head") + " " + m.group("name") + "(" + m.group("params") + ") {\n"
+            "        return original -> dev.pumpkin.shim.Stubs.of(StreamCodec.class, \"" + m.group("key") + "\");\n    }")
+PENDING[_p] = _pattern.sub(_bbop_replace, _s)
+
+edit('net/minecraft/world/level/block/state/BlockState.java', [
+    ('    public static final Codec<BlockState> CODEC = null;',
+     '    // Pumpkin divergence: inert codec -- composes at class-init, throws by name on use.\n    public static final Codec<BlockState> CODEC =\n            dev.pumpkin.shim.Stubs.throwingCodec("net/minecraft/world/level/block/state/BlockState.CODEC");'),
+])
+
+
+# ---------------------------------------------- global null-codec sweep (Mekanism)
+# Every pruned Codec/MapCodec constant left as null becomes an inert codec that throws
+# its own field name on first use. A null there NPEs inside DataFixerUpper while a mod
+# composes codecs at class-initialisation, naming nothing; the inert form survives
+# composition and fails on first genuine serialisation, naming the field.
+import glob as _glob
+for _path in _glob.glob(os.path.join(ROOT, "**/*.java"), recursive=True):
+    _s0 = PENDING.get(_path) or open(_path).read()
+    _cls = os.path.relpath(_path, ROOT)[:-5].replace(os.sep, ".")
+    _count = [0]
+    def _codec_repl(m, _cls=_cls, _count=_count):
+        _count[0] += 1
+        _f = "throwingMapCodec" if m.group("kind") == "MapCodec" else "throwingCodec"
+        return ("%spublic static final %s<%s> %s =\n%s        dev.pumpkin.shim.Stubs.%s(\"%s.%s\");"
+                % (m.group("indent"), m.group("kind"), m.group("type"), m.group("name"),
+                   m.group("indent"), _f, _cls, m.group("name")))
+    _s1 = re.sub(
+        r"(?P<indent> *)public static final (?P<kind>Codec|MapCodec)<(?P<type>[^;=]+?)> (?P<name>[A-Z_0-9]+) = null;",
+        _codec_repl, _s0)
+    if _count[0]:
+        PENDING[_path] = _s1
+
+edit('net/neoforged/neoforge/capabilities/EntityCapability.java', [
+    ('    public static <T> EntityCapability<T, Void> createVoid(Identifier name, Class<T> typeClass) {\n        return create(name, typeClass, Void.class);\n    }',
+     "    public static <T> EntityCapability<T, Void> createVoid(Identifier name, Class<T> typeClass) {\n        return create(name, typeClass, Void.class);\n    }\n\n    // Real NeoForge member the pruner never saw a direct call to; Capabilities' holders\n    // build through it.\n    public static <T> EntityCapability<T, net.minecraft.core.Direction> createSided(Identifier name, Class<T> typeClass) {\n        return create(name, typeClass, net.minecraft.core.Direction.class);\n    }"),
+])
+
+
+# Capabilities: the standard capability tokens, built exactly as NeoForge builds them.
+_p = os.path.join(ROOT, "net/neoforged/neoforge/capabilities/Capabilities.java")
+_s = PENDING.get(_p) or open(_p).read()
+_CAP_FILLS = {'Energy.BLOCK': 'BlockCapability.createSided(pumpkinName("energy_handler"), EnergyHandler.class)', 'Energy.ENTITY': 'EntityCapability.createSided(pumpkinName("energy_handler"), EnergyHandler.class)', 'Energy.ITEM': 'ItemCapability.create(pumpkinName("energy_handler"), EnergyHandler.class, ItemAccess.class)', 'Fluid.BLOCK': 'BlockCapability.createSided(pumpkinName("fluid_handler"), ResourceHandler.asClass())', 'Fluid.ENTITY': 'EntityCapability.createSided(pumpkinName("fluid_handler"), ResourceHandler.asClass())', 'Fluid.ITEM': 'ItemCapability.create(pumpkinName("fluid_handler"), ResourceHandler.asClass(), ItemAccess.class)', 'Item.BLOCK': 'BlockCapability.createSided(pumpkinName("item_handler"), ResourceHandler.asClass())', 'Item.ENTITY': 'EntityCapability.createVoid(pumpkinName("item_handler"), ResourceHandler.asClass())', 'Item.ITEM': 'ItemCapability.create(pumpkinName("item_handler"), ResourceHandler.asClass(), ItemAccess.class)'}
+_out = []
+_last = 0
+for _m in re.finditer(r"        public static final (\w+)Capability<(?P<type>[^;=]+?)> (?P<name>[A-Z_]+) = null;", _s):
+    _cls = re.findall(r"public static final class (\w+) \{", _s[:_m.start()])[-1]
+    _fill = _CAP_FILLS.get(_cls + "." + _m.group("name"))
+    _out.append(_s[_last:_m.start()])
+    if _fill:
+        _out.append("        public static final %sCapability<%s> %s =\n                %s;"
+                    % (_m.group(1), _m.group("type"), _m.group("name"), _fill))
+    else:
+        _out.append(_m.group(0))
+    _last = _m.end()
+_out.append(_s[_last:])
+_s = "".join(_out)
+_s = _s.replace("public final class Capabilities {", """public final class Capabilities {
+
+    // NeoForge's create(): the neoforge namespace.
+    private static net.minecraft.resources.Identifier pumpkinName(String path) {
+        return net.minecraft.resources.Identifier.fromNamespaceAndPath(\"neoforge\", path);
+    }
+""", 1)
+_s = re.sub(r"        static \{\n            if \(true\) \{\n                throw Unimplemented\.forMember\(\"net/neoforged/neoforge/capabilities/Capabilities\$\w+\"\);\n            \}\n        \}\n",
+            "        // Pumpkin divergence: no throwing initializer -- the tokens above are real.\n", _s)
+PENDING[_p] = _s
+
+
+# Property enums serialize as their lowercase names; BSP constants get vanilla
+# definitions; FluidType.Properties chains accept and drop.
+import glob as _glob2
+for _path in _glob2.glob(os.path.join(ROOT, "net/minecraft/world/level/block/state/properties/*.java")):
+    _s0 = PENDING.get(_path) or open(_path).read()
+    if "enum " not in _s0:
+        continue
+    _s1 = re.sub(r"    public String getSerializedName\(\) \{\n        throw Unimplemented[^\n]+\n    \}",
+        "    // Pumpkin divergence: vanilla body -- the lowercase constant name.\n"
+        "    public String getSerializedName() {\n        return name().toLowerCase(java.util.Locale.ROOT);\n    }", _s0)
+    if _s1 != _s0:
+        PENDING[_path] = _s1
+_p = os.path.join(ROOT, "net/minecraft/world/level/block/state/properties/BlockStateProperties.java")
+_s = PENDING.get(_p) or open(_p).read()
+_BSP = {
+    "OPEN": 'BooleanProperty.create("open")',
+    "WATERLOGGED": 'BooleanProperty.create("waterlogged")',
+    "FACING": 'EnumProperty.create("facing", Direction.class)',
+    "HORIZONTAL_FACING": 'EnumProperty.create("facing", Direction.class, Direction.NORTH, Direction.SOUTH, Direction.WEST, Direction.EAST)',
+    "DOUBLE_BLOCK_HALF": 'EnumProperty.create("half", DoubleBlockHalf.class)',
+    "BED_PART": 'EnumProperty.create("part", BedPart.class)',
+}
+for _m in list(re.finditer(r"public static final ([A-Za-z<>]+) ([A-Z_0-9]+) = null;", _s)):
+    _fill = _BSP.get(_m.group(2))
+    if _fill:
+        _s = _s.replace(_m.group(0), "public static final %s %s = %s;" % (_m.group(1), _m.group(2), _fill), 1)
+if "= null;" not in _s:
+    _s = re.sub(r"    static \{\n        if \(true\) \{\n            throw Unimplemented\.forMember\(\"net/minecraft/world/level/block/state/properties/BlockStateProperties\"\);\n        \}\n    \}",
+                "    // Pumpkin divergence: no throwing initializer -- vanilla's own definitions above.", _s)
+PENDING[_p] = _s
+_p = os.path.join(ROOT, "net/neoforged/neoforge/fluids/FluidType.java")
+_s = PENDING.get(_p) or open(_p).read()
+_s = _s.replace("""        public static Properties create() {
+            throw Unimplemented.forMember("net/neoforged/neoforge/fluids/FluidType$Properties.create:()Lnet/neoforged/neoforge/fluids/FluidType$Properties;");
+        }""", """        // Pumpkin divergence: real body; the chain methods below accept and drop --
+        // fluid presentation is client rendering the server never consults.
+        public static Properties create() {
+            return new Properties();
+        }""", 1)
+_s = re.sub(r"        public Properties (\w+)\(([^)]*)\) \{\n            throw Unimplemented[^\n]+\n        \}",
+            lambda m2: "        public Properties " + m2.group(1) + "(" + m2.group(2) + ") {\n            return this;\n        }", _s)
+PENDING[_p] = _s
+# EnumProperty varargs create (real subset) -- applied above as an edit already? ensure:
+
+edit('net/minecraft/world/level/block/state/properties/EnumProperty.java', [
+    ('    public static <T extends Enum<T> & StringRepresentable> EnumProperty<T> create(String name, Class<T> clazz, T... values) {\n        throw Unimplemented.forMember("net/minecraft/world/level/block/state/properties/EnumProperty.create:(Ljava/lang/String;Ljava/lang/Class;[Ljava/lang/Enum;)Lnet/minecraft/world/level/block/state/properties/EnumProperty;");\n    }',
+     '    // Pumpkin divergence: real body -- an explicit subset, in the order given, which is\n    // the order vanilla numbers the states in.\n    @SafeVarargs\n    public static <T extends Enum<T> & StringRepresentable> EnumProperty<T> create(String name, Class<T> clazz, T... values) {\n        EnumProperty<T> property = new EnumProperty<>();\n        property.pumpkinName = name;\n        property.pumpkinValues = List.of(values);\n        for (T value : property.pumpkinValues) {\n            property.pumpkinPossibleValues.add(value.getSerializedName());\n            property.pumpkinParse.put(value.getSerializedName(), value);\n        }\n        return property;\n    }'),
+])
+
+edit('net/neoforged/neoforge/common/SoundAction.java', [
+    ('    public static SoundAction get(String name) {\n        throw Unimplemented.forMember("net/neoforged/neoforge/common/SoundAction.get:(Ljava/lang/String;)Lnet/neoforged/neoforge/common/SoundAction;");\n    }',
+     "    // Pumpkin divergence: real, interned by name -- NeoForge's own contract.\n    private static final java.util.concurrent.ConcurrentHashMap<String, SoundAction> PUMPKIN_INTERNED =\n            new java.util.concurrent.ConcurrentHashMap<>();\n\n    private String pumpkinName;\n\n    public static SoundAction get(String name) {\n        SoundAction action = PUMPKIN_INTERNED.computeIfAbsent(name, key -> new SoundAction());\n        action.pumpkinName = name;\n        return action;\n    }"),
+])
+
+edit('net/neoforged/neoforge/common/SoundActions.java', [
+    ('    public static final SoundAction BUCKET_FILL = null;',
+     '    public static final SoundAction BUCKET_FILL = SoundAction.get("bucket_fill");'),
+])
+
+edit('net/neoforged/neoforge/common/SoundActions.java', [
+    ('    public static final SoundAction BUCKET_EMPTY = null;',
+     '    public static final SoundAction BUCKET_EMPTY = SoundAction.get("bucket_empty");'),
+])
+
+edit('net/neoforged/neoforge/common/SoundActions.java', [
+    ('    static {\n        if (true) {\n            throw Unimplemented.forMember("net/neoforged/neoforge/common/SoundActions");\n        }\n    }',
+     '    // Pumpkin divergence: no throwing initializer -- the actions above are real.'),
+])
+
+edit('net/minecraft/world/phys/shapes/Shapes.java', [
+    ('    public static VoxelShape empty() {\n        throw Unimplemented.forMember("net/minecraft/world/phys/shapes/Shapes.empty:()Lnet/minecraft/world/phys/shapes/VoxelShape;");\n    }',
+     '    // Pumpkin divergence: a real shared instance -- geometry lives on the Rust side,\n    // and mods mostly carry these around; anything deeper fails loudly on its member.\n    public static VoxelShape empty() {\n        return PUMPKIN_EMPTY;\n    }'),
+])
+
+edit('net/minecraft/world/phys/shapes/Shapes.java', [
+    ('public final class Shapes {',
+     'public final class Shapes {\n\n    private static final VoxelShape PUMPKIN_EMPTY = new VoxelShape();\n\n    private static final VoxelShape PUMPKIN_BLOCK = new VoxelShape();\n'),
+])
+
+
+# Shapes helpers answer the inert shape; BaseFlowingFluid.Properties chains.
+_p = os.path.join(ROOT, "net/minecraft/world/phys/shapes/Shapes.java")
+_s = PENDING.get(_p) or open(_p).read()
+_s = re.sub(r"    public static VoxelShape (\w+)\(([^)]*)\) \{\n        throw Unimplemented[^\n]+\n    \}",
+            lambda m2: "    // Pumpkin divergence: inert shape -- geometry the server never consults here.\n"
+                       "    public static VoxelShape " + m2.group(1) + "(" + m2.group(2) + ") {\n"
+                       "        return VoxelShape.pumpkinInert();\n    }", _s)
+PENDING[_p] = _s
+_p = os.path.join(ROOT, "net/neoforged/neoforge/fluids/BaseFlowingFluid.java")
+_s = PENDING.get(_p) or open(_p).read()
+_s = re.sub(r"        public Properties (\w+)\(([^)]*)\) \{\n            throw Unimplemented[^\n]+\n        \}",
+            lambda m2: "        public Properties " + m2.group(1) + "(" + m2.group(2) + ") {\n            return this;\n        }", _s)
+PENDING[_p] = _s
+
+edit('net/minecraft/world/phys/shapes/VoxelShape.java', [
+    ('    public VoxelShape optimize() {\n        throw Unimplemented.forMember("net/minecraft/world/phys/shapes/VoxelShape.optimize:()Lnet/minecraft/world/phys/shapes/VoxelShape;");\n    }',
+     '    // Pumpkin divergence: real-enough body -- optimizing an inert shape is the shape.\n    public VoxelShape optimize() {\n        return this;\n    }'),
+])
+
+edit('net/minecraft/world/phys/AABB.java', [
+    ('    public final double minX = 0.0;\n\n', ''),
+    ('    public final double minY = 0.0;\n\n', ''),
+    ('    public final double minZ = 0.0;\n\n', ''),
+    ('    public final double maxX = 0.0;\n\n', ''),
+    ('    public final double maxY = 0.0;\n\n', ''),
+    ('    public final double maxZ = 0.0;\n\n', ''),
+])
+
+edit('net/minecraft/world/phys/AABB.java', [
+    ('    public AABB(double minX, double minY, double minZ, double maxX, double maxY, double maxZ) {\n    }',
+     '    // Pumpkin divergence: real fields -- a box is its bounds.\n    public double minX, minY, minZ, maxX, maxY, maxZ;\n\n    public AABB(double minX, double minY, double minZ, double maxX, double maxY, double maxZ) {\n        this.minX = minX;\n        this.minY = minY;\n        this.minZ = minZ;\n        this.maxX = maxX;\n        this.maxY = maxY;\n        this.maxZ = maxZ;\n    }'),
+])
+
+edit('net/minecraft/world/phys/shapes/VoxelShape.java', [
+    ('    public List<AABB> toAabbs() {\n        throw Unimplemented.forMember("net/minecraft/world/phys/shapes/VoxelShape.toAabbs:()Ljava/util/List;");\n    }',
+     '    // Pumpkin divergence: real where the shape was built from boxes -- the mod\'s own\n    // numbers coming back out. A shape with unknown geometry still fails loudly.\n    java.util.List<net.minecraft.world.phys.AABB> pumpkinBoxes;\n\n    public List<AABB> toAabbs() {\n        if (pumpkinBoxes == null) {\n            throw Unimplemented.forMember("net/minecraft/world/phys/shapes/VoxelShape.toAabbs:()Ljava/util/List; (a shape with unknown geometry)");\n        }\n        return pumpkinBoxes;\n    }\n\n    // Pumpkin divergence: no vanilla counterpart -- an inert shape that knows its boxes.\n    public static VoxelShape pumpkinOfBoxes(java.util.List<net.minecraft.world.phys.AABB> boxes) {\n        VoxelShape shape = pumpkinInert();\n        shape.pumpkinBoxes = java.util.List.copyOf(boxes);\n        return shape;\n    }'),
+])
+
+edit('net/minecraft/world/phys/shapes/Shapes.java', [
+    ('    private static final VoxelShape PUMPKIN_EMPTY = VoxelShape.pumpkinInert();\n\n    private static final VoxelShape PUMPKIN_BLOCK = VoxelShape.pumpkinInert();',
+     '    private static final VoxelShape PUMPKIN_EMPTY =\n            VoxelShape.pumpkinOfBoxes(java.util.List.of());\n\n    private static final VoxelShape PUMPKIN_BLOCK = VoxelShape.pumpkinOfBoxes(\n            java.util.List.of(new net.minecraft.world.phys.AABB(0.0, 0.0, 0.0, 1.0, 1.0, 1.0)));'),
+])
+
+edit('net/minecraft/world/phys/shapes/Shapes.java', [
+    ('    // Pumpkin divergence: real-enough body -- see VoxelShape.pumpkinInert.\n\n    public static VoxelShape or(VoxelShape first, VoxelShape second) {\n\n        return VoxelShape.pumpkinInert();\n\n    }',
+     '    // Pumpkin divergence: real union where both sides know their boxes -- the union of\n    // box lists is their concatenation (unsimplified, which toAabbs permits). A side\n    // with unknown geometry keeps the result loud.\n    public static VoxelShape or(VoxelShape first, VoxelShape second) {\n        if (first.pumpkinBoxes != null && second.pumpkinBoxes != null) {\n            java.util.List<AABB> joined = new java.util.ArrayList<>(first.pumpkinBoxes);\n            joined.addAll(second.pumpkinBoxes);\n            return VoxelShape.pumpkinOfBoxes(joined);\n        }\n        return VoxelShape.pumpkinInert();\n    }'),
+])
+
+edit('net/minecraft/world/phys/shapes/Shapes.java', [
+    ('    // Pumpkin divergence: real-enough body -- see VoxelShape.pumpkinInert.\n\n    public static VoxelShape or(VoxelShape first, VoxelShape... tail) {\n\n        return VoxelShape.pumpkinInert();\n\n    }',
+     '    public static VoxelShape or(VoxelShape first, VoxelShape... tail) {\n        VoxelShape result = first;\n        for (VoxelShape shape : tail) {\n            result = or(result, shape);\n        }\n        return result;\n    }'),
+])
+
+edit('net/minecraft/world/phys/shapes/Shapes.java', [
+    ('    // Pumpkin divergence: inert shape -- geometry the server never consults here.\n    public static VoxelShape joinUnoptimized(VoxelShape first, VoxelShape second, BooleanOp op) {\n        return VoxelShape.pumpkinInert();\n    }',
+     '    // Pumpkin divergence: the OR case is a real union; any other operation on shapes is\n    // geometry this shim does not compute, and stays loud.\n    public static VoxelShape joinUnoptimized(VoxelShape first, VoxelShape second, BooleanOp op) {\n        if (op == BooleanOp.OR) {\n            return or(first, second);\n        }\n        return VoxelShape.pumpkinInert();\n    }'),
+])
+
+edit('net/minecraft/world/level/block/Block.java', [
+    ("    // Pumpkin divergence: real-enough body. A collision shape is geometry Pumpkin never\n    // consults -- the server's own collision runs in Rust. Mods build these in statics and\n    // hand them back from getShape; an inert instance satisfies both, and its one abstract\n    // member throws with a name if anything ever reads the geometry.\n    public static VoxelShape box(double minX, double minY, double minZ, double maxX, double maxY, double maxZ) {\n        return VoxelShape.pumpkinInert();\n    }",
+     "    // Pumpkin divergence: vanilla body -- pixel coordinates over sixteen, carried as a\n    // real box so a mod can decompose and rotate what it built. The server's own\n    // collision still runs in Rust; this exists for the mods' own geometry math.\n    public static VoxelShape box(double minX, double minY, double minZ, double maxX, double maxY, double maxZ) {\n        return net.minecraft.world.phys.shapes.Shapes.box(\n                minX / 16.0, minY / 16.0, minZ / 16.0, maxX / 16.0, maxY / 16.0, maxZ / 16.0);\n    }"),
+])
+
+
+# AABB pure math: vanilla arithmetic over the real bounds.
+_p = os.path.join(ROOT, "net/minecraft/world/phys/AABB.java")
+_s = PENDING.get(_p) or open(_p).read()
+_AABB = {'AABB move(double xa, double ya, double za)': 'return new AABB(minX + xa, minY + ya, minZ + za, maxX + xa, maxY + ya, maxZ + za);', 'AABB move(BlockPos pos)': 'return move(pos.getX(), pos.getY(), pos.getZ());', 'AABB move(Vec3 pos)': 'return move(pos.x, pos.y, pos.z);', 'AABB inflate(double xAdd, double yAdd, double zAdd)': 'return new AABB(minX - xAdd, minY - yAdd, minZ - zAdd, maxX + xAdd, maxY + yAdd, maxZ + zAdd);', 'AABB inflate(double amountToAddInAllDirections)': 'return inflate(amountToAddInAllDirections, amountToAddInAllDirections, amountToAddInAllDirections);', 'AABB expandTowards(double xa, double ya, double za)': 'return new AABB(xa < 0.0 ? minX + xa : minX, ya < 0.0 ? minY + ya : minY, za < 0.0 ? minZ + za : minZ, xa > 0.0 ? maxX + xa : maxX, ya > 0.0 ? maxY + ya : maxY, za > 0.0 ? maxZ + za : maxZ);', 'double getXsize()': 'return maxX - minX;', 'double getYsize()': 'return maxY - minY;', 'double getZsize()': 'return maxZ - minZ;', 'Vec3 getCenter()': 'return new Vec3((minX + maxX) / 2.0, (minY + maxY) / 2.0, (minZ + maxZ) / 2.0);', 'boolean intersects(double minX, double minY, double minZ, double maxX, double maxY, double maxZ)': 'return this.minX < maxX && this.maxX > minX && this.minY < maxY && this.maxY > minY && this.minZ < maxZ && this.maxZ > minZ;', 'boolean intersects(AABB aabb)': 'return intersects(aabb.minX, aabb.minY, aabb.minZ, aabb.maxX, aabb.maxY, aabb.maxZ);', 'boolean contains(double x, double y, double z)': 'return x >= minX && x < maxX && y >= minY && y < maxY && z >= minZ && z < maxZ;'}
+for _sig, _body in _AABB.items():
+    _m = re.search(r"    public " + re.escape(_sig) + r" \{\n        throw Unimplemented[^\n]+\n    \}", _s)
+    if _m:
+        _s = _s.replace(_m.group(0),
+                        "    // Pumpkin divergence: vanilla arithmetic over the real bounds.\n"
+                        "    public " + _sig + " {\n        " + _body + "\n    }", 1)
+PENDING[_p] = _s
+
+
+# Direction pure lookups: vanilla bodies.
+_p = os.path.join(ROOT, "net/minecraft/core/Direction.java")
+_s = PENDING.get(_p) or open(_p).read()
+_DIR = {'Direction getOpposite()': 'return switch (this) {\n            case DOWN -> UP;\n            case UP -> DOWN;\n            case NORTH -> SOUTH;\n            case SOUTH -> NORTH;\n            case WEST -> EAST;\n            case EAST -> WEST;\n        };', 'Direction getClockWise()': 'return switch (this) {\n            case NORTH -> EAST;\n            case EAST -> SOUTH;\n            case SOUTH -> WEST;\n            case WEST -> NORTH;\n            default -> throw new IllegalStateException("no horizontal rotation for " + this);\n        };', 'Direction getCounterClockWise()': 'return switch (this) {\n            case NORTH -> WEST;\n            case WEST -> SOUTH;\n            case SOUTH -> EAST;\n            case EAST -> NORTH;\n            default -> throw new IllegalStateException("no horizontal rotation for " + this);\n        };', 'int getStepX()': 'return switch (this) {\n            case WEST -> -1;\n            case EAST -> 1;\n            default -> 0;\n        };', 'int getStepY()': 'return switch (this) {\n            case DOWN -> -1;\n            case UP -> 1;\n            default -> 0;\n        };', 'int getStepZ()': 'return switch (this) {\n            case NORTH -> -1;\n            case SOUTH -> 1;\n            default -> 0;\n        };'}
+for _sig, _body in _DIR.items():
+    _m = re.search(r"    public " + re.escape(_sig) + r" \{\n        throw Unimplemented[^\n]+\n    \}", _s)
+    if _m:
+        _s = _s.replace(_m.group(0),
+                        "    // Pumpkin divergence: vanilla body.\n    public " + _sig + " {\n        " + _body + "\n    }", 1)
+PENDING[_p] = _s
+
+
+# LootContextParams: every key is a real identity token, like ORIGIN.
+_p = os.path.join(ROOT, "net/minecraft/world/level/storage/loot/parameters/LootContextParams.java")
+_s = PENDING.get(_p) or open(_p).read()
+for _m in list(re.finditer(r"    public static final ContextKey<(?P<type>[^;=]+?)> (?P<name>[A-Z_0-9]+) = null;", _s)):
+    _s = _s.replace(_m.group(0),
+                    "    public static final ContextKey<%s> %s = new ContextKey<>(null);" % (_m.group("type"), _m.group("name")), 1)
+PENDING[_p] = _s
+
+edit('net/neoforged/neoforge/registries/datamaps/DataMapType.java', [
+    ('    public static <T, R> Builder<T, R> builder(Identifier id, ResourceKey<Registry<R>> registry, Codec<T> codec) {\n        throw Unimplemented.forMember("net/neoforged/neoforge/registries/datamaps/DataMapType.builder:(Lnet/minecraft/resources/Identifier;Lnet/minecraft/resources/ResourceKey;Lcom/mojang/serialization/Codec;)Lnet/neoforged/neoforge/registries/datamaps/DataMapType$Builder;");\n    }',
+     '    // Pumpkin divergence: real construction -- a data map type is its id; the data\n    // itself is datapack content nothing loads yet, and reads fail loudly on Registry.\n    private Identifier pumpkinId;\n\n    public static <T, R> Builder<T, R> builder(Identifier id, ResourceKey<Registry<R>> registry, Codec<T> codec) {\n        Builder<T, R> builder = new Builder<>();\n        builder.pumpkinId = id;\n        return builder;\n    }'),
+])
+
+edit('net/neoforged/neoforge/registries/datamaps/DataMapType.java', [
+    ('    public Identifier id() {\n        throw Unimplemented.forMember("net/neoforged/neoforge/registries/datamaps/DataMapType.id:()Lnet/minecraft/resources/Identifier;");\n    }',
+     '    public Identifier id() {\n        return pumpkinId;\n    }'),
+])
+
+edit('net/neoforged/neoforge/registries/datamaps/DataMapType.java', [
+    ('        public Builder<T, R> synced(Codec<T> networkCodec, boolean mandatory) {\n            throw Unimplemented.forMember("net/neoforged/neoforge/registries/datamaps/DataMapType$Builder.synced:(Lcom/mojang/serialization/Codec;Z)Lnet/neoforged/neoforge/registries/datamaps/DataMapType$Builder;");\n        }',
+     '        Identifier pumpkinId;\n\n        public Builder<T, R> synced(Codec<T> networkCodec, boolean mandatory) {\n            return this;\n        }'),
+])
+
+edit('net/neoforged/neoforge/registries/datamaps/DataMapType.java', [
+    ('        public DataMapType<R, T> build() {\n            throw Unimplemented.forMember("net/neoforged/neoforge/registries/datamaps/DataMapType$Builder.build:()Lnet/neoforged/neoforge/registries/datamaps/DataMapType;");\n        }',
+     '        public DataMapType<R, T> build() {\n            DataMapType<R, T> type = new DataMapType<>();\n            type.pumpkinId = pumpkinId;\n            return type;\n        }'),
+])
+
+edit('net/minecraft/resources/HolderSetCodec.java', [
+    ('    public static <E> Codec<HolderSet<E>> create(ResourceKey<? extends Registry<E>> registryKey, Codec<Holder<E>> elementCodec, boolean alwaysUseList) {\n        throw Unimplemented.forMember("net/minecraft/resources/HolderSetCodec.create:(Lnet/minecraft/resources/ResourceKey;Lcom/mojang/serialization/Codec;Z)Lcom/mojang/serialization/Codec;");\n    }',
+     '    // Pumpkin divergence: inert codec -- throws its key on first use.\n    public static <E> Codec<HolderSet<E>> create(ResourceKey<? extends Registry<E>> registryKey, Codec<Holder<E>> elementCodec, boolean alwaysUseList) {\n        return dev.pumpkin.shim.Stubs.throwingCodec("net/minecraft/resources/HolderSetCodec.create:(Lnet/minecraft/resources/ResourceKey;Lcom/mojang/serialization/Codec;Z)Lcom/mojang/serialization/Codec;");\n    }'),
+])
+
+edit('net/neoforged/neoforge/registries/datamaps/AdvancedDataMapType.java', [
+    ('    public static <T, R> AdvancedDataMapType.Builder<T, R, DataMapValueRemover.Default<T, R>> builder(Identifier id, ResourceKey<Registry<R>> registry, Codec<T> codec) {\n        throw Unimplemented.forMember("net/neoforged/neoforge/registries/datamaps/AdvancedDataMapType.builder:(Lnet/minecraft/resources/Identifier;Lnet/minecraft/resources/ResourceKey;Lcom/mojang/serialization/Codec;)Lnet/neoforged/neoforge/registries/datamaps/AdvancedDataMapType$Builder;");\n    }',
+     '    // Pumpkin divergence: real construction, like DataMapType -- the id is the identity.\n    public static <T, R> AdvancedDataMapType.Builder<T, R, DataMapValueRemover.Default<T, R>> builder(Identifier id, ResourceKey<Registry<R>> registry, Codec<T> codec) {\n        Builder<T, R, DataMapValueRemover.Default<T, R>> builder = new Builder<>();\n        builder.pumpkinId = id;\n        return builder;\n    }'),
+])
+
+edit('net/neoforged/neoforge/registries/datamaps/AdvancedDataMapType.java', [
+    ('        public <VR1 extends DataMapValueRemover<R, T>> AdvancedDataMapType.Builder<T, R, VR1> remover(Codec<VR1> remover) {\n            throw Unimplemented.forMember("net/neoforged/neoforge/registries/datamaps/AdvancedDataMapType$Builder.remover:(Lcom/mojang/serialization/Codec;)Lnet/neoforged/neoforge/registries/datamaps/AdvancedDataMapType$Builder;");\n        }',
+     '        @SuppressWarnings("unchecked")\n        public <VR1 extends DataMapValueRemover<R, T>> AdvancedDataMapType.Builder<T, R, VR1> remover(Codec<VR1> remover) {\n            return (AdvancedDataMapType.Builder<T, R, VR1>) this;\n        }'),
+])
+
+edit('net/neoforged/neoforge/registries/datamaps/AdvancedDataMapType.java', [
+    ('        public AdvancedDataMapType.Builder<T, R, VR> merger(DataMapValueMerger<R, T> merger) {\n            throw Unimplemented.forMember("net/neoforged/neoforge/registries/datamaps/AdvancedDataMapType$Builder.merger:(Lnet/neoforged/neoforge/registries/datamaps/DataMapValueMerger;)Lnet/neoforged/neoforge/registries/datamaps/AdvancedDataMapType$Builder;");\n        }',
+     '        public AdvancedDataMapType.Builder<T, R, VR> merger(DataMapValueMerger<R, T> merger) {\n            return this;\n        }'),
+])
+
+edit('net/neoforged/neoforge/registries/datamaps/AdvancedDataMapType.java', [
+    ('        public AdvancedDataMapType.Builder<T, R, VR> synced(Codec<T> networkCodec, boolean mandatory) {\n            throw Unimplemented.forMember("net/neoforged/neoforge/registries/datamaps/AdvancedDataMapType$Builder.synced:(Lcom/mojang/serialization/Codec;Z)Lnet/neoforged/neoforge/registries/datamaps/AdvancedDataMapType$Builder;");\n        }',
+     '        public AdvancedDataMapType.Builder<T, R, VR> synced(Codec<T> networkCodec, boolean mandatory) {\n            return this;\n        }'),
+])
+
+edit('net/neoforged/neoforge/registries/datamaps/AdvancedDataMapType.java', [
+    ('        public AdvancedDataMapType<R, T, VR> build() {\n            throw Unimplemented.forMember("net/neoforged/neoforge/registries/datamaps/AdvancedDataMapType$Builder.build:()Lnet/neoforged/neoforge/registries/datamaps/AdvancedDataMapType;");\n        }',
+     '        public AdvancedDataMapType<R, T, VR> build() {\n            AdvancedDataMapType<R, T, VR> type = new AdvancedDataMapType<>();\n            type.pumpkinAdvancedId = pumpkinId;\n            return type;\n        }'),
+])
+
+edit('net/neoforged/neoforge/registries/datamaps/AdvancedDataMapType.java', [
+    ('    public AdvancedDataMapType() {',
+     '    Identifier pumpkinAdvancedId;\n\n    @Override\n    public Identifier id() {\n        return pumpkinAdvancedId;\n    }\n\n    public AdvancedDataMapType() {'),
+])
+
+edit('net/minecraft/tags/TagKey.java', [
+    ('    public static <T> Codec<TagKey<T>> codec(ResourceKey<? extends Registry<T>> registryName) {\n        throw Unimplemented.forMember("net/minecraft/tags/TagKey.codec:(Lnet/minecraft/resources/ResourceKey;)Lcom/mojang/serialization/Codec;");\n    }',
+     '    // Pumpkin divergence: inert codec -- throws its key on first use.\n    public static <T> Codec<TagKey<T>> codec(ResourceKey<? extends Registry<T>> registryName) {\n        return dev.pumpkin.shim.Stubs.throwingCodec("net/minecraft/tags/TagKey.codec:(Lnet/minecraft/resources/ResourceKey;)Lcom/mojang/serialization/Codec;");\n    }'),
+])
+
+edit('net/minecraft/util/RandomSource.java', [
+    ('    static RandomSource create() {\n        throw Unimplemented.forMember("net/minecraft/util/RandomSource.create:()Lnet/minecraft/util/RandomSource;");\n    }',
+     '    static RandomSource create() {\n        return pumpkinRandom(new java.util.Random());\n    }'),
+])
+
+edit('net/minecraft/util/RandomSource.java', [
+    ('    static RandomSource createThreadSafe() {\n        throw Unimplemented.forMember("net/minecraft/util/RandomSource.createThreadSafe:()Lnet/minecraft/util/RandomSource;");\n    }',
+     '    static RandomSource createThreadSafe() {\n        return pumpkinRandom(new java.util.Random());\n    }'),
+])
+
+edit('net/minecraft/util/RandomSource.java', [
+    ('    static RandomSource create(long seed) {\n        throw Unimplemented.forMember("net/minecraft/util/RandomSource.create:(J)Lnet/minecraft/util/RandomSource;");\n    }',
+     '    static RandomSource create(long seed) {\n        return pumpkinRandom(new java.util.Random(seed));\n    }'),
+])
+
+edit('net/minecraft/util/RandomSource.java', [
+    ('public interface RandomSource {\n',
+     'public interface RandomSource {\n\n    // Pumpkin divergence: a real random over java.util.Random -- the same choice the\n    // interaction bridge\'s level makes. Mods want noise, not stubs, from these.\n    private static RandomSource pumpkinRandom(java.util.Random random) {\n        return new RandomSource() {\n            public RandomSource fork() {\n                return pumpkinRandom(new java.util.Random(random.nextLong()));\n            }\n\n            public net.minecraft.world.level.levelgen.PositionalRandomFactory forkPositional() {\n                throw dev.pumpkin.shim.Unimplemented.forMember("net/minecraft/util/RandomSource.forkPositional:()Lnet/minecraft/world/level/levelgen/PositionalRandomFactory;");\n            }\n\n            public void setSeed(long seed) {\n                random.setSeed(seed);\n            }\n\n            public int nextInt() {\n                return random.nextInt();\n            }\n\n            public int nextInt(int bound) {\n                return random.nextInt(bound);\n            }\n\n            public long nextLong() {\n                return random.nextLong();\n            }\n\n            public boolean nextBoolean() {\n                return random.nextBoolean();\n            }\n\n            public float nextFloat() {\n                return random.nextFloat();\n            }\n\n            public double nextDouble() {\n                return random.nextDouble();\n            }\n\n            public double nextGaussian() {\n                return random.nextGaussian();\n            }\n        };\n    }\n\n'),
+])
+
+edit('net/minecraft/core/registries/BuiltInRegistries.java', [
+    ('    public static final Registry<BlockEntityType<?>> BLOCK_ENTITY_TYPE = Stubs.of(Registry.class, "net/minecraft/core/Registry");',
+     '    public static final Registry<BlockEntityType<?>> BLOCK_ENTITY_TYPE = Stubs.of(Registry.class,\n            "net/minecraft/core/Registry", java.util.Map.of("key",\n                    net.minecraft.resources.ResourceKey.createRegistryKey(\n                            net.minecraft.resources.Identifier.fromNamespaceAndPath("minecraft", "block_entity_type"))));'),
+])
+
+edit('net/minecraft/core/registries/BuiltInRegistries.java', [
+    ('    public static final Registry<MenuType<?>> MENU = Stubs.of(Registry.class, "net/minecraft/core/Registry");',
+     '    public static final Registry<MenuType<?>> MENU = Stubs.of(Registry.class,\n            "net/minecraft/core/Registry", java.util.Map.of("key",\n                    net.minecraft.resources.ResourceKey.createRegistryKey(\n                            net.minecraft.resources.Identifier.fromNamespaceAndPath("minecraft", "menu"))));'),
+])
+
+edit('net/minecraft/core/registries/BuiltInRegistries.java', [
+    ('    public static final Registry<DataComponentType<?>> DATA_COMPONENT_TYPE = Stubs.of(Registry.class, "net/minecraft/core/Registry");',
+     '    public static final Registry<DataComponentType<?>> DATA_COMPONENT_TYPE = Stubs.of(Registry.class,\n            "net/minecraft/core/Registry", java.util.Map.of("key",\n                    net.minecraft.resources.ResourceKey.createRegistryKey(\n                            net.minecraft.resources.Identifier.fromNamespaceAndPath("minecraft", "data_component_type"))));'),
+])
+
+edit('net/minecraft/core/registries/BuiltInRegistries.java', [
+    ('    public static final Registry<TicketType> TICKET_TYPE = Stubs.of(Registry.class, "net/minecraft/core/Registry");',
+     '    public static final Registry<TicketType> TICKET_TYPE = Stubs.of(Registry.class,\n            "net/minecraft/core/Registry", java.util.Map.of("key",\n                    net.minecraft.resources.ResourceKey.createRegistryKey(\n                            net.minecraft.resources.Identifier.fromNamespaceAndPath("minecraft", "ticket_type"))));'),
+])
+
+
+# NeoForgeStreamCodecs: inert stream codecs.
+_p = os.path.join(ROOT, "net/neoforged/neoforge/network/codec/NeoForgeStreamCodecs.java")
+_s = PENDING.get(_p) or open(_p).read()
+_pattern = re.compile(
+    r"    public static (?P<head>[^\n(]*?StreamCodec<[^\n(]*) (?P<name>\w+)\((?P<params>[^)]*)\) \{\n"
+    r"        throw Unimplemented\.forMember\(\"(?P<key>[^\"]+)\"\);\n    \}")
+def _nfsc_replace(m):
+    return ("    // Pumpkin divergence: inert codec -- throws its key on first encode/decode.\n"
+            "    public static " + m.group("head") + " " + m.group("name") + "(" + m.group("params") + ") {\n"
+            "        return dev.pumpkin.shim.Stubs.of(net.minecraft.network.codec.StreamCodec.class, \"" + m.group("key") + "\");\n    }")
+PENDING[_p] = _pattern.sub(_nfsc_replace, _s)
+
+edit('net/neoforged/neoforge/common/ModConfigSpec.java', [
+    ('        public T getDefault() {\n            throw Unimplemented.forMember("net/neoforged/neoforge/common/ModConfigSpec$ConfigValue.getDefault:()Ljava/lang/Object;");\n        }',
+     '        // Pumpkin divergence: real body -- the declared default, same source get() reads.\n        public T getDefault() {\n            return pumpkinDefault.get();\n        }'),
+])
+
+edit('net/neoforged/neoforge/registries/RegisterEvent.java', [
+    ('    RegisterEvent(ResourceKey<? extends Registry<?>> registryKey, Registry<?> registry) {\n    }',
+     '    // Pumpkin divergence: the event carries its registry; Bootstrap posts one event per\n    // known registry, the way NeoForge fires one per real registry.\n    private ResourceKey<? extends Registry<?>> pumpkinRegistryKey;\n\n    RegisterEvent(ResourceKey<? extends Registry<?>> registryKey, Registry<?> registry) {\n        this.pumpkinRegistryKey = registryKey;\n    }\n\n    public RegisterEvent(ResourceKey<? extends Registry<?>> registryKey) {\n        this.pumpkinRegistryKey = registryKey;\n    }\n\n    public ResourceKey<? extends Registry<?>> getRegistryKey() {\n        return pumpkinRegistryKey;\n    }'),
+])
+
+edit('net/neoforged/neoforge/registries/RegisterEvent.java', [
+    ('    public <T> void register(ResourceKey<? extends Registry<T>> registryKey, Consumer<RegisterHelper<T>> consumer) {\n        consumer.accept((name, value) -> {',
+     '    public <T> void register(ResourceKey<? extends Registry<T>> registryKey, Consumer<RegisterHelper<T>> consumer) {\n        // With one event per registry, a helper aimed at another registry waits for its\n        // own event -- otherwise every registration would replay once per event.\n        if (pumpkinRegistryKey != null\n                && !registryKey.identifier().toString().equals(pumpkinRegistryKey.identifier().toString())) {\n            return;\n        }\n        consumer.accept((name, value) -> {'),
+])
+
+edit('net/neoforged/neoforge/registries/DeferredRegister.java', [
+    ('    // Pumpkin divergence: real body.\n    public void register(IEventBus bus) {\n        bus.addListener(RegisterEvent.class, event -> pumpkinFlush());\n    }',
+     "    // Pumpkin divergence: real body. Flush fires on this register's own event only --\n    // Bootstrap posts one RegisterEvent per registry.\n    public void register(IEventBus bus) {\n        bus.addListener(RegisterEvent.class, event -> {\n            if (event.getRegistryKey() == null\n                    || event.getRegistryKey().identifier().toString()\n                            .equals(pumpkinRegistryKey.identifier().toString())) {\n                pumpkinFlush();\n            }\n        });\n    }"),
+])
+
+
+# Item.Properties chain: declared metadata, accepted and dropped.
+_p = os.path.join(ROOT, "net/minecraft/world/item/Item.java")
+_s = PENDING.get(_p) or open(_p).read()
+def _iprop_replace(m2):
+    _tokens = m2.group("head").strip().split(" ")
+    if not _tokens[-1].endswith("Properties"):
+        return m2.group(0)
+    return ("        // Pumpkin divergence: declared item metadata, accepted and dropped.\n"
+            "        public " + m2.group("head").strip() + " " + m2.group("name") + "(" + m2.group("params") + ") {\n"
+            "            return this;\n        }")
+_s = re.sub(r"        public (?P<head>[^\n(]+) (?P<name>\w+)\((?P<params>[^)]*)\) \{\n"
+            r"            throw Unimplemented\.forMember\(\"net/minecraft/world/item/Item\$Properties\.[^\n]+\n        \}",
+            _iprop_replace, _s)
+PENDING[_p] = _s
+
+edit('net/neoforged/neoforge/registries/RegisterEvent.java', [
+    ('    public ResourceKey<? extends Registry<?>> getRegistryKey() {\n        throw Unimplemented.forMember("net/neoforged/neoforge/registries/RegisterEvent.getRegistryKey:()Lnet/minecraft/resources/ResourceKey;");\n    }\n\n',
+     ''),
+])
+
+edit('net/neoforged/neoforge/registries/RegistryBuilder.java', [
+    ('    // Pumpkin divergence: a stub registry that knows which registry it is -- the one\n    // question registration helpers ask -- and throws by name for everything else.\n    // Entries a mod registers into it flow through DeferredRegister, where unknown\n    // registry kinds are acknowledged and counted on the Rust side.\n    @SuppressWarnings("unchecked")\n    public Registry<T> create() {\n        return dev.pumpkin.shim.Stubs.of(Registry.class, "net/minecraft/core/Registry",\n                java.util.Map.of("key", pumpkinRegistryKey));\n    }',
+     '    // Pumpkin divergence: no vanilla counterpart. Every custom registry a mod creates,\n    // so the loader can fire that registry\'s RegisterEvent -- without it the mod\'s\n    // registrations into its own registry would simply never flush.\n    private static final java.util.List<ResourceKey<? extends Registry<?>>> PUMPKIN_CREATED =\n            new java.util.concurrent.CopyOnWriteArrayList<>();\n\n    public static java.util.List<ResourceKey<? extends Registry<?>>> pumpkinCreatedKeys() {\n        return PUMPKIN_CREATED;\n    }\n\n    // Pumpkin divergence: a stub registry that knows which registry it is -- the one\n    // question registration helpers ask -- and throws by name for everything else.\n    // Entries a mod registers into it flow through DeferredRegister, where unknown\n    // registry kinds are acknowledged and counted on the Rust side.\n    @SuppressWarnings("unchecked")\n    public Registry<T> create() {\n        PUMPKIN_CREATED.add(pumpkinRegistryKey);\n        return dev.pumpkin.shim.Stubs.of(Registry.class, "net/minecraft/core/Registry",\n                java.util.Map.of("key", pumpkinRegistryKey));\n    }'),
+])
+
+edit('net/minecraft/world/phys/shapes/VoxelShape.java', [
+    ('    public VoxelShape move(Vec3 delta) {\n        throw Unimplemented.forMember("net/minecraft/world/phys/shapes/VoxelShape.move:(Lnet/minecraft/world/phys/Vec3;)Lnet/minecraft/world/phys/shapes/VoxelShape;");\n    }',
+     '    // Pumpkin divergence: real over known boxes -- shift each; unknown geometry stays loud.\n    public VoxelShape move(Vec3 delta) {\n        if (pumpkinBoxes == null) {\n            throw Unimplemented.forMember("net/minecraft/world/phys/shapes/VoxelShape.move (a shape with unknown geometry)");\n        }\n        java.util.List<net.minecraft.world.phys.AABB> moved = new java.util.ArrayList<>();\n        for (net.minecraft.world.phys.AABB box : pumpkinBoxes) {\n            moved.add(box.move(delta));\n        }\n        return pumpkinOfBoxes(moved);\n    }'),
+])
+
+edit('net/minecraft/world/phys/shapes/VoxelShape.java', [
+    ('    public VoxelShape move(Vec3i delta) {\n        throw Unimplemented.forMember("net/minecraft/world/phys/shapes/VoxelShape.move:(Lnet/minecraft/core/Vec3i;)Lnet/minecraft/world/phys/shapes/VoxelShape;");\n    }',
+     '    // Pumpkin divergence: real over known boxes -- shift each; unknown geometry stays loud.\n    public VoxelShape move(Vec3i delta) {\n        if (pumpkinBoxes == null) {\n            throw Unimplemented.forMember("net/minecraft/world/phys/shapes/VoxelShape.move (a shape with unknown geometry)");\n        }\n        java.util.List<net.minecraft.world.phys.AABB> moved = new java.util.ArrayList<>();\n        for (net.minecraft.world.phys.AABB box : pumpkinBoxes) {\n            moved.add(box.move(delta));\n        }\n        return pumpkinOfBoxes(moved);\n    }'),
+])
+
+edit('net/minecraft/world/phys/shapes/VoxelShape.java', [
+    ('    public VoxelShape move(double dx, double dy, double dz) {\n        throw Unimplemented.forMember("net/minecraft/world/phys/shapes/VoxelShape.move:(DDD)Lnet/minecraft/world/phys/shapes/VoxelShape;");\n    }',
+     '    // Pumpkin divergence: real over known boxes -- shift each; unknown geometry stays loud.\n    public VoxelShape move(double dx, double dy, double dz) {\n        if (pumpkinBoxes == null) {\n            throw Unimplemented.forMember("net/minecraft/world/phys/shapes/VoxelShape.move (a shape with unknown geometry)");\n        }\n        java.util.List<net.minecraft.world.phys.AABB> moved = new java.util.ArrayList<>();\n        for (net.minecraft.world.phys.AABB box : pumpkinBoxes) {\n            moved.add(box.move(dx, dy, dz));\n        }\n        return pumpkinOfBoxes(moved);\n    }'),
+])
+
+edit('net/minecraft/world/item/component/ItemAttributeModifiers.java', [
+    ('    public static ItemAttributeModifiers.Builder builder() {\n        throw Unimplemented.forMember("net/minecraft/world/item/component/ItemAttributeModifiers.builder:()Lnet/minecraft/world/item/component/ItemAttributeModifiers$Builder;");\n    }',
+     '    // Pumpkin divergence: real chain; the built component is declared item metadata the\n    // Rust side does not consume yet.\n    public static ItemAttributeModifiers.Builder builder() {\n        return new Builder();\n    }'),
+])
+
+edit('net/minecraft/world/item/component/ItemAttributeModifiers.java', [
+    ('        public ItemAttributeModifiers.Builder add(Holder<Attribute> attribute, AttributeModifier modifier, EquipmentSlotGroup slot) {\n            throw Unimplemented.forMember("net/minecraft/world/item/component/ItemAttributeModifiers$Builder.add:(Lnet/minecraft/core/Holder;Lnet/minecraft/world/entity/ai/attributes/AttributeModifier;Lnet/minecraft/world/entity/EquipmentSlotGroup;)Lnet/minecraft/world/item/component/ItemAttributeModifiers$Builder;");\n        }',
+     '        public ItemAttributeModifiers.Builder add(Holder<Attribute> attribute, AttributeModifier modifier, EquipmentSlotGroup slot) {\n            return this;\n        }'),
+])
+
+edit('net/minecraft/world/item/component/ItemAttributeModifiers.java', [
+    ('        public ItemAttributeModifiers.Builder add(Holder<Attribute> attribute, AttributeModifier modifier, EquipmentSlotGroup slot, ItemAttributeModifiers.Display display) {\n            throw Unimplemented.forMember("net/minecraft/world/item/component/ItemAttributeModifiers$Builder.add:(Lnet/minecraft/core/Holder;Lnet/minecraft/world/entity/ai/attributes/AttributeModifier;Lnet/minecraft/world/entity/EquipmentSlotGroup;Lnet/minecraft/world/item/component/ItemAttributeModifiers$Display;)Lnet/minecraft/world/item/component/ItemAttributeModifiers$Builder;");\n        }',
+     '        public ItemAttributeModifiers.Builder add(Holder<Attribute> attribute, AttributeModifier modifier, EquipmentSlotGroup slot, ItemAttributeModifiers.Display display) {\n            return this;\n        }'),
+])
+
+edit('net/minecraft/world/item/component/ItemAttributeModifiers.java', [
+    ('        public ItemAttributeModifiers build() {\n            throw Unimplemented.forMember("net/minecraft/world/item/component/ItemAttributeModifiers$Builder.build:()Lnet/minecraft/world/item/component/ItemAttributeModifiers;");\n        }',
+     '        public ItemAttributeModifiers build() {\n            return new ItemAttributeModifiers();\n        }'),
+])
+
+edit('net/minecraft/world/item/component/ItemAttributeModifiers.java', [
+    ('        public ItemAttributeModifiers build() {\n            return new ItemAttributeModifiers();\n        }',
+     '        public ItemAttributeModifiers build() {\n            return new ItemAttributeModifiers(java.util.List.of());\n        }'),
+])
+
+edit('net/minecraft/world/phys/shapes/VoxelShape.java', [
+    ('    // Pumpkin divergence: real over known boxes -- shift each; unknown geometry stays loud.\n    public VoxelShape move(Vec3i delta) {\n        if (pumpkinBoxes == null) {\n            throw Unimplemented.forMember("net/minecraft/world/phys/shapes/VoxelShape.move (a shape with unknown geometry)");\n        }\n        java.util.List<net.minecraft.world.phys.AABB> moved = new java.util.ArrayList<>();\n        for (net.minecraft.world.phys.AABB box : pumpkinBoxes) {\n            moved.add(box.move(delta));\n        }\n        return pumpkinOfBoxes(moved);\n    }',
+     '    public VoxelShape move(Vec3i delta) {\n        return move(delta.getX(), delta.getY(), delta.getZ());\n    }'),
+])
+
+edit('net/minecraft/world/level/material/Fluid.java', [
+    ('public abstract class Fluid implements IFluidExtension {\n',
+     'public abstract class Fluid implements IFluidExtension {\n\n    // Pumpkin divergence: no vanilla counterpart. The stand-in Fluids hands out --\n    // identity-stable, self-naming, every behaviour member throwing by name. Fluid\n    // simulation runs on the Rust side; mods carry these tokens around.\n    public String pumpkinVanillaName;\n\n    static Fluid pumpkinInert(String name) {\n        Fluid fluid = new Fluid() {\n            public Item getBucket() {\n                throw dev.pumpkin.shim.Unimplemented.forMember("net/minecraft/world/level/material/Fluid.getBucket (inert stand-in)");\n            }\n\n            protected boolean canBeReplacedWith(FluidState state, BlockGetter level, BlockPos pos, Fluid other, Direction direction) {\n                throw dev.pumpkin.shim.Unimplemented.forMember("net/minecraft/world/level/material/Fluid.canBeReplacedWith (inert stand-in)");\n            }\n\n            protected Vec3 getFlow(BlockGetter level, BlockPos pos, FluidState fluidState) {\n                throw dev.pumpkin.shim.Unimplemented.forMember("net/minecraft/world/level/material/Fluid.getFlow (inert stand-in)");\n            }\n\n            public int getTickDelay(LevelReader level) {\n                throw dev.pumpkin.shim.Unimplemented.forMember("net/minecraft/world/level/material/Fluid.getTickDelay (inert stand-in)");\n            }\n\n            protected float getExplosionResistance() {\n                throw dev.pumpkin.shim.Unimplemented.forMember("net/minecraft/world/level/material/Fluid.getExplosionResistance (inert stand-in)");\n            }\n\n            public float getHeight(FluidState fluidState, BlockGetter level, BlockPos pos) {\n                throw dev.pumpkin.shim.Unimplemented.forMember("net/minecraft/world/level/material/Fluid.getHeight (inert stand-in)");\n            }\n\n            public float getOwnHeight(FluidState fluidState) {\n                throw dev.pumpkin.shim.Unimplemented.forMember("net/minecraft/world/level/material/Fluid.getOwnHeight (inert stand-in)");\n            }\n\n            protected BlockState createLegacyBlock(FluidState fluidState) {\n                throw dev.pumpkin.shim.Unimplemented.forMember("net/minecraft/world/level/material/Fluid.createLegacyBlock (inert stand-in)");\n            }\n\n            public boolean isSource(FluidState fluidState) {\n                throw dev.pumpkin.shim.Unimplemented.forMember("net/minecraft/world/level/material/Fluid.isSource (inert stand-in)");\n            }\n\n            public int getAmount(FluidState fluidState) {\n                throw dev.pumpkin.shim.Unimplemented.forMember("net/minecraft/world/level/material/Fluid.getAmount (inert stand-in)");\n            }\n\n            public VoxelShape getShape(FluidState state, BlockGetter level, BlockPos pos) {\n                throw dev.pumpkin.shim.Unimplemented.forMember("net/minecraft/world/level/material/Fluid.getShape (inert stand-in)");\n            }\n        };\n        fluid.pumpkinVanillaName = name;\n        return fluid;\n    }\n'),
+])
+
+
+# Fluids: EMPTY is a real inert stand-in; the holder clinit no longer throws.
+_p = os.path.join(ROOT, "net/minecraft/world/level/material/Fluids.java")
+_s = PENDING.get(_p) or open(_p).read()
+_s = _s.replace("    public static final Fluid EMPTY = null;",
+                '    // Pumpkin divergence: a real inert stand-in; see Fluid.pumpkinInert.\n'
+                '    public static final Fluid EMPTY = Fluid.pumpkinInert("empty");', 1)
+_s = re.sub(r"    static \{\n        if \(true\) \{\n            throw Unimplemented\.forMember\(\"net/minecraft/world/level/material/Fluids\"\);\n        \}\n    \}",
+            "    // Pumpkin divergence: no throwing initializer; WATER and LAVA stay null and any\n    // read of them will say so by NPE site -- flowing fluids are a wider surface.", _s)
+PENDING[_p] = _s
+
+edit('net/minecraft/world/entity/EquipmentSlotGroup.java', [
+    ('    public static EquipmentSlotGroup bySlot(EquipmentSlot slot) {\n        throw Unimplemented.forMember("net/minecraft/world/entity/EquipmentSlotGroup.bySlot:(Lnet/minecraft/world/entity/EquipmentSlot;)Lnet/minecraft/world/entity/EquipmentSlotGroup;");\n    }',
+     '    // Pumpkin divergence: vanilla mapping -- the group containing exactly that slot.\n    public static EquipmentSlotGroup bySlot(EquipmentSlot slot) {\n        return switch (slot) {\n            case MAINHAND -> MAINHAND;\n            case OFFHAND -> OFFHAND;\n            case FEET -> FEET;\n            case LEGS -> LEGS;\n            case CHEST -> CHEST;\n            case HEAD -> HEAD;\n            case BODY -> BODY;\n            case SADDLE -> SADDLE;\n        };\n    }'),
+])
+
+edit('net/minecraft/world/item/equipment/Equippable.java', [
+    ('    public static Equippable.Builder builder(EquipmentSlot slot) {\n        throw Unimplemented.forMember("net/minecraft/world/item/equipment/Equippable.builder:(Lnet/minecraft/world/entity/EquipmentSlot;)Lnet/minecraft/world/item/equipment/Equippable$Builder;");\n    }',
+     '    // Pumpkin divergence: real chain -- the built component carries the slot, the one\n    // fact the mod declared; presentation fields stay empty.\n    public static Equippable.Builder builder(EquipmentSlot slot) {\n        Builder builder = new Builder();\n        builder.pumpkinSlot = slot;\n        return builder;\n    }'),
+])
+
+edit('net/minecraft/world/item/equipment/Equippable.java', [
+    ('        public Equippable.Builder setEquipSound(Holder<SoundEvent> equipSound) {\n            throw Unimplemented.forMember("net/minecraft/world/item/equipment/Equippable$Builder.setEquipSound:(Lnet/minecraft/core/Holder;)Lnet/minecraft/world/item/equipment/Equippable$Builder;");\n        }',
+     '        EquipmentSlot pumpkinSlot;\n\n        public Equippable.Builder setEquipSound(Holder<SoundEvent> equipSound) {\n            return this;\n        }'),
+])
+
+edit('net/minecraft/world/item/equipment/Equippable.java', [
+    ('        public Equippable.Builder setAsset(ResourceKey<EquipmentAsset> assetId) {\n            throw Unimplemented.forMember("net/minecraft/world/item/equipment/Equippable$Builder.setAsset:(Lnet/minecraft/resources/ResourceKey;)Lnet/minecraft/world/item/equipment/Equippable$Builder;");\n        }',
+     '        public Equippable.Builder setAsset(ResourceKey<EquipmentAsset> assetId) {\n            return this;\n        }'),
+])
+
+edit('net/minecraft/world/item/equipment/Equippable.java', [
+    ('        public Equippable.Builder setDamageOnHurt(boolean damageOnHurt) {\n            throw Unimplemented.forMember("net/minecraft/world/item/equipment/Equippable$Builder.setDamageOnHurt:(Z)Lnet/minecraft/world/item/equipment/Equippable$Builder;");\n        }',
+     '        public Equippable.Builder setDamageOnHurt(boolean damageOnHurt) {\n            return this;\n        }'),
+])
+
+edit('net/minecraft/world/item/equipment/Equippable.java', [
+    ('        public Equippable build() {\n            throw Unimplemented.forMember("net/minecraft/world/item/equipment/Equippable$Builder.build:()Lnet/minecraft/world/item/equipment/Equippable;");\n        }',
+     '        public Equippable build() {\n            return new Equippable(pumpkinSlot, null, Optional.empty(), Optional.empty(),\n                    Optional.empty(), false, false, false, false, false, null);\n        }'),
+])
+
+
+# CreativeModeTab.Builder chains: presentation, accepted and dropped.
+_p = os.path.join(ROOT, "net/minecraft/world/item/CreativeModeTab.java")
+_s = PENDING.get(_p) or open(_p).read()
+_s = re.sub(r"        public (?:CreativeModeTab\.)?Builder (\w+)\(([^)]*)\) \{\n            throw Unimplemented[^\n]+\n        \}",
+            lambda m2: "        // Pumpkin divergence: tab presentation, accepted and dropped; chain lives.\n"
+                       "        public CreativeModeTab.Builder " + m2.group(1) + "(" + m2.group(2) + ") {\n            return this;\n        }", _s)
+PENDING[_p] = _s
+
+edit('net/neoforged/neoforge/registries/DeferredRegister.java', [
+    ('    public Collection<DeferredHolder<T, ? extends T>> getEntries() {\n        throw Unimplemented.forMember("net/neoforged/neoforge/registries/DeferredRegister.getEntries:()Ljava/util/Collection;");\n    }',
+     '    // Pumpkin divergence: real body -- everything this register recorded.\n    public Collection<DeferredHolder<T, ? extends T>> getEntries() {\n        return java.util.Collections.unmodifiableCollection(pumpkinPending);\n    }'),
+])
+
+edit('net/minecraft/world/level/block/state/BlockBehaviour.java', [
+    ('        private ToIntFunction<BlockState> lightEmission;',
+     "        // Pumpkin divergence: public, as NeoForge's access transformer makes it --\n        // Mekanism writes light levels straight onto the field.\n        public ToIntFunction<BlockState> lightEmission;"),
+])
 
 commit()

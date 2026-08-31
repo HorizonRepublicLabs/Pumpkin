@@ -13,20 +13,24 @@ import dev.pumpkin.shim.Unimplemented;
 
 public class NeoForgeExtraCodecs {
 
+    // Pumpkin divergence: inert codec -- throws its key on first use.
     public static <T> MapCodec<T> aliasedFieldOf(final Codec<T> codec, final String... names) {
-        throw Unimplemented.forMember("net/neoforged/neoforge/common/util/NeoForgeExtraCodecs.aliasedFieldOf:(Lcom/mojang/serialization/Codec;[Ljava/lang/String;)Lcom/mojang/serialization/MapCodec;");
+        return dev.pumpkin.shim.Stubs.throwingMapCodec("net/neoforged/neoforge/common/util/NeoForgeExtraCodecs.aliasedFieldOf:(Lcom/mojang/serialization/Codec;[Ljava/lang/String;)Lcom/mojang/serialization/MapCodec;");
     }
 
+    // Pumpkin divergence: inert codec -- throws its key on first use.
     public static <T> MapCodec<T> optionalFieldAlwaysWrite(Codec<T> codec, String name, T defaultValue) {
-        throw Unimplemented.forMember("net/neoforged/neoforge/common/util/NeoForgeExtraCodecs.optionalFieldAlwaysWrite:(Lcom/mojang/serialization/Codec;Ljava/lang/String;Ljava/lang/Object;)Lcom/mojang/serialization/MapCodec;");
+        return dev.pumpkin.shim.Stubs.throwingMapCodec("net/neoforged/neoforge/common/util/NeoForgeExtraCodecs.optionalFieldAlwaysWrite:(Lcom/mojang/serialization/Codec;Ljava/lang/String;Ljava/lang/Object;)Lcom/mojang/serialization/MapCodec;");
     }
 
+    // Pumpkin divergence: inert codec -- throws its key on first use.
     public static <T> Codec<T> withAlternative(final Codec<T> codec, final Codec<T> alternative) {
-        throw Unimplemented.forMember("net/neoforged/neoforge/common/util/NeoForgeExtraCodecs.withAlternative:(Lcom/mojang/serialization/Codec;Lcom/mojang/serialization/Codec;)Lcom/mojang/serialization/Codec;");
+        return dev.pumpkin.shim.Stubs.throwingCodec("net/neoforged/neoforge/common/util/NeoForgeExtraCodecs.withAlternative:(Lcom/mojang/serialization/Codec;Lcom/mojang/serialization/Codec;)Lcom/mojang/serialization/Codec;");
     }
 
+    // Pumpkin divergence: inert codec -- throws its key on first use.
     public static <T> MapCodec<T> withAlternative(final MapCodec<T> codec, final MapCodec<T> alternative) {
-        throw Unimplemented.forMember("net/neoforged/neoforge/common/util/NeoForgeExtraCodecs.withAlternative:(Lcom/mojang/serialization/MapCodec;Lcom/mojang/serialization/MapCodec;)Lcom/mojang/serialization/MapCodec;");
+        return dev.pumpkin.shim.Stubs.throwingMapCodec("net/neoforged/neoforge/common/util/NeoForgeExtraCodecs.withAlternative:(Lcom/mojang/serialization/MapCodec;Lcom/mojang/serialization/MapCodec;)Lcom/mojang/serialization/MapCodec;");
     }
 
     private record AlternativeCodec<T>(Codec<T> codec, Codec<T> alternative) implements Codec<T> {

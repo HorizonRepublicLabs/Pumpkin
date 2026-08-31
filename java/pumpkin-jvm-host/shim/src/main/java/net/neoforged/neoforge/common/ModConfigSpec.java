@@ -37,7 +37,9 @@ public class ModConfigSpec implements IConfigSpec {
     }
 
     public boolean isLoaded() {
-        throw Unimplemented.forMember("net/neoforged/neoforge/common/ModConfigSpec.isLoaded:()Z");
+        // Pumpkin divergence: real answer. No config file ever loads here, and saying so
+        // routes mods to their declared defaults -- the same values our ConfigValues hold.
+        return false;
     }
 
     public void save() {
@@ -527,8 +529,9 @@ public class ModConfigSpec implements IConfigSpec {
             throw Unimplemented.forMember("net/neoforged/neoforge/common/ModConfigSpec$ConfigValue.getRaw:()Ljava/lang/Object;");
         }
 
+        // Pumpkin divergence: real body -- the declared default, same source get() reads.
         public T getDefault() {
-            throw Unimplemented.forMember("net/neoforged/neoforge/common/ModConfigSpec$ConfigValue.getDefault:()Ljava/lang/Object;");
+            return pumpkinDefault.get();
         }
 
         public Builder next() {

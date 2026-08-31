@@ -4,19 +4,27 @@ import dev.pumpkin.shim.Unimplemented;
 
 public final class ItemAbility {
 
+    // Pumpkin divergence: real, interned by name -- NeoForge's own contract, and mods
+    // compare abilities by identity.
+    private static final java.util.concurrent.ConcurrentHashMap<String, ItemAbility> PUMPKIN_INTERNED =
+            new java.util.concurrent.ConcurrentHashMap<>();
+
     public static ItemAbility get(String name) {
-        throw Unimplemented.forMember("net/neoforged/neoforge/common/ItemAbility.get:(Ljava/lang/String;)Lnet/neoforged/neoforge/common/ItemAbility;");
+        return PUMPKIN_INTERNED.computeIfAbsent(name, ItemAbility::new);
     }
 
     public String name() {
-        throw Unimplemented.forMember("net/neoforged/neoforge/common/ItemAbility.name:()Ljava/lang/String;");
+        return pumpkinName;
     }
 
     public String toString() {
-        throw Unimplemented.forMember("net/neoforged/neoforge/common/ItemAbility.toString:()Ljava/lang/String;");
+        return pumpkinName;
     }
 
+    private String pumpkinName;
+
     private ItemAbility(String name) {
+        this.pumpkinName = name;
     }
 
     public ItemAbility() {

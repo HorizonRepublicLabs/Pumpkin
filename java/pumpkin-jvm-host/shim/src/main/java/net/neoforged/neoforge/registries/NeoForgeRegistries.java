@@ -24,30 +24,34 @@ public class NeoForgeRegistries {
 
     public static final class Keys {
 
-        public static final ResourceKey<Registry<EntityDataSerializer<?>>> ENTITY_DATA_SERIALIZERS = null;
+        public static final ResourceKey<Registry<EntityDataSerializer<?>>> ENTITY_DATA_SERIALIZERS = ResourceKey.createRegistryKey(
+                net.minecraft.resources.Identifier.fromNamespaceAndPath("neoforge", "entity_data_serializers"));
 
-        public static final ResourceKey<Registry<MapCodec<? extends BiomeModifier>>> BIOME_MODIFIER_SERIALIZERS = null;
+        public static final ResourceKey<Registry<MapCodec<? extends BiomeModifier>>> BIOME_MODIFIER_SERIALIZERS = ResourceKey.createRegistryKey(
+                net.minecraft.resources.Identifier.fromNamespaceAndPath("neoforge", "biome_modifier_serializers"));
 
-        public static final ResourceKey<Registry<MapCodec<? extends StructureModifier>>> STRUCTURE_MODIFIER_SERIALIZERS = null;
+        public static final ResourceKey<Registry<MapCodec<? extends StructureModifier>>> STRUCTURE_MODIFIER_SERIALIZERS = ResourceKey.createRegistryKey(
+                net.minecraft.resources.Identifier.fromNamespaceAndPath("neoforge", "structure_modifier_serializers"));
 
-        public static final ResourceKey<Registry<FluidType>> FLUID_TYPES = null;
+        public static final ResourceKey<Registry<FluidType>> FLUID_TYPES = ResourceKey.createRegistryKey(
+                net.minecraft.resources.Identifier.fromNamespaceAndPath("neoforge", "fluid_type"));
 
-        public static final ResourceKey<Registry<MapCodec<? extends ICondition>>> CONDITION_CODECS = null;
+        public static final ResourceKey<Registry<MapCodec<? extends ICondition>>> CONDITION_CODECS = ResourceKey.createRegistryKey(
+                net.minecraft.resources.Identifier.fromNamespaceAndPath("neoforge", "condition_codecs"));
 
-        public static final ResourceKey<Registry<AttachmentType<?>>> ATTACHMENT_TYPES = null;
+        public static final ResourceKey<Registry<AttachmentType<?>>> ATTACHMENT_TYPES = ResourceKey.createRegistryKey(
+                net.minecraft.resources.Identifier.fromNamespaceAndPath("neoforge", "attachment_types"));
 
-        public static final ResourceKey<Registry<BiomeModifier>> BIOME_MODIFIERS = null;
+        public static final ResourceKey<Registry<BiomeModifier>> BIOME_MODIFIERS = ResourceKey.createRegistryKey(
+                net.minecraft.resources.Identifier.fromNamespaceAndPath("neoforge", "biome_modifier"));
 
-        public static final ResourceKey<Registry<StructureModifier>> STRUCTURE_MODIFIERS = null;
+        public static final ResourceKey<Registry<StructureModifier>> STRUCTURE_MODIFIERS = ResourceKey.createRegistryKey(
+                net.minecraft.resources.Identifier.fromNamespaceAndPath("neoforge", "structure_modifier"));
 
         public Keys() {
         }
 
-        static {
-            if (true) {
-                throw Unimplemented.forMember("net/neoforged/neoforge/registries/NeoForgeRegistries$Keys");
-            }
-        }
+        // Pumpkin divergence: no throwing initializer -- names from NeoForge's table.
     }
 
     public NeoForgeRegistries() {

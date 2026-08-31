@@ -8,7 +8,8 @@ import dev.pumpkin.shim.Unimplemented;
 
 public class Vec3i implements Comparable<Vec3i> {
 
-    public static final Codec<Vec3i> CODEC = null;
+    public static final Codec<Vec3i> CODEC =
+            dev.pumpkin.shim.Stubs.throwingCodec("net.minecraft.core.Vec3i.CODEC");
 
     public static final StreamCodec<ByteBuf, Vec3i> STREAM_CODEC = Stubs.of(StreamCodec.class, "net/minecraft/network/codec/StreamCodec");
 

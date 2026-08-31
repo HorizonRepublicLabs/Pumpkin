@@ -5,60 +5,65 @@ import dev.pumpkin.shim.Unimplemented;
 
 public final class Shapes {
 
+    private static final VoxelShape PUMPKIN_EMPTY =
+            VoxelShape.pumpkinOfBoxes(java.util.List.of());
+
+    private static final VoxelShape PUMPKIN_BLOCK = VoxelShape.pumpkinOfBoxes(
+            java.util.List.of(new net.minecraft.world.phys.AABB(0.0, 0.0, 0.0, 1.0, 1.0, 1.0)));
+
+
+    // Pumpkin divergence: a real shared instance -- geometry lives on the Rust side,
+    // and mods mostly carry these around; anything deeper fails loudly on its member.
     public static VoxelShape empty() {
-        throw Unimplemented.forMember("net/minecraft/world/phys/shapes/Shapes.empty:()Lnet/minecraft/world/phys/shapes/VoxelShape;");
+        return PUMPKIN_EMPTY;
     }
 
-    // Pumpkin divergence: real-enough body -- see VoxelShape.pumpkinInert.
-
+    // Pumpkin divergence: real -- the full cube.
     public static VoxelShape block() {
-
-        return VoxelShape.pumpkinInert();
-
+        return PUMPKIN_BLOCK;
     }
 
-    // Pumpkin divergence: real-enough body -- see VoxelShape.pumpkinInert.
-
+    // Pumpkin divergence: real -- one box carrying the mod's own numbers.
     public static VoxelShape box(double minX, double minY, double minZ, double maxX, double maxY, double maxZ) {
-
-        return VoxelShape.pumpkinInert();
-
+        return VoxelShape.pumpkinOfBoxes(java.util.List.of(
+                new net.minecraft.world.phys.AABB(minX, minY, minZ, maxX, maxY, maxZ)));
     }
-
-    // Pumpkin divergence: real-enough body -- see VoxelShape.pumpkinInert.
 
     public static VoxelShape create(double minX, double minY, double minZ, double maxX, double maxY, double maxZ) {
-
-        return VoxelShape.pumpkinInert();
-
+        return box(minX, minY, minZ, maxX, maxY, maxZ);
     }
-
-    // Pumpkin divergence: real-enough body -- see VoxelShape.pumpkinInert.
 
     public static VoxelShape create(AABB aabb) {
-
-        return VoxelShape.pumpkinInert();
-
+        return VoxelShape.pumpkinOfBoxes(java.util.List.of(aabb));
     }
 
-    // Pumpkin divergence: real-enough body -- see VoxelShape.pumpkinInert.
-
+    // Pumpkin divergence: real union where both sides know their boxes -- the union of
+    // box lists is their concatenation (unsimplified, which toAabbs permits). A side
+    // with unknown geometry keeps the result loud.
     public static VoxelShape or(VoxelShape first, VoxelShape second) {
-
+        if (first.pumpkinBoxes != null && second.pumpkinBoxes != null) {
+            java.util.List<AABB> joined = new java.util.ArrayList<>(first.pumpkinBoxes);
+            joined.addAll(second.pumpkinBoxes);
+            return VoxelShape.pumpkinOfBoxes(joined);
+        }
         return VoxelShape.pumpkinInert();
-
     }
-
-    // Pumpkin divergence: real-enough body -- see VoxelShape.pumpkinInert.
 
     public static VoxelShape or(VoxelShape first, VoxelShape... tail) {
-
-        return VoxelShape.pumpkinInert();
-
+        VoxelShape result = first;
+        for (VoxelShape shape : tail) {
+            result = or(result, shape);
+        }
+        return result;
     }
 
+    // Pumpkin divergence: the OR case is a real union; any other operation on shapes is
+    // geometry this shim does not compute, and stays loud.
     public static VoxelShape joinUnoptimized(VoxelShape first, VoxelShape second, BooleanOp op) {
-        throw Unimplemented.forMember("net/minecraft/world/phys/shapes/Shapes.joinUnoptimized:(Lnet/minecraft/world/phys/shapes/VoxelShape;Lnet/minecraft/world/phys/shapes/VoxelShape;Lnet/minecraft/world/phys/shapes/BooleanOp;)Lnet/minecraft/world/phys/shapes/VoxelShape;");
+        if (op == BooleanOp.OR) {
+            return or(first, second);
+        }
+        return VoxelShape.pumpkinInert();
     }
 
     public static boolean joinIsNotEmpty(VoxelShape first, VoxelShape second, BooleanOp op) {

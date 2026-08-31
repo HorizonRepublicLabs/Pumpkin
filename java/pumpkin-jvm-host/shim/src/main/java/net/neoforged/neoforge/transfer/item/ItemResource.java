@@ -23,9 +23,12 @@ public final class ItemResource implements DataComponentHolderResource<Item> {
     // Pumpkin divergence: a real empty resource; a null here NPEs every isEmpty check.
     public static final ItemResource EMPTY = new ItemResource();
 
-    public static final Codec<ItemResource> CODEC = null;
+    // Pumpkin divergence: inert codecs -- compose at class-init, throw by name on use.
+    public static final Codec<ItemResource> CODEC =
+            dev.pumpkin.shim.Stubs.throwingCodec("net/neoforged/neoforge/transfer/item/ItemResource.CODEC");
 
-    public static final Codec<ItemResource> OPTIONAL_CODEC = null;
+    public static final Codec<ItemResource> OPTIONAL_CODEC =
+            dev.pumpkin.shim.Stubs.throwingCodec("net/neoforged/neoforge/transfer/item/ItemResource.OPTIONAL_CODEC");
 
     public static final StreamCodec<RegistryFriendlyByteBuf, ItemResource> STREAM_CODEC = Stubs.of(StreamCodec.class, "net/minecraft/network/codec/StreamCodec");
 

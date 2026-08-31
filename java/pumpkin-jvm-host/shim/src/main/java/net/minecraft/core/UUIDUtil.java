@@ -9,20 +9,19 @@ import dev.pumpkin.shim.Unimplemented;
 
 public final class UUIDUtil {
 
-    public static final Codec<UUID> CODEC = null;
+    public static final Codec<UUID> CODEC =
+            dev.pumpkin.shim.Stubs.throwingCodec("net/minecraft/core/UUIDUtil.CODEC");
 
-    public static final Codec<UUID> STRING_CODEC = null;
+    public static final Codec<UUID> STRING_CODEC =
+            dev.pumpkin.shim.Stubs.throwingCodec("net/minecraft/core/UUIDUtil.STRING_CODEC");
 
-    public static final Codec<UUID> LENIENT_CODEC = null;
+    public static final Codec<UUID> LENIENT_CODEC =
+            dev.pumpkin.shim.Stubs.throwingCodec("net/minecraft/core/UUIDUtil.LENIENT_CODEC");
 
     public static final StreamCodec<ByteBuf, UUID> STREAM_CODEC = Stubs.of(StreamCodec.class, "net/minecraft/network/codec/StreamCodec");
 
     protected UUIDUtil() {
     }
 
-    static {
-        if (true) {
-            throw Unimplemented.forMember("net/minecraft/core/UUIDUtil");
-        }
-    }
+    // Pumpkin divergence: no throwing initializer -- the codecs answer inertly.
 }

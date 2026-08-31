@@ -17,7 +17,9 @@ import dev.pumpkin.shim.Unimplemented;
 
 public class ComponentSerialization {
 
-    public static final Codec<Component> CODEC = null;
+    // Pumpkin divergence: inert codec -- composes at class-init, throws by name on use.
+    public static final Codec<Component> CODEC =
+            dev.pumpkin.shim.Stubs.throwingCodec("net/minecraft/network/chat/ComponentSerialization.CODEC");
 
     public static final StreamCodec<RegistryFriendlyByteBuf, Component> STREAM_CODEC = Stubs.of(StreamCodec.class, "net/minecraft/network/codec/StreamCodec");
 
@@ -72,9 +74,5 @@ public class ComponentSerialization {
     public ComponentSerialization() {
     }
 
-    static {
-        if (true) {
-            throw Unimplemented.forMember("net/minecraft/network/chat/ComponentSerialization");
-        }
-    }
+    // Pumpkin divergence: no throwing initializer -- the fields above answer inertly.
 }

@@ -12,7 +12,8 @@ import dev.pumpkin.shim.Unimplemented;
 
 public abstract class FluidIngredient implements Predicate<FluidStack> {
 
-    public static final Codec<FluidIngredient> CODEC = null;
+    public static final Codec<FluidIngredient> CODEC =
+            dev.pumpkin.shim.Stubs.throwingCodec("net.neoforged.neoforge.fluids.crafting.FluidIngredient.CODEC");
 
     public abstract boolean test(FluidStack fluidStack);
 
