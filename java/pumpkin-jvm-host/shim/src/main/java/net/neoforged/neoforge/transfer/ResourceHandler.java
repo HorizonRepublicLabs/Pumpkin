@@ -33,7 +33,10 @@ public interface ResourceHandler<T extends Resource> {
         throw Unimplemented.forMember("net/neoforged/neoforge/transfer/ResourceHandler.extract:(Lnet/neoforged/neoforge/transfer/resource/Resource;ILnet/neoforged/neoforge/transfer/transaction/TransactionContext;)I");
     }
 
+    // Pumpkin divergence: vanilla body verbatim -- the generically-typed class literal
+    // mods hand to capability registration.
+    @SuppressWarnings("unchecked")
     static <T extends Resource> Class<ResourceHandler<T>> asClass() {
-        throw Unimplemented.forMember("net/neoforged/neoforge/transfer/ResourceHandler.asClass:()Ljava/lang/Class;");
+        return (Class<ResourceHandler<T>>) (Object) ResourceHandler.class;
     }
 }

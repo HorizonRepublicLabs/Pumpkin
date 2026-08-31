@@ -5,11 +5,18 @@ import dev.pumpkin.shim.Unimplemented;
 
 public class Attribute implements IAttributeExtension {
 
+    // Pumpkin divergence: real fields -- an attribute is its id and default.
+    private String pumpkinDescriptionId;
+
+    private double pumpkinDefaultValue;
+
     protected Attribute(String descriptionId, double defaultValue) {
+        this.pumpkinDescriptionId = descriptionId;
+        this.pumpkinDefaultValue = defaultValue;
     }
 
     public double getDefaultValue() {
-        throw Unimplemented.forMember("net/minecraft/world/entity/ai/attributes/Attribute.getDefaultValue:()D");
+        return pumpkinDefaultValue;
     }
 
     public net.minecraft.network.chat.TextColor getMergedStyle(boolean isPositive) {

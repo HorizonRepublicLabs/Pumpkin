@@ -15,34 +15,51 @@ import dev.pumpkin.shim.Unimplemented;
 
 public class ExtraCodecs {
 
-    public static final Codec<Integer> RGB_COLOR_CODEC = null;
+    // Pumpkin divergence: inert codec -- composes at class-init, throws its name on use.
+    public static final Codec<Integer> RGB_COLOR_CODEC =
+            dev.pumpkin.shim.Stubs.throwingCodec("net/minecraft/util/ExtraCodecs.RGB_COLOR_CODEC");
 
-    public static final Codec<Integer> ARGB_COLOR_CODEC = null;
+    // Pumpkin divergence: inert codec -- composes at class-init, throws its name on use.
+    public static final Codec<Integer> ARGB_COLOR_CODEC =
+            dev.pumpkin.shim.Stubs.throwingCodec("net/minecraft/util/ExtraCodecs.ARGB_COLOR_CODEC");
 
-    public static final Codec<Integer> STRING_ARGB_COLOR = null;
+    // Pumpkin divergence: inert codec -- composes at class-init, throws its name on use.
+    public static final Codec<Integer> STRING_ARGB_COLOR =
+            dev.pumpkin.shim.Stubs.throwingCodec("net/minecraft/util/ExtraCodecs.STRING_ARGB_COLOR");
 
-    public static final Codec<Integer> NON_NEGATIVE_INT = null;
+    // Pumpkin divergence: inert codec -- composes at class-init, throws its name on use.
+    public static final Codec<Integer> NON_NEGATIVE_INT =
+            dev.pumpkin.shim.Stubs.throwingCodec("net/minecraft/util/ExtraCodecs.NON_NEGATIVE_INT");
 
-    public static final Codec<Integer> POSITIVE_INT = null;
+    // Pumpkin divergence: inert codec -- composes at class-init, throws its name on use.
+    public static final Codec<Integer> POSITIVE_INT =
+            dev.pumpkin.shim.Stubs.throwingCodec("net/minecraft/util/ExtraCodecs.POSITIVE_INT");
 
-    public static final Codec<Long> NON_NEGATIVE_LONG = null;
+    // Pumpkin divergence: inert codec -- composes at class-init, throws its name on use.
+    public static final Codec<Long> NON_NEGATIVE_LONG =
+            dev.pumpkin.shim.Stubs.throwingCodec("net/minecraft/util/ExtraCodecs.NON_NEGATIVE_LONG");
 
-    public static final Codec<String> NON_EMPTY_STRING = null;
+    // Pumpkin divergence: inert codec -- composes at class-init, throws its name on use.
+    public static final Codec<String> NON_EMPTY_STRING =
+            dev.pumpkin.shim.Stubs.throwingCodec("net/minecraft/util/ExtraCodecs.NON_EMPTY_STRING");
 
     public static <K, V> ExtraCodecs.StrictUnboundedMapCodec<K, V> strictUnboundedMap(Codec<K> keyCodec, Codec<V> elementCodec) {
         throw Unimplemented.forMember("net/minecraft/util/ExtraCodecs.strictUnboundedMap:(Lcom/mojang/serialization/Codec;Lcom/mojang/serialization/Codec;)Lnet/minecraft/util/ExtraCodecs$StrictUnboundedMapCodec;");
     }
 
+    // Pumpkin divergence: inert codec -- throws its key on first use.
     public static Codec<Integer> intRange(int minInclusive, int maxInclusive) {
-        throw Unimplemented.forMember("net/minecraft/util/ExtraCodecs.intRange:(II)Lcom/mojang/serialization/Codec;");
+        return dev.pumpkin.shim.Stubs.throwingCodec("net/minecraft/util/ExtraCodecs.intRange:(II)Lcom/mojang/serialization/Codec;");
     }
 
+    // Pumpkin divergence: inert codec -- throws its key on first use.
     public static <T> Codec<List<T>> nonEmptyList(Codec<List<T>> listCodec) {
-        throw Unimplemented.forMember("net/minecraft/util/ExtraCodecs.nonEmptyList:(Lcom/mojang/serialization/Codec;)Lcom/mojang/serialization/Codec;");
+        return dev.pumpkin.shim.Stubs.throwingCodec("net/minecraft/util/ExtraCodecs.nonEmptyList:(Lcom/mojang/serialization/Codec;)Lcom/mojang/serialization/Codec;");
     }
 
+    // Pumpkin divergence: inert codec -- throws its key on first use.
     public static <T> Codec<HolderSet<T>> nonEmptyHolderSet(Codec<HolderSet<T>> listCodec) {
-        throw Unimplemented.forMember("net/minecraft/util/ExtraCodecs.nonEmptyHolderSet:(Lcom/mojang/serialization/Codec;)Lcom/mojang/serialization/Codec;");
+        return dev.pumpkin.shim.Stubs.throwingCodec("net/minecraft/util/ExtraCodecs.nonEmptyHolderSet:(Lcom/mojang/serialization/Codec;)Lcom/mojang/serialization/Codec;");
     }
 
     // Pumpkin divergence: real-enough body -- inert codec; encode/decode throw the key.
@@ -89,9 +106,5 @@ public class ExtraCodecs {
     public ExtraCodecs() {
     }
 
-    static {
-        if (true) {
-            throw Unimplemented.forMember("net/minecraft/util/ExtraCodecs");
-        }
-    }
+    // Pumpkin divergence: no throwing initializer -- every field answers inertly.
 }

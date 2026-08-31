@@ -27,12 +27,32 @@ public enum DyeColor implements StringRepresentable {
         throw Unimplemented.forMember("net/minecraft/world/item/DyeColor.getId:()I");
     }
 
+    // Pumpkin divergence: vanilla body -- the lowercase constant name.
     public String getName() {
-        throw Unimplemented.forMember("net/minecraft/world/item/DyeColor.getName:()Ljava/lang/String;");
+        return name().toLowerCase(java.util.Locale.ROOT);
     }
 
+    // Pumpkin divergence: vanilla's own dye-to-map-color table, over the constants
+    // this shim's pruned enum carries.
     public MapColor getMapColor() {
-        throw Unimplemented.forMember("net/minecraft/world/item/DyeColor.getMapColor:()Lnet/minecraft/world/level/material/MapColor;");
+        return switch (this) {
+            case WHITE -> net.minecraft.world.level.material.MapColor.SNOW;
+            case ORANGE -> net.minecraft.world.level.material.MapColor.COLOR_ORANGE;
+            case MAGENTA -> net.minecraft.world.level.material.MapColor.COLOR_MAGENTA;
+            case LIGHT_BLUE -> net.minecraft.world.level.material.MapColor.COLOR_LIGHT_BLUE;
+            case YELLOW -> net.minecraft.world.level.material.MapColor.COLOR_YELLOW;
+            case LIME -> net.minecraft.world.level.material.MapColor.COLOR_LIGHT_GREEN;
+            case PINK -> net.minecraft.world.level.material.MapColor.COLOR_PINK;
+            case GRAY -> net.minecraft.world.level.material.MapColor.COLOR_GRAY;
+            case LIGHT_GRAY -> net.minecraft.world.level.material.MapColor.COLOR_LIGHT_GRAY;
+            case CYAN -> net.minecraft.world.level.material.MapColor.COLOR_CYAN;
+            case PURPLE -> net.minecraft.world.level.material.MapColor.COLOR_PURPLE;
+            case BLUE -> net.minecraft.world.level.material.MapColor.COLOR_BLUE;
+            case BROWN -> net.minecraft.world.level.material.MapColor.COLOR_BROWN;
+            case GREEN -> net.minecraft.world.level.material.MapColor.COLOR_GREEN;
+            case RED -> net.minecraft.world.level.material.MapColor.COLOR_RED;
+            case BLACK -> net.minecraft.world.level.material.MapColor.COLOR_BLACK;
+        };
     }
 
     public static DyeColor byId(int id) {

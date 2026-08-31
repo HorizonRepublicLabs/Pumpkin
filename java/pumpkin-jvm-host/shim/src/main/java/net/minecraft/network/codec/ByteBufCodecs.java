@@ -46,24 +46,29 @@ public interface ByteBufCodecs {
 
     StreamCodec<ByteBuf, Vector3fc> VECTOR3F = Stubs.of(StreamCodec.class, "net/minecraft/network/codec/StreamCodec");
 
+    // Pumpkin divergence: inert codec -- throws its key on first encode/decode.
     static StreamCodec<ByteBuf, byte[]> byteArray(int maxSize) {
-        throw Unimplemented.forMember("net/minecraft/network/codec/ByteBufCodecs.byteArray:(I)Lnet/minecraft/network/codec/StreamCodec;");
+        return dev.pumpkin.shim.Stubs.of(StreamCodec.class, "net/minecraft/network/codec/ByteBufCodecs.byteArray:(I)Lnet/minecraft/network/codec/StreamCodec;");
     }
 
+    // Pumpkin divergence: inert codec -- throws its key on first encode/decode.
     static StreamCodec<ByteBuf, String> stringUtf8(int maxStringLength) {
-        throw Unimplemented.forMember("net/minecraft/network/codec/ByteBufCodecs.stringUtf8:(I)Lnet/minecraft/network/codec/StreamCodec;");
+        return dev.pumpkin.shim.Stubs.of(StreamCodec.class, "net/minecraft/network/codec/ByteBufCodecs.stringUtf8:(I)Lnet/minecraft/network/codec/StreamCodec;");
     }
 
+    // Pumpkin divergence: inert codec -- throws its key on first encode/decode.
     static <B extends ByteBuf, V> StreamCodec<B, Optional<V>> optional(StreamCodec<? super B, V> original) {
-        throw Unimplemented.forMember("net/minecraft/network/codec/ByteBufCodecs.optional:(Lnet/minecraft/network/codec/StreamCodec;)Lnet/minecraft/network/codec/StreamCodec;");
+        return dev.pumpkin.shim.Stubs.of(StreamCodec.class, "net/minecraft/network/codec/ByteBufCodecs.optional:(Lnet/minecraft/network/codec/StreamCodec;)Lnet/minecraft/network/codec/StreamCodec;");
     }
 
+    // Pumpkin divergence: inert codec -- throws its key on first encode/decode.
     static <B extends ByteBuf, V, C extends Collection<V>> StreamCodec<B, C> collection(IntFunction<C> constructor, StreamCodec<? super B, V> elementCodec) {
-        throw Unimplemented.forMember("net/minecraft/network/codec/ByteBufCodecs.collection:(Ljava/util/function/IntFunction;Lnet/minecraft/network/codec/StreamCodec;)Lnet/minecraft/network/codec/StreamCodec;");
+        return dev.pumpkin.shim.Stubs.of(StreamCodec.class, "net/minecraft/network/codec/ByteBufCodecs.collection:(Ljava/util/function/IntFunction;Lnet/minecraft/network/codec/StreamCodec;)Lnet/minecraft/network/codec/StreamCodec;");
     }
 
+    // Pumpkin divergence: inert codec -- throws its key on first encode/decode.
     static <B extends ByteBuf, V, C extends Collection<V>> StreamCodec<B, C> collection(IntFunction<C> constructor, StreamCodec<? super B, V> elementCodec, int maxSize) {
-        throw Unimplemented.forMember("net/minecraft/network/codec/ByteBufCodecs.collection:(Ljava/util/function/IntFunction;Lnet/minecraft/network/codec/StreamCodec;I)Lnet/minecraft/network/codec/StreamCodec;");
+        return dev.pumpkin.shim.Stubs.of(StreamCodec.class, "net/minecraft/network/codec/ByteBufCodecs.collection:(Ljava/util/function/IntFunction;Lnet/minecraft/network/codec/StreamCodec;I)Lnet/minecraft/network/codec/StreamCodec;");
     }
 
     static <B extends ByteBuf, V, C extends Collection<V>> StreamCodec.CodecOperation<B, V, C> collection(IntFunction<C> constructor) {
@@ -88,8 +93,9 @@ public interface ByteBufCodecs {
         return original -> dev.pumpkin.shim.Stubs.of(StreamCodec.class, "net/minecraft/network/codec/StreamCodec");
     }
 
+    // Pumpkin divergence: inert codec -- throws its key on first encode/decode.
     static <B extends ByteBuf, K, V, M extends Map<K, V>> StreamCodec<B, M> map(IntFunction<? extends M> constructor, StreamCodec<? super B, K> keyCodec, StreamCodec<? super B, V> valueCodec) {
-        throw Unimplemented.forMember("net/minecraft/network/codec/ByteBufCodecs.map:(Ljava/util/function/IntFunction;Lnet/minecraft/network/codec/StreamCodec;Lnet/minecraft/network/codec/StreamCodec;)Lnet/minecraft/network/codec/StreamCodec;");
+        return dev.pumpkin.shim.Stubs.of(StreamCodec.class, "net/minecraft/network/codec/ByteBufCodecs.map:(Ljava/util/function/IntFunction;Lnet/minecraft/network/codec/StreamCodec;Lnet/minecraft/network/codec/StreamCodec;)Lnet/minecraft/network/codec/StreamCodec;");
     }
 
     // Pumpkin divergence: real-enough body. A stream codec carries wire logic Pumpkin
@@ -99,16 +105,19 @@ public interface ByteBufCodecs {
         return dev.pumpkin.shim.Stubs.of(StreamCodec.class, "net/minecraft/network/codec/StreamCodec");
     }
 
+    // Pumpkin divergence: inert codec -- throws its key on first encode/decode.
     static <B extends ByteBuf, L, R> StreamCodec<B, Either<L, R>> either(StreamCodec<? super B, L> leftCodec, StreamCodec<? super B, R> rightCodec) {
-        throw Unimplemented.forMember("net/minecraft/network/codec/ByteBufCodecs.either:(Lnet/minecraft/network/codec/StreamCodec;Lnet/minecraft/network/codec/StreamCodec;)Lnet/minecraft/network/codec/StreamCodec;");
+        return dev.pumpkin.shim.Stubs.of(StreamCodec.class, "net/minecraft/network/codec/ByteBufCodecs.either:(Lnet/minecraft/network/codec/StreamCodec;Lnet/minecraft/network/codec/StreamCodec;)Lnet/minecraft/network/codec/StreamCodec;");
     }
 
+    // Pumpkin divergence: inert codec -- throws its key on first encode/decode.
     static <T> StreamCodec<ByteBuf, T> idMapper(IntFunction<T> byId, ToIntFunction<T> toId) {
-        throw Unimplemented.forMember("net/minecraft/network/codec/ByteBufCodecs.idMapper:(Ljava/util/function/IntFunction;Ljava/util/function/ToIntFunction;)Lnet/minecraft/network/codec/StreamCodec;");
+        return dev.pumpkin.shim.Stubs.of(StreamCodec.class, "net/minecraft/network/codec/ByteBufCodecs.idMapper:(Ljava/util/function/IntFunction;Ljava/util/function/ToIntFunction;)Lnet/minecraft/network/codec/StreamCodec;");
     }
 
+    // Pumpkin divergence: inert codec -- throws its key on first encode/decode.
     static <T> StreamCodec<ByteBuf, T> idMapper(IdMap<T> mapper) {
-        throw Unimplemented.forMember("net/minecraft/network/codec/ByteBufCodecs.idMapper:(Lnet/minecraft/core/IdMap;)Lnet/minecraft/network/codec/StreamCodec;");
+        return dev.pumpkin.shim.Stubs.of(StreamCodec.class, "net/minecraft/network/codec/ByteBufCodecs.idMapper:(Lnet/minecraft/core/IdMap;)Lnet/minecraft/network/codec/StreamCodec;");
     }
 
     // Pumpkin divergence: real-enough body. A stream codec carries wire logic Pumpkin
@@ -125,11 +134,13 @@ public interface ByteBufCodecs {
         return dev.pumpkin.shim.Stubs.of(StreamCodec.class, "net/minecraft/network/codec/StreamCodec");
     }
 
+    // Pumpkin divergence: inert codec -- throws its key on first encode/decode.
     static <T> StreamCodec<RegistryFriendlyByteBuf, Holder<T>> holderRegistry(ResourceKey<? extends Registry<T>> registryKey) {
-        throw Unimplemented.forMember("net/minecraft/network/codec/ByteBufCodecs.holderRegistry:(Lnet/minecraft/resources/ResourceKey;)Lnet/minecraft/network/codec/StreamCodec;");
+        return dev.pumpkin.shim.Stubs.of(StreamCodec.class, "net/minecraft/network/codec/ByteBufCodecs.holderRegistry:(Lnet/minecraft/resources/ResourceKey;)Lnet/minecraft/network/codec/StreamCodec;");
     }
 
+    // Pumpkin divergence: inert codec -- throws its key on first encode/decode.
     static <T> StreamCodec<RegistryFriendlyByteBuf, HolderSet<T>> holderSet(ResourceKey<? extends Registry<T>> registryKey) {
-        throw Unimplemented.forMember("net/minecraft/network/codec/ByteBufCodecs.holderSet:(Lnet/minecraft/resources/ResourceKey;)Lnet/minecraft/network/codec/StreamCodec;");
+        return dev.pumpkin.shim.Stubs.of(StreamCodec.class, "net/minecraft/network/codec/ByteBufCodecs.holderSet:(Lnet/minecraft/resources/ResourceKey;)Lnet/minecraft/network/codec/StreamCodec;");
     }
 }

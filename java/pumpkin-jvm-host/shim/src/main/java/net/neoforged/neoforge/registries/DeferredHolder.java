@@ -24,7 +24,13 @@ public class DeferredHolder<R, T extends R> implements Holder<R>, Supplier<T> {
     // hand after any regeneration -- grep for "Pumpkin divergence".
     private final Identifier pumpkinId;
 
-    private final Supplier<T> pumpkinFactory;
+    // Not final: a holder built through createHolder -- the factory-method subclasses
+    // like Mekanism's override -- gets its supplier attached right after construction.
+    private Supplier<T> pumpkinFactory;
+
+    void pumpkinSetFactory(Supplier<T> factory) {
+        this.pumpkinFactory = factory;
+    }
 
     private T pumpkinValue;
 
@@ -110,8 +116,9 @@ public class DeferredHolder<R, T extends R> implements Holder<R>, Supplier<T> {
         PUMPKIN_BY_ID.put(registry + "|" + id, new DeferredHolder<>(id, () -> value));
     }
 
+    // Pumpkin divergence: real body -- a holder's value is what it resolves to.
     public T value() {
-        throw Unimplemented.forMember("net/neoforged/neoforge/registries/DeferredHolder.value:()Lnet/neoforged/neoforge/registries/R;");
+        return get();
     }
 
     // Pumpkin divergence: real body. Resolves once, on first use, which is what makes the

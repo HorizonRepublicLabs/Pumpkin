@@ -11,4 +11,11 @@ package net.neoforged.neoforgespi.language;
  */
 public interface IModInfo {
     String getDisplayName();
+
+    String getDescription();
+
+    String getModId();
+
+    /** The mod's declared version; Mekanism parses its own out of this at construction. */
+    org.apache.maven.artifact.versioning.ArtifactVersion getVersion();
 }

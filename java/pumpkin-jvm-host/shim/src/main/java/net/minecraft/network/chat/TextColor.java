@@ -7,14 +7,19 @@ public final class TextColor {
 
     public static final Codec<TextColor> CODEC = null;
 
+    // Pumpkin divergence: a color really carries its value.
+    private int pumpkinValue;
+
     private TextColor(int value, String name) {
+        this.pumpkinValue = value;
     }
 
     private TextColor(int value) {
+        this.pumpkinValue = value;
     }
 
     public int getValue() {
-        throw Unimplemented.forMember("net/minecraft/network/chat/TextColor.getValue:()I");
+        return pumpkinValue;
     }
 
     public boolean equals(Object o) {
@@ -29,8 +34,9 @@ public final class TextColor {
         throw Unimplemented.forMember("net/minecraft/network/chat/TextColor.toString:()Ljava/lang/String;");
     }
 
+    // Pumpkin divergence: vanilla body -- wrap the rgb.
     public static TextColor fromRgb(int rgb) {
-        throw Unimplemented.forMember("net/minecraft/network/chat/TextColor.fromRgb:(I)Lnet/minecraft/network/chat/TextColor;");
+        return new TextColor(rgb);
     }
 
     public TextColor() {

@@ -2433,4 +2433,567 @@ edit('net/neoforged/neoforge/common/util/InsertableLinkedOpenCustomHashSet.java'
      '    public InsertableLinkedOpenCustomHashSet(Hash.Strategy<? super T> strategy) {\n        super(strategy);\n    }'),
 ])
 
+edit('net/neoforged/neoforge/transfer/ResourceHandler.java', [
+    ('    static <T extends Resource> Class<ResourceHandler<T>> asClass() {\n        throw Unimplemented.forMember("net/neoforged/neoforge/transfer/ResourceHandler.asClass:()Ljava/lang/Class;");\n    }',
+     '    // Pumpkin divergence: vanilla body verbatim -- the generically-typed class literal\n    // mods hand to capability registration.\n    @SuppressWarnings("unchecked")\n    static <T extends Resource> Class<ResourceHandler<T>> asClass() {\n        return (Class<ResourceHandler<T>>) (Object) ResourceHandler.class;\n    }'),
+])
+
+edit('net/neoforged/neoforge/capabilities/BaseCapability.java', [
+    ('    private final Identifier name = null;\n\n    protected BaseCapability(Identifier name, Class<T> typeClass, Class<C> contextClass) {\n    }\n\n    public final Identifier name() {\n        throw Unimplemented.forMember("net/neoforged/neoforge/capabilities/BaseCapability.name:()Lnet/minecraft/resources/Identifier;");\n    }',
+     '    // Pumpkin divergence: real fields -- a capability token is its identity, and mods\n    // compare and print these from the moment they are created.\n    private final Identifier name;\n\n    private final Class<T> pumpkinTypeClass;\n\n    protected BaseCapability(Identifier name, Class<T> typeClass, Class<C> contextClass) {\n        this.name = name;\n        this.pumpkinTypeClass = typeClass;\n    }\n\n    public final Identifier name() {\n        return name;\n    }\n\n    public final Class<T> typeClass() {\n        return pumpkinTypeClass;\n    }'),
+])
+
+edit('net/neoforged/neoforge/capabilities/EntityCapability.java', [
+    ('    public static <T, C extends Object> EntityCapability<T, C> create(Identifier name, Class<T> typeClass, Class<C> contextClass) {\n        throw Unimplemented.forMember("net/neoforged/neoforge/capabilities/EntityCapability.create:(Lnet/minecraft/resources/Identifier;Ljava/lang/Class;Ljava/lang/Class;)Lnet/neoforged/neoforge/capabilities/EntityCapability;");\n    }',
+     '    // Pumpkin divergence: real bodies -- interned by name, as NeoForge\'s registry does,\n    // so creating the same capability twice hands back the same token and identity\n    // comparisons hold. Queries against these tokens are a later subsystem; creating\n    // and carrying one is pure identity.\n    private static final java.util.concurrent.ConcurrentHashMap<Identifier, EntityCapability<?, ?>> PUMPKIN_INTERNED =\n            new java.util.concurrent.ConcurrentHashMap<>();\n\n    @SuppressWarnings("unchecked")\n    public static <T, C extends Object> EntityCapability<T, C> create(Identifier name, Class<T> typeClass, Class<C> contextClass) {\n        return (EntityCapability<T, C>) PUMPKIN_INTERNED.computeIfAbsent(name,\n                key -> new EntityCapability<>(key, typeClass, contextClass));\n    }'),
+])
+
+edit('net/neoforged/neoforge/capabilities/EntityCapability.java', [
+    ('    public static <T> EntityCapability<T, Void> createVoid(Identifier name, Class<T> typeClass) {\n        throw Unimplemented.forMember("net/neoforged/neoforge/capabilities/EntityCapability.createVoid:(Lnet/minecraft/resources/Identifier;Ljava/lang/Class;)Lnet/neoforged/neoforge/capabilities/EntityCapability;");\n    }',
+     '    public static <T> EntityCapability<T, Void> createVoid(Identifier name, Class<T> typeClass) {\n        return create(name, typeClass, Void.class);\n    }'),
+])
+
+edit('net/neoforged/neoforge/capabilities/ItemCapability.java', [
+    ('    public static <T, C extends Object> ItemCapability<T, C> create(Identifier name, Class<T> typeClass, Class<C> contextClass) {\n        throw Unimplemented.forMember("net/neoforged/neoforge/capabilities/ItemCapability.create:(Lnet/minecraft/resources/Identifier;Ljava/lang/Class;Ljava/lang/Class;)Lnet/neoforged/neoforge/capabilities/ItemCapability;");\n    }',
+     '    // Pumpkin divergence: real bodies -- interned by name, as NeoForge\'s registry does,\n    // so creating the same capability twice hands back the same token and identity\n    // comparisons hold. Queries against these tokens are a later subsystem; creating\n    // and carrying one is pure identity.\n    private static final java.util.concurrent.ConcurrentHashMap<Identifier, ItemCapability<?, ?>> PUMPKIN_INTERNED =\n            new java.util.concurrent.ConcurrentHashMap<>();\n\n    @SuppressWarnings("unchecked")\n    public static <T, C extends Object> ItemCapability<T, C> create(Identifier name, Class<T> typeClass, Class<C> contextClass) {\n        return (ItemCapability<T, C>) PUMPKIN_INTERNED.computeIfAbsent(name,\n                key -> new ItemCapability<>(key, typeClass, contextClass));\n    }'),
+])
+
+edit('net/neoforged/neoforge/capabilities/ItemCapability.java', [
+    ('    public static <T> ItemCapability<T, Void> createVoid(Identifier name, Class<T> typeClass) {\n        throw Unimplemented.forMember("net/neoforged/neoforge/capabilities/ItemCapability.createVoid:(Lnet/minecraft/resources/Identifier;Ljava/lang/Class;)Lnet/neoforged/neoforge/capabilities/ItemCapability;");\n    }',
+     '    public static <T> ItemCapability<T, Void> createVoid(Identifier name, Class<T> typeClass) {\n        return create(name, typeClass, Void.class);\n    }'),
+])
+
+edit('net/neoforged/neoforge/capabilities/BlockCapability.java', [
+    ('    public static <T, C extends Object> BlockCapability<T, C> create(Identifier name, Class<T> typeClass, Class<C> contextClass) {\n        throw Unimplemented.forMember("net/neoforged/neoforge/capabilities/BlockCapability.create:(Lnet/minecraft/resources/Identifier;Ljava/lang/Class;Ljava/lang/Class;)Lnet/neoforged/neoforge/capabilities/BlockCapability;");\n    }',
+     '    // Pumpkin divergence: real bodies -- interned by name, as NeoForge\'s registry does,\n    // so creating the same capability twice hands back the same token and identity\n    // comparisons hold. Queries against these tokens are a later subsystem; creating\n    // and carrying one is pure identity.\n    private static final java.util.concurrent.ConcurrentHashMap<Identifier, BlockCapability<?, ?>> PUMPKIN_INTERNED =\n            new java.util.concurrent.ConcurrentHashMap<>();\n\n    @SuppressWarnings("unchecked")\n    public static <T, C extends Object> BlockCapability<T, C> create(Identifier name, Class<T> typeClass, Class<C> contextClass) {\n        return (BlockCapability<T, C>) PUMPKIN_INTERNED.computeIfAbsent(name,\n                key -> new BlockCapability<>(key, typeClass, contextClass));\n    }'),
+])
+
+edit('net/neoforged/neoforge/capabilities/BlockCapability.java', [
+    ('    public static <T> BlockCapability<T, Void> createVoid(Identifier name, Class<T> typeClass) {\n        throw Unimplemented.forMember("net/neoforged/neoforge/capabilities/BlockCapability.createVoid:(Lnet/minecraft/resources/Identifier;Ljava/lang/Class;)Lnet/neoforged/neoforge/capabilities/BlockCapability;");\n    }',
+     '    public static <T> BlockCapability<T, Void> createVoid(Identifier name, Class<T> typeClass) {\n        return create(name, typeClass, Void.class);\n    }'),
+])
+
+edit('net/neoforged/neoforge/capabilities/BlockCapability.java', [
+    ('    public static <T> BlockCapability<T, Direction> createSided(Identifier name, Class<T> typeClass) {\n        throw Unimplemented.forMember("net/neoforged/neoforge/capabilities/BlockCapability.createSided:(Lnet/minecraft/resources/Identifier;Ljava/lang/Class;)Lnet/neoforged/neoforge/capabilities/BlockCapability;");\n    }',
+     '    public static <T> BlockCapability<T, Direction> createSided(Identifier name, Class<T> typeClass) {\n        return create(name, typeClass, Direction.class);\n    }'),
+])
+
+edit('net/neoforged/neoforge/capabilities/BaseCapability.java', [
+    ('    public BaseCapability() {\n    }',
+     "    // Pumpkin divergence: the generator's convenience constructor has to satisfy the\n    // real final fields; a token built this way has no identity and says so if asked.\n    public BaseCapability() {\n        this(null, null, null);\n    }"),
+])
+
+edit('net/minecraft/resources/Identifier.java', [
+    ('    public String toLanguageKey() {\n        throw Unimplemented.forMember("net/minecraft/resources/Identifier.toLanguageKey:()Ljava/lang/String;");\n    }',
+     '    // Pumpkin divergence: vanilla bodies verbatim -- string arithmetic over the parts.\n    public String toLanguageKey() {\n        return getNamespace() + "." + getPath();\n    }'),
+])
+
+edit('net/minecraft/resources/Identifier.java', [
+    ('    public String toLanguageKey(String prefix) {\n        throw Unimplemented.forMember("net/minecraft/resources/Identifier.toLanguageKey:(Ljava/lang/String;)Ljava/lang/String;");\n    }',
+     '    public String toLanguageKey(String prefix) {\n        return prefix + "." + toLanguageKey();\n    }'),
+])
+
+edit('net/minecraft/resources/Identifier.java', [
+    ('    public String toLanguageKey(String prefix, String suffix) {\n        throw Unimplemented.forMember("net/minecraft/resources/Identifier.toLanguageKey:(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;");\n    }',
+     '    public String toLanguageKey(String prefix, String suffix) {\n        return prefix + "." + toLanguageKey() + "." + suffix;\n    }'),
+])
+
+edit('net/neoforged/neoforge/common/ModConfigSpec.java', [
+    ('        public Builder translation(String translationKey) {\n            throw Unimplemented.forMember("net/neoforged/neoforge/common/ModConfigSpec$Builder.translation:(Ljava/lang/String;)Lnet/neoforged/neoforge/common/ModConfigSpec$Builder;");\n        }',
+     '        // Pumpkin divergence: real body. A translation key decorates the config screen,\n        // which a headless server never draws; accepted and dropped, chain returns this.\n        public Builder translation(String translationKey) {\n            return this;\n        }'),
+])
+
+edit('net/minecraft/world/entity/EntityTypeIds.java', [
+    ('    private static ResourceKey<EntityType<?>> create(String name) {\n        throw Unimplemented.forMember("net/minecraft/world/entity/EntityTypeIds.create:(Ljava/lang/String;)Lnet/minecraft/resources/ResourceKey;");\n    }',
+     '    // Pumpkin divergence: vanilla body -- a key under the entity_type registry.\n    private static ResourceKey<EntityType<?>> create(String name) {\n        return ResourceKey.create(net.minecraft.core.registries.Registries.ENTITY_TYPE,\n                net.minecraft.resources.Identifier.fromNamespaceAndPath("minecraft", name));\n    }'),
+])
+
+edit('net/minecraft/world/entity/EntityTypeIds.java', [
+    ('    public static final ResourceKey<EntityType<?>> BOGGED = null;',
+     '    public static final ResourceKey<EntityType<?>> BOGGED = create("bogged");'),
+])
+
+edit('net/minecraft/world/entity/EntityTypeIds.java', [
+    ('    public static final ResourceKey<EntityType<?>> CREEPER = null;',
+     '    public static final ResourceKey<EntityType<?>> CREEPER = create("creeper");'),
+])
+
+edit('net/minecraft/world/entity/EntityTypeIds.java', [
+    ('    public static final ResourceKey<EntityType<?>> ENDERMAN = null;',
+     '    public static final ResourceKey<EntityType<?>> ENDERMAN = create("enderman");'),
+])
+
+edit('net/minecraft/world/entity/EntityTypeIds.java', [
+    ('    public static final ResourceKey<EntityType<?>> PARCHED = null;',
+     '    public static final ResourceKey<EntityType<?>> PARCHED = create("parched");'),
+])
+
+edit('net/minecraft/world/entity/EntityTypeIds.java', [
+    ('    public static final ResourceKey<EntityType<?>> SKELETON = null;',
+     '    public static final ResourceKey<EntityType<?>> SKELETON = create("skeleton");'),
+])
+
+edit('net/minecraft/world/entity/EntityTypeIds.java', [
+    ('    public static final ResourceKey<EntityType<?>> STRAY = null;',
+     '    public static final ResourceKey<EntityType<?>> STRAY = create("stray");'),
+])
+
+edit('net/minecraft/world/entity/EntityTypeIds.java', [
+    ('    public static final ResourceKey<EntityType<?>> WITHER_SKELETON = null;',
+     '    public static final ResourceKey<EntityType<?>> WITHER_SKELETON = create("wither_skeleton");'),
+])
+
+edit('net/minecraft/world/entity/EntityTypeIds.java', [
+    ('    static {\n        if (true) {\n            throw Unimplemented.forMember("net/minecraft/world/entity/EntityTypeIds");\n        }\n    }',
+     '    // Pumpkin divergence: no throwing initializer -- every key above is real.'),
+])
+
+edit('net/minecraft/resources/Identifier.java', [
+    ('    public Identifier withPrefix(String prefix) {\n        throw Unimplemented.forMember("net/minecraft/resources/Identifier.withPrefix:(Ljava/lang/String;)Lnet/minecraft/resources/Identifier;");\n    }',
+     '    // Pumpkin divergence: real body, mirroring withSuffix.\n    public Identifier withPrefix(String prefix) {\n        return new Identifier(pumpkinNamespace, prefix + pumpkinPath);\n    }'),
+])
+
+edit('net/neoforged/neoforge/common/ModConfigSpec.java', [
+    ('        public LongValue defineInRange(String path, long defaultValue, long min, long max) {\n            throw Unimplemented.forMember("net/neoforged/neoforge/common/ModConfigSpec$Builder.defineInRange:(Ljava/lang/String;JJJ)Lnet/neoforged/neoforge/common/ModConfigSpec$LongValue;");\n        }',
+     '        // Pumpkin divergence: real body. See the int overload -- the value answers the\n        // default the mod declared, and nothing reads a file behind it yet.\n        public LongValue defineInRange(String path, long defaultValue, long min, long max) {\n            return new LongValue(defaultValue);\n        }'),
+])
+
+edit('net/neoforged/neoforge/common/ModConfigSpec.java', [
+    ('        public Builder gameRestart() {\n            throw Unimplemented.forMember("net/neoforged/neoforge/common/ModConfigSpec$Builder.gameRestart:()Lnet/neoforged/neoforge/common/ModConfigSpec$Builder;");\n        }',
+     '        // Pumpkin divergence: real body. Restart metadata for a config screen; accepted\n        // and dropped, chain returns this.\n        public Builder gameRestart() {\n            return this;\n        }'),
+])
+
+edit('net/neoforged/neoforge/common/ModConfigSpec.java', [
+    ('        LongValue(Builder parent, List<String> path, Supplier<Long> defaultSupplier) {\n        }',
+     '        // Pumpkin divergence: real body, mirroring IntValue.\n        LongValue(Long defaultValue) {\n            super(defaultValue);\n        }\n\n        LongValue(Builder parent, List<String> path, Supplier<Long> defaultSupplier) {\n        }'),
+])
+
+edit('net/minecraft/util/ByIdMap.java', [
+    ('    public static <T> IntFunction<T> continuous(ToIntFunction<T> idGetter, T[] values, ByIdMap.OutOfBoundsStrategy strategy) {\n        throw Unimplemented.forMember("net/minecraft/util/ByIdMap.continuous:(Ljava/util/function/ToIntFunction;[Ljava/lang/Object;Lnet/minecraft/util/ByIdMap$OutOfBoundsStrategy;)Ljava/util/function/IntFunction;");\n    }',
+     '    // Pumpkin divergence: vanilla logic, helpers inlined -- sort the values by their\n    // declared ids, then answer lookups per the out-of-bounds strategy.\n    public static <T> IntFunction<T> continuous(ToIntFunction<T> idGetter, T[] values, ByIdMap.OutOfBoundsStrategy strategy) {\n        T[] sorted = values.clone();\n        for (T value : values) {\n            int id = idGetter.applyAsInt(value);\n            if (id < 0 || id >= sorted.length) {\n                throw new IllegalArgumentException("id " + id + " out of a continuous range of " + sorted.length);\n            }\n            sorted[id] = value;\n        }\n        final int length = sorted.length;\n        return switch (strategy) {\n            case ZERO -> id -> id >= 0 && id < length ? sorted[id] : sorted[0];\n            case WRAP -> id -> sorted[((id % length) + length) % length];\n            case CLAMP -> id -> sorted[Math.clamp(id, 0, length - 1)];\n        };\n    }'),
+])
+
+edit('net/neoforged/neoforge/common/ModConfigSpec.java', [
+    ('        EnumValue(Builder parent, List<String> path, Supplier<T> defaultSupplier, EnumGetMethod converter, Class<T> clazz) {\n        }',
+     '        // Pumpkin divergence: real body, mirroring IntValue.\n        EnumValue(T defaultValue) {\n            super(defaultValue);\n        }\n\n        EnumValue(Builder parent, List<String> path, Supplier<T> defaultSupplier, EnumGetMethod converter, Class<T> clazz) {\n        }'),
+])
+
+
+# -------------------------------------- ModConfigSpec.Builder sweep (Mekanism)
+# Mekanism declares hundreds of config values across every define* overload. Each value
+# answers the default the mod declared -- the answer NeoForge gives when no file
+# overrides it -- and screen-metadata chains return the builder. Programmatic, because
+# the overload set is wide and uniform; anything the rules cannot shape keeps its
+# throwing stub. Line-based (the head is everything before the parameter list) because
+# generic declarations like <V extends Enum<V>> defeat a tidy regex.
+_p = os.path.join(ROOT, "net/neoforged/neoforge/common/ModConfigSpec.java")
+_s = PENDING.get(_p) or open(_p).read()
+_pattern = re.compile(
+    r"        public (?P<head>[^\n(]+)\((?P<params>[^)]*)\) \{\n"
+    r"            throw Unimplemented\.forMember\(\"net/neoforged/neoforge/common/ModConfigSpec\$Builder\.[^\n]+\n        \}")
+def _body_for(ret, params):
+    if ret == "Builder":
+        return "            return this;"
+    args = [a.strip() for a in params.split(",") if a.strip()]
+    names = [a.split()[-1] for a in args]
+    types = [" ".join(a.split()[:-1]) for a in args]
+    default_supplier = next((n for t2, n in zip(types, names)
+                             if t2.startswith("Supplier") and "default" in n.lower()), None)
+    default_value = next((n for t2, n in zip(types, names)
+                          if not t2.startswith("Supplier") and "default" in n.lower()), None)
+    value = (default_supplier + ".get()" if default_supplier
+             else (default_value if default_value else (names[1] if len(names) >= 2 else None)))
+    if value is None:
+        return None
+    if ret.startswith("EnumValue"):
+        return "            return new EnumValue<>(%s);" % value
+    if ret.startswith("ConfigValue"):
+        # a supplier default stays a supplier -- evaluating it eagerly runs mod code
+        # against a config object that is still mid-construction
+        if value.endswith(".get()"):
+            value = value[:-len(".get()")]
+        return "            return new ConfigValue<>(%s);" % value
+    if ret in ("IntValue", "LongValue", "DoubleValue", "BooleanValue"):
+        return "            return new %s(%s);" % (ret, value)
+    return None
+def _replace(m):
+    head = m.group("head").strip()
+    # head = [generic decl] returnType name; the return type is the token before the
+    # name, and neither of those two contains a space.
+    _tokens = head.split(" ")
+    ret = _tokens[-2] if len(_tokens) >= 2 else _tokens[0]
+    body = _body_for(ret, m.group("params"))
+    if body is None:
+        return m.group(0)
+    return ("        // Pumpkin divergence: real body -- the declared default answers.\n"
+            "        public " + head + "(" + m.group("params") + ") {\n" + body + "\n        }")
+PENDING[_p] = _pattern.sub(_replace, _s)
+
+edit('net/neoforged/neoforge/common/ModConfigSpec.java', [
+    ('        private T pumpkinDefault;\n\n        ConfigValue(T defaultValue) {\n            this.pumpkinDefault = defaultValue;\n        }\n\n        ConfigValue(Builder parent, List<String> path, Supplier<T> defaultSupplier) {\n            this(defaultSupplier.get());\n        }',
+     "        // Lazy on purpose: Mekanism's default suppliers read *other* config values, and\n        // evaluating them while the config object is still mid-construction NPEs inside\n        // the mod. NeoForge defers exactly the same way.\n        private Supplier<T> pumpkinDefault;\n\n        ConfigValue(T defaultValue) {\n            this.pumpkinDefault = () -> defaultValue;\n        }\n\n        ConfigValue(Supplier<T> defaultSupplier) {\n            this.pumpkinDefault = defaultSupplier;\n        }\n\n        ConfigValue(Builder parent, List<String> path, Supplier<T> defaultSupplier) {\n            this(defaultSupplier);\n        }"),
+])
+
+edit('net/neoforged/neoforge/common/ModConfigSpec.java', [
+    ('        public T get() {\n            return pumpkinDefault;\n        }',
+     '        public T get() {\n            return pumpkinDefault.get();\n        }'),
+])
+
+edit('net/minecraft/resources/Identifier.java', [
+    ('    public static Identifier withDefaultNamespace(String path) {\n        throw Unimplemented.forMember("net/minecraft/resources/Identifier.withDefaultNamespace:(Ljava/lang/String;)Lnet/minecraft/resources/Identifier;");\n    }',
+     '    // Pumpkin divergence: vanilla body -- the minecraft namespace.\n    public static Identifier withDefaultNamespace(String path) {\n        return fromNamespaceAndPath("minecraft", path);\n    }'),
+])
+
+
+# ---------------------------------------- ByteBufCodecs sweep (Mekanism)
+# Mekanism builds hundreds of stream codecs at class-initialisation. A stream codec
+# only matters when a packet is actually encoded, and Pumpkin speaks the protocol from
+# the Rust side -- so every factory answers an inert codec that throws its member key
+# on first real use, and construction-time composition succeeds.
+_p = os.path.join(ROOT, "net/minecraft/network/codec/ByteBufCodecs.java")
+_s = PENDING.get(_p) or open(_p).read()
+_pattern = re.compile(
+    r"    static (?P<head>[^\n(]*?StreamCodec<[^\n(]*) (?P<name>\w+)\((?P<params>[^)]*)\) \{\n"
+    r"        throw Unimplemented\.forMember\(\"(?P<key>[^\"]+)\"\);\n    \}")
+def _bb_replace(m):
+    return ("    // Pumpkin divergence: inert codec -- throws its key on first encode/decode.\n"
+            "    static " + m.group("head") + " " + m.group("name") + "(" + m.group("params") + ") {\n"
+            "        return dev.pumpkin.shim.Stubs.of(StreamCodec.class, \"" + m.group("key") + "\");\n"
+            "    }")
+PENDING[_p] = _pattern.sub(_bb_replace, _s)
+
+edit('net/neoforged/neoforge/registries/DeferredRegister.java', [
+    ('    public <I extends T> DeferredHolder<T, I> register(final String name, final Function<Identifier, ? extends I> func) {\n        throw Unimplemented.forMember("net/neoforged/neoforge/registries/DeferredRegister.register:(Ljava/lang/String;Ljava/util/function/Function;)Lnet/neoforged/neoforge/registries/DeferredHolder;");\n    }',
+     '    // Pumpkin divergence: real body -- the function form takes the id it will be\n    // registered under; hand it the id and fall into the supplier path.\n    public <I extends T> DeferredHolder<T, I> register(final String name, final Function<Identifier, ? extends I> func) {\n        return register(name, () -> func.apply(Identifier.fromNamespaceAndPath(pumpkinNamespace, name)));\n    }'),
+])
+
+edit('net/neoforged/neoforge/registries/DeferredHolder.java', [
+    ('    private final Supplier<T> pumpkinFactory;',
+     "    // Not final: a holder built through createHolder -- the factory-method subclasses\n    // like Mekanism's override -- gets its supplier attached right after construction.\n    private Supplier<T> pumpkinFactory;\n\n    void pumpkinSetFactory(Supplier<T> factory) {\n        this.pumpkinFactory = factory;\n    }"),
+])
+
+edit('net/neoforged/neoforge/registries/DeferredRegister.java', [
+    ('    public <I extends T> DeferredHolder<T, I> register(final String name, final Supplier<? extends I> sup) {\n        DeferredHolder<T, I> holder =\n                new DeferredHolder<>(Identifier.fromNamespaceAndPath(pumpkinNamespace, name), sup::get);\n        pumpkinPending.add(holder);',
+     '    public <I extends T> DeferredHolder<T, I> register(final String name, final Supplier<? extends I> sup) {\n        // Through createHolder, not a constructor: subclasses override it to hand back\n        // their own holder type, and Mekanism casts every registration to its own.\n        DeferredHolder<T, I> holder =\n                createHolder(pumpkinRegistryKey, Identifier.fromNamespaceAndPath(pumpkinNamespace, name));\n        holder.pumpkinSetFactory(sup::get);\n        pumpkinPending.add(holder);'),
+])
+
+edit('net/neoforged/neoforge/registries/DeferredRegister.java', [
+    ('    protected <I extends T> DeferredHolder<T, I> createHolder(ResourceKey<? extends Registry<T>> registryKey, Identifier key) {\n        throw Unimplemented.forMember("net/neoforged/neoforge/registries/DeferredRegister.createHolder:(Lnet/minecraft/resources/ResourceKey;Lnet/minecraft/resources/Identifier;)Lnet/neoforged/neoforge/registries/DeferredHolder;");\n    }',
+     '    // Pumpkin divergence: real body -- the factory method subclasses override.\n    protected <I extends T> DeferredHolder<T, I> createHolder(ResourceKey<? extends Registry<T>> registryKey, Identifier key) {\n        return new DeferredHolder<>(key, null);\n    }'),
+])
+
+edit('net/neoforged/neoforge/common/NeoForge.java', [
+    ('    public static final IEventBus EVENT_BUS = null;\n\n    public NeoForge() {\n    }\n\n    static {\n        if (true) {\n            throw Unimplemented.forMember("net/neoforged/neoforge/common/NeoForge");\n        }\n    }',
+     "    // Pumpkin divergence: a real bus. Subscriptions land and are kept; the game events\n    // NeoForge would post here fire only as Pumpkin grows senders for them, so a\n    // listener may wait forever -- but the mod's registration itself succeeds and is\n    // inspectable, where a throwing holder stopped construction cold.\n    public static final IEventBus EVENT_BUS = new dev.pumpkin.shim.PumpkinEventBus();\n\n    public NeoForge() {\n    }"),
+])
+
+
+# ------------------------------------------------- ARGB sweep (Mekanism)
+# Pure channel arithmetic; every body is vanilla's own expression, written against the
+# stub's actual parameter names (they vary: color, lhs/rhs, p0/p1).
+_p = os.path.join(ROOT, "net/minecraft/util/ARGB.java")
+_s = PENDING.get(_p) or open(_p).read()
+_ARGB = {'alpha:(I)I': '        return {0} >>> 24;', 'red:(I)I': '        return {0} >> 16 & 0xFF;', 'green:(I)I': '        return {0} >> 8 & 0xFF;', 'blue:(I)I': '        return {0} & 0xFF;', 'opaque:(I)I': '        return {0} | 0xFF000000;', 'transparent:(I)I': '        return {0} & 0xFFFFFF;', 'white:(F)I': '        return as8BitChannel({0}) << 24 | 0xFFFFFF;', 'colorFromFloat:(FFFF)I': '        return color(as8BitChannel({0}), as8BitChannel({1}), as8BitChannel({2}), as8BitChannel({3}));', 'as8BitChannel:(F)I': '        return (int) Math.floor({0} * 255.0F);', 'multiply:(II)I': '        return color((alpha({0}) * alpha({1})) / 255, (red({0}) * red({1})) / 255, (green({0}) * green({1})) / 255, (blue({0}) * blue({1})) / 255);', 'srgbLerp:(FII)I': '        return color((int) (alpha({1}) + {0} * (alpha({2}) - alpha({1}))), (int) (red({1}) + {0} * (red({2}) - red({1}))), (int) (green({1}) + {0} * (green({2}) - green({1}))), (int) (blue({1}) + {0} * (blue({2}) - blue({1}))));', 'redFloat:(I)F': '        return red({0}) / 255.0F;', 'greenFloat:(I)F': '        return green({0}) / 255.0F;', 'blueFloat:(I)F': '        return blue({0}) / 255.0F;', 'alphaFloat:(I)F': '        return alpha({0}) / 255.0F;'}
+_pattern = re.compile(
+    r"    public static (?P<head>[\w<>\[\] ]+) (?P<name>\w+)\((?P<params>[^)]*)\) \{\n"
+    r"        throw Unimplemented\.forMember\(\"net/minecraft/util/ARGB\.(?P<key>[^\"]+)\"\);\n    \}")
+def _argb_replace(m):
+    t = _ARGB.get(m.group("key"))
+    if t is None:
+        return m.group(0)
+    names = [a.strip().split()[-1] for a in m.group("params").split(",") if a.strip()]
+    body = t.format(*names)
+    return ("    // Pumpkin divergence: vanilla arithmetic.\n"
+            "    public static " + m.group("head") + " " + m.group("name") + "(" + m.group("params") + ") {\n"
+            + body + "\n    }")
+PENDING[_p] = _pattern.sub(_argb_replace, _s)
+
+edit('net/minecraft/network/chat/TextColor.java', [
+    ('    private TextColor(int value, String name) {\n    }\n\n    private TextColor(int value) {\n    }\n\n    public int getValue() {\n        throw Unimplemented.forMember("net/minecraft/network/chat/TextColor.getValue:()I");\n    }',
+     '    // Pumpkin divergence: a color really carries its value.\n    private int pumpkinValue;\n\n    private TextColor(int value, String name) {\n        this.pumpkinValue = value;\n    }\n\n    private TextColor(int value) {\n        this.pumpkinValue = value;\n    }\n\n    public int getValue() {\n        return pumpkinValue;\n    }'),
+])
+
+edit('net/minecraft/network/chat/TextColor.java', [
+    ('    public static TextColor fromRgb(int rgb) {\n        throw Unimplemented.forMember("net/minecraft/network/chat/TextColor.fromRgb:(I)Lnet/minecraft/network/chat/TextColor;");\n    }',
+     '    // Pumpkin divergence: vanilla body -- wrap the rgb.\n    public static TextColor fromRgb(int rgb) {\n        return new TextColor(rgb);\n    }'),
+])
+
+edit('net/neoforged/neoforge/common/Tags.java', [
+    ('public static final TagKey<EntityType<?>> TELEPORTING_NOT_SUPPORTED = null;',
+     '// Pumpkin divergence: the real key, name read from NeoForge\'s own source.\n        public static final TagKey<EntityType<?>> TELEPORTING_NOT_SUPPORTED = net.minecraft.tags.TagKey.create(\n                net.minecraft.core.registries.Registries.ENTITY_TYPE,\n                net.minecraft.resources.Identifier.fromNamespaceAndPath("c", "teleporting_not_supported"));'),
+])
+
+edit('net/neoforged/neoforge/common/Tags.java', [
+    ('public static final TagKey<Item> GEMS_LAPIS = null;',
+     '// Pumpkin divergence: the real key, name read from NeoForge\'s own source.\n        public static final TagKey<Item> GEMS_LAPIS = net.minecraft.tags.TagKey.create(\n                net.minecraft.core.registries.Registries.ITEM,\n                net.minecraft.resources.Identifier.fromNamespaceAndPath("c", "gems/lapis"));'),
+])
+
+edit('net/neoforged/neoforge/common/Tags.java', [
+    ('public static final TagKey<Item> ORES = null;',
+     '// Pumpkin divergence: the real key, name read from NeoForge\'s own source.\n        public static final TagKey<Item> ORES = net.minecraft.tags.TagKey.create(\n                net.minecraft.core.registries.Registries.ITEM,\n                net.minecraft.resources.Identifier.fromNamespaceAndPath("c", "ores"));'),
+])
+
+edit('net/neoforged/neoforge/common/Tags.java', [
+    ('public static final TagKey<Item> ORES_COPPER = null;',
+     '// Pumpkin divergence: the real key, name read from NeoForge\'s own source.\n        public static final TagKey<Item> ORES_COPPER = net.minecraft.tags.TagKey.create(\n                net.minecraft.core.registries.Registries.ITEM,\n                net.minecraft.resources.Identifier.fromNamespaceAndPath("c", "ores/copper"));'),
+])
+
+edit('net/neoforged/neoforge/common/Tags.java', [
+    ('public static final TagKey<Item> ORES_GOLD = null;',
+     '// Pumpkin divergence: the real key, name read from NeoForge\'s own source.\n        public static final TagKey<Item> ORES_GOLD = net.minecraft.tags.TagKey.create(\n                net.minecraft.core.registries.Registries.ITEM,\n                net.minecraft.resources.Identifier.fromNamespaceAndPath("c", "ores/gold"));'),
+])
+
+edit('net/neoforged/neoforge/common/Tags.java', [
+    ('public static final TagKey<Item> ORES_IRON = null;',
+     '// Pumpkin divergence: the real key, name read from NeoForge\'s own source.\n        public static final TagKey<Item> ORES_IRON = net.minecraft.tags.TagKey.create(\n                net.minecraft.core.registries.Registries.ITEM,\n                net.minecraft.resources.Identifier.fromNamespaceAndPath("c", "ores/iron"));'),
+])
+
+edit('net/neoforged/neoforge/common/Tags.java', [
+    ('public static final TagKey<Fluid> GASEOUS = null;',
+     '// Pumpkin divergence: the real key, name read from NeoForge\'s own source.\n        public static final TagKey<Fluid> GASEOUS = net.minecraft.tags.TagKey.create(\n                net.minecraft.core.registries.Registries.FLUID,\n                net.minecraft.resources.Identifier.fromNamespaceAndPath("c", "gaseous"));'),
+])
+
+edit('net/neoforged/neoforge/common/Tags.java', [
+    ('public static final TagKey<Fluid> HIDDEN_FROM_RECIPE_VIEWERS = null;',
+     '// Pumpkin divergence: the real key, name read from NeoForge\'s own source.\n        public static final TagKey<Fluid> HIDDEN_FROM_RECIPE_VIEWERS = net.minecraft.tags.TagKey.create(\n                net.minecraft.core.registries.Registries.FLUID,\n                net.minecraft.resources.Identifier.fromNamespaceAndPath("c", "hidden_from_recipe_viewers"));'),
+])
+
+edit('net/neoforged/neoforge/common/Tags.java', [
+    ('public static final TagKey<DamageType> IS_TECHNICAL = null;',
+     '// Pumpkin divergence: the real key, name read from NeoForge\'s own source.\n        public static final TagKey<DamageType> IS_TECHNICAL = net.minecraft.tags.TagKey.create(\n                net.minecraft.core.registries.Registries.DAMAGE_TYPE,\n                net.minecraft.resources.Identifier.fromNamespaceAndPath("neoforge", "is_technical"));'),
+])
+
+edit('net/minecraft/world/item/equipment/ArmorType.java', [
+    ('    public String getName() {\n        throw Unimplemented.forMember("net/minecraft/world/item/equipment/ArmorType.getName:()Ljava/lang/String;");\n    }',
+     '    // Pumpkin divergence: vanilla body -- the lowercase constant name.\n    public String getName() {\n        return name().toLowerCase(java.util.Locale.ROOT);\n    }'),
+])
+
+edit('net/minecraft/world/item/equipment/ArmorType.java', [
+    ('    public String getSerializedName() {\n        throw Unimplemented.forMember("net/minecraft/world/item/equipment/ArmorType.getSerializedName:()Ljava/lang/String;");\n    }',
+     '    public String getSerializedName() {\n        return getName();\n    }'),
+])
+
+edit('net/minecraft/util/ExtraCodecs.java', [
+    ('public static final Codec<Integer> RGB_COLOR_CODEC = null;',
+     '// Pumpkin divergence: inert codec -- composes at class-init, throws its name on use.\n    public static final Codec<Integer> RGB_COLOR_CODEC =\n            dev.pumpkin.shim.Stubs.throwingCodec("net/minecraft/util/ExtraCodecs.RGB_COLOR_CODEC");'),
+])
+
+edit('net/minecraft/util/ExtraCodecs.java', [
+    ('public static final Codec<Integer> ARGB_COLOR_CODEC = null;',
+     '// Pumpkin divergence: inert codec -- composes at class-init, throws its name on use.\n    public static final Codec<Integer> ARGB_COLOR_CODEC =\n            dev.pumpkin.shim.Stubs.throwingCodec("net/minecraft/util/ExtraCodecs.ARGB_COLOR_CODEC");'),
+])
+
+edit('net/minecraft/util/ExtraCodecs.java', [
+    ('public static final Codec<Integer> STRING_ARGB_COLOR = null;',
+     '// Pumpkin divergence: inert codec -- composes at class-init, throws its name on use.\n    public static final Codec<Integer> STRING_ARGB_COLOR =\n            dev.pumpkin.shim.Stubs.throwingCodec("net/minecraft/util/ExtraCodecs.STRING_ARGB_COLOR");'),
+])
+
+edit('net/minecraft/util/ExtraCodecs.java', [
+    ('public static final Codec<Integer> NON_NEGATIVE_INT = null;',
+     '// Pumpkin divergence: inert codec -- composes at class-init, throws its name on use.\n    public static final Codec<Integer> NON_NEGATIVE_INT =\n            dev.pumpkin.shim.Stubs.throwingCodec("net/minecraft/util/ExtraCodecs.NON_NEGATIVE_INT");'),
+])
+
+edit('net/minecraft/util/ExtraCodecs.java', [
+    ('public static final Codec<Integer> POSITIVE_INT = null;',
+     '// Pumpkin divergence: inert codec -- composes at class-init, throws its name on use.\n    public static final Codec<Integer> POSITIVE_INT =\n            dev.pumpkin.shim.Stubs.throwingCodec("net/minecraft/util/ExtraCodecs.POSITIVE_INT");'),
+])
+
+edit('net/minecraft/util/ExtraCodecs.java', [
+    ('public static final Codec<Long> NON_NEGATIVE_LONG = null;',
+     '// Pumpkin divergence: inert codec -- composes at class-init, throws its name on use.\n    public static final Codec<Long> NON_NEGATIVE_LONG =\n            dev.pumpkin.shim.Stubs.throwingCodec("net/minecraft/util/ExtraCodecs.NON_NEGATIVE_LONG");'),
+])
+
+edit('net/minecraft/util/ExtraCodecs.java', [
+    ('public static final Codec<String> NON_EMPTY_STRING = null;',
+     '// Pumpkin divergence: inert codec -- composes at class-init, throws its name on use.\n    public static final Codec<String> NON_EMPTY_STRING =\n            dev.pumpkin.shim.Stubs.throwingCodec("net/minecraft/util/ExtraCodecs.NON_EMPTY_STRING");'),
+])
+
+edit('net/minecraft/util/ExtraCodecs.java', [
+    ('    static {\n        if (true) {\n            throw Unimplemented.forMember("net/minecraft/util/ExtraCodecs");\n        }\n    }',
+     '    // Pumpkin divergence: no throwing initializer -- every field answers inertly.'),
+])
+
+edit('net/neoforged/neoforge/registries/DeferredHolder.java', [
+    ('    public T value() {\n        throw Unimplemented.forMember("net/neoforged/neoforge/registries/DeferredHolder.value:()Lnet/neoforged/neoforge/registries/R;");\n    }',
+     "    // Pumpkin divergence: real body -- a holder's value is what it resolves to.\n    public T value() {\n        return get();\n    }"),
+])
+
+
+# Tags nested clinits: the classes whose constants are real above lose their throw.
+_p = os.path.join(ROOT, "net/neoforged/neoforge/common/Tags.java")
+_s = PENDING.get(_p) or open(_p).read()
+_clinit = re.compile(r"        static \{\n            if \(true\) \{\n                throw Unimplemented\.forMember\(\"net/neoforged/neoforge/common/Tags\$(?P<cls>\w+)\"\);\n            \}\n        \}\n")
+def _tags_drop(m):
+    if m.group("cls") in ("EntityTypes", "Items", "Fluids", "DamageTypes"):
+        return "        // Pumpkin divergence: no throwing initializer -- the keys above are real.\n"
+    return m.group(0)
+PENDING[_p] = _clinit.sub(_tags_drop, _s)
+
+edit('net/minecraft/world/entity/ai/attributes/Attribute.java', [
+    ('    protected Attribute(String descriptionId, double defaultValue) {\n    }\n\n    public double getDefaultValue() {\n        throw Unimplemented.forMember("net/minecraft/world/entity/ai/attributes/Attribute.getDefaultValue:()D");\n    }',
+     '    // Pumpkin divergence: real fields -- an attribute is its id and default.\n    private String pumpkinDescriptionId;\n\n    private double pumpkinDefaultValue;\n\n    protected Attribute(String descriptionId, double defaultValue) {\n        this.pumpkinDescriptionId = descriptionId;\n        this.pumpkinDefaultValue = defaultValue;\n    }\n\n    public double getDefaultValue() {\n        return pumpkinDefaultValue;\n    }'),
+])
+
+edit('net/minecraft/world/entity/ai/attributes/Attributes.java', [
+    ('public static final Holder<Attribute> ARMOR = Stubs.of(Holder.class, "net/minecraft/core/Holder");',
+     '// Pumpkin divergence: the holder answers value() with a real attribute --\n    // vanilla\'s own id and default, read from NeoForge\'s source. Mekanism sizes\n    // its gear config around these defaults at class-initialisation.\n    @SuppressWarnings("unchecked")\n    public static final Holder<Attribute> ARMOR = Stubs.of(Holder.class,\n            "net/minecraft/core/Holder", java.util.Map.of("value",\n                    new PumpkinAttribute("attribute.name.armor", 0.0)));'),
+])
+
+edit('net/minecraft/world/entity/ai/attributes/Attributes.java', [
+    ('public static final Holder<Attribute> ARMOR_TOUGHNESS = Stubs.of(Holder.class, "net/minecraft/core/Holder");',
+     '@SuppressWarnings("unchecked")\n    public static final Holder<Attribute> ARMOR_TOUGHNESS = Stubs.of(Holder.class,\n            "net/minecraft/core/Holder", java.util.Map.of("value",\n                    new PumpkinAttribute("attribute.name.armor_toughness", 0.0)));'),
+])
+
+edit('net/minecraft/world/entity/ai/attributes/Attributes.java', [
+    ('public static final Holder<Attribute> ATTACK_DAMAGE = Stubs.of(Holder.class, "net/minecraft/core/Holder");',
+     '@SuppressWarnings("unchecked")\n    public static final Holder<Attribute> ATTACK_DAMAGE = Stubs.of(Holder.class,\n            "net/minecraft/core/Holder", java.util.Map.of("value",\n                    new PumpkinAttribute("attribute.name.attack_damage", 2.0)));'),
+])
+
+edit('net/minecraft/world/entity/ai/attributes/Attributes.java', [
+    ('public static final Holder<Attribute> ATTACK_SPEED = Stubs.of(Holder.class, "net/minecraft/core/Holder");',
+     '@SuppressWarnings("unchecked")\n    public static final Holder<Attribute> ATTACK_SPEED = Stubs.of(Holder.class,\n            "net/minecraft/core/Holder", java.util.Map.of("value",\n                    new PumpkinAttribute("attribute.name.attack_speed", 4.0)));'),
+])
+
+edit('net/minecraft/world/entity/ai/attributes/Attributes.java', [
+    ('public static final Holder<Attribute> BLOCK_INTERACTION_RANGE = Stubs.of(Holder.class, "net/minecraft/core/Holder");',
+     '@SuppressWarnings("unchecked")\n    public static final Holder<Attribute> BLOCK_INTERACTION_RANGE = Stubs.of(Holder.class,\n            "net/minecraft/core/Holder", java.util.Map.of("value",\n                    new PumpkinAttribute("attribute.name.block_interaction_range", 4.5)));'),
+])
+
+edit('net/minecraft/world/entity/ai/attributes/Attributes.java', [
+    ('public static final Holder<Attribute> FALL_DAMAGE_MULTIPLIER = Stubs.of(Holder.class, "net/minecraft/core/Holder");',
+     '@SuppressWarnings("unchecked")\n    public static final Holder<Attribute> FALL_DAMAGE_MULTIPLIER = Stubs.of(Holder.class,\n            "net/minecraft/core/Holder", java.util.Map.of("value",\n                    new PumpkinAttribute("attribute.name.fall_damage_multiplier", 1.0)));'),
+])
+
+edit('net/minecraft/world/entity/ai/attributes/Attributes.java', [
+    ('public static final Holder<Attribute> KNOCKBACK_RESISTANCE = Stubs.of(Holder.class, "net/minecraft/core/Holder");',
+     '@SuppressWarnings("unchecked")\n    public static final Holder<Attribute> KNOCKBACK_RESISTANCE = Stubs.of(Holder.class,\n            "net/minecraft/core/Holder", java.util.Map.of("value",\n                    new PumpkinAttribute("attribute.name.knockback_resistance", 0.0)));'),
+])
+
+edit('net/minecraft/world/entity/ai/attributes/Attributes.java', [
+    ('public static final Holder<Attribute> MAX_HEALTH = Stubs.of(Holder.class, "net/minecraft/core/Holder");',
+     '@SuppressWarnings("unchecked")\n    public static final Holder<Attribute> MAX_HEALTH = Stubs.of(Holder.class,\n            "net/minecraft/core/Holder", java.util.Map.of("value",\n                    new PumpkinAttribute("attribute.name.max_health", 20.0)));'),
+])
+
+edit('net/minecraft/world/entity/ai/attributes/Attributes.java', [
+    ('public static final Holder<Attribute> MOVEMENT_EFFICIENCY = Stubs.of(Holder.class, "net/minecraft/core/Holder");',
+     '@SuppressWarnings("unchecked")\n    public static final Holder<Attribute> MOVEMENT_EFFICIENCY = Stubs.of(Holder.class,\n            "net/minecraft/core/Holder", java.util.Map.of("value",\n                    new PumpkinAttribute("attribute.name.movement_efficiency", 0.0)));'),
+])
+
+edit('net/minecraft/world/entity/ai/attributes/Attributes.java', [
+    ('public static final Holder<Attribute> MOVEMENT_SPEED = Stubs.of(Holder.class, "net/minecraft/core/Holder");',
+     '@SuppressWarnings("unchecked")\n    public static final Holder<Attribute> MOVEMENT_SPEED = Stubs.of(Holder.class,\n            "net/minecraft/core/Holder", java.util.Map.of("value",\n                    new PumpkinAttribute("attribute.name.movement_speed", 0.7)));'),
+])
+
+edit('net/minecraft/world/entity/ai/attributes/Attributes.java', [
+    ('public static final Holder<Attribute> SAFE_FALL_DISTANCE = Stubs.of(Holder.class, "net/minecraft/core/Holder");',
+     '@SuppressWarnings("unchecked")\n    public static final Holder<Attribute> SAFE_FALL_DISTANCE = Stubs.of(Holder.class,\n            "net/minecraft/core/Holder", java.util.Map.of("value",\n                    new PumpkinAttribute("attribute.name.safe_fall_distance", 3.0)));'),
+])
+
+edit('net/minecraft/world/entity/ai/attributes/Attributes.java', [
+    ('public static final Holder<Attribute> SNEAKING_SPEED = Stubs.of(Holder.class, "net/minecraft/core/Holder");',
+     '@SuppressWarnings("unchecked")\n    public static final Holder<Attribute> SNEAKING_SPEED = Stubs.of(Holder.class,\n            "net/minecraft/core/Holder", java.util.Map.of("value",\n                    new PumpkinAttribute("attribute.name.sneaking_speed", 0.3)));'),
+])
+
+edit('net/minecraft/world/entity/ai/attributes/Attributes.java', [
+    ('public static final Holder<Attribute> STEP_HEIGHT = Stubs.of(Holder.class, "net/minecraft/core/Holder");',
+     '@SuppressWarnings("unchecked")\n    public static final Holder<Attribute> STEP_HEIGHT = Stubs.of(Holder.class,\n            "net/minecraft/core/Holder", java.util.Map.of("value",\n                    new PumpkinAttribute("attribute.name.step_height", 0.6)));'),
+])
+
+edit('net/minecraft/world/entity/ai/attributes/Attributes.java', [
+    ('public static final Holder<Attribute> SUBMERGED_MINING_SPEED = Stubs.of(Holder.class, "net/minecraft/core/Holder");',
+     '@SuppressWarnings("unchecked")\n    public static final Holder<Attribute> SUBMERGED_MINING_SPEED = Stubs.of(Holder.class,\n            "net/minecraft/core/Holder", java.util.Map.of("value",\n                    new PumpkinAttribute("attribute.name.submerged_mining_speed", 0.2)));'),
+])
+
+edit('net/minecraft/world/entity/ai/attributes/Attributes.java', [
+    ('public static final Holder<Attribute> WATER_MOVEMENT_EFFICIENCY = Stubs.of(Holder.class, "net/minecraft/core/Holder");',
+     '@SuppressWarnings("unchecked")\n    public static final Holder<Attribute> WATER_MOVEMENT_EFFICIENCY = Stubs.of(Holder.class,\n            "net/minecraft/core/Holder", java.util.Map.of("value",\n                    new PumpkinAttribute("attribute.name.water_movement_efficiency", 0.0)));'),
+])
+
+edit('net/minecraft/world/entity/ai/attributes/Attributes.java', [
+    ('public class Attributes {',
+     "public class Attributes {\n\n    // Attribute's constructor is protected; this is the smallest door to it.\n    private static final class PumpkinAttribute extends Attribute {\n        PumpkinAttribute(String descriptionId, double defaultValue) {\n            super(descriptionId, defaultValue);\n        }\n    }\n"),
+])
+
+edit('net/minecraft/world/item/DyeColor.java', [
+    ('    public String getName() {\n        throw Unimplemented.forMember("net/minecraft/world/item/DyeColor.getName:()Ljava/lang/String;");\n    }',
+     '    // Pumpkin divergence: vanilla body -- the lowercase constant name.\n    public String getName() {\n        return name().toLowerCase(java.util.Locale.ROOT);\n    }'),
+])
+
+
+# ExtraCodecs statics: every Codec-returning factory answers inertly.
+_p = os.path.join(ROOT, "net/minecraft/util/ExtraCodecs.java")
+_s = PENDING.get(_p) or open(_p).read()
+_pattern = re.compile(
+    r"    public static (?P<head>(?:<[^\n{]*?> )?Codec<[^\n(]*) (?P<name>\w+)\((?P<params>[^)]*)\) \{\n"
+    r"        throw Unimplemented\.forMember\(\"(?P<key>[^\"]+)\"\);\n    \}")
+def _ec_replace(m):
+    return ("    // Pumpkin divergence: inert codec -- throws its key on first use.\n"
+            "    public static " + m.group("head") + " " + m.group("name") + "(" + m.group("params") + ") {\n"
+            "        return dev.pumpkin.shim.Stubs.throwingCodec(\"" + m.group("key") + "\");\n    }")
+PENDING[_p] = _pattern.sub(_ec_replace, _s)
+
+# DyeColor: vanilla's dye-to-map-color table, filtered to the constants the pruned
+# enum actually declares (the switch must stay exhaustive over what exists).
+_p = os.path.join(ROOT, "net/minecraft/world/item/DyeColor.java")
+_s = PENDING.get(_p) or open(_p).read()
+_dye_vanilla = open(os.path.join(os.path.dirname(ROOT),
+    "../../../NeoForge/projects/neoforge/src/main/java/net/minecraft/world/item/DyeColor.java")).read()
+_dye_map = re.findall(r"([A-Z_]+)\(\d+, \"[a-z_]+\", \d+, MapColor\.([A-Z_0-9]+),", _dye_vanilla)
+_enum = re.search(r"public enum DyeColor[^{]*\{\n\n?    ([A-Z_, \n]+);", _s)
+_present = set(re.findall(r"[A-Z_]+", _enum.group(1)))
+_cases = "\n".join("            case %s -> net.minecraft.world.level.material.MapColor.%s;" % (d, mc)
+                   for d, mc in _dye_map if d in _present)
+_old = re.search(r"    public MapColor getMapColor\(\) \{\n        throw Unimplemented[^\n]+\n    \}", _s)
+if _old:
+    _s = _s.replace(_old.group(0),
+        "    // Pumpkin divergence: vanilla's own dye-to-map-color table, over the constants\n"
+        "    // this shim's pruned enum carries.\n"
+        "    public MapColor getMapColor() {\n        return switch (this) {\n" + _cases + "\n        };\n    }", 1)
+PENDING[_p] = _s
+
+edit('net/minecraft/world/item/equipment/ArmorMaterials.java', [
+    ('    ArmorMaterial NETHERITE = null;',
+     "    // Pumpkin divergence: vanilla's numbers (durability 37, defense 3/6/8/3/19,\n    // enchant 15, toughness 3, knockback resistance 0.1). The sound, repair tag and\n    // asset are identity-bearing references Mekanism's stat reads never touch.\n    ArmorMaterial NETHERITE = new ArmorMaterial(37,\n            java.util.Map.of(ArmorType.BOOTS, 3, ArmorType.LEGGINGS, 6,\n                    ArmorType.CHESTPLATE, 8, ArmorType.HELMET, 3, ArmorType.BODY, 19),\n            15, null, 3.0F, 0.1F, null, null);"),
+])
+
+edit('net/neoforged/neoforge/registries/DeferredRegister.java', [
+    ('    public String getNamespace() {\n        throw Unimplemented.forMember("net/neoforged/neoforge/registries/DeferredRegister.getNamespace:()Ljava/lang/String;");\n    }',
+     '    // Pumpkin divergence: real body.\n    public String getNamespace() {\n        return pumpkinNamespace;\n    }'),
+])
+
+
+# MapColor: vanilla (id, col) pairs, read from the decompiled source at reconcile time.
+_p = os.path.join(ROOT, "net/minecraft/world/level/material/MapColor.java")
+_s = PENDING.get(_p) or open(_p).read()
+_vanilla = open(os.path.join(os.path.dirname(ROOT),
+    "../../../NeoForge/projects/neoforge/src/main/java/net/minecraft/world/level/material/MapColor.java")).read()
+_pairs = dict(re.findall(r"MapColor ([A-Z_0-9]+) = new MapColor\((\d+, -?\d+)\)", _vanilla))
+_m = re.search(r"    (?:private |public )?MapColor\(int [\w]+, int [\w]+\) \{\n    \}", _s)
+_ctor = """    // Pumpkin divergence: a map color really carries its packed rgb.
+    public final int col;
+
+    private MapColor(int id, int col) {
+        this.col = col;
+    }"""
+_s = _s.replace("    public final int col = 0;\n\n", "", 1)
+if _m:
+    _s = _s.replace(_m.group(0), _ctor, 1)
+else:
+    _s = _s.replace("public class MapColor {", "public class MapColor {\n\n" + _ctor, 1)
+for _name, _args in _pairs.items():
+    _target = "public static final MapColor %s = null;" % _name
+    if _target in _s:
+        _s = _s.replace(_target,
+                        "public static final MapColor %s = new MapColor(%s);" % (_name, _args), 1)
+    elif ("MapColor %s " % _name) not in _s:
+        # pruned away entirely, but the dye table below may name it: append it.
+        _s = _s.replace("public class MapColor {",
+                        "public class MapColor {\n    public static final MapColor %s = new MapColor(%s);"
+                        % (_name, _args), 1)
+_s = re.sub(r"    private static final MapColor\[\] MATERIAL_COLORS = null;\n\n?", "", _s)
+_s = re.sub(r"    static \{\n        if \(true\) \{\n            throw Unimplemented\.forMember\(\"net/minecraft/world/level/material/MapColor\"\);\n        \}\n    \}\n",
+            "    // Pumpkin divergence: no throwing initializer -- the constants are vanilla's values.\n", _s)
+_s = _s.replace("    public MapColor() {\n    }", "    public MapColor() {\n        this(0, 0);\n    }")
+PENDING[_p] = _s
+
 commit()

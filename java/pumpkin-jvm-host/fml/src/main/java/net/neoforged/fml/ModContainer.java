@@ -44,7 +44,11 @@ public abstract class ModContainer {
         return dev.pumpkin.shim.Stubs.of(
                 net.neoforged.neoforgespi.language.IModInfo.class,
                 "net/neoforged/neoforgespi/language/IModInfo",
-                java.util.Map.of("getModId", modId, "getDescription", modId));
+                java.util.Map.of("getModId", modId, "getDescription", modId,
+                        "getDisplayName", modId,
+                        // The version Pumpkin's own plugin listing reports for mods.
+                        "getVersion",
+                        new org.apache.maven.artifact.versioning.DefaultArtifactVersion("0.0.0")));
     }
 
     public void registerConfig(ModConfig.Type type, IConfigSpec spec) {

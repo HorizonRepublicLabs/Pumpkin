@@ -5,30 +5,28 @@ import dev.pumpkin.shim.Unimplemented;
 
 public class EntityTypeIds {
 
-    public static final ResourceKey<EntityType<?>> BOGGED = null;
+    public static final ResourceKey<EntityType<?>> BOGGED = create("bogged");
 
-    public static final ResourceKey<EntityType<?>> CREEPER = null;
+    public static final ResourceKey<EntityType<?>> CREEPER = create("creeper");
 
-    public static final ResourceKey<EntityType<?>> ENDERMAN = null;
+    public static final ResourceKey<EntityType<?>> ENDERMAN = create("enderman");
 
-    public static final ResourceKey<EntityType<?>> PARCHED = null;
+    public static final ResourceKey<EntityType<?>> PARCHED = create("parched");
 
-    public static final ResourceKey<EntityType<?>> SKELETON = null;
+    public static final ResourceKey<EntityType<?>> SKELETON = create("skeleton");
 
-    public static final ResourceKey<EntityType<?>> STRAY = null;
+    public static final ResourceKey<EntityType<?>> STRAY = create("stray");
 
-    public static final ResourceKey<EntityType<?>> WITHER_SKELETON = null;
+    public static final ResourceKey<EntityType<?>> WITHER_SKELETON = create("wither_skeleton");
 
+    // Pumpkin divergence: vanilla body -- a key under the entity_type registry.
     private static ResourceKey<EntityType<?>> create(String name) {
-        throw Unimplemented.forMember("net/minecraft/world/entity/EntityTypeIds.create:(Ljava/lang/String;)Lnet/minecraft/resources/ResourceKey;");
+        return ResourceKey.create(net.minecraft.core.registries.Registries.ENTITY_TYPE,
+                net.minecraft.resources.Identifier.fromNamespaceAndPath("minecraft", name));
     }
 
     public EntityTypeIds() {
     }
 
-    static {
-        if (true) {
-            throw Unimplemented.forMember("net/minecraft/world/entity/EntityTypeIds");
-        }
-    }
+    // Pumpkin divergence: no throwing initializer -- every key above is real.
 }

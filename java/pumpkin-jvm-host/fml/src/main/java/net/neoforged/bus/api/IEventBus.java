@@ -28,6 +28,20 @@ public interface IEventBus {
      */
     <T extends Event> void addListener(Class<T> type, Consumer<T> handler);
 
+    /** Priority variants: Pumpkin's bus keeps registration order; the priority is noted
+     * and dropped -- with one mod family per bus there is nothing to order against. */
+    default <T extends Event> void addListener(EventPriority priority, Class<T> type, Consumer<T> handler) {
+        addListener(type, handler);
+    }
+
+    default <T extends Event> void addListener(EventPriority priority, Consumer<T> handler) {
+        addListener(handler);
+    }
+
+    default <T extends Event> void addListener(EventPriority priority, boolean receiveCancelled, Class<T> type, Consumer<T> handler) {
+        addListener(type, handler);
+    }
+
     /** NeoForge's one-argument form, which infers the event type from the consumer. */
     <T extends Event> void addListener(Consumer<T> handler);
 

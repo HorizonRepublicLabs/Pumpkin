@@ -227,8 +227,11 @@ public class DeferredRegister<T> {
     // Pumpkin divergence: real body. Records the registration; nothing runs until the
     // RegisterEvent fires.
     public <I extends T> DeferredHolder<T, I> register(final String name, final Supplier<? extends I> sup) {
+        // Through createHolder, not a constructor: subclasses override it to hand back
+        // their own holder type, and Mekanism casts every registration to its own.
         DeferredHolder<T, I> holder =
-                new DeferredHolder<>(Identifier.fromNamespaceAndPath(pumpkinNamespace, name), sup::get);
+                createHolder(pumpkinRegistryKey, Identifier.fromNamespaceAndPath(pumpkinNamespace, name));
+        holder.pumpkinSetFactory(sup::get);
         pumpkinPending.add(holder);
         // This is the one place that knows both the registry and the holder; see
         // DeferredHolder.pumpkinRecord for why the key needs both.
@@ -236,12 +239,15 @@ public class DeferredRegister<T> {
         return holder;
     }
 
+    // Pumpkin divergence: real body -- the function form takes the id it will be
+    // registered under; hand it the id and fall into the supplier path.
     public <I extends T> DeferredHolder<T, I> register(final String name, final Function<Identifier, ? extends I> func) {
-        throw Unimplemented.forMember("net/neoforged/neoforge/registries/DeferredRegister.register:(Ljava/lang/String;Ljava/util/function/Function;)Lnet/neoforged/neoforge/registries/DeferredHolder;");
+        return register(name, () -> func.apply(Identifier.fromNamespaceAndPath(pumpkinNamespace, name)));
     }
 
+    // Pumpkin divergence: real body -- the factory method subclasses override.
     protected <I extends T> DeferredHolder<T, I> createHolder(ResourceKey<? extends Registry<T>> registryKey, Identifier key) {
-        throw Unimplemented.forMember("net/neoforged/neoforge/registries/DeferredRegister.createHolder:(Lnet/minecraft/resources/ResourceKey;Lnet/minecraft/resources/Identifier;)Lnet/neoforged/neoforge/registries/DeferredHolder;");
+        return new DeferredHolder<>(key, null);
     }
 
     public void addAlias(Identifier from, Identifier to) {
@@ -297,8 +303,9 @@ public class DeferredRegister<T> {
         throw Unimplemented.forMember("net/neoforged/neoforge/registries/DeferredRegister.getRegistryKey:()Lnet/minecraft/resources/ResourceKey;");
     }
 
+    // Pumpkin divergence: real body.
     public String getNamespace() {
-        throw Unimplemented.forMember("net/neoforged/neoforge/registries/DeferredRegister.getNamespace:()Ljava/lang/String;");
+        return pumpkinNamespace;
     }
 
     public static class Blocks extends DeferredRegister<Block> {

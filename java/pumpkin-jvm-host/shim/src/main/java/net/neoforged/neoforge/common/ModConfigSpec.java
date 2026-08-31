@@ -60,160 +60,199 @@ public class ModConfigSpec implements IConfigSpec {
             return new ConfigValue<>(defaultValue);
         }
 
+        // Pumpkin divergence: real body -- the declared default answers.
         public <T> ConfigValue<T> define(List<String> path, T defaultValue) {
-            throw Unimplemented.forMember("net/neoforged/neoforge/common/ModConfigSpec$Builder.define:(Ljava/util/List;Ljava/lang/Object;)Lnet/neoforged/neoforge/common/ModConfigSpec$ConfigValue;");
+            return new ConfigValue<>(defaultValue);
         }
 
+        // Pumpkin divergence: real body -- the declared default answers.
         public <T> ConfigValue<T> define(String path, T defaultValue, Predicate<Object> validator) {
-            throw Unimplemented.forMember("net/neoforged/neoforge/common/ModConfigSpec$Builder.define:(Ljava/lang/String;Ljava/lang/Object;Ljava/util/function/Predicate;)Lnet/neoforged/neoforge/common/ModConfigSpec$ConfigValue;");
+            return new ConfigValue<>(defaultValue);
         }
 
+        // Pumpkin divergence: real body -- the declared default answers.
         public <T> ConfigValue<T> define(List<String> path, T defaultValue, Predicate<Object> validator) {
-            throw Unimplemented.forMember("net/neoforged/neoforge/common/ModConfigSpec$Builder.define:(Ljava/util/List;Ljava/lang/Object;Ljava/util/function/Predicate;)Lnet/neoforged/neoforge/common/ModConfigSpec$ConfigValue;");
+            return new ConfigValue<>(defaultValue);
         }
 
+        // Pumpkin divergence: real body -- the declared default answers.
         public <T> ConfigValue<T> define(String path, Supplier<T> defaultSupplier, Predicate<Object> validator) {
-            throw Unimplemented.forMember("net/neoforged/neoforge/common/ModConfigSpec$Builder.define:(Ljava/lang/String;Ljava/util/function/Supplier;Ljava/util/function/Predicate;)Lnet/neoforged/neoforge/common/ModConfigSpec$ConfigValue;");
+            return new ConfigValue<>(defaultSupplier);
         }
 
+        // Pumpkin divergence: real body -- the declared default answers.
         public <T> ConfigValue<T> define(List<String> path, Supplier<T> defaultSupplier, Predicate<Object> validator) {
-            throw Unimplemented.forMember("net/neoforged/neoforge/common/ModConfigSpec$Builder.define:(Ljava/util/List;Ljava/util/function/Supplier;Ljava/util/function/Predicate;)Lnet/neoforged/neoforge/common/ModConfigSpec$ConfigValue;");
+            return new ConfigValue<>(defaultSupplier);
         }
 
+        // Pumpkin divergence: real body -- the declared default answers.
         public <T> ConfigValue<T> define(List<String> path, Supplier<T> defaultSupplier, Predicate<Object> validator, Class<?> clazz) {
-            throw Unimplemented.forMember("net/neoforged/neoforge/common/ModConfigSpec$Builder.define:(Ljava/util/List;Ljava/util/function/Supplier;Ljava/util/function/Predicate;Ljava/lang/Class;)Lnet/neoforged/neoforge/common/ModConfigSpec$ConfigValue;");
+            return new ConfigValue<>(defaultSupplier);
         }
 
+        // Pumpkin divergence: real body -- the declared default answers.
         public <T> ConfigValue<T> define(List<String> path, ValueSpec value, Supplier<T> defaultSupplier) {
-            throw Unimplemented.forMember("net/neoforged/neoforge/common/ModConfigSpec$Builder.define:(Ljava/util/List;Lnet/neoforged/neoforge/common/ModConfigSpec$ValueSpec;Ljava/util/function/Supplier;)Lnet/neoforged/neoforge/common/ModConfigSpec$ConfigValue;");
+            return new ConfigValue<>(defaultSupplier);
         }
 
+        // Pumpkin divergence: real body -- the declared default answers.
         public <V extends Comparable<? super V>> ConfigValue<V> defineInRange(String path, V defaultValue, V min, V max, Class<V> clazz) {
-            throw Unimplemented.forMember("net/neoforged/neoforge/common/ModConfigSpec$Builder.defineInRange:(Ljava/lang/String;Ljava/lang/Comparable;Ljava/lang/Comparable;Ljava/lang/Comparable;Ljava/lang/Class;)Lnet/neoforged/neoforge/common/ModConfigSpec$ConfigValue;");
+            return new ConfigValue<>(defaultValue);
         }
 
+        // Pumpkin divergence: real body -- the declared default answers.
         public <V extends Comparable<? super V>> ConfigValue<V> defineInRange(List<String> path, V defaultValue, V min, V max, Class<V> clazz) {
-            throw Unimplemented.forMember("net/neoforged/neoforge/common/ModConfigSpec$Builder.defineInRange:(Ljava/util/List;Ljava/lang/Comparable;Ljava/lang/Comparable;Ljava/lang/Comparable;Ljava/lang/Class;)Lnet/neoforged/neoforge/common/ModConfigSpec$ConfigValue;");
+            return new ConfigValue<>(defaultValue);
         }
 
+        // Pumpkin divergence: real body -- the declared default answers.
         public <V extends Comparable<? super V>> ConfigValue<V> defineInRange(String path, Supplier<V> defaultSupplier, V min, V max, Class<V> clazz) {
-            throw Unimplemented.forMember("net/neoforged/neoforge/common/ModConfigSpec$Builder.defineInRange:(Ljava/lang/String;Ljava/util/function/Supplier;Ljava/lang/Comparable;Ljava/lang/Comparable;Ljava/lang/Class;)Lnet/neoforged/neoforge/common/ModConfigSpec$ConfigValue;");
+            return new ConfigValue<>(defaultSupplier);
         }
 
+        // Pumpkin divergence: real body -- the declared default answers.
         public <V extends Comparable<? super V>> ConfigValue<V> defineInRange(List<String> path, Supplier<V> defaultSupplier, V min, V max, Class<V> clazz) {
-            throw Unimplemented.forMember("net/neoforged/neoforge/common/ModConfigSpec$Builder.defineInRange:(Ljava/util/List;Ljava/util/function/Supplier;Ljava/lang/Comparable;Ljava/lang/Comparable;Ljava/lang/Class;)Lnet/neoforged/neoforge/common/ModConfigSpec$ConfigValue;");
+            return new ConfigValue<>(defaultSupplier);
         }
 
+        // Pumpkin divergence: real body -- the declared default answers.
         public <T> ConfigValue<List<? extends T>> defineListAllowEmpty(String path, List<? extends T> defaultValue, Predicate<Object> elementValidator) {
-            throw Unimplemented.forMember("net/neoforged/neoforge/common/ModConfigSpec$Builder.defineListAllowEmpty:(Ljava/lang/String;Ljava/util/List;Ljava/util/function/Predicate;)Lnet/neoforged/neoforge/common/ModConfigSpec$ConfigValue;");
+            return new ConfigValue<>(defaultValue);
         }
 
+        // Pumpkin divergence: real body -- the declared default answers.
         public <T> ConfigValue<List<? extends T>> defineListAllowEmpty(String path, List<? extends T> defaultValue, Supplier<T> newElementSupplier, Predicate<Object> elementValidator) {
-            throw Unimplemented.forMember("net/neoforged/neoforge/common/ModConfigSpec$Builder.defineListAllowEmpty:(Ljava/lang/String;Ljava/util/List;Ljava/util/function/Supplier;Ljava/util/function/Predicate;)Lnet/neoforged/neoforge/common/ModConfigSpec$ConfigValue;");
+            return new ConfigValue<>(defaultValue);
         }
 
+        // Pumpkin divergence: real body -- the declared default answers.
         public <T> ConfigValue<List<? extends T>> defineListAllowEmpty(String path, Supplier<List<? extends T>> defaultSupplier, Predicate<Object> elementValidator) {
-            throw Unimplemented.forMember("net/neoforged/neoforge/common/ModConfigSpec$Builder.defineListAllowEmpty:(Ljava/lang/String;Ljava/util/function/Supplier;Ljava/util/function/Predicate;)Lnet/neoforged/neoforge/common/ModConfigSpec$ConfigValue;");
+            return new ConfigValue<>(defaultSupplier);
         }
 
+        // Pumpkin divergence: real body -- the declared default answers.
         public <T> ConfigValue<List<? extends T>> defineListAllowEmpty(String path, Supplier<List<? extends T>> defaultSupplier, Supplier<T> newElementSupplier, Predicate<Object> elementValidator) {
-            throw Unimplemented.forMember("net/neoforged/neoforge/common/ModConfigSpec$Builder.defineListAllowEmpty:(Ljava/lang/String;Ljava/util/function/Supplier;Ljava/util/function/Supplier;Ljava/util/function/Predicate;)Lnet/neoforged/neoforge/common/ModConfigSpec$ConfigValue;");
+            return new ConfigValue<>(defaultSupplier);
         }
 
+        // Pumpkin divergence: real body -- the declared default answers.
         public <T> ConfigValue<List<? extends T>> defineListAllowEmpty(List<String> path, List<? extends T> defaultValue, Predicate<Object> elementValidator) {
-            throw Unimplemented.forMember("net/neoforged/neoforge/common/ModConfigSpec$Builder.defineListAllowEmpty:(Ljava/util/List;Ljava/util/List;Ljava/util/function/Predicate;)Lnet/neoforged/neoforge/common/ModConfigSpec$ConfigValue;");
+            return new ConfigValue<>(defaultValue);
         }
 
+        // Pumpkin divergence: real body -- the declared default answers.
         public <T> ConfigValue<List<? extends T>> defineListAllowEmpty(List<String> path, List<? extends T> defaultValue, Supplier<T> newElementSupplier, Predicate<Object> elementValidator) {
-            throw Unimplemented.forMember("net/neoforged/neoforge/common/ModConfigSpec$Builder.defineListAllowEmpty:(Ljava/util/List;Ljava/util/List;Ljava/util/function/Supplier;Ljava/util/function/Predicate;)Lnet/neoforged/neoforge/common/ModConfigSpec$ConfigValue;");
+            return new ConfigValue<>(defaultValue);
         }
 
+        // Pumpkin divergence: real body -- the declared default answers.
         public <T> ConfigValue<List<? extends T>> defineListAllowEmpty(List<String> path, Supplier<List<? extends T>> defaultSupplier, Predicate<Object> elementValidator) {
-            throw Unimplemented.forMember("net/neoforged/neoforge/common/ModConfigSpec$Builder.defineListAllowEmpty:(Ljava/util/List;Ljava/util/function/Supplier;Ljava/util/function/Predicate;)Lnet/neoforged/neoforge/common/ModConfigSpec$ConfigValue;");
+            return new ConfigValue<>(defaultSupplier);
         }
 
+        // Pumpkin divergence: real body -- the declared default answers.
         public <T> ConfigValue<List<? extends T>> defineListAllowEmpty(List<String> path, Supplier<List<? extends T>> defaultSupplier, Supplier<T> newElementSupplier, Predicate<Object> elementValidator) {
-            throw Unimplemented.forMember("net/neoforged/neoforge/common/ModConfigSpec$Builder.defineListAllowEmpty:(Ljava/util/List;Ljava/util/function/Supplier;Ljava/util/function/Supplier;Ljava/util/function/Predicate;)Lnet/neoforged/neoforge/common/ModConfigSpec$ConfigValue;");
+            return new ConfigValue<>(defaultSupplier);
         }
 
+        // Pumpkin divergence: real body -- the declared default answers.
         public <V extends Enum<V>> EnumValue<V> defineEnum(String path, V defaultValue) {
-            throw Unimplemented.forMember("net/neoforged/neoforge/common/ModConfigSpec$Builder.defineEnum:(Ljava/lang/String;Ljava/lang/Enum;)Lnet/neoforged/neoforge/common/ModConfigSpec$EnumValue;");
+            return new EnumValue<>(defaultValue);
         }
 
+        // Pumpkin divergence: real body -- the declared default answers.
         public <V extends Enum<V>> EnumValue<V> defineEnum(String path, V defaultValue, EnumGetMethod converter) {
-            throw Unimplemented.forMember("net/neoforged/neoforge/common/ModConfigSpec$Builder.defineEnum:(Ljava/lang/String;Ljava/lang/Enum;Lcom/electronwill/nightconfig/core/EnumGetMethod;)Lnet/neoforged/neoforge/common/ModConfigSpec$EnumValue;");
+            return new EnumValue<>(defaultValue);
         }
 
+        // Pumpkin divergence: real body -- the declared default answers.
         public <V extends Enum<V>> EnumValue<V> defineEnum(List<String> path, V defaultValue) {
-            throw Unimplemented.forMember("net/neoforged/neoforge/common/ModConfigSpec$Builder.defineEnum:(Ljava/util/List;Ljava/lang/Enum;)Lnet/neoforged/neoforge/common/ModConfigSpec$EnumValue;");
+            return new EnumValue<>(defaultValue);
         }
 
+        // Pumpkin divergence: real body -- the declared default answers.
         public <V extends Enum<V>> EnumValue<V> defineEnum(List<String> path, V defaultValue, EnumGetMethod converter) {
-            throw Unimplemented.forMember("net/neoforged/neoforge/common/ModConfigSpec$Builder.defineEnum:(Ljava/util/List;Ljava/lang/Enum;Lcom/electronwill/nightconfig/core/EnumGetMethod;)Lnet/neoforged/neoforge/common/ModConfigSpec$EnumValue;");
+            return new EnumValue<>(defaultValue);
         }
 
+        // Pumpkin divergence: real body -- the declared default answers.
         public <V extends Enum<V>> EnumValue<V> defineEnum(String path, V defaultValue, V... acceptableValues) {
-            throw Unimplemented.forMember("net/neoforged/neoforge/common/ModConfigSpec$Builder.defineEnum:(Ljava/lang/String;Ljava/lang/Enum;[Ljava/lang/Enum;)Lnet/neoforged/neoforge/common/ModConfigSpec$EnumValue;");
+            return new EnumValue<>(defaultValue);
         }
 
+        // Pumpkin divergence: real body -- the declared default answers.
         public <V extends Enum<V>> EnumValue<V> defineEnum(String path, V defaultValue, EnumGetMethod converter, V... acceptableValues) {
-            throw Unimplemented.forMember("net/neoforged/neoforge/common/ModConfigSpec$Builder.defineEnum:(Ljava/lang/String;Ljava/lang/Enum;Lcom/electronwill/nightconfig/core/EnumGetMethod;[Ljava/lang/Enum;)Lnet/neoforged/neoforge/common/ModConfigSpec$EnumValue;");
+            return new EnumValue<>(defaultValue);
         }
 
+        // Pumpkin divergence: real body -- the declared default answers.
         public <V extends Enum<V>> EnumValue<V> defineEnum(List<String> path, V defaultValue, V... acceptableValues) {
-            throw Unimplemented.forMember("net/neoforged/neoforge/common/ModConfigSpec$Builder.defineEnum:(Ljava/util/List;Ljava/lang/Enum;[Ljava/lang/Enum;)Lnet/neoforged/neoforge/common/ModConfigSpec$EnumValue;");
+            return new EnumValue<>(defaultValue);
         }
 
+        // Pumpkin divergence: real body -- the declared default answers.
         public <V extends Enum<V>> EnumValue<V> defineEnum(List<String> path, V defaultValue, EnumGetMethod converter, V... acceptableValues) {
-            throw Unimplemented.forMember("net/neoforged/neoforge/common/ModConfigSpec$Builder.defineEnum:(Ljava/util/List;Ljava/lang/Enum;Lcom/electronwill/nightconfig/core/EnumGetMethod;[Ljava/lang/Enum;)Lnet/neoforged/neoforge/common/ModConfigSpec$EnumValue;");
+            return new EnumValue<>(defaultValue);
         }
 
+        // Pumpkin divergence: real body -- the declared default answers.
         public <V extends Enum<V>> EnumValue<V> defineEnum(String path, V defaultValue, Collection<V> acceptableValues) {
-            throw Unimplemented.forMember("net/neoforged/neoforge/common/ModConfigSpec$Builder.defineEnum:(Ljava/lang/String;Ljava/lang/Enum;Ljava/util/Collection;)Lnet/neoforged/neoforge/common/ModConfigSpec$EnumValue;");
+            return new EnumValue<>(defaultValue);
         }
 
+        // Pumpkin divergence: real body -- the declared default answers.
         public <V extends Enum<V>> EnumValue<V> defineEnum(String path, V defaultValue, EnumGetMethod converter, Collection<V> acceptableValues) {
-            throw Unimplemented.forMember("net/neoforged/neoforge/common/ModConfigSpec$Builder.defineEnum:(Ljava/lang/String;Ljava/lang/Enum;Lcom/electronwill/nightconfig/core/EnumGetMethod;Ljava/util/Collection;)Lnet/neoforged/neoforge/common/ModConfigSpec$EnumValue;");
+            return new EnumValue<>(defaultValue);
         }
 
+        // Pumpkin divergence: real body -- the declared default answers.
         public <V extends Enum<V>> EnumValue<V> defineEnum(List<String> path, V defaultValue, Collection<V> acceptableValues) {
-            throw Unimplemented.forMember("net/neoforged/neoforge/common/ModConfigSpec$Builder.defineEnum:(Ljava/util/List;Ljava/lang/Enum;Ljava/util/Collection;)Lnet/neoforged/neoforge/common/ModConfigSpec$EnumValue;");
+            return new EnumValue<>(defaultValue);
         }
 
+        // Pumpkin divergence: real body -- the declared default answers.
         public <V extends Enum<V>> EnumValue<V> defineEnum(List<String> path, V defaultValue, EnumGetMethod converter, Collection<V> acceptableValues) {
-            throw Unimplemented.forMember("net/neoforged/neoforge/common/ModConfigSpec$Builder.defineEnum:(Ljava/util/List;Ljava/lang/Enum;Lcom/electronwill/nightconfig/core/EnumGetMethod;Ljava/util/Collection;)Lnet/neoforged/neoforge/common/ModConfigSpec$EnumValue;");
+            return new EnumValue<>(defaultValue);
         }
 
+        // Pumpkin divergence: real body -- the declared default answers.
         public <V extends Enum<V>> EnumValue<V> defineEnum(String path, V defaultValue, Predicate<Object> validator) {
-            throw Unimplemented.forMember("net/neoforged/neoforge/common/ModConfigSpec$Builder.defineEnum:(Ljava/lang/String;Ljava/lang/Enum;Ljava/util/function/Predicate;)Lnet/neoforged/neoforge/common/ModConfigSpec$EnumValue;");
+            return new EnumValue<>(defaultValue);
         }
 
+        // Pumpkin divergence: real body -- the declared default answers.
         public <V extends Enum<V>> EnumValue<V> defineEnum(String path, V defaultValue, EnumGetMethod converter, Predicate<Object> validator) {
-            throw Unimplemented.forMember("net/neoforged/neoforge/common/ModConfigSpec$Builder.defineEnum:(Ljava/lang/String;Ljava/lang/Enum;Lcom/electronwill/nightconfig/core/EnumGetMethod;Ljava/util/function/Predicate;)Lnet/neoforged/neoforge/common/ModConfigSpec$EnumValue;");
+            return new EnumValue<>(defaultValue);
         }
 
+        // Pumpkin divergence: real body -- the declared default answers.
         public <V extends Enum<V>> EnumValue<V> defineEnum(List<String> path, V defaultValue, Predicate<Object> validator) {
-            throw Unimplemented.forMember("net/neoforged/neoforge/common/ModConfigSpec$Builder.defineEnum:(Ljava/util/List;Ljava/lang/Enum;Ljava/util/function/Predicate;)Lnet/neoforged/neoforge/common/ModConfigSpec$EnumValue;");
+            return new EnumValue<>(defaultValue);
         }
 
+        // Pumpkin divergence: real body -- the declared default answers.
         public <V extends Enum<V>> EnumValue<V> defineEnum(List<String> path, V defaultValue, EnumGetMethod converter, Predicate<Object> validator) {
-            throw Unimplemented.forMember("net/neoforged/neoforge/common/ModConfigSpec$Builder.defineEnum:(Ljava/util/List;Ljava/lang/Enum;Lcom/electronwill/nightconfig/core/EnumGetMethod;Ljava/util/function/Predicate;)Lnet/neoforged/neoforge/common/ModConfigSpec$EnumValue;");
+            return new EnumValue<>(defaultValue);
         }
 
+        // Pumpkin divergence: real body -- the declared default answers.
         public <V extends Enum<V>> EnumValue<V> defineEnum(String path, Supplier<V> defaultSupplier, Predicate<Object> validator, Class<V> clazz) {
-            throw Unimplemented.forMember("net/neoforged/neoforge/common/ModConfigSpec$Builder.defineEnum:(Ljava/lang/String;Ljava/util/function/Supplier;Ljava/util/function/Predicate;Ljava/lang/Class;)Lnet/neoforged/neoforge/common/ModConfigSpec$EnumValue;");
+            return new EnumValue<>(defaultSupplier.get());
         }
 
+        // Pumpkin divergence: real body -- the declared default answers.
         public <V extends Enum<V>> EnumValue<V> defineEnum(String path, Supplier<V> defaultSupplier, EnumGetMethod converter, Predicate<Object> validator, Class<V> clazz) {
-            throw Unimplemented.forMember("net/neoforged/neoforge/common/ModConfigSpec$Builder.defineEnum:(Ljava/lang/String;Ljava/util/function/Supplier;Lcom/electronwill/nightconfig/core/EnumGetMethod;Ljava/util/function/Predicate;Ljava/lang/Class;)Lnet/neoforged/neoforge/common/ModConfigSpec$EnumValue;");
+            return new EnumValue<>(defaultSupplier.get());
         }
 
+        // Pumpkin divergence: real body -- the declared default answers.
         public <V extends Enum<V>> EnumValue<V> defineEnum(List<String> path, Supplier<V> defaultSupplier, Predicate<Object> validator, Class<V> clazz) {
-            throw Unimplemented.forMember("net/neoforged/neoforge/common/ModConfigSpec$Builder.defineEnum:(Ljava/util/List;Ljava/util/function/Supplier;Ljava/util/function/Predicate;Ljava/lang/Class;)Lnet/neoforged/neoforge/common/ModConfigSpec$EnumValue;");
+            return new EnumValue<>(defaultSupplier.get());
         }
 
+        // Pumpkin divergence: real body -- the declared default answers.
         public <V extends Enum<V>> EnumValue<V> defineEnum(List<String> path, Supplier<V> defaultSupplier, EnumGetMethod converter, Predicate<Object> validator, Class<V> clazz) {
-            throw Unimplemented.forMember("net/neoforged/neoforge/common/ModConfigSpec$Builder.defineEnum:(Ljava/util/List;Ljava/util/function/Supplier;Lcom/electronwill/nightconfig/core/EnumGetMethod;Ljava/util/function/Predicate;Ljava/lang/Class;)Lnet/neoforged/neoforge/common/ModConfigSpec$EnumValue;");
+            return new EnumValue<>(defaultSupplier.get());
         }
 
         // Pumpkin divergence: real body.
@@ -221,16 +260,25 @@ public class ModConfigSpec implements IConfigSpec {
             return new BooleanValue(defaultValue);
         }
 
+        // Pumpkin divergence: real body. The value answers the default the mod
+        // declared -- the same answer NeoForge gives when no file overrides it --
+        // and screen metadata chains return this.
         public BooleanValue define(List<String> path, boolean defaultValue) {
-            throw Unimplemented.forMember("net/neoforged/neoforge/common/ModConfigSpec$Builder.define:(Ljava/util/List;Z)Lnet/neoforged/neoforge/common/ModConfigSpec$BooleanValue;");
+            return new BooleanValue(defaultValue);
         }
 
+        // Pumpkin divergence: real body. The value answers the default the mod
+        // declared -- the same answer NeoForge gives when no file overrides it --
+        // and screen metadata chains return this.
         public BooleanValue define(String path, Supplier<Boolean> defaultSupplier) {
-            throw Unimplemented.forMember("net/neoforged/neoforge/common/ModConfigSpec$Builder.define:(Ljava/lang/String;Ljava/util/function/Supplier;)Lnet/neoforged/neoforge/common/ModConfigSpec$BooleanValue;");
+            return new BooleanValue(defaultSupplier.get());
         }
 
+        // Pumpkin divergence: real body. The value answers the default the mod
+        // declared -- the same answer NeoForge gives when no file overrides it --
+        // and screen metadata chains return this.
         public BooleanValue define(List<String> path, Supplier<Boolean> defaultSupplier) {
-            throw Unimplemented.forMember("net/neoforged/neoforge/common/ModConfigSpec$Builder.define:(Ljava/util/List;Ljava/util/function/Supplier;)Lnet/neoforged/neoforge/common/ModConfigSpec$BooleanValue;");
+            return new BooleanValue(defaultSupplier.get());
         }
 
         // Pumpkin divergence: real body. The range is not enforced: it constrains what an
@@ -239,16 +287,25 @@ public class ModConfigSpec implements IConfigSpec {
             return new DoubleValue(defaultValue);
         }
 
+        // Pumpkin divergence: real body. The value answers the default the mod
+        // declared -- the same answer NeoForge gives when no file overrides it --
+        // and screen metadata chains return this.
         public DoubleValue defineInRange(List<String> path, double defaultValue, double min, double max) {
-            throw Unimplemented.forMember("net/neoforged/neoforge/common/ModConfigSpec$Builder.defineInRange:(Ljava/util/List;DDD)Lnet/neoforged/neoforge/common/ModConfigSpec$DoubleValue;");
+            return new DoubleValue(defaultValue);
         }
 
+        // Pumpkin divergence: real body. The value answers the default the mod
+        // declared -- the same answer NeoForge gives when no file overrides it --
+        // and screen metadata chains return this.
         public DoubleValue defineInRange(String path, Supplier<Double> defaultSupplier, double min, double max) {
-            throw Unimplemented.forMember("net/neoforged/neoforge/common/ModConfigSpec$Builder.defineInRange:(Ljava/lang/String;Ljava/util/function/Supplier;DD)Lnet/neoforged/neoforge/common/ModConfigSpec$DoubleValue;");
+            return new DoubleValue(defaultSupplier.get());
         }
 
+        // Pumpkin divergence: real body. The value answers the default the mod
+        // declared -- the same answer NeoForge gives when no file overrides it --
+        // and screen metadata chains return this.
         public DoubleValue defineInRange(List<String> path, Supplier<Double> defaultSupplier, double min, double max) {
-            throw Unimplemented.forMember("net/neoforged/neoforge/common/ModConfigSpec$Builder.defineInRange:(Ljava/util/List;Ljava/util/function/Supplier;DD)Lnet/neoforged/neoforge/common/ModConfigSpec$DoubleValue;");
+            return new DoubleValue(defaultSupplier.get());
         }
 
         // Pumpkin divergence: real body. See the double overload for the range.
@@ -256,32 +313,52 @@ public class ModConfigSpec implements IConfigSpec {
             return new IntValue(defaultValue);
         }
 
+        // Pumpkin divergence: real body. The value answers the default the mod
+        // declared -- the same answer NeoForge gives when no file overrides it --
+        // and screen metadata chains return this.
         public IntValue defineInRange(List<String> path, int defaultValue, int min, int max) {
-            throw Unimplemented.forMember("net/neoforged/neoforge/common/ModConfigSpec$Builder.defineInRange:(Ljava/util/List;III)Lnet/neoforged/neoforge/common/ModConfigSpec$IntValue;");
+            return new IntValue(defaultValue);
         }
 
+        // Pumpkin divergence: real body. The value answers the default the mod
+        // declared -- the same answer NeoForge gives when no file overrides it --
+        // and screen metadata chains return this.
         public IntValue defineInRange(String path, Supplier<Integer> defaultSupplier, int min, int max) {
-            throw Unimplemented.forMember("net/neoforged/neoforge/common/ModConfigSpec$Builder.defineInRange:(Ljava/lang/String;Ljava/util/function/Supplier;II)Lnet/neoforged/neoforge/common/ModConfigSpec$IntValue;");
+            return new IntValue(defaultSupplier.get());
         }
 
+        // Pumpkin divergence: real body. The value answers the default the mod
+        // declared -- the same answer NeoForge gives when no file overrides it --
+        // and screen metadata chains return this.
         public IntValue defineInRange(List<String> path, Supplier<Integer> defaultSupplier, int min, int max) {
-            throw Unimplemented.forMember("net/neoforged/neoforge/common/ModConfigSpec$Builder.defineInRange:(Ljava/util/List;Ljava/util/function/Supplier;II)Lnet/neoforged/neoforge/common/ModConfigSpec$IntValue;");
+            return new IntValue(defaultSupplier.get());
         }
 
+        // Pumpkin divergence: real body. See the int overload -- the value answers the
+        // default the mod declared, and nothing reads a file behind it yet.
         public LongValue defineInRange(String path, long defaultValue, long min, long max) {
-            throw Unimplemented.forMember("net/neoforged/neoforge/common/ModConfigSpec$Builder.defineInRange:(Ljava/lang/String;JJJ)Lnet/neoforged/neoforge/common/ModConfigSpec$LongValue;");
+            return new LongValue(defaultValue);
         }
 
+        // Pumpkin divergence: real body. The value answers the default the mod
+        // declared -- the same answer NeoForge gives when no file overrides it --
+        // and screen metadata chains return this.
         public LongValue defineInRange(List<String> path, long defaultValue, long min, long max) {
-            throw Unimplemented.forMember("net/neoforged/neoforge/common/ModConfigSpec$Builder.defineInRange:(Ljava/util/List;JJJ)Lnet/neoforged/neoforge/common/ModConfigSpec$LongValue;");
+            return new LongValue(defaultValue);
         }
 
+        // Pumpkin divergence: real body. The value answers the default the mod
+        // declared -- the same answer NeoForge gives when no file overrides it --
+        // and screen metadata chains return this.
         public LongValue defineInRange(String path, Supplier<Long> defaultSupplier, long min, long max) {
-            throw Unimplemented.forMember("net/neoforged/neoforge/common/ModConfigSpec$Builder.defineInRange:(Ljava/lang/String;Ljava/util/function/Supplier;JJ)Lnet/neoforged/neoforge/common/ModConfigSpec$LongValue;");
+            return new LongValue(defaultSupplier.get());
         }
 
+        // Pumpkin divergence: real body. The value answers the default the mod
+        // declared -- the same answer NeoForge gives when no file overrides it --
+        // and screen metadata chains return this.
         public LongValue defineInRange(List<String> path, Supplier<Long> defaultSupplier, long min, long max) {
-            throw Unimplemented.forMember("net/neoforged/neoforge/common/ModConfigSpec$Builder.defineInRange:(Ljava/util/List;Ljava/util/function/Supplier;JJ)Lnet/neoforged/neoforge/common/ModConfigSpec$LongValue;");
+            return new LongValue(defaultSupplier.get());
         }
 
         // Pumpkin divergence: real body. The single-String overload, which is the one
@@ -298,16 +375,23 @@ public class ModConfigSpec implements IConfigSpec {
             return this;
         }
 
+        // Pumpkin divergence: real body. A translation key decorates the config screen,
+        // which a headless server never draws; accepted and dropped, chain returns this.
         public Builder translation(String translationKey) {
-            throw Unimplemented.forMember("net/neoforged/neoforge/common/ModConfigSpec$Builder.translation:(Ljava/lang/String;)Lnet/neoforged/neoforge/common/ModConfigSpec$Builder;");
+            return this;
         }
 
+        // Pumpkin divergence: real body. The value answers the default the mod
+        // declared -- the same answer NeoForge gives when no file overrides it --
+        // and screen metadata chains return this.
         public Builder worldRestart() {
-            throw Unimplemented.forMember("net/neoforged/neoforge/common/ModConfigSpec$Builder.worldRestart:()Lnet/neoforged/neoforge/common/ModConfigSpec$Builder;");
+            return this;
         }
 
+        // Pumpkin divergence: real body. Restart metadata for a config screen; accepted
+        // and dropped, chain returns this.
         public Builder gameRestart() {
-            throw Unimplemented.forMember("net/neoforged/neoforge/common/ModConfigSpec$Builder.gameRestart:()Lnet/neoforged/neoforge/common/ModConfigSpec$Builder;");
+            return this;
         }
 
         // Pumpkin divergence: real body. Sections nest, and a value's key is the whole path
@@ -317,8 +401,11 @@ public class ModConfigSpec implements IConfigSpec {
             return this;
         }
 
+        // Pumpkin divergence: real body. The value answers the default the mod
+        // declared -- the same answer NeoForge gives when no file overrides it --
+        // and screen metadata chains return this.
         public Builder push(List<String> path) {
-            throw Unimplemented.forMember("net/neoforged/neoforge/common/ModConfigSpec$Builder.push:(Ljava/util/List;)Lnet/neoforged/neoforge/common/ModConfigSpec$Builder;");
+            return this;
         }
 
         // Pumpkin divergence: real body.
@@ -329,8 +416,11 @@ public class ModConfigSpec implements IConfigSpec {
             return this;
         }
 
+        // Pumpkin divergence: real body. The value answers the default the mod
+        // declared -- the same answer NeoForge gives when no file overrides it --
+        // and screen metadata chains return this.
         public Builder pop(int count) {
-            throw Unimplemented.forMember("net/neoforged/neoforge/common/ModConfigSpec$Builder.pop:(I)Lnet/neoforged/neoforge/common/ModConfigSpec$Builder;");
+            return this;
         }
 
         public <T> Pair<T, ModConfigSpec> configure(Function<Builder, T> consumer) {
@@ -412,18 +502,25 @@ public class ModConfigSpec implements IConfigSpec {
         // Not final: the generator synthesises a no-arg constructor for every class that
         // declares none and cannot initialise a field it does not know about. Nothing calls
         // that constructor -- a value always comes from define() -- so the only cost is this.
-        private T pumpkinDefault;
+        // Lazy on purpose: Mekanism's default suppliers read *other* config values, and
+        // evaluating them while the config object is still mid-construction NPEs inside
+        // the mod. NeoForge defers exactly the same way.
+        private Supplier<T> pumpkinDefault;
 
         ConfigValue(T defaultValue) {
-            this.pumpkinDefault = defaultValue;
+            this.pumpkinDefault = () -> defaultValue;
+        }
+
+        ConfigValue(Supplier<T> defaultSupplier) {
+            this.pumpkinDefault = defaultSupplier;
         }
 
         ConfigValue(Builder parent, List<String> path, Supplier<T> defaultSupplier) {
-            this(defaultSupplier.get());
+            this(defaultSupplier);
         }
 
         public T get() {
-            return pumpkinDefault;
+            return pumpkinDefault.get();
         }
 
         public T getRaw() {
@@ -492,6 +589,11 @@ public class ModConfigSpec implements IConfigSpec {
 
     public static class LongValue extends ConfigValue<Long> implements LongSupplier {
 
+        // Pumpkin divergence: real body, mirroring IntValue.
+        LongValue(Long defaultValue) {
+            super(defaultValue);
+        }
+
         LongValue(Builder parent, List<String> path, Supplier<Long> defaultSupplier) {
         }
 
@@ -530,6 +632,11 @@ public class ModConfigSpec implements IConfigSpec {
     }
 
     public static class EnumValue<T extends Enum<T>> extends ConfigValue<T> {
+
+        // Pumpkin divergence: real body, mirroring IntValue.
+        EnumValue(T defaultValue) {
+            super(defaultValue);
+        }
 
         EnumValue(Builder parent, List<String> path, Supplier<T> defaultSupplier, EnumGetMethod converter, Class<T> clazz) {
         }

@@ -16,11 +16,12 @@ public enum ArmorType implements StringRepresentable {
         throw Unimplemented.forMember("net/minecraft/world/item/equipment/ArmorType.getSlot:()Lnet/minecraft/world/entity/EquipmentSlot;");
     }
 
+    // Pumpkin divergence: vanilla body -- the lowercase constant name.
     public String getName() {
-        throw Unimplemented.forMember("net/minecraft/world/item/equipment/ArmorType.getName:()Ljava/lang/String;");
+        return name().toLowerCase(java.util.Locale.ROOT);
     }
 
     public String getSerializedName() {
-        throw Unimplemented.forMember("net/minecraft/world/item/equipment/ArmorType.getSerializedName:()Ljava/lang/String;");
+        return getName();
     }
 }

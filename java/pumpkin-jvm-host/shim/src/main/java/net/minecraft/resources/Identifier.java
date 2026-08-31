@@ -53,8 +53,9 @@ public final class Identifier implements Comparable<Identifier> {
                 : new Identifier(identifier.substring(0, colon), identifier.substring(colon + 1));
     }
 
+    // Pumpkin divergence: vanilla body -- the minecraft namespace.
     public static Identifier withDefaultNamespace(String path) {
-        throw Unimplemented.forMember("net/minecraft/resources/Identifier.withDefaultNamespace:(Ljava/lang/String;)Lnet/minecraft/resources/Identifier;");
+        return fromNamespaceAndPath("minecraft", path);
     }
 
     public static Identifier tryParse(String identifier) {
@@ -79,8 +80,9 @@ public final class Identifier implements Comparable<Identifier> {
         return pumpkinNamespace;
     }
 
+    // Pumpkin divergence: real body, mirroring withSuffix.
     public Identifier withPrefix(String prefix) {
-        throw Unimplemented.forMember("net/minecraft/resources/Identifier.withPrefix:(Ljava/lang/String;)Lnet/minecraft/resources/Identifier;");
+        return new Identifier(pumpkinNamespace, prefix + pumpkinPath);
     }
 
     // Pumpkin divergence: real body.
@@ -120,16 +122,17 @@ public final class Identifier implements Comparable<Identifier> {
         throw Unimplemented.forMember("net/minecraft/resources/Identifier.toDebugFileName:()Ljava/lang/String;");
     }
 
+    // Pumpkin divergence: vanilla bodies verbatim -- string arithmetic over the parts.
     public String toLanguageKey() {
-        throw Unimplemented.forMember("net/minecraft/resources/Identifier.toLanguageKey:()Ljava/lang/String;");
+        return getNamespace() + "." + getPath();
     }
 
     public String toLanguageKey(String prefix) {
-        throw Unimplemented.forMember("net/minecraft/resources/Identifier.toLanguageKey:(Ljava/lang/String;)Ljava/lang/String;");
+        return prefix + "." + toLanguageKey();
     }
 
     public String toLanguageKey(String prefix, String suffix) {
-        throw Unimplemented.forMember("net/minecraft/resources/Identifier.toLanguageKey:(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;");
+        return prefix + "." + toLanguageKey() + "." + suffix;
     }
 
     public static Identifier read(StringReader reader) throws CommandSyntaxException {

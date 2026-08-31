@@ -13,9 +13,6 @@ import java.nio.file.Path;
  * CONFIGDIR}: an enum's ordinals are part of its identity, and a shortened list would
  * renumber the rest.
  *
- * <p>{@link #get()} throws. Where Pumpkin keeps its config is a real fact, but it lives on
- * the Rust side and is not reachable from here; answering with a guessed path would have a
- * mod write its config somewhere nothing reads.
  */
 public enum FMLPaths {
     GAMEDIR,
@@ -23,7 +20,28 @@ public enum FMLPaths {
     CONFIGDIR,
     FMLCONFIG;
 
+    // Real bodies: these are facts about the running process. The server's working
+    // directory is the game directory -- mods really do load from mods/ under it -- and
+    // config/ is where a mod's file lands if it writes one. Pumpkin itself does not read
+    // config files yet; the path is real even while nothing consumes it.
+    // Real body: resolve against the game directory and make sure it exists -- what a
+    // mod immediately does with the result anyway.
+    public static Path getOrCreateGameRelativePath(Path path) {
+        Path resolved = Path.of(System.getProperty("user.dir")).resolve(path);
+        try {
+            java.nio.file.Files.createDirectories(resolved);
+        } catch (java.io.IOException e) {
+            throw new java.io.UncheckedIOException(e);
+        }
+        return resolved;
+    }
+
     public Path get() {
-        throw Unimplemented.forMember("net/neoforged/fml/loading/FMLPaths.get:()Ljava/nio/file/Path;");
+        Path gameDir = Path.of(System.getProperty("user.dir"));
+        return switch (this) {
+            case GAMEDIR -> gameDir;
+            case MODSDIR -> gameDir.resolve("mods");
+            case CONFIGDIR, FMLCONFIG -> gameDir.resolve("config");
+        };
     }
 }

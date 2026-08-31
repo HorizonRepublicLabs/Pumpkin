@@ -5,20 +5,24 @@ import dev.pumpkin.shim.Unimplemented;
 
 public class ARGB {
 
+    // Pumpkin divergence: vanilla arithmetic.
     public static int alpha(int color) {
-        throw Unimplemented.forMember("net/minecraft/util/ARGB.alpha:(I)I");
+        return color >>> 24;
     }
 
+    // Pumpkin divergence: vanilla arithmetic.
     public static int red(int color) {
-        throw Unimplemented.forMember("net/minecraft/util/ARGB.red:(I)I");
+        return color >> 16 & 0xFF;
     }
 
+    // Pumpkin divergence: vanilla arithmetic.
     public static int green(int color) {
-        throw Unimplemented.forMember("net/minecraft/util/ARGB.green:(I)I");
+        return color >> 8 & 0xFF;
     }
 
+    // Pumpkin divergence: vanilla arithmetic.
     public static int blue(int color) {
-        throw Unimplemented.forMember("net/minecraft/util/ARGB.blue:(I)I");
+        return color & 0xFF;
     }
 
     // Pumpkin divergence: real body, copied from vanilla. Pure arithmetic over primitives
@@ -37,20 +41,24 @@ public class ARGB {
         throw Unimplemented.forMember("net/minecraft/util/ARGB.color:(Lnet/minecraft/world/phys/Vec3;)I");
     }
 
+    // Pumpkin divergence: vanilla arithmetic.
     public static int multiply(int lhs, int rhs) {
-        throw Unimplemented.forMember("net/minecraft/util/ARGB.multiply:(II)I");
+        return color((alpha(lhs) * alpha(rhs)) / 255, (red(lhs) * red(rhs)) / 255, (green(lhs) * green(rhs)) / 255, (blue(lhs) * blue(rhs)) / 255);
     }
 
+    // Pumpkin divergence: vanilla arithmetic.
     public static int srgbLerp(float alpha, int p0, int p1) {
-        throw Unimplemented.forMember("net/minecraft/util/ARGB.srgbLerp:(FII)I");
+        return color((int) (alpha(p0) + alpha * (alpha(p1) - alpha(p0))), (int) (red(p0) + alpha * (red(p1) - red(p0))), (int) (green(p0) + alpha * (green(p1) - green(p0))), (int) (blue(p0) + alpha * (blue(p1) - blue(p0))));
     }
 
+    // Pumpkin divergence: vanilla arithmetic.
     public static int opaque(int color) {
-        throw Unimplemented.forMember("net/minecraft/util/ARGB.opaque:(I)I");
+        return color | 0xFF000000;
     }
 
+    // Pumpkin divergence: vanilla arithmetic.
     public static int transparent(int color) {
-        throw Unimplemented.forMember("net/minecraft/util/ARGB.transparent:(I)I");
+        return color & 0xFFFFFF;
     }
 
     // Pumpkin divergence: real body, copied from vanilla. This is the one four
@@ -63,8 +71,9 @@ public class ARGB {
         throw Unimplemented.forMember("net/minecraft/util/ARGB.color:(FI)I");
     }
 
+    // Pumpkin divergence: vanilla arithmetic.
     public static int white(float alpha) {
-        throw Unimplemented.forMember("net/minecraft/util/ARGB.white:(F)I");
+        return as8BitChannel(alpha) << 24 | 0xFFFFFF;
     }
 
     public static int white(int alpha) {
@@ -79,24 +88,29 @@ public class ARGB {
         throw Unimplemented.forMember("net/minecraft/util/ARGB.black:(I)I");
     }
 
+    // Pumpkin divergence: vanilla arithmetic.
     public static int colorFromFloat(float alpha, float red, float green, float blue) {
-        throw Unimplemented.forMember("net/minecraft/util/ARGB.colorFromFloat:(FFFF)I");
+        return color(as8BitChannel(alpha), as8BitChannel(red), as8BitChannel(green), as8BitChannel(blue));
     }
 
+    // Pumpkin divergence: vanilla arithmetic.
     public static int as8BitChannel(float value) {
-        throw Unimplemented.forMember("net/minecraft/util/ARGB.as8BitChannel:(F)I");
+        return (int) Math.floor(value * 255.0F);
     }
 
+    // Pumpkin divergence: vanilla arithmetic.
     public static float redFloat(int color) {
-        throw Unimplemented.forMember("net/minecraft/util/ARGB.redFloat:(I)F");
+        return red(color) / 255.0F;
     }
 
+    // Pumpkin divergence: vanilla arithmetic.
     public static float greenFloat(int color) {
-        throw Unimplemented.forMember("net/minecraft/util/ARGB.greenFloat:(I)F");
+        return green(color) / 255.0F;
     }
 
+    // Pumpkin divergence: vanilla arithmetic.
     public static float blueFloat(int color) {
-        throw Unimplemented.forMember("net/minecraft/util/ARGB.blueFloat:(I)F");
+        return blue(color) / 255.0F;
     }
 
     public ARGB() {

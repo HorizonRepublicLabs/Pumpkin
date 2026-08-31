@@ -26,7 +26,10 @@ public class Tags {
 
     public static class EntityTypes {
 
-        public static final TagKey<EntityType<?>> TELEPORTING_NOT_SUPPORTED = null;
+        // Pumpkin divergence: the real key, name read from NeoForge's own source.
+        public static final TagKey<EntityType<?>> TELEPORTING_NOT_SUPPORTED = net.minecraft.tags.TagKey.create(
+                net.minecraft.core.registries.Registries.ENTITY_TYPE,
+                net.minecraft.resources.Identifier.fromNamespaceAndPath("c", "teleporting_not_supported"));
 
         private static TagKey<EntityType<?>> tag(String name) {
             throw Unimplemented.forMember("net/neoforged/neoforge/common/Tags$EntityTypes.tag:(Ljava/lang/String;)Lnet/minecraft/tags/TagKey;");
@@ -35,24 +38,35 @@ public class Tags {
         public EntityTypes() {
         }
 
-        static {
-            if (true) {
-                throw Unimplemented.forMember("net/neoforged/neoforge/common/Tags$EntityTypes");
-            }
-        }
+        // Pumpkin divergence: no throwing initializer -- the keys above are real.
     }
 
     public static class Items {
 
-        public static final TagKey<Item> GEMS_LAPIS = null;
+        // Pumpkin divergence: the real key, name read from NeoForge's own source.
+        public static final TagKey<Item> GEMS_LAPIS = net.minecraft.tags.TagKey.create(
+                net.minecraft.core.registries.Registries.ITEM,
+                net.minecraft.resources.Identifier.fromNamespaceAndPath("c", "gems/lapis"));
 
-        public static final TagKey<Item> ORES = null;
+        // Pumpkin divergence: the real key, name read from NeoForge's own source.
+        public static final TagKey<Item> ORES = net.minecraft.tags.TagKey.create(
+                net.minecraft.core.registries.Registries.ITEM,
+                net.minecraft.resources.Identifier.fromNamespaceAndPath("c", "ores"));
 
-        public static final TagKey<Item> ORES_COPPER = null;
+        // Pumpkin divergence: the real key, name read from NeoForge's own source.
+        public static final TagKey<Item> ORES_COPPER = net.minecraft.tags.TagKey.create(
+                net.minecraft.core.registries.Registries.ITEM,
+                net.minecraft.resources.Identifier.fromNamespaceAndPath("c", "ores/copper"));
 
-        public static final TagKey<Item> ORES_GOLD = null;
+        // Pumpkin divergence: the real key, name read from NeoForge's own source.
+        public static final TagKey<Item> ORES_GOLD = net.minecraft.tags.TagKey.create(
+                net.minecraft.core.registries.Registries.ITEM,
+                net.minecraft.resources.Identifier.fromNamespaceAndPath("c", "ores/gold"));
 
-        public static final TagKey<Item> ORES_IRON = null;
+        // Pumpkin divergence: the real key, name read from NeoForge's own source.
+        public static final TagKey<Item> ORES_IRON = net.minecraft.tags.TagKey.create(
+                net.minecraft.core.registries.Registries.ITEM,
+                net.minecraft.resources.Identifier.fromNamespaceAndPath("c", "ores/iron"));
 
         private static TagKey<Item> tag(String name) {
             throw Unimplemented.forMember("net/neoforged/neoforge/common/Tags$Items.tag:(Ljava/lang/String;)Lnet/minecraft/tags/TagKey;");
@@ -61,18 +75,20 @@ public class Tags {
         public Items() {
         }
 
-        static {
-            if (true) {
-                throw Unimplemented.forMember("net/neoforged/neoforge/common/Tags$Items");
-            }
-        }
+        // Pumpkin divergence: no throwing initializer -- the keys above are real.
     }
 
     public static class Fluids {
 
-        public static final TagKey<Fluid> GASEOUS = null;
+        // Pumpkin divergence: the real key, name read from NeoForge's own source.
+        public static final TagKey<Fluid> GASEOUS = net.minecraft.tags.TagKey.create(
+                net.minecraft.core.registries.Registries.FLUID,
+                net.minecraft.resources.Identifier.fromNamespaceAndPath("c", "gaseous"));
 
-        public static final TagKey<Fluid> HIDDEN_FROM_RECIPE_VIEWERS = null;
+        // Pumpkin divergence: the real key, name read from NeoForge's own source.
+        public static final TagKey<Fluid> HIDDEN_FROM_RECIPE_VIEWERS = net.minecraft.tags.TagKey.create(
+                net.minecraft.core.registries.Registries.FLUID,
+                net.minecraft.resources.Identifier.fromNamespaceAndPath("c", "hidden_from_recipe_viewers"));
 
         private static TagKey<Fluid> tag(String name) {
             throw Unimplemented.forMember("net/neoforged/neoforge/common/Tags$Fluids.tag:(Ljava/lang/String;)Lnet/minecraft/tags/TagKey;");
@@ -81,11 +97,7 @@ public class Tags {
         public Fluids() {
         }
 
-        static {
-            if (true) {
-                throw Unimplemented.forMember("net/neoforged/neoforge/common/Tags$Fluids");
-            }
-        }
+        // Pumpkin divergence: no throwing initializer -- the keys above are real.
     }
 
     public static class Enchantments {
@@ -130,16 +142,15 @@ public class Tags {
 
     public static class DamageTypes {
 
-        public static final TagKey<DamageType> IS_TECHNICAL = null;
+        // Pumpkin divergence: the real key, name read from NeoForge's own source.
+        public static final TagKey<DamageType> IS_TECHNICAL = net.minecraft.tags.TagKey.create(
+                net.minecraft.core.registries.Registries.DAMAGE_TYPE,
+                net.minecraft.resources.Identifier.fromNamespaceAndPath("neoforge", "is_technical"));
 
         public DamageTypes() {
         }
 
-        static {
-            if (true) {
-                throw Unimplemented.forMember("net/neoforged/neoforge/common/Tags$DamageTypes");
-            }
-        }
+        // Pumpkin divergence: no throwing initializer -- the keys above are real.
     }
 
     public static class WorldClocks {
