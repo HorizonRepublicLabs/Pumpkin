@@ -109,6 +109,11 @@ pub fn bind(env: &mut JNIEnv) -> Result<(), VmError> {
                 sig: "(Ljava/lang/String;)Ljava/lang/String;".into(),
                 fn_ptr: item_tag_values_native as *mut std::ffi::c_void,
             },
+            NativeMethod {
+                name: "blockTagValues".into(),
+                sig: "(Ljava/lang/String;)Ljava/lang/String;".into(),
+                fn_ptr: block_tag_values_native as *mut std::ffi::c_void,
+            },
         ],
     )
     .map_err(|err| VmError::Java(format!("Failed to bind PumpkinHost natives: {err}")))
@@ -544,6 +549,21 @@ extern "system" fn register_block_entity_type_with_blocks_native(
     }
 
     jint::from(assigned)
+}
+
+extern "system" fn block_tag_values_native<'a>(
+    mut env: JNIEnv<'a>,
+    _class: JClass<'a>,
+    tag: JString<'a>,
+) -> jni::sys::jstring {
+    let tag: String = env
+        .get_string(&tag)
+        .map_or_else(|_| String::new(), Into::into);
+    let joined = pumpkin_data::tag::get_tag_values(pumpkin_data::tag::RegistryKey::Block, &tag)
+        .map(|values| values.join(","))
+        .unwrap_or_default();
+    env.new_string(joined)
+        .map_or(std::ptr::null_mut(), jni::objects::JString::into_raw)
 }
 
 extern "system" fn item_tag_values_native<'a>(

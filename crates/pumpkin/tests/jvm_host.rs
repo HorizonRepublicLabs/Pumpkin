@@ -119,6 +119,38 @@ fn a_reentrant_call_chain_past_the_depth_limit_errors_instead_of_overflowing_the
 }
 
 #[test]
+fn java_can_read_a_vanilla_block_tag() {
+    let vm = pumpkin::plugin::loader::jvm::vm::boot(&host_classpath()).expect("the VM boots");
+
+    let values: String = vm
+        .call(|env| {
+            let tag = env
+                .new_string("minecraft:crops")
+                .map_err(|err| pumpkin::plugin::loader::jvm::vm::VmError::Java(err.to_string()))?;
+            let returned = env
+                .call_static_method(
+                    "dev/pumpkin/jvmhost/PumpkinHost",
+                    "blockTagValues",
+                    "(Ljava/lang/String;)Ljava/lang/String;",
+                    &[(&tag).into()],
+                )
+                .and_then(jni::objects::JValueGen::l)
+                .map_err(|err| pumpkin::plugin::loader::jvm::vm::VmError::Java(err.to_string()))?;
+            env.get_string(&jni::objects::JString::from(returned))
+                .map(Into::into)
+                .map_err(|err| pumpkin::plugin::loader::jvm::vm::VmError::Java(err.to_string()))
+        })
+        .expect("the lookup succeeds");
+
+    assert!(
+        values
+            .split(',')
+            .any(|value| value == "wheat" || value == "minecraft:wheat"),
+        "the vanilla crops tag names wheat, got: {values}"
+    );
+}
+
+#[test]
 fn java_can_register_a_block() {
     let vm = pumpkin::plugin::loader::jvm::vm::boot(&host_classpath()).expect("the VM boots");
 

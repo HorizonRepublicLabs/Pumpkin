@@ -31,9 +31,8 @@ public final class PumpkinTags {
 
     /**
      * Whether the block wears the tag. Same datapack walk as items but over
-     * {@code tags/block}; block tags no datapack defines answer empty -- the vanilla
-     * block-tag tables have no native yet, and inventing membership would be worse
-     * than refusing it.
+     * {@code tags/block}, with the vanilla block-tag tables answering tags no
+     * datapack defines.
      */
     public static boolean containsBlock(String tag, String blockId) {
         return members("block", tag, new HashSet<>()).contains(blockId);
@@ -80,15 +79,15 @@ public final class PumpkinTags {
                 System.err.println("[pumpkin] reading tag " + tag + " failed: " + e);
             }
         }
-        if (!defined && kind.equals("item")) {
+        if (!defined) {
             // Nothing in the datapacks defines it: the vanilla tables might. Reached by
             // reflection because the host jar sits above this one in the build graph but
             // beside it on the runtime classpath. Bare names come back namespaced so
-            // membership compares apples to apples. Only items have this native; an
-            // undefined block tag stays empty.
+            // membership compares apples to apples.
+            String nativeName = kind.equals("block") ? "blockTagValues" : "itemTagValues";
             try {
                 String vanilla = (String) Class.forName("dev.pumpkin.jvmhost.PumpkinHost")
-                        .getMethod("itemTagValues", String.class).invoke(null, tag);
+                        .getMethod(nativeName, String.class).invoke(null, tag);
                 for (String value : vanilla.split(",")) {
                     if (!value.isEmpty()) {
                         values.add(value.contains(":") ? value : "minecraft:" + value);

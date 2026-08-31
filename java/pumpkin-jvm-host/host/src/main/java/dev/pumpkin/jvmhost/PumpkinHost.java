@@ -146,4 +146,7 @@ public final class PumpkinHost {
      * generated tables on the Rust side are the authority for those.
      */
     public static native String itemTagValues(String tag);
+
+    /** Comma-joined members of a vanilla block tag, or empty when no such tag exists. */
+    public static native String blockTagValues(String tag);
 }
