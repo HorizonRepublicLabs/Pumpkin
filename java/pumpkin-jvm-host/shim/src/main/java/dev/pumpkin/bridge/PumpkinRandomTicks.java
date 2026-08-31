@@ -153,7 +153,7 @@ public final class PumpkinRandomTicks {
     }
 
     /** {@code prop=value} comma-joined, values in their serialized spelling. */
-    private static String describe(BlockState state) {
+    static String describe(BlockState state) {
         StringBuilder out = new StringBuilder();
         for (java.util.Map.Entry<Property<?>, Comparable<?>> entry
                 : state.pumpkinValues.entrySet()) {

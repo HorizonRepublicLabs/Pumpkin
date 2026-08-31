@@ -133,16 +133,21 @@ public class CropBlock extends VegetationBlock implements BonemealableBlock {
         throw Unimplemented.forMember("net/minecraft/world/level/block/CropBlock.getCloneItemStack:(Lnet/minecraft/world/level/LevelReader;Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/state/BlockState;Z)Lnet/minecraft/world/item/ItemStack;");
     }
 
+    // Pumpkin divergence: vanilla body -- a crop takes bonemeal until it is grown.
     public boolean isValidBonemealTarget(LevelReader level, BlockPos pos, BlockState state) {
-        throw Unimplemented.forMember("net/minecraft/world/level/block/CropBlock.isValidBonemealTarget:(Lnet/minecraft/world/level/LevelReader;Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/state/BlockState;)Z");
+        return !isMaxAge(state);
     }
 
+    // Pumpkin divergence: vanilla body -- crops never fail a bonemeal.
     public boolean isBonemealSuccess(Level level, RandomSource random, BlockPos pos, BlockState state) {
-        throw Unimplemented.forMember("net/minecraft/world/level/block/CropBlock.isBonemealSuccess:(Lnet/minecraft/world/level/Level;Lnet/minecraft/util/RandomSource;Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/state/BlockState;)Z");
+        return true;
     }
 
+    // Pumpkin divergence: vanilla body -- two to five age steps, capped at maturity;
+    // Mth.nextInt(random, 2, 5) spelled out over the RandomSource the level hands us.
     public void performBonemeal(ServerLevel level, RandomSource random, BlockPos pos, BlockState state) {
-        throw Unimplemented.forMember("net/minecraft/world/level/block/CropBlock.performBonemeal:(Lnet/minecraft/server/level/ServerLevel;Lnet/minecraft/util/RandomSource;Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/state/BlockState;)V");
+        int age = state.getValue(AGE) + random.nextInt(4) + 2;
+        level.setBlock(pos, getStateForAge(Math.min(age, getMaxAge())), 2);
     }
 
     // Pumpkin divergence: vanilla body -- a crop is its age.

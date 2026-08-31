@@ -2283,4 +2283,19 @@ edit('net/minecraft/world/level/block/Block.java', [
      '    // Pumpkin divergence: real-enough body. Mods ask a block\'s holder one question --\n    // does it wear this tag -- so the holder answers that from the datapack block tags\n    // and throws for everything else. The block names itself by its registered id, or\n    // by its vanilla template when it stands in for a vanilla block.\n    public Holder.Reference<Block> builtInRegistryHolder() {\n        Block self = this;\n        return new Holder.Reference<>(null, null, null, self) {\n            @Override\n            public boolean is(net.minecraft.tags.TagKey<Block> tag) {\n                String id = self.pumpkinRegisteredId() != null\n                        ? self.pumpkinRegisteredId()\n                        : "minecraft:" + self.pumpkinTemplate();\n                net.minecraft.resources.Identifier location = tag.location();\n                return dev.pumpkin.bridge.PumpkinTags.containsBlock(\n                        location.getNamespace() + ":" + location.getPath(), id);\n            }\n\n            @Override\n            public Block value() {\n                return self;\n            }\n        };\n    }'),
 ])
 
+edit('net/minecraft/world/level/block/CropBlock.java', [
+    ('    public boolean isValidBonemealTarget(LevelReader level, BlockPos pos, BlockState state) {\n        throw Unimplemented.forMember("net/minecraft/world/level/block/CropBlock.isValidBonemealTarget:(Lnet/minecraft/world/level/LevelReader;Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/state/BlockState;)Z");\n    }',
+     '    // Pumpkin divergence: vanilla body -- a crop takes bonemeal until it is grown.\n    public boolean isValidBonemealTarget(LevelReader level, BlockPos pos, BlockState state) {\n        return !isMaxAge(state);\n    }'),
+])
+
+edit('net/minecraft/world/level/block/CropBlock.java', [
+    ('    public boolean isBonemealSuccess(Level level, RandomSource random, BlockPos pos, BlockState state) {\n        throw Unimplemented.forMember("net/minecraft/world/level/block/CropBlock.isBonemealSuccess:(Lnet/minecraft/world/level/Level;Lnet/minecraft/util/RandomSource;Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/state/BlockState;)Z");\n    }',
+     '    // Pumpkin divergence: vanilla body -- crops never fail a bonemeal.\n    public boolean isBonemealSuccess(Level level, RandomSource random, BlockPos pos, BlockState state) {\n        return true;\n    }'),
+])
+
+edit('net/minecraft/world/level/block/CropBlock.java', [
+    ('    public void performBonemeal(ServerLevel level, RandomSource random, BlockPos pos, BlockState state) {\n        throw Unimplemented.forMember("net/minecraft/world/level/block/CropBlock.performBonemeal:(Lnet/minecraft/server/level/ServerLevel;Lnet/minecraft/util/RandomSource;Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/state/BlockState;)V");\n    }',
+     '    // Pumpkin divergence: vanilla body -- two to five age steps, capped at maturity;\n    // Mth.nextInt(random, 2, 5) spelled out over the RandomSource the level hands us.\n    public void performBonemeal(ServerLevel level, RandomSource random, BlockPos pos, BlockState state) {\n        int age = state.getValue(AGE) + random.nextInt(4) + 2;\n        level.setBlock(pos, getStateForAge(Math.min(age, getMaxAge())), 2);\n    }'),
+])
+
 commit()

@@ -416,6 +416,73 @@ impl JvmBlockBehaviour {
 }
 
 impl JvmBlockBehaviour {
+    /// One bonemeal question over the bridge: `valid`, `success`, or `perform`.
+    ///
+    /// Carries the same state-and-neighborhood context as a random tick; the mod's
+    /// `BonemealableBlock` methods read the crop's age and the ground under it.
+    fn bonemeal_bridge(
+        &self,
+        world: &Arc<crate::world::World>,
+        position: &pumpkin_util::math::position::BlockPos,
+        state_id: pumpkin_data::BlockStateId,
+        mode: &'static str,
+    ) -> Option<String> {
+        let vm = vm::current()?;
+        let (x, y, z) = (position.0.x, position.0.y, position.0.z);
+        let state_spec = pumpkin_data::dynamic::block_state_values(self.block_id, state_id)
+            .map(|values| join_state_values(&values))
+            .unwrap_or_default();
+        let neighborhood = tick_neighborhood(world, position);
+        let block_name = self.block_name.clone();
+        let reply = vm.call(move |env| {
+            let block = env
+                .new_string(&block_name)
+                .map_err(|err| VmError::Java(err.to_string()))?;
+            let state = env
+                .new_string(&state_spec)
+                .map_err(|err| VmError::Java(err.to_string()))?;
+            let snapshot = env
+                .new_string(&neighborhood)
+                .map_err(|err| VmError::Java(err.to_string()))?;
+            let mode = env
+                .new_string(mode)
+                .map_err(|err| VmError::Java(err.to_string()))?;
+            let returned = env.call_static_method(
+                "dev/pumpkin/bridge/PumpkinBonemeal",
+                "apply",
+                "(Ljava/lang/String;IIILjava/lang/String;Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;",
+                &[
+                    (&block).into(),
+                    x.into(),
+                    y.into(),
+                    z.into(),
+                    (&state).into(),
+                    (&snapshot).into(),
+                    (&mode).into(),
+                ],
+            );
+            if env.exception_check().unwrap_or(false) {
+                let _ = env.exception_describe();
+                let _ = env.exception_clear();
+                return Err(VmError::Java("bonemeal threw".into()));
+            }
+            let object = returned
+                .and_then(jni::objects::JValueGen::l)
+                .map_err(|err| VmError::Java(err.to_string()))?;
+            env.get_string(&jni::objects::JString::from(object))
+                .map(Into::into)
+                .map_err(|err| VmError::Java(err.to_string()))
+        });
+        let reply: Result<String, VmError> = reply;
+        match reply {
+            Ok(reply) => Some(reply),
+            Err(err) => {
+                tracing::warn!("{}: bonemeal stopped in the mod: {err}", self.block_name);
+                None
+            }
+        }
+    }
+
     /// Applies a `TICKED;STATE=age=3;SOUNDS=...` reply: resolves the named values to the
     /// block's own state and writes it, so the growth the mod decided lands in the world.
     fn apply_random_tick_reply(
@@ -1063,6 +1130,30 @@ fn parse_stack(spec: &str) -> Option<pumpkin_data::item_stack::ItemStack> {
 impl crate::block::BlockBehaviour for JvmBlockBehaviour {
     fn player_placed(&self, args: crate::block::PlayerPlacedArgs<'_>) {
         self.inner.player_placed(args);
+    }
+
+    fn is_valid_bonemeal_target(&self, args: crate::block::BonemealArgs<'_>) -> bool {
+        self.bonemeal_bridge(args.world, args.position, args.state_id, "valid")
+            .is_some_and(|reply| reply == "TRUE")
+    }
+
+    fn is_bonemeal_success(&self, args: crate::block::BonemealArgs<'_>) -> bool {
+        self.bonemeal_bridge(args.world, args.position, args.state_id, "success")
+            .is_some_and(|reply| reply == "TRUE")
+    }
+
+    fn perform_bonemeal(&self, args: crate::block::BonemealArgs<'_>) {
+        if let Some(reply) =
+            self.bonemeal_bridge(args.world, args.position, args.state_id, "perform")
+            && reply.starts_with("TICKED")
+        {
+            tracing::info!(
+                "{} bonemealed at {:?}: {reply}",
+                self.block_name,
+                args.position
+            );
+            self.apply_random_tick_reply(&reply, args.world, args.position);
+        }
     }
 
     fn random_tick(&self, args: crate::block::RandomTickArgs<'_>) {
