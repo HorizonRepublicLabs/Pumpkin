@@ -44,11 +44,15 @@ public interface ItemAccess {
         throw Unimplemented.forMember("net/neoforged/neoforge/transfer/access/ItemAccess.oneByOne:()Lnet/neoforged/neoforge/transfer/access/ItemAccess;");
     }
 
-    // Pumpkin divergence: truthful absence -- no capability provider is ever
-    // registered with Pumpkin (RegisterCapabilitiesEvent does not accept them), so
-    // every lookup answers null, the NeoForge contract for "no provider".
+    // Pumpkin divergence: consult what RegisterCapabilitiesEvent collected; null --
+    // the NeoForge contract for "no provider" -- when nothing registered.
+    @SuppressWarnings("unchecked")
     default <T> T getCapability(ItemCapability<T, ItemAccess> capability) {
-        return null;
+        net.minecraft.world.item.ItemStack stack = getResource().toStack(1);
+        var provider = (net.neoforged.neoforge.capabilities.ICapabilityProvider<net.minecraft.world.item.ItemStack, ItemAccess, T>)
+                dev.pumpkin.bridge.PumpkinCapabilities.get(
+                        dev.pumpkin.bridge.PumpkinCapabilities.ITEM, capability, stack.getItem());
+        return provider == null ? null : provider.getCapability(stack, this);
     }
 
     ItemResource getResource();

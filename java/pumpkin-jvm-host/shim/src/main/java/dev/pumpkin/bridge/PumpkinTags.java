@@ -34,6 +34,23 @@ public final class PumpkinTags {
         return members("item", tag, new HashSet<>());
     }
 
+    /** Membership for any tag kind ("fluid", "entity_type", ...); same walk. */
+    public static boolean containsKind(String kind, String tag, String id) {
+        if (kind.equals("fluid")) {
+            // The vanilla fluid tag table is two tags, each a source and its flowing
+            // form -- complete here, so the item-tag native fallback never misanswers
+            // a fluid question.
+            String bare = tag.startsWith("minecraft:") ? tag.substring("minecraft:".length()) : tag;
+            if (bare.equals("water")) {
+                return id.equals("minecraft:water") || id.equals("minecraft:flowing_water");
+            }
+            if (bare.equals("lava")) {
+                return id.equals("minecraft:lava") || id.equals("minecraft:flowing_lava");
+            }
+        }
+        return members(kind, tag, new HashSet<>()).contains(id);
+    }
+
     /**
      * Whether the block wears the tag. Same datapack walk as items but over
      * {@code tags/block}, with the vanilla block-tag tables answering tags no

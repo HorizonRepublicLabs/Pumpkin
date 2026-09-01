@@ -163,6 +163,9 @@ public final class Bootstrap {
                 : net.neoforged.neoforge.registries.RegistryBuilder.pumpkinCreatedKeys()) {
             bus.post(new RegisterEvent(created));
         }
+        // Capabilities register after content: NeoForge fires this once per mod on the
+        // mod bus, and the providers land in the bridge's registry for lookups.
+        bus.post(new net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent());
         // Told after construction, not before: a mod that failed to construct is not loaded,
         // and claiming otherwise would have the next mod take an integration path against
         // something that is not there.

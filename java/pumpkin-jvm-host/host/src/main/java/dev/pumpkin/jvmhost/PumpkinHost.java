@@ -155,4 +155,7 @@ public final class PumpkinHost {
      * {@code id|ingredient|result:count} lines; see the Rust native for the grammar.
      */
     public static native String vanillaCookingRecipes(String kind);
+
+    /** The vanilla furnace burn time of an item in ticks, 0 when it is not fuel. */
+    public static native int vanillaBurnTicks(String itemId);
 }

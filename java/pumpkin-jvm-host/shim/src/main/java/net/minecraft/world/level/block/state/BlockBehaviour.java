@@ -351,8 +351,19 @@ public abstract class BlockBehaviour implements FeatureElement {
             throw Unimplemented.forMember("net/minecraft/world/level/block/state/BlockBehaviour$BlockStateBase.hasBlockEntity:()Z");
         }
 
+        // Pumpkin divergence: the one fluid fact a plain block state carries is its
+        // waterlogged property; everything else is fluidless. Fluid blocks themselves
+        // are a wider surface.
         public FluidState getFluidState() {
-            throw Unimplemented.forMember("net/minecraft/world/level/block/state/BlockBehaviour$BlockStateBase.getFluidState:()Lnet/minecraft/world/level/material/FluidState;");
+            for (var entry : pumpkinValues.entrySet()) {
+                if (entry.getKey().pumpkinName.equals("waterlogged")
+                        && Boolean.TRUE.equals(entry.getValue())) {
+                    return new net.minecraft.world.level.material.FluidState(
+                            net.minecraft.world.level.material.Fluids.WATER, null, null);
+                }
+            }
+            return new net.minecraft.world.level.material.FluidState(
+                    net.minecraft.world.level.material.Fluids.EMPTY, null, null);
         }
 
         public SoundType getSoundType() {

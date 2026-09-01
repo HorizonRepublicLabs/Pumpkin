@@ -139,8 +139,9 @@ public enum Direction implements StringRepresentable {
         throw Unimplemented.forMember("net/minecraft/core/Direction.getRandom:(Lnet/minecraft/util/RandomSource;)Lnet/minecraft/core/Direction;");
     }
 
+    // Pumpkin divergence: vanilla body -- the lowercase name.
     public String toString() {
-        throw Unimplemented.forMember("net/minecraft/core/Direction.toString:()Ljava/lang/String;");
+        return name().toLowerCase(java.util.Locale.ROOT);
     }
 
     // Pumpkin divergence: real body -- vanilla serializes a direction as its lowercase

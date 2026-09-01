@@ -13,26 +13,37 @@ import dev.pumpkin.shim.Unimplemented;
 
 public class RegisterCapabilitiesEvent extends Event implements IModBusEvent {
 
-    RegisterCapabilitiesEvent() {
+    // Pumpkin divergence: real bodies -- providers land in PumpkinCapabilities, and
+    // the level/item lookups consult them. Public ctor: the host posts the event.
+    public RegisterCapabilitiesEvent() {
     }
 
     public <T, C extends Object> void registerBlock(BlockCapability<T, C> capability, IBlockCapabilityProvider<T, C> provider, Block... blocks) {
-        throw Unimplemented.forMember("net/neoforged/neoforge/capabilities/RegisterCapabilitiesEvent.registerBlock:(Lnet/neoforged/neoforge/capabilities/BlockCapability;Lnet/neoforged/neoforge/capabilities/IBlockCapabilityProvider;[Lnet/minecraft/world/level/block/Block;)V");
+        for (Block block : blocks) {
+            dev.pumpkin.bridge.PumpkinCapabilities.put(
+                    dev.pumpkin.bridge.PumpkinCapabilities.BLOCK, capability, block, provider);
+        }
     }
 
     public <T, C extends Object, BE extends BlockEntity> void registerBlockEntity(BlockCapability<T, C> capability, BlockEntityType<BE> blockEntityType, ICapabilityProvider<? super BE, C, T> provider) {
-        throw Unimplemented.forMember("net/neoforged/neoforge/capabilities/RegisterCapabilitiesEvent.registerBlockEntity:(Lnet/neoforged/neoforge/capabilities/BlockCapability;Lnet/minecraft/world/level/block/entity/BlockEntityType;Lnet/neoforged/neoforge/capabilities/ICapabilityProvider;)V");
+        dev.pumpkin.bridge.PumpkinCapabilities.put(
+                dev.pumpkin.bridge.PumpkinCapabilities.BLOCK_ENTITY, capability, blockEntityType, provider);
     }
 
+    // Proxying (capability answered through a covering block) is a lookup refinement
+    // Pumpkin's flat lookup does not model; accepting the declaration loses nothing.
     public void setProxyable(BlockCapability<?, ?> capability) {
-        throw Unimplemented.forMember("net/neoforged/neoforge/capabilities/RegisterCapabilitiesEvent.setProxyable:(Lnet/neoforged/neoforge/capabilities/BlockCapability;)V");
     }
 
     public <T, C extends Object, E extends Entity> void registerEntity(EntityCapability<T, C> capability, EntityType<E> entityType, ICapabilityProvider<? super E, C, T> provider) {
-        throw Unimplemented.forMember("net/neoforged/neoforge/capabilities/RegisterCapabilitiesEvent.registerEntity:(Lnet/neoforged/neoforge/capabilities/EntityCapability;Lnet/minecraft/world/entity/EntityType;Lnet/neoforged/neoforge/capabilities/ICapabilityProvider;)V");
+        dev.pumpkin.bridge.PumpkinCapabilities.put(
+                dev.pumpkin.bridge.PumpkinCapabilities.ENTITY, capability, entityType, provider);
     }
 
     public <T, C extends Object> void registerItem(ItemCapability<T, C> capability, ICapabilityProvider<ItemStack, C, T> provider, ItemLike... items) {
-        throw Unimplemented.forMember("net/neoforged/neoforge/capabilities/RegisterCapabilitiesEvent.registerItem:(Lnet/neoforged/neoforge/capabilities/ItemCapability;Lnet/neoforged/neoforge/capabilities/ICapabilityProvider;[Lnet/minecraft/world/level/ItemLike;)V");
+        for (ItemLike item : items) {
+            dev.pumpkin.bridge.PumpkinCapabilities.put(
+                    dev.pumpkin.bridge.PumpkinCapabilities.ITEM, capability, item.asItem(), provider);
+        }
     }
 }

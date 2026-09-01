@@ -136,11 +136,11 @@ public interface Holder<T> extends IHolderExtension<T> {
         }
 
         public boolean is(Identifier key) {
-            throw Unimplemented.forMember("net/minecraft/core/Holder$Reference.is:(Lnet/minecraft/resources/Identifier;)Z");
+            return this.key != null && this.key.identifier().equals(key);
         }
 
         public boolean is(ResourceKey<T> key) {
-            throw Unimplemented.forMember("net/minecraft/core/Holder$Reference.is:(Lnet/minecraft/resources/ResourceKey;)Z");
+            return this.key != null && this.key.equals(key);
         }
 
         public boolean is(TagKey<T> tag) {
@@ -148,7 +148,7 @@ public interface Holder<T> extends IHolderExtension<T> {
         }
 
         public boolean is(Holder<T> holder) {
-            throw Unimplemented.forMember("net/minecraft/core/Holder$Reference.is:(Lnet/minecraft/core/Holder;)Z");
+            return holder == this || (holder != null && value != null && holder.value() == value);
         }
 
         public boolean is(Predicate<ResourceKey<T>> predicate) {

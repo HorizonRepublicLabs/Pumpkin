@@ -112,8 +112,9 @@ public abstract class Level extends net.neoforged.neoforge.attachment.Attachment
         throw Unimplemented.forMember("net/minecraft/world/level/Level.destroyBlock:(Lnet/minecraft/core/BlockPos;ZLnet/minecraft/world/entity/Entity;I)Z");
     }
 
+    // Pumpkin divergence: vanilla body -- setBlock with the update-all flags.
     public boolean setBlockAndUpdate(BlockPos pos, BlockState blockState) {
-        throw Unimplemented.forMember("net/minecraft/world/level/Level.setBlockAndUpdate:(Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/state/BlockState;)Z");
+        return setBlock(pos, blockState, 3);
     }
 
     public abstract void sendBlockUpdated(BlockPos pos, BlockState old, BlockState current, int updateFlags);
@@ -286,8 +287,9 @@ public abstract class Level extends net.neoforged.neoforge.attachment.Attachment
 
     public abstract Scoreboard getScoreboard();
 
+    // Pumpkin divergence: comparator fan-out; comparators live on the Rust side of
+    // the world and nothing in the stand-in neighborhood reads output signals yet.
     public void updateNeighbourForOutputSignal(BlockPos pos, Block changedBlock) {
-        throw Unimplemented.forMember("net/minecraft/world/level/Level.updateNeighbourForOutputSignal:(Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/Block;)V");
     }
 
     public int getSkyDarken() {

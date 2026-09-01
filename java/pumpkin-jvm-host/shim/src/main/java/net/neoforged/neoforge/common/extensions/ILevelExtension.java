@@ -6,6 +6,8 @@ import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.neoforge.capabilities.BlockCapability;
+import net.neoforged.neoforge.capabilities.IBlockCapabilityProvider;
+import net.neoforged.neoforge.capabilities.ICapabilityProvider;
 import dev.pumpkin.shim.Unimplemented;
 
 public interface ILevelExtension {
@@ -14,14 +16,36 @@ public interface ILevelExtension {
 
     public double increaseMaxEntityRadius(double value);
 
-    // Pumpkin divergence: truthful absence -- no capability provider is ever
-    // registered with Pumpkin (RegisterCapabilitiesEvent does not accept them), so
-    // every lookup answers null, the NeoForge contract for "no provider".
+    // Pumpkin divergence: consult what RegisterCapabilitiesEvent collected; null --
+    // the NeoForge contract for "no provider" -- when nothing registered.
     default <T, C extends Object> T getCapability(BlockCapability<T, C> cap, BlockPos pos, C context) {
-        return null;
+        BlockEntity blockEntity =
+                dev.pumpkin.bridge.PumpkinBlockEntities.get(pos.getX(), pos.getY(), pos.getZ());        return getCapability(cap, pos, null, blockEntity, context);
     }
 
+    @SuppressWarnings("unchecked")
     default <T, C extends Object> T getCapability(BlockCapability<T, C> cap, BlockPos pos, BlockState state, BlockEntity blockEntity, C context) {
+        if (blockEntity != null) {
+            ICapabilityProvider<BlockEntity, C, T> provider =
+                    (ICapabilityProvider<BlockEntity, C, T>) dev.pumpkin.bridge.PumpkinCapabilities.get(
+                            dev.pumpkin.bridge.PumpkinCapabilities.BLOCK_ENTITY, cap,
+                            blockEntity.getType());
+            if (provider != null) {
+                return provider.getCapability(blockEntity, context);
+            }
+        }        BlockState resolved = state;
+        if (resolved == null && blockEntity != null) {
+            resolved = blockEntity.getBlockState();
+        }
+        if (resolved != null) {
+            IBlockCapabilityProvider<T, C> provider =
+                    (IBlockCapabilityProvider<T, C>) dev.pumpkin.bridge.PumpkinCapabilities.get(
+                            dev.pumpkin.bridge.PumpkinCapabilities.BLOCK, cap, resolved.getBlock());
+            if (provider != null) {
+                return provider.getCapability((net.minecraft.world.level.Level) this, pos, resolved,
+                        blockEntity, context);
+            }
+        }
         return null;
     }
 

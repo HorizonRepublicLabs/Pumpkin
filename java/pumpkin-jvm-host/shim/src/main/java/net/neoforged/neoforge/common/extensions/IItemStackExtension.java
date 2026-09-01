@@ -12,8 +12,11 @@ import dev.pumpkin.shim.Unimplemented;
 
 public interface IItemStackExtension extends ItemInstanceExtension {
 
+    // Pumpkin divergence: NeoForge's own default -- the fuel table answers; a mod
+    // item overriding Item burn behaviour is a wider surface, surfaced when a mod
+    // actually does it.
     default int getBurnTime(RecipeType<?> recipeType, FuelValues fuelValues) {
-        throw Unimplemented.forMember("net/neoforged/neoforge/common/extensions/IItemStackExtension.getBurnTime:(Lnet/minecraft/world/item/crafting/RecipeType;Lnet/minecraft/world/level/block/entity/FuelValues;)I");
+        return fuelValues.burnDuration((net.minecraft.world.item.ItemStack) this);
     }
 
     default ItemEnchantments getAllEnchantments(RegistryLookup<Enchantment> lookup) {

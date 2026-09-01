@@ -289,14 +289,13 @@ public final class PumpkinLevel extends net.minecraft.server.level.ServerLevel {
     }
 
     @Override
+    // Pumpkin divergence: no fluid snapshot travels over the bridge yet, so every
+    // position reads as fluidless -- true for machine rooms; lava-fed passive
+    // generation needs the fluid snapshot slice.
     public FluidState getFluidState(BlockPos pos) {
-        throw Unimplemented.forMember("net/minecraft/world/level/Level.getFluidState");
+        return new FluidState(net.minecraft.world.level.material.Fluids.EMPTY, null, null);
     }
 
-    @Override
-    public FuelValues fuelValues() {
-        throw Unimplemented.forMember("net/minecraft/world/level/Level.fuelValues");
-    }
 
     @Override
     public Holder<Biome> getUncachedNoiseBiome(int quartX, int quartY, int quartZ) {
@@ -410,8 +409,47 @@ public final class PumpkinLevel extends net.minecraft.server.level.ServerLevel {
     }
 
     @Override
+    // Pumpkin divergence: the overworld's real sea level.
     public int getSeaLevel() {
-        throw Unimplemented.forMember("net/minecraft/world/level/Level.getSeaLevel");
+        return 63;
+    }
+
+    // Pumpkin divergence: the vanilla fuel table, served whole.
+    @Override
+    public net.minecraft.world.level.block.entity.FuelValues fuelValues() {
+        return net.minecraft.world.level.block.entity.FuelValues.pumpkinVanilla();
+    }
+
+    // Pumpkin divergence: the stand-in fronts the overworld, the one dimension the
+    // bridge routes today.
+    @Override
+    public net.minecraft.resources.ResourceKey<net.minecraft.world.level.Level> dimension() {
+        return net.minecraft.resources.ResourceKey.create(
+                net.minecraft.resources.ResourceKey.createRegistryKey(
+                        net.minecraft.resources.Identifier.fromNamespaceAndPath("minecraft", "dimension")),
+                net.minecraft.resources.Identifier.withDefaultNamespace("overworld"));
+    }
+
+    // Pumpkin divergence: the real biome temperature at the ticking position, told by
+    // the Rust side per tick; ambient-heat maths read it through getBiome below.
+    private static volatile double pumpkinBiomeTemperature = 0.8;
+
+    static void pumpkinSetBiomeTemperature(double temperature) {
+        pumpkinBiomeTemperature = temperature;
+    }
+
+    public static double pumpkinBiomeTemperature() {
+        return pumpkinBiomeTemperature;
+    }
+
+    @Override
+    public net.minecraft.core.Holder<net.minecraft.world.level.biome.Biome> getBiome(BlockPos pos) {
+        return net.minecraft.core.Holder.Reference.pumpkinOf(
+                net.minecraft.resources.ResourceKey.create(
+                        net.minecraft.resources.ResourceKey.createRegistryKey(
+                                net.minecraft.resources.Identifier.fromNamespaceAndPath("minecraft", "worldgen/biome")),
+                        net.minecraft.resources.Identifier.withDefaultNamespace("plains")),
+                net.minecraft.world.level.biome.Biome.pumpkinAmbient());
     }
 
     @Override

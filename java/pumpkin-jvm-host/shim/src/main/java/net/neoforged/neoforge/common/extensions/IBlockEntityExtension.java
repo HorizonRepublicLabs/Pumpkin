@@ -22,8 +22,9 @@ public interface IBlockEntityExtension {
         throw Unimplemented.forMember("net/neoforged/neoforge/common/extensions/IBlockEntityExtension.onChunkUnloaded:()V");
     }
 
+    // Pumpkin divergence: NeoForge's default invalidates capability caches; the
+    // bridge's caches re-ask the level every query, so there is nothing to invalidate.
     default void onLoad() {
-        throw Unimplemented.forMember("net/neoforged/neoforge/common/extensions/IBlockEntityExtension.onLoad:()V");
     }
 
     default void requestModelDataUpdate() {

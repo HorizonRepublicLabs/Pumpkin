@@ -9,9 +9,10 @@ public class Fluids {
     // Pumpkin divergence: a real inert stand-in; see Fluid.pumpkinInert.
     public static final Fluid EMPTY = Fluid.pumpkinInert("empty");
 
-    public static final FlowingFluid WATER = null;
+    // Pumpkin divergence: real inert stand-ins; see FlowingFluid.pumpkinInertFlowing.
+    public static final FlowingFluid WATER = FlowingFluid.pumpkinInertFlowing("water");
 
-    public static final FlowingFluid LAVA = null;
+    public static final FlowingFluid LAVA = FlowingFluid.pumpkinInertFlowing("lava");
 
     private static <T extends Fluid> T register(ResourceKey<Fluid> id, T fluid) {
         throw Unimplemented.forMember("net/minecraft/world/level/material/Fluids.register:(Lnet/minecraft/resources/ResourceKey;Lnet/minecraft/world/level/material/Fluid;)Lnet/minecraft/world/level/material/Fluid;");

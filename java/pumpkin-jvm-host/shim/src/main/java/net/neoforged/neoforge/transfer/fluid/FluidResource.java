@@ -63,7 +63,7 @@ public final class FluidResource implements DataComponentHolderResource<Fluid> {
     }
 
     public Fluid getFluid() {
-        throw Unimplemented.forMember("net/neoforged/neoforge/transfer/fluid/FluidResource.getFluid:()Lnet/minecraft/world/level/material/Fluid;");
+        return pumpkinFluid == null ? net.minecraft.world.level.material.Fluids.EMPTY : pumpkinFluid;
     }
 
     public Holder<Fluid> typeHolder() {
@@ -77,6 +77,18 @@ public final class FluidResource implements DataComponentHolderResource<Fluid> {
     // Pumpkin divergence: real body -- the shared EMPTY instance is the empty one; a
     // resource built by an of() overload will carry its fluid when those get bodies.
     private Fluid pumpkinFluid;
+
+    // Pumpkin divergence: tag membership from the real fluid tag tables, over the
+    // carried fluid's own name; the empty resource wears no tags.
+    @Override
+    public boolean is(net.minecraft.tags.TagKey<Fluid> tag) {
+        String name = pumpkinFluid == null ? null : pumpkinFluid.pumpkinVanillaName;
+        if (name == null) {
+            return false;
+        }
+        String id = name.contains(":") ? name : "minecraft:" + name;
+        return dev.pumpkin.bridge.PumpkinTags.containsKind("fluid", tag.location().toString(), id);
+    }
 
     public boolean isEmpty() {
         return pumpkinFluid == null;
@@ -138,12 +150,13 @@ public final class FluidResource implements DataComponentHolderResource<Fluid> {
         throw Unimplemented.forMember("net/neoforged/neoforge/transfer/fluid/FluidResource.getHoverName:()Lnet/minecraft/network/chat/Component;");
     }
 
+    // Pumpkin divergence: value semantics over the carried fluid; NeoForge's meaning.
     public boolean equals(Object obj) {
-        throw Unimplemented.forMember("net/neoforged/neoforge/transfer/fluid/FluidResource.equals:(Ljava/lang/Object;)Z");
+        return obj instanceof FluidResource other && pumpkinFluid == other.pumpkinFluid;
     }
 
     public int hashCode() {
-        throw Unimplemented.forMember("net/neoforged/neoforge/transfer/fluid/FluidResource.hashCode:()I");
+        return java.util.Objects.hashCode(pumpkinFluid);
     }
 
     public String toString() {

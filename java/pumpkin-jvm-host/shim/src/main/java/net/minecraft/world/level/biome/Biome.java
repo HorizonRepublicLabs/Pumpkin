@@ -24,8 +24,18 @@ public final class Biome {
         throw Unimplemented.forMember("net/minecraft/world/level/biome/Biome.getPrecipitationAt:(Lnet/minecraft/core/BlockPos;I)Lnet/minecraft/world/level/biome/Biome$Precipitation;");
     }
 
-    private float getTemperature(BlockPos pos, int seaLevel) {
-        throw Unimplemented.forMember("net/minecraft/world/level/biome/Biome.getTemperature:(Lnet/minecraft/core/BlockPos;I)F");
+    // Pumpkin divergence: NeoForge access-transforms this public; the stand-in
+    // answers the real biome temperature the Rust side told the bridge for this tick.
+    public float getTemperature(BlockPos pos, int seaLevel) {
+        return (float) dev.pumpkin.bridge.PumpkinLevel.pumpkinBiomeTemperature();
+    }
+
+    // Pumpkin divergence: no vanilla counterpart -- the one biome the stand-in level
+    // hands out.
+    private static final Biome PUMPKIN_AMBIENT = new Biome(null, null, null, null, null);
+
+    public static Biome pumpkinAmbient() {
+        return PUMPKIN_AMBIENT;
     }
 
     public static class BiomeBuilder {

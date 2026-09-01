@@ -115,12 +115,13 @@ public class BlockPos extends Vec3i {
         throw Unimplemented.forMember("net/minecraft/core/BlockPos.west:(I)Lnet/minecraft/core/BlockPos;");
     }
 
+    // Pumpkin divergence: vanilla bodies -- step along the direction's unit vector.
     public BlockPos relative(Direction direction) {
-        throw Unimplemented.forMember("net/minecraft/core/BlockPos.relative:(Lnet/minecraft/core/Direction;)Lnet/minecraft/core/BlockPos;");
+        return new BlockPos(getX() + direction.getStepX(), getY() + direction.getStepY(), getZ() + direction.getStepZ());
     }
 
     public BlockPos relative(Direction direction, int steps) {
-        throw Unimplemented.forMember("net/minecraft/core/BlockPos.relative:(Lnet/minecraft/core/Direction;I)Lnet/minecraft/core/BlockPos;");
+        return steps == 0 ? this : new BlockPos(getX() + direction.getStepX() * steps, getY() + direction.getStepY() * steps, getZ() + direction.getStepZ() * steps);
     }
 
     public BlockPos relative(Direction.Axis axis, int steps) {
@@ -179,6 +180,7 @@ public class BlockPos extends Vec3i {
         }
 
         public MutableBlockPos(int x, int y, int z) {
+            super(x, y, z);
         }
 
         public MutableBlockPos(double x, double y, double z) {
@@ -204,20 +206,22 @@ public class BlockPos extends Vec3i {
             throw Unimplemented.forMember("net/minecraft/core/BlockPos$MutableBlockPos.rotate:(Lnet/minecraft/world/level/block/Rotation;)Lnet/minecraft/core/BlockPos;");
         }
 
+        // Pumpkin divergence: vanilla bodies -- write through the carried coordinates.
         public BlockPos.MutableBlockPos set(int x, int y, int z) {
-            throw Unimplemented.forMember("net/minecraft/core/BlockPos$MutableBlockPos.set:(III)Lnet/minecraft/core/BlockPos$MutableBlockPos;");
+            pumpkinSetAll(x, y, z);
+            return this;
         }
 
         public BlockPos.MutableBlockPos set(double x, double y, double z) {
-            throw Unimplemented.forMember("net/minecraft/core/BlockPos$MutableBlockPos.set:(DDD)Lnet/minecraft/core/BlockPos$MutableBlockPos;");
+            return set((int) Math.floor(x), (int) Math.floor(y), (int) Math.floor(z));
         }
 
         public BlockPos.MutableBlockPos set(Vec3i vec) {
-            throw Unimplemented.forMember("net/minecraft/core/BlockPos$MutableBlockPos.set:(Lnet/minecraft/core/Vec3i;)Lnet/minecraft/core/BlockPos$MutableBlockPos;");
+            return set(vec.getX(), vec.getY(), vec.getZ());
         }
 
         public BlockPos.MutableBlockPos set(long pos) {
-            throw Unimplemented.forMember("net/minecraft/core/BlockPos$MutableBlockPos.set:(J)Lnet/minecraft/core/BlockPos$MutableBlockPos;");
+            return set(BlockPos.getX(pos), BlockPos.getY(pos), BlockPos.getZ(pos));
         }
 
         public BlockPos.MutableBlockPos set(AxisCycle transform, int x, int y, int z) {
@@ -225,7 +229,8 @@ public class BlockPos extends Vec3i {
         }
 
         public BlockPos.MutableBlockPos setWithOffset(Vec3i pos, Direction direction) {
-            throw Unimplemented.forMember("net/minecraft/core/BlockPos$MutableBlockPos.setWithOffset:(Lnet/minecraft/core/Vec3i;Lnet/minecraft/core/Direction;)Lnet/minecraft/core/BlockPos$MutableBlockPos;");
+            return set(pos.getX() + direction.getStepX(), pos.getY() + direction.getStepY(),
+                    pos.getZ() + direction.getStepZ());
         }
 
         public BlockPos.MutableBlockPos setWithOffset(Vec3i pos, int x, int y, int z) {

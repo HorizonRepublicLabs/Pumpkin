@@ -42,7 +42,7 @@ public class BlockItem extends Item {
     }
 
     public Block getBlock() {
-        throw Unimplemented.forMember("net/minecraft/world/item/BlockItem.getBlock:()Lnet/minecraft/world/level/block/Block;");
+        return pumpkinBlock;
     }
 
     public boolean canFitInsideContainerItems() {

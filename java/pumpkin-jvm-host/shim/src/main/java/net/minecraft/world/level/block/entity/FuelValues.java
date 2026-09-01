@@ -14,8 +14,33 @@ public class FuelValues {
     private FuelValues(Object2IntSortedMap<Item> values) {
     }
 
+    // Pumpkin divergence: answered from the vanilla fuel table on the Rust side --
+    // the same table a furnace burns from. Mod items are not in it and honestly
+    // answer 0 unless the mod overrides Item.getBurnTime.
+    public int burnDuration(ItemStack itemStack) {
+        if (itemStack == null || itemStack.isEmpty()) {
+            return 0;
+        }
+        String id = dev.pumpkin.bridge.PumpkinInteractions.pumpkinItemId(itemStack);
+        try {
+            int ticks = (Integer) Class.forName("dev.pumpkin.jvmhost.PumpkinHost")
+                    .getMethod("vanillaBurnTicks", String.class).invoke(null, id);            return ticks;
+        } catch (ReflectiveOperationException e) {
+            System.err.println("[pumpkin] vanilla fuel lookup for " + id + " failed: " + e);
+            return 0;
+        }
+    }
+
     public boolean isFuel(ItemStack itemStack) {
-        throw Unimplemented.forMember("net/minecraft/world/level/block/entity/FuelValues.isFuel:(Lnet/minecraft/world/item/ItemStack;)Z");
+        return burnDuration(itemStack) > 0;
+    }
+
+    // Pumpkin divergence: no vanilla counterpart -- the one instance the stand-in
+    // level hands out.
+    private static final FuelValues PUMPKIN_VANILLA = new FuelValues();
+
+    public static FuelValues pumpkinVanilla() {
+        return PUMPKIN_VANILLA;
     }
 
     public static class Builder {

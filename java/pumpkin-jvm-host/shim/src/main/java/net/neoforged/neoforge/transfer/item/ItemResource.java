@@ -199,9 +199,15 @@ public final class ItemResource implements DataComponentHolderResource<Item> {
     // Pumpkin divergence: value semantics over the two facts a resource carries --
     // its item and its component patch. NeoForge's own meaning.
     public boolean equals(Object obj) {
-        return obj instanceof ItemResource other
+        boolean result = obj instanceof ItemResource other
                 && pumpkinItem == other.pumpkinItem
                 && pumpkinPatch.equals(other.pumpkinPatch);
+        if (!result && obj instanceof ItemResource other) {
+            System.err.println("[pumpkin-debug] ItemResource mismatch: "
+                    + pumpkinItem + " vs " + other.pumpkinItem
+                    + " patches " + pumpkinPatch.pumpkinMap + " vs " + other.pumpkinPatch.pumpkinMap);
+        }
+        return result;
     }
 
     public int hashCode() {

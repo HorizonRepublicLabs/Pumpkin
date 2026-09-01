@@ -56,6 +56,54 @@ public final class PumpkinValueIO {
                 json.add(name, items);
                 return;
             }
+            // A mod record (Mekanism's CapacitorState and kin): its own components, by
+            // their own names -- the shape its codec would write, minus codec plumbing.
+            if (value.getClass().isRecord()) {
+                JsonObject recordJson = new JsonObject();
+                for (java.lang.reflect.RecordComponent component : value.getClass().getRecordComponents()) {
+                    try {
+                        Object field = component.getAccessor().invoke(value);
+                        if (field instanceof Number number) {
+                            recordJson.addProperty(component.getName(), number);
+                        } else if (field instanceof Boolean bool) {
+                            recordJson.addProperty(component.getName(), bool);
+                        } else if (field instanceof String text) {
+                            recordJson.addProperty(component.getName(), text);
+                        } else if (field instanceof net.neoforged.neoforge.transfer.fluid.FluidResource fluidResource) {
+                            String fluid = fluidResource.isEmpty() ? "empty"
+                                    : fluidResource.getFluid().pumpkinVanillaName;
+                            recordJson.addProperty(component.getName(), fluid == null ? "unknown" : fluid);
+                        } else if (field instanceof net.neoforged.neoforge.transfer.item.ItemResource itemResource) {
+                            recordJson.addProperty(component.getName(), itemResource.isEmpty()
+                                    ? "empty"
+                                    : PumpkinInteractions.pumpkinItemId(itemResource.toStack(1)));
+                        } else {
+                            throw Unimplemented.forMember(
+                                    "net/minecraft/world/level/storage/ValueOutput.store (record component "
+                                            + component.getName() + " of shape "
+                                            + (field == null ? "null" : field.getClass().getName()) + ")");
+                        }
+                    } catch (ReflectiveOperationException e) {
+                        throw new RuntimeException(e);
+                    }
+                }
+                json.add(name, recordJson);
+                return;
+            }
+            // A codec-wrapped primitive (heat, progress): the value's own shape is the
+            // honest serialisation.
+            if (value instanceof Number number) {
+                json.addProperty(name, number);
+                return;
+            }
+            if (value instanceof Boolean bool) {
+                json.addProperty(name, bool);
+                return;
+            }
+            if (value instanceof String text) {
+                json.addProperty(name, text);
+                return;
+            }
             // A mod resource stack (Mekanism's LargeResourceStack and kin): a record of
             // {resource, amount}, reached by reflection because the mod's class is not
             // on this classpath. Item resources save in the same {id, count} shape as
@@ -101,7 +149,8 @@ public final class PumpkinValueIO {
                 return;
             }
             throw Unimplemented.forMember(
-                    "net/minecraft/world/level/storage/ValueOutput.store:(Ljava/lang/String;Lcom/mojang/serialization/Codec;Ljava/lang/Object;)V");
+                    "net/minecraft/world/level/storage/ValueOutput.store:(Ljava/lang/String;Lcom/mojang/serialization/Codec;Ljava/lang/Object;)V"
+                            + " (value shape " + value.getClass().getName() + ")");
         }
 
         @Override
@@ -274,14 +323,41 @@ public final class PumpkinValueIO {
 
         @Override
         public Optional<ValueInput.ValueInputList> childrenList(String name) {
-            throw Unimplemented.forMember(
-                    "net/minecraft/world/level/storage/ValueInput.childrenList:(Ljava/lang/String;)Ljava/util/Optional;");
+            JsonElement element = json.get(name);
+            if (element == null || !element.isJsonArray()) {
+                return Optional.empty();
+            }
+            java.util.ArrayList<ValueInput> children = new java.util.ArrayList<>();
+            for (JsonElement entry : element.getAsJsonArray()) {
+                if (entry.isJsonObject()) {
+                    children.add(new Input(entry.getAsJsonObject()));
+                }
+            }
+            return Optional.of(pumpkinListOf(children));
         }
 
         @Override
         public ValueInput.ValueInputList childrenListOrEmpty(String name) {
-            throw Unimplemented.forMember(
-                    "net/minecraft/world/level/storage/ValueInput.childrenListOrEmpty:(Ljava/lang/String;)Lnet/minecraft/world/level/storage/ValueInput$ValueInputList;");
+            return childrenList(name).orElseGet(() -> pumpkinListOf(java.util.List.of()));
+        }
+
+        private static ValueInput.ValueInputList pumpkinListOf(java.util.List<ValueInput> children) {
+            return new ValueInput.ValueInputList() {
+                @Override
+                public boolean isEmpty() {
+                    return children.isEmpty();
+                }
+
+                @Override
+                public java.util.stream.Stream<ValueInput> stream() {
+                    return children.stream();
+                }
+
+                @Override
+                public java.util.Iterator<ValueInput> iterator() {
+                    return children.iterator();
+                }
+            };
         }
 
         @Override

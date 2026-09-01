@@ -7,23 +7,37 @@ import dev.pumpkin.shim.Unimplemented;
 
 public final class BlockCapabilityCache<T, C extends Object> {
 
+    // Pumpkin divergence: NeoForge's cache is a lookup optimisation over chunk
+    // invalidation Pumpkin does not model; the honest minimal form re-asks the level
+    // on every query, which is always correct and merely slower.
+    private BlockCapability<T, C> pumpkinCapability;
+    private ServerLevel pumpkinLevel;
+    private BlockPos pumpkinPos;
+    private C pumpkinContext;
+
     public static <T, C extends Object> BlockCapabilityCache<T, C> create(BlockCapability<T, C> capability, ServerLevel level, BlockPos pos, C context) {
-        throw Unimplemented.forMember("net/neoforged/neoforge/capabilities/BlockCapabilityCache.create:(Lnet/neoforged/neoforge/capabilities/BlockCapability;Lnet/minecraft/server/level/ServerLevel;Lnet/minecraft/core/BlockPos;Ljava/lang/Object;)Lnet/neoforged/neoforge/capabilities/BlockCapabilityCache;");
+        return create(capability, level, pos, context, () -> true, () -> { });
     }
 
     public static <T, C extends Object> BlockCapabilityCache<T, C> create(BlockCapability<T, C> capability, ServerLevel level, BlockPos pos, C context, BooleanSupplier isValid, Runnable invalidationListener) {
-        throw Unimplemented.forMember("net/neoforged/neoforge/capabilities/BlockCapabilityCache.create:(Lnet/neoforged/neoforge/capabilities/BlockCapability;Lnet/minecraft/server/level/ServerLevel;Lnet/minecraft/core/BlockPos;Ljava/lang/Object;Ljava/util/function/BooleanSupplier;Ljava/lang/Runnable;)Lnet/neoforged/neoforge/capabilities/BlockCapabilityCache;");
+        BlockCapabilityCache<T, C> cache =
+                new BlockCapabilityCache<>(capability, level, pos, context, isValid, invalidationListener);
+        cache.pumpkinCapability = capability;
+        cache.pumpkinLevel = level;
+        cache.pumpkinPos = pos;
+        cache.pumpkinContext = context;
+        return cache;
     }
 
     private BlockCapabilityCache(BlockCapability<T, C> capability, ServerLevel level, BlockPos pos, C context, BooleanSupplier isValid, Runnable invalidationListener) {
     }
 
     public ServerLevel level() {
-        throw Unimplemented.forMember("net/neoforged/neoforge/capabilities/BlockCapabilityCache.level:()Lnet/minecraft/server/level/ServerLevel;");
+        return pumpkinLevel;
     }
 
     public T getCapability() {
-        throw Unimplemented.forMember("net/neoforged/neoforge/capabilities/BlockCapabilityCache.getCapability:()Ljava/lang/Object;");
+        return pumpkinLevel.getCapability(pumpkinCapability, pumpkinPos, pumpkinContext);
     }
 
     public BlockCapabilityCache() {

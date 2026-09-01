@@ -4,8 +4,9 @@ import dev.pumpkin.shim.Unimplemented;
 
 public final class EnergyHandlerUtil {
 
+    // Pumpkin divergence: NeoForge's own derivation.
     public static boolean isFull(EnergyHandler handler) {
-        throw Unimplemented.forMember("net/neoforged/neoforge/transfer/energy/EnergyHandlerUtil.isFull:(Lnet/neoforged/neoforge/transfer/energy/EnergyHandler;)Z");
+        return handler.getAmountAsLong() >= handler.getCapacityAsLong();
     }
 
     protected EnergyHandlerUtil() {

@@ -22,13 +22,27 @@ public class BuiltInRegistries {
 
     public static final Registry<SoundEvent> SOUND_EVENT = Stubs.of(Registry.class, "net/minecraft/core/Registry", java.util.Map.of("key", ResourceKey.createRegistryKey(Identifier.fromNamespaceAndPath("minecraft", "sound_event"))));
 
-    public static final DefaultedRegistry<Fluid> FLUID = Stubs.of(DefaultedRegistry.class, "net/minecraft/core/DefaultedRegistry", java.util.Map.of("key", ResourceKey.createRegistryKey(Identifier.fromNamespaceAndPath("minecraft", "fluid"))));
+    public static final DefaultedRegistry<Fluid> FLUID = Stubs.of(DefaultedRegistry.class, "net/minecraft/core/DefaultedRegistry", java.util.Map.of(
+            "key", ResourceKey.createRegistryKey(Identifier.fromNamespaceAndPath("minecraft", "fluid")),
+            "iterator", (dev.pumpkin.shim.Stubs.Dynamic) args ->
+                    net.neoforged.neoforge.registries.DeferredHolder.pumpkinAllFor("minecraft:fluid")
+                            .stream().map(holder -> (Object) holder.get()).iterator()));
 
     public static final DefaultedRegistry<Block> BLOCK = Stubs.of(DefaultedRegistry.class, "net/minecraft/core/DefaultedRegistry");
 
-    public static final DefaultedRegistry<EntityType<?>> ENTITY_TYPE = Stubs.of(DefaultedRegistry.class, "net/minecraft/core/DefaultedRegistry", java.util.Map.of("key", ResourceKey.createRegistryKey(Identifier.fromNamespaceAndPath("minecraft", "entity_type"))));
+    public static final DefaultedRegistry<EntityType<?>> ENTITY_TYPE = Stubs.of(DefaultedRegistry.class, "net/minecraft/core/DefaultedRegistry", java.util.Map.of(
+            "key", ResourceKey.createRegistryKey(Identifier.fromNamespaceAndPath("minecraft", "entity_type")),
+            "iterator", (dev.pumpkin.shim.Stubs.Dynamic) args ->
+                    net.neoforged.neoforge.registries.DeferredHolder.pumpkinAllFor("minecraft:entity_type")
+                            .stream().map(holder -> (Object) holder.get()).iterator()));
 
-    public static final DefaultedRegistry<Item> ITEM = Stubs.of(DefaultedRegistry.class, "net/minecraft/core/DefaultedRegistry", java.util.Map.of("key", ResourceKey.createRegistryKey(Identifier.fromNamespaceAndPath("minecraft", "item"))));
+    // Pumpkin divergence: iteration answers the registered mod entries -- a mod
+    // scanning for its own content sees all of it; vanilla entries are honestly absent.
+    public static final DefaultedRegistry<Item> ITEM = Stubs.of(DefaultedRegistry.class, "net/minecraft/core/DefaultedRegistry", java.util.Map.of(
+            "key", ResourceKey.createRegistryKey(Identifier.fromNamespaceAndPath("minecraft", "item")),
+            "iterator", (dev.pumpkin.shim.Stubs.Dynamic) args ->
+                    net.neoforged.neoforge.registries.DeferredHolder.pumpkinAllFor("minecraft:item")
+                            .stream().map(holder -> (Object) holder.get()).iterator()));
 
     public static final Registry<BlockEntityType<?>> BLOCK_ENTITY_TYPE = Stubs.of(Registry.class,
             "net/minecraft/core/Registry", java.util.Map.of("key",

@@ -9,7 +9,7 @@ public final class FluidTags {
     // Pumpkin divergence: real value, named as vanilla names it.
     public static final TagKey<Fluid> WATER = create(Identifier.fromNamespaceAndPath("minecraft", "water"));
 
-    public static final TagKey<Fluid> LAVA = null;
+    public static final TagKey<Fluid> LAVA = create(Identifier.fromNamespaceAndPath("minecraft", "lava"));
 
     protected FluidTags() {
     }

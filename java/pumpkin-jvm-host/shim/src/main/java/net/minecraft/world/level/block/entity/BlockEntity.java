@@ -22,7 +22,8 @@ import dev.pumpkin.shim.Unimplemented;
 
 public abstract class BlockEntity extends net.neoforged.neoforge.attachment.AttachmentHolder implements DebugValueSource, TypedInstance<BlockEntityType<?>>, IBlockEntityExtension {
 
-    private final BlockEntityType<?> type = null;
+    // Pumpkin divergence: real -- the ctor receives it.
+    private BlockEntityType<?> type;
 
     protected Level level;
 
@@ -37,6 +38,7 @@ public abstract class BlockEntity extends net.neoforged.neoforge.attachment.Atta
     private BlockState pumpkinBlockState;
 
     public BlockEntity(BlockEntityType<?> type, BlockPos worldPosition, BlockState blockState) {
+        this.type = type;
         this.pumpkinPosition = worldPosition;
         this.worldPosition = worldPosition;
         this.pumpkinBlockState = blockState;
@@ -137,7 +139,10 @@ public abstract class BlockEntity extends net.neoforged.neoforge.attachment.Atta
     }
 
     public BlockEntityType<?> getType() {
-        throw Unimplemented.forMember("net/minecraft/world/level/block/entity/BlockEntity.getType:()Lnet/minecraft/world/level/block/entity/BlockEntityType;");
+        if (type == null) {
+            throw Unimplemented.forMember("net/minecraft/world/level/block/entity/BlockEntity.getType:()Lnet/minecraft/world/level/block/entity/BlockEntityType; (entity built without one)");
+        }
+        return type;
     }
 
     public CompoundTag getPersistentData() {
@@ -188,8 +193,12 @@ public abstract class BlockEntity extends net.neoforged.neoforge.attachment.Atta
         throw Unimplemented.forMember("net/minecraft/world/level/block/entity/BlockEntity.setComponents:(Lnet/minecraft/core/component/DataComponentMap;)V");
     }
 
+    // Pumpkin divergence: a saved custom name is a plain string in this store; absent
+    // means no custom name, vanilla's null.
     public static Component parseCustomNameSafe(ValueInput input, String name) {
-        throw Unimplemented.forMember("net/minecraft/world/level/block/entity/BlockEntity.parseCustomNameSafe:(Lnet/minecraft/world/level/storage/ValueInput;Ljava/lang/String;)Lnet/minecraft/network/chat/Component;");
+        return input.getString(name)
+                .<Component>map(net.minecraft.network.chat.MutableComponent::pumpkinOf)
+                .orElse(null);
     }
 
     public ProblemReporter.PathElement problemPath() {

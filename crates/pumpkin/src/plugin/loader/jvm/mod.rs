@@ -819,6 +819,15 @@ fn install_jvm_tick_hook() {
         let (x, y, z) = (position.0.x, position.0.y, position.0.z);
         let has_signal =
             crate::block::blocks::redstone::block_receives_redstone_power(world, &position);
+        // The machine's ambient comes from the real biome; Mekanism's heat maths reads
+        // it through the stand-in level. 63 is the overworld sea level, the same value
+        // the stand-in level answers.
+        let biome_temperature = f64::from(world.get_biome(&position).weather.compute_temperature(
+            f64::from(position.0.x),
+            position.0.y,
+            f64::from(position.0.z),
+            63,
+        ));
 
         let reply = vm.call(move |env| {
             let block = env
@@ -833,7 +842,7 @@ fn install_jvm_tick_hook() {
             let returned = env.call_static_method(
                 "dev/pumpkin/bridge/PumpkinInteractions",
                 "tickBlock",
-                "(Ljava/lang/String;Ljava/lang/String;IIILjava/lang/String;Z)Ljava/lang/String;",
+                "(Ljava/lang/String;Ljava/lang/String;IIILjava/lang/String;ZD)Ljava/lang/String;",
                 &[
                     (&block).into(),
                     (&entity_type).into(),
@@ -842,6 +851,7 @@ fn install_jvm_tick_hook() {
                     z.into(),
                     (&saved).into(),
                     has_signal.into(),
+                    biome_temperature.into(),
                 ],
             );
             if env.exception_check().unwrap_or(false) {

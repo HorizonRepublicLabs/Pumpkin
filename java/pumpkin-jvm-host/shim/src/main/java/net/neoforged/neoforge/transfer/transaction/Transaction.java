@@ -27,12 +27,24 @@ public final class Transaction implements AutoCloseable, TransactionContext {
         return transaction;
     }
 
+    // The declared parent may be any open ancestor, not only the innermost --
+    // NeoForge callers pass an outer context through helper layers (Mekanism's
+    // EnergyUtils.emit does). The new scope still nests on the innermost; commit
+    // hands snapshots to the actual enclosing scope, preserving rollback order.
     public static Transaction open(TransactionContext parent) {
         java.util.ArrayDeque<Transaction> stack = STACK.get();
-        if (stack.isEmpty() || stack.peek() != parent) {
-            throw new IllegalStateException("Parent is not the current open transaction.");
+        // A null parent means "nest on whatever is open" (Mekanism's EnergyUtils
+        // passes it); with nothing open it opens a root.
+        if (parent == null) {
+            Transaction transaction = new Transaction(null,
+                    stack.isEmpty() ? 0 : stack.peek().depth() + 1, null);
+            stack.push(transaction);
+            return transaction;
         }
-        Transaction transaction = new Transaction(null, parent.depth() + 1, null);
+        if (!(parent instanceof Transaction parentTransaction) || !stack.contains(parentTransaction)) {
+            throw new IllegalStateException("Parent is not an open transaction on this thread.");
+        }
+        Transaction transaction = new Transaction(null, stack.peek().depth() + 1, null);
         stack.push(transaction);
         return transaction;
     }
@@ -51,8 +63,7 @@ public final class Transaction implements AutoCloseable, TransactionContext {
         if (stack.peek() != this) {
             throw new IllegalStateException("Closing a transaction that is not the innermost.");
         }
-        stack.pop();
-        if (!committed) {
+        stack.pop();        if (!committed) {
             java.util.ArrayList<java.util.Map.Entry<SnapshotJournal<?>, Object>> entries =
                     new java.util.ArrayList<>(pumpkinSnapshots.entrySet());
             for (int i = entries.size() - 1; i >= 0; i--) {

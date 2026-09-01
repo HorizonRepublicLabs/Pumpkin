@@ -130,8 +130,18 @@ public abstract class Fluid implements IFluidExtension {
         throw Unimplemented.forMember("net/minecraft/world/level/material/Fluid.getPickupSound:()Ljava/util/Optional;");
     }
 
+    // Pumpkin divergence: a real reference carrying the fluid's key and itself; a
+    // fluid with no name yet has no key and fails loudly.
     public Holder.Reference<Fluid> builtInRegistryHolder() {
-        throw Unimplemented.forMember("net/minecraft/world/level/material/Fluid.builtInRegistryHolder:()Lnet/minecraft/core/Holder$Reference;");
+        if (pumpkinVanillaName == null) {
+            throw Unimplemented.forMember("net/minecraft/world/level/material/Fluid.builtInRegistryHolder:()Lnet/minecraft/core/Holder$Reference; (fluid without a name)");
+        }
+        return Holder.Reference.pumpkinOf(
+                net.minecraft.resources.ResourceKey.create(
+                        net.minecraft.resources.ResourceKey.createRegistryKey(
+                                net.minecraft.resources.Identifier.fromNamespaceAndPath("minecraft", "fluid")),
+                        net.minecraft.resources.Identifier.withDefaultNamespace(pumpkinVanillaName)),
+                (Fluid) this);
     }
 
     public net.neoforged.neoforge.fluids.FluidType getFluidType() {

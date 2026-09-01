@@ -118,8 +118,10 @@ public class Slot {
         return pumpkinContainerSlot;
     }
 
+    // Pumpkin divergence: the background is client-side slot art; accepted and
+    // dropped, the chain lives.
     public Slot setBackground(Identifier sprite) {
-        throw Unimplemented.forMember("net/minecraft/world/inventory/Slot.setBackground:(Lnet/minecraft/resources/Identifier;)Lnet/minecraft/world/inventory/Slot;");
+        return this;
     }
 
     public Optional<ItemStack> tryRemove(int amount, int maxAmount, Player player) {

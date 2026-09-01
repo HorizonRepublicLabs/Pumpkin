@@ -35,7 +35,23 @@ public interface HolderLookup<T> extends HolderGetter<T> {
                     "listElements", (dev.pumpkin.shim.Stubs.Dynamic) args ->
                         net.neoforged.neoforge.registries.DeferredHolder.pumpkinAllFor(key.identifier().toString())
                             .stream()
-                            .map(holder -> Holder.Reference.pumpkinOf((ResourceKey) holder.getKey(), holder.get()))));
+                            .map(holder -> Holder.Reference.pumpkinOf((ResourceKey) holder.getKey(), holder.get())),
+                    // get(TagKey) answers empty -- no tag files target these registries;
+                    // get(ResourceKey) answers the registered holder when there is one.
+                    "get", (dev.pumpkin.shim.Stubs.Dynamic) args -> {
+                        if (args != null && args.length == 1
+                                && args[0] instanceof net.minecraft.resources.ResourceKey<?> valueKey) {
+                            for (net.neoforged.neoforge.registries.DeferredHolder<?, ?> holder
+                                    : net.neoforged.neoforge.registries.DeferredHolder
+                                            .pumpkinAllFor(key.identifier().toString())) {
+                                if (holder.getKey().equals(valueKey)) {
+                                    return java.util.Optional.of(Holder.Reference.pumpkinOf(
+                                            (ResourceKey) holder.getKey(), holder.get()));
+                                }
+                            }
+                        }
+                        return java.util.Optional.empty();
+                    }));
         }
 
         default <V> RegistryOps<V> createSerializationContext(DynamicOps<V> parent) {

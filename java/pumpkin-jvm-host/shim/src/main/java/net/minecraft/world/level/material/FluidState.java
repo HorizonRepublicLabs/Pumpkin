@@ -12,11 +12,15 @@ import dev.pumpkin.shim.Unimplemented;
 
 public final class FluidState extends StateHolder<Fluid, FluidState> implements TypedInstance<Fluid>, IFluidStateExtension {
 
+    // Pumpkin divergence: the fluid is kept; getType/isEmpty answer from it.
+    private Fluid pumpkinFluid;
+
     public FluidState(Fluid owner, Property<?>[] propertyKeys, Comparable<?>[] propertyValues) {
+        this.pumpkinFluid = owner;
     }
 
     public Fluid getType() {
-        throw Unimplemented.forMember("net/minecraft/world/level/material/FluidState.getType:()Lnet/minecraft/world/level/material/Fluid;");
+        return pumpkinFluid == null ? net.minecraft.world.level.material.Fluids.EMPTY : pumpkinFluid;
     }
 
     public boolean isSource() {
@@ -24,7 +28,7 @@ public final class FluidState extends StateHolder<Fluid, FluidState> implements 
     }
 
     public boolean isEmpty() {
-        throw Unimplemented.forMember("net/minecraft/world/level/material/FluidState.isEmpty:()Z");
+        return getType() == net.minecraft.world.level.material.Fluids.EMPTY;
     }
 
     public float getHeight(BlockGetter level, BlockPos pos) {
@@ -40,7 +44,19 @@ public final class FluidState extends StateHolder<Fluid, FluidState> implements 
     }
 
     public Holder<Fluid> typeHolder() {
-        throw Unimplemented.forMember("net/minecraft/world/level/material/FluidState.typeHolder:()Lnet/minecraft/core/Holder;");
+        return getType().builtInRegistryHolder();
+    }
+
+    // Pumpkin divergence: tag membership from the real fluid tag tables, over the
+    // carried fluid's own name; a nameless fluid wears no tags.
+    @Override
+    public boolean is(net.minecraft.tags.TagKey<Fluid> tag) {
+        String name = getType().pumpkinVanillaName;
+        if (name == null) {
+            return false;
+        }
+        String id = name.contains(":") ? name : "minecraft:" + name;
+        return dev.pumpkin.bridge.PumpkinTags.containsKind("fluid", tag.location().toString(), id);
     }
 
     public float getExplosionResistance() {

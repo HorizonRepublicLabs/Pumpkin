@@ -28,12 +28,21 @@ public class Vec3i implements Comparable<Vec3i> {
         this.pumpkinZ = z;
     }
 
+    // Pumpkin divergence: no vanilla counterpart -- MutableBlockPos writes through this.
+    void pumpkinSetAll(int x, int y, int z) {
+        this.pumpkinX = x;
+        this.pumpkinY = y;
+        this.pumpkinZ = z;
+    }
+
+    // Pumpkin divergence: real value semantics over the carried coordinates.
     public boolean equals(Object o) {
-        throw Unimplemented.forMember("net/minecraft/core/Vec3i.equals:(Ljava/lang/Object;)Z");
+        return o instanceof Vec3i other && other.pumpkinX == pumpkinX
+                && other.pumpkinY == pumpkinY && other.pumpkinZ == pumpkinZ;
     }
 
     public int hashCode() {
-        throw Unimplemented.forMember("net/minecraft/core/Vec3i.hashCode:()I");
+        return (pumpkinY + pumpkinZ * 31) * 31 + pumpkinX;
     }
 
     public int compareTo(Vec3i pos) {
@@ -125,7 +134,7 @@ public class Vec3i implements Comparable<Vec3i> {
     }
 
     public String toString() {
-        throw Unimplemented.forMember("net/minecraft/core/Vec3i.toString:()Ljava/lang/String;");
+        return "(" + pumpkinX + ", " + pumpkinY + ", " + pumpkinZ + ")";
     }
 
     public Vec3i() {

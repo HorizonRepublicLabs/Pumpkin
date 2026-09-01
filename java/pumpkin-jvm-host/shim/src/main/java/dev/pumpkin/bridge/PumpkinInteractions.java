@@ -60,11 +60,15 @@ public final class PumpkinInteractions {
             blockEntity = PumpkinBlockEntities.getOrCreate(type, x, y, z, block.defaultBlockState());
             // A freshly built entity whose position has saved state gets that state back
             // before the mod's code sees it -- this is where persistence re-enters.
-            if (!existed && !savedData.isEmpty()) {
-                com.google.gson.JsonObject parsed = com.google.gson.JsonParser
-                        .parseString(new String(java.util.Base64.getDecoder().decode(savedData),
-                                java.nio.charset.StandardCharsets.UTF_8))
-                        .getAsJsonObject();
+            // Loading runs even with nothing saved: absent keys are where mods apply
+            // their defaults (Mekanism's side configs come from exactly that path).
+            if (!existed) {
+                com.google.gson.JsonObject parsed = savedData.isEmpty()
+                        ? new com.google.gson.JsonObject()
+                        : com.google.gson.JsonParser
+                                .parseString(new String(java.util.Base64.getDecoder().decode(savedData),
+                                        java.nio.charset.StandardCharsets.UTF_8))
+                                .getAsJsonObject();
                 Method load = findMethod(blockEntity.getClass(), "loadAdditional", 1);
                 load.setAccessible(true);
                 load.invoke(blockEntity, new PumpkinValueIO.Input(parsed));
@@ -208,8 +212,9 @@ public final class PumpkinInteractions {
      * times a second buys nothing.
      */
     public static String tickBlock(String blockId, String entityTypeId, int x, int y, int z,
-            String savedData, boolean hasSignal) throws Exception {
+            String savedData, boolean hasSignal, double biomeTemperature) throws Exception {
         PumpkinLevel.pumpkinSetSignal(hasSignal);
+        PumpkinLevel.pumpkinSetBiomeTemperature(biomeTemperature);
         if (NO_TICKER.contains(blockId)) {
             return "NONE";
         }
@@ -234,11 +239,13 @@ public final class PumpkinInteractions {
         boolean existed = PumpkinBlockEntities.exists(x, y, z);
         net.minecraft.world.level.block.entity.BlockEntity entity =
                 PumpkinBlockEntities.getOrCreate(type, x, y, z, state);
-        if (!existed && !savedData.isEmpty()) {
-            com.google.gson.JsonObject parsed = com.google.gson.JsonParser
-                    .parseString(new String(java.util.Base64.getDecoder().decode(savedData),
-                            java.nio.charset.StandardCharsets.UTF_8))
-                    .getAsJsonObject();
+        if (!existed) {
+            com.google.gson.JsonObject parsed = savedData.isEmpty()
+                    ? new com.google.gson.JsonObject()
+                    : com.google.gson.JsonParser
+                            .parseString(new String(java.util.Base64.getDecoder().decode(savedData),
+                                    java.nio.charset.StandardCharsets.UTF_8))
+                            .getAsJsonObject();
             Method load = findMethod(entity.getClass(), "loadAdditional", 1);
             load.setAccessible(true);
             load.invoke(entity, new PumpkinValueIO.Input(parsed));
@@ -278,7 +285,7 @@ public final class PumpkinInteractions {
         return reply.toString();
     }
 
-    private static Method findMethod(Class<?> type, String name, int parameterCount)
+    static Method findMethod(Class<?> type, String name, int parameterCount)
             throws NoSuchMethodException {
         for (Class<?> current = type; current != null; current = current.getSuperclass()) {
             for (Method method : current.getDeclaredMethods()) {

@@ -24,10 +24,9 @@ public interface ItemInstanceExtension {
 
     // Pumpkin divergence: no item this host builds declares a crafting remainder (the
     // recorder for Properties.craftRemainder does not exist yet), so the truthful answer
-    // is always "nothing stays behind" -- an empty template, which is what vanilla
-    // returns for a remainder-less item.
+    // is always "nothing stays behind" -- null, NeoForge's own contract for a
+    // remainder-less item, and the value callers branch on.
     default ItemStackTemplate getCraftingRemainder() {
-        return new ItemStackTemplate((net.minecraft.world.item.Item) null, 0,
-                (net.minecraft.core.component.DataComponentPatch) null);
+        return null;
     }
 }

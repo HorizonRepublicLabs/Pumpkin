@@ -40,6 +40,19 @@ public final class PumpkinBlockEntities {
         return BY_POSITION.computeIfAbsent(key(x, y, z), ignored -> {
             BlockEntity entity = type.pumpkinCreate(new BlockPos(x, y, z), state);
             entity.pumpkinSetLevel(PumpkinInteractions.pumpkinLevel());
+            // The vanilla lifecycle: onLoad fires once the entity joins a level. Mods
+            // finalize state there (Mekanism applies its default side configs).
+            try {
+                java.lang.reflect.Method onLoad =
+                        PumpkinInteractions.findMethod(entity.getClass(), "onLoad", 0);
+                onLoad.setAccessible(true);
+                onLoad.invoke(entity);
+            } catch (NoSuchMethodException absent) {
+                // A mod entity without one has nothing to finalize.
+            } catch (ReflectiveOperationException e) {
+                Throwable cause = e.getCause() == null ? e : e.getCause();
+                System.err.println("[pumpkin] onLoad failed for " + entity.getClass() + ": " + cause);
+            }
             return entity;
         });
     }

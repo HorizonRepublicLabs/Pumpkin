@@ -119,6 +119,11 @@ pub fn bind(env: &mut JNIEnv) -> Result<(), VmError> {
                 sig: "(Ljava/lang/String;)Ljava/lang/String;".into(),
                 fn_ptr: vanilla_cooking_recipes_native as *mut std::ffi::c_void,
             },
+            NativeMethod {
+                name: "vanillaBurnTicks".into(),
+                sig: "(Ljava/lang/String;)I".into(),
+                fn_ptr: vanilla_burn_ticks_native as *mut std::ffi::c_void,
+            },
         ],
     )
     .map_err(|err| VmError::Java(format!("Failed to bind PumpkinHost natives: {err}")))
@@ -626,4 +631,20 @@ extern "system" fn vanilla_cooking_recipes_native<'a>(
     }
     env.new_string(&out)
         .map_or(std::ptr::null_mut(), jni::objects::JString::into_raw)
+}
+
+/// The vanilla furnace burn time of an item in ticks, 0 when it is not fuel. Mod
+/// machines that burn furnace fuels (Mekanism's heat generator) read the same table a
+/// furnace would.
+extern "system" fn vanilla_burn_ticks_native<'a>(
+    mut env: JNIEnv<'a>,
+    _class: JClass<'a>,
+    item: JString<'a>,
+) -> jni::sys::jint {
+    let Some(item) = read_string(&mut env, &item, "vanillaBurnTicks item") else {
+        return 0;
+    };
+    pumpkin_data::item::Item::from_registry_key(&item)
+        .and_then(|item| pumpkin_data::fuels::get_item_burn_ticks(item.id))
+        .map_or(0, i32::from)
 }

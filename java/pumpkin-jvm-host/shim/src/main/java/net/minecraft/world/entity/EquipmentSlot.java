@@ -18,7 +18,8 @@ public enum EquipmentSlot implements StringRepresentable {
     BODY,
     SADDLE;
 
-    public static final List<EquipmentSlot> VALUES = null;
+    // Pumpkin divergence: vanilla's own list -- every slot in declaration order.
+    public static final List<EquipmentSlot> VALUES = List.of(values());
 
     public static final StreamCodec<ByteBuf, EquipmentSlot> STREAM_CODEC = Stubs.of(StreamCodec.class, "net/minecraft/network/codec/StreamCodec");
 
@@ -26,8 +27,14 @@ public enum EquipmentSlot implements StringRepresentable {
         throw Unimplemented.forMember("net/minecraft/world/entity/EquipmentSlot.getType:()Lnet/minecraft/world/entity/EquipmentSlot$Type;");
     }
 
+    // Pumpkin divergence: vanilla's own per-type indices.
     public int getIndex() {
-        throw Unimplemented.forMember("net/minecraft/world/entity/EquipmentSlot.getIndex:()I");
+        return switch (this) {
+            case MAINHAND, FEET, BODY, SADDLE -> 0;
+            case OFFHAND, LEGS -> 1;
+            case CHEST -> 2;
+            case HEAD -> 3;
+        };
     }
 
     public int getIndex(int base) {
