@@ -23,7 +23,8 @@ import net.neoforged.fml.common.Mod;
  */
 public final class ModLoader {
     /** A mod found in a jar: its declared id, and the class annotated {@code @Mod}. */
-    public record ModCandidate(String modId, Class<?> mainClass, URLClassLoader loader) {
+    public record ModCandidate(String modId, Class<?> mainClass, URLClassLoader loader,
+            List<Class<?>> eventBusSubscribers) {
     }
 
     private static final Pattern MOD_ID =
@@ -57,7 +58,54 @@ public final class ModLoader {
 
         URLClassLoader loader = sharedLoader(jar);
         Class<?> main = findAnnotatedClass(jar, loader);
-        return new ModCandidate(modId, main, loader);
+        return new ModCandidate(modId, main, loader, findEventBusSubscribers(jar, loader));
+    }
+
+    /**
+     * The jar's {@code @EventBusSubscriber} classes that apply on a dedicated server.
+     *
+     * <p>NeoForge registers these classes' static {@code @SubscribeEvent} methods
+     * automatically; a class that fails to load is reported and skipped, since a
+     * handler that cannot load cannot run on real NeoForge either until its
+     * references resolve.
+     */
+    private static List<Class<?>> findEventBusSubscribers(Path jar, URLClassLoader loader)
+            throws IOException {
+        List<Class<?>> subscribers = new ArrayList<>();
+        try (JarFile file = new JarFile(jar.toFile())) {
+            Enumeration<JarEntry> entries = file.entries();
+            while (entries.hasMoreElements()) {
+                String name = entries.nextElement().getName();
+                if (!name.endsWith(".class")) {
+                    continue;
+                }
+                String className =
+                        name.substring(0, name.length() - ".class".length()).replace('/', '.');
+                try {
+                    Class<?> candidate = Class.forName(className, false, loader);
+                    net.neoforged.fml.common.EventBusSubscriber annotation =
+                            candidate.getAnnotation(net.neoforged.fml.common.EventBusSubscriber.class);
+                    if (annotation == null) {
+                        continue;
+                    }
+                    boolean serverSide = false;
+                    for (net.neoforged.api.distmarker.Dist dist : annotation.value()) {
+                        if (dist == net.neoforged.api.distmarker.Dist.DEDICATED_SERVER) {
+                            serverSide = true;
+                        }
+                    }
+                    if (serverSide) {
+                        subscribers.add(candidate);
+                    }
+                } catch (ClassNotFoundException | NoClassDefFoundError e) {
+                    // Same contract as findAnnotatedClass: a class that will not load
+                    // cannot carry live handlers, but say which one went dead and why.
+                    System.err.println("[pumpkin] @EventBusSubscriber class " + className
+                            + " skipped (does not load): " + e);
+                }
+            }
+        }
+        return subscribers;
     }
 
     private static Class<?> findAnnotatedClass(Path jar, URLClassLoader loader) throws IOException {

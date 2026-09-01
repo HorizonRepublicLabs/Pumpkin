@@ -55,8 +55,11 @@ public abstract class BlockEntity extends net.neoforged.neoforge.attachment.Atta
         this.level = level;
     }
 
+    // Pumpkin divergence: real body -- vanilla stores the level here, and mods
+    // override this as their earliest world hook (Mekanism initializes transmitter
+    // acceptor caches in it), so the base must be callable.
     public void setLevel(Level level) {
-        throw Unimplemented.forMember("net/minecraft/world/level/block/entity/BlockEntity.setLevel:(Lnet/minecraft/world/level/Level;)V");
+        pumpkinSetLevel(level);
     }
 
     public boolean hasLevel() {
@@ -119,15 +122,19 @@ public abstract class BlockEntity extends net.neoforged.neoforge.attachment.Atta
     }
 
     public boolean isRemoved() {
-        throw Unimplemented.forMember("net/minecraft/world/level/block/entity/BlockEntity.isRemoved:()Z");
+        return pumpkinRemoved;
     }
 
+    // Pumpkin divergence: real bodies -- vanilla's removed flag is exactly this pair,
+    // and mods hook clearRemoved as their joined-the-world signal.
+    private boolean pumpkinRemoved;
+
     public void setRemoved() {
-        throw Unimplemented.forMember("net/minecraft/world/level/block/entity/BlockEntity.setRemoved:()V");
+        this.pumpkinRemoved = true;
     }
 
     public void clearRemoved() {
-        throw Unimplemented.forMember("net/minecraft/world/level/block/entity/BlockEntity.clearRemoved:()V");
+        this.pumpkinRemoved = false;
     }
 
     public void preRemoveSideEffects(BlockPos pos, BlockState state) {

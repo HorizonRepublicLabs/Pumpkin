@@ -30,7 +30,9 @@ import dev.pumpkin.shim.Unimplemented;
 
 public class ChunkMap extends SimpleRegionStorage implements ChunkHolder.PlayerProvider, GeneratingChunkMap {
 
-    private final PlayerMap playerMap = null;
+    // Pumpkin divergence: real (empty) player map, and public -- mods compile
+    // against NeoForge's access transformer that widens this field.
+    public final PlayerMap playerMap = new PlayerMap();
 
     public ChunkMap(ServerLevel level, LevelStorageSource.LevelStorageAccess levelStorage, DataFixer dataFixer, StructureTemplateManager structureManager, Executor executor, BlockableEventLoop<Runnable> mainThreadExecutor, LightChunkGetter chunkGetter, ChunkGenerator generator, ChunkStatusUpdateListener chunkStatusListener, Supplier<SavedDataStorage> overworldDataStorage, TicketStorage ticketStorage, int serverViewDistance, boolean syncWrites) {
     }

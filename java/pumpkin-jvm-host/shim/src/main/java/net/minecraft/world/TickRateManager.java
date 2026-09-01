@@ -11,8 +11,10 @@ public class TickRateManager {
         throw Unimplemented.forMember("net/minecraft/world/TickRateManager.tickrate:()F");
     }
 
+    // Pumpkin divergence: real body. Pumpkin has no tick freeze or sprint; the rate
+    // is always the normal one.
     public boolean runsNormally() {
-        throw Unimplemented.forMember("net/minecraft/world/TickRateManager.runsNormally:()Z");
+        return true;
     }
 
     public void tick() {

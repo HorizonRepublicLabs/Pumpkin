@@ -156,6 +156,11 @@ public final class Bootstrap {
             bus.post(new RegisterEvent(net.minecraft.resources.ResourceKey.createRegistryKey(
                     net.minecraft.resources.Identifier.fromNamespaceAndPath("minecraft", registryName))));
         }
+        // NeoForge's own attachment-types registry: deferred attachment registrations
+        // (Mekanism's radiation and meltdown data) flush here, or their holders never
+        // resolve.
+        bus.post(new RegisterEvent(net.minecraft.resources.ResourceKey.createRegistryKey(
+                net.minecraft.resources.Identifier.fromNamespaceAndPath("neoforge", "attachment_types"))));
         // The registries this mod created for itself get their events too -- their
         // registrations flush into the acknowledged-and-counted path. No catch-all
         // event: one existed briefly and re-fired every listener, double-registering.
@@ -166,6 +171,17 @@ public final class Bootstrap {
         // Capabilities register after content: NeoForge fires this once per mod on the
         // mod bus, and the providers land in the bridge's registry for lookups.
         bus.post(new net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent());
+        // The jar's @EventBusSubscriber classes: their static @SubscribeEvent methods
+        // go live on the game bus, the same wiring NeoForge does automatically. A class
+        // whose handler shapes cannot register is reported, not silently dropped.
+        for (Class<?> subscriber : candidate.eventBusSubscribers()) {
+            try {
+                net.neoforged.neoforge.common.NeoForge.EVENT_BUS.register(subscriber);
+            } catch (RuntimeException | NoClassDefFoundError e) {
+                System.err.println("[pumpkin] @EventBusSubscriber " + subscriber.getName()
+                        + ": handlers stay dead: " + e);
+            }
+        }
         // Told after construction, not before: a mod that failed to construct is not loaded,
         // and claiming otherwise would have the next mod take an integration path against
         // something that is not there.

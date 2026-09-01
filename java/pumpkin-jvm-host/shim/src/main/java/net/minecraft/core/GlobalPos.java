@@ -10,11 +10,13 @@ public record GlobalPos(ResourceKey<Level> dimension, BlockPos pos) {
     public static final Codec<GlobalPos> CODEC =
             dev.pumpkin.shim.Stubs.throwingCodec("net.minecraft.core.GlobalPos.CODEC");
 
+    // Pumpkin divergence: real bodies. The record already carries both components;
+    // vanilla's factory and printed form are exactly this.
     public static GlobalPos of(ResourceKey<Level> dimension, BlockPos pos) {
-        throw Unimplemented.forMember("net/minecraft/core/GlobalPos.of:(Lnet/minecraft/resources/ResourceKey;Lnet/minecraft/core/BlockPos;)Lnet/minecraft/core/GlobalPos;");
+        return new GlobalPos(dimension, pos);
     }
 
     public String toString() {
-        throw Unimplemented.forMember("net/minecraft/core/GlobalPos.toString:()Ljava/lang/String;");
+        return this.dimension + " " + this.pos;
     }
 }

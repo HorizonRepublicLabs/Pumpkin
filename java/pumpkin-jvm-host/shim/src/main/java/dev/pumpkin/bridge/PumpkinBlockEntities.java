@@ -39,7 +39,15 @@ public final class PumpkinBlockEntities {
             net.minecraft.world.level.block.state.BlockState state) {
         return BY_POSITION.computeIfAbsent(key(x, y, z), ignored -> {
             BlockEntity entity = type.pumpkinCreate(new BlockPos(x, y, z), state);
-            entity.pumpkinSetLevel(PumpkinInteractions.pumpkinLevel());
+            // Through the real overridable setLevel, not the shim's field setter: mods
+            // hook it as their earliest world signal (Mekanism initializes transmitter
+            // acceptor caches there).
+            try {
+                entity.setLevel(PumpkinInteractions.pumpkinLevel());
+            } catch (RuntimeException e) {
+                System.err.println("[pumpkin] setLevel failed for " + entity.getClass() + ": " + e);
+                entity.pumpkinSetLevel(PumpkinInteractions.pumpkinLevel());
+            }
             // The vanilla placement hand-off: a fresh entity reads its initial state
             // from the placing stack's components; with no stack in play, the block
             // item's declared defaults are that state (Mekanism's side configs).
@@ -69,6 +77,15 @@ public final class PumpkinBlockEntities {
                     System.err.println("[pumpkin] applyImplicitComponents failed for "
                             + entity.getClass() + ": " + cause);
                 }
+            }
+            // The vanilla add-to-chunk hand-off: clearRemoved marks the entity live,
+            // and mods hook it as their joined-the-world signal (Mekanism registers
+            // transmitters for network pathfinding there).
+            try {
+                entity.clearRemoved();
+            } catch (RuntimeException e) {
+                System.err.println("[pumpkin] clearRemoved failed for " + entity.getClass()
+                        + ": " + e);
             }
             // The vanilla lifecycle: onLoad fires once the entity joins a level. Mods
             // finalize state there (Mekanism applies its default side configs).

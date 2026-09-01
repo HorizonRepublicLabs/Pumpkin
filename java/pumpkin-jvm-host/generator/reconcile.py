@@ -26,6 +26,7 @@ PINNED = {
     "dev/pumpkin/bridge/PumpkinInteractions.java",
     "dev/pumpkin/bridge/PumpkinLevel.java",
     "dev/pumpkin/bridge/PumpkinMenus.java",
+    "dev/pumpkin/bridge/PumpkinMinecraftServer.java",
     "dev/pumpkin/bridge/PumpkinMenusAccess.java",
     "dev/pumpkin/bridge/PumpkinPlayer.java",
     "dev/pumpkin/bridge/PumpkinRandomTicks.java",
@@ -5156,6 +5157,123 @@ edit('net/minecraft/world/level/block/entity/BlockEntity.java', [
 edit('net/neoforged/neoforge/common/extensions/IBlockEntityExtension.java', [
     ('    default void invalidateCapabilities() {\n        throw Unimplemented.forMember("net/neoforged/neoforge/common/extensions/IBlockEntityExtension.invalidateCapabilities:()V");\n    }',
      "    // Pumpkin divergence: the bridge's capability lookups re-ask the level on every\n    // query; there is no cache to invalidate.\n    default void invalidateCapabilities() {\n    }"),
+])
+
+edit('net/minecraft/world/TickRateManager.java', [
+('    public boolean runsNormally() {\n        throw Unimplemented.forMember("net/minecraft/world/TickRateManager.runsNormally:()Z");\n    }',
+ '    // Pumpkin divergence: real body. Pumpkin has no tick freeze or sprint; the rate\n    // is always the normal one.\n    public boolean runsNormally() {\n        return true;\n    }'),
+])
+
+edit('net/neoforged/neoforge/event/tick/ServerTickEvent.java', [
+('public abstract class ServerTickEvent extends Event {\n\n    protected ServerTickEvent(BooleanSupplier hasTime, MinecraftServer server) {\n    }\n\n    public MinecraftServer getServer() {\n        throw Unimplemented.forMember("net/neoforged/neoforge/event/tick/ServerTickEvent.getServer:()Lnet/minecraft/server/MinecraftServer;");\n    }\n\n    public static class Pre extends ServerTickEvent {\n\n        public Pre(BooleanSupplier haveTime, MinecraftServer server) {\n        }\n\n        public Pre() {\n        }\n    }\n\n    public static class Post extends ServerTickEvent {\n\n        public Post(BooleanSupplier haveTime, MinecraftServer server) {\n        }\n\n        public Post() {\n        }\n    }',
+ 'public abstract class ServerTickEvent extends Event {\n\n    // Pumpkin divergence: the event carries what its constructor was given; a bare\n    // constructor left it empty, and asking then still refuses.\n    private MinecraftServer pumpkinServer;\n\n    protected ServerTickEvent(BooleanSupplier hasTime, MinecraftServer server) {\n        this.pumpkinServer = server;\n    }\n\n    public MinecraftServer getServer() {\n        if (pumpkinServer == null) {\n            throw Unimplemented.forMember("net/neoforged/neoforge/event/tick/ServerTickEvent.getServer:()Lnet/minecraft/server/MinecraftServer;");\n        }\n        return pumpkinServer;\n    }\n\n    public static class Pre extends ServerTickEvent {\n\n        public Pre(BooleanSupplier haveTime, MinecraftServer server) {\n            super(haveTime, server);\n        }\n\n        public Pre() {\n        }\n    }\n\n    public static class Post extends ServerTickEvent {\n\n        public Post(BooleanSupplier haveTime, MinecraftServer server) {\n            super(haveTime, server);\n        }\n\n        public Post() {\n        }\n    }'),
+])
+
+edit('net/neoforged/neoforge/event/tick/LevelTickEvent.java', [
+('public abstract class LevelTickEvent extends Event {\n\n    protected LevelTickEvent(BooleanSupplier hasTime, Level level) {\n    }\n\n    public Level getLevel() {\n        throw Unimplemented.forMember("net/neoforged/neoforge/event/tick/LevelTickEvent.getLevel:()Lnet/minecraft/world/level/Level;");\n    }\n\n    public static class Pre extends LevelTickEvent {\n\n        public Pre(BooleanSupplier haveTime, Level level) {\n        }\n\n        public Pre() {\n        }\n    }\n\n    public static class Post extends LevelTickEvent {\n\n        public Post(BooleanSupplier haveTime, Level level) {\n        }\n\n        public Post() {\n        }\n    }',
+ 'public abstract class LevelTickEvent extends Event {\n\n    // Pumpkin divergence: the event carries what its constructor was given; a bare\n    // constructor left it empty, and asking then still refuses.\n    private Level pumpkinLevel;\n\n    protected LevelTickEvent(BooleanSupplier hasTime, Level level) {\n        this.pumpkinLevel = level;\n    }\n\n    public Level getLevel() {\n        if (pumpkinLevel == null) {\n            throw Unimplemented.forMember("net/neoforged/neoforge/event/tick/LevelTickEvent.getLevel:()Lnet/minecraft/world/level/Level;");\n        }\n        return pumpkinLevel;\n    }\n\n    public static class Pre extends LevelTickEvent {\n\n        public Pre(BooleanSupplier haveTime, Level level) {\n            super(haveTime, level);\n        }\n\n        public Pre() {\n        }\n    }\n\n    public static class Post extends LevelTickEvent {\n\n        public Post(BooleanSupplier haveTime, Level level) {\n            super(haveTime, level);\n        }\n\n        public Post() {\n        }\n    }'),
+])
+
+edit('net/minecraft/core/GlobalPos.java', [
+('    public static GlobalPos of(ResourceKey<Level> dimension, BlockPos pos) {\n        throw Unimplemented.forMember("net/minecraft/core/GlobalPos.of:(Lnet/minecraft/resources/ResourceKey;Lnet/minecraft/core/BlockPos;)Lnet/minecraft/core/GlobalPos;");\n    }\n\n    public String toString() {\n        throw Unimplemented.forMember("net/minecraft/core/GlobalPos.toString:()Ljava/lang/String;");\n    }',
+ '    // Pumpkin divergence: real bodies. The record already carries both components;\n    // vanilla\'s factory and printed form are exactly this.\n    public static GlobalPos of(ResourceKey<Level> dimension, BlockPos pos) {\n        return new GlobalPos(dimension, pos);\n    }\n\n    public String toString() {\n        return this.dimension + " " + this.pos;\n    }'),
+])
+
+edit('net/neoforged/neoforge/attachment/AttachmentType.java', [
+('public final class AttachmentType<T> {\n\n    private AttachmentType(Builder<T> builder) {\n    }\n\n    public static <T> Builder<T> builder(Supplier<T> defaultValueSupplier) {\n        throw Unimplemented.forMember("net/neoforged/neoforge/attachment/AttachmentType.builder:(Ljava/util/function/Supplier;)Lnet/neoforged/neoforge/attachment/AttachmentType$Builder;");\n    }\n\n    public static <T> Builder<T> builder(Function<IAttachmentHolder, T> defaultValueConstructor) {\n        throw Unimplemented.forMember("net/neoforged/neoforge/attachment/AttachmentType.builder:(Ljava/util/function/Function;)Lnet/neoforged/neoforge/attachment/AttachmentType$Builder;");\n    }\n\n    public static <T extends ValueIOSerializable> Builder<T> serializable(Supplier<T> defaultValueSupplier) {\n        throw Unimplemented.forMember("net/neoforged/neoforge/attachment/AttachmentType.serializable:(Ljava/util/function/Supplier;)Lnet/neoforged/neoforge/attachment/AttachmentType$Builder;");\n    }\n\n    public static <T extends ValueIOSerializable> Builder<T> serializable(Function<IAttachmentHolder, T> defaultValueConstructor) {\n        throw Unimplemented.forMember("net/neoforged/neoforge/attachment/AttachmentType.serializable:(Ljava/util/function/Function;)Lnet/neoforged/neoforge/attachment/AttachmentType$Builder;");\n    }',
+ "public final class AttachmentType<T> {\n\n    // Pumpkin divergence: real bodies. An attachment type is its default-value\n    // constructor plus (for the serializable flavours) how to persist it. Attachments\n    // live in a real in-memory store on the holder; Pumpkin's save path does not\n    // carry them yet, so persistence is the one part that stays behind.\n    final Function<IAttachmentHolder, T> pumpkinDefault;\n\n    private AttachmentType(Builder<T> builder) {\n        this.pumpkinDefault = builder.pumpkinDefault;\n    }\n\n    public static <T> Builder<T> builder(Supplier<T> defaultValueSupplier) {\n        return new Builder<>(holder -> defaultValueSupplier.get());\n    }\n\n    public static <T> Builder<T> builder(Function<IAttachmentHolder, T> defaultValueConstructor) {\n        return new Builder<>(defaultValueConstructor);\n    }\n\n    public static <T extends ValueIOSerializable> Builder<T> serializable(Supplier<T> defaultValueSupplier) {\n        return new Builder<>(holder -> defaultValueSupplier.get());\n    }\n\n    public static <T extends ValueIOSerializable> Builder<T> serializable(Function<IAttachmentHolder, T> defaultValueConstructor) {\n        return new Builder<>(defaultValueConstructor);\n    }"),
+])
+
+edit('net/neoforged/neoforge/attachment/AttachmentType.java', [
+('    public static class Builder<T> {\n\n        private IAttachmentCopyHandler<T> copyHandler;\n\n        private Builder(Function<IAttachmentHolder, T> defaultValueSupplier) {\n        }\n\n        public Builder<T> serialize(IAttachmentSerializer<T> serializer) {\n            throw Unimplemented.forMember("net/neoforged/neoforge/attachment/AttachmentType$Builder.serialize:(Lnet/neoforged/neoforge/attachment/IAttachmentSerializer;)Lnet/neoforged/neoforge/attachment/AttachmentType$Builder;");\n        }\n\n        public Builder<T> serialize(MapCodec<T> codec) {\n            throw Unimplemented.forMember("net/neoforged/neoforge/attachment/AttachmentType$Builder.serialize:(Lcom/mojang/serialization/MapCodec;)Lnet/neoforged/neoforge/attachment/AttachmentType$Builder;");\n        }\n\n        public Builder<T> serialize(MapCodec<T> codec, Predicate<? super T> shouldSerialize) {\n            throw Unimplemented.forMember("net/neoforged/neoforge/attachment/AttachmentType$Builder.serialize:(Lcom/mojang/serialization/MapCodec;Ljava/util/function/Predicate;)Lnet/neoforged/neoforge/attachment/AttachmentType$Builder;");\n        }\n\n        public Builder<T> copyHandler(IAttachmentCopyHandler<T> cloner) {\n            throw Unimplemented.forMember("net/neoforged/neoforge/attachment/AttachmentType$Builder.copyHandler:(Lnet/neoforged/neoforge/attachment/IAttachmentCopyHandler;)Lnet/neoforged/neoforge/attachment/AttachmentType$Builder;");\n        }\n\n        public AttachmentType<T> build() {\n            throw Unimplemented.forMember("net/neoforged/neoforge/attachment/AttachmentType$Builder.build:()Lnet/neoforged/neoforge/attachment/AttachmentType;");\n        }\n\n        public Builder() {\n        }\n    }',
+ '    public static class Builder<T> {\n\n        private IAttachmentCopyHandler<T> copyHandler;\n        final Function<IAttachmentHolder, T> pumpkinDefault;\n\n        private Builder(Function<IAttachmentHolder, T> defaultValueSupplier) {\n            this.pumpkinDefault = defaultValueSupplier;\n        }\n\n        // Pumpkin divergence: serializers and copy handlers are how attachments\n        // persist and clone; the in-memory store needs neither yet, and the chain\n        // keeps building.\n        public Builder<T> serialize(IAttachmentSerializer<T> serializer) {\n            return this;\n        }\n\n        public Builder<T> serialize(MapCodec<T> codec) {\n            return this;\n        }\n\n        public Builder<T> serialize(MapCodec<T> codec, Predicate<? super T> shouldSerialize) {\n            return this;\n        }\n\n        public Builder<T> copyHandler(IAttachmentCopyHandler<T> cloner) {\n            this.copyHandler = cloner;\n            return this;\n        }\n\n        public AttachmentType<T> build() {\n            return new AttachmentType<>(this);\n        }\n\n        public Builder() {\n            this.pumpkinDefault = null;\n        }\n    }'),
+])
+
+edit('net/neoforged/neoforge/attachment/IAttachmentHolder.java', [
+('    default <T> boolean hasData(Supplier<AttachmentType<T>> type) {\n        throw Unimplemented.forMember("net/neoforged/neoforge/attachment/IAttachmentHolder.hasData:(Ljava/util/function/Supplier;)Z");\n    }',
+ '    // Pumpkin divergence: vanilla derivations from the type-taking forms. The\n    // holder short-circuits before resolving the supplier when nothing is attached\n    // at all -- an empty store answers for every type.\n    default <T> boolean hasData(Supplier<AttachmentType<T>> type) {\n        return hasAttachments() && hasData(type.get());\n    }'),
+])
+
+edit('net/neoforged/neoforge/attachment/IAttachmentHolder.java', [
+('    default <T> T getData(Supplier<AttachmentType<T>> type) {\n        throw Unimplemented.forMember("net/neoforged/neoforge/attachment/IAttachmentHolder.getData:(Ljava/util/function/Supplier;)Ljava/lang/Object;");\n    }',
+ '    default <T> T getData(Supplier<AttachmentType<T>> type) {\n        return getData(type.get());\n    }'),
+])
+
+edit('net/neoforged/neoforge/attachment/IAttachmentHolder.java', [
+('    default <T> T getExistingDataOrNull(Supplier<AttachmentType<T>> type) {\n        throw Unimplemented.forMember("net/neoforged/neoforge/attachment/IAttachmentHolder.getExistingDataOrNull:(Ljava/util/function/Supplier;)Ljava/lang/Object;");\n    }',
+ '    default <T> T getExistingDataOrNull(Supplier<AttachmentType<T>> type) {\n        return hasAttachments() ? getExistingDataOrNull(type.get()) : null;\n    }'),
+])
+
+edit('net/neoforged/neoforge/attachment/IAttachmentHolder.java', [
+('    default <T> T setData(Supplier<AttachmentType<T>> type, T data) {\n        throw Unimplemented.forMember("net/neoforged/neoforge/attachment/IAttachmentHolder.setData:(Ljava/util/function/Supplier;Ljava/lang/Object;)Ljava/lang/Object;");\n    }',
+ '    default <T> T setData(Supplier<AttachmentType<T>> type, T data) {\n        return setData(type.get(), data);\n    }'),
+])
+
+edit('net/neoforged/neoforge/attachment/IAttachmentHolder.java', [
+('    default <T> T removeData(Supplier<AttachmentType<T>> type) {\n        throw Unimplemented.forMember("net/neoforged/neoforge/attachment/IAttachmentHolder.removeData:(Ljava/util/function/Supplier;)Ljava/lang/Object;");\n    }',
+ '    default <T> T removeData(Supplier<AttachmentType<T>> type) {\n        return hasAttachments() ? removeData(type.get()) : null;\n    }'),
+])
+
+edit('net/neoforged/neoforge/attachment/AttachmentType.java', [
+('    public AttachmentType() {\n    }',
+ '    public AttachmentType() {\n        this.pumpkinDefault = null;\n    }'),
+])
+
+edit('net/neoforged/neoforge/attachment/AttachmentHolder.java', [
+('    public final boolean hasAttachments() {\n        throw Unimplemented.forMember("net/neoforged/neoforge/attachment/AttachmentHolder.hasAttachments:()Z");\n    }\n\n    public final boolean hasData(AttachmentType<?> type) {\n        throw Unimplemented.forMember("net/neoforged/neoforge/attachment/AttachmentHolder.hasData:(Lnet/neoforged/neoforge/attachment/AttachmentType;)Z");\n    }\n\n    public final <T> T getData(AttachmentType<T> type) {\n        throw Unimplemented.forMember("net/neoforged/neoforge/attachment/AttachmentHolder.getData:(Lnet/neoforged/neoforge/attachment/AttachmentType;)Ljava/lang/Object;");\n    }\n\n    public <T> T getExistingDataOrNull(AttachmentType<T> type) {\n        throw Unimplemented.forMember("net/neoforged/neoforge/attachment/AttachmentHolder.getExistingDataOrNull:(Lnet/neoforged/neoforge/attachment/AttachmentType;)Ljava/lang/Object;");\n    }\n\n    public <T> T setData(AttachmentType<T> type, T data) {\n        throw Unimplemented.forMember("net/neoforged/neoforge/attachment/AttachmentHolder.setData:(Lnet/neoforged/neoforge/attachment/AttachmentType;Ljava/lang/Object;)Ljava/lang/Object;");\n    }\n\n    public <T> T removeData(AttachmentType<T> type) {\n        throw Unimplemented.forMember("net/neoforged/neoforge/attachment/AttachmentHolder.removeData:(Lnet/neoforged/neoforge/attachment/AttachmentType;)Ljava/lang/Object;");\n    }',
+ '    // Pumpkin divergence: a real in-memory store. NeoForge lazily allocates the same\n    // map; the difference is persistence, which Pumpkin\'s save path does not carry\n    // yet -- attachments live for the run.\n    private java.util.Map<AttachmentType<?>, Object> pumpkinAttachments;\n\n    private java.util.Map<AttachmentType<?>, Object> pumpkinStore() {\n        if (pumpkinAttachments == null) {\n            pumpkinAttachments = new java.util.IdentityHashMap<>(4);\n        }\n        return pumpkinAttachments;\n    }\n\n    public final boolean hasAttachments() {\n        return pumpkinAttachments != null && !pumpkinAttachments.isEmpty();\n    }\n\n    public final boolean hasData(AttachmentType<?> type) {\n        return pumpkinAttachments != null && pumpkinAttachments.containsKey(type);\n    }\n\n    @SuppressWarnings("unchecked")\n    public final <T> T getData(AttachmentType<T> type) {\n        T existing = getExistingDataOrNull(type);\n        if (existing != null) {\n            return existing;\n        }\n        if (type.pumpkinDefault == null) {\n            throw Unimplemented.forMember(\n                    "net/neoforged/neoforge/attachment/AttachmentHolder.getData (type built without a default)");\n        }\n        T created = (T) type.pumpkinDefault.apply(this);\n        pumpkinStore().put(type, created);\n        return created;\n    }\n\n    @SuppressWarnings("unchecked")\n    public <T> T getExistingDataOrNull(AttachmentType<T> type) {\n        return pumpkinAttachments == null ? null : (T) pumpkinAttachments.get(type);\n    }\n\n    @SuppressWarnings("unchecked")\n    public <T> T setData(AttachmentType<T> type, T data) {\n        return (T) pumpkinStore().put(type, data);\n    }\n\n    @SuppressWarnings("unchecked")\n    public <T> T removeData(AttachmentType<T> type) {\n        return pumpkinAttachments == null ? null : (T) pumpkinAttachments.remove(type);\n    }'),
+])
+
+edit('net/minecraft/world/level/block/entity/BlockEntity.java', [
+('    public void setRemoved() {\n        throw Unimplemented.forMember("net/minecraft/world/level/block/entity/BlockEntity.setRemoved:()V");\n    }\n\n    public void clearRemoved() {\n        throw Unimplemented.forMember("net/minecraft/world/level/block/entity/BlockEntity.clearRemoved:()V");\n    }',
+ "    // Pumpkin divergence: real bodies -- vanilla's removed flag is exactly this pair,\n    // and mods hook clearRemoved as their joined-the-world signal.\n    private boolean pumpkinRemoved;\n\n    public void setRemoved() {\n        this.pumpkinRemoved = true;\n    }\n\n    public void clearRemoved() {\n        this.pumpkinRemoved = false;\n    }"),
+])
+
+edit('net/minecraft/world/level/block/entity/BlockEntity.java', [
+('    public boolean isRemoved() {\n        throw Unimplemented.forMember("net/minecraft/world/level/block/entity/BlockEntity.isRemoved:()Z");\n    }',
+ '    public boolean isRemoved() {\n        return pumpkinRemoved;\n    }'),
+])
+
+edit('net/minecraft/world/level/ChunkPos.java', [
+('    public static ChunkPos containing(BlockPos pos) {\n        throw Unimplemented.forMember("net/minecraft/world/level/ChunkPos.containing:(Lnet/minecraft/core/BlockPos;)Lnet/minecraft/world/level/ChunkPos;");\n    }\n\n    public static ChunkPos unpack(long key) {\n        throw Unimplemented.forMember("net/minecraft/world/level/ChunkPos.unpack:(J)Lnet/minecraft/world/level/ChunkPos;");\n    }',
+ "    // Pumpkin divergence: real bodies for the pure coordinate maths below -- a chunk\n    // position is its block position shifted by four, packed as two ints in a long,\n    // exactly vanilla's arithmetic.\n    public static ChunkPos containing(BlockPos pos) {\n        return new ChunkPos(pos.getX() >> 4, pos.getZ() >> 4);\n    }\n\n    public static ChunkPos unpack(long key) {\n        return new ChunkPos((int) key, (int) (key >> 32));\n    }"),
+('    public long pack() {\n        throw Unimplemented.forMember("net/minecraft/world/level/ChunkPos.pack:()J");\n    }\n\n    public static long pack(int x, int z) {\n        throw Unimplemented.forMember("net/minecraft/world/level/ChunkPos.pack:(II)J");\n    }\n\n    public static long pack(BlockPos pos) {\n        throw Unimplemented.forMember("net/minecraft/world/level/ChunkPos.pack:(Lnet/minecraft/core/BlockPos;)J");\n    }\n\n    public static int getX(long pos) {\n        throw Unimplemented.forMember("net/minecraft/world/level/ChunkPos.getX:(J)I");\n    }\n\n    public static int getZ(long pos) {\n        throw Unimplemented.forMember("net/minecraft/world/level/ChunkPos.getZ:(J)I");\n    }',
+ '    public long pack() {\n        return pack(this.x, this.z);\n    }\n\n    public static long pack(int x, int z) {\n        return (x & 0xFFFFFFFFL) | ((z & 0xFFFFFFFFL) << 32);\n    }\n\n    public static long pack(BlockPos pos) {\n        return pack(pos.getX() >> 4, pos.getZ() >> 4);\n    }\n\n    public static int getX(long pos) {\n        return (int) pos;\n    }\n\n    public static int getZ(long pos) {\n        return (int) (pos >> 32);\n    }'),
+])
+
+edit('net/minecraft/world/level/chunk/LevelChunk.java', [
+('    public BlockEntity getBlockEntity(BlockPos pos) {\n        throw Unimplemented.forMember("net/minecraft/world/level/chunk/LevelChunk.getBlockEntity:(Lnet/minecraft/core/BlockPos;)Lnet/minecraft/world/level/block/entity/BlockEntity;");\n    }',
+ "    // Pumpkin divergence: block entities live in the bridge's one shared store keyed\n    // by position; the chunk is a window onto it, same as the level's own lookup.\n    public BlockEntity getBlockEntity(BlockPos pos) {\n        return dev.pumpkin.bridge.PumpkinBlockEntities.get(pos.getX(), pos.getY(), pos.getZ());\n    }"),
+])
+
+edit('net/neoforged/neoforge/server/ServerLifecycleHooks.java', [
+('    public static MinecraftServer getCurrentServer() {\n        throw Unimplemented.forMember("net/neoforged/neoforge/server/ServerLifecycleHooks.getCurrentServer:()Lnet/minecraft/server/MinecraftServer;");\n    }',
+ "    // Pumpkin divergence: the running server is the bridge's stand-in -- the same\n    // instance the tick events carry.\n    public static MinecraftServer getCurrentServer() {\n        return dev.pumpkin.bridge.PumpkinMinecraftServer.pumpkinInstance();\n    }"),
+])
+
+edit('net/minecraft/server/level/PlayerMap.java', [
+('    public Set<ServerPlayer> getAllPlayers() {\n        throw Unimplemented.forMember("net/minecraft/server/level/PlayerMap.getAllPlayers:()Ljava/util/Set;");\n    }',
+ "    // Pumpkin divergence: real body over a real (and forever empty) store -- the\n    // bridge tracks no ServerPlayer instances, so nobody is ever watching a chunk\n    // from the JVM's point of view.\n    private final Set<ServerPlayer> pumpkinPlayers = new java.util.HashSet<>();\n\n    public Set<ServerPlayer> getAllPlayers() {\n        return pumpkinPlayers;\n    }"),
+])
+
+edit('net/minecraft/server/level/ChunkMap.java', [
+('    private final PlayerMap playerMap = null;',
+ "    // Pumpkin divergence: real (empty) player map, and public -- mods compile\n    // against NeoForge's access transformer that widens this field.\n    public final PlayerMap playerMap = new PlayerMap();"),
+])
+
+edit('net/minecraft/server/level/ServerChunkCache.java', [
+('    public final ChunkMap chunkMap = null;',
+ '    // Pumpkin divergence: a real map instance so the players-tracking walk works.\n    public final ChunkMap chunkMap = new ChunkMap();'),
+])
+
+edit('net/minecraft/world/level/block/entity/BlockEntity.java', [
+('    public void setLevel(Level level) {\n        throw Unimplemented.forMember("net/minecraft/world/level/block/entity/BlockEntity.setLevel:(Lnet/minecraft/world/level/Level;)V");\n    }',
+ '    // Pumpkin divergence: real body -- vanilla stores the level here, and mods\n    // override this as their earliest world hook (Mekanism initializes transmitter\n    // acceptor caches in it), so the base must be callable.\n    public void setLevel(Level level) {\n        pumpkinSetLevel(level);\n    }'),
+])
+
+edit('net/neoforged/neoforge/common/extensions/IItemStackExtension.java', [
+('    default boolean canEquip(EquipmentSlot armorType, LivingEntity entity) {\n        throw Unimplemented.forMember("net/neoforged/neoforge/common/extensions/IItemStackExtension.canEquip:(Lnet/minecraft/world/entity/EquipmentSlot;Lnet/minecraft/world/entity/LivingEntity;)Z");\n    }',
+ "    // Pumpkin divergence: vanilla answers this from the stack's equippable component,\n    // which the bridge's stand-in stacks never carry -- so no stack this host builds\n    // is armor, and the armor-slot check in a menu's shift-click routing says no.\n    default boolean canEquip(EquipmentSlot armorType, LivingEntity entity) {\n        return false;\n    }"),
 ])
 
 commit()

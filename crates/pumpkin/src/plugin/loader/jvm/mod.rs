@@ -243,6 +243,7 @@ fn wire_block_drops(server: &Arc<crate::server::Server>) {
 
     install_jvm_tick_hook();
     install_jvm_extract_hook();
+    install_jvm_server_tick_hook();
 
     // Tell the bridge where the extracted mod datapacks live: the recipe manager it
     // serves to mod machines decodes their recipe JSON straight from there.
@@ -881,6 +882,41 @@ fn vanilla_container_mask(
 /// tick rather than a reflective lookup. A tick that stops inside the mod is said once
 /// per block type -- a ticking machine can fail twenty times a second, and a log that
 /// repeats that fast says less than one line that names the key.
+/// Posts the `NeoForge` server/level tick events once per Pumpkin server tick, so mod
+/// tick handlers (Mekanism's transmitter networks) run on the real cadence.
+fn install_jvm_server_tick_hook() {
+    static WARNED: std::sync::Once = std::sync::Once::new();
+    crate::server::install_server_tick_hook(Box::new(|| {
+        let Some(vm) = vm::current() else {
+            return;
+        };
+        let reply: Result<String, VmError> = vm.call(|env| {
+            let returned = env.call_static_method(
+                "dev/pumpkin/bridge/PumpkinInteractions",
+                "tickServer",
+                "()Ljava/lang/String;",
+                &[],
+            );
+            if env.exception_check().unwrap_or(false) {
+                let _ = env.exception_describe();
+                let _ = env.exception_clear();
+                return Err(VmError::Java("tickServer threw".into()));
+            }
+            let object = returned
+                .and_then(jni::objects::JValueGen::l)
+                .map_err(|err| VmError::Java(err.to_string()))?;
+            env.get_string(&jni::objects::JString::from(object))
+                .map(Into::into)
+                .map_err(|err| VmError::Java(err.to_string()))
+        });
+        if let Err(err) = reply {
+            WARNED.call_once(|| {
+                tracing::warn!("mod server-tick handlers stopped: {err} (said once)");
+            });
+        }
+    }));
+}
+
 /// Routes hopper pulls on plugin block entities into the mod's own item handler.
 fn install_jvm_extract_hook() {
     crate::block::entities::plugin::install_extract_hook(Box::new(|entity, world| {

@@ -9,31 +9,34 @@ public interface IAttachmentHolder {
 
     boolean hasData(AttachmentType<?> type);
 
+    // Pumpkin divergence: vanilla derivations from the type-taking forms. The
+    // holder short-circuits before resolving the supplier when nothing is attached
+    // at all -- an empty store answers for every type.
     default <T> boolean hasData(Supplier<AttachmentType<T>> type) {
-        throw Unimplemented.forMember("net/neoforged/neoforge/attachment/IAttachmentHolder.hasData:(Ljava/util/function/Supplier;)Z");
+        return hasAttachments() && hasData(type.get());
     }
 
     <T> T getData(AttachmentType<T> type);
 
     default <T> T getData(Supplier<AttachmentType<T>> type) {
-        throw Unimplemented.forMember("net/neoforged/neoforge/attachment/IAttachmentHolder.getData:(Ljava/util/function/Supplier;)Ljava/lang/Object;");
+        return getData(type.get());
     }
 
     <T> T getExistingDataOrNull(AttachmentType<T> type);
 
     default <T> T getExistingDataOrNull(Supplier<AttachmentType<T>> type) {
-        throw Unimplemented.forMember("net/neoforged/neoforge/attachment/IAttachmentHolder.getExistingDataOrNull:(Ljava/util/function/Supplier;)Ljava/lang/Object;");
+        return hasAttachments() ? getExistingDataOrNull(type.get()) : null;
     }
 
     <T> T setData(AttachmentType<T> type, T data);
 
     default <T> T setData(Supplier<AttachmentType<T>> type, T data) {
-        throw Unimplemented.forMember("net/neoforged/neoforge/attachment/IAttachmentHolder.setData:(Ljava/util/function/Supplier;Ljava/lang/Object;)Ljava/lang/Object;");
+        return setData(type.get(), data);
     }
 
     <T> T removeData(AttachmentType<T> type);
 
     default <T> T removeData(Supplier<AttachmentType<T>> type) {
-        throw Unimplemented.forMember("net/neoforged/neoforge/attachment/IAttachmentHolder.removeData:(Ljava/util/function/Supplier;)Ljava/lang/Object;");
+        return hasAttachments() ? removeData(type.get()) : null;
     }
 }

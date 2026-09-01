@@ -71,8 +71,10 @@ public class LevelChunk extends ChunkAccess implements DebugValueSource, IAttach
         throw Unimplemented.forMember("net/minecraft/world/level/chunk/LevelChunk.addEntity:(Lnet/minecraft/world/entity/Entity;)V");
     }
 
+    // Pumpkin divergence: block entities live in the bridge's one shared store keyed
+    // by position; the chunk is a window onto it, same as the level's own lookup.
     public BlockEntity getBlockEntity(BlockPos pos) {
-        throw Unimplemented.forMember("net/minecraft/world/level/chunk/LevelChunk.getBlockEntity:(Lnet/minecraft/core/BlockPos;)Lnet/minecraft/world/level/block/entity/BlockEntity;");
+        return dev.pumpkin.bridge.PumpkinBlockEntities.get(pos.getX(), pos.getY(), pos.getZ());
     }
 
     public BlockEntity getBlockEntity(BlockPos pos, LevelChunk.EntityCreationType creationType) {

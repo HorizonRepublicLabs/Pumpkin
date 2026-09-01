@@ -4,28 +4,54 @@ import dev.pumpkin.shim.Unimplemented;
 
 public abstract class AttachmentHolder implements IAttachmentHolder {
 
+    // Pumpkin divergence: a real in-memory store. NeoForge lazily allocates the same
+    // map; the difference is persistence, which Pumpkin's save path does not carry
+    // yet -- attachments live for the run.
+    private java.util.Map<AttachmentType<?>, Object> pumpkinAttachments;
+
+    private java.util.Map<AttachmentType<?>, Object> pumpkinStore() {
+        if (pumpkinAttachments == null) {
+            pumpkinAttachments = new java.util.IdentityHashMap<>(4);
+        }
+        return pumpkinAttachments;
+    }
+
     public final boolean hasAttachments() {
-        throw Unimplemented.forMember("net/neoforged/neoforge/attachment/AttachmentHolder.hasAttachments:()Z");
+        return pumpkinAttachments != null && !pumpkinAttachments.isEmpty();
     }
 
     public final boolean hasData(AttachmentType<?> type) {
-        throw Unimplemented.forMember("net/neoforged/neoforge/attachment/AttachmentHolder.hasData:(Lnet/neoforged/neoforge/attachment/AttachmentType;)Z");
+        return pumpkinAttachments != null && pumpkinAttachments.containsKey(type);
     }
 
+    @SuppressWarnings("unchecked")
     public final <T> T getData(AttachmentType<T> type) {
-        throw Unimplemented.forMember("net/neoforged/neoforge/attachment/AttachmentHolder.getData:(Lnet/neoforged/neoforge/attachment/AttachmentType;)Ljava/lang/Object;");
+        T existing = getExistingDataOrNull(type);
+        if (existing != null) {
+            return existing;
+        }
+        if (type.pumpkinDefault == null) {
+            throw Unimplemented.forMember(
+                    "net/neoforged/neoforge/attachment/AttachmentHolder.getData (type built without a default)");
+        }
+        T created = (T) type.pumpkinDefault.apply(this);
+        pumpkinStore().put(type, created);
+        return created;
     }
 
+    @SuppressWarnings("unchecked")
     public <T> T getExistingDataOrNull(AttachmentType<T> type) {
-        throw Unimplemented.forMember("net/neoforged/neoforge/attachment/AttachmentHolder.getExistingDataOrNull:(Lnet/neoforged/neoforge/attachment/AttachmentType;)Ljava/lang/Object;");
+        return pumpkinAttachments == null ? null : (T) pumpkinAttachments.get(type);
     }
 
+    @SuppressWarnings("unchecked")
     public <T> T setData(AttachmentType<T> type, T data) {
-        throw Unimplemented.forMember("net/neoforged/neoforge/attachment/AttachmentHolder.setData:(Lnet/neoforged/neoforge/attachment/AttachmentType;Ljava/lang/Object;)Ljava/lang/Object;");
+        return (T) pumpkinStore().put(type, data);
     }
 
+    @SuppressWarnings("unchecked")
     public <T> T removeData(AttachmentType<T> type) {
-        throw Unimplemented.forMember("net/neoforged/neoforge/attachment/AttachmentHolder.removeData:(Lnet/neoforged/neoforge/attachment/AttachmentType;)Ljava/lang/Object;");
+        return pumpkinAttachments == null ? null : (T) pumpkinAttachments.remove(type);
     }
 
     public static class AsField extends AttachmentHolder {

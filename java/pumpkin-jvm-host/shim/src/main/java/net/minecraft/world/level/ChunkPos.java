@@ -7,12 +7,15 @@ public record ChunkPos(int x, int z) {
 
     public static final long INVALID_CHUNK_POS = 0L;
 
+    // Pumpkin divergence: real bodies for the pure coordinate maths below -- a chunk
+    // position is its block position shifted by four, packed as two ints in a long,
+    // exactly vanilla's arithmetic.
     public static ChunkPos containing(BlockPos pos) {
-        throw Unimplemented.forMember("net/minecraft/world/level/ChunkPos.containing:(Lnet/minecraft/core/BlockPos;)Lnet/minecraft/world/level/ChunkPos;");
+        return new ChunkPos(pos.getX() >> 4, pos.getZ() >> 4);
     }
 
     public static ChunkPos unpack(long key) {
-        throw Unimplemented.forMember("net/minecraft/world/level/ChunkPos.unpack:(J)Lnet/minecraft/world/level/ChunkPos;");
+        return new ChunkPos((int) key, (int) (key >> 32));
     }
 
     public boolean isValid() {
@@ -24,23 +27,23 @@ public record ChunkPos(int x, int z) {
     }
 
     public long pack() {
-        throw Unimplemented.forMember("net/minecraft/world/level/ChunkPos.pack:()J");
+        return pack(this.x, this.z);
     }
 
     public static long pack(int x, int z) {
-        throw Unimplemented.forMember("net/minecraft/world/level/ChunkPos.pack:(II)J");
+        return (x & 0xFFFFFFFFL) | ((z & 0xFFFFFFFFL) << 32);
     }
 
     public static long pack(BlockPos pos) {
-        throw Unimplemented.forMember("net/minecraft/world/level/ChunkPos.pack:(Lnet/minecraft/core/BlockPos;)J");
+        return pack(pos.getX() >> 4, pos.getZ() >> 4);
     }
 
     public static int getX(long pos) {
-        throw Unimplemented.forMember("net/minecraft/world/level/ChunkPos.getX:(J)I");
+        return (int) pos;
     }
 
     public static int getZ(long pos) {
-        throw Unimplemented.forMember("net/minecraft/world/level/ChunkPos.getZ:(J)I");
+        return (int) (pos >> 32);
     }
 
     public int hashCode() {

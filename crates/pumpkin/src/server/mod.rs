@@ -150,6 +150,16 @@ pub struct Server {
     world_info_writer: Arc<dyn WorldInfoWriter>,
 }
 
+/// The per-server-tick hook a plugin host may install (the JVM host posts mod tick
+/// events through it). One slot: this server runs at most one embedded host.
+pub type ServerTickHook = Box<dyn Fn() + Send + Sync>;
+static SERVER_TICK_HOOK: std::sync::OnceLock<ServerTickHook> = std::sync::OnceLock::new();
+
+/// Installs the per-tick hook; later installs are ignored.
+pub fn install_server_tick_hook(hook: ServerTickHook) {
+    let _ = SERVER_TICK_HOOK.set(hook);
+}
+
 impl Server {
     #[expect(clippy::too_many_lines)]
     #[must_use]
@@ -1083,6 +1093,12 @@ impl Server {
 
     /// Ticks the game logic for all worlds. This is the part that is affected by `/tick freeze`.
     pub fn tick_worlds(self: &Arc<Self>) {
+        // Plugin hosts that carry their own per-tick machinery (the JVM host posts the
+        // NeoForge tick events mods registered handlers on) run before world logic, so
+        // what they move this tick is visible to it.
+        if let Some(hook) = SERVER_TICK_HOOK.get() {
+            hook();
+        }
         self.task_scheduler.tick(self);
 
         let worlds = self.worlds.load();

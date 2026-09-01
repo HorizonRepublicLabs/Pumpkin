@@ -30,7 +30,8 @@ import dev.pumpkin.shim.Unimplemented;
 
 public class ServerChunkCache extends ChunkSource implements IServerChunkCacheExtension {
 
-    public final ChunkMap chunkMap = null;
+    // Pumpkin divergence: a real map instance so the players-tracking walk works.
+    public final ChunkMap chunkMap = new ChunkMap();
 
     public ServerChunkCache(ServerLevel level, LevelStorageSource.LevelStorageAccess levelStorage, DataFixer fixerUpper, StructureTemplateManager structureTemplateManager, Executor executor, ChunkGenerator generator, int viewDistance, int simulationDistance, boolean syncWrites, ChunkStatusUpdateListener chunkStatusListener, Supplier<SavedDataStorage> overworldDataStorage) {
     }

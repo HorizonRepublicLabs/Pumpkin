@@ -23,8 +23,11 @@ public interface IItemStackExtension extends ItemInstanceExtension {
         throw Unimplemented.forMember("net/neoforged/neoforge/common/extensions/IItemStackExtension.getAllEnchantments:(Lnet/minecraft/core/HolderLookup$RegistryLookup;)Lnet/minecraft/world/item/enchantment/ItemEnchantments;");
     }
 
+    // Pumpkin divergence: vanilla answers this from the stack's equippable component,
+    // which the bridge's stand-in stacks never carry -- so no stack this host builds
+    // is armor, and the armor-slot check in a menu's shift-click routing says no.
     default boolean canEquip(EquipmentSlot armorType, LivingEntity entity) {
-        throw Unimplemented.forMember("net/neoforged/neoforge/common/extensions/IItemStackExtension.canEquip:(Lnet/minecraft/world/entity/EquipmentSlot;Lnet/minecraft/world/entity/LivingEntity;)Z");
+        return false;
     }
 
     default <T, C extends Object> T getCapability(ItemCapability<T, C> capability, C context) {

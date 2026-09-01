@@ -9,56 +9,71 @@ import dev.pumpkin.shim.Unimplemented;
 
 public final class AttachmentType<T> {
 
+    // Pumpkin divergence: real bodies. An attachment type is its default-value
+    // constructor plus (for the serializable flavours) how to persist it. Attachments
+    // live in a real in-memory store on the holder; Pumpkin's save path does not
+    // carry them yet, so persistence is the one part that stays behind.
+    final Function<IAttachmentHolder, T> pumpkinDefault;
+
     private AttachmentType(Builder<T> builder) {
+        this.pumpkinDefault = builder.pumpkinDefault;
     }
 
     public static <T> Builder<T> builder(Supplier<T> defaultValueSupplier) {
-        throw Unimplemented.forMember("net/neoforged/neoforge/attachment/AttachmentType.builder:(Ljava/util/function/Supplier;)Lnet/neoforged/neoforge/attachment/AttachmentType$Builder;");
+        return new Builder<>(holder -> defaultValueSupplier.get());
     }
 
     public static <T> Builder<T> builder(Function<IAttachmentHolder, T> defaultValueConstructor) {
-        throw Unimplemented.forMember("net/neoforged/neoforge/attachment/AttachmentType.builder:(Ljava/util/function/Function;)Lnet/neoforged/neoforge/attachment/AttachmentType$Builder;");
+        return new Builder<>(defaultValueConstructor);
     }
 
     public static <T extends ValueIOSerializable> Builder<T> serializable(Supplier<T> defaultValueSupplier) {
-        throw Unimplemented.forMember("net/neoforged/neoforge/attachment/AttachmentType.serializable:(Ljava/util/function/Supplier;)Lnet/neoforged/neoforge/attachment/AttachmentType$Builder;");
+        return new Builder<>(holder -> defaultValueSupplier.get());
     }
 
     public static <T extends ValueIOSerializable> Builder<T> serializable(Function<IAttachmentHolder, T> defaultValueConstructor) {
-        throw Unimplemented.forMember("net/neoforged/neoforge/attachment/AttachmentType.serializable:(Ljava/util/function/Function;)Lnet/neoforged/neoforge/attachment/AttachmentType$Builder;");
+        return new Builder<>(defaultValueConstructor);
     }
 
     public static class Builder<T> {
 
         private IAttachmentCopyHandler<T> copyHandler;
+        final Function<IAttachmentHolder, T> pumpkinDefault;
 
         private Builder(Function<IAttachmentHolder, T> defaultValueSupplier) {
+            this.pumpkinDefault = defaultValueSupplier;
         }
 
+        // Pumpkin divergence: serializers and copy handlers are how attachments
+        // persist and clone; the in-memory store needs neither yet, and the chain
+        // keeps building.
         public Builder<T> serialize(IAttachmentSerializer<T> serializer) {
-            throw Unimplemented.forMember("net/neoforged/neoforge/attachment/AttachmentType$Builder.serialize:(Lnet/neoforged/neoforge/attachment/IAttachmentSerializer;)Lnet/neoforged/neoforge/attachment/AttachmentType$Builder;");
+            return this;
         }
 
         public Builder<T> serialize(MapCodec<T> codec) {
-            throw Unimplemented.forMember("net/neoforged/neoforge/attachment/AttachmentType$Builder.serialize:(Lcom/mojang/serialization/MapCodec;)Lnet/neoforged/neoforge/attachment/AttachmentType$Builder;");
+            return this;
         }
 
         public Builder<T> serialize(MapCodec<T> codec, Predicate<? super T> shouldSerialize) {
-            throw Unimplemented.forMember("net/neoforged/neoforge/attachment/AttachmentType$Builder.serialize:(Lcom/mojang/serialization/MapCodec;Ljava/util/function/Predicate;)Lnet/neoforged/neoforge/attachment/AttachmentType$Builder;");
+            return this;
         }
 
         public Builder<T> copyHandler(IAttachmentCopyHandler<T> cloner) {
-            throw Unimplemented.forMember("net/neoforged/neoforge/attachment/AttachmentType$Builder.copyHandler:(Lnet/neoforged/neoforge/attachment/IAttachmentCopyHandler;)Lnet/neoforged/neoforge/attachment/AttachmentType$Builder;");
+            this.copyHandler = cloner;
+            return this;
         }
 
         public AttachmentType<T> build() {
-            throw Unimplemented.forMember("net/neoforged/neoforge/attachment/AttachmentType$Builder.build:()Lnet/neoforged/neoforge/attachment/AttachmentType;");
+            return new AttachmentType<>(this);
         }
 
         public Builder() {
+            this.pumpkinDefault = null;
         }
     }
 
     public AttachmentType() {
+        this.pumpkinDefault = null;
     }
 }

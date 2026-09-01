@@ -91,6 +91,16 @@ import net.minecraft.world.item.ItemStack;
  */
 public final class PumpkinLevel extends net.minecraft.server.level.ServerLevel {
 
+    // Mods walk getChunkSource().chunkMap.playerMap to ask who watches a chunk; the
+    // stand-in cache answers through the same fields, with nobody watching.
+    private final net.minecraft.server.level.ServerChunkCache pumpkinChunkSource =
+            new net.minecraft.server.level.ServerChunkCache();
+
+    @Override
+    public net.minecraft.server.level.ServerChunkCache getChunkSource() {
+        return pumpkinChunkSource;
+    }
+
     @Override
     public net.minecraft.world.item.crafting.RecipeManager recipeAccess() {
         // Cucumber's CachedRecipe casts the level to ServerLevel and asks this -- the

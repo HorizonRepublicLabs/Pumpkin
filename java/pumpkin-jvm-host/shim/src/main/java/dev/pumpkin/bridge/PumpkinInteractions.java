@@ -212,6 +212,27 @@ public final class PumpkinInteractions {
      * times a second buys nothing.
      */
     /**
+     * One server tick, as the NeoForge game bus tells it: mods that registered tick
+     * handlers (Mekanism's transmitter networks, frequency manager) run here, once per
+     * Pumpkin server tick.
+     *
+     * @return {@code TICKED}
+     */
+    public static String tickServer() {
+        net.minecraft.server.MinecraftServer server = PumpkinMinecraftServer.pumpkinInstance();
+        PumpkinLevel level = PumpkinInteractions.pumpkinLevel();
+        net.neoforged.neoforge.common.NeoForge.EVENT_BUS.post(
+                new net.neoforged.neoforge.event.tick.ServerTickEvent.Pre(() -> true, server));
+        net.neoforged.neoforge.common.NeoForge.EVENT_BUS.post(
+                new net.neoforged.neoforge.event.tick.LevelTickEvent.Pre(() -> true, level));
+        net.neoforged.neoforge.common.NeoForge.EVENT_BUS.post(
+                new net.neoforged.neoforge.event.tick.LevelTickEvent.Post(() -> true, level));
+        net.neoforged.neoforge.common.NeoForge.EVENT_BUS.post(
+                new net.neoforged.neoforge.event.tick.ServerTickEvent.Post(() -> true, server));
+        return "TICKED";
+    }
+
+    /**
      * One item pulled out of the machine by a hopper below, through the mod's own item
      * handler with the bottom-side context -- the mod's side configuration decides.
      *
