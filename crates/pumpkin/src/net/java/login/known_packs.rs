@@ -2,7 +2,7 @@
 use super::*;
 
 impl PendingConnection {
-    pub async fn handle_known_packs(&mut self, _packet: SKnownPacks<'_>, server: &Server) {
+    pub async fn handle_known_packs(&mut self, server: &Server) {
         // Last chance to queue mod-loader work: after this the sequence starts running and
         // the stage that would carry it has passed.
         self.try_queue_mod_loader_tasks(server);

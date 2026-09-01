@@ -41,12 +41,12 @@ impl pumpkin::plugin::registry::Host for PluginHostState {
         // Every hook the server has asks the registry for behaviour by block id, and a
         // registered block that answers nothing there has none at all.
         if let Some(server) = self.server.as_ref() {
-            let behaviour: &'static dyn crate::block::BlockBehaviour = Box::leak(Box::new(
+            let behaviour: std::sync::Arc<dyn crate::block::BlockBehaviour> = std::sync::Arc::new(
                 crate::plugin::api::block_behaviour::PluginBlockBehaviour::new(
                     registered.first_state,
                     registered.drops,
                 ),
-            ));
+            );
             server
                 .block_registry
                 .set_plugin_block(registered.block_id, behaviour);

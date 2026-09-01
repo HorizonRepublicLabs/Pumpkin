@@ -30,6 +30,7 @@ use crate::block::blocks::decorated_pot::DecoratedPotBlock;
 use crate::block::blocks::dirt_path::DirtPathBlock;
 use crate::block::blocks::doors::DoorBlock;
 use crate::block::blocks::dripstone::DripstoneBlock;
+use crate::block::blocks::end_gateway::EndGatewayBlock;
 use crate::block::blocks::end_portal::EndPortalBlock;
 use crate::block::blocks::end_portal_frame::EndPortalFrameBlock;
 use crate::block::blocks::falling::FallingBlock;
@@ -50,7 +51,7 @@ use crate::block::blocks::ice::{FrostedIceBlock, IceBlock};
 use crate::block::blocks::infested::InfestedBlock;
 use crate::block::blocks::iron_bars::IronBarsBlock;
 use crate::block::blocks::jigsaw::JigsawBlock;
-use crate::block::blocks::leaves::LeavesBlock;
+// use crate::block::blocks::leaves::LeavesBlock;
 use crate::block::blocks::logs::LogBlock;
 use crate::block::blocks::loom::LoomBlock;
 use crate::block::blocks::magma::MagmaBlock;
@@ -158,8 +159,8 @@ use crate::block::fluid::lava::FlowingLava;
 use crate::block::fluid::water::FlowingWater;
 use crate::block::{
     BlockBehaviour, BlockHitResult, BlockMetadata, BonemealArgs, FluidMetadata,
-    GetInsideCollisionShapeArgs, OnEntityCollisionArgs, OnLandedUponArgs,
-    UpdateEntityMovementAfterFallOnArgs, stop_vertical_movement_after_fall,
+    GetInsideCollisionShapeArgs, OnEntityCollisionArgs, OnEntityStepArgs, OnLandedUponArgs,
+    OnProjectileHitArgs, UpdateEntityMovementAfterFallOnArgs, stop_vertical_movement_after_fall,
 };
 use crate::entity::EntityBase;
 use crate::entity::player::Player;
@@ -175,6 +176,7 @@ use pumpkin_data::{Block, BlockDirection, BlockId, BlockState};
 use pumpkin_protocol::java::server::play::SUseItemOn;
 use pumpkin_util::math::boundingbox::BoundingBox;
 use pumpkin_util::math::position::BlockPos;
+use pumpkin_util::math::vector3::Vector3;
 use pumpkin_world::world::{BlockAccessor, BlockFlags};
 use rustc_hash::FxHashMap;
 use std::sync::Arc;
@@ -190,7 +192,6 @@ use super::{
     OnPlaceArgs, OnStateReplacedArgs, OnSyncedBlockEventArgs, PlacedArgs, PlayerPlacedArgs,
     PrepareArgs, UseWithItemArgs,
 };
-use crate::block::OnEntityStepArgs;
 use crate::block::blocks::blast_furnace::BlastFurnaceBlock;
 use crate::block::blocks::chain::ChainBlock;
 use crate::block::blocks::cobweb::CobwebBlock;
@@ -262,7 +263,8 @@ pub fn default_registry() -> Arc<BlockRegistry> {
     manager.register(InfestedBlock);
     manager.register(JukeboxBlock);
     manager.register(LogBlock);
-    manager.register(LeavesBlock);
+    // FIX despawn
+    // manager.register(LeavesBlock);
     manager.register(BambooBlock);
     manager.register(BambooSaplingBlock);
     manager.register(BannerBlock);
@@ -331,6 +333,7 @@ pub fn default_registry() -> Arc<BlockRegistry> {
     manager.register(BeehiveBlock);
     manager.register(PressurePlateBlock);
     manager.register(WeightedPressurePlateBlock);
+    manager.register(EndGatewayBlock);
     manager.register(EndPortalBlock);
     manager.register(SpawnerBlock);
     manager.register(EndPortalFrameBlock);
@@ -454,9 +457,9 @@ impl BlockActionResult {
     }
 }
 
-#[derive(Default)]
 pub struct BlockRegistry {
-    blocks: FxHashMap<BlockId, Arc<dyn BlockBehaviour>>,
+    block_indices: [u8; pumpkin_data::BlockId::BASE_COUNT as usize],
+    behaviours: Vec<Arc<dyn BlockBehaviour>>,
     fluids: FxHashMap<u16, Arc<dyn FluidBehaviour>>,
     /// Behaviour for blocks registered at runtime, indexed by `id - base_block_count()`.
     ///
@@ -464,7 +467,18 @@ pub struct BlockRegistry {
     /// because every hook in this file asks for behaviour by block id: a registered block
     /// that answers nothing here has no behaviour at all, which is what left one placed
     /// with no block entity and never randomly ticked.
-    plugin_blocks: RwLock<Vec<Option<&'static dyn BlockBehaviour>>>,
+    plugin_blocks: RwLock<Vec<Option<&'static Arc<dyn BlockBehaviour>>>>,
+}
+
+impl Default for BlockRegistry {
+    fn default() -> Self {
+        Self {
+            block_indices: [0xFF; pumpkin_data::BlockId::BASE_COUNT as usize],
+            behaviours: Vec::new(),
+            plugin_blocks: RwLock::new(Vec::new()),
+            fluids: FxHashMap::default(),
+        }
+    }
 }
 
 #[derive(Debug)]
@@ -548,7 +562,7 @@ impl BlockRegistry {
     }
 
     #[expect(clippy::too_many_lines)]
-    pub async fn place_block(
+    pub fn place_block(
         &self,
         player: &Arc<Player>,
         placed_block: &'static Block,
@@ -603,9 +617,8 @@ impl BlockRegistry {
             .then_some(BlockIsReplacing::Itself(clicked_block_state.id))
         } else if clicked_block_state.replaceable() {
             if clicked_block == &Block::WATER {
-                use pumpkin_data::block_properties::{BlockProperties, WaterLikeProperties};
-                let water_props =
-                    WaterLikeProperties::from_state_id(clicked_block_state.id, clicked_block);
+                use pumpkin_data::block_properties::WaterLikeProperties;
+                let water_props = WaterLikeProperties::from_state_id(clicked_block_state.id);
                 Some(BlockIsReplacing::Water(water_props.level))
             } else {
                 Some(BlockIsReplacing::Other)
@@ -635,13 +648,9 @@ impl BlockRegistry {
                 } else {
                     previous_block_state.replaceable().then(|| {
                         if previous_block == &Block::WATER {
-                            use pumpkin_data::block_properties::{
-                                BlockProperties, WaterLikeProperties,
-                            };
-                            let water_props = WaterLikeProperties::from_state_id(
-                                previous_block_state.id,
-                                previous_block,
-                            );
+                            use pumpkin_data::block_properties::WaterLikeProperties;
+                            let water_props =
+                                WaterLikeProperties::from_state_id(previous_block_state.id);
                             BlockIsReplacing::Water(water_props.level)
                         } else {
                             BlockIsReplacing::None
@@ -704,11 +713,7 @@ impl BlockRegistry {
         };
         server
             .plugin_manager
-            .fire::<crate::plugin::block::block_can_build::BlockCanBuildEvent>(
-                server,
-                &mut can_build_event,
-            )
-            .await;
+            .fire_blocking(server, &mut can_build_event);
         if can_build_event.cancelled || !can_build_event.buildable {
             return Ok(None);
         }
@@ -720,10 +725,7 @@ impl BlockRegistry {
             final_block_pos,
             true,
         );
-        server
-            .plugin_manager
-            .fire::<crate::plugin::block::block_place::BlockPlaceEvent>(server, &mut event)
-            .await;
+        server.plugin_manager.fire_blocking(server, &mut event);
         if event.cancelled {
             return Ok(None);
         }
@@ -748,12 +750,14 @@ impl BlockRegistry {
 
         Ok(Some((final_block_pos, new_state)))
     }
+    #[allow(clippy::expect_used)]
     pub fn register<T: BlockBehaviour + BlockMetadata + 'static>(&mut self, block: T) {
         let ids = T::ids();
-        let val = Arc::new(block);
-        self.blocks.reserve(ids.len());
+        let idx = u8::try_from(self.behaviours.len())
+            .expect("Too many block behaviours for u8 index table");
+        self.behaviours.push(Arc::new(block));
         for i in ids {
-            self.blocks.insert(i, val.clone());
+            self.block_indices[i.as_u16() as usize] = idx;
         }
     }
 
@@ -826,6 +830,30 @@ impl BlockRegistry {
                 position,
                 entity,
                 below_supporting_block,
+            });
+        }
+    }
+
+    #[allow(clippy::too_many_arguments)]
+    pub fn on_projectile_hit(
+        &self,
+        block: &Block,
+        world: &Arc<World>,
+        projectile: &dyn EntityBase,
+        position: &BlockPos,
+        state: &BlockState,
+        hit_pos: &Vector3<f64>,
+        server: &Server,
+    ) {
+        if let Some(pumpkin_block) = self.get_pumpkin_block(block.id) {
+            pumpkin_block.on_projectile_hit(OnProjectileHitArgs {
+                server,
+                world,
+                block,
+                state,
+                position,
+                projectile,
+                hit_pos,
             });
         }
     }
@@ -1212,13 +1240,7 @@ impl BlockRegistry {
         state_id
     }
 
-    pub fn update_neighbors(
-        &self,
-        world: &Arc<World>,
-        position: &BlockPos,
-        _block: &Block,
-        flags: BlockFlags,
-    ) {
+    pub fn update_neighbors(&self, world: &Arc<World>, position: &BlockPos, flags: BlockFlags) {
         for direction in BlockDirection::abstract_block_update_order() {
             let pos = position.offset(direction.to_offset());
 
@@ -1246,23 +1268,29 @@ impl BlockRegistry {
         }
     }
 
+    #[inline]
     #[must_use]
-    pub fn get_pumpkin_block(&self, block: BlockId) -> Option<&dyn BlockBehaviour> {
-        if let Some(behaviour) = self.blocks.get(&block) {
-            return Some(behaviour.as_ref());
+    pub fn get_pumpkin_block(&self, block: BlockId) -> Option<&Arc<dyn BlockBehaviour>> {
+        // A runtime-registered block's id lies past the generated table; the index
+        // lookup would be out of bounds, so those fall through to the plugin store.
+        if let Some(&idx) = self.block_indices.get(block.as_u16() as usize) {
+            if idx == 0xFF {
+                return None;
+            }
+            return self.behaviours.get(idx as usize);
         }
         self.plugin_block(block)
     }
 
     /// Behaviour for a block registered at runtime.
     ///
-    /// The entry outlives the registry, so it is read out from behind the lock rather than
-    /// borrowed through it.
+    /// The entry outlives the registry (leaked at registration), so the reference is
+    /// read out from behind the lock rather than borrowed through it.
     // Only reachable for runtime-registered content, so keep it out of the hot path's
     // instruction stream and let the generated-range branch fall through.
     #[cold]
     #[inline(never)]
-    fn plugin_block(&self, block: BlockId) -> Option<&dyn BlockBehaviour> {
+    fn plugin_block(&self, block: BlockId) -> Option<&Arc<dyn BlockBehaviour>> {
         let index = usize::from(block.as_u16())
             .checked_sub(usize::from(pumpkin_data::dynamic::base_block_count()))?;
         let behaviours = self
@@ -1276,12 +1304,13 @@ impl BlockRegistry {
     ///
     /// Leaked on purpose, like the rest of a registration: the behaviour is read from every
     /// hook in this file and outlives any one caller.
-    pub fn set_plugin_block(&self, block: BlockId, behaviour: &'static dyn BlockBehaviour) {
+    pub fn set_plugin_block(&self, block: BlockId, behaviour: Arc<dyn BlockBehaviour>) {
         let Some(index) = usize::from(block.as_u16())
             .checked_sub(usize::from(pumpkin_data::dynamic::base_block_count()))
         else {
             return;
         };
+        let leaked: &'static Arc<dyn BlockBehaviour> = Box::leak(Box::new(behaviour));
         let mut behaviours = self
             .plugin_blocks
             .write()
@@ -1289,7 +1318,7 @@ impl BlockRegistry {
         if behaviours.len() <= index {
             behaviours.resize(index + 1, None);
         }
-        behaviours[index] = Some(behaviour);
+        behaviours[index] = Some(leaked);
     }
 
     #[must_use]

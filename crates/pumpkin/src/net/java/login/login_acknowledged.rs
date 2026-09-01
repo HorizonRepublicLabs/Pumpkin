@@ -106,13 +106,7 @@ impl PendingConnection {
             // `PendingConnection::flush_deferred_known_packs`.
             self.known_packs_deferred = true;
         } else {
-            self.handle_known_packs(
-                SKnownPacks {
-                    known_packs: Vec::new(),
-                },
-                server,
-            )
-            .await;
+            self.handle_known_packs(server).await;
         }
         debug!("login acknowledged");
         None

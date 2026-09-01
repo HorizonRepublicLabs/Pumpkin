@@ -7,7 +7,7 @@ use std::{
     collections::{HashMap, HashSet},
     path::{Path, PathBuf},
     pin::Pin,
-    sync::{Arc, atomic::AtomicBool},
+    sync::{Arc, RwLock as SyncRwLock, atomic::AtomicBool},
     thread::ThreadId,
     time::Duration,
 };
@@ -180,7 +180,7 @@ pub enum PluginState {
 
 /// Core plugin management system
 pub struct PluginManager {
-    plugins: RwLock<Vec<LoadedPlugin>>,
+    plugins: SyncRwLock<Vec<LoadedPlugin>>,
     loaders: RwLock<Vec<Arc<dyn PluginLoader>>>,
     handlers: Arc<ArcSwap<HandlerMap>>,
     unloaded_files: RwLock<HashSet<PathBuf>>,
@@ -325,7 +325,7 @@ impl PluginManager {
     #[must_use]
     pub fn new(verify_plugin_signatures: bool) -> Self {
         Self {
-            plugins: RwLock::new(Vec::new()),
+            plugins: SyncRwLock::new(Vec::new()),
             loaders: RwLock::new(vec![
                 Arc::new(NativePluginLoader),
                 Arc::new(WasmPluginLoader::new(verify_plugin_signatures)),
@@ -348,7 +348,10 @@ impl PluginManager {
     /// Unload all loaded plugins
     pub async fn unload_all_plugins(&self) -> Result<(), ManagerError> {
         let plugin_names: Vec<String> = {
-            let plugins = self.plugins.read().await;
+            let plugins = self
+                .plugins
+                .read()
+                .unwrap_or_else(std::sync::PoisonError::into_inner);
             plugins
                 .iter()
                 .filter(|p| p.is_active)
@@ -397,8 +400,8 @@ impl PluginManager {
             .map_err(|e| ManagerError::IoError(std::io::Error::other(e)))?;
 
         let manager = self.clone();
-        let server = server.clone();
-        let task = tokio::spawn(async move {
+        let server_clone = Arc::clone(server);
+        let task = server.spawn_task(async move {
             // Keep watcher alive by moving it into the task
             let _watcher = watcher;
 
@@ -420,7 +423,10 @@ impl PluginManager {
 
                                 // We need to find if this plugin is already loaded to unload it first
                                 let plugin_name = {
-                                    let plugins = manager.plugins.read().await;
+                                    let plugins = manager
+                                        .plugins
+                                        .read()
+                                        .unwrap_or_else(std::sync::PoisonError::into_inner);
                                     plugins
                                         .iter()
                                         .find(|p| p.path == path)
@@ -435,7 +441,9 @@ impl PluginManager {
                                 // For now, we just try to load it. If it's already loaded,
                                 // the loader might handle it or we might get a duplicate.
                                 // Most WASM loaders will just create a new instance.
-                                if let Err(e) = manager.start_loading_plugin(&server, &path).await {
+                                if let Err(e) =
+                                    manager.start_loading_plugin(&server_clone, &path).await
+                                {
                                     error!("Failed to hot-reload plugin {:?}: {}", path, e);
                                 }
                             }
@@ -644,7 +652,7 @@ impl PluginManager {
 
         let context = Arc::new(Context::new(
             metadata.clone(),
-            server,
+            server.clone(),
             Arc::clone(&self.handlers),
             Arc::clone(self),
             Arc::clone(&LOGGER_IMPL),
@@ -662,7 +670,10 @@ impl PluginManager {
         };
 
         let plugin_index = {
-            let mut plugins = self.plugins.write().await;
+            let mut plugins = self
+                .plugins
+                .write()
+                .unwrap_or_else(std::sync::PoisonError::into_inner);
             plugins.push(plugin);
             plugins.len() - 1
         };
@@ -673,13 +684,16 @@ impl PluginManager {
         let plugin_name = metadata.name.clone();
         let loader_clone = loader.clone();
 
-        let task = tokio::spawn(async move {
+        let task = server.spawn_task(async move {
             // Initialize the plugin
             match instance.on_load(context.clone()).await {
                 Ok(()) => {
                     // Update plugin state to loaded
                     {
-                        let mut plugins = self_ref_clone.plugins.write().await;
+                        let mut plugins = self_ref_clone
+                            .plugins
+                            .write()
+                            .unwrap_or_else(std::sync::PoisonError::into_inner);
                         if let Some(plugin) = plugins.get_mut(plugin_index) {
                             plugin.instance = Some(instance);
                             plugin.is_active = true;
@@ -708,7 +722,10 @@ impl PluginManager {
 
                     // Get the loader data before removing the plugin
                     let loader_data: Option<Box<dyn Any + Send + Sync>> = {
-                        let mut plugins = self_ref_clone.plugins.write().await;
+                        let mut plugins = self_ref_clone
+                            .plugins
+                            .write()
+                            .unwrap_or_else(std::sync::PoisonError::into_inner);
                         if let Some(plugin) = plugins.get_mut(plugin_index) {
                             plugin.loader_data.take()
                         } else {
@@ -718,13 +735,14 @@ impl PluginManager {
 
                     // Try to unload the plugin data
                     if let Some(data) = loader_data {
-                        tokio::spawn(async move {
-                            loader_clone.unload(data).await.ok();
-                        });
+                        loader_clone.unload(data).await.ok();
                     }
 
                     {
-                        let mut plugins = self_ref_clone.plugins.write().await;
+                        let mut plugins = self_ref_clone
+                            .plugins
+                            .write()
+                            .unwrap_or_else(std::sync::PoisonError::into_inner);
                         if plugin_index < plugins.len() {
                             plugins.remove(plugin_index);
                         }
@@ -1112,7 +1130,10 @@ impl PluginManager {
     /// Checks if plugin active
     #[must_use]
     pub fn is_plugin_active(&self, name: &str) -> bool {
-        let plugins = self.plugins.blocking_read();
+        let plugins = self
+            .plugins
+            .read()
+            .unwrap_or_else(std::sync::PoisonError::into_inner);
         plugins
             .iter()
             .any(|p| p.metadata.name == name && p.is_active && p.instance.is_some())
@@ -1121,7 +1142,10 @@ impl PluginManager {
     /// Get list of active plugins
     #[must_use]
     pub fn active_plugins(&self) -> Vec<PluginMetadata> {
-        let plugins = self.plugins.blocking_read();
+        let plugins = self
+            .plugins
+            .read()
+            .unwrap_or_else(std::sync::PoisonError::into_inner);
         plugins
             .iter()
             .filter(|p| p.is_active && p.instance.is_some())
@@ -1132,14 +1156,20 @@ impl PluginManager {
     /// Checks if plugin loaded
     #[must_use]
     pub fn is_plugin_loaded(&self, name: &str) -> bool {
-        let plugins = self.plugins.blocking_read();
+        let plugins = self
+            .plugins
+            .read()
+            .unwrap_or_else(std::sync::PoisonError::into_inner);
         plugins.iter().any(|p| p.metadata.name == name)
     }
 
     /// Get list of loaded plugins
     #[must_use]
     pub fn loaded_plugins(&self) -> Vec<PluginMetadata> {
-        let plugins = self.plugins.blocking_read();
+        let plugins = self
+            .plugins
+            .read()
+            .unwrap_or_else(std::sync::PoisonError::into_inner);
         plugins.iter().map(|p| p.metadata.clone()).collect()
     }
 
@@ -1149,16 +1179,15 @@ impl PluginManager {
     /// `can_unload()` is `false` can only be deactivated, not unloaded, and a caller
     /// reporting this to an operator needs to say so rather than claim success outright.
     pub async fn unload_plugin(&self, name: &str) -> Result<UnloadOutcome, ManagerError> {
-        let index = {
-            let plugins = self.plugins.read().await;
-            plugins
+        let mut plugin = {
+            let mut plugins = self
+                .plugins
+                .write()
+                .unwrap_or_else(std::sync::PoisonError::into_inner);
+            let index = plugins
                 .iter()
                 .position(|p| p.metadata.name == name)
-                .ok_or_else(|| ManagerError::PluginNotFound(name.to_string()))?
-        };
-
-        let mut plugin = {
-            let mut plugins = self.plugins.write().await;
+                .ok_or_else(|| ManagerError::PluginNotFound(name.to_string()))?;
             plugins.remove(index)
         };
 
@@ -1173,7 +1202,10 @@ impl PluginManager {
             UnloadOutcome::Unloaded
         } else {
             plugin.is_active = false;
-            self.plugins.write().await.push(plugin);
+            self.plugins
+                .write()
+                .unwrap_or_else(std::sync::PoisonError::into_inner)
+                .push(plugin);
             UnloadOutcome::Deactivated
         };
 
@@ -1244,6 +1276,14 @@ impl PluginManager {
                 .push(typed_handler.clone());
             Arc::new(new_handlers)
         });
+    }
+
+    #[must_use]
+    pub fn has_handlers<E: Payload + 'static>(&self) -> bool {
+        self.handlers
+            .load()
+            .get(E::get_name_static())
+            .is_some_and(|handlers| !handlers.is_empty())
     }
 
     /// Fire an event to all registered handlers
@@ -1320,12 +1360,18 @@ impl PluginManager {
             return Err(());
         }
 
-        let plugins = self.plugins.read().await;
-        let target_plugin = &plugins
-            .iter()
-            .find(|p| p.metadata.name == recipient)
-            .ok_or(())?;
-        if let Some(instance) = &target_plugin.instance {
+        let instance = {
+            let plugins = self
+                .plugins
+                .read()
+                .unwrap_or_else(std::sync::PoisonError::into_inner);
+            let target_plugin = plugins
+                .iter()
+                .find(|p| p.metadata.name == recipient)
+                .ok_or(())?;
+            target_plugin.instance.clone()
+        };
+        if let Some(instance) = instance {
             Ok(instance.on_ipc_message(sender, message).await)
         } else {
             Err(())

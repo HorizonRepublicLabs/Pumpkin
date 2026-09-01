@@ -1,4 +1,4 @@
-use std::collections::HashMap;
+use rustc_hash::FxHashMap;
 use std::sync::atomic::{AtomicBool, AtomicI32, AtomicI64, Ordering};
 use std::sync::{Arc, Weak};
 use uuid::Uuid;
@@ -6,9 +6,7 @@ use uuid::Uuid;
 use crate::block::blocks::bed::BedBlock;
 use pumpkin_data::Enchantment;
 use pumpkin_data::attributes::Attributes;
-use pumpkin_data::block_properties::{
-    BedPart, BlockProperties, WhiteBedLikeProperties as BedProperties,
-};
+use pumpkin_data::block_properties::{BedPart, WhiteBedLikeProperties as BedProperties};
 use pumpkin_data::effect::StatusEffect;
 use pumpkin_data::entity::{EntityPose, EntityType};
 use pumpkin_data::item::{Item, JavaToBedrockItemMapping};
@@ -264,7 +262,7 @@ pub struct VillagerEntity {
     pub restocks_today: AtomicI32,
     pub last_gossip_decay_time: AtomicI64,
     pub last_gossip_share_time: AtomicI64,
-    pub gossips: std::sync::Mutex<HashMap<Uuid, HashMap<GossipType, i32>>>,
+    pub gossips: std::sync::Mutex<FxHashMap<Uuid, FxHashMap<GossipType, i32>>>,
     pub inventory: std::sync::Mutex<Vec<ItemStack>>,
     pub merchant_inventory: Arc<SimpleInventory>,
     pub offers: std::sync::Mutex<Vec<pumpkin_protocol::java::client::play::MerchantOffer>>,
@@ -333,7 +331,7 @@ impl VillagerEntity {
             restocks_today: AtomicI32::new(0),
             last_gossip_decay_time: AtomicI64::new(0),
             last_gossip_share_time: AtomicI64::new(0),
-            gossips: std::sync::Mutex::new(HashMap::new()),
+            gossips: std::sync::Mutex::new(FxHashMap::default()),
             inventory,
             merchant_inventory: Arc::new(SimpleInventory::new(3)),
             offers: std::sync::Mutex::new(Vec::new()),
@@ -1638,7 +1636,7 @@ impl VillagerEntity {
         if let Some(current_home) = self.get_home_pos() {
             let (block, state) = world.get_block_and_state(&current_home);
             let valid = if block.has_tag(&pumpkin_data::tag::Block::MINECRAFT_BEDS) {
-                let bed_props = BedProperties::from_state_id(state.id, block);
+                let bed_props = BedProperties::from_state_id(state.id);
                 bed_props.part == BedPart::Head
             } else {
                 false
@@ -1700,7 +1698,7 @@ impl VillagerEntity {
             for p in BlockPos::iterate(start, end) {
                 let (block, state) = world.get_block_and_state(&p);
                 if block.has_tag(&pumpkin_data::tag::Block::MINECRAFT_BEDS) {
-                    let bed_props = BedProperties::from_state_id(state.id, block);
+                    let bed_props = BedProperties::from_state_id(state.id);
                     let bed_head_pos = if bed_props.part == BedPart::Head {
                         p
                     } else {
@@ -1745,7 +1743,7 @@ impl VillagerEntity {
                         // Within 2 blocks (squared distance 4.0)
                         let (block, state) = world.get_block_and_state(&home_pos);
                         if block.has_tag(&pumpkin_data::tag::Block::MINECRAFT_BEDS) {
-                            let bed_props = BedProperties::from_state_id(state.id, block);
+                            let bed_props = BedProperties::from_state_id(state.id);
                             if !bed_props.occupied {
                                 // Make bed occupied
                                 BedBlock::set_occupied(true, &world, block, &home_pos, state.id);
@@ -1766,7 +1764,7 @@ impl VillagerEntity {
                 // It is day, wake up!
                 let (block, state) = world.get_block_and_state(&home_pos);
                 if block.has_tag(&pumpkin_data::tag::Block::MINECRAFT_BEDS) {
-                    let bed_props = BedProperties::from_state_id(state.id, block);
+                    let bed_props = BedProperties::from_state_id(state.id);
                     if bed_props.occupied {
                         BedBlock::set_occupied(false, &world, block, &home_pos, state.id);
                     }
@@ -2288,7 +2286,7 @@ impl Mob for VillagerEntity {
         }
     }
 
-    fn mob_tick<'a>(&'a self, _caller: &'a Arc<dyn EntityBase>) {
+    fn mob_tick(&self, _caller: &dyn EntityBase) {
         self.villager_mob_tick();
     }
 
@@ -2444,8 +2442,8 @@ mod tests {
             .iter()
             .find(|trade| trade.modifier == VillagerTradeModifier::EnchantRandomly)
             .unwrap();
-        assert!(enchanted_book.wants.item == &Item::EMERALD);
-        assert!(enchanted_book.wants_b.unwrap().item == &Item::BOOK);
+        assert_eq!(enchanted_book.wants.item, &Item::EMERALD);
+        assert_eq!(enchanted_book.wants_b.unwrap().item, &Item::BOOK);
         assert_eq!(enchanted_book.price_multiplier, 0.2);
 
         let cartographer = VillagerProfession::Cartographer.trade_set(2).unwrap();

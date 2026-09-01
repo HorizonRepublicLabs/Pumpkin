@@ -1,8 +1,8 @@
-use pumpkin_data::block_properties::{BlockProperties, SnifferEggLikeProperties};
+use pumpkin_data::block_properties::SnifferEggLikeProperties;
 use pumpkin_data::item::Item;
 use pumpkin_data::item_stack::ItemStack;
 use pumpkin_data::sound::{Sound, SoundCategory};
-use pumpkin_data::{Block, BlockStateId};
+use pumpkin_data::{BlockId, BlockStateId};
 use pumpkin_macros::pumpkin_block;
 use pumpkin_world::tick::TickPriority;
 use pumpkin_world::world::BlockFlags;
@@ -19,8 +19,8 @@ impl SnifferEggBlock {
     ) -> bool {
         let below_pos = pos.down();
         let state = world.get_block_state(&below_pos);
-        let block = Block::from_state_id(state.id);
-        block.name == "moss_block"
+        let block = BlockId::from_state_id(state.id);
+        block == BlockId::MOSS_BLOCK
     }
 
     const fn get_hatch_delay(on_moss: bool) -> u8 {
@@ -51,7 +51,7 @@ impl BlockBehaviour for SnifferEggBlock {
 
     fn on_scheduled_tick(&self, args: OnScheduledTickArgs<'_>) {
         let state_id = args.world.get_block_state_id(args.position);
-        let mut props = SnifferEggLikeProperties::from_state_id(state_id, args.block);
+        let mut props = SnifferEggLikeProperties::from_state_id(state_id);
 
         if props.hatch < 2 {
             props.hatch += 1;

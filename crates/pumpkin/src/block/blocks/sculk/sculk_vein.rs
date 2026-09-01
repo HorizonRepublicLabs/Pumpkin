@@ -1,4 +1,4 @@
-use std::collections::HashSet;
+use rustc_hash::FxHashSet;
 
 use crate::block::{
     BlockBehaviour, BlockIsReplacing, BlockMetadata, CanPlaceAtArgs, CanUpdateAtArgs,
@@ -7,8 +7,7 @@ use crate::block::{
 use crate::entity::{EntityBase, player::Player};
 use pumpkin_data::{
     Block, BlockDirection, BlockId, BlockStateId, FacingExt,
-    block_properties::{BlockProperties, GlowLichenLikeProperties},
-    item::Item,
+    block_properties::GlowLichenLikeProperties, item::Item,
 };
 use pumpkin_util::math::position::BlockPos;
 use pumpkin_world::world::{BlockAccessor, BlockFlags};
@@ -33,7 +32,7 @@ impl BlockBehaviour for SculkVeinBlock {
             ) else {
                 return Block::AIR.default_state.id;
             };
-            let mut props = GlowLichenLikeProperties::from_state_id(state_id, args.block);
+            let mut props = GlowLichenLikeProperties::from_state_id(state_id);
             set_face(&mut props, direction);
             props.waterlogged = args.replacing.water_source();
             return props.to_state_id(args.block);
@@ -81,7 +80,7 @@ impl BlockBehaviour for SculkVeinBlock {
         &self,
         args: GetStateForNeighborUpdateArgs<'_>,
     ) -> BlockStateId {
-        let old_props = GlowLichenLikeProperties::from_state_id(args.state_id, args.block);
+        let old_props = GlowLichenLikeProperties::from_state_id(args.state_id);
         let mut new_directions = active_directions(old_props);
 
         let support = args
@@ -107,7 +106,7 @@ impl BlockBehaviour for SculkVeinBlock {
                 return BlockActionResult::Pass;
             }
             let state = args.world.get_block_state(args.position);
-            let mut props = GlowLichenLikeProperties::from_state_id(state.id, args.block);
+            let mut props = GlowLichenLikeProperties::from_state_id(state.id);
 
             let (Some(accurate_dir), _) = get_attach_direction(
                 args.world.as_ref(),
@@ -151,10 +150,9 @@ fn get_attach_direction(
     let already_active = if replacing_block == &Block::SCULK_VEIN {
         active_directions(GlowLichenLikeProperties::from_state_id(
             replacing_block_state.id,
-            replacing_block,
         ))
     } else {
-        HashSet::new()
+        FxHashSet::default()
     };
 
     if let Some(player) = player_wrapper {
@@ -183,8 +181,8 @@ const fn is_solid_face(block: &Block) -> bool {
     block.default_state.is_full_cube()
 }
 
-fn active_directions(props: GlowLichenLikeProperties) -> HashSet<BlockDirection> {
-    let mut set = HashSet::new();
+fn active_directions(props: GlowLichenLikeProperties) -> FxHashSet<BlockDirection> {
+    let mut set = FxHashSet::default();
     if props.down {
         set.insert(BlockDirection::Down);
     }

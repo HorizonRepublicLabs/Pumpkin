@@ -227,15 +227,15 @@ fn wire_block_drops(server: &Arc<crate::server::Server>) {
             });
         }
 
-        let behaviour: &'static dyn crate::block::BlockBehaviour =
-            Box::leak(Box::new(JvmBlockBehaviour {
+        let behaviour: std::sync::Arc<dyn crate::block::BlockBehaviour> =
+            std::sync::Arc::new(JvmBlockBehaviour {
                 inner: crate::plugin::api::block_behaviour::PluginBlockBehaviour::new(
                     block.first_state,
                     drops,
                 ),
                 block_name: block.name.clone(),
                 block_id: block.block_id,
-            }));
+            });
         server
             .block_registry
             .set_plugin_block(block.block_id, behaviour);

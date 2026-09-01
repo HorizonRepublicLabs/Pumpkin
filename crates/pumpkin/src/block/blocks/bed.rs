@@ -4,7 +4,6 @@ use crate::block::entities::bed::BedBlockEntity;
 use pumpkin_data::Block;
 use pumpkin_data::BlockStateId;
 use pumpkin_data::block_properties::BedPart;
-use pumpkin_data::block_properties::BlockProperties;
 use pumpkin_data::dimension::Dimension;
 use pumpkin_data::entity::EntityType;
 use pumpkin_data::translation;
@@ -108,7 +107,7 @@ impl BlockBehaviour for BedBlock {
             args.world.add_block_entity(Arc::new(bed_entity));
 
             let mut bed_head_props = BedProperties::default(args.block);
-            bed_head_props.facing = BedProperties::from_state_id(args.state_id, args.block).facing;
+            bed_head_props.facing = BedProperties::from_state_id(args.state_id).facing;
             bed_head_props.part = BedPart::Head;
 
             let bed_head_pos = args.position.offset(bed_head_props.facing.to_offset());
@@ -134,7 +133,7 @@ impl BlockBehaviour for BedBlock {
     }
 
     fn broken(&self, args: BrokenArgs<'_>) {
-        let bed_props = BedProperties::from_state_id(args.state.id, args.block);
+        let bed_props = BedProperties::from_state_id(args.state.id);
         let other_half_pos = if bed_props.part == BedPart::Head {
             args.position
                 .offset(bed_props.facing.opposite().to_offset())
@@ -150,14 +149,14 @@ impl BlockBehaviour for BedBlock {
         let is_creative = args.player.gamemode.load() == GameMode::Creative;
         let flags = if bed_props.part == BedPart::Foot && !is_creative {
             // Breaking foot in survival -> allow head to drop
-            BlockFlags::NOTIFY_NEIGHBORS
+            BlockFlags::NOTIFY_ALL
         } else {
             // Breaking head OR creative mode -> skip drops
-            BlockFlags::SKIP_DROPS | BlockFlags::NOTIFY_NEIGHBORS
+            BlockFlags::SKIP_DROPS | BlockFlags::NOTIFY_ALL
         };
 
         args.world
-            .break_block(&other_half_pos, Some(args.player.clone()), flags);
+            .break_block(&other_half_pos, Some(args.player), flags);
     }
 
     fn on_state_replaced(&self, args: OnStateReplacedArgs<'_>) {
@@ -165,16 +164,7 @@ impl BlockBehaviour for BedBlock {
             return;
         }
 
-        // If the block is being replaced with air (i.e., broken), the `broken` callback
-        // will handle breaking the other half with the correct drop flags. Only handle it here
-        // if the block is being replaced with something else (e.g., piston movement).
-        let new_state_id = args.world.get_block_state_id(args.position);
-        let new_block = Block::from_state_id(new_state_id);
-        if new_block == &Block::AIR {
-            return;
-        }
-
-        let bed_props = BedProperties::from_state_id(args.old_state_id, args.block);
+        let bed_props = BedProperties::from_state_id(args.old_state_id);
         let other_half_pos = if bed_props.part == BedPart::Head {
             args.position
                 .offset(bed_props.facing.opposite().to_offset())
@@ -184,12 +174,12 @@ impl BlockBehaviour for BedBlock {
 
         let (other_block, other_state) = args.world.get_block_and_state(&other_half_pos);
         if other_block == args.block {
-            let other_props = BedProperties::from_state_id(other_state.id, other_block);
+            let other_props = BedProperties::from_state_id(other_state.id);
             if other_props.part != bed_props.part {
                 args.world.break_block(
                     &other_half_pos,
                     None,
-                    BlockFlags::SKIP_DROPS | BlockFlags::NOTIFY_NEIGHBORS,
+                    BlockFlags::SKIP_DROPS | BlockFlags::NOTIFY_ALL,
                 );
             }
         }
@@ -209,7 +199,7 @@ impl BedBlock {
         position: &BlockPos,
     ) -> BlockActionResult {
         let state_id = world.get_block_state_id(position);
-        let bed_props = BedProperties::from_state_id(state_id, block);
+        let bed_props = BedProperties::from_state_id(state_id);
 
         let (bed_head_pos, bed_foot_pos) = if bed_props.part == BedPart::Head {
             (
@@ -362,7 +352,7 @@ impl BedBlock {
         block_pos: &BlockPos,
         state_id: BlockStateId,
     ) {
-        let mut bed_props = BedProperties::from_state_id(state_id, block);
+        let mut bed_props = BedProperties::from_state_id(state_id);
         bed_props.occupied = occupied;
         world.set_block_state(
             block_pos,

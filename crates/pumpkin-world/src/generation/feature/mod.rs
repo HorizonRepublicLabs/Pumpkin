@@ -6,5 +6,5 @@ pub mod dynamic_features;
 // feature.
 pub mod placed_features;
 
-mod features;
+pub mod features;
 mod size;
