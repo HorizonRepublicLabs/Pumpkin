@@ -79,9 +79,11 @@ def act(sock):
         time.sleep(1)
         # Mekanism tile containers append armor+offhand after the hotbar, so the
         # hotbar block sits at nslots-14..nslots-6; coal (hotbar 1) is nslots-13.
-        container_click(wid2, slots() - 13, 0, 1)
-        print(f"BOT: coal shift-clicked from menu slot {slots() - 13}", flush=True)
-        time.sleep(180)  # burn, generate, push, smelt
+        for wave in range(4):
+            container_click(wid2, slots() - 13 + wave, 0, 1)
+            print(f"BOT: coal wave {wave} from menu slot {slots() - 13 + wave}", flush=True)
+            time.sleep(75)
+        time.sleep(120)  # drain the last of the energy into the smelter
         click_block(2, 150, -1, 3)
         wid3 = wait_window(wid2)
         print(f"BOT: smelter reopened window {wid3}", flush=True)
@@ -95,7 +97,7 @@ def act(sock):
     except Exception as e:
         print("BOT: act failed:", e, flush=True); os._exit(1)
 
-deadline = time.time() + 420
+deadline = time.time() + 700
 sock = socket.create_connection((HOST, PORT), timeout=300)
 send(sock, 0, varint(PROTO) + mcs(HOST) + struct.pack(">H", PORT) + varint(2))
 send(sock, 0, mcs("PumpkinBot") + bytes(16))

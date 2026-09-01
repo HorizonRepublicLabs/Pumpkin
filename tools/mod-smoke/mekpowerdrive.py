@@ -23,10 +23,13 @@ time.sleep(3)
 for cmd in ["tp PumpkinBot 0 151 1",
             "setblock 2 150 -1 mekanism:energized_smelter",
             "setblock 2 150 0 mekanismgenerators:heat_generator",
-            "give PumpkinBot minecraft:raw_iron 4",
-            "give PumpkinBot minecraft:coal 16"]:
+            "give PumpkinBot minecraft:raw_iron 1",
+            "give PumpkinBot minecraft:coal 64",
+            "give PumpkinBot minecraft:coal 64",
+            "give PumpkinBot minecraft:coal 64",
+            "give PumpkinBot minecraft:coal 64"]:
     proc.stdin.write(cmd + "\n"); proc.stdin.flush(); time.sleep(1.2)
-try: bot.wait(340)
+try: bot.wait(620)
 except subprocess.TimeoutExpired: bot.kill()
 time.sleep(3)
 proc.stdin.write("stop\n"); proc.stdin.flush()
