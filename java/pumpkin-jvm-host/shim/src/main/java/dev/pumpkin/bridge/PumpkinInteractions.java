@@ -212,9 +212,11 @@ public final class PumpkinInteractions {
      * times a second buys nothing.
      */
     public static String tickBlock(String blockId, String entityTypeId, int x, int y, int z,
-            String savedData, boolean hasSignal, double biomeTemperature) throws Exception {
+            String savedData, boolean hasSignal, double biomeTemperature, int containerMask)
+            throws Exception {
         PumpkinLevel.pumpkinSetSignal(hasSignal);
         PumpkinLevel.pumpkinSetBiomeTemperature(biomeTemperature);
+        PumpkinLevel.pumpkinSetContainerNeighbors(x, y, z, containerMask);
         if (NO_TICKER.contains(blockId)) {
             return "NONE";
         }
@@ -259,6 +261,8 @@ public final class PumpkinInteractions {
         cast.tick(level, new BlockPos(x, y, z), state, entity);
 
         StringBuilder reply = new StringBuilder("TICKED");
+        reply.append(";EJECT=").append(String.join(",",
+                PumpkinVanillaContainers.pumpkinDrainPushed()));
         reply.append(";SOUNDS=").append(String.join(",", level.pumpkinDrainSounds()));
         reply.append(";DATA=");
         if (entity.pumpkinTakeChanged()) {

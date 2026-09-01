@@ -46,6 +46,13 @@ public interface ILevelExtension {
                         blockEntity, context);
             }
         }
+        // A vanilla container (chest, hopper, barrel) registers no provider -- it is not
+        // mod content -- but really holds items on the Rust side. Item pushes land in it
+        // through the bridge's buffering handler.
+        if (cap == net.neoforged.neoforge.capabilities.Capabilities.Item.BLOCK
+                && dev.pumpkin.bridge.PumpkinLevel.pumpkinIsVanillaContainer(pos)) {
+            return (T) dev.pumpkin.bridge.PumpkinVanillaContainers.handlerFor(pos);
+        }
         return null;
     }
 

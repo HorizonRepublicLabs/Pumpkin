@@ -772,6 +772,55 @@ fn apply_interaction_reply(
             if !spec.is_empty() {
                 write_mod_data(world, position, spec);
             }
+        } else if let Some(spec) = part.strip_prefix("EJECT=") {
+            // The mod pushed items into what it saw as an adjacent container; land them
+            // in the real one, first-fit, and drop what genuinely does not fit.
+            for entry in spec.split(',').filter(|entry| !entry.is_empty()) {
+                let Some((coords, stack_spec)) = entry.split_once('|') else {
+                    continue;
+                };
+                let parts: Vec<i32> = coords.split('/').filter_map(|c| c.parse().ok()).collect();
+                let Some(stack) = parse_stack(stack_spec) else {
+                    continue;
+                };
+                if parts.len() != 3 || stack.is_empty() {
+                    continue;
+                }
+                let target = pumpkin_util::math::position::BlockPos(
+                    pumpkin_util::math::vector3::Vector3::new(parts[0], parts[1], parts[2]),
+                );
+                let mut remaining = stack;
+                if let Some(entity) = world.get_block_entity(&target)
+                    && let Some(container) = entity.get_inventory()
+                {
+                    for slot in 0..container.size() {
+                        if remaining.is_empty() {
+                            break;
+                        }
+                        let existing = container.get_stack(slot);
+                        if existing.is_empty() {
+                            container.set_stack(slot, remaining.clone());
+                            remaining = ItemStack::EMPTY.clone();
+                        } else if existing.item.id == remaining.item.id {
+                            let room = existing.get_max_stack_size() - existing.item_count;
+                            if room > 0 {
+                                let moved = room.min(remaining.item_count);
+                                let mut grown = existing.clone();
+                                grown.item_count += moved;
+                                container.set_stack(slot, grown);
+                                remaining.item_count -= moved;
+                                if remaining.item_count == 0 {
+                                    remaining = ItemStack::EMPTY.clone();
+                                }
+                            }
+                        }
+                    }
+                    container.mark_dirty();
+                }
+                if !remaining.is_empty() {
+                    world.drop_stack(&target, remaining);
+                }
+            }
         } else if let Some(spec) = part.strip_prefix("DROPS=") {
             for drop in spec.split(',').filter(|drop| !drop.is_empty()) {
                 if let Some(stack) = parse_stack(drop) {
@@ -787,6 +836,40 @@ fn apply_interaction_reply(
         }
     }
     result
+}
+
+/// Which neighbors of a position hold a vanilla inventory (chest, hopper, barrel): the
+/// mod's ejector may only see a container where one really is. Bit order matches
+/// Direction ordinals: down, up, north, south, west, east.
+fn vanilla_container_mask(
+    world: &Arc<crate::world::World>,
+    position: &pumpkin_util::math::position::BlockPos,
+) -> i32 {
+    let offsets: [(i32, i32, i32); 6] = [
+        (0, -1, 0),
+        (0, 1, 0),
+        (0, 0, -1),
+        (0, 0, 1),
+        (-1, 0, 0),
+        (1, 0, 0),
+    ];
+    let mut mask = 0i32;
+    for (bit, (dx, dy, dz)) in offsets.iter().enumerate() {
+        let neighbor =
+            pumpkin_util::math::position::BlockPos(pumpkin_util::math::vector3::Vector3::new(
+                position.0.x + dx,
+                position.0.y + dy,
+                position.0.z + dz,
+            ));
+        if world
+            .get_block_entity(&neighbor)
+            .and_then(crate::block::entities::BlockEntity::get_inventory)
+            .is_some()
+        {
+            mask |= 1 << bit;
+        }
+    }
+    mask
 }
 
 /// Routes plugin block entity ticks into the mod's own `BlockEntityTicker`.
@@ -828,6 +911,7 @@ fn install_jvm_tick_hook() {
             f64::from(position.0.z),
             63,
         ));
+        let container_mask = vanilla_container_mask(world, &position);
 
         let reply = vm.call(move |env| {
             let block = env
@@ -842,7 +926,7 @@ fn install_jvm_tick_hook() {
             let returned = env.call_static_method(
                 "dev/pumpkin/bridge/PumpkinInteractions",
                 "tickBlock",
-                "(Ljava/lang/String;Ljava/lang/String;IIILjava/lang/String;ZD)Ljava/lang/String;",
+                "(Ljava/lang/String;Ljava/lang/String;IIILjava/lang/String;ZDI)Ljava/lang/String;",
                 &[
                     (&block).into(),
                     (&entity_type).into(),
@@ -852,6 +936,7 @@ fn install_jvm_tick_hook() {
                     (&saved).into(),
                     has_signal.into(),
                     biome_temperature.into(),
+                    container_mask.into(),
                 ],
             );
             if env.exception_check().unwrap_or(false) {

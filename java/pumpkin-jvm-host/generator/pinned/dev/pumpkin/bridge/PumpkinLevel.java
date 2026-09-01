@@ -442,6 +442,32 @@ public final class PumpkinLevel extends net.minecraft.server.level.ServerLevel {
         return pumpkinBiomeTemperature;
     }
 
+    // Pumpkin divergence: which neighbors of the ticking machine hold a real vanilla
+    // inventory, told by the Rust side per tick. Bit order = Direction ordinals.
+    private static volatile long pumpkinContainerCenter = Long.MIN_VALUE;
+    private static volatile int pumpkinContainerMask;
+
+    static void pumpkinSetContainerNeighbors(int x, int y, int z, int mask) {
+        pumpkinContainerCenter = net.minecraft.core.BlockPos.asLong(x, y, z);
+        pumpkinContainerMask = mask;
+    }
+
+    /** Whether the Rust world holds a vanilla inventory at this position. */
+    public static boolean pumpkinIsVanillaContainer(net.minecraft.core.BlockPos pos) {
+        long center = pumpkinContainerCenter;
+        if (center == Long.MIN_VALUE) {
+            return false;
+        }
+        net.minecraft.core.BlockPos machine = net.minecraft.core.BlockPos.of(center);
+        for (net.minecraft.core.Direction direction : net.minecraft.core.Direction.values()) {
+            if ((pumpkinContainerMask & (1 << direction.ordinal())) != 0
+                    && machine.relative(direction).equals(pos)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     @Override
     public net.minecraft.core.Holder<net.minecraft.world.level.biome.Biome> getBiome(BlockPos pos) {
         return net.minecraft.core.Holder.Reference.pumpkinOf(

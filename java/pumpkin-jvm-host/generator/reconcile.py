@@ -18,6 +18,7 @@ ROOT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "shim", "s
 # generator/pinned/ and is installed wholesale. edit() skips them so stale anchors from
 # their history cannot abort a regeneration; hand-edit the pinned copy, not the chain.
 PINNED = {
+    "dev/pumpkin/bridge/PumpkinVanillaContainers.java",
     "dev/pumpkin/bridge/PumpkinBlockDrops.java",
     "dev/pumpkin/bridge/PumpkinBlockEntities.java",
     "dev/pumpkin/bridge/PumpkinBonemeal.java",
