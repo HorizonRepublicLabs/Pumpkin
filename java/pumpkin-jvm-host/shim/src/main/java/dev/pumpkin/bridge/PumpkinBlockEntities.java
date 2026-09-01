@@ -40,6 +40,36 @@ public final class PumpkinBlockEntities {
         return BY_POSITION.computeIfAbsent(key(x, y, z), ignored -> {
             BlockEntity entity = type.pumpkinCreate(new BlockPos(x, y, z), state);
             entity.pumpkinSetLevel(PumpkinInteractions.pumpkinLevel());
+            // The vanilla placement hand-off: a fresh entity reads its initial state
+            // from the placing stack's components; with no stack in play, the block
+            // item's declared defaults are that state (Mekanism's side configs).
+            Object itemObject = net.neoforged.neoforge.registries.DeferredHolder.pumpkinResolve(
+                    "minecraft:item", pumpkinBlockIdFor(entity));
+            if (itemObject instanceof net.minecraft.world.item.Item item
+                    && !item.pumpkinDefaultComponents().isEmpty()) {
+                java.util.Map<net.minecraft.core.component.DataComponentType<?>, Object> defaults =
+                        item.pumpkinDefaultComponents();
+                net.minecraft.core.component.DataComponentGetter getter =
+                        new net.minecraft.core.component.DataComponentGetter() {
+                            @SuppressWarnings("unchecked")
+                            @Override
+                            public <T> T get(net.minecraft.core.component.DataComponentType<? extends T> componentType) {
+                                return (T) defaults.get(componentType);
+                            }
+                        };
+                try {
+                    java.lang.reflect.Method applyComponents = PumpkinInteractions.findMethod(
+                            entity.getClass(), "applyImplicitComponents", 1);
+                    applyComponents.setAccessible(true);
+                    applyComponents.invoke(entity, getter);
+                } catch (NoSuchMethodException absent) {
+                    // Nothing to apply.
+                } catch (ReflectiveOperationException e) {
+                    Throwable cause = e.getCause() == null ? e : e.getCause();
+                    System.err.println("[pumpkin] applyImplicitComponents failed for "
+                            + entity.getClass() + ": " + cause);
+                }
+            }
             // The vanilla lifecycle: onLoad fires once the entity joins a level. Mods
             // finalize state there (Mekanism applies its default side configs).
             try {
@@ -55,6 +85,16 @@ public final class PumpkinBlockEntities {
             }
             return entity;
         });
+    }
+
+    /** The registered id of the entity's own block, for finding its block item. */
+    private static String pumpkinBlockIdFor(BlockEntity entity) {
+        try {
+            String id = entity.getBlockState().getBlock().pumpkinRegisteredId();
+            return id == null ? "" : id;
+        } catch (RuntimeException stateless) {
+            return "";
+        }
     }
 
     /** Whether an entity was ever created at a position this run. */

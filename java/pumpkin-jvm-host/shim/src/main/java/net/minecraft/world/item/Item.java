@@ -84,6 +84,28 @@ public class Item implements ItemLike, FeatureElement, IItemExtension {
         return pumpkinRegisteredId;
     }
 
+    // Pumpkin divergence: no vanilla counterpart -- the declared default components,
+    // for placed machines to read their initial state from. Supplier keys resolve now,
+    // when every registry has flushed.
+    @SuppressWarnings("unchecked")
+    public java.util.Map<net.minecraft.core.component.DataComponentType<?>, Object> pumpkinDefaultComponents() {
+        if (pumpkinItemProperties == null) {
+            return java.util.Map.of();
+        }
+        java.util.LinkedHashMap<net.minecraft.core.component.DataComponentType<?>, Object> resolved =
+                new java.util.LinkedHashMap<>();
+        for (var entry : pumpkinItemProperties.pumpkinComponents.entrySet()) {
+            Object key = entry.getKey();
+            if (key instanceof java.util.function.Supplier<?> supplier) {
+                key = supplier.get();
+            }
+            if (key instanceof net.minecraft.core.component.DataComponentType<?> type) {
+                resolved.put(type, entry.getValue());
+            }
+        }
+        return resolved;
+    }
+
     // Pumpkin divergence: no vanilla counterpart. -1 means the mod did not say.
     public int pumpkinMaxStackSize() {
         return pumpkinItemProperties == null ? -1 : pumpkinItemProperties.pumpkinMaxStackSize();
@@ -389,14 +411,22 @@ public class Item implements ItemLike, FeatureElement, IItemExtension {
 
         }
 
-        // Pumpkin divergence: real body. Item metadata Pumpkin does not model yet;
-
-        // accepted and dropped, chain returns `this`.
+        // Pumpkin divergence: the declared default components are recorded -- placed
+        // machines read their initial state (Mekanism's side configs) from them. Keys
+        // arrive as types or as suppliers of types (the NeoForge overload); suppliers
+        // stay lazy, because the component type may register after the item does.
+        final java.util.LinkedHashMap<Object, Object> pumpkinComponents =
+                new java.util.LinkedHashMap<>();
 
         public <T> Item.Properties component(DataComponentType<T> type, T value) {
-
+            pumpkinComponents.put(type, value);
             return this;
+        }
 
+        public <T> Item.Properties component(
+                java.util.function.Supplier<? extends DataComponentType<T>> type, T value) {
+            pumpkinComponents.put(type, value);
+            return this;
         }
 
         // Pumpkin divergence: declared item metadata, accepted and dropped.

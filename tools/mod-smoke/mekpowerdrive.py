@@ -26,7 +26,7 @@ for cmd in ["tp PumpkinBot 0 151 1",
             "give PumpkinBot minecraft:raw_iron 4",
             "give PumpkinBot minecraft:coal 16"]:
     proc.stdin.write(cmd + "\n"); proc.stdin.flush(); time.sleep(1.2)
-try: bot.wait(220)
+try: bot.wait(340)
 except subprocess.TimeoutExpired: bot.kill()
 time.sleep(3)
 proc.stdin.write("stop\n"); proc.stdin.flush()

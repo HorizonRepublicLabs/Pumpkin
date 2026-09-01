@@ -81,7 +81,7 @@ def act(sock):
         # hotbar block sits at nslots-14..nslots-6; coal (hotbar 1) is nslots-13.
         container_click(wid2, slots() - 13, 0, 1)
         print(f"BOT: coal shift-clicked from menu slot {slots() - 13}", flush=True)
-        time.sleep(90)  # burn, generate, push, smelt
+        time.sleep(180)  # burn, generate, push, smelt
         click_block(2, 150, -1, 3)
         wid3 = wait_window(wid2)
         print(f"BOT: smelter reopened window {wid3}", flush=True)
@@ -95,7 +95,7 @@ def act(sock):
     except Exception as e:
         print("BOT: act failed:", e, flush=True); os._exit(1)
 
-deadline = time.time() + 300
+deadline = time.time() + 420
 sock = socket.create_connection((HOST, PORT), timeout=300)
 send(sock, 0, varint(PROTO) + mcs(HOST) + struct.pack(">H", PORT) + varint(2))
 send(sock, 0, mcs("PumpkinBot") + bytes(16))

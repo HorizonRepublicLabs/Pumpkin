@@ -250,7 +250,6 @@ public final class PumpkinInteractions {
             load.setAccessible(true);
             load.invoke(entity, new PumpkinValueIO.Input(parsed));
         }
-
         level.pumpkinDrops().clear();
         @SuppressWarnings("unchecked")
         net.minecraft.world.level.block.entity.BlockEntityTicker<

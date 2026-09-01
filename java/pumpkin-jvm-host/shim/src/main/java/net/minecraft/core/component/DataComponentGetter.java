@@ -6,23 +6,25 @@ public interface DataComponentGetter {
 
     <T> T get(DataComponentType<? extends T> type);
 
+    // Pumpkin divergence: vanilla derivations from the one abstract get.
     default <T> T getOrDefault(DataComponentType<? extends T> type, T defaultValue) {
-        throw Unimplemented.forMember("net/minecraft/core/component/DataComponentGetter.getOrDefault:(Lnet/minecraft/core/component/DataComponentType;Ljava/lang/Object;)Ljava/lang/Object;");
+        T value = get(type);
+        return value == null ? defaultValue : value;
     }
 
     default <T> T get(java.util.function.Supplier<? extends DataComponentType<? extends T>> componentType) {
-        throw Unimplemented.forMember("net/minecraft/core/component/DataComponentGetter.get:(Ljava/util/function/Supplier;)Ljava/lang/Object;");
+        return get(componentType.get());
     }
 
     default <T> T getOrDefault(java.util.function.Supplier<? extends DataComponentType<? extends T>> componentType, T value) {
-        throw Unimplemented.forMember("net/minecraft/core/component/DataComponentGetter.getOrDefault:(Ljava/util/function/Supplier;Ljava/lang/Object;)Ljava/lang/Object;");
+        return getOrDefault(componentType.get(), value);
     }
 
     default <T> boolean has(java.util.function.Supplier<? extends DataComponentType<? extends T>> componentType) {
-        throw Unimplemented.forMember("net/minecraft/core/component/DataComponentGetter.has:(Ljava/util/function/Supplier;)Z");
+        return has(componentType.get());
     }
 
     default boolean has(DataComponentType<?> componentType) {
-        throw Unimplemented.forMember("net/minecraft/core/component/DataComponentGetter.has:(Lnet/minecraft/core/component/DataComponentType;)Z");
+        return get(componentType) != null;
     }
 }

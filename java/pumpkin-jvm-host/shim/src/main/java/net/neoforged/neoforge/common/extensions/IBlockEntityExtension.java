@@ -35,7 +35,8 @@ public interface IBlockEntityExtension {
         throw Unimplemented.forMember("net/neoforged/neoforge/common/extensions/IBlockEntityExtension.getModelData:()Lnet/neoforged/neoforge/model/data/ModelData;");
     }
 
+    // Pumpkin divergence: the bridge's capability lookups re-ask the level on every
+    // query; there is no cache to invalidate.
     default void invalidateCapabilities() {
-        throw Unimplemented.forMember("net/neoforged/neoforge/common/extensions/IBlockEntityExtension.invalidateCapabilities:()V");
     }
 }

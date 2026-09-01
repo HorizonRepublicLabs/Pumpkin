@@ -169,8 +169,10 @@ public abstract class BlockEntity extends net.neoforged.neoforge.attachment.Atta
         this.pumpkinBlockState = blockState;
     }
 
+    // Pumpkin divergence: the vanilla base reads name/lock/container-loot components;
+    // none of those exist in this store, so the base has nothing to apply and the
+    // subclass chain (a mod's own override calls super) runs clean.
     protected void applyImplicitComponents(DataComponentGetter components) {
-        throw Unimplemented.forMember("net/minecraft/world/level/block/entity/BlockEntity.applyImplicitComponents:(Lnet/minecraft/core/component/DataComponentGetter;)V");
     }
 
     protected void collectImplicitComponents(DataComponentMap.Builder components) {
