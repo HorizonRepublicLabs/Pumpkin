@@ -1360,6 +1360,9 @@ impl Player {
 
         let level = &world.level;
 
+        let radial_chunks: Vec<_> = radial_chunks.collect();
+        // Entities flush while their chunks are still loaded (see chunker).
+        world.flush_block_entities_in(&radial_chunks);
         // Decrement the value of watched chunks
         let chunks_to_clean = level.mark_chunks_as_not_watched(radial_chunks).await;
         // Remove chunks with no watchers from the cache
@@ -3503,8 +3506,10 @@ impl Player {
     }
 
     pub async fn unload_watched_chunks(&self, world: &World) {
-        let radial_chunks = self.watched_section.load().all_chunks_within();
+        let radial_chunks: Vec<_> = self.watched_section.load().all_chunks_within().collect();
         let level = &world.level;
+        // Entities flush while their chunks are still loaded (see chunker).
+        world.flush_block_entities_in(&radial_chunks);
         let chunks_to_clean = level.mark_chunks_as_not_watched(radial_chunks).await;
         if !chunks_to_clean.is_empty() {
             world.remove_entities_in_chunks(&chunks_to_clean).await;

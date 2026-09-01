@@ -47,7 +47,21 @@ public final class ResourceHandlerUtil {
         throw Unimplemented.forMember("net/neoforged/neoforge/transfer/ResourceHandlerUtil.contains:(Lnet/neoforged/neoforge/transfer/ResourceHandler;Lnet/neoforged/neoforge/transfer/resource/Resource;)Z");
     }
 
+    // Pumpkin divergence: real body -- the first stored resource the filter accepts
+    // that the handler will actually give up, proven by a rolled-back trial extract.
     public static <T extends Resource> T findExtractableResource(ResourceHandler<T> handler, Predicate<T> filter, TransactionContext transaction) {
-        throw Unimplemented.forMember("net/neoforged/neoforge/transfer/ResourceHandlerUtil.findExtractableResource:(Lnet/neoforged/neoforge/transfer/ResourceHandler;Ljava/util/function/Predicate;Lnet/neoforged/neoforge/transfer/transaction/TransactionContext;)Lnet/neoforged/neoforge/transfer/resource/Resource;");
+        for (int i = 0; i < handler.size(); i++) {
+            T resource = handler.getResource(i);
+            if (resource == null || resource.isEmpty() || !filter.test(resource)) {
+                continue;
+            }
+            try (var trial = net.neoforged.neoforge.transfer.transaction.Transaction
+                    .open(transaction)) {
+                if (handler.extract(i, resource, 1, trial) > 0) {
+                    return resource;
+                }
+            }
+        }
+        return null;
     }
 }

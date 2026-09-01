@@ -24,8 +24,34 @@ public interface Registry<T> extends IdMap<T>, Keyable, HolderLookup.RegistryLoo
     // Pumpkin divergence: real-enough body. The codec carries serialisation logic Pumpkin
     // never invokes -- encode/decode throw with the codec's own key -- so a mod composing
     // registry-keyed codecs at class-initialisation survives.
+    // Pumpkin divergence: real body -- a name codec is the registry's id string
+    // mapped through what registration recorded. Unknown names refuse by name. The
+    // registry's own key resolves lazily, at first use: registry stubs built during
+    // class-initialisation ask for this codec long before anyone decodes with it.
     default Codec<T> byNameCodec() {
-        return dev.pumpkin.shim.Stubs.throwingCodec("net/minecraft/core/Registry.byNameCodec:()Lcom/mojang/serialization/Codec;");
+        return com.mojang.serialization.Codec.STRING.xmap(
+                id -> {
+                    String registryName = key().identifier().toString();
+                    String qualified = id.contains(":") ? id : "minecraft:" + id;
+                    @SuppressWarnings("unchecked")
+                    T value = (T) net.neoforged.neoforge.registries.DeferredHolder
+                            .pumpkinResolve(registryName, qualified);
+                    if (value == null) {
+                        throw new IllegalStateException(
+                                "Unknown " + registryName + " entry: " + qualified);
+                    }
+                    return value;
+                },
+                value -> {
+                    String registryName = key().identifier().toString();
+                    String name = net.neoforged.neoforge.registries.DeferredHolder
+                            .pumpkinResolveName(registryName, value);
+                    if (name == null) {
+                        throw new IllegalStateException(
+                                "Unregistered " + registryName + " value: " + value);
+                    }
+                    return name;
+                });
     }
 
     // Pumpkin divergence: inert, like byNameCodec above.

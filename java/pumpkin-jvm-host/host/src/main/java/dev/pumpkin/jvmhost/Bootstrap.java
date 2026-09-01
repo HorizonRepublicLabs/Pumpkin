@@ -123,6 +123,68 @@ public final class Bootstrap {
      * @throws Exception if discovery, construction or registration failed; Rust turns this
      *                   into a loader error
      */
+    /**
+     * Reads one datapack registry's entries out of the mod jar and registers them.
+     *
+     * <p>An entry that fails to decode is reported and skipped -- its absence surfaces
+     * as an unknown-entry refusal wherever something asks for it by name.
+     */
+    private static <T> void loadDataPackRegistry(String jarPath,
+            net.neoforged.neoforge.registries.DataPackRegistryEvent.NewRegistry.PumpkinRegistration<T> registration)
+            throws Exception {
+        net.minecraft.resources.Identifier registryId = registration.registryKey().identifier();
+        String registryName = registryId.toString();
+        String folder = registryId.getNamespace() + "/" + registryId.getPath();
+        net.neoforged.neoforge.registries.RegistryBuilder<T> builder =
+                new net.neoforged.neoforge.registries.RegistryBuilder<>(registration.registryKey());
+        registration.consumer().accept(builder);
+        int loaded = 0;
+        int failed = 0;
+        try (java.util.jar.JarFile jar = new java.util.jar.JarFile(jarPath)) {
+            java.util.Enumeration<java.util.jar.JarEntry> entries = jar.entries();
+            while (entries.hasMoreElements()) {
+                java.util.jar.JarEntry entry = entries.nextElement();
+                String name = entry.getName();
+                if (!name.startsWith("data/") || !name.endsWith(".json")) {
+                    continue;
+                }
+                // data/<entry-ns>/<registry-folder>/<entry-name>.json
+                String[] parts = name.split("/", 3);
+                if (parts.length != 3 || !parts[2].startsWith(folder + "/")) {
+                    continue;
+                }
+                String entryPath = parts[2].substring(folder.length() + 1,
+                        parts[2].length() - ".json".length());
+                net.minecraft.resources.Identifier entryId =
+                        net.minecraft.resources.Identifier.fromNamespaceAndPath(parts[1], entryPath);
+                try (java.io.InputStream in = jar.getInputStream(entry)) {
+                    com.google.gson.JsonElement json = com.google.gson.JsonParser.parseString(
+                            new String(in.readAllBytes(), java.nio.charset.StandardCharsets.UTF_8));
+                    var result = registration.codec().parse(
+                            com.mojang.serialization.JsonOps.INSTANCE, json).result();
+                    if (result.isEmpty()) {
+                        failed++;
+                        System.err.println("[pumpkin] " + registryName + " entry " + entryId
+                                + " did not decode; skipped");
+                        continue;
+                    }
+                    net.neoforged.neoforge.registries.DeferredHolder.pumpkinRecordValue(
+                            registryName, entryId, result.get());
+                    loaded++;
+                } catch (RuntimeException e) {
+                    failed++;
+                    System.err.println("[pumpkin] " + registryName + " entry " + entryId
+                            + " failed to decode: " + e);
+                }
+            }
+        }
+        // Queues this registry's bake callbacks behind the entries just recorded.
+        builder.create();
+        System.out.println("[pumpkin] datapack registry " + registryName + ": " + loaded
+                + " entr" + (loaded == 1 ? "y" : "ies") + " loaded"
+                + (failed == 0 ? "" : ", " + failed + " failed"));
+    }
+
     public static String loadAndRegister(String jarPath) throws Exception {
         ModLoader.ModCandidate candidate = ModLoader.discover(Path.of(jarPath));
         IEventBus bus = new PumpkinEventBus();
@@ -168,6 +230,21 @@ public final class Bootstrap {
                 : net.neoforged.neoforge.registries.RegistryBuilder.pumpkinCreatedKeys()) {
             bus.post(new RegisterEvent(created));
         }
+        // Datapack registries: the mod names them in this event, and their entries
+        // are JSON in the mod jar (data/<ns>/<registry-path>/*.json), decoded by the
+        // codec the mod handed over -- its own code, running for real. Entries land
+        // in the same store code registrations use.
+        net.neoforged.neoforge.registries.DataPackRegistryEvent.NewRegistry dataPackRegistries =
+                new net.neoforged.neoforge.registries.DataPackRegistryEvent.NewRegistry();
+        bus.post(dataPackRegistries);
+        for (net.neoforged.neoforge.registries.DataPackRegistryEvent.NewRegistry.PumpkinRegistration<?> registration
+                : dataPackRegistries.pumpkinRegistrations()) {
+            loadDataPackRegistry(jarPath, registration);
+        }
+        // The freeze point for mod-created registries: their registrations have
+        // flushed, so bake callbacks (registry-dependent statics like Mekanism's
+        // empty-chemical holder) run now.
+        net.neoforged.neoforge.registries.RegistryBuilder.pumpkinFireBakes();
         // Capabilities register after content: NeoForge fires this once per mod on the
         // mod bus, and the providers land in the bridge's registry for lookups.
         bus.post(new net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent());

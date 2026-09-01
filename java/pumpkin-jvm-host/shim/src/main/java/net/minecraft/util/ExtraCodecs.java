@@ -24,8 +24,25 @@ public class ExtraCodecs {
             dev.pumpkin.shim.Stubs.throwingCodec("net/minecraft/util/ExtraCodecs.ARGB_COLOR_CODEC");
 
     // Pumpkin divergence: inert codec -- composes at class-init, throws its name on use.
+    // Pumpkin divergence: real body -- "#AARRGGBB" (or "#RRGGBB", alpha assumed
+    // opaque) to a packed ARGB int, vanilla's format.
     public static final Codec<Integer> STRING_ARGB_COLOR =
-            dev.pumpkin.shim.Stubs.throwingCodec("net/minecraft/util/ExtraCodecs.STRING_ARGB_COLOR");
+            Codec.STRING.comapFlatMap(text -> {
+                try {
+                    if (!text.startsWith("#")) {
+                        return com.mojang.serialization.DataResult.error(
+                                () -> "Not a color: " + text);
+                    }
+                    long parsed = Long.parseLong(text.substring(1), 16);
+                    if (text.length() == 7) {
+                        parsed |= 0xFF000000L;
+                    }
+                    return com.mojang.serialization.DataResult.success((int) parsed);
+                } catch (NumberFormatException e) {
+                    return com.mojang.serialization.DataResult.error(
+                            () -> "Not a color: " + text);
+                }
+            }, color -> String.format("#%08X", color));
 
     // Pumpkin divergence: inert codec -- composes at class-init, throws its name on use.
     public static final Codec<Integer> NON_NEGATIVE_INT =
@@ -48,8 +65,12 @@ public class ExtraCodecs {
     }
 
     // Pumpkin divergence: inert codec -- throws its key on first use.
+    // Pumpkin divergence: real body -- vanilla's bounds check over the int codec.
     public static Codec<Integer> intRange(int minInclusive, int maxInclusive) {
-        return dev.pumpkin.shim.Stubs.throwingCodec("net/minecraft/util/ExtraCodecs.intRange:(II)Lcom/mojang/serialization/Codec;");
+        return Codec.INT.validate(value -> value >= minInclusive && value <= maxInclusive
+                ? com.mojang.serialization.DataResult.success(value)
+                : com.mojang.serialization.DataResult.error(() -> "Value " + value
+                        + " outside of range [" + minInclusive + ":" + maxInclusive + "]"));
     }
 
     // Pumpkin divergence: inert codec -- throws its key on first use.

@@ -58,8 +58,9 @@ public final class FluidResource implements DataComponentHolderResource<Fluid> {
     private FluidResource(FluidStack stack) {
     }
 
+    // Pumpkin divergence: real bodies -- a fluid resource is its fluid.
     public Fluid value() {
-        throw Unimplemented.forMember("net/neoforged/neoforge/transfer/fluid/FluidResource.value:()Lnet/minecraft/world/level/material/Fluid;");
+        return getFluid();
     }
 
     public Fluid getFluid() {
@@ -67,7 +68,15 @@ public final class FluidResource implements DataComponentHolderResource<Fluid> {
     }
 
     public Holder<Fluid> typeHolder() {
-        throw Unimplemented.forMember("net/neoforged/neoforge/transfer/fluid/FluidResource.typeHolder:()Lnet/minecraft/core/Holder;");
+        Fluid fluid = getFluid();
+        String name = fluid.pumpkinVanillaName == null ? "empty" : fluid.pumpkinVanillaName;
+        net.minecraft.resources.Identifier id = name.contains(":")
+                ? net.minecraft.resources.Identifier.parse(name)
+                : net.minecraft.resources.Identifier.fromNamespaceAndPath("minecraft", name);
+        return Holder.Reference.pumpkinOf(
+                net.minecraft.resources.ResourceKey.create(
+                        net.minecraft.core.registries.Registries.FLUID, id),
+                fluid);
     }
 
     public FluidType getFluidType() {

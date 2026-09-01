@@ -113,6 +113,9 @@ pub async fn update_position(player: &Arc<Player>) {
         .level
         .mark_chunks_as_newly_watched(&loading_chunks)
         .await;
+    // Entities flush while their chunks are still loaded; once the watch ticket
+    // drops the chunk-system thread may serialize and drop them at any moment.
+    world.flush_block_entities_in(&unloading_chunks);
     let chunks_to_clean = world
         .level
         .mark_chunks_as_not_watched(&unloading_chunks)

@@ -107,7 +107,13 @@ project(':shim') {
         rootProject.ext.gameLibraries.each { implementation it }
     }
 }
-project(':host')    { dependencies { api project(':shim') } }
+project(':host')    { dependencies {
+    api project(':shim')
+    // The datapack-registry loader decodes mod JSON through the mod's own codec:
+    // gson to parse, DFU to run the codec. compileOnly -- both already ride the
+    // runtime classpath Pumpkin builds.
+    rootProject.ext.gameLibraries.each { compileOnly it }
+} }
 project(':testmod') { dependencies { compileOnly project(':shim') } }
 
 project(':host') {

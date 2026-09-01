@@ -128,7 +128,9 @@ public final class PumpkinLevel extends net.minecraft.server.level.ServerLevel {
         // the entity's own dirty flag so the next tick persists it.
         BlockEntity entity = PumpkinBlockEntities.get(pos.getX(), pos.getY(), pos.getZ());
         if (entity != null) {
-            entity.setChanged();
+            // Flag-only: a mod's setChanged override may mark the chunk dirty again,
+            // and that loop never ends.
+            entity.pumpkinMarkChanged();
         }
     }
 

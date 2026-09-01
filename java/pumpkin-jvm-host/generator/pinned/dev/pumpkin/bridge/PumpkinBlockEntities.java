@@ -37,7 +37,8 @@ public final class PumpkinBlockEntities {
     // getBlockState() -- mod machines read their own facing/active from it.
     public static BlockEntity getOrCreate(BlockEntityType<?> type, int x, int y, int z,
             net.minecraft.world.level.block.state.BlockState state) {
-        return BY_POSITION.computeIfAbsent(key(x, y, z), ignored -> {
+        boolean existed = BY_POSITION.containsKey(key(x, y, z));
+        BlockEntity created = BY_POSITION.computeIfAbsent(key(x, y, z), ignored -> {
             BlockEntity entity = type.pumpkinCreate(new BlockPos(x, y, z), state);
             // Through the real overridable setLevel, not the shim's field setter: mods
             // hook it as their earliest world signal (Mekanism initializes transmitter
@@ -102,6 +103,47 @@ public final class PumpkinBlockEntities {
             }
             return entity;
         });
+        if (!existed) {
+            pumpkinRescanNeighbors(x, y, z);
+        }
+        return created;
+    }
+
+    /**
+     * A transmitter next door scanned its sides before an entity existed -- the Rust
+     * neighbor event fires at block placement, and a mod entity is born on its first
+     * tick, after that. The birth is the re-scan trigger; it runs outside the map
+     * computation, because a mod's re-scan may itself reach back into this store.
+     */
+    private static void pumpkinRescanNeighbors(int x, int y, int z) {
+        for (int[] offset : new int[][] {{0, -1, 0}, {0, 1, 0}, {0, 0, -1}, {0, 0, 1}, {-1, 0, 0}, {1, 0, 0}}) {
+            BlockEntity neighbor = get(x + offset[0], y + offset[1], z + offset[2]);
+            if (neighbor == null) {
+                continue;
+            }
+            try {
+                Object transmitter = neighbor.getClass().getMethod("getTransmitter").invoke(neighbor);
+                transmitter.getClass().getMethod("refreshConnections").invoke(transmitter);
+            } catch (NoSuchMethodException notATransmitter) {
+                // Nothing to re-scan.
+            } catch (ReflectiveOperationException e) {
+                Throwable cause = e.getCause() == null ? e : e.getCause();
+                System.err.println("[pumpkin] neighbor re-scan failed for "
+                        + neighbor.getClass() + ": " + cause);
+            }
+        }
+    }
+
+    /**
+     * Marks every hosted entity changed, so each one's state rides its next tick
+     * reply. The chunk-dirty path calls this: the stand-in level serves a single
+     * chunk object, so a chunk-level mark cannot name its entities -- marking all of
+     * them over-marks (a few spare replies) and never under-marks (a lost save).
+     */
+    public static void pumpkinMarkAllChanged() {
+        for (BlockEntity entity : BY_POSITION.values()) {
+            entity.pumpkinMarkChanged();
+        }
     }
 
     /** The registered id of the entity's own block, for finding its block item. */

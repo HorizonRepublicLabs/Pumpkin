@@ -4919,6 +4919,22 @@ impl World {
         );
     }
 
+    /// Flushes the live block entities of the given chunks into their pending save
+    /// NBT while the chunks are still loaded. The unload pipeline calls this before
+    /// dropping a chunk's watch ticket -- after that, the chunk-system thread may
+    /// serialize and drop the chunk at any moment, and a later flush silently misses.
+    pub fn flush_block_entities_in(
+        &self,
+        chunks: impl IntoIterator<Item = impl std::borrow::Borrow<Vector2<i32>>>,
+    ) {
+        for chunk in chunks {
+            let chunk = *chunk.borrow();
+            if self.block_entities.contains_key(&chunk) {
+                self.save_block_entities(chunk);
+            }
+        }
+    }
+
     pub async fn remove_entities_in_chunks(
         &self,
         chunks: impl IntoIterator<Item = impl std::borrow::Borrow<Vector2<i32>>>,
@@ -5786,7 +5802,8 @@ impl World {
     }
 
     pub(crate) fn add_block_entity_nbt(&self, block_pos: BlockPos, nbt: &NbtCompound) {
-        self.level
+        let hit = self
+            .level
             .read_chunk_sync(&block_pos.chunk_position(), |chunk| {
                 chunk
                     .pending_block_entities
@@ -5795,6 +5812,13 @@ impl World {
                     .insert(block_pos, nbt.clone());
                 chunk.mark_dirty(true);
             });
+        if hit.is_none() {
+            // The unload pipeline flushes entities before a chunk drops; a miss here
+            // means that contract broke and this entity's state fell out of the save.
+            tracing::warn!(
+                "block entity at {block_pos:?} missed its chunk's save (already unloaded)"
+            );
+        }
     }
 
     pub fn remove_block_entity(&self, block_pos: &BlockPos) {

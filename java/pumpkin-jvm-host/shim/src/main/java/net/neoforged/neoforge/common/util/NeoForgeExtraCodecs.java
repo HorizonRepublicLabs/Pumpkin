@@ -19,8 +19,11 @@ public class NeoForgeExtraCodecs {
     }
 
     // Pumpkin divergence: inert codec -- throws its key on first use.
+    // Pumpkin divergence: real body -- decode-side this is an optional field with a
+    // default, which is all the shim's decode-only datapack path exercises; the
+    // always-write half only shapes encoded output.
     public static <T> MapCodec<T> optionalFieldAlwaysWrite(Codec<T> codec, String name, T defaultValue) {
-        return dev.pumpkin.shim.Stubs.throwingMapCodec("net/neoforged/neoforge/common/util/NeoForgeExtraCodecs.optionalFieldAlwaysWrite:(Lcom/mojang/serialization/Codec;Ljava/lang/String;Ljava/lang/Object;)Lcom/mojang/serialization/MapCodec;");
+        return codec.optionalFieldOf(name, defaultValue);
     }
 
     // Pumpkin divergence: inert codec -- throws its key on first use.

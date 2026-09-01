@@ -510,7 +510,10 @@ impl ChunkData {
                 .map(|&id| {
                     let block = Block::from_state_id(id);
                     let mut comp = NbtCompound::new();
-                    let name = if block.name.starts_with("minecraft:") {
+                    // A name that already carries a namespace (a mod block's
+                    // "mekanism:basic_mechanical_pipe") is complete; prefixing it
+                    // again would save an id no loader recognises.
+                    let name = if block.name.contains(':') {
                         block.name.to_string()
                     } else {
                         format!("minecraft:{}", block.name)

@@ -194,8 +194,11 @@ public abstract class BlockBehaviour implements FeatureElement {
             throw Unimplemented.forMember("net/minecraft/world/level/block/state/BlockBehaviour$BlockStateBase.getLightDampening:()I");
         }
 
+        // Pumpkin divergence: light lives in Pumpkin's Rust engine; the stand-in
+        // state carries no emission, and what a mod reads here feeds its own
+        // client-facing state (a lava tank glowing), which this host does not render.
         public int getLightEmission() {
-            throw Unimplemented.forMember("net/minecraft/world/level/block/state/BlockBehaviour$BlockStateBase.getLightEmission:()I");
+            return 0;
         }
 
         // Pumpkin divergence: a vanilla fact answered from the block's identity --

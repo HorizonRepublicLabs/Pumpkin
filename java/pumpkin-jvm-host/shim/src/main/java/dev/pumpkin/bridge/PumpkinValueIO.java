@@ -80,6 +80,17 @@ public final class PumpkinValueIO {
                             recordJson.addProperty(component.getName(), itemResource.isEmpty()
                                     ? "empty"
                                     : PumpkinInteractions.pumpkinItemId(itemResource.toStack(1)));
+                        } else if (field instanceof net.neoforged.neoforge.transfer.resource.Resource resource) {
+                            // A mod's own resource kind (Mekanism's ChemicalResource):
+                            // its registered name, read through its own type holder.
+                            String resourceName;
+                            if (resource.isEmpty()) {
+                                resourceName = "empty";
+                            } else {
+                                Object holder = field.getClass().getMethod("typeHolder").invoke(field);
+                                resourceName = ((net.minecraft.core.Holder<?>) holder).getRegisteredName();
+                            }
+                            recordJson.addProperty(component.getName(), resourceName);
                         } else {
                             throw Unimplemented.forMember(
                                     "net/minecraft/world/level/storage/ValueOutput.store (record component "
@@ -353,8 +364,28 @@ public final class PumpkinValueIO {
                                 }
                                 resource = net.neoforged.neoforge.transfer.fluid.FluidResource.of(fluid);
                             } else {
-                                throw Unimplemented.forMember(
-                                        "ValueInput.read (chemical resource reload)");
+                                // CHEMICAL_HELPER: the chemical registry is the mod's
+                                // own; rebuild the resource through its factory.
+                                Object chemical = net.neoforged.neoforge.registries.DeferredHolder
+                                        .pumpkinResolve("mekanism:chemical", resourceName);
+                                if (chemical == null) {
+                                    throw Unimplemented.forMember(
+                                            "ValueInput.read (unknown chemical " + resourceName + ")");
+                                }
+                                Class<?> chemRes = Class.forName(
+                                        "mekanism.api.chemical.ChemicalResource", true,
+                                        helper.getClass().getClassLoader());
+                                resource = chemRes
+                                        .getMethod("of", net.minecraft.core.Holder.class)
+                                        .invoke(null, net.minecraft.core.Holder.Reference.pumpkinOf(
+                                                net.minecraft.resources.ResourceKey.create(
+                                                        net.minecraft.resources.ResourceKey
+                                                                .createRegistryKey(
+                                                                        net.minecraft.resources.Identifier
+                                                                                .parse("mekanism:chemical")),
+                                                        net.minecraft.resources.Identifier
+                                                                .parse(resourceName)),
+                                                chemical));
                             }
                             return Optional.of((T) large
                                     .getConstructor(

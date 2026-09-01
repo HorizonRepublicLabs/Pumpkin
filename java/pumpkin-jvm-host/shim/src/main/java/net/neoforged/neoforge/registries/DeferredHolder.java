@@ -126,7 +126,7 @@ public class DeferredHolder<R, T extends R> implements Holder<R>, Supplier<T> {
     // helper ever saw it. Wrapped so holders created by name resolve regardless of which
     // of the two registration roads the target took -- MysticalAgriculture registers its
     // blocks on this one and its slabs then ask for them by name.
-    static <V> void pumpkinRecordValue(String registry, Identifier id, V value) {
+    public static <V> void pumpkinRecordValue(String registry, Identifier id, V value) {
         PUMPKIN_BY_ID.put(registry + "|" + id, new DeferredHolder<>(id, () -> value));
     }
 

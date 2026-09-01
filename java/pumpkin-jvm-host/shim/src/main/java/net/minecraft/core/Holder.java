@@ -42,8 +42,10 @@ public interface Holder<T> extends IHolderExtension<T> {
 
     boolean canSerializeIn(HolderOwner<T> registry);
 
+    // Pumpkin divergence: vanilla's derivation -- the key's printed name, or the
+    // unregistered marker when the holder has none.
     default String getRegisteredName() {
-        throw Unimplemented.forMember("net/minecraft/core/Holder.getRegisteredName:()Ljava/lang/String;");
+        return unwrapKey().map(key -> key.identifier().toString()).orElse("[unregistered]");
     }
 
     record Direct<T>(T value, DataComponentMap components) implements Holder<T> {
@@ -163,12 +165,14 @@ public interface Holder<T> extends IHolderExtension<T> {
             throw Unimplemented.forMember("net/minecraft/core/Holder$Reference.unwrap:()Lcom/mojang/datafixers/util/Either;");
         }
 
+        // Pumpkin divergence: real body -- the reference carries its key.
         public Optional<ResourceKey<T>> unwrapKey() {
-            throw Unimplemented.forMember("net/minecraft/core/Holder$Reference.unwrapKey:()Ljava/util/Optional;");
+            return Optional.ofNullable(key);
         }
 
+        // Pumpkin divergence: real body -- a reference is, by definition, that kind.
         public Holder.Kind kind() {
-            throw Unimplemented.forMember("net/minecraft/core/Holder$Reference.kind:()Lnet/minecraft/core/Holder$Kind;");
+            return Holder.Kind.REFERENCE;
         }
 
         public boolean isBound() {
@@ -179,8 +183,15 @@ public interface Holder<T> extends IHolderExtension<T> {
             throw Unimplemented.forMember("net/minecraft/core/Holder$Reference.areComponentsBound:()Z");
         }
 
+        // Pumpkin divergence: data maps are not loaded yet -- same contract as
+        // TypedInstanceExtension.getData, and the same loud once-per-map line.
         public <A> A getData(net.neoforged.neoforge.registries.datamaps.DataMapType<T, A> type) {
-            throw Unimplemented.forMember("net/minecraft/core/Holder$Reference.getData:(Lnet/neoforged/neoforge/registries/datamaps/DataMapType;)Ljava/lang/Object;");
+            if (net.neoforged.neoforge.common.extensions.TypedInstanceExtension.PUMPKIN_SAID
+                    .add(String.valueOf(type))) {
+                System.err.println("[pumpkin] data map " + type + " consulted; data maps are"
+                        + " not loaded yet, so every entry answers as having none");
+            }
+            return null;
         }
 
         public Stream<TagKey<T>> tags() {

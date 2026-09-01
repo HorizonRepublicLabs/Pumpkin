@@ -1488,6 +1488,64 @@ fn parse_stack(spec: &str) -> Option<pumpkin_data::item_stack::ItemStack> {
 }
 
 impl crate::block::BlockBehaviour for JvmBlockBehaviour {
+    fn on_neighbor_update(&self, args: crate::block::OnNeighborUpdateArgs<'_>) {
+        // A transmitter re-scans its sides when a neighbor changes -- how a tank placed
+        // after its tube becomes the network's acceptor. Which side changed is not part
+        // of these args; the mod-side re-scan covers all six.
+        let Some(vm) = vm::current() else {
+            self.inner.on_neighbor_update(args);
+            return;
+        };
+        let block_name = self.block_name.clone();
+        let entity_type =
+            pumpkin_data::dynamic::block_entity_type_for_block(self.block_id.as_u16())
+                .and_then(pumpkin_data::dynamic::block_entity_type_name)
+                .unwrap_or("")
+                .to_string();
+        if !entity_type.is_empty() {
+            let position = *args.position;
+            let (x, y, z) = (position.0.x, position.0.y, position.0.z);
+            let reply: Result<String, VmError> = vm.call(move |env| {
+                let block = env
+                    .new_string(&block_name)
+                    .map_err(|err| VmError::Java(err.to_string()))?;
+                let entity_type = env
+                    .new_string(&entity_type)
+                    .map_err(|err| VmError::Java(err.to_string()))?;
+                let returned = env.call_static_method(
+                    "dev/pumpkin/bridge/PumpkinInteractions",
+                    "neighborChanged",
+                    "(Ljava/lang/String;Ljava/lang/String;III)Ljava/lang/String;",
+                    &[
+                        (&block).into(),
+                        (&entity_type).into(),
+                        x.into(),
+                        y.into(),
+                        z.into(),
+                    ],
+                );
+                if env.exception_check().unwrap_or(false) {
+                    let _ = env.exception_describe();
+                    let _ = env.exception_clear();
+                    return Err(VmError::Java("neighborChanged threw".into()));
+                }
+                let object = returned
+                    .and_then(jni::objects::JValueGen::l)
+                    .map_err(|err| VmError::Java(err.to_string()))?;
+                env.get_string(&jni::objects::JString::from(object))
+                    .map(Into::into)
+                    .map_err(|err| VmError::Java(err.to_string()))
+            });
+            if let Err(err) = reply {
+                tracing::warn!(
+                    "{}: neighbor re-scan stopped in the mod: {err}",
+                    self.block_name
+                );
+            }
+        }
+        self.inner.on_neighbor_update(args);
+    }
+
     fn player_placed(&self, args: crate::block::PlayerPlacedArgs<'_>) {
         let position = *args.position;
         let state_id = args.state_id;

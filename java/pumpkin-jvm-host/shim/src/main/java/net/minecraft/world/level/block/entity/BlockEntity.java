@@ -102,6 +102,13 @@ public abstract class BlockEntity extends net.neoforged.neoforge.attachment.Atta
         return changed;
     }
 
+    // Pumpkin divergence: sets the flag without virtual dispatch. The chunk-dirty
+    // fan-out calls this: going through setChanged() would re-enter a mod override
+    // that marks the chunk dirty again, and the loop never ends.
+    public final void pumpkinMarkChanged() {
+        pumpkinChanged = true;
+    }
+
     protected static void setChanged(Level level, BlockPos worldPosition, BlockState blockState) {
         throw Unimplemented.forMember("net/minecraft/world/level/block/entity/BlockEntity.setChanged:(Lnet/minecraft/world/level/Level;Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/state/BlockState;)V");
     }

@@ -34,9 +34,13 @@ public class LevelChunk extends ChunkAccess implements DebugValueSource, IAttach
     public LevelChunk(ServerLevel level, ProtoChunk protoChunk, LevelChunk.PostLoadProcessor postLoad) {
     }
 
-    // Pumpkin divergence: dirty-marking is persistence bookkeeping the bridge does
-    // itself -- entity data rides every interaction reply -- so there is nothing to mark.
+    // Pumpkin divergence: a chunk-dirty mark is how Mekanism says "persist my
+    // entities" (its setChanged goes through WorldUtils.markChunkDirty, never the
+    // entity flag). The stand-in level serves one chunk object, so the mark fans
+    // out to every hosted entity -- over-marking is a few spare tick replies,
+    // under-marking is a lost save.
     public void markUnsaved() {
+        dev.pumpkin.bridge.PumpkinBlockEntities.pumpkinMarkAllChanged();
     }
 
     public TickContainerAccess<Block> getBlockTicks() {

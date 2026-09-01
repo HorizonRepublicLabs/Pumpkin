@@ -212,6 +212,31 @@ public final class PumpkinInteractions {
      * times a second buys nothing.
      */
     /**
+     * A neighbor of the block changed: transmitters re-scan their sides, which is how
+     * a tank placed after its tube becomes the network's acceptor. Vanilla tells block
+     * entities per-side; the host does not know which side changed, and a full re-scan
+     * answers the same question at six times the (tiny) cost.
+     *
+     * @return {@code OK}, or {@code NONE} when the entity has nothing to re-scan
+     */
+    public static String neighborChanged(String blockId, String entityTypeId, int x, int y, int z)
+            throws Exception {
+        Object typeObject = DeferredHolder.pumpkinResolve("minecraft:block_entity_type", entityTypeId);
+        if (!(typeObject instanceof BlockEntityType<?> type) || !PumpkinBlockEntities.exists(x, y, z)) {
+            return "NONE";
+        }
+        net.minecraft.world.level.block.entity.BlockEntity entity =
+                PumpkinBlockEntities.getOrCreate(type, x, y, z);
+        try {
+            Object transmitter = entity.getClass().getMethod("getTransmitter").invoke(entity);
+            transmitter.getClass().getMethod("refreshConnections").invoke(transmitter);
+            return "OK";
+        } catch (NoSuchMethodException notATransmitter) {
+            return "NONE";
+        }
+    }
+
+    /**
      * One server tick, as the NeoForge game bus tells it: mods that registered tick
      * handlers (Mekanism's transmitter networks, frequency manager) run here, once per
      * Pumpkin server tick.

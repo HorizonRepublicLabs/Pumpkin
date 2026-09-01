@@ -18,8 +18,28 @@ import dev.pumpkin.shim.Unimplemented;
 public class ComponentSerialization {
 
     // Pumpkin divergence: inert codec -- composes at class-init, throws by name on use.
-    public static final Codec<Component> CODEC =
-            dev.pumpkin.shim.Stubs.throwingCodec("net/minecraft/network/chat/ComponentSerialization.CODEC");
+    // Pumpkin divergence: the two shapes datapack text actually uses -- a plain
+    // string, and {"translate": key} -- decode to real components; anything fancier
+    // (style, siblings, selectors) refuses by name at decode time.
+    public static final Codec<Component> CODEC = Codec.PASSTHROUGH.comapFlatMap(
+            dynamic -> {
+                var stringValue = dynamic.asString().result();
+                if (stringValue.isPresent()) {
+                    return com.mojang.serialization.DataResult.success(
+                            (Component) MutableComponent.pumpkinOf(stringValue.get()));
+                }
+                var translate = dynamic.get("translate").asString().result();
+                if (translate.isPresent()) {
+                    return com.mojang.serialization.DataResult.success(
+                            (Component) MutableComponent.pumpkinOf(translate.get()));
+                }
+                return com.mojang.serialization.DataResult.error(
+                        () -> "Component shape not modeled: " + dynamic);
+            },
+            component -> {
+                throw dev.pumpkin.shim.Unimplemented.forMember(
+                        "net/minecraft/network/chat/ComponentSerialization.CODEC.encode");
+            });
 
     public static final StreamCodec<RegistryFriendlyByteBuf, Component> STREAM_CODEC = Stubs.of(StreamCodec.class, "net/minecraft/network/codec/StreamCodec");
 

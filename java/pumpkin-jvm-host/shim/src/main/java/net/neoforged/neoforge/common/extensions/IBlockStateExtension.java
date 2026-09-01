@@ -26,8 +26,10 @@ public interface IBlockStateExtension {
         throw Unimplemented.forMember("net/neoforged/neoforge/common/extensions/IBlockStateExtension.getFriction:(Lnet/minecraft/world/level/LevelReader;Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/entity/Entity;)F");
     }
 
+    // Pumpkin divergence: vanilla's derivation -- the position-aware overload falls
+    // back to the state's own emission.
     default int getLightEmission(BlockGetter level, BlockPos pos) {
-        throw Unimplemented.forMember("net/neoforged/neoforge/common/extensions/IBlockStateExtension.getLightEmission:(Lnet/minecraft/world/level/BlockGetter;Lnet/minecraft/core/BlockPos;)I");
+        return ((net.minecraft.world.level.block.state.BlockState) this).getLightEmission();
     }
 
     default boolean canHarvestBlock(BlockGetter level, BlockPos pos, Player player) {
