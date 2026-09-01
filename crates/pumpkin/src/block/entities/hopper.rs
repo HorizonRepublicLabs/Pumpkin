@@ -195,6 +195,31 @@ impl HopperBlockEntity {
         }
 
         if let Some(entity) = world.get_block_entity(pos_up)
+            && let Some(plugin) = entity
+                .as_any()
+                .downcast_ref::<crate::block::entities::plugin::PluginBlockEntity>()
+        {
+            // A mod machine's inventory lives on its host's side; ask through the hook.
+            // Only pull when a hopper slot is empty: an extracted item that fits nowhere
+            // would be lost, since the mod has already released it.
+            let has_empty_slot = {
+                let items = self
+                    .items
+                    .read()
+                    .unwrap_or_else(std::sync::PoisonError::into_inner);
+                items
+                    .iter()
+                    .any(pumpkin_data::item_stack::ItemStack::is_empty)
+            };
+            if has_empty_slot
+                && let Some(stack) = crate::block::entities::plugin::try_extract_one(plugin, world)
+                && Self::add_one_item(plugin, self, &stack)
+            {
+                return true;
+            }
+            return false;
+        }
+        if let Some(entity) = world.get_block_entity(pos_up)
             && let Some(container) = entity.clone().get_inventory()
         {
             // TODO check WorldlyContainer

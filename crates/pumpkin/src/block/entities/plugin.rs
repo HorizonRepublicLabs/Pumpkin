@@ -71,6 +71,30 @@ pub type BlockEntityTickHook =
 
 static TICK_HOOK: std::sync::OnceLock<BlockEntityTickHook> = std::sync::OnceLock::new();
 
+/// The extraction hook a plugin host may install.
+///
+/// One item pulled out of the mod-side machine (a hopper asking from below), or
+/// `None` when the mod declines. The mod stays the source of truth for its
+/// inventory -- the generic `items` vec here never mirrors it, so automation
+/// must ask through the host.
+pub type BlockEntityExtractHook =
+    Box<dyn Fn(&PluginBlockEntity, &Arc<crate::world::World>) -> Option<ItemStack> + Send + Sync>;
+
+static EXTRACT_HOOK: std::sync::OnceLock<BlockEntityExtractHook> = std::sync::OnceLock::new();
+
+/// Installs the process-wide extraction hook; first caller wins, like the tick hook.
+pub fn install_extract_hook(hook: BlockEntityExtractHook) {
+    let _ = EXTRACT_HOOK.set(hook);
+}
+
+/// One item extracted from the mod-side machine, if the host and the mod allow it.
+pub fn try_extract_one(
+    entity: &PluginBlockEntity,
+    world: &Arc<crate::world::World>,
+) -> Option<ItemStack> {
+    EXTRACT_HOOK.get().and_then(|hook| hook(entity, world))
+}
+
 /// Installs the process-wide tick hook. The first caller wins; later calls are ignored,
 /// which keeps a second plugin host from silently stealing the first one's ticks.
 pub fn install_tick_hook(hook: BlockEntityTickHook) {

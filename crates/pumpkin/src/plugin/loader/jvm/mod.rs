@@ -242,6 +242,7 @@ fn wire_block_drops(server: &Arc<crate::server::Server>) {
     }
 
     install_jvm_tick_hook();
+    install_jvm_extract_hook();
 
     // Tell the bridge where the extracted mod datapacks live: the recipe manager it
     // serves to mod machines decodes their recipe JSON straight from there.
@@ -880,6 +881,82 @@ fn vanilla_container_mask(
 /// tick rather than a reflective lookup. A tick that stops inside the mod is said once
 /// per block type -- a ticking machine can fail twenty times a second, and a log that
 /// repeats that fast says less than one line that names the key.
+/// Routes hopper pulls on plugin block entities into the mod's own item handler.
+fn install_jvm_extract_hook() {
+    crate::block::entities::plugin::install_extract_hook(Box::new(|entity, world| {
+        let vm = vm::current()?;
+        let position = entity.position;
+        let block = world.get_block(&position);
+        let warn_name = block.name;
+        let block_name = block.name.to_string();
+        let type_name = entity.id.to_string();
+        let saved = {
+            let data = entity
+                .data
+                .read()
+                .unwrap_or_else(std::sync::PoisonError::into_inner);
+            data.get_string(MOD_DATA_KEY).unwrap_or("").to_string()
+        };
+        let (x, y, z) = (position.0.x, position.0.y, position.0.z);
+        let reply: Result<String, VmError> = vm.call(move |env| {
+            let block = env
+                .new_string(&block_name)
+                .map_err(|err| VmError::Java(err.to_string()))?;
+            let entity_type = env
+                .new_string(&type_name)
+                .map_err(|err| VmError::Java(err.to_string()))?;
+            let saved = env
+                .new_string(&saved)
+                .map_err(|err| VmError::Java(err.to_string()))?;
+            let returned = env.call_static_method(
+                "dev/pumpkin/bridge/PumpkinInteractions",
+                "extractBlock",
+                "(Ljava/lang/String;Ljava/lang/String;IIILjava/lang/String;)Ljava/lang/String;",
+                &[
+                    (&block).into(),
+                    (&entity_type).into(),
+                    x.into(),
+                    y.into(),
+                    z.into(),
+                    (&saved).into(),
+                ],
+            );
+            if env.exception_check().unwrap_or(false) {
+                let _ = env.exception_describe();
+                let _ = env.exception_clear();
+                return Err(VmError::Java("extractBlock threw".into()));
+            }
+            let object = returned
+                .and_then(jni::objects::JValueGen::l)
+                .map_err(|err| VmError::Java(err.to_string()))?;
+            env.get_string(&jni::objects::JString::from(object))
+                .map(Into::into)
+                .map_err(|err| VmError::Java(err.to_string()))
+        });
+        let reply = match reply {
+            Ok(reply) => reply,
+            Err(err) => {
+                tracing::warn!("{warn_name}: hopper pull stopped in the mod: {err}");
+                return None;
+            }
+        };
+        if !reply.starts_with("EXTRACTED") {
+            return None;
+        }
+        let mut extracted = None;
+        for part in reply.split(';') {
+            if let Some(spec) = part.strip_prefix("ITEM=") {
+                extracted = parse_stack(spec);
+            } else if let Some(spec) = part.strip_prefix("DATA=")
+                && !spec.is_empty()
+            {
+                write_mod_data(world, &position, spec);
+            }
+        }
+        extracted
+    }));
+}
+
 fn install_jvm_tick_hook() {
     static WARNED: std::sync::Mutex<Option<std::collections::HashSet<String>>> =
         std::sync::Mutex::new(None);

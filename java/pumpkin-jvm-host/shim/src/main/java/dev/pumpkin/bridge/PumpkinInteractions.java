@@ -211,6 +211,74 @@ public final class PumpkinInteractions {
      * when the entity marked itself changed, because serialising an idle machine twenty
      * times a second buys nothing.
      */
+    /**
+     * One item pulled out of the machine by a hopper below, through the mod's own item
+     * handler with the bottom-side context -- the mod's side configuration decides.
+     *
+     * @return {@code EXTRACTED;ITEM=id:1;DATA=blob}, or {@code NONE} when the mod
+     *         declines (no handler, nothing stored, or the bottom side is not an output).
+     */
+    public static String extractBlock(String blockId, String entityTypeId, int x, int y, int z,
+            String savedData) throws Exception {
+        Object blockObject = DeferredHolder.pumpkinResolve("minecraft:block", blockId);
+        Object typeObject = DeferredHolder.pumpkinResolve("minecraft:block_entity_type", entityTypeId);
+        if (!(blockObject instanceof Block block)
+                || !(typeObject instanceof BlockEntityType<?> type)) {
+            return "NONE";
+        }
+        BlockState state = block.defaultBlockState();
+        boolean existed = PumpkinBlockEntities.exists(x, y, z);
+        net.minecraft.world.level.block.entity.BlockEntity entity =
+                PumpkinBlockEntities.getOrCreate(type, x, y, z, state);
+        if (!existed) {
+            com.google.gson.JsonObject parsed = savedData.isEmpty()
+                    ? new com.google.gson.JsonObject()
+                    : com.google.gson.JsonParser
+                            .parseString(new String(java.util.Base64.getDecoder().decode(savedData),
+                                    java.nio.charset.StandardCharsets.UTF_8))
+                            .getAsJsonObject();
+            Method load = findMethod(entity.getClass(), "loadAdditional", 1);
+            load.setAccessible(true);
+            load.invoke(entity, new PumpkinValueIO.Input(parsed));
+        }
+
+        PumpkinLevel level = PumpkinInteractions.pumpkinLevel();
+        net.neoforged.neoforge.transfer.ResourceHandler<net.neoforged.neoforge.transfer.item.ItemResource> handler =
+                level.getCapability(net.neoforged.neoforge.capabilities.Capabilities.Item.BLOCK,
+                        new BlockPos(x, y, z), state, entity, Direction.DOWN);
+        if (handler == null) {
+            return "NONE";
+        }
+        String extractedId = null;
+        try (net.neoforged.neoforge.transfer.transaction.Transaction txn =
+                net.neoforged.neoforge.transfer.transaction.Transaction.openRoot()) {
+            for (int i = 0; i < handler.size() && extractedId == null; i++) {
+                net.neoforged.neoforge.transfer.item.ItemResource resource = handler.getResource(i);
+                if (resource == null || resource.isEmpty()) {
+                    continue;
+                }
+                if (handler.extract(i, resource, 1, txn) == 1) {
+                    extractedId = pumpkinItemId(resource.toStack(1));
+                }
+            }
+            if (extractedId != null) {
+                txn.commit();
+            }
+        }
+        if (extractedId == null) {
+            return "NONE";
+        }
+        StringBuilder reply = new StringBuilder("EXTRACTED;ITEM=").append(extractedId).append(":1");
+        reply.append(";DATA=");
+        PumpkinValueIO.Output output = new PumpkinValueIO.Output();
+        Method save = findMethod(entity.getClass(), "saveAdditional", 1);
+        save.setAccessible(true);
+        save.invoke(entity, output);
+        reply.append(java.util.Base64.getEncoder().encodeToString(
+                output.pumpkinJson().toString().getBytes(java.nio.charset.StandardCharsets.UTF_8)));
+        return reply.toString();
+    }
+
     public static String tickBlock(String blockId, String entityTypeId, int x, int y, int z,
             String savedData, boolean hasSignal, double biomeTemperature, int containerMask)
             throws Exception {

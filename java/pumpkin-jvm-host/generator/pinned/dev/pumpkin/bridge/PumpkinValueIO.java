@@ -60,6 +60,9 @@ public final class PumpkinValueIO {
             // their own names -- the shape its codec would write, minus codec plumbing.
             if (value.getClass().isRecord()) {
                 JsonObject recordJson = new JsonObject();
+                // The class name is the reload contract: Input.read rebuilds the record
+                // through its canonical constructor by this name.
+                recordJson.addProperty("pumpkin:record", value.getClass().getName());
                 for (java.lang.reflect.RecordComponent component : value.getClass().getRecordComponents()) {
                     try {
                         Object field = component.getAccessor().invoke(value);
@@ -297,6 +300,132 @@ public final class PumpkinValueIO {
                     }
                 }
                 return Optional.of((T) stacks);
+            }
+            // The mirror of Output.store's record branch for a mod resource stack:
+            // {resource, amount}. Which resource kind it is comes from the codec itself
+            // -- the mod passes one of LargeResourceStack's helper codecs, and identity
+            // against them is the honest answer; an unrecognised codec still refuses.
+            if (element.isJsonObject()) {
+                JsonObject stored = element.getAsJsonObject();
+                if (stored.has("resource") && stored.has("amount")) {
+                    try {
+                        // The codec object itself is DFU plumbing from the shim's own
+                        // classpath; the mod's classes live in the mod-jar loader. The
+                        // caller IS mod code, so its loader is the right one.
+                        Class<?> caller = StackWalker
+                                .getInstance(StackWalker.Option.RETAIN_CLASS_REFERENCE)
+                                .getCallerClass();
+                        Class<?> large = Class.forName("mekanism.api.resource.LargeResourceStack",
+                                true, caller.getClassLoader());
+                        for (String helperName
+                                : new String[] {"ITEM_HELPER", "FLUID_HELPER", "CHEMICAL_HELPER"}) {
+                            Object helper = large.getField(helperName).get(null);
+                            Class<?> helperClass = helper.getClass();
+                            if (codec != helperClass.getMethod("codec").invoke(helper)
+                                    && codec != helperClass.getMethod("optionalCodec").invoke(helper)
+                                    && codec != helperClass.getMethod("orEmptyCodec").invoke(helper)) {
+                                continue;
+                            }
+                            String resourceName = stored.get("resource").getAsString();
+                            long amount = stored.get("amount").getAsLong();
+                            if (resourceName.equals("empty") || amount <= 0) {
+                                return Optional.of((T) helperClass.getMethod("empty").invoke(helper));
+                            }
+                            Object resource;
+                            if (helperName.equals("ITEM_HELPER")) {
+                                resource = net.neoforged.neoforge.transfer.item.ItemResource.of(
+                                        PumpkinInteractions.pumpkinBuildStack(resourceName, 1));
+                            } else if (helperName.equals("FLUID_HELPER")) {
+                                net.minecraft.world.level.material.Fluid fluid =
+                                        switch (resourceName) {
+                                            // Output writes the fluid's vanilla name, which
+                                            // carries no namespace ("lava"); accept the
+                                            // qualified form too.
+                                            case "lava", "minecraft:lava" ->
+                                                    net.minecraft.world.level.material.Fluids.LAVA;
+                                            case "water", "minecraft:water" ->
+                                                    net.minecraft.world.level.material.Fluids.WATER;
+                                            default -> null;
+                                        };
+                                if (fluid == null) {
+                                    throw Unimplemented.forMember(
+                                            "ValueInput.read (fluid resource " + resourceName + ")");
+                                }
+                                resource = net.neoforged.neoforge.transfer.fluid.FluidResource.of(fluid);
+                            } else {
+                                throw Unimplemented.forMember(
+                                        "ValueInput.read (chemical resource reload)");
+                            }
+                            return Optional.of((T) large
+                                    .getConstructor(
+                                            net.neoforged.neoforge.transfer.resource.Resource.class,
+                                            long.class)
+                                    .newInstance(resource, amount));
+                        }
+                    } catch (ClassNotFoundException fallThrough) {
+                        // Not called from that mod's code: the refusal below says so.
+                    } catch (ReflectiveOperationException e) {
+                        throw new RuntimeException(e);
+                    }
+                }
+            }
+            // The mirror of Output.store's record branch: any record it stamped with
+            // its class name comes back through the canonical constructor. Component
+            // values reload by their own shapes; a shape with no honest reload refuses.
+            if (element.isJsonObject() && element.getAsJsonObject().has("pumpkin:record")) {
+                JsonObject stored = element.getAsJsonObject();
+                try {
+                    Class<?> caller = StackWalker
+                            .getInstance(StackWalker.Option.RETAIN_CLASS_REFERENCE)
+                            .getCallerClass();
+                    Class<?> recordClass = Class.forName(
+                            stored.get("pumpkin:record").getAsString(), true,
+                            caller.getClassLoader());
+                    java.lang.reflect.RecordComponent[] components =
+                            recordClass.getRecordComponents();
+                    Class<?>[] types = new Class<?>[components.length];
+                    Object[] values = new Object[components.length];
+                    for (int i = 0; i < components.length; i++) {
+                        Class<?> type = components[i].getType();
+                        types[i] = type;
+                        JsonElement field = stored.get(components[i].getName());
+                        if (field == null) {
+                            throw Unimplemented.forMember("ValueInput.read (record "
+                                    + recordClass.getName() + " missing component "
+                                    + components[i].getName() + ")");
+                        }
+                        if (type == double.class || type == Double.class) {
+                            values[i] = field.getAsDouble();
+                        } else if (type == float.class || type == Float.class) {
+                            values[i] = field.getAsFloat();
+                        } else if (type == long.class || type == Long.class) {
+                            values[i] = field.getAsLong();
+                        } else if (type == int.class || type == Integer.class) {
+                            values[i] = field.getAsInt();
+                        } else if (type == boolean.class || type == Boolean.class) {
+                            values[i] = field.getAsBoolean();
+                        } else if (type == String.class) {
+                            values[i] = field.getAsString();
+                        } else if (type == net.neoforged.neoforge.transfer.item.ItemResource.class) {
+                            String id = field.getAsString();
+                            values[i] = id.equals("empty")
+                                    ? net.neoforged.neoforge.transfer.item.ItemResource.EMPTY
+                                    : net.neoforged.neoforge.transfer.item.ItemResource
+                                            .of(PumpkinInteractions.pumpkinBuildStack(id, 1));
+                        } else {
+                            throw Unimplemented.forMember("ValueInput.read (record "
+                                    + recordClass.getName() + " component "
+                                    + components[i].getName() + " of type "
+                                    + type.getName() + ")");
+                        }
+                    }
+                    return Optional.of((T) recordClass.getDeclaredConstructor(types)
+                            .newInstance(values));
+                } catch (ClassNotFoundException fallThrough) {
+                    // Not called from that mod's code: the refusal below says so.
+                } catch (ReflectiveOperationException e) {
+                    throw new RuntimeException(e);
+                }
             }
             throw Unimplemented.forMember(
                     "net/minecraft/world/level/storage/ValueInput.read:(Ljava/lang/String;Lcom/mojang/serialization/Codec;)Ljava/util/Optional;");
