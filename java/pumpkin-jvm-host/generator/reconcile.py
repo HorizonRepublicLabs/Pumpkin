@@ -14,6 +14,39 @@ edit gets re-thought, which is the whole point. regen.sh runs it.
 import os, re, sys
 
 ROOT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "shim", "src", "main", "java")
+# Files whose reconcile chains outgrew anchor-editing: the finished file lives under
+# generator/pinned/ and is installed wholesale. edit() skips them so stale anchors from
+# their history cannot abort a regeneration; hand-edit the pinned copy, not the chain.
+PINNED = {
+    "dev/pumpkin/bridge/PumpkinBlockDrops.java",
+    "dev/pumpkin/bridge/PumpkinBlockEntities.java",
+    "dev/pumpkin/bridge/PumpkinBonemeal.java",
+    "dev/pumpkin/bridge/PumpkinCapabilities.java",
+    "dev/pumpkin/bridge/PumpkinInteractions.java",
+    "dev/pumpkin/bridge/PumpkinLevel.java",
+    "dev/pumpkin/bridge/PumpkinMenus.java",
+    "dev/pumpkin/bridge/PumpkinMenusAccess.java",
+    "dev/pumpkin/bridge/PumpkinPlayer.java",
+    "dev/pumpkin/bridge/PumpkinRandomTicks.java",
+    "dev/pumpkin/bridge/PumpkinRecipes.java",
+    "dev/pumpkin/bridge/PumpkinScheduledTicks.java",
+    "dev/pumpkin/bridge/PumpkinTags.java",
+    "dev/pumpkin/bridge/PumpkinValueIO.java",
+    "net/minecraft/world/item/equipment/ArmorType.java",
+    "net/minecraft/world/level/block/entity/FuelValues.java",
+    "net/minecraft/world/level/block/state/BlockBehaviour.java",
+    "net/minecraft/world/level/material/Fluids.java",
+    "net/minecraft/world/level/material/MapColor.java",
+    "net/minecraft/world/phys/shapes/Shapes.java",
+    "net/neoforged/neoforge/common/ModConfigSpec.java",
+    "net/neoforged/neoforge/common/extensions/ILevelExtension.java",
+    "net/neoforged/neoforge/registries/RegistryBuilder.java",
+    "net/neoforged/neoforge/transfer/item/ItemResource.java",
+    "net/neoforged/neoforge/transfer/transaction/Transaction.java",
+}
+
+# The decompiled NeoForge checkout, a sibling of the Pumpkin repo.
+NEOFORGE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", "..", "..", "NeoForge")
 
 # Every edit is staged here and written only once all of them have succeeded. Applying
 # them one file at a time left a half-reconciled tree behind on any failure, and that tree
@@ -22,17 +55,35 @@ ROOT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "shim", "s
 PENDING = {}
 
 
+# Hand-written modules whose classes reconcile also touches; edit paths are recorded
+# relative to a source root, so resolution tries each module in turn.
+MODULE_ROOTS = [
+    ROOT,
+    os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "fml", "src", "main", "java"),
+    os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "host", "src", "main", "java"),
+]
+
+
 def edit(path, pairs, drop_imports=()):
+    # Older recordings carry the module prefix; strip to the source-root-relative form.
+    for prefix in ("shim/src/main/java/", "fml/src/main/java/", "host/src/main/java/"):
+        if path.startswith(prefix):
+            path = path[len(prefix):]
+            break
+    if path in PINNED:
+        return
+    # Only the regenerated roots replay: regen.sh wipes net/minecraft, net/neoforged
+    # and com/mojang under shim/, and nothing else. Edits recorded against files that
+    # survive regeneration (fml, host, dev/pumpkin) are already in place -- replaying
+    # them would double-apply additive chains.
+    if not path.startswith(("net/", "com/mojang/")):
+        return
     p = os.path.join(ROOT, path)
     s = PENDING.get(p, None)
     if s is None:
         s = open(p).read()
     for a, b in pairs:
         if a not in s:
-            # Bridge files survive regeneration untouched, so their recorded edits are
-            # already in place on replay; a pair whose replacement is present is done.
-            if b in s:
-                continue
             sys.exit("MISSING in %s:\n%s" % (path, a[:200]))
         s = s.replace(a, b, 1)
     for imp in drop_imports:
@@ -41,6 +92,9 @@ def edit(path, pairs, drop_imports=()):
 
 
 def commit():
+    pinned_root = os.path.join(os.path.dirname(os.path.abspath(__file__)), "pinned")
+    for pinned in PINNED:
+        PENDING[os.path.join(ROOT, pinned)] = open(os.path.join(pinned_root, pinned)).read()
     for p, s in PENDING.items():
         open(p, "w").write(s)
         print("reconciled", os.path.relpath(p, ROOT))
@@ -2940,8 +2994,8 @@ PENDING[_p] = _pattern.sub(_ec_replace, _s)
 # enum actually declares (the switch must stay exhaustive over what exists).
 _p = os.path.join(ROOT, "net/minecraft/world/item/DyeColor.java")
 _s = PENDING.get(_p) or open(_p).read()
-_dye_vanilla = open(os.path.join(os.path.dirname(ROOT),
-    "../../../NeoForge/projects/neoforge/src/main/java/net/minecraft/world/item/DyeColor.java")).read()
+_dye_vanilla = open(os.path.join(NEOFORGE,
+    "projects/neoforge/src/main/java/net/minecraft/world/item/DyeColor.java")).read()
 _dye_map = re.findall(r"([A-Z_]+)\(\d+, \"[a-z_]+\", \d+, MapColor\.([A-Z_0-9]+),", _dye_vanilla)
 _enum = re.search(r"public enum DyeColor[^{]*\{\n\n?    ([A-Z_, \n]+);", _s)
 _present = set(re.findall(r"[A-Z_]+", _enum.group(1)))
@@ -2969,8 +3023,8 @@ edit('net/neoforged/neoforge/registries/DeferredRegister.java', [
 # MapColor: vanilla (id, col) pairs, read from the decompiled source at reconcile time.
 _p = os.path.join(ROOT, "net/minecraft/world/level/material/MapColor.java")
 _s = PENDING.get(_p) or open(_p).read()
-_vanilla = open(os.path.join(os.path.dirname(ROOT),
-    "../../../NeoForge/projects/neoforge/src/main/java/net/minecraft/world/level/material/MapColor.java")).read()
+_vanilla = open(os.path.join(NEOFORGE,
+    "projects/neoforge/src/main/java/net/minecraft/world/level/material/MapColor.java")).read()
 _pairs = dict(re.findall(r"MapColor ([A-Z_0-9]+) = new MapColor\((\d+, -?\d+)\)", _vanilla))
 _m = re.search(r"    (?:private |public )?MapColor\(int [\w]+, int [\w]+\) \{\n    \}", _s)
 _ctor = """    // Pumpkin divergence: a map color really carries its packed rgb, and the id-indexed
@@ -3063,7 +3117,7 @@ PENDING[_p] = _s
 
 
 # ItemAbilities + NeoForgeRegistries.Keys: names from NeoForge's own tables.
-_nf = os.path.join(os.path.dirname(ROOT), "../../../NeoForge/src/main/java")
+_nf = os.path.join(NEOFORGE, "src/main/java")
 _vanilla = open(os.path.join(_nf, "net/neoforged/neoforge/common/ItemAbilities.java")).read()
 _table = dict(re.findall(r"([A-Z_0-9]+) = ItemAbility\.get\(\"([a-z_]+)\"\)", _vanilla))
 _p = os.path.join(ROOT, "net/neoforged/neoforge/common/ItemAbilities.java")
