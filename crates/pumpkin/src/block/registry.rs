@@ -180,7 +180,7 @@ use pumpkin_util::math::vector3::Vector3;
 use pumpkin_world::world::{BlockAccessor, BlockFlags};
 use rustc_hash::FxHashMap;
 use std::sync::Arc;
-use std::sync::RwLock;
+use std::sync::{Mutex, OnceLock};
 
 use super::BlockIsReplacing;
 use super::blocks::plant::crop::gourds::attached_stem::AttachedStemBlock;
@@ -457,17 +457,26 @@ impl BlockActionResult {
     }
 }
 
+/// One runtime-registered block's behaviour slot.
+type PluginBlockSlot = Option<Arc<dyn BlockBehaviour>>;
+
 pub struct BlockRegistry {
     block_indices: [u8; pumpkin_data::BlockId::BASE_COUNT as usize],
     behaviours: Vec<Arc<dyn BlockBehaviour>>,
     fluids: FxHashMap<u16, Arc<dyn FluidBehaviour>>,
     /// Behaviour for blocks registered at runtime, indexed by `id - base_block_count()`.
     ///
-    /// Kept apart from `blocks` because the registry is shared before plugins load, and
-    /// because every hook in this file asks for behaviour by block id: a registered block
-    /// that answers nothing here has no behaviour at all, which is what left one placed
-    /// with no block entity and never randomly ticked.
-    plugin_blocks: RwLock<Vec<Option<&'static Arc<dyn BlockBehaviour>>>>,
+    /// Kept apart from the generated index table because the registry is shared before
+    /// plugins load, and every hook in this file asks for behaviour by block id: a
+    /// registered block that answers nothing here has no behaviour at all, which is
+    /// what left one placed with no block entity and never randomly ticked.
+    ///
+    /// Two phases, mirroring the dynamic id registry itself: registrations collect in
+    /// `plugin_blocks_staging` while plugins load, and [`Self::freeze_plugin_blocks`]
+    /// publishes them -- alongside `pumpkin_data::dynamic::freeze()`, after which no
+    /// block can register -- into the immutable slab reads borrow from, lock-free.
+    plugin_blocks: OnceLock<Box<[PluginBlockSlot]>>,
+    plugin_blocks_staging: Mutex<Vec<PluginBlockSlot>>,
 }
 
 impl Default for BlockRegistry {
@@ -475,7 +484,8 @@ impl Default for BlockRegistry {
         Self {
             block_indices: [0xFF; pumpkin_data::BlockId::BASE_COUNT as usize],
             behaviours: Vec::new(),
-            plugin_blocks: RwLock::new(Vec::new()),
+            plugin_blocks: OnceLock::new(),
+            plugin_blocks_staging: Mutex::new(Vec::new()),
             fluids: FxHashMap::default(),
         }
     }
@@ -1282,10 +1292,7 @@ impl BlockRegistry {
         self.plugin_block(block)
     }
 
-    /// Behaviour for a block registered at runtime.
-    ///
-    /// The entry outlives the registry (leaked at registration), so the reference is
-    /// read out from behind the lock rather than borrowed through it.
+    /// Behaviour for a block registered at runtime, borrowed from the published slab.
     // Only reachable for runtime-registered content, so keep it out of the hot path's
     // instruction stream and let the generated-range branch fall through.
     #[cold]
@@ -1293,32 +1300,58 @@ impl BlockRegistry {
     fn plugin_block(&self, block: BlockId) -> Option<&Arc<dyn BlockBehaviour>> {
         let index = usize::from(block.as_u16())
             .checked_sub(usize::from(pumpkin_data::dynamic::base_block_count()))?;
-        let behaviours = self
-            .plugin_blocks
-            .read()
-            .unwrap_or_else(std::sync::PoisonError::into_inner);
-        behaviours.get(index).copied().flatten()
+        let Some(published) = self.plugin_blocks.get() else {
+            // Nothing should dispatch on a mod block before the load window closes;
+            // if something does, silence would present the block as behaviourless.
+            tracing::error!(
+                "behaviour for runtime block {} asked for before plugin registration froze",
+                block.as_u16()
+            );
+            return None;
+        };
+        published.get(index)?.as_ref()
     }
 
     /// Gives a block registered at runtime its behaviour.
     ///
-    /// Leaked on purpose, like the rest of a registration: the behaviour is read from every
-    /// hook in this file and outlives any one caller.
+    /// Only callable while plugins load: [`Self::freeze_plugin_blocks`] closes the
+    /// window, the same way `pumpkin_data::dynamic::freeze()` closes registration of
+    /// the ids themselves.
     pub fn set_plugin_block(&self, block: BlockId, behaviour: Arc<dyn BlockBehaviour>) {
         let Some(index) = usize::from(block.as_u16())
             .checked_sub(usize::from(pumpkin_data::dynamic::base_block_count()))
         else {
             return;
         };
-        let leaked: &'static Arc<dyn BlockBehaviour> = Box::leak(Box::new(behaviour));
-        let mut behaviours = self
-            .plugin_blocks
-            .write()
-            .unwrap_or_else(std::sync::PoisonError::into_inner);
-        if behaviours.len() <= index {
-            behaviours.resize(index + 1, None);
+        if self.plugin_blocks.get().is_some() {
+            tracing::error!(
+                "behaviour for runtime block {} registered after the freeze; it is dropped",
+                block.as_u16()
+            );
+            return;
         }
-        behaviours[index] = Some(leaked);
+        let mut staging = self
+            .plugin_blocks_staging
+            .lock()
+            .unwrap_or_else(std::sync::PoisonError::into_inner);
+        if staging.len() <= index {
+            staging.resize(index + 1, None);
+        }
+        staging[index] = Some(behaviour);
+    }
+
+    /// Publishes the staged runtime-block behaviours into the slab reads borrow from.
+    ///
+    /// Called alongside `pumpkin_data::dynamic::freeze()`; idempotent, and everything
+    /// staged afterwards is refused out loud by [`Self::set_plugin_block`].
+    pub fn freeze_plugin_blocks(&self) {
+        let staged = std::mem::take(
+            &mut *self
+                .plugin_blocks_staging
+                .lock()
+                .unwrap_or_else(std::sync::PoisonError::into_inner),
+        );
+        let _ = self.plugin_blocks.set(staged.into_boxed_slice());
     }
 
     #[must_use]
