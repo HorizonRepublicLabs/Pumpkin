@@ -28,6 +28,8 @@ PINNED = {
     "dev/pumpkin/bridge/PumpkinMenus.java",
     "dev/pumpkin/bridge/PumpkinMinecraftServer.java",
     "dev/pumpkin/bridge/PumpkinMenusAccess.java",
+    "dev/pumpkin/bridge/PumpkinRegistryLookup.java",
+    "dev/pumpkin/bridge/PumpkinRegistryTags.java",
     "dev/pumpkin/bridge/PumpkinPlacement.java",
     "dev/pumpkin/bridge/PumpkinPlayer.java",
     "dev/pumpkin/bridge/PumpkinRandomTicks.java",
@@ -5587,6 +5589,222 @@ edit("net/minecraft/world/level/block/Block.java", [
     // that threw here stopped every machine from ever being asked which way to face.
     public BlockState getStateForPlacement(BlockPlaceContext context) {
         return defaultBlockState();
+    }"""),
+])
+
+
+# ------------------------------------------------------------- ExtraCodecs lists
+# The last stubbed member a plain boot reached: Mekanism's robit skins are a datapack
+# registry whose codec wraps its layer list in nonEmptyList, so all thirteen entries
+# failed to decode over one missing bounds check. This is vanilla's own body.
+edit("net/minecraft/util/ExtraCodecs.java", [
+("""    // Pumpkin divergence: inert codec -- throws its key on first use.
+    public static <T> Codec<List<T>> nonEmptyList(Codec<List<T>> listCodec) {
+        return dev.pumpkin.shim.Stubs.throwingCodec("net/minecraft/util/ExtraCodecs.nonEmptyList:(Lcom/mojang/serialization/Codec;)Lcom/mojang/serialization/Codec;");
+    }""",
+"""    // Pumpkin divergence: real body -- vanilla's own emptiness check over the list.
+    public static <T> Codec<List<T>> nonEmptyList(Codec<List<T>> listCodec) {
+        return listCodec.validate(list -> list.isEmpty()
+                ? com.mojang.serialization.DataResult.error(() -> "List must have contents")
+                : com.mojang.serialization.DataResult.success(list));
+    }"""),
+])
+
+
+# ------------------------------------------------------------ tags over any registry
+# A mod can put tags on its own registries -- Mekanism ships
+# data/mekanism/tags/mekanism/upgrade/upgrade_support/default_machine.json, and every
+# machine asks for it to learn which upgrades it accepts. The lookup used to answer
+# "empty" on the belief that no tag file targets these registries, which is simply not
+# true, so every machine logged "Unable to find supported upgrades" and supported none.
+edit("net/minecraft/core/HolderSet.java", [
+("""    class Named<T> extends HolderSet.ListBacked<T> {
+
+        private final TagKey<T> key = null;
+
+        Named(HolderOwner<T> owner, TagKey<T> key) {
+        }
+
+        public TagKey<T> key() {
+            throw Unimplemented.forMember("net/minecraft/core/HolderSet$Named.key:()Lnet/minecraft/tags/TagKey;");
+        }
+
+        protected List<Holder<T>> contents() {
+            throw Unimplemented.forMember("net/minecraft/core/HolderSet$Named.contents:()Ljava/util/List;");
+        }""",
+"""    class Named<T> extends HolderSet.ListBacked<T> {
+
+        private final TagKey<T> key = null;
+
+        // Pumpkin divergence: a named set really carries its tag and its members, so a
+        // mod that looks a tag up can iterate what wears it.
+        private TagKey<T> pumpkinKey;
+
+        private List<Holder<T>> pumpkinContents = List.of();
+
+        /** The set a tag lookup answers with: the tag, and the holders wearing it. */
+        public static <T> HolderSet.Named<T> pumpkinOf(TagKey<T> key, List<Holder<T>> contents) {
+            HolderSet.Named<T> set = new HolderSet.Named<>(null, key);
+            set.pumpkinKey = key;
+            set.pumpkinContents = contents;
+            return set;
+        }
+
+        Named(HolderOwner<T> owner, TagKey<T> key) {
+        }
+
+        // Pumpkin divergence: real body.
+        public TagKey<T> key() {
+            return pumpkinKey;
+        }
+
+        // Pumpkin divergence: real body.
+        protected List<Holder<T>> contents() {
+            return pumpkinContents;
+        }"""),
+])
+
+
+
+edit("net/minecraft/core/Holder.java", [
+("""        public int hashCode() {
+            throw Unimplemented.forMember("net/minecraft/core/Holder$Reference.hashCode:()I");
+        }
+
+        public boolean equals(Object obj) {
+            throw Unimplemented.forMember("net/minecraft/core/Holder$Reference.equals:(Ljava/lang/Object;)Z");
+        }""",
+"""        // Pumpkin divergence: real bodies, keyed on what the reference points at.
+        //
+        // Vanilla gets away with identity here because a registry interns one reference
+        // per entry and hands the same object back every time. The bridge mints one per
+        // lookup instead, so identity would make two references to the same upgrade
+        // unequal -- and Mekanism keys an Object2IntMap of installed upgrades by holder,
+        // which then finds nothing. Two references naming the same registry entry are
+        // the same reference; where a key is absent, identity is all that is left.
+        public int hashCode() {
+            return key == null ? System.identityHashCode(this) : key.hashCode();
+        }
+
+        public boolean equals(Object obj) {
+            if (this == obj) {
+                return true;
+            }
+            return obj instanceof Holder.Reference<?> other
+                    && key != null && key.equals(other.key);
+        }"""),
+])
+
+
+edit("net/minecraft/resources/ResourceKey.java", [
+("""    // Pumpkin divergence: real body.
+    public int compareTo(ResourceKey<?> o) {""",
+"""    // Pumpkin divergence: real bodies. The comment above promises this contract, and
+    // without it two keys naming the same entry compared unequal -- vanilla interns its
+    // keys, so identity is enough there and nothing calls these directly, which is why
+    // the generator had pruned them.
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        return obj instanceof ResourceKey<?> other
+                && pumpkinRegistryName.equals(other.pumpkinRegistryName)
+                && identifier.equals(other.identifier);
+    }
+
+    @Override
+    public int hashCode() {
+        return 31 * pumpkinRegistryName.hashCode() + identifier.hashCode();
+    }
+
+    // Pumpkin divergence: real body.
+    public int compareTo(ResourceKey<?> o) {"""),
+])
+
+
+
+
+edit("net/minecraft/core/Holder.java", [
+("""        public boolean is(TagKey<T> tag) {
+            throw Unimplemented.forMember("net/minecraft/core/Holder$Reference.is:(Lnet/minecraft/tags/TagKey;)Z");
+        }""",
+"""        // Pumpkin divergence: real body -- asked of the same datapack tags a registry
+        // lookup reads, so "does this upgrade wear this tag" and "what wears this tag"
+        // cannot disagree.
+        public boolean is(TagKey<T> tag) {
+            if (key == null || tag == null || tag.location() == null) {
+                return false;
+            }
+            return dev.pumpkin.bridge.PumpkinRegistryTags.wears(
+                    key.pumpkinRegistry().toString(),
+                    tag.location().toString(),
+                    key.identifier().toString());
+        }"""),
+])
+
+
+# One registry lookup, two doors. A mod reaches its registries through
+# HolderLookup.Provider and through RegistryAccess; in vanilla the second returns a
+# subtype of the first, so both are the same object. Here both are proxies, and both now
+# answer from dev.pumpkin.bridge.PumpkinRegistryLookup -- including tags over a mod's own
+# registry, which is how a Mekanism machine learns which upgrades it accepts.
+edit("net/minecraft/core/HolderLookup.java", [
+("""        // Pumpkin divergence: answers key() and listElements() from what actually
+        // registered under that registry; every other member throws by name on use.
+        @SuppressWarnings({"unchecked", "rawtypes"})
+        default <T> HolderLookup.RegistryLookup<T> lookupOrThrow(ResourceKey<? extends Registry<? extends T>> key) {
+            return dev.pumpkin.shim.Stubs.of(HolderLookup.RegistryLookup.class,
+                "net/minecraft/core/HolderLookup$RegistryLookup(" + key.identifier() + ") via HolderLookup$Provider.lookupOrThrow",
+                java.util.Map.of(
+                    "key", key,
+                    "listElements", (dev.pumpkin.shim.Stubs.Dynamic) args ->
+                        net.neoforged.neoforge.registries.DeferredHolder.pumpkinAllFor(key.identifier().toString())
+                            .stream()
+                            .map(holder -> Holder.Reference.pumpkinOf((ResourceKey) holder.getKey(), holder.get())),
+                    // get(TagKey) answers empty -- no tag files target these registries;
+                    // get(ResourceKey) answers the registered holder when there is one.
+                    "get", (dev.pumpkin.shim.Stubs.Dynamic) args -> {
+                        if (args != null && args.length == 1
+                                && args[0] instanceof net.minecraft.resources.ResourceKey<?> valueKey) {
+                            for (net.neoforged.neoforge.registries.DeferredHolder<?, ?> holder
+                                    : net.neoforged.neoforge.registries.DeferredHolder
+                                            .pumpkinAllFor(key.identifier().toString())) {
+                                if (holder.getKey().equals(valueKey)) {
+                                    return java.util.Optional.of(Holder.Reference.pumpkinOf(
+                                            (ResourceKey) holder.getKey(), holder.get()));
+                                }
+                            }
+                        }
+                        return java.util.Optional.empty();
+                    }));
+        }""",
+"""        // Pumpkin divergence: answers key(), listElements() and get() from what
+        // actually registered under that registry; every other member throws by name.
+        // The answers live in one place so that this and RegistryAccess.lookupOrThrow --
+        // the same object in vanilla, two proxies here -- cannot disagree about what a
+        // registry contains.
+        @SuppressWarnings({"unchecked", "rawtypes"})
+        default <T> HolderLookup.RegistryLookup<T> lookupOrThrow(ResourceKey<? extends Registry<? extends T>> key) {
+            return dev.pumpkin.shim.Stubs.of(HolderLookup.RegistryLookup.class,
+                "net/minecraft/core/HolderLookup$RegistryLookup(" + key.identifier() + ") via HolderLookup$Provider.lookupOrThrow",
+                dev.pumpkin.bridge.PumpkinRegistryLookup.answersFor(key));
+        }"""),
+])
+
+edit("net/minecraft/core/RegistryAccess.java", [
+("""    default <E> Registry<E> lookupOrThrow(ResourceKey<? extends Registry<? extends E>> name) {
+        throw Unimplemented.forMember("net/minecraft/core/RegistryAccess.lookupOrThrow:(Lnet/minecraft/resources/ResourceKey;)Lnet/minecraft/core/Registry;");
+    }""",
+"""    // Pumpkin divergence: real body -- the same registry the HolderLookup door answers
+    // with, typed as a Registry. A machine's setLevel asks through this one; while it
+    // threw, every machine fell back to a half-built level and reported no supported
+    // upgrades.
+    @SuppressWarnings({"unchecked", "rawtypes"})
+    default <E> Registry<E> lookupOrThrow(ResourceKey<? extends Registry<? extends E>> name) {
+        return dev.pumpkin.shim.Stubs.of(Registry.class,
+                "net/minecraft/core/Registry(" + name.identifier() + ") via RegistryAccess.lookupOrThrow",
+                dev.pumpkin.bridge.PumpkinRegistryLookup.answersFor(name));
     }"""),
 ])
 

@@ -145,8 +145,17 @@ public interface Holder<T> extends IHolderExtension<T> {
             return this.key != null && this.key.equals(key);
         }
 
+        // Pumpkin divergence: real body -- asked of the same datapack tags a registry
+        // lookup reads, so "does this upgrade wear this tag" and "what wears this tag"
+        // cannot disagree.
         public boolean is(TagKey<T> tag) {
-            throw Unimplemented.forMember("net/minecraft/core/Holder$Reference.is:(Lnet/minecraft/tags/TagKey;)Z");
+            if (key == null || tag == null || tag.location() == null) {
+                return false;
+            }
+            return dev.pumpkin.bridge.PumpkinRegistryTags.wears(
+                    key.pumpkinRegistry().toString(),
+                    tag.location().toString(),
+                    key.identifier().toString());
         }
 
         public boolean is(Holder<T> holder) {
@@ -210,12 +219,24 @@ public interface Holder<T> extends IHolderExtension<T> {
             throw Unimplemented.forMember("net/minecraft/core/Holder$Reference.getKey:()Lnet/minecraft/resources/ResourceKey;");
         }
 
+        // Pumpkin divergence: real bodies, keyed on what the reference points at.
+        //
+        // Vanilla gets away with identity here because a registry interns one reference
+        // per entry and hands the same object back every time. The bridge mints one per
+        // lookup instead, so identity would make two references to the same upgrade
+        // unequal -- and Mekanism keys an Object2IntMap of installed upgrades by holder,
+        // which then finds nothing. Two references naming the same registry entry are
+        // the same reference; where a key is absent, identity is all that is left.
         public int hashCode() {
-            throw Unimplemented.forMember("net/minecraft/core/Holder$Reference.hashCode:()I");
+            return key == null ? System.identityHashCode(this) : key.hashCode();
         }
 
         public boolean equals(Object obj) {
-            throw Unimplemented.forMember("net/minecraft/core/Holder$Reference.equals:(Ljava/lang/Object;)Z");
+            if (this == obj) {
+                return true;
+            }
+            return obj instanceof Holder.Reference<?> other
+                    && key != null && key.equals(other.key);
         }
 
         public HolderLookup.RegistryLookup<T> unwrapLookup() {

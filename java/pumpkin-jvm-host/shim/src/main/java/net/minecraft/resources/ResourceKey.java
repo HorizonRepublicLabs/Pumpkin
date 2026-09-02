@@ -73,6 +73,25 @@ public class ResourceKey<T> implements Comparable<ResourceKey<?>> {
         return createRegistryKey(pumpkinRegistryName);
     }
 
+    // Pumpkin divergence: real bodies. The comment above promises this contract, and
+    // without it two keys naming the same entry compared unequal -- vanilla interns its
+    // keys, so identity is enough there and nothing calls these directly, which is why
+    // the generator had pruned them.
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        return obj instanceof ResourceKey<?> other
+                && pumpkinRegistryName.equals(other.pumpkinRegistryName)
+                && identifier.equals(other.identifier);
+    }
+
+    @Override
+    public int hashCode() {
+        return 31 * pumpkinRegistryName.hashCode() + identifier.hashCode();
+    }
+
     // Pumpkin divergence: real body.
     public int compareTo(ResourceKey<?> o) {
         int byRegistry = pumpkinRegistryName.compareTo(o.pumpkinRegistryName);

@@ -34,6 +34,16 @@ public final class PumpkinTags {
         return members("item", tag, new HashSet<>());
     }
 
+    /**
+     * Every id wearing the tag, for any tag kind.
+     *
+     * <p>The kind is the directory under {@code tags/}: {@code item}, {@code block}, and
+     * for a mod's own registry the registry id as a path ({@code mekanism/upgrade}).
+     */
+    public static Set<String> kindMembers(String kind, String tag) {
+        return members(kind, tag, new HashSet<>());
+    }
+
     /** Membership for any tag kind ("fluid", "entity_type", ...); same walk. */
     public static boolean containsKind(String kind, String tag, String id) {
         if (kind.equals("fluid")) {

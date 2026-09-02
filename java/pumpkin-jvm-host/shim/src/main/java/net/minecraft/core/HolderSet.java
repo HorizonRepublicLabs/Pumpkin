@@ -141,15 +141,31 @@ public interface HolderSet<T> extends Iterable<Holder<T>>, IHolderSetExtension<T
 
         private final TagKey<T> key = null;
 
+        // Pumpkin divergence: a named set really carries its tag and its members, so a
+        // mod that looks a tag up can iterate what wears it.
+        private TagKey<T> pumpkinKey;
+
+        private List<Holder<T>> pumpkinContents = List.of();
+
+        /** The set a tag lookup answers with: the tag, and the holders wearing it. */
+        public static <T> HolderSet.Named<T> pumpkinOf(TagKey<T> key, List<Holder<T>> contents) {
+            HolderSet.Named<T> set = new HolderSet.Named<>(null, key);
+            set.pumpkinKey = key;
+            set.pumpkinContents = contents;
+            return set;
+        }
+
         Named(HolderOwner<T> owner, TagKey<T> key) {
         }
 
+        // Pumpkin divergence: real body.
         public TagKey<T> key() {
-            throw Unimplemented.forMember("net/minecraft/core/HolderSet$Named.key:()Lnet/minecraft/tags/TagKey;");
+            return pumpkinKey;
         }
 
+        // Pumpkin divergence: real body.
         protected List<Holder<T>> contents() {
-            throw Unimplemented.forMember("net/minecraft/core/HolderSet$Named.contents:()Ljava/util/List;");
+            return pumpkinContents;
         }
 
         public boolean isBound() {

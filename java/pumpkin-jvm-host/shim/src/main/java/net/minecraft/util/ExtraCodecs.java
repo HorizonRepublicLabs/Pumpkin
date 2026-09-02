@@ -82,9 +82,11 @@ public class ExtraCodecs {
                         + " outside of range [" + minInclusive + ":" + maxInclusive + "]"));
     }
 
-    // Pumpkin divergence: inert codec -- throws its key on first use.
+    // Pumpkin divergence: real body -- vanilla's own emptiness check over the list.
     public static <T> Codec<List<T>> nonEmptyList(Codec<List<T>> listCodec) {
-        return dev.pumpkin.shim.Stubs.throwingCodec("net/minecraft/util/ExtraCodecs.nonEmptyList:(Lcom/mojang/serialization/Codec;)Lcom/mojang/serialization/Codec;");
+        return listCodec.validate(list -> list.isEmpty()
+                ? com.mojang.serialization.DataResult.error(() -> "List must have contents")
+                : com.mojang.serialization.DataResult.success(list));
     }
 
     // Pumpkin divergence: inert codec -- throws its key on first use.

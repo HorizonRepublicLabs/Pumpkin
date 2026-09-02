@@ -13,8 +13,15 @@ public interface RegistryAccess extends HolderLookup.Provider {
 
     <E> Optional<Registry<E>> lookup(final ResourceKey<? extends Registry<? extends E>> registryKey);
 
+    // Pumpkin divergence: real body -- the same registry the HolderLookup door answers
+    // with, typed as a Registry. A machine's setLevel asks through this one; while it
+    // threw, every machine fell back to a half-built level and reported no supported
+    // upgrades.
+    @SuppressWarnings({"unchecked", "rawtypes"})
     default <E> Registry<E> lookupOrThrow(ResourceKey<? extends Registry<? extends E>> name) {
-        throw Unimplemented.forMember("net/minecraft/core/RegistryAccess.lookupOrThrow:(Lnet/minecraft/resources/ResourceKey;)Lnet/minecraft/core/Registry;");
+        return dev.pumpkin.shim.Stubs.of(Registry.class,
+                "net/minecraft/core/Registry(" + name.identifier() + ") via RegistryAccess.lookupOrThrow",
+                dev.pumpkin.bridge.PumpkinRegistryLookup.answersFor(name));
     }
 
     Stream<RegistryAccess.RegistryEntry<?>> registries();

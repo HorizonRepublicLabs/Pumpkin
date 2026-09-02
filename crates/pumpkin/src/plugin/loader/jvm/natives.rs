@@ -192,8 +192,20 @@ extern "system" fn register_block_with_states_native(
     else {
         return 0;
     };
-    // "name:v|v|v;name:v|v" -- one BlockProperty per declaration, order preserved,
-    // because state numbering is the product of the declarations in order.
+    // "name:v|v|v;name:v|v@name=v,name=v" -- one BlockProperty per declaration, order
+    // preserved because state numbering is the product of the declarations in order, and
+    // behind the '@' the state the mod registered as its default.
+    //
+    // Splitting the '@' half off first is not optional: the sink has always sent it, and
+    // reading the whole string as properties glued it onto the last declared property's
+    // last value ("east@active=false,facing=north"). That value could then never be
+    // selected -- a machine asked to face east was placed facing north -- and which value
+    // was ruined moved with the mod's own iteration order, so it looked like flakiness.
+    let (properties_spec, defaults_spec) = properties_spec
+        .split_once('@')
+        .map_or((properties_spec.as_str(), ""), |(names, defaults)| {
+            (names, defaults)
+        });
     let properties: Vec<crate::plugin::host::registry::BlockProperty> = properties_spec
         .split(';')
         .filter(|entry| !entry.is_empty())
@@ -205,15 +217,44 @@ extern "system" fn register_block_with_states_native(
             })
         })
         .collect();
+    let default_state = default_state_index(&properties, defaults_spec);
     register_block_impl_with(
         &mut env,
         &id,
         &template,
-        (!destroy_time.is_nan()).then_some(destroy_time),
-        (!explosion_resistance.is_nan()).then_some(explosion_resistance),
-        Some(requires_tool != 0),
-        properties,
+        BlockShape {
+            hardness: (!destroy_time.is_nan()).then_some(destroy_time),
+            blast_resistance: (!explosion_resistance.is_nan()).then_some(explosion_resistance),
+            requires_tool: Some(requires_tool != 0),
+            properties,
+            default_state,
+        },
     )
+}
+
+/// Which state a block is placed in, from the `name=value,name=value` the sink sends.
+///
+/// The same mixed-radix numbering the states themselves use: the first declared property
+/// varies slowest. A property the defaults do not name, or a value that is not one of the
+/// declared ones, keeps that digit at zero -- the same thing an absent default means.
+fn default_state_index(
+    properties: &[crate::plugin::host::registry::BlockProperty],
+    defaults_spec: &str,
+) -> u32 {
+    let defaults: Vec<(&str, &str)> = defaults_spec
+        .split(',')
+        .filter_map(|pair| pair.split_once('='))
+        .collect();
+    let mut index = 0usize;
+    for property in properties {
+        index *= property.values.len().max(1);
+        if let Some((_, wanted)) = defaults.iter().find(|(name, _)| *name == property.name)
+            && let Some(position) = property.values.iter().position(|value| value == wanted)
+        {
+            index += position;
+        }
+    }
+    u32::try_from(index).unwrap_or(0)
 }
 
 extern "system" fn register_block_native(
@@ -237,21 +278,30 @@ fn register_block_impl(
         env,
         id,
         template,
-        hardness,
-        blast_resistance,
-        requires_tool,
-        Vec::new(),
+        BlockShape {
+            hardness,
+            blast_resistance,
+            requires_tool,
+            properties: Vec::new(),
+            default_state: 0,
+        },
     )
+}
+
+/// Everything about a block beyond its id and template, as the sink describes it.
+struct BlockShape {
+    hardness: Option<f32>,
+    blast_resistance: Option<f32>,
+    requires_tool: Option<bool>,
+    properties: Vec<crate::plugin::host::registry::BlockProperty>,
+    default_state: u32,
 }
 
 fn register_block_impl_with(
     env: &mut JNIEnv,
     id: &JString,
     template: &JString,
-    hardness: Option<f32>,
-    blast_resistance: Option<f32>,
-    requires_tool: Option<bool>,
-    properties: Vec<crate::plugin::host::registry::BlockProperty>,
+    shape: BlockShape,
 ) -> jint {
     let Some(id) = read_string(env, id, "the block id") else {
         return 0;
@@ -263,12 +313,12 @@ fn register_block_impl_with(
     let spec = BlockSpec {
         id,
         template,
-        hardness,
-        blast_resistance,
+        hardness: shape.hardness,
+        blast_resistance: shape.blast_resistance,
         luminance: None,
-        requires_tool,
-        properties,
-        default_state: 0,
+        requires_tool: shape.requires_tool,
+        properties: shape.properties,
+        default_state: shape.default_state,
         item: None,
         drops: Vec::new(),
         block_entity: None,

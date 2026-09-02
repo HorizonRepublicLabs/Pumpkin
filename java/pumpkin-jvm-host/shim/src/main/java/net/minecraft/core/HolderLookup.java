@@ -24,34 +24,16 @@ public interface HolderLookup<T> extends HolderGetter<T> {
 
         <T> Optional<? extends HolderLookup.RegistryLookup<T>> lookup(final ResourceKey<? extends Registry<? extends T>> key);
 
-        // Pumpkin divergence: answers key() and listElements() from what actually
-        // registered under that registry; every other member throws by name on use.
+        // Pumpkin divergence: answers key(), listElements() and get() from what
+        // actually registered under that registry; every other member throws by name.
+        // The answers live in one place so that this and RegistryAccess.lookupOrThrow --
+        // the same object in vanilla, two proxies here -- cannot disagree about what a
+        // registry contains.
         @SuppressWarnings({"unchecked", "rawtypes"})
         default <T> HolderLookup.RegistryLookup<T> lookupOrThrow(ResourceKey<? extends Registry<? extends T>> key) {
             return dev.pumpkin.shim.Stubs.of(HolderLookup.RegistryLookup.class,
                 "net/minecraft/core/HolderLookup$RegistryLookup(" + key.identifier() + ") via HolderLookup$Provider.lookupOrThrow",
-                java.util.Map.of(
-                    "key", key,
-                    "listElements", (dev.pumpkin.shim.Stubs.Dynamic) args ->
-                        net.neoforged.neoforge.registries.DeferredHolder.pumpkinAllFor(key.identifier().toString())
-                            .stream()
-                            .map(holder -> Holder.Reference.pumpkinOf((ResourceKey) holder.getKey(), holder.get())),
-                    // get(TagKey) answers empty -- no tag files target these registries;
-                    // get(ResourceKey) answers the registered holder when there is one.
-                    "get", (dev.pumpkin.shim.Stubs.Dynamic) args -> {
-                        if (args != null && args.length == 1
-                                && args[0] instanceof net.minecraft.resources.ResourceKey<?> valueKey) {
-                            for (net.neoforged.neoforge.registries.DeferredHolder<?, ?> holder
-                                    : net.neoforged.neoforge.registries.DeferredHolder
-                                            .pumpkinAllFor(key.identifier().toString())) {
-                                if (holder.getKey().equals(valueKey)) {
-                                    return java.util.Optional.of(Holder.Reference.pumpkinOf(
-                                            (ResourceKey) holder.getKey(), holder.get()));
-                                }
-                            }
-                        }
-                        return java.util.Optional.empty();
-                    }));
+                dev.pumpkin.bridge.PumpkinRegistryLookup.answersFor(key));
         }
 
         default <V> RegistryOps<V> createSerializationContext(DynamicOps<V> parent) {
