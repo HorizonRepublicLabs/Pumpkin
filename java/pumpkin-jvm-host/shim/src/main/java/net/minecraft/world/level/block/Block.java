@@ -170,8 +170,12 @@ public class Block extends BlockBehaviour implements ItemLike, IBlockExtension {
         throw Unimplemented.forMember("net/minecraft/world/level/block/Block.getExplosionResistance:()F");
     }
 
+    // Pumpkin divergence: real body, and it is vanilla's own -- a block that does not
+    // care where it faces is placed in its default state. Mekanism reaches it through
+    // super.getStateForPlacement before applying its facing attribute on top, so a stub
+    // that threw here stopped every machine from ever being asked which way to face.
     public BlockState getStateForPlacement(BlockPlaceContext context) {
-        throw Unimplemented.forMember("net/minecraft/world/level/block/Block.getStateForPlacement:(Lnet/minecraft/world/item/context/BlockPlaceContext;)Lnet/minecraft/world/level/block/state/BlockState;");
+        return defaultBlockState();
     }
 
     public void playerDestroy(Level level, Player player, BlockPos pos, BlockState state, BlockEntity blockEntity, ItemStack destroyedWith) {

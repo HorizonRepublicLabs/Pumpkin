@@ -28,6 +28,7 @@ PINNED = {
     "dev/pumpkin/bridge/PumpkinMenus.java",
     "dev/pumpkin/bridge/PumpkinMinecraftServer.java",
     "dev/pumpkin/bridge/PumpkinMenusAccess.java",
+    "dev/pumpkin/bridge/PumpkinPlacement.java",
     "dev/pumpkin/bridge/PumpkinPlayer.java",
     "dev/pumpkin/bridge/PumpkinRandomTicks.java",
     "dev/pumpkin/bridge/PumpkinRecipes.java",
@@ -5487,6 +5488,107 @@ edit("net/neoforged/neoforge/network/PacketDistributor.java", [
         pumpkinDrop(payload, payloads);
     }"""),
 ], drop_imports=("import dev.pumpkin.shim.Unimplemented;\n",))
+
+
+# ------------------------------------------------- UseOnContext / BlockPlaceContext
+# What a mod reads off a placement: where the click landed, which face, who placed it,
+# and the level it happened in. Mekanism's BlockStateHelper.getStateForPlacementNN asks
+# for exactly those four and nothing else, so those four carry real values and the rest
+# still refuses -- a stub that answered them with guesses would decide a machine's facing
+# without ever consulting the player who placed it.
+edit("net/minecraft/world/item/context/UseOnContext.java", [
+("""public class UseOnContext {
+""",
+"""public class UseOnContext {
+
+    // Pumpkin divergence: the fields behind the real getters below. The bridge fills
+    // them in through pumpkinSet before handing the context to the mod.
+    protected net.minecraft.core.BlockPos pumpkinClickedPos;
+
+    protected Direction pumpkinClickedFace;
+
+    protected Player pumpkinPlayer;
+
+    protected ItemStack pumpkinItemInHand;
+
+    public void pumpkinSet(net.minecraft.core.BlockPos clickedPos, Direction clickedFace,
+            Player player, ItemStack itemInHand) {
+        this.pumpkinClickedPos = clickedPos;
+        this.pumpkinClickedFace = clickedFace;
+        this.pumpkinPlayer = player;
+        this.pumpkinItemInHand = itemInHand;
+    }
+"""),
+("""    public BlockPos getClickedPos() {
+        throw Unimplemented.forMember("net/minecraft/world/item/context/UseOnContext.getClickedPos:()Lnet/minecraft/core/BlockPos;");
+    }""",
+"""    // Pumpkin divergence: real body.
+    public BlockPos getClickedPos() {
+        return pumpkinClickedPos;
+    }"""),
+("""    public Direction getClickedFace() {
+        throw Unimplemented.forMember("net/minecraft/world/item/context/UseOnContext.getClickedFace:()Lnet/minecraft/core/Direction;");
+    }""",
+"""    // Pumpkin divergence: real body.
+    public Direction getClickedFace() {
+        return pumpkinClickedFace;
+    }"""),
+("""    public ItemStack getItemInHand() {
+        throw Unimplemented.forMember("net/minecraft/world/item/context/UseOnContext.getItemInHand:()Lnet/minecraft/world/item/ItemStack;");
+    }""",
+"""    // Pumpkin divergence: real body.
+    public ItemStack getItemInHand() {
+        return pumpkinItemInHand;
+    }"""),
+("""    public Player getPlayer() {
+        throw Unimplemented.forMember("net/minecraft/world/item/context/UseOnContext.getPlayer:()Lnet/minecraft/world/entity/player/Player;");
+    }""",
+"""    // Pumpkin divergence: real body.
+    public Player getPlayer() {
+        return pumpkinPlayer;
+    }"""),
+("""    public Level getLevel() {
+        throw Unimplemented.forMember("net/minecraft/world/item/context/UseOnContext.getLevel:()Lnet/minecraft/world/level/Level;");
+    }""",
+"""    // Pumpkin divergence: real body -- the shared stand-in level.
+    public Level getLevel() {
+        return dev.pumpkin.bridge.PumpkinInteractions.pumpkinLevel();
+    }"""),
+("""    public Direction getHorizontalDirection() {
+        throw Unimplemented.forMember("net/minecraft/world/item/context/UseOnContext.getHorizontalDirection:()Lnet/minecraft/core/Direction;");
+    }""",
+"""    // Pumpkin divergence: real body -- the placer's facing, from their yaw.
+    public Direction getHorizontalDirection() {
+        return Direction.fromYRot(pumpkinPlayer.getYRot());
+    }"""),
+])
+
+edit("net/minecraft/world/item/context/BlockPlaceContext.java", [
+("""    public BlockPos getClickedPos() {
+        throw Unimplemented.forMember("net/minecraft/world/item/context/BlockPlaceContext.getClickedPos:()Lnet/minecraft/core/BlockPos;");
+    }""",
+"""    // Pumpkin divergence: real body. Vanilla answers the neighbour position when the
+    // clicked block is not replaceable; the bridge is told the position the block is
+    // actually going into, so there is nothing left to work out here.
+    public BlockPos getClickedPos() {
+        return pumpkinClickedPos;
+    }"""),
+])
+
+
+# ---------------------------------------------------------------- Block placement
+edit("net/minecraft/world/level/block/Block.java", [
+("""    public BlockState getStateForPlacement(BlockPlaceContext context) {
+        throw Unimplemented.forMember("net/minecraft/world/level/block/Block.getStateForPlacement:(Lnet/minecraft/world/item/context/BlockPlaceContext;)Lnet/minecraft/world/level/block/state/BlockState;");
+    }""",
+"""    // Pumpkin divergence: real body, and it is vanilla's own -- a block that does not
+    // care where it faces is placed in its default state. Mekanism reaches it through
+    // super.getStateForPlacement before applying its facing attribute on top, so a stub
+    // that threw here stopped every machine from ever being asked which way to face.
+    public BlockState getStateForPlacement(BlockPlaceContext context) {
+        return defaultBlockState();
+    }"""),
+])
 
 
 commit()

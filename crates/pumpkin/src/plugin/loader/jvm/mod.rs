@@ -1251,6 +1251,66 @@ fn call_tick_block(vm: &vm::ModVm, args: TickCall) -> Result<String, VmError> {
     })
 }
 
+/// What a placement asks the mod, gathered before crossing into the VM.
+struct PlacementCall {
+    block_name: String,
+    position: (i32, i32, i32),
+    face: String,
+    yaw: f32,
+    pitch: f32,
+    sneaking: bool,
+    held_id: String,
+    held_count: i32,
+    player_uuid: String,
+}
+
+fn call_state_for_placement(vm: &vm::ModVm, args: PlacementCall) -> Result<String, VmError> {
+    let (x, y, z) = args.position;
+    vm.call(move |env| {
+            let block = env
+                .new_string(&args.block_name)
+                .map_err(|err| VmError::Java(err.to_string()))?;
+            let face = env
+                .new_string(&args.face)
+                .map_err(|err| VmError::Java(err.to_string()))?;
+            let held = env
+                .new_string(&args.held_id)
+                .map_err(|err| VmError::Java(err.to_string()))?;
+            let uuid = env
+                .new_string(&args.player_uuid)
+                .map_err(|err| VmError::Java(err.to_string()))?;
+            let returned = env.call_static_method(
+                "dev/pumpkin/bridge/PumpkinPlacement",
+                "stateForPlacement",
+                "(Ljava/lang/String;IIILjava/lang/String;FFZLjava/lang/String;ILjava/lang/String;)Ljava/lang/String;",
+                &[
+                    (&block).into(),
+                    x.into(),
+                    y.into(),
+                    z.into(),
+                    (&face).into(),
+                    args.yaw.into(),
+                    args.pitch.into(),
+                    args.sneaking.into(),
+                    (&held).into(),
+                    args.held_count.into(),
+                    (&uuid).into(),
+                ],
+            );
+            if env.exception_check().unwrap_or(false) {
+                let _ = env.exception_describe();
+                let _ = env.exception_clear();
+                return Err(VmError::Java("getStateForPlacement threw".into()));
+            }
+            let object = returned
+                .and_then(jni::objects::JValueGen::l)
+                .map_err(|err| VmError::Java(err.to_string()))?;
+            env.get_string(&jni::objects::JString::from(object))
+                .map(Into::into)
+                .map_err(|err| VmError::Java(err.to_string()))
+    })
+}
+
 fn install_jvm_tick_hook() {
     static WARNED: std::sync::Mutex<Option<std::collections::HashSet<String>>> =
         std::sync::Mutex::new(None);
@@ -1778,6 +1838,102 @@ impl crate::block::BlockBehaviour for JvmBlockBehaviour {
             }
         }
         self.inner.on_neighbor_update(args);
+    }
+
+    /// The state the mod's block wants, instead of the state Pumpkin would default to.
+    ///
+    /// A machine's facing is load-bearing -- its side configuration is written as front,
+    /// back and sides, so a machine that goes down facing the wrong way takes items in on
+    /// the wrong face. Which way "the right way" is depends on the block, and mods
+    /// disagree, so the block decides: this asks its own `getStateForPlacement` with the
+    /// clicked face and the placer's aim, and maps whatever properties come back onto one
+    /// of the states Pumpkin registered for it.
+    fn on_place(&self, args: crate::block::OnPlaceArgs<'_>) -> pumpkin_data::BlockStateId {
+        let default = args.block.default_state.id;
+        let Some(vm) = vm::current() else {
+            return default;
+        };
+        let (x, y, z) = (args.position.0.x, args.position.0.y, args.position.0.z);
+        // The bridge spells directions the way a blockstate does; Direction's own
+        // serialized names on the Java side are the same six words.
+        let face = match args.direction {
+            pumpkin_data::BlockDirection::Down => "down",
+            pumpkin_data::BlockDirection::Up => "up",
+            pumpkin_data::BlockDirection::North => "north",
+            pumpkin_data::BlockDirection::South => "south",
+            pumpkin_data::BlockDirection::West => "west",
+            pumpkin_data::BlockDirection::East => "east",
+        }
+        .to_string();
+        let yaw = args.player.living_entity.entity.yaw.load();
+        let pitch = args.player.living_entity.entity.pitch.load();
+        let sneaking = args
+            .player
+            .living_entity
+            .entity
+            .sneaking
+            .load(std::sync::atomic::Ordering::Relaxed);
+        let player_uuid = args.player.gameprofile.id.to_string();
+        let held = args.player.inventory().held_item();
+        let (held_id, held_count) = if held.item_count > 0 {
+            let key = held.item.registry_key;
+            let id = if key.contains(':') {
+                key.to_string()
+            } else {
+                format!("minecraft:{key}")
+            };
+            (id, i32::from(held.item_count))
+        } else {
+            (String::new(), 0)
+        };
+        let block_name = self.block_name.clone();
+
+        let reply = call_state_for_placement(
+            vm,
+            PlacementCall {
+                block_name,
+                position: (x, y, z),
+                face,
+                yaw,
+                pitch,
+                sneaking,
+                held_id,
+                held_count,
+                player_uuid,
+            },
+        );
+        let reply = match reply {
+            Ok(reply) => reply,
+            Err(err) => {
+                // The mod could not answer, so the block goes down in its default state
+                // -- and that is worth saying, because a machine facing the wrong way
+                // looks like a side-configuration bug rather than a failed call.
+                tracing::warn!(
+                    "{}: getStateForPlacement stopped in the mod ({err}); \
+                     placing it in its default state",
+                    self.block_name
+                );
+                return default;
+            }
+        };
+        let Some(spec) = reply.strip_prefix("STATE=") else {
+            return default;
+        };
+        if spec == "default" || spec.is_empty() {
+            return default;
+        }
+        let values: Vec<(&str, &str)> = spec
+            .split(',')
+            .filter_map(|pair| pair.split_once('='))
+            .collect();
+        pumpkin_data::dynamic::block_state_for(self.block_id, &values).unwrap_or_else(|| {
+            tracing::warn!(
+                "{}: the mod placed it as {spec}, which is not one of its registered \
+                 states; placing it in its default state",
+                self.block_name
+            );
+            default
+        })
     }
 
     fn player_placed(&self, args: crate::block::PlayerPlacedArgs<'_>) {

@@ -39,7 +39,7 @@ public final class PumpkinInteractions {
     private static final PumpkinLevel LEVEL = new PumpkinLevel();
 
     /** The shared level, for the entity registry to attach at creation. */
-    static PumpkinLevel pumpkinLevel() {
+    public static PumpkinLevel pumpkinLevel() {
         return LEVEL;
     }
 

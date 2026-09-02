@@ -32,6 +32,31 @@ public final class PumpkinPlayer extends net.minecraft.world.entity.player.Playe
         return pumpkinSneaking;
     }
 
+    // Pumpkin divergence: where the player is looking, carried over the bridge.
+    // A block that faces the placer reads exactly these two: Mekanism's facing
+    // attribute rounds getXRot to decide floor/ceiling placement and floors getYRot
+    // into one of four horizontals. Left unset they stay at zero, which reads as
+    // "looking due south, level" -- so the bridge sets them on every placement rather
+    // than letting a default stand in for a real player's aim.
+    private float pumpkinYRot;
+
+    private float pumpkinXRot;
+
+    public void pumpkinSetRotation(float yRot, float xRot) {
+        this.pumpkinYRot = yRot;
+        this.pumpkinXRot = xRot;
+    }
+
+    @Override
+    public float getYRot() {
+        return pumpkinYRot;
+    }
+
+    @Override
+    public float getXRot() {
+        return pumpkinXRot;
+    }
+
     // Pumpkin divergence: the real UUID of the interacting player, carried over the
     // bridge -- mod machines record it as the owner.
     private java.util.UUID pumpkinUuid;

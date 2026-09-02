@@ -24,8 +24,11 @@ public class BlockPlaceContext extends UseOnContext {
         throw Unimplemented.forMember("net/minecraft/world/item/context/BlockPlaceContext.at:(Lnet/minecraft/world/item/context/BlockPlaceContext;Lnet/minecraft/core/BlockPos;Lnet/minecraft/core/Direction;)Lnet/minecraft/world/item/context/BlockPlaceContext;");
     }
 
+    // Pumpkin divergence: real body. Vanilla answers the neighbour position when the
+    // clicked block is not replaceable; the bridge is told the position the block is
+    // actually going into, so there is nothing left to work out here.
     public BlockPos getClickedPos() {
-        throw Unimplemented.forMember("net/minecraft/world/item/context/BlockPlaceContext.getClickedPos:()Lnet/minecraft/core/BlockPos;");
+        return pumpkinClickedPos;
     }
 
     public boolean replacingClickedOnBlock() {

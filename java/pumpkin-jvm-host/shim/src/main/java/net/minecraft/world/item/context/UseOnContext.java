@@ -12,18 +12,38 @@ import dev.pumpkin.shim.Unimplemented;
 
 public class UseOnContext {
 
+    // Pumpkin divergence: the fields behind the real getters below. The bridge fills
+    // them in through pumpkinSet before handing the context to the mod.
+    protected net.minecraft.core.BlockPos pumpkinClickedPos;
+
+    protected Direction pumpkinClickedFace;
+
+    protected Player pumpkinPlayer;
+
+    protected ItemStack pumpkinItemInHand;
+
+    public void pumpkinSet(net.minecraft.core.BlockPos clickedPos, Direction clickedFace,
+            Player player, ItemStack itemInHand) {
+        this.pumpkinClickedPos = clickedPos;
+        this.pumpkinClickedFace = clickedFace;
+        this.pumpkinPlayer = player;
+        this.pumpkinItemInHand = itemInHand;
+    }
+
     public UseOnContext(Player player, InteractionHand hand, BlockHitResult hitResult) {
     }
 
     public UseOnContext(Level level, Player player, InteractionHand hand, ItemStack itemStack, BlockHitResult hitResult) {
     }
 
+    // Pumpkin divergence: real body.
     public BlockPos getClickedPos() {
-        throw Unimplemented.forMember("net/minecraft/world/item/context/UseOnContext.getClickedPos:()Lnet/minecraft/core/BlockPos;");
+        return pumpkinClickedPos;
     }
 
+    // Pumpkin divergence: real body.
     public Direction getClickedFace() {
-        throw Unimplemented.forMember("net/minecraft/world/item/context/UseOnContext.getClickedFace:()Lnet/minecraft/core/Direction;");
+        return pumpkinClickedFace;
     }
 
     public Vec3 getClickLocation() {
@@ -34,24 +54,28 @@ public class UseOnContext {
         throw Unimplemented.forMember("net/minecraft/world/item/context/UseOnContext.isInside:()Z");
     }
 
+    // Pumpkin divergence: real body.
     public ItemStack getItemInHand() {
-        throw Unimplemented.forMember("net/minecraft/world/item/context/UseOnContext.getItemInHand:()Lnet/minecraft/world/item/ItemStack;");
+        return pumpkinItemInHand;
     }
 
+    // Pumpkin divergence: real body.
     public Player getPlayer() {
-        throw Unimplemented.forMember("net/minecraft/world/item/context/UseOnContext.getPlayer:()Lnet/minecraft/world/entity/player/Player;");
+        return pumpkinPlayer;
     }
 
     public InteractionHand getHand() {
         throw Unimplemented.forMember("net/minecraft/world/item/context/UseOnContext.getHand:()Lnet/minecraft/world/InteractionHand;");
     }
 
+    // Pumpkin divergence: real body -- the shared stand-in level.
     public Level getLevel() {
-        throw Unimplemented.forMember("net/minecraft/world/item/context/UseOnContext.getLevel:()Lnet/minecraft/world/level/Level;");
+        return dev.pumpkin.bridge.PumpkinInteractions.pumpkinLevel();
     }
 
+    // Pumpkin divergence: real body -- the placer's facing, from their yaw.
     public Direction getHorizontalDirection() {
-        throw Unimplemented.forMember("net/minecraft/world/item/context/UseOnContext.getHorizontalDirection:()Lnet/minecraft/core/Direction;");
+        return Direction.fromYRot(pumpkinPlayer.getYRot());
     }
 
     public UseOnContext() {
