@@ -8,7 +8,7 @@ pub mod vm;
 use std::{
     any::Any,
     path::{Path, PathBuf},
-    sync::Arc,
+    sync::{Arc, Weak},
 };
 
 use crate::plugin::{
@@ -778,54 +778,7 @@ fn apply_interaction_reply(
             // What the mod took out of an adjacent vanilla container this tick.
             apply_vanilla_pulls(world, spec);
         } else if let Some(spec) = part.strip_prefix("EJECT=") {
-            // The mod pushed items into what it saw as an adjacent container; land them
-            // in the real one, first-fit, and drop what genuinely does not fit.
-            for entry in spec.split(',').filter(|entry| !entry.is_empty()) {
-                let Some((coords, stack_spec)) = entry.split_once('|') else {
-                    continue;
-                };
-                let parts: Vec<i32> = coords.split('/').filter_map(|c| c.parse().ok()).collect();
-                let Some(stack) = parse_stack(stack_spec) else {
-                    continue;
-                };
-                if parts.len() != 3 || stack.is_empty() {
-                    continue;
-                }
-                let target = pumpkin_util::math::position::BlockPos(
-                    pumpkin_util::math::vector3::Vector3::new(parts[0], parts[1], parts[2]),
-                );
-                let mut remaining = stack;
-                if let Some(entity) = world.get_block_entity(&target)
-                    && let Some(container) = entity.get_inventory()
-                {
-                    for slot in 0..container.size() {
-                        if remaining.is_empty() {
-                            break;
-                        }
-                        let existing = container.get_stack(slot);
-                        if existing.is_empty() {
-                            container.set_stack(slot, remaining.clone());
-                            remaining = ItemStack::EMPTY.clone();
-                        } else if existing.item.id == remaining.item.id {
-                            let room = existing.get_max_stack_size() - existing.item_count;
-                            if room > 0 {
-                                let moved = room.min(remaining.item_count);
-                                let mut grown = existing.clone();
-                                grown.item_count += moved;
-                                container.set_stack(slot, grown);
-                                remaining.item_count -= moved;
-                                if remaining.item_count == 0 {
-                                    remaining = ItemStack::EMPTY.clone();
-                                }
-                            }
-                        }
-                    }
-                    container.mark_dirty();
-                }
-                if !remaining.is_empty() {
-                    world.drop_stack(&target, remaining);
-                }
-            }
+            apply_vanilla_pushes(world, spec);
         } else if let Some(spec) = part.strip_prefix("DROPS=") {
             for drop in spec.split(',').filter(|drop| !drop.is_empty()) {
                 if let Some(stack) = parse_stack(drop) {
@@ -910,6 +863,7 @@ fn vanilla_container_contents(
         else {
             continue;
         };
+        remember_container_world(&neighbor, world);
         let mut slots: Vec<String> = Vec::new();
         for slot in 0..container.size() {
             let stack = container.get_stack(slot);
@@ -944,6 +898,131 @@ fn vanilla_container_contents(
 /// container. A slot that no longer holds what the mod took (something else moved it
 /// between the snapshot and now) is left alone and said out loud -- silently deleting a
 /// different item would be worse than the pull failing.
+/// The world each vanilla container the bridge told a mod about belongs to.
+///
+/// A mod may move items in or out of one of those containers outside any block's ticker
+/// -- Mekanism's transmitter networks run on the server tick event, and the transporters
+/// they carry have no `BlockEntityTicker` at all -- so the reply reporting the move
+/// arrives with no block, and therefore no world, attached. The bridge's entry format
+/// carries a position but no dimension, so the world is remembered here at the moment
+/// the container is published instead of being guessed at afterwards.
+type ContainerWorlds = std::collections::HashMap<(i32, i32, i32), Weak<crate::world::World>>;
+static CONTAINER_WORLDS: std::sync::Mutex<Option<ContainerWorlds>> = std::sync::Mutex::new(None);
+
+fn remember_container_world(
+    position: &pumpkin_util::math::position::BlockPos,
+    world: &Arc<crate::world::World>,
+) {
+    let key = (position.0.x, position.0.y, position.0.z);
+    let mut worlds = CONTAINER_WORLDS
+        .lock()
+        .unwrap_or_else(std::sync::PoisonError::into_inner);
+    let worlds = worlds.get_or_insert_with(ContainerWorlds::new);
+    worlds.retain(|_, world| world.strong_count() > 0);
+    worlds.insert(key, Arc::downgrade(world));
+}
+
+/// Applies the container channels of a reply that arrived without a world of its own.
+///
+/// Each entry names a position the bridge published earlier, so the world comes from
+/// that record. An entry for a position the bridge never published -- or whose world has
+/// since been dropped -- is reported and discarded: landing it in some other world would
+/// move a player's items to a place they never were.
+fn apply_container_reply(reply: &str) {
+    for part in reply.split(';') {
+        let (spec, apply): (&str, fn(&Arc<crate::world::World>, &str)) =
+            if let Some(spec) = part.strip_prefix("EJECT=") {
+                (spec, apply_vanilla_pushes)
+            } else if let Some(spec) = part.strip_prefix("PULLED=") {
+                (spec, apply_vanilla_pulls)
+            } else {
+                continue;
+            };
+        for entry in spec.split(',').filter(|entry| !entry.is_empty()) {
+            let Some((coords, _)) = entry.split_once('|') else {
+                continue;
+            };
+            let parts: Vec<i32> = coords.split('/').filter_map(|c| c.parse().ok()).collect();
+            if parts.len() != 3 {
+                continue;
+            }
+            let world = CONTAINER_WORLDS
+                .lock()
+                .unwrap_or_else(std::sync::PoisonError::into_inner)
+                .as_ref()
+                .and_then(|worlds| worlds.get(&(parts[0], parts[1], parts[2])).cloned())
+                .and_then(|world| world.upgrade());
+            if let Some(world) = world {
+                apply(&world, entry);
+            } else {
+                tracing::warn!(
+                    "a mod moved items at {}/{}/{} outside any block tick, but the bridge \
+                     has no live record of which world that container is in; the move is dropped",
+                    parts[0],
+                    parts[1],
+                    parts[2],
+                );
+            }
+        }
+    }
+}
+
+/// Lands what a mod pushed into an adjacent vanilla container, first-fit.
+///
+/// Entries are `x/y/z|namespace:path:count`. What genuinely does not fit is dropped at
+/// the container rather than silently eaten: the bridge's buffering handler accepts a
+/// push without being able to ask the real chest whether it has room, so this is where
+/// an overfull push becomes visible.
+fn apply_vanilla_pushes(world: &Arc<crate::world::World>, spec: &str) {
+    use pumpkin_data::item_stack::ItemStack;
+    for entry in spec.split(',').filter(|entry| !entry.is_empty()) {
+        let Some((coords, stack_spec)) = entry.split_once('|') else {
+            continue;
+        };
+        let parts: Vec<i32> = coords.split('/').filter_map(|c| c.parse().ok()).collect();
+        let Some(stack) = parse_stack(stack_spec) else {
+            continue;
+        };
+        if parts.len() != 3 || stack.is_empty() {
+            continue;
+        }
+        let target = pumpkin_util::math::position::BlockPos(
+            pumpkin_util::math::vector3::Vector3::new(parts[0], parts[1], parts[2]),
+        );
+        let mut remaining = stack;
+        if let Some(entity) = world.get_block_entity(&target)
+            && let Some(container) = entity.get_inventory()
+        {
+            for slot in 0..container.size() {
+                if remaining.is_empty() {
+                    break;
+                }
+                let existing = container.get_stack(slot);
+                if existing.is_empty() {
+                    container.set_stack(slot, remaining.clone());
+                    remaining = ItemStack::EMPTY.clone();
+                } else if existing.item.id == remaining.item.id {
+                    let room = existing.get_max_stack_size() - existing.item_count;
+                    if room > 0 {
+                        let moved = room.min(remaining.item_count);
+                        let mut grown = existing.clone();
+                        grown.item_count += moved;
+                        container.set_stack(slot, grown);
+                        remaining.item_count -= moved;
+                        if remaining.item_count == 0 {
+                            remaining = ItemStack::EMPTY.clone();
+                        }
+                    }
+                }
+            }
+            container.mark_dirty();
+        }
+        if !remaining.is_empty() {
+            world.drop_stack(&target, remaining);
+        }
+    }
+}
+
 fn apply_vanilla_pulls(world: &Arc<crate::world::World>, spec: &str) {
     for entry in spec.split(',').filter(|entry| !entry.is_empty()) {
         let Some((coords, slot_spec)) = entry.split_once('|') else {
@@ -1025,10 +1104,14 @@ fn install_jvm_server_tick_hook() {
                 .map(Into::into)
                 .map_err(|err| VmError::Java(err.to_string()))
         });
-        if let Err(err) = reply {
-            WARNED.call_once(|| {
+        match reply {
+            // Transmitter networks move items between vanilla containers here, and this
+            // is the only reply that reports it -- a transporter has no ticker of its
+            // own, so nothing else this tick would carry the move across.
+            Ok(reply) => apply_container_reply(&reply),
+            Err(err) => WARNED.call_once(|| {
                 tracing::warn!("mod server-tick handlers stopped: {err} (said once)");
-            });
+            }),
         }
     }));
 }

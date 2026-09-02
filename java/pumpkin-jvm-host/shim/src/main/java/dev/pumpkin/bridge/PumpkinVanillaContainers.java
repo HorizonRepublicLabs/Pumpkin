@@ -29,10 +29,6 @@ public final class PumpkinVanillaContainers {
     /** {@code x/y/z|slot*id*count} entries taken out of a real container this tick. */
     private static final List<String> PULLED = new ArrayList<>();
 
-    /** Said once: mods asking to take from a vanilla container get nothing, and why. */
-    private static final java.util.concurrent.atomic.AtomicBoolean PUMPKIN_REFUSAL_SAID =
-            new java.util.concurrent.atomic.AtomicBoolean();
-
     /** One occupied slot of a real container, as the Rust side reported it. */
     record Slot(int index, String itemId, int count) {
     }
@@ -226,43 +222,53 @@ public final class PumpkinVanillaContainers {
         }
 
         /**
-         * Refuses, for now: a vanilla container reads as full but gives nothing up.
+         * Hands over what the real container holds, and records the take.
          *
-         * <p>The read side above is real -- a mod sees what a chest holds and can route
-         * on it -- and the take side is written and works up to the last step: Mekanism
-         * simulates the take in a nested transaction, aborts it, then re-takes for real
-         * through {@code HandlerItemData.use}, and that second take is not completing
-         * against this handler. Until it does, an accepted take would leave the item in
-         * the mod's hands *and* in the chest, which duplicates it. Refusing is the
-         * honest answer while the handshake is unfinished; a mod reads it as a container
-         * that will not give, which is a state vanilla has too.
-         */
-        /**
-         * Refuses, for now: a vanilla container reads as full but gives nothing up.
-         *
-         * <p>The read side above is real -- a mod sees what a chest holds and routes on
-         * it. The take side is written on both sides (this journal records what was
-         * taken; the tick reply's {@code PULLED=} entries remove it from the real
-         * container) and is exercised only by simulation so far: Mekanism's transporter
-         * asks in a nested scope it then rolls back, and the real take never follows.
-         * Until that handshake completes, accepting a take would leave the stack in the
-         * mod's hands *and* in the chest -- duplication -- so the container gives
-         * nothing. A mod reads that as a container that will not give, a state vanilla
-         * has too.
+         * <p>The amounts come from this tick's snapshot of the real container, so a take
+         * can only remove what the Rust side reported a moment earlier. The journal
+         * entry names the slot, the item and the count; the tick reply removes exactly
+         * that, and refuses with a warning if the slot changed underneath in the
+         * meantime. A take inside a transaction that rolls back never reaches the
+         * committed list, so the real container is untouched.
          */
         @Override
         public int extract(int index, ItemResource resource, int amount, TransactionContext transaction) {
-            if (PUMPKIN_REFUSAL_SAID.compareAndSet(false, true)) {
-                System.err.println("[pumpkin] a mod asked to take items out of a vanilla"
-                        + " container; that path is not finished, so the container gives"
-                        + " nothing rather than risk duplicating the stack");
+            if (resource == null || resource.isEmpty() || amount <= 0) {
+                return 0;
             }
-            return 0;
+            if (index < 0 || index >= slots.size() || remaining[index] <= 0) {
+                return 0;
+            }
+            Slot slot = slots.get(index);
+            if (!pumpkinSameItem(slot.itemId(),
+                    PumpkinInteractions.pumpkinItemId(resource.toStack(1)))) {
+                return 0;
+            }
+            int take = Math.min(amount, remaining[index]);
+            updateSnapshots(transaction);
+            remaining[index] -= take;
+            taken.add(pos.getX() + "/" + pos.getY() + "/" + pos.getZ() + "|"
+                    + slot.index() + "*" + slot.itemId() + "*" + take);
+            return take;
         }
 
+        /** Takes from every reported slot holding the asked-for item, up to {@code amount}. */
         @Override
         public int extract(ItemResource resource, int amount, TransactionContext transaction) {
-            return extract(0, resource, amount, transaction);
+            int total = 0;
+            for (int i = 0; i < slots.size() && total < amount; i++) {
+                total += extract(i, resource, amount - total, transaction);
+            }
+            return total;
         }
+    }
+
+    /** True when two item ids name the same item, one of them missing its namespace. */
+    private static boolean pumpkinSameItem(String reported, String asked) {
+        return reported.equals(asked) || pumpkinQualify(reported).equals(pumpkinQualify(asked));
+    }
+
+    private static String pumpkinQualify(String id) {
+        return id.indexOf(':') < 0 ? "minecraft:" + id : id;
     }
 }

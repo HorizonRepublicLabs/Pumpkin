@@ -241,7 +241,11 @@ public final class PumpkinInteractions {
      * handlers (Mekanism's transmitter networks, frequency manager) run here, once per
      * Pumpkin server tick.
      *
-     * @return {@code TICKED}
+     * <p>The reply carries the container channels: a transmitter network moves items in
+     * and out of vanilla containers here, outside any block's ticker, and this is the
+     * only reply that reports it.
+     *
+     * @return {@code TICKED;EJECT=...;PULLED=...}
      */
     public static String tickServer() {
         net.minecraft.server.MinecraftServer server = PumpkinMinecraftServer.pumpkinInstance();
@@ -254,7 +258,7 @@ public final class PumpkinInteractions {
                 new net.neoforged.neoforge.event.tick.LevelTickEvent.Post(() -> true, level));
         net.neoforged.neoforge.common.NeoForge.EVENT_BUS.post(
                 new net.neoforged.neoforge.event.tick.ServerTickEvent.Post(() -> true, server));
-        return "TICKED";
+        return pumpkinContainerReply("TICKED");
     }
 
     /**
@@ -325,6 +329,23 @@ public final class PumpkinInteractions {
         return reply.toString();
     }
 
+    /**
+     * The tick reply's container channels, drained whatever the ticked block turned out
+     * to be.
+     *
+     * <p>They carry what mods moved in and out of neighbouring vanilla containers, and
+     * that movement does not all happen inside a block's own ticker: Mekanism's
+     * transmitters have no {@code BlockEntityTicker} at all -- their networks run on the
+     * server tick event -- so a transporter's pull from a chest is finished before this
+     * call arrives and would be thrown away if only ticking blocks reported it. Every
+     * reply drains, including the "this block does not tick" ones.
+     */
+    private static String pumpkinContainerReply(String head) {
+        return head
+                + ";EJECT=" + String.join(",", PumpkinVanillaContainers.pumpkinDrainPushed())
+                + ";PULLED=" + String.join(",", PumpkinVanillaContainers.pumpkinDrainPulled());
+    }
+
     public static String tickBlock(String blockId, String entityTypeId, int x, int y, int z,
             String savedData, boolean hasSignal, double biomeTemperature, int containerMask,
             String containerContents) throws Exception {
@@ -332,14 +353,14 @@ public final class PumpkinInteractions {
         PumpkinLevel.pumpkinSetBiomeTemperature(biomeTemperature);
         PumpkinLevel.pumpkinSetContainerNeighbors(x, y, z, containerMask, containerContents);
         if (NO_TICKER.contains(blockId)) {
-            return "NONE";
+            return pumpkinContainerReply("NONE");
         }
         Object blockObject = DeferredHolder.pumpkinResolve("minecraft:block", blockId);
         Object typeObject = DeferredHolder.pumpkinResolve("minecraft:block_entity_type", entityTypeId);
         if (!(blockObject instanceof Block block)
                 || !(typeObject instanceof BlockEntityType<?> type)) {
             NO_TICKER.add(blockId);
-            return "NONE";
+            return pumpkinContainerReply("NONE");
         }
 
         PumpkinLevel level = PumpkinInteractions.pumpkinLevel();
@@ -349,7 +370,7 @@ public final class PumpkinInteractions {
         Object ticker = getTicker.invoke(block, level, state, type);
         if (ticker == null) {
             NO_TICKER.add(blockId);
-            return "NONE";
+            return pumpkinContainerReply("NONE");
         }
 
         boolean existed = PumpkinBlockEntities.exists(x, y, z);
@@ -374,11 +395,7 @@ public final class PumpkinInteractions {
                         net.minecraft.world.level.block.entity.BlockEntity>) ticker;
         cast.tick(level, new BlockPos(x, y, z), state, entity);
 
-        StringBuilder reply = new StringBuilder("TICKED");
-        reply.append(";EJECT=").append(String.join(",",
-                PumpkinVanillaContainers.pumpkinDrainPushed()));
-        reply.append(";PULLED=").append(String.join(",",
-                PumpkinVanillaContainers.pumpkinDrainPulled()));
+        StringBuilder reply = new StringBuilder(pumpkinContainerReply("TICKED"));
         reply.append(";SOUNDS=").append(String.join(",", level.pumpkinDrainSounds()));
         reply.append(";DATA=");
         if (entity.pumpkinTakeChanged()) {
