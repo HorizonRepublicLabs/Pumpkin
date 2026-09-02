@@ -692,6 +692,11 @@ fn collect_tag_files(
 pub(crate) fn load_dynamic_worldgen(datapacks_dir: &Path) {
     use pumpkin_world::generation::feature::dynamic_features;
 
+    // Until the registries are published a mod's ore block cannot be resolved, so this
+    // pass refuses everything -- and its refusals mean "not yet", not "no". The run
+    // after freeze is the one with the real answer, so only that run reports. Saying it
+    // both times printed three failures and a count of zero for ores that do generate.
+    let published = pumpkin_data::dynamic::is_frozen();
     let mut features = Vec::new();
     let mut refused = 0usize;
 
@@ -741,7 +746,11 @@ pub(crate) fn load_dynamic_worldgen(datapacks_dir: &Path) {
                     .join("placed_feature")
                     .join(format!("{feature_path}.json"));
                 let Ok(placed_json) = fs::read_to_string(&placed_path) else {
-                    warn!("{feature_ref}: biome modifier names it, but {placed_path:?} is missing");
+                    if published {
+                        warn!(
+                            "{feature_ref}: biome modifier names it, but {placed_path:?} is missing"
+                        );
+                    }
                     refused += 1;
                     continue;
                 };
@@ -761,7 +770,9 @@ pub(crate) fn load_dynamic_worldgen(datapacks_dir: &Path) {
                     .join("configured_feature")
                     .join(format!("{configured_path}.json"));
                 let Ok(configured_json) = fs::read_to_string(&configured_file) else {
-                    warn!("{feature_ref}: its configured feature {configured_ref} is missing");
+                    if published {
+                        warn!("{feature_ref}: its configured feature {configured_ref} is missing");
+                    }
                     refused += 1;
                     continue;
                 };
@@ -774,7 +785,9 @@ pub(crate) fn load_dynamic_worldgen(datapacks_dir: &Path) {
                 ) {
                     Ok(feature) => features.push(feature),
                     Err(reason) => {
-                        warn!("{feature_ref}: not placeable by this server: {reason}");
+                        if published {
+                            warn!("{feature_ref}: not placeable by this server: {reason}");
+                        }
                         refused += 1;
                     }
                 }
@@ -782,7 +795,7 @@ pub(crate) fn load_dynamic_worldgen(datapacks_dir: &Path) {
         }
     }
 
-    if !features.is_empty() || refused > 0 {
+    if published && (!features.is_empty() || refused > 0) {
         info!(
             "Mod worldgen: {} ore feature(s) will generate in new chunks; {refused} refused",
             features.len()

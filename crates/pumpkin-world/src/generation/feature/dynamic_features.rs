@@ -218,10 +218,16 @@ fn parse_height_range(
 }
 
 fn parse_ore_config(configured: &Value) -> Result<OreFeature, String> {
-    if configured.get("type").and_then(Value::as_str) != Some("minecraft:ore") {
+    let kind = configured.get("type").and_then(Value::as_str);
+    if kind != Some("minecraft:ore") {
+        // A mod's own feature type is a piece of the mod's Java code: its config may
+        // look like an ore's and mean something else entirely. Reading it as an ore
+        // would put blocks in the world the mod never asked for, so it is refused by
+        // name instead.
         return Err(format!(
-            "unsupported feature type {:?}; only minecraft:ore is",
-            configured.get("type")
+            "{} is the mod's own feature type, and what it places is decided by the \
+             mod's own code; only minecraft:ore is placed here",
+            kind.unwrap_or("a feature without a type")
         ));
     }
     let config = configured.get("config").ok_or("ore without config")?;
