@@ -5400,4 +5400,15 @@ edit('net/neoforged/neoforge/transfer/transaction/SnapshotJournal.java', [
  "    // Pumpkin divergence: real -- the first update inside a transaction snapshots\n    // this journal's state into that transaction's scope; later updates are no-ops.\n    //\n    // Enrollment is by key, not by value: a journal whose snapshot is legitimately\n    // null (RootCommitJournal holds no state and exists only for its commit callback)\n    // must still be enrolled. computeIfAbsent stores nothing when the mapping function\n    // returns null, which silently dropped those journals -- they never reverted and\n    // never committed, and a transporter's item vanished between the two.\n    public void updateSnapshots(TransactionContext transaction) {\n        if (transaction instanceof Transaction scope\n                && !scope.pumpkinSnapshots.containsKey(this)) {\n            scope.pumpkinSnapshots.put(this, createSnapshot());\n        }\n    }"),
 ])
 
+edit('net/neoforged/neoforge/transfer/transaction/Transaction.java', [
+('    private final int pumpkinDepth;\n\n    private boolean committed;',
+ "    private final int pumpkinDepth;\n\n    /**\n     * The scope this one was declared to nest in, when a caller named one.\n     *\n     * <p>NeoForge lets a caller pass any open ancestor, not only the innermost scope,\n     * and Mekanism does exactly that: it opens a simulation scope, and inside it opens\n     * the real-work scope declaring the OUTER transaction as parent. Handing that scope's\n     * snapshots to the innermost enclosing scope instead would put committed work inside\n     * a simulation that is about to be rolled back -- which is how a transporter's take\n     * from a chest committed on the mod's side and never reached the world.\n     */\n    private Transaction pumpkinDeclaredParent;\n\n    private boolean committed;"),
+('        Transaction transaction = new Transaction(null, 0, null);\n        stack.push(transaction);\n        return transaction;\n    }',
+ '        Transaction transaction = new Transaction(null, 0, null);\n        stack.push(transaction);\n        return transaction;\n    }\n\n    /** The scope a committed child hands its snapshots to. */\n    private Transaction pumpkinCommitTarget(java.util.ArrayDeque<Transaction> stack) {\n        if (pumpkinDeclaredParent != null && stack.contains(pumpkinDeclaredParent)) {\n            return pumpkinDeclaredParent;\n        }\n        return stack.peek();\n    }'),
+('        Transaction transaction = new Transaction(null, stack.peek().depth() + 1, null);\n        stack.push(transaction);',
+ '        Transaction transaction = new Transaction(null, stack.peek().depth() + 1, null);\n        transaction.pumpkinDeclaredParent = parentTransaction;\n        stack.push(transaction);'),
+('        Transaction parent = stack.peek();\n        if (parent != null) {',
+ '        Transaction parent = pumpkinCommitTarget(stack);\n        if (parent != null) {'),
+])
+
 commit()

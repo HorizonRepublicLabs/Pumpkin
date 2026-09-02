@@ -236,10 +236,10 @@ if edits == 0:
     print("PHASE2 FAILED"); sys.exit(1)
 
 print("PHASE3: boot and let the transporter carry", flush=True)
-lines = boot(60)
+lines = boot(40)
 
 far = count_diamonds_at(-1)
 near = count_diamonds_at(1)
 print(f"TRANSPORT VERDICT: far chest={far} source chest={near}")
-print("\n".join(l for l in lines if "[mod/" in l or "[vc]" in l)[:4000])
+print("\n".join(l for l in lines if "PROBE" in l or "no longer holds" in l or "[vc] extract" in l)[:4000])
 sys.exit(0 if far > 0 else 1)

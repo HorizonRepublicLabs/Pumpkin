@@ -237,6 +237,19 @@ public final class PumpkinVanillaContainers {
          * honest answer while the handshake is unfinished; a mod reads it as a container
          * that will not give, which is a state vanilla has too.
          */
+        /**
+         * Refuses, for now: a vanilla container reads as full but gives nothing up.
+         *
+         * <p>The read side above is real -- a mod sees what a chest holds and routes on
+         * it. The take side is written on both sides (this journal records what was
+         * taken; the tick reply's {@code PULLED=} entries remove it from the real
+         * container) and is exercised only by simulation so far: Mekanism's transporter
+         * asks in a nested scope it then rolls back, and the real take never follows.
+         * Until that handshake completes, accepting a take would leave the stack in the
+         * mod's hands *and* in the chest -- duplication -- so the container gives
+         * nothing. A mod reads that as a container that will not give, a state vanilla
+         * has too.
+         */
         @Override
         public int extract(int index, ItemResource resource, int amount, TransactionContext transaction) {
             if (PUMPKIN_REFUSAL_SAID.compareAndSet(false, true)) {
