@@ -214,8 +214,15 @@ public final class ItemResource implements DataComponentHolderResource<Item> {
         return java.util.Objects.hash(pumpkinItem, pumpkinPatch);
     }
 
+    // Pumpkin divergence: real body -- an item resource prints as the item it names.
+    // A resource that cannot be printed breaks debuggers and any mod log line that
+    // mentions one, and says nothing about Minecraft in exchange.
     public String toString() {
-        throw Unimplemented.forMember("net/neoforged/neoforge/transfer/item/ItemResource.toString:()Ljava/lang/String;");
+        if (isEmpty()) {
+            return "ItemResource[empty]";
+        }
+        return "ItemResource[" + dev.pumpkin.bridge.PumpkinInteractions.pumpkinItemId(toStack(1))
+                + "]";
     }
 
     public ItemResource() {

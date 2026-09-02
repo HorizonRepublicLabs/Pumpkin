@@ -459,9 +459,10 @@ public final class PumpkinLevel extends net.minecraft.server.level.ServerLevel {
     private static volatile long pumpkinContainerCenter = Long.MIN_VALUE;
     private static volatile int pumpkinContainerMask;
 
-    static void pumpkinSetContainerNeighbors(int x, int y, int z, int mask) {
+    static void pumpkinSetContainerNeighbors(int x, int y, int z, int mask, String contents) {
         pumpkinContainerCenter = net.minecraft.core.BlockPos.asLong(x, y, z);
         pumpkinContainerMask = mask;
+        PumpkinVanillaContainers.pumpkinSetContents(contents);
     }
 
     /** Whether the Rust world holds a vanilla inventory at this position. */

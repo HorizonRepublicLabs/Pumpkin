@@ -5373,4 +5373,31 @@ edit('net/minecraft/world/level/block/entity/BlockEntity.java', [
  '    public boolean pumpkinTakeChanged() {\n        boolean changed = pumpkinChanged;\n        pumpkinChanged = false;\n        return changed;\n    }\n\n    // Pumpkin divergence: sets the flag without virtual dispatch. The chunk-dirty\n    // fan-out calls this: going through setChanged() would re-enter a mod override\n    // that marks the chunk dirty again, and the loop never ends.\n    public final void pumpkinMarkChanged() {\n        pumpkinChanged = true;\n    }'),
 ])
 
+edit('net/minecraft/util/ExtraCodecs.java', [
+('    public static final Codec<Integer> NON_NEGATIVE_INT =\n            dev.pumpkin.shim.Stubs.throwingCodec("net/minecraft/util/ExtraCodecs.NON_NEGATIVE_INT");',
+ '    // Pumpkin divergence: real bodies -- vanilla\'s range checks over the int codec,\n    // the same shape as intRange below.\n    public static final Codec<Integer> NON_NEGATIVE_INT = intRangeWithMessage(\n            0, Integer.MAX_VALUE, value -> "Value must be non-negative: " + value);'),
+('    public static final Codec<Integer> POSITIVE_INT =\n            dev.pumpkin.shim.Stubs.throwingCodec("net/minecraft/util/ExtraCodecs.POSITIVE_INT");',
+ '    public static final Codec<Integer> POSITIVE_INT = intRangeWithMessage(\n            1, Integer.MAX_VALUE, value -> "Value must be positive: " + value);\n\n    private static Codec<Integer> intRangeWithMessage(int minInclusive, int maxInclusive,\n            java.util.function.Function<Integer, String> message) {\n        return Codec.INT.validate(value -> value >= minInclusive && value <= maxInclusive\n                ? com.mojang.serialization.DataResult.success(value)\n                : com.mojang.serialization.DataResult.error(() -> message.apply(value)));\n    }'),
+])
+
+edit('net/minecraft/core/Vec3i.java', [
+('    public double distSqr(Vec3i pos) {\n        throw Unimplemented.forMember("net/minecraft/core/Vec3i.distSqr:(Lnet/minecraft/core/Vec3i;)D");\n    }\n\n    public int get(Direction.Axis axis) {\n        throw Unimplemented.forMember("net/minecraft/core/Vec3i.get:(Lnet/minecraft/core/Direction$Axis;)I");\n    }',
+ '    // Pumpkin divergence: real bodies -- pure coordinate maths over the components\n    // this class already carries.\n    public double distSqr(Vec3i pos) {\n        double dx = (double) pumpkinX - pos.getX();\n        double dy = (double) pumpkinY - pos.getY();\n        double dz = (double) pumpkinZ - pos.getZ();\n        return dx * dx + dy * dy + dz * dz;\n    }\n\n    public int get(Direction.Axis axis) {\n        return switch (axis) {\n            case X -> pumpkinX;\n            case Y -> pumpkinY;\n            case Z -> pumpkinZ;\n        };\n    }'),
+])
+
+edit('net/neoforged/neoforge/transfer/transaction/RootCommitJournal.java', [
+('public final class RootCommitJournal extends SnapshotJournal<Void> {\n\n    public RootCommitJournal(Runnable rootCommitCallback) {\n    }\n\n    protected Void createSnapshot() {\n        throw Unimplemented.forMember("net/neoforged/neoforge/transfer/transaction/RootCommitJournal.createSnapshot:()Ljava/lang/Void;");\n    }\n\n    protected void revertToSnapshot(Void snapshot) {\n        throw Unimplemented.forMember("net/neoforged/neoforge/transfer/transaction/RootCommitJournal.revertToSnapshot:(Ljava/lang/Void;)V");\n    }\n\n    protected void onRootCommit(Void originalState) {\n        throw Unimplemented.forMember("net/neoforged/neoforge/transfer/transaction/RootCommitJournal.onRootCommit:(Ljava/lang/Void;)V");\n    }\n\n    public RootCommitJournal() {\n    }\n}',
+ '// Pumpkin divergence: real bodies. This journal carries no state of its own -- it\n// exists to run one callback when the outermost transaction commits (a transporter\n// scheduling its pulled stack), so the snapshot is nothing and the revert is nothing.\npublic final class RootCommitJournal extends SnapshotJournal<Void> {\n\n    private final Runnable pumpkinRootCommit;\n\n    public RootCommitJournal(Runnable rootCommitCallback) {\n        this.pumpkinRootCommit = rootCommitCallback;\n    }\n\n    protected Void createSnapshot() {\n        return null;\n    }\n\n    protected void revertToSnapshot(Void snapshot) {\n    }\n\n    protected void onRootCommit(Void originalState) {\n        if (pumpkinRootCommit != null) {\n            pumpkinRootCommit.run();\n        }\n    }\n\n    public RootCommitJournal() {\n        this.pumpkinRootCommit = null;\n    }\n}'),
+])
+
+edit('net/minecraft/core/BlockPos.java', [
+('    public BlockPos immutable() {\n        throw Unimplemented.forMember("net/minecraft/core/BlockPos.immutable:()Lnet/minecraft/core/BlockPos;");\n    }',
+ '    // Pumpkin divergence: real body -- a plain BlockPos is already immutable, and a\n    // mutable one answers with a fixed copy of where it currently points.\n    public BlockPos immutable() {\n        return new BlockPos(getX(), getY(), getZ());\n    }'),
+])
+
+edit('net/neoforged/neoforge/transfer/transaction/SnapshotJournal.java', [
+("    // Pumpkin divergence: real -- the first update inside a transaction snapshots\n    // this journal's state into that transaction's scope; later updates are no-ops.\n    public void updateSnapshots(TransactionContext transaction) {\n        if (transaction instanceof Transaction scope) {\n            scope.pumpkinSnapshots.computeIfAbsent(this, journal -> createSnapshot());\n        }\n    }",
+ "    // Pumpkin divergence: real -- the first update inside a transaction snapshots\n    // this journal's state into that transaction's scope; later updates are no-ops.\n    //\n    // Enrollment is by key, not by value: a journal whose snapshot is legitimately\n    // null (RootCommitJournal holds no state and exists only for its commit callback)\n    // must still be enrolled. computeIfAbsent stores nothing when the mapping function\n    // returns null, which silently dropped those journals -- they never reverted and\n    // never committed, and a transporter's item vanished between the two.\n    public void updateSnapshots(TransactionContext transaction) {\n        if (transaction instanceof Transaction scope\n                && !scope.pumpkinSnapshots.containsKey(this)) {\n            scope.pumpkinSnapshots.put(this, createSnapshot());\n        }\n    }"),
+])
+
 commit()

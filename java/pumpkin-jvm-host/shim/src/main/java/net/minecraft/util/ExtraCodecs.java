@@ -45,12 +45,21 @@ public class ExtraCodecs {
             }, color -> String.format("#%08X", color));
 
     // Pumpkin divergence: inert codec -- composes at class-init, throws its name on use.
-    public static final Codec<Integer> NON_NEGATIVE_INT =
-            dev.pumpkin.shim.Stubs.throwingCodec("net/minecraft/util/ExtraCodecs.NON_NEGATIVE_INT");
+    // Pumpkin divergence: real bodies -- vanilla's range checks over the int codec,
+    // the same shape as intRange below.
+    public static final Codec<Integer> NON_NEGATIVE_INT = intRangeWithMessage(
+            0, Integer.MAX_VALUE, value -> "Value must be non-negative: " + value);
 
     // Pumpkin divergence: inert codec -- composes at class-init, throws its name on use.
-    public static final Codec<Integer> POSITIVE_INT =
-            dev.pumpkin.shim.Stubs.throwingCodec("net/minecraft/util/ExtraCodecs.POSITIVE_INT");
+    public static final Codec<Integer> POSITIVE_INT = intRangeWithMessage(
+            1, Integer.MAX_VALUE, value -> "Value must be positive: " + value);
+
+    private static Codec<Integer> intRangeWithMessage(int minInclusive, int maxInclusive,
+            java.util.function.Function<Integer, String> message) {
+        return Codec.INT.validate(value -> value >= minInclusive && value <= maxInclusive
+                ? com.mojang.serialization.DataResult.success(value)
+                : com.mojang.serialization.DataResult.error(() -> message.apply(value)));
+    }
 
     // Pumpkin divergence: inert codec -- composes at class-init, throws its name on use.
     public static final Codec<Long> NON_NEGATIVE_LONG =

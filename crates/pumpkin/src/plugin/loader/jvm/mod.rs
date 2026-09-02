@@ -774,6 +774,9 @@ fn apply_interaction_reply(
             if !spec.is_empty() {
                 write_mod_data(world, position, spec);
             }
+        } else if let Some(spec) = part.strip_prefix("PULLED=") {
+            // What the mod took out of an adjacent vanilla container this tick.
+            apply_vanilla_pulls(world, spec);
         } else if let Some(spec) = part.strip_prefix("EJECT=") {
             // The mod pushed items into what it saw as an adjacent container; land them
             // in the real one, first-fit, and drop what genuinely does not fit.
@@ -872,6 +875,119 @@ fn vanilla_container_mask(
         }
     }
     mask
+}
+
+/// What the adjacent vanilla containers hold, for the mods that read them.
+///
+/// One entry per neighbouring container: `x/y/z|slot*id*count,...`, entries separated
+/// by `;`. The bridge builds its read-only view of a chest from this, so a mod pulling
+/// through a transporter sees real contents instead of an empty stand-in. Coordinates
+/// and counts, not references: the snapshot is a tick's worth of truth, and the reply
+/// says what the mod took.
+fn vanilla_container_contents(
+    world: &Arc<crate::world::World>,
+    position: &pumpkin_util::math::position::BlockPos,
+) -> String {
+    let offsets: [(i32, i32, i32); 6] = [
+        (0, -1, 0),
+        (0, 1, 0),
+        (0, 0, -1),
+        (0, 0, 1),
+        (-1, 0, 0),
+        (1, 0, 0),
+    ];
+    let mut entries: Vec<String> = Vec::new();
+    for (dx, dy, dz) in offsets {
+        let neighbor =
+            pumpkin_util::math::position::BlockPos(pumpkin_util::math::vector3::Vector3::new(
+                position.0.x + dx,
+                position.0.y + dy,
+                position.0.z + dz,
+            ));
+        let Some(container) = world
+            .get_block_entity(&neighbor)
+            .and_then(crate::block::entities::BlockEntity::get_inventory)
+        else {
+            continue;
+        };
+        let mut slots: Vec<String> = Vec::new();
+        for slot in 0..container.size() {
+            let stack = container.get_stack(slot);
+            if stack.is_empty() {
+                continue;
+            }
+            let key = stack.item.registry_key;
+            let id = if key.contains(':') {
+                key.to_string()
+            } else {
+                format!("minecraft:{key}")
+            };
+            slots.push(format!("{slot}*{id}*{}", stack.item_count));
+        }
+        if slots.is_empty() {
+            continue;
+        }
+        entries.push(format!(
+            "{}/{}/{}|{}",
+            neighbor.0.x,
+            neighbor.0.y,
+            neighbor.0.z,
+            slots.join(",")
+        ));
+    }
+    entries.join(";")
+}
+
+/// Takes what a mod pulled out of a vanilla container this tick.
+///
+/// The reply names `x/y/z|slot*id*count` entries; each is removed from the real
+/// container. A slot that no longer holds what the mod took (something else moved it
+/// between the snapshot and now) is left alone and said out loud -- silently deleting a
+/// different item would be worse than the pull failing.
+fn apply_vanilla_pulls(world: &Arc<crate::world::World>, spec: &str) {
+    for entry in spec.split(',').filter(|entry| !entry.is_empty()) {
+        let Some((coords, slot_spec)) = entry.split_once('|') else {
+            continue;
+        };
+        let parts: Vec<i32> = coords.split('/').filter_map(|c| c.parse().ok()).collect();
+        let fields: Vec<&str> = slot_spec.split('*').collect();
+        if parts.len() != 3 || fields.len() != 3 {
+            continue;
+        }
+        let (Ok(slot), Ok(count)) = (fields[0].parse::<usize>(), fields[2].parse::<u8>()) else {
+            continue;
+        };
+        let target = pumpkin_util::math::position::BlockPos(
+            pumpkin_util::math::vector3::Vector3::new(parts[0], parts[1], parts[2]),
+        );
+        let Some(container) = world
+            .get_block_entity(&target)
+            .and_then(crate::block::entities::BlockEntity::get_inventory)
+        else {
+            continue;
+        };
+        if slot >= container.size() {
+            continue;
+        }
+        let mut stack = container.get_stack(slot);
+        let key = stack.item.registry_key;
+        let id = if key.contains(':') {
+            key.to_string()
+        } else {
+            format!("minecraft:{key}")
+        };
+        if stack.is_empty() || id != fields[1] || stack.item_count < count {
+            tracing::warn!(
+                "{target:?} slot {slot} no longer holds {}x{}; the mod's pull is dropped",
+                count,
+                fields[1]
+            );
+            continue;
+        }
+        stack.decrement(count);
+        container.set_stack(slot, stack);
+        pumpkin_world::inventory::Inventory::mark_dirty(&*container);
+    }
 }
 
 /// Routes plugin block entity ticks into the mod's own `BlockEntityTicker`.
@@ -993,6 +1109,65 @@ fn install_jvm_extract_hook() {
     }));
 }
 
+/// The arguments one mod-entity tick carries across the bridge.
+struct TickCall {
+    block_name: String,
+    type_name: String,
+    position: (i32, i32, i32),
+    saved: String,
+    has_signal: bool,
+    biome_temperature: f64,
+    container_mask: i32,
+    container_contents: String,
+}
+
+/// Runs the mod's ticker for one block entity and returns its reply.
+fn call_tick_block(vm: &vm::ModVm, args: TickCall) -> Result<String, VmError> {
+    let (x, y, z) = args.position;
+    vm.call(move |env| {
+        let block = env
+            .new_string(&args.block_name)
+            .map_err(|err| VmError::Java(err.to_string()))?;
+        let entity_type = env
+            .new_string(&args.type_name)
+            .map_err(|err| VmError::Java(err.to_string()))?;
+        let saved = env
+            .new_string(&args.saved)
+            .map_err(|err| VmError::Java(err.to_string()))?;
+        let contents = env
+            .new_string(&args.container_contents)
+            .map_err(|err| VmError::Java(err.to_string()))?;
+        let returned = env.call_static_method(
+            "dev/pumpkin/bridge/PumpkinInteractions",
+            "tickBlock",
+            "(Ljava/lang/String;Ljava/lang/String;IIILjava/lang/String;ZDILjava/lang/String;)Ljava/lang/String;",
+            &[
+                (&block).into(),
+                (&entity_type).into(),
+                x.into(),
+                y.into(),
+                z.into(),
+                (&saved).into(),
+                args.has_signal.into(),
+                args.biome_temperature.into(),
+                args.container_mask.into(),
+                (&contents).into(),
+            ],
+        );
+        if env.exception_check().unwrap_or(false) {
+            let _ = env.exception_describe();
+            let _ = env.exception_clear();
+            return Err(VmError::Java("tickBlock threw".into()));
+        }
+        let object = returned
+            .and_then(jni::objects::JValueGen::l)
+            .map_err(|err| VmError::Java(err.to_string()))?;
+        env.get_string(&jni::objects::JString::from(object))
+            .map(Into::into)
+            .map_err(|err| VmError::Java(err.to_string()))
+    })
+}
+
 fn install_jvm_tick_hook() {
     static WARNED: std::sync::Mutex<Option<std::collections::HashSet<String>>> =
         std::sync::Mutex::new(None);
@@ -1025,45 +1200,21 @@ fn install_jvm_tick_hook() {
             63,
         ));
         let container_mask = vanilla_container_mask(world, &position);
+        let container_contents = vanilla_container_contents(world, &position);
 
-        let reply = vm.call(move |env| {
-            let block = env
-                .new_string(&block_name)
-                .map_err(|err| VmError::Java(err.to_string()))?;
-            let entity_type = env
-                .new_string(&type_name)
-                .map_err(|err| VmError::Java(err.to_string()))?;
-            let saved = env
-                .new_string(&saved)
-                .map_err(|err| VmError::Java(err.to_string()))?;
-            let returned = env.call_static_method(
-                "dev/pumpkin/bridge/PumpkinInteractions",
-                "tickBlock",
-                "(Ljava/lang/String;Ljava/lang/String;IIILjava/lang/String;ZDI)Ljava/lang/String;",
-                &[
-                    (&block).into(),
-                    (&entity_type).into(),
-                    x.into(),
-                    y.into(),
-                    z.into(),
-                    (&saved).into(),
-                    has_signal.into(),
-                    biome_temperature.into(),
-                    container_mask.into(),
-                ],
-            );
-            if env.exception_check().unwrap_or(false) {
-                let _ = env.exception_describe();
-                let _ = env.exception_clear();
-                return Err(VmError::Java("tickBlock threw".into()));
-            }
-            let object = returned
-                .and_then(jni::objects::JValueGen::l)
-                .map_err(|err| VmError::Java(err.to_string()))?;
-            env.get_string(&jni::objects::JString::from(object))
-                .map(Into::into)
-                .map_err(|err| VmError::Java(err.to_string()))
-        });
+        let reply = call_tick_block(
+            vm,
+            TickCall {
+                block_name,
+                type_name,
+                position: (x, y, z),
+                saved,
+                has_signal,
+                biome_temperature,
+                container_mask,
+                container_contents,
+            },
+        );
 
         let block_name = block.name;
         match reply {

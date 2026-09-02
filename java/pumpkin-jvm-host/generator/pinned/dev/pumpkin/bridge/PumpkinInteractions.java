@@ -326,11 +326,11 @@ public final class PumpkinInteractions {
     }
 
     public static String tickBlock(String blockId, String entityTypeId, int x, int y, int z,
-            String savedData, boolean hasSignal, double biomeTemperature, int containerMask)
-            throws Exception {
+            String savedData, boolean hasSignal, double biomeTemperature, int containerMask,
+            String containerContents) throws Exception {
         PumpkinLevel.pumpkinSetSignal(hasSignal);
         PumpkinLevel.pumpkinSetBiomeTemperature(biomeTemperature);
-        PumpkinLevel.pumpkinSetContainerNeighbors(x, y, z, containerMask);
+        PumpkinLevel.pumpkinSetContainerNeighbors(x, y, z, containerMask, containerContents);
         if (NO_TICKER.contains(blockId)) {
             return "NONE";
         }
@@ -377,6 +377,8 @@ public final class PumpkinInteractions {
         StringBuilder reply = new StringBuilder("TICKED");
         reply.append(";EJECT=").append(String.join(",",
                 PumpkinVanillaContainers.pumpkinDrainPushed()));
+        reply.append(";PULLED=").append(String.join(",",
+                PumpkinVanillaContainers.pumpkinDrainPulled()));
         reply.append(";SOUNDS=").append(String.join(",", level.pumpkinDrainSounds()));
         reply.append(";DATA=");
         if (entity.pumpkinTakeChanged()) {

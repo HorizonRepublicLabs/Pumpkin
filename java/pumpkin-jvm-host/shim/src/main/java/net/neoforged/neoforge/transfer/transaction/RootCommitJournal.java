@@ -2,23 +2,31 @@ package net.neoforged.neoforge.transfer.transaction;
 
 import dev.pumpkin.shim.Unimplemented;
 
+// Pumpkin divergence: real bodies. This journal carries no state of its own -- it
+// exists to run one callback when the outermost transaction commits (a transporter
+// scheduling its pulled stack), so the snapshot is nothing and the revert is nothing.
 public final class RootCommitJournal extends SnapshotJournal<Void> {
 
+    private final Runnable pumpkinRootCommit;
+
     public RootCommitJournal(Runnable rootCommitCallback) {
+        this.pumpkinRootCommit = rootCommitCallback;
     }
 
     protected Void createSnapshot() {
-        throw Unimplemented.forMember("net/neoforged/neoforge/transfer/transaction/RootCommitJournal.createSnapshot:()Ljava/lang/Void;");
+        return null;
     }
 
     protected void revertToSnapshot(Void snapshot) {
-        throw Unimplemented.forMember("net/neoforged/neoforge/transfer/transaction/RootCommitJournal.revertToSnapshot:(Ljava/lang/Void;)V");
     }
 
     protected void onRootCommit(Void originalState) {
-        throw Unimplemented.forMember("net/neoforged/neoforge/transfer/transaction/RootCommitJournal.onRootCommit:(Ljava/lang/Void;)V");
+        if (pumpkinRootCommit != null) {
+            pumpkinRootCommit.run();
+        }
     }
 
     public RootCommitJournal() {
+        this.pumpkinRootCommit = null;
     }
 }

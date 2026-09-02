@@ -128,8 +128,10 @@ public class BlockPos extends Vec3i {
         throw Unimplemented.forMember("net/minecraft/core/BlockPos.relative:(Lnet/minecraft/core/Direction$Axis;I)Lnet/minecraft/core/BlockPos;");
     }
 
+    // Pumpkin divergence: real body -- a plain BlockPos is already immutable, and a
+    // mutable one answers with a fixed copy of where it currently points.
     public BlockPos immutable() {
-        throw Unimplemented.forMember("net/minecraft/core/BlockPos.immutable:()Lnet/minecraft/core/BlockPos;");
+        return new BlockPos(getX(), getY(), getZ());
     }
 
     public BlockPos.MutableBlockPos mutable() {

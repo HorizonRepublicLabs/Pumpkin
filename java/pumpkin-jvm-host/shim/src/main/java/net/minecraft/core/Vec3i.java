@@ -125,12 +125,21 @@ public class Vec3i implements Comparable<Vec3i> {
         throw Unimplemented.forMember("net/minecraft/core/Vec3i.relative:(Lnet/minecraft/core/Direction$Axis;I)Lnet/minecraft/core/Vec3i;");
     }
 
+    // Pumpkin divergence: real bodies -- pure coordinate maths over the components
+    // this class already carries.
     public double distSqr(Vec3i pos) {
-        throw Unimplemented.forMember("net/minecraft/core/Vec3i.distSqr:(Lnet/minecraft/core/Vec3i;)D");
+        double dx = (double) pumpkinX - pos.getX();
+        double dy = (double) pumpkinY - pos.getY();
+        double dz = (double) pumpkinZ - pos.getZ();
+        return dx * dx + dy * dy + dz * dz;
     }
 
     public int get(Direction.Axis axis) {
-        throw Unimplemented.forMember("net/minecraft/core/Vec3i.get:(Lnet/minecraft/core/Direction$Axis;)I");
+        return switch (axis) {
+            case X -> pumpkinX;
+            case Y -> pumpkinY;
+            case Z -> pumpkinZ;
+        };
     }
 
     public String toString() {
