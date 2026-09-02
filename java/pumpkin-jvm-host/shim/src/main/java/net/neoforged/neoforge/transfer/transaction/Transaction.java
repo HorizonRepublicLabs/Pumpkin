@@ -14,6 +14,17 @@ public final class Transaction implements AutoCloseable, TransactionContext {
 
     private final int pumpkinDepth;
 
+    /**
+     * The scope this one was declared to nest in, when a caller named one.
+     *
+     * <p>NeoForge lets a caller pass any open ancestor, not only the innermost scope,
+     * and Mekanism does exactly that: it opens a simulation scope and, inside it, opens
+     * the real-work scope declaring the OUTER transaction as parent. Handing a committed
+     * child's snapshots to the innermost enclosing scope instead would put committed work
+     * inside a simulation that is about to be rolled back.
+     */
+    private Transaction pumpkinDeclaredParent;
+
     private boolean committed;
 
     public static Transaction openRoot() {
@@ -25,6 +36,14 @@ public final class Transaction implements AutoCloseable, TransactionContext {
         Transaction transaction = new Transaction(null, 0, null);
         stack.push(transaction);
         return transaction;
+    }
+
+    /** The scope a committed child hands its snapshots to. */
+    private Transaction pumpkinCommitTarget(java.util.ArrayDeque<Transaction> stack) {
+        if (pumpkinDeclaredParent != null && stack.contains(pumpkinDeclaredParent)) {
+            return pumpkinDeclaredParent;
+        }
+        return stack.peek();
     }
 
     // The declared parent may be any open ancestor, not only the innermost --
@@ -45,6 +64,7 @@ public final class Transaction implements AutoCloseable, TransactionContext {
             throw new IllegalStateException("Parent is not an open transaction on this thread.");
         }
         Transaction transaction = new Transaction(null, stack.peek().depth() + 1, null);
+        transaction.pumpkinDeclaredParent = parentTransaction;
         stack.push(transaction);
         return transaction;
     }
@@ -71,7 +91,7 @@ public final class Transaction implements AutoCloseable, TransactionContext {
             }
             return;
         }
-        Transaction parent = stack.peek();
+        Transaction parent = pumpkinCommitTarget(stack);
         if (parent != null) {
             // The parent keeps its own older snapshot where it has one; otherwise it
             // inherits ours, so an abort above still reverts to the true original.
