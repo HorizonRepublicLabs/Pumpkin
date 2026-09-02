@@ -176,3 +176,5 @@ mods/*.jar
 # NeoForge-shaped mod jars; content, not source.
 mods/
 __pycache__/
+
+minecraft-sources*/
