@@ -14,9 +14,9 @@ use std::any::Any;
 use std::sync::{Arc, RwLock, atomic::AtomicBool, atomic::Ordering};
 
 use pumpkin_data::item_stack::ItemStack;
+use pumpkin_inventory::{Clearable, Inventory, split_stack_slice};
 use pumpkin_nbt::compound::NbtCompound;
 use pumpkin_util::math::position::BlockPos;
-use pumpkin_world::inventory::{Clearable, Inventory, split_stack_slice};
 
 use super::BlockEntity;
 
@@ -144,7 +144,7 @@ impl BlockEntity for PluginBlockEntity {
         let id = nbt.get_string("id").and_then(registered_name).unwrap_or("");
 
         let mut items = vec![ItemStack::EMPTY.clone(); SLOTS];
-        pumpkin_world::inventory::sync_read_items_from_nbt(nbt, &mut items);
+        pumpkin_inventory::sync_read_items_from_nbt(nbt, &mut items);
 
         Self {
             id,

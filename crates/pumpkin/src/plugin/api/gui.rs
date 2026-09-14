@@ -7,9 +7,9 @@ use pumpkin_inventory::screen_handler::{
     InventoryPlayer, ScreenHandler, ScreenHandlerBehaviour, ScreenProperty,
 };
 use pumpkin_inventory::slot::NormalSlot;
+use pumpkin_inventory::window_property::PropertyDelegate;
+use pumpkin_inventory::{Clearable, Inventory};
 use pumpkin_util::text::TextComponent;
-use pumpkin_world::block::entities::PropertyDelegate;
-use pumpkin_world::inventory::{Clearable, Inventory};
 
 pub struct PluginGui {
     pub window_type: WindowType,

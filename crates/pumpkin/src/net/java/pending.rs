@@ -87,6 +87,7 @@ pub struct PendingConnection {
     pub known_packs_deferred: bool,
     /// Whether it has since been sent, so it is not sent twice.
     pub known_packs_sent: bool,
+    pub vine_challenge: Option<[u8; 16]>,
 }
 
 impl PendingConnection {
@@ -118,6 +119,7 @@ impl PendingConnection {
             answered_network_query: false,
             known_packs_deferred: false,
             known_packs_sent: false,
+            vine_challenge: None,
         }
     }
 
@@ -271,7 +273,7 @@ impl PendingConnection {
         packet: &RawPacket,
     ) -> Result<Option<PacketHandlerResult>, ReadingError> {
         match self.connection_state.load() {
-            ConnectionState::HandShake => self.handle_handshake_packet(packet).await,
+            ConnectionState::HandShake => self.handle_handshake_packet(server, packet).await,
             ConnectionState::Status => self.handle_status_packet(server, packet).await,
             ConnectionState::Login | ConnectionState::Transfer => {
                 self.handle_login_packet(server, packet).await
@@ -283,16 +285,20 @@ impl PendingConnection {
 
     async fn handle_handshake_packet(
         &mut self,
+        server: &Arc<Server>,
         packet: &RawPacket,
     ) -> Result<Option<PacketHandlerResult>, ReadingError> {
         debug!("Handling handshake group");
         let mut payload = &packet.payload[..];
         match packet.id {
             0 => {
-                self.handle_handshake(pumpkin_protocol::java::server::handshake::SHandShake::read(
-                    &mut payload,
-                    &self.version.load(),
-                )?)
+                self.handle_handshake(
+                    server,
+                    pumpkin_protocol::java::server::handshake::SHandShake::read(
+                        &mut payload,
+                        &self.version.load(),
+                    )?,
+                )
                 .await;
                 Ok(None)
             }
@@ -417,10 +423,10 @@ impl PendingConnection {
 
         match packet.id {
             id if id == SClientInformationConfig::to_id(version) => {
-                self.handle_client_information_config(SClientInformationConfig::read(
-                    &mut payload,
-                    &version,
-                )?)
+                self.handle_client_information_config(
+                    server,
+                    SClientInformationConfig::read(&mut payload, &version)?,
+                )
                 .await;
                 Ok(None)
             }
@@ -478,6 +484,7 @@ impl PendingConnection {
 
     pub async fn handle_client_information_config(
         &mut self,
+        server: &Server,
         client_information: SClientInformationConfig<'_>,
     ) {
         debug!("Handling client settings");
@@ -511,7 +518,7 @@ impl PendingConnection {
 
         // A client that sends its settings before its brand still needs the known-packs
         // exchange, so this is the backstop for the one held back at login.
-        self.flush_deferred_known_packs().await;
+        self.flush_deferred_known_packs(server).await;
     }
 
     pub async fn handle_plugin_message(
@@ -530,8 +537,8 @@ impl PendingConnection {
                     // before advertising channels — and before the known-packs exchange
                     // that would otherwise flush the queue, so send what was queued now.
                     self.try_queue_mod_loader_tasks(server);
-                    self.progress_config_tasks().await;
-                    self.flush_deferred_known_packs().await;
+                    self.progress_config_tasks(server).await;
+                    self.flush_deferred_known_packs(server).await;
                 }
                 Err(e) => self.kick(TextComponent::text(e.to_string())).await,
             }
@@ -545,8 +552,8 @@ impl PendingConnection {
                 debug!("Client answered the NeoForge network query");
                 self.answered_network_query = true;
                 self.try_queue_mod_loader_tasks(server);
-                self.progress_config_tasks().await;
-                self.flush_deferred_known_packs().await;
+                self.progress_config_tasks(server).await;
+                self.flush_deferred_known_packs(server).await;
             }
             REGISTER_CHANNEL => {
                 let channels = parse_channel_list(plugin_message.data);
@@ -566,7 +573,7 @@ impl PendingConnection {
             channel => {
                 if let Some(id) = self.config_tasks.acknowledge(channel) {
                     debug!("Configuration task {id} acknowledged on {channel}");
-                    self.progress_config_tasks().await;
+                    self.progress_config_tasks(server).await;
                 } else {
                     // Unknown channels are ignored, matching vanilla behaviour. Mod loaders such
                     // as NeoForge rely on this: a server that announces no modded channels of its
@@ -615,7 +622,7 @@ impl PendingConnection {
     /// Sends queued tasks, the built-in registry data and `CFinishConfig` in the order
     /// [`ConfigTaskQueue`] dictates, stopping as soon as a task is waiting on an answer.
     /// Resumed by [`Self::handle_plugin_message`] when that answer arrives.
-    pub async fn progress_config_tasks(&mut self) {
+    pub async fn progress_config_tasks(&mut self, server: &Server) {
         loop {
             match self.config_tasks.next_step() {
                 ConfigStep::Send { id, payload } => {
@@ -627,7 +634,7 @@ impl PendingConnection {
                         debug!("Configuration task {id} is waiting for an answer on {channel}");
                     }
                 }
-                ConfigStep::SendRegistries => self.send_registry_data().await,
+                ConfigStep::SendRegistries => self.send_registry_data(server).await,
                 ConfigStep::Finish => {
                     debug!("Configuration finished");
                     self.send_packet_now(&CFinishConfig).await;
@@ -653,19 +660,33 @@ impl PendingConnection {
             match packet.response_result() {
                 ResourcePackResponseResult::Downloaded
                 | ResourcePackResponseResult::DownloadSuccess
-                | ResourcePackResponseResult::Accepted
                 | ResourcePackResponseResult::Discarded
-                | ResourcePackResponseResult::Unknown(_) => {}
+                | ResourcePackResponseResult::Unknown(_) => {
+                    if self.version.load() >= JavaMinecraftVersion::V_1_20_5 {
+                        self.send_known_packs(server).await;
+                    } else {
+                        self.handle_known_packs(server).await;
+                    }
+                }
+                ResourcePackResponseResult::Accepted => {}
                 ResourcePackResponseResult::Declined => {
                     if resource_config.force {
                         self.kick(TextComponent::text("Required resource pack was declined"))
                             .await;
+                    } else if self.version.load() >= JavaMinecraftVersion::V_1_20_5 {
+                        self.send_known_packs(server).await;
+                    } else {
+                        self.handle_known_packs(server).await;
                     }
                 }
                 ResourcePackResponseResult::DownloadFail => {
                     if resource_config.force {
                         self.kick(TextComponent::text("Failed to download resource pack"))
                             .await;
+                    } else if self.version.load() >= JavaMinecraftVersion::V_1_20_5 {
+                        self.send_known_packs(server).await;
+                    } else {
+                        self.handle_known_packs(server).await;
                     }
                 }
                 ResourcePackResponseResult::InvalidUrl => {

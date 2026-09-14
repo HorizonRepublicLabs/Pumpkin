@@ -42,12 +42,12 @@ mod entity_types;
 #[cfg(feature = "fluid")]
 mod fluids;
 mod item_tags;
-#[cfg(feature = "tag")]
-mod mod_tags;
 #[cfg(feature = "item")]
 mod items;
 #[cfg(feature = "screen")]
 mod menu_types;
+#[cfg(feature = "tag")]
+mod mod_tags;
 #[cfg(feature = "sound")]
 mod sound_events;
 
@@ -81,8 +81,6 @@ pub use fluids::{
     register_fluid,
 };
 pub use item_tags::{install_item_tags, item_tag_contains, item_tag_members};
-#[cfg(feature = "tag")]
-pub use mod_tags::{ModTags, install_mod_tags, network_tag_entries};
 #[cfg(feature = "item")]
 pub use items::{
     ItemRegistration, base_item_count, item_count, item_from_id, item_from_name, register_item,
@@ -92,6 +90,8 @@ pub use items::{
 pub use menu_types::{
     base_menu_type_count, menu_type_count, menu_type_id, menu_type_name, register_menu_type,
 };
+#[cfg(feature = "tag")]
+pub use mod_tags::{ModTags, install_mod_tags, network_tag_entries};
 #[cfg(feature = "sound")]
 pub use sound_events::{
     base_sound_event_count, register_sound_event, sound_event_count, sound_event_id,

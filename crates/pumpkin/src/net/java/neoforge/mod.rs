@@ -90,10 +90,7 @@ pub fn record_mod_config(file_name: &str, config_type: &str) {
     let mut configs = MOD_CONFIGS
         .lock()
         .unwrap_or_else(std::sync::PoisonError::into_inner);
-    if configs
-        .iter()
-        .any(|(name, _)| name.as_str() == file_name)
-    {
+    if configs.iter().any(|(name, _)| name.as_str() == file_name) {
         return;
     }
     configs.push((file_name.to_string(), config_type.to_string()));

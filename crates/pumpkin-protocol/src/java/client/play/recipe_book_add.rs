@@ -707,6 +707,10 @@ impl ClientPacket for CRecipeBookAdd<'_> {
                         book_category,
                     )?;
                 }
+                DynamicRecipe::Brewing(_) => {
+                    // Brewing recipes are not displayed in the recipe book
+                    continue;
+                }
             }
             display_id += 1;
         }
@@ -777,10 +781,7 @@ fn dynamic_ingredient_items(
 }
 
 /// Whether every part of a dynamic recipe can be named to the client.
-fn dynamic_recipe_is_expressible(
-    recipe: &DynamicRecipe,
-    version: JavaMinecraftVersion,
-) -> bool {
+fn dynamic_recipe_is_expressible(recipe: &DynamicRecipe, version: JavaMinecraftVersion) -> bool {
     // A recipe whose result is mod content belongs to a book this client cannot draw.
     let result_expressible = |result: &crate::codec::recipe::OwnedRecipeResult| {
         Item::from_registry_key(
@@ -798,9 +799,9 @@ fn dynamic_recipe_is_expressible(
             ..
         }) => {
             result_expressible(result)
-                && key
-                    .iter()
-                    .all(|(_, ingredient)| !dynamic_ingredient_items(ingredient, version).is_empty())
+                && key.iter().all(|(_, ingredient)| {
+                    !dynamic_ingredient_items(ingredient, version).is_empty()
+                })
         }
         DynamicRecipe::Crafting(crate::codec::recipe::OwnedCraftingRecipe::Shapeless {
             ingredients,
@@ -822,6 +823,8 @@ fn dynamic_recipe_is_expressible(
             result_expressible(&recipe.result)
                 && !dynamic_ingredient_items(&recipe.ingredient, version).is_empty()
         }
+        // Brewing recipes never reach the book, so nothing about them has to be nameable.
+        DynamicRecipe::Brewing(_) => false,
     }
 }
 

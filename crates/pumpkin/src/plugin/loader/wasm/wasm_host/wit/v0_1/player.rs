@@ -1147,9 +1147,9 @@ impl pumpkin::plugin::player::Host for PluginHostState {
 use crate::plugin::loader::wasm::wasm_host::wit::v0_1::events::from_wasm_hand;
 use pumpkin_inventory::generic_container_screen_handler::GenericContainerScreenHandler;
 use pumpkin_inventory::player::ender_chest_inventory::EnderChestInventory;
+use pumpkin_inventory::{Clearable, Inventory};
 use pumpkin_protocol::codec::item_stack_seralizer::ItemStackSerializer;
 use pumpkin_protocol::java::client::play::CSetContainerSlot;
-use pumpkin_world::inventory::{Clearable, Inventory};
 
 use crate::plugin::loader::wasm::wasm_host::wit::v0_1::pumpkin::plugin::item_stack::ItemStack as WitHostItemStack;
 
@@ -1636,7 +1636,7 @@ impl pumpkin::plugin::player::HostPlayer for PluginHostState {
             &pos,
             volume,
             pitch,
-            rand::random::<f64>(),
+            rand::random::<i64>(),
         );
         Ok(())
     }
@@ -1661,7 +1661,7 @@ impl pumpkin::plugin::player::HostPlayer for PluginHostState {
             &pumpkin_util::math::vector3::Vector3::new(pos.0, pos.1, pos.2),
             volume,
             pitch,
-            rand::random::<f64>(),
+            rand::random::<i64>(),
         );
         Ok(())
     }
@@ -3320,7 +3320,7 @@ impl pumpkin::plugin::player::HostPlayerWithStore<PluginHostState> for HasSelf<P
                     &properties,
                     allow_grab_items,
                     allow_put_items,
-                    &(player.inventory.clone() as Arc<dyn pumpkin_world::inventory::Inventory>),
+                    &(player.inventory.clone() as Arc<dyn pumpkin_inventory::Inventory>),
                 )));
                 player.open_handled_screen_direct(screen_handler, &title);
             })

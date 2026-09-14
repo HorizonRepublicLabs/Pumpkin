@@ -53,7 +53,10 @@ pub fn network_tag_entries(
     let guard = TAGS
         .read()
         .unwrap_or_else(std::sync::PoisonError::into_inner);
-    let Some(map) = guard.as_ref().and_then(|all| all.get(key.identifier_string())) else {
+    let Some(map) = guard
+        .as_ref()
+        .and_then(|all| all.get(key.identifier_string()))
+    else {
         return Vec::new();
     };
     let vanilla = get_registry_key_tags(version, key);

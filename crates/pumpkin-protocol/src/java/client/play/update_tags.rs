@@ -83,6 +83,8 @@ fn write_registry_tags(
 ) -> Result<(), WritingError> {
     let vanilla = get_registry_key_tags(version, registry_key);
     let mod_tags = pumpkin_data::dynamic::network_tag_entries(registry_key, version);
+    // `phf` is not a direct dependency here, so the map's `len` cannot be named.
+    #[allow(clippy::redundant_closure_for_method_calls)]
     let count = vanilla.map_or(0, |tags| tags.len()) + mod_tags.len();
     write.write_var_int(&count.try_into().map_err(|_| {
         WritingError::Message(format!("{count} isn't representable as a VarInt"))
