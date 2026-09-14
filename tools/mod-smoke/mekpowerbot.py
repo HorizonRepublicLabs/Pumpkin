@@ -122,6 +122,17 @@ while time.time() < deadline:
         if pid == 72:
             tid, _ = rv(body, 0)
             send(sock, 0, varint(tid))
+        if pid == 24:
+            # A mod's menu that carries data for its client-side constructor arrives on
+            # neoforge:advanced_open_screen instead of the vanilla open-screen packet.
+            chan_len, cpos = rv(body, 0)
+            channel = body[cpos:cpos + chan_len].decode("utf-8", "replace")
+            cpos += chan_len
+            if channel == "neoforge:advanced_open_screen":
+                wid, cpos = rv(body, cpos)
+                mtype, cpos = rv(body, cpos)
+                sys.modules[__name__].window_id = wid
+                print(f"BOT: OPEN_SCREEN window={wid} menu_type={mtype}", flush=True)
         if pid == 59:
             wid, pos = rv(body, 0)
             mtype, pos = rv(body, pos)

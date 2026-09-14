@@ -174,6 +174,11 @@ These are answered loudly rather than faked:
   decided by the mod's own code.
 - Custom packets to clients are dropped — no connected client can decode a mod's packets,
   so what is lost is presentation, not server state.
+- A mod's tags are sent to the client so that a client with the same mods installed can
+  join at all — one whose items resolve a tag key the server never mentions disconnects
+  with `Missing tag TagKey[...]` — but only their **vanilla** members are named. A client
+  numbers mod content by its own registry order, which is not this server's, so a mod
+  member's id would name something else on the other side; it is dropped instead.
 
 ## Changing the shim
 

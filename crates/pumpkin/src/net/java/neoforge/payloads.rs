@@ -31,11 +31,19 @@ use super::channels::{ChannelProtocol, ModdedChannel};
 pub const BUILTIN_CHANNEL_VERSION: &str = "1";
 
 /// The registries Pumpkin can describe completely, in the order they are sent.
-pub const SYNCED_REGISTRIES: [&str; 6] = [
+///
+/// A snapshot *replaces* the registry it names, so a registry may only be listed here
+/// when this server knows every entry a modded client has. `minecraft:fluid` is the one
+/// that does not qualify: mods register fluids in their own Java half and nothing brings
+/// them across to Pumpkin, so a snapshot would name five vanilla fluids and silently
+/// unbind the client's. The client then throws `Components not bound yet` the moment a
+/// mod touches one of its own fluids -- Mekanism's creative tab does, building a filled
+/// tank. Leaving the registry out lets the client keep its own, at the cost of fluid ids
+/// not agreeing; nothing this server sends names a fluid by id.
+pub const SYNCED_REGISTRIES: [&str; 5] = [
     "minecraft:block",
     "minecraft:item",
     "minecraft:entity_type",
-    "minecraft:fluid",
     "minecraft:block_entity_type",
     "minecraft:menu",
 ];
@@ -116,14 +124,16 @@ pub fn network_query(channels: &[ModdedChannel]) -> Result<Bytes, WritingError> 
 /// Window id, the menu's registry id, the title, then whatever the menu's own constructor
 /// reads. See [`super::advanced_open_screen`] for why vanilla's packet will not do.
 pub fn advanced_open_screen(
-    sync_id: u8,
+    window_id: i32,
     menu_id: u16,
     title: &pumpkin_util::text::TextComponent,
     extra: &[u8],
     version: &pumpkin_util::version::JavaMinecraftVersion,
 ) -> Result<Bytes, WritingError> {
     let mut buf = Vec::new();
-    buf.write_var_int(&VarInt(i32::from(sync_id)))?;
+    // A window id is a var int on the wire, and the JVM loader's ids run past what a
+    // byte holds -- so this takes the id whole rather than vanilla's screen-sized one.
+    buf.write_var_int(&VarInt(window_id))?;
     buf.write_var_int(&VarInt(i32::from(menu_id)))?;
     buf.write_component(title, version)?;
     write_len(&mut buf, extra.len())?;
@@ -332,11 +342,10 @@ mod tests {
     /// every name has to be a resolvable identifier.
     #[test]
     fn every_synced_registry_encodes_completely() {
-        let expected: [(&str, u16); 6] = [
+        let expected: [(&str, u16); 5] = [
             ("minecraft:block", BlockId::count()),
             ("minecraft:item", dynamic::item_count()),
             ("minecraft:entity_type", dynamic::entity_type_count()),
-            ("minecraft:fluid", dynamic::fluid_count()),
             (
                 "minecraft:block_entity_type",
                 dynamic::block_entity_type_count(),

@@ -527,8 +527,16 @@ impl ClientPacket for CRecipeBookAdd<'_> {
                 )
             })
             .count();
-        let dynamic_count = self.dynamic_recipes.len();
-        let total = crafting_count + RECIPES_COOKING.len() + dynamic_count;
+        // A datapack recipe naming an item this server does not have -- a mod's compat
+        // recipe for a mod that is not installed -- cannot be written: its ingredient
+        // would decode to air and the client drops the connection over it. Left out
+        // whole rather than padded.
+        let dynamic: Vec<&DynamicRecipe> = self
+            .dynamic_recipes
+            .iter()
+            .filter(|recipe| dynamic_recipe_is_expressible(recipe, *version))
+            .collect();
+        let total = crafting_count + RECIPES_COOKING.len() + dynamic.len();
 
         // Entry count (VarInt)
         write.write_var_int(&VarInt(total as i32))?;
@@ -619,7 +627,7 @@ impl ClientPacket for CRecipeBookAdd<'_> {
         }
 
         // Write dynamic recipes
-        for recipe in self.dynamic_recipes {
+        for recipe in dynamic {
             match recipe {
                 DynamicRecipe::Crafting(crafting) => {
                     let (group, flags) = match crafting {
@@ -722,54 +730,115 @@ fn resolve_group_id_owned<'a>(
     }))
 }
 
+/// Every concrete item a dynamic (datapack-loaded) ingredient stands for, restricted to
+/// the ones a client can be told about.
+///
+/// Runtime-registered items are left out on purpose. Their ids are this server's, and a
+/// client numbers mod content by its own registry, so the id would name a different item
+/// there -- or nothing at all, which drops the connection. Empty therefore means the
+/// ingredient cannot be named at all (an item from a mod that is not loaded, a tag with
+/// no vanilla members), and an ingredient that lands there takes its whole recipe out of
+/// the book rather than being padded with air (`Ingredient can't contain air`).
+fn dynamic_ingredient_items(
+    ingredient: &crate::codec::recipe::OwnedRecipeIngredient,
+    version: JavaMinecraftVersion,
+) -> Vec<&'static Item> {
+    let resolve = |id: &str| {
+        Item::from_registry_key(id.strip_prefix("minecraft:").unwrap_or(id))
+            .filter(|item| item.id < Item::BASE_COUNT)
+    };
+    match ingredient {
+        crate::codec::recipe::OwnedRecipeIngredient::Simple(id) => {
+            resolve(id).into_iter().collect()
+        }
+        crate::codec::recipe::OwnedRecipeIngredient::Tagged(tag) => {
+            if let Some(items) = resolve_item_tag(tag, version) {
+                return items
+                    .into_iter()
+                    .filter(|item| item.id < Item::BASE_COUNT)
+                    .collect();
+            }
+            // Not a vanilla tag: the mod datapacks may still define it.
+            let name = tag.strip_prefix('#').unwrap_or(tag);
+            let qualified = if name.contains(':') {
+                name.to_string()
+            } else {
+                format!("minecraft:{name}")
+            };
+            pumpkin_data::dynamic::item_tag_members(&qualified)
+                .iter()
+                .filter_map(|member| resolve(member))
+                .collect()
+        }
+        crate::codec::recipe::OwnedRecipeIngredient::OneOf(ids) => {
+            ids.iter().filter_map(|id| resolve(id)).collect()
+        }
+    }
+}
+
+/// Whether every part of a dynamic recipe can be named to the client.
+fn dynamic_recipe_is_expressible(
+    recipe: &DynamicRecipe,
+    version: JavaMinecraftVersion,
+) -> bool {
+    // A recipe whose result is mod content belongs to a book this client cannot draw.
+    let result_expressible = |result: &crate::codec::recipe::OwnedRecipeResult| {
+        Item::from_registry_key(
+            result
+                .item_id
+                .strip_prefix("minecraft:")
+                .unwrap_or(&result.item_id),
+        )
+        .is_some_and(|item| item.id < Item::BASE_COUNT)
+    };
+    match recipe {
+        DynamicRecipe::Crafting(crate::codec::recipe::OwnedCraftingRecipe::Shaped {
+            key,
+            result,
+            ..
+        }) => {
+            result_expressible(result)
+                && key
+                    .iter()
+                    .all(|(_, ingredient)| !dynamic_ingredient_items(ingredient, version).is_empty())
+        }
+        DynamicRecipe::Crafting(crate::codec::recipe::OwnedCraftingRecipe::Shapeless {
+            ingredients,
+            result,
+            ..
+        }) => {
+            result_expressible(result)
+                && ingredients
+                    .iter()
+                    .all(|ingredient| !dynamic_ingredient_items(ingredient, version).is_empty())
+        }
+        DynamicRecipe::Cooking(cooking) => {
+            let recipe = match cooking {
+                crate::codec::recipe::OwnedCookingRecipeType::Blasting(r)
+                | crate::codec::recipe::OwnedCookingRecipeType::Smelting(r)
+                | crate::codec::recipe::OwnedCookingRecipeType::Smoking(r)
+                | crate::codec::recipe::OwnedCookingRecipeType::CampfireCooking(r) => r,
+            };
+            result_expressible(&recipe.result)
+                && !dynamic_ingredient_items(&recipe.ingredient, version).is_empty()
+        }
+    }
+}
+
 fn write_dynamic_ingredient_slot_display(
     write: &mut impl Write,
     ingredient: &crate::codec::recipe::OwnedRecipeIngredient,
     version: JavaMinecraftVersion,
 ) -> Result<(), WritingError> {
-    match ingredient {
-        crate::codec::recipe::OwnedRecipeIngredient::Simple(id) => {
-            let key = id.strip_prefix("minecraft:").unwrap_or(id);
-            if let Some(item) = Item::from_registry_key(key) {
+    let items = dynamic_ingredient_items(ingredient, version);
+    match items.len() {
+        0 => write_empty_slot_display(write, version)?,
+        1 => write_item_slot_display(write, items[0], version)?,
+        _ => {
+            write.write_var_int(&VarInt(slot_display_composite_type(version)))?;
+            write.write_var_int(&VarInt(items.len() as i32))?;
+            for item in &items {
                 write_item_slot_display(write, item, version)?;
-            } else {
-                write_empty_slot_display(write, version)?;
-            }
-        }
-        crate::codec::recipe::OwnedRecipeIngredient::Tagged(tag) => {
-            if let Some(items) = resolve_item_tag(tag, version) {
-                if items.len() == 1 {
-                    write_item_slot_display(write, items[0], version)?;
-                } else {
-                    write.write_var_int(&VarInt(slot_display_composite_type(version)))?;
-                    write.write_var_int(&VarInt(items.len() as i32))?;
-                    for item in &items {
-                        write_item_slot_display(write, item, version)?;
-                    }
-                }
-            } else {
-                write_empty_slot_display(write, version)?;
-            }
-        }
-        crate::codec::recipe::OwnedRecipeIngredient::OneOf(ids) => {
-            let items: Vec<&Item> = ids
-                .iter()
-                .filter_map(|id| {
-                    let key = id.strip_prefix("minecraft:").unwrap_or(id);
-                    Item::from_registry_key(key)
-                })
-                .collect();
-
-            if items.is_empty() {
-                write_empty_slot_display(write, version)?;
-            } else if items.len() == 1 {
-                write_item_slot_display(write, items[0], version)?;
-            } else {
-                write.write_var_int(&VarInt(slot_display_composite_type(version)))?;
-                write.write_var_int(&VarInt(items.len() as i32))?;
-                for item in &items {
-                    write_item_slot_display(write, item, version)?;
-                }
             }
         }
     }
@@ -781,51 +850,13 @@ fn write_dynamic_ingredient_holderset(
     ingredient: &crate::codec::recipe::OwnedRecipeIngredient,
     version: JavaMinecraftVersion,
 ) -> Result<(), WritingError> {
-    match ingredient {
-        crate::codec::recipe::OwnedRecipeIngredient::Simple(id) => {
-            let key = id.strip_prefix("minecraft:").unwrap_or(id);
-            write.write_var_int(&VarInt(2))?;
-            if let Some(item) = Item::from_registry_key(key) {
-                write.write_var_int(&VarInt(item_id_versioned(item, version)))?;
-            } else {
-                write.write_var_int(&VarInt(0))?;
-            }
-        }
-        crate::codec::recipe::OwnedRecipeIngredient::Tagged(tag) => {
-            if let Some(items) = resolve_item_tag(tag, version) {
-                write.write_var_int(&VarInt(items.len() as i32 + 1))?;
-                for item in &items {
-                    write.write_var_int(&VarInt(item_id_versioned(item, version)))?;
-                }
-            } else {
-                let tag = tag.strip_prefix('#').unwrap_or(tag);
-                let full_tag = if tag.contains(':') {
-                    tag.to_string()
-                } else {
-                    format!("minecraft:{tag}")
-                };
-                write.write_var_int(&VarInt(0))?;
-                write.write_string(&full_tag)?;
-            }
-        }
-        crate::codec::recipe::OwnedRecipeIngredient::OneOf(ids) => {
-            let items: Vec<i32> = ids
-                .iter()
-                .filter_map(|id| {
-                    let key = id.strip_prefix("minecraft:").unwrap_or(id);
-                    Item::from_registry_key(key).map(|item| item_id_versioned(item, version))
-                })
-                .collect();
-            if items.is_empty() {
-                write.write_var_int(&VarInt(2))?;
-                write.write_var_int(&VarInt(0))?;
-            } else {
-                write.write_var_int(&VarInt(items.len() as i32 + 1))?;
-                for id in &items {
-                    write.write_var_int(&VarInt(*id))?;
-                }
-            }
-        }
+    // A holder set is written as a list of concrete ids. Air is never one of them: the
+    // client rejects the packet outright, and an unexpressible ingredient has already
+    // taken its recipe out of the book by this point.
+    let items = dynamic_ingredient_items(ingredient, version);
+    write.write_var_int(&VarInt(items.len() as i32 + 1))?;
+    for item in &items {
+        write.write_var_int(&VarInt(item_id_versioned(item, version)))?;
     }
     Ok(())
 }

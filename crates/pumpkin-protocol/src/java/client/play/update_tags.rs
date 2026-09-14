@@ -69,6 +69,48 @@ fn remap_tag_entry_id(key: RegistryKey, id: u16, version: JavaMinecraftVersion) 
     }
 }
 
+/// Writes one registry's tags: the generated ones, then any a mod's datapack declared.
+///
+/// A mod tag's mod-namespaced members are dropped by
+/// [`network_tag_entries`](pumpkin_data::dynamic::network_tag_entries) -- ids for mod
+/// content mean something else on a client that has the mods -- but the tag itself must
+/// be sent: a client whose items resolve a tag key disconnects with `Missing tag TagKey`
+/// when the server never mentions it.
+fn write_registry_tags(
+    mut write: impl Write,
+    registry_key: RegistryKey,
+    version: JavaMinecraftVersion,
+) -> Result<(), WritingError> {
+    let vanilla = get_registry_key_tags(version, registry_key);
+    let mod_tags = pumpkin_data::dynamic::network_tag_entries(registry_key, version);
+    let count = vanilla.map_or(0, |tags| tags.len()) + mod_tags.len();
+    write.write_var_int(&count.try_into().map_err(|_| {
+        WritingError::Message(format!("{count} isn't representable as a VarInt"))
+    })?)?;
+
+    if let Some(vanilla) = vanilla {
+        for (name, tag) in vanilla.entries() {
+            // This is technically a `ResourceLocation` but same thing
+            write.write_string_bounded(name, u16::MAX as usize)?;
+            let remapped_ids: Vec<u16> = tag
+                .1
+                .iter()
+                .map(|&id| remap_tag_entry_id(registry_key, id, version))
+                .collect();
+            write.write_list(&remapped_ids, |p, id| p.write_var_int(&VarInt::from(*id)))?;
+        }
+    }
+    for (name, ids) in &mod_tags {
+        write.write_string_bounded(name, u16::MAX as usize)?;
+        let remapped_ids: Vec<u16> = ids
+            .iter()
+            .map(|&id| remap_tag_entry_id(registry_key, id, version))
+            .collect();
+        write.write_list(&remapped_ids, |p, id| p.write_var_int(&VarInt::from(*id)))?;
+    }
+    Ok(())
+}
+
 impl ClientPacket for CUpdateTagsPlay<'_> {
     fn write_packet_data(
         &self,
@@ -95,20 +137,7 @@ impl ClientPacket for CUpdateTagsPlay<'_> {
             };
 
             for &key in categories {
-                let Some(values) = get_registry_key_tags(*version, key) else {
-                    write.write_var_int(&VarInt::from(0))?;
-                    continue;
-                };
-                write.write_var_int(&VarInt(values.len() as i32))?;
-                for (tag_name, tag_val) in values.entries() {
-                    write.write_string_bounded(tag_name, u16::MAX as usize)?;
-                    let remapped_ids: Vec<u16> = tag_val
-                        .1
-                        .iter()
-                        .map(|&id| remap_tag_entry_id(key, id, *version))
-                        .collect();
-                    write.write_list(&remapped_ids, |p, id| p.write_var_int(&VarInt::from(*id)))?;
-                }
+                write_registry_tags(&mut write, key, *version)?;
             }
             return Ok(());
         }
@@ -122,29 +151,7 @@ impl ClientPacket for CUpdateTagsPlay<'_> {
 
         write.write_list(&valid_keys, |p, &registry_key| {
             p.write_string(&format!("minecraft:{}", registry_key.identifier_string()))?;
-
-            let Some(values) = get_registry_key_tags(*version, registry_key) else {
-                // no tags defined for that registry key in this version
-                // write an empty list and continue
-                p.write_var_int(&VarInt::from(0))?;
-                return Ok(());
-            };
-            p.write_var_int(&values.len().try_into().map_err(|_| {
-                WritingError::Message(format!("{} isn't representable as a VarInt", values.len()))
-            })?)?;
-
-            for (key, values) in values.entries() {
-                // This is technically a `ResourceLocation` but same thing
-                p.write_string_bounded(key, u16::MAX as usize)?;
-                let remapped_ids: Vec<u16> = values
-                    .1
-                    .iter()
-                    .map(|&id| remap_tag_entry_id(registry_key, id, *version))
-                    .collect();
-                p.write_list(&remapped_ids, |p, id| p.write_var_int(&VarInt::from(*id)))?;
-            }
-
-            Ok(())
+            write_registry_tags(p, registry_key, *version)
         })
     }
 }

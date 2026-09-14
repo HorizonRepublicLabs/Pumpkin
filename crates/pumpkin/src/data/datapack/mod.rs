@@ -860,21 +860,27 @@ fn read_pack_mcmeta(pack_path: &Path) -> (String, u32) {
 /// `minecraft:ore`-shaped features are expressible -- see
 /// [`dynamic_features`](pumpkin_world::generation::feature::dynamic_features) -- and each
 /// one that is not gets its reason said once instead of being half-placed.
-/// The dynamic content a datapack load refreshes beyond recipes: worldgen and item tags.
+/// The dynamic content a datapack load refreshes beyond recipes: worldgen and tags.
 pub(crate) fn load_dynamic_content(datapacks_dir: &Path) {
     load_dynamic_worldgen(datapacks_dir);
-    load_dynamic_item_tags(datapacks_dir);
+    load_dynamic_tags(datapacks_dir);
 }
 
-/// Reads item tag JSONs out of the extracted `mod_*` datapacks and installs them.
+/// Reads tag JSONs out of the extracted `mod_*` datapacks and installs them.
+///
+/// One pass over every registry the protocol syncs tags for, not just items: item tags
+/// answer ingredient matching here on the server, and the rest exist because a client
+/// that has the mods installed refuses to finish joining when a tag its items name is
+/// never mentioned.
 ///
 /// Nested directories become tag paths (`tags/item/gems/super.json` is
 /// `<ns>:gems/super`), matching the datapack convention, and entries are stored as
 /// written -- `#references` resolve at query time in the dynamic store.
-pub(crate) fn load_dynamic_item_tags(datapacks_dir: &Path) {
-    let mut tags: std::collections::HashMap<String, Vec<String>> = std::collections::HashMap::new();
+pub(crate) fn load_dynamic_tags(datapacks_dir: &Path) {
+    let mut by_registry: pumpkin_data::dynamic::ModTags = std::collections::HashMap::new();
     let Ok(entries) = fs::read_dir(datapacks_dir) else {
-        pumpkin_data::dynamic::install_item_tags(tags);
+        pumpkin_data::dynamic::install_item_tags(std::collections::HashMap::new());
+        pumpkin_data::dynamic::install_mod_tags(by_registry);
         return;
     };
     for entry in entries.flatten() {
@@ -886,18 +892,44 @@ pub(crate) fn load_dynamic_item_tags(datapacks_dir: &Path) {
         };
         for namespace_entry in namespaces.flatten() {
             let namespace = namespace_entry.file_name().to_string_lossy().to_string();
-            let tag_root = namespace_entry.path().join("tags").join("item");
-            if !tag_root.is_dir() {
-                continue;
+            for &key in pumpkin_data::tag::RegistryKey::NETWORK_KEYS {
+                // The identifier is the directory name, `worldgen/biome` included.
+                let tag_root = namespace_entry
+                    .path()
+                    .join("tags")
+                    .join(key.identifier_string());
+                if !tag_root.is_dir() {
+                    continue;
+                }
+                let tags = by_registry
+                    .entry(key.identifier_string().to_string())
+                    .or_default();
+                collect_tag_files(&tag_root, &tag_root, &namespace, tags);
             }
-            collect_tag_files(&tag_root, &tag_root, &namespace, &mut tags);
         }
     }
-    let count = tags.len();
-    if count > 0 {
-        info!("Mod item tags: {count} tag(s) loaded");
+    let item_tags = by_registry
+        .get(pumpkin_data::tag::RegistryKey::Item.identifier_string())
+        .cloned()
+        .unwrap_or_default();
+    let item_count = item_tags.len();
+    if item_count > 0 {
+        info!("Mod item tags: {item_count} tag(s) loaded");
     }
-    pumpkin_data::dynamic::install_item_tags(tags);
+    let other_count: usize = by_registry
+        .iter()
+        .filter(|(registry, _)| registry.as_str() != "item")
+        .map(|(_, tags)| tags.len())
+        .sum();
+    if other_count > 0 {
+        // Said plainly because these go to the client with their mod-namespaced members
+        // dropped -- see `pumpkin_data::dynamic::network_tag_entries`.
+        info!(
+            "Mod tags for other registries: {other_count} tag(s) loaded; a client is told they exist, with their vanilla members only"
+        );
+    }
+    pumpkin_data::dynamic::install_item_tags(item_tags);
+    pumpkin_data::dynamic::install_mod_tags(by_registry);
 }
 
 fn collect_tag_files(

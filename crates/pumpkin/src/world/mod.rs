@@ -3432,6 +3432,7 @@ impl World {
             for &key in pumpkin_data::tag::RegistryKey::NETWORK_KEYS {
                 if pumpkin_data::tag::get_registry_key_tags(version, key)
                     .is_some_and(|map| !map.is_empty())
+                    || !pumpkin_data::dynamic::network_tag_entries(key, version).is_empty()
                 {
                     tags.push(key);
                 }

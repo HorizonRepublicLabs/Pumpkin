@@ -52,11 +52,14 @@ public abstract class ModContainer {
     }
 
     public void registerConfig(ModConfig.Type type, IConfigSpec spec) {
-        pumpkinWarnOnce();
+        // FML's own default name for a config the mod did not name itself.
+        registerConfig(type, spec, getModId() + "-" + type.name().toLowerCase(java.util.Locale.ROOT)
+                + ".toml");
     }
 
     public void registerConfig(ModConfig.Type type, IConfigSpec spec, String fileName) {
         pumpkinWarnOnce();
+        pumpkinRecord(fileName, type.name());
     }
 
     private void pumpkinWarnOnce() {
@@ -66,6 +69,32 @@ public abstract class ModContainer {
                     + "write config files yet, so editing one will have no effect.");
         }
     }
+
+    /**
+     * Tells the host a config file exists, so a modded client can be sent it.
+     *
+     * <p>Recorded, not read. A NeoForge client that has been told the connection is modded
+     * loads its server-type configs only from what the server sends; a mod reading one that
+     * never arrived throws "Cannot get config value before config is loaded" as the player
+     * joins. The names are what the server needs to send them.
+     *
+     * <p>Reflective because this module sits *below* the host on the classpath -- host
+     * depends on shim depends on fml -- and because the generator's tests load these
+     * classes with no host present at all.
+     */
+    private static void pumpkinRecord(String fileName, String type) {
+        try {
+            if (PUMPKIN_RECORD == null) {
+                PUMPKIN_RECORD = Class.forName("dev.pumpkin.jvmhost.PumpkinHost")
+                        .getMethod("registerModConfig", String.class, String.class);
+            }
+            PUMPKIN_RECORD.invoke(null, fileName, type);
+        } catch (ReflectiveOperationException | LinkageError ignored) {
+            // No host: nothing can be sent to a client anyway.
+        }
+    }
+
+    private static volatile java.lang.reflect.Method PUMPKIN_RECORD;
 
     private static final java.util.Set<String> PUMPKIN_WARNED =
             java.util.concurrent.ConcurrentHashMap.newKeySet();

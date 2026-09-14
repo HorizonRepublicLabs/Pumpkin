@@ -124,6 +124,11 @@ pub fn bind(env: &mut JNIEnv) -> Result<(), VmError> {
                 sig: "(Ljava/lang/String;)I".into(),
                 fn_ptr: vanilla_burn_ticks_native as *mut std::ffi::c_void,
             },
+            NativeMethod {
+                name: "registerModConfig".into(),
+                sig: "(Ljava/lang/String;Ljava/lang/String;)V".into(),
+                fn_ptr: register_mod_config_native as *mut std::ffi::c_void,
+            },
         ],
     )
     .map_err(|err| VmError::Java(format!("Failed to bind PumpkinHost natives: {err}")))
@@ -697,4 +702,27 @@ extern "system" fn vanilla_burn_ticks_native<'a>(
     pumpkin_data::item::Item::from_registry_key(&item)
         .and_then(|item| pumpkin_data::fuels::get_item_burn_ticks(item.id))
         .map_or(0, i32::from)
+}
+
+/// Records a config file a mod registered, so a modded client can be sent it.
+///
+/// Nothing here reads the file -- there is none. What the client needs is for the config
+/// to count as *loaded*: a `NeoForge` client on a modded connection takes its server-type
+/// configs from the server alone, and a mod reading one that never arrived throws
+/// `Cannot get config value before config is loaded` while the player is joining. An
+/// empty file is enough and is also the truth, since every value then answers with the
+/// default the mod declared -- the same value this server uses.
+extern "system" fn register_mod_config_native<'a>(
+    mut env: JNIEnv<'a>,
+    _class: JClass<'a>,
+    file_name: JString<'a>,
+    config_type: JString<'a>,
+) {
+    let Some(file_name) = read_string(&mut env, &file_name, "the config file name") else {
+        return;
+    };
+    let Some(config_type) = read_string(&mut env, &config_type, "the config type") else {
+        return;
+    };
+    crate::net::java::neoforge::record_mod_config(&file_name, &config_type);
 }

@@ -5809,4 +5809,169 @@ edit("net/minecraft/core/RegistryAccess.java", [
 ])
 
 
+# ------------------------------------------- menu extra data, a real byte sink
+edit("net/minecraft/network/FriendlyByteBuf.java", [
+("""public class FriendlyByteBuf extends ByteBuf implements IFriendlyByteBufExtension {
+
+    public FriendlyByteBuf(ByteBuf source) {
+    }
+""",
+"""public class FriendlyByteBuf extends ByteBuf implements IFriendlyByteBufExtension {
+
+    // Pumpkin divergence from the generated shim: this sink, and the writers below marked
+    // the same way, carry real behaviour. A mod hands its client-side screen the data it
+    // needs by writing into one of these -- Mekanism's machines write the block position
+    // of the machine you clicked -- and those bytes have to survive to reach the client on
+    // `neoforge:advanced_open_screen`, or the screen's constructor gets a null buffer and
+    // the client disconnects. Only the writers menu data uses are real; every other member
+    // still throws by name. Re-apply by hand after any regeneration -- grep for
+    // "Pumpkin divergence".
+    private final java.io.ByteArrayOutputStream pumpkinSink = new java.io.ByteArrayOutputStream();
+
+    /** Everything written into this buffer so far, in wire order. */
+    public byte[] pumpkinWritten() {
+        return pumpkinSink.toByteArray();
+    }
+
+    public FriendlyByteBuf(ByteBuf source) {
+    }
+"""),
+("""    public FriendlyByteBuf writeBlockPos(BlockPos pos) {
+        throw Unimplemented.forMember("net/minecraft/network/FriendlyByteBuf.writeBlockPos:(Lnet/minecraft/core/BlockPos;)Lnet/minecraft/network/FriendlyByteBuf;");
+    }""",
+"""    // Pumpkin divergence: real body.
+    public FriendlyByteBuf writeBlockPos(BlockPos pos) {
+        return writeLong(pos.asLong());
+    }"""),
+("""    public FriendlyByteBuf writeVarInt(int value) {
+        throw Unimplemented.forMember("net/minecraft/network/FriendlyByteBuf.writeVarInt:(I)Lnet/minecraft/network/FriendlyByteBuf;");
+    }""",
+"""    // Pumpkin divergence: real body.
+    public FriendlyByteBuf writeVarInt(int value) {
+        int remaining = value;
+        while ((remaining & ~0x7F) != 0) {
+            pumpkinSink.write((remaining & 0x7F) | 0x80);
+            remaining >>>= 7;
+        }
+        pumpkinSink.write(remaining);
+        return this;
+    }"""),
+("""    public FriendlyByteBuf writeBoolean(boolean value) {
+        throw Unimplemented.forMember("net/minecraft/network/FriendlyByteBuf.writeBoolean:(Z)Lnet/minecraft/network/FriendlyByteBuf;");
+    }""",
+"""    // Pumpkin divergence: real body.
+    public FriendlyByteBuf writeBoolean(boolean value) {
+        return writeByte(value ? 1 : 0);
+    }"""),
+("""    public FriendlyByteBuf writeByte(int value) {
+        throw Unimplemented.forMember("net/minecraft/network/FriendlyByteBuf.writeByte:(I)Lnet/minecraft/network/FriendlyByteBuf;");
+    }""",
+"""    // Pumpkin divergence: real body.
+    public FriendlyByteBuf writeByte(int value) {
+        pumpkinSink.write(value);
+        return this;
+    }"""),
+("""    public FriendlyByteBuf writeShort(int value) {
+        throw Unimplemented.forMember("net/minecraft/network/FriendlyByteBuf.writeShort:(I)Lnet/minecraft/network/FriendlyByteBuf;");
+    }""",
+"""    // Pumpkin divergence: real body.
+    public FriendlyByteBuf writeShort(int value) {
+        pumpkinSink.write(value >>> 8);
+        pumpkinSink.write(value);
+        return this;
+    }"""),
+("""    public FriendlyByteBuf writeInt(int value) {
+        throw Unimplemented.forMember("net/minecraft/network/FriendlyByteBuf.writeInt:(I)Lnet/minecraft/network/FriendlyByteBuf;");
+    }""",
+"""    // Pumpkin divergence: real body.
+    public FriendlyByteBuf writeInt(int value) {
+        pumpkinSink.write(value >>> 24);
+        pumpkinSink.write(value >>> 16);
+        pumpkinSink.write(value >>> 8);
+        pumpkinSink.write(value);
+        return this;
+    }"""),
+("""    public FriendlyByteBuf writeLong(long value) {
+        throw Unimplemented.forMember("net/minecraft/network/FriendlyByteBuf.writeLong:(J)Lnet/minecraft/network/FriendlyByteBuf;");
+    }""",
+"""    // Pumpkin divergence: real body.
+    public FriendlyByteBuf writeLong(long value) {
+        for (int shift = 56; shift >= 0; shift -= 8) {
+            pumpkinSink.write((int) (value >>> shift));
+        }
+        return this;
+    }"""),
+("""    public FriendlyByteBuf writeFloat(float value) {
+        throw Unimplemented.forMember("net/minecraft/network/FriendlyByteBuf.writeFloat:(F)Lnet/minecraft/network/FriendlyByteBuf;");
+    }""",
+"""    // Pumpkin divergence: real body.
+    public FriendlyByteBuf writeFloat(float value) {
+        return writeInt(Float.floatToIntBits(value));
+    }"""),
+("""    public FriendlyByteBuf writeDouble(double value) {
+        throw Unimplemented.forMember("net/minecraft/network/FriendlyByteBuf.writeDouble:(D)Lnet/minecraft/network/FriendlyByteBuf;");
+    }""",
+"""    // Pumpkin divergence: real body.
+    public FriendlyByteBuf writeDouble(double value) {
+        return writeLong(Double.doubleToLongBits(value));
+    }"""),
+("""    public FriendlyByteBuf writeUUID(UUID uuid) {
+        throw Unimplemented.forMember("net/minecraft/network/FriendlyByteBuf.writeUUID:(Ljava/util/UUID;)Lnet/minecraft/network/FriendlyByteBuf;");
+    }""",
+"""    // Pumpkin divergence: real body.
+    public FriendlyByteBuf writeUUID(UUID uuid) {
+        writeLong(uuid.getMostSignificantBits());
+        return writeLong(uuid.getLeastSignificantBits());
+    }"""),
+("""    public FriendlyByteBuf writeEnum(Enum<?> value) {
+        throw Unimplemented.forMember("net/minecraft/network/FriendlyByteBuf.writeEnum:(Ljava/lang/Enum;)Lnet/minecraft/network/FriendlyByteBuf;");
+    }""",
+"""    // Pumpkin divergence: real body.
+    public FriendlyByteBuf writeEnum(Enum<?> value) {
+        return writeVarInt(value.ordinal());
+    }"""),
+("""    public FriendlyByteBuf writeUtf(String value) {
+        throw Unimplemented.forMember("net/minecraft/network/FriendlyByteBuf.writeUtf:(Ljava/lang/String;)Lnet/minecraft/network/FriendlyByteBuf;");
+    }""",
+"""    // Pumpkin divergence: real body.
+    public FriendlyByteBuf writeUtf(String value) {
+        byte[] encoded = value.getBytes(java.nio.charset.StandardCharsets.UTF_8);
+        writeVarInt(encoded.length);
+        return writeBytes(encoded);
+    }"""),
+("""    public FriendlyByteBuf writeUtf(String value, int maxLength) {
+        throw Unimplemented.forMember("net/minecraft/network/FriendlyByteBuf.writeUtf:(Ljava/lang/String;I)Lnet/minecraft/network/FriendlyByteBuf;");
+    }""",
+"""    // Pumpkin divergence: real body. The cap is the client's business; a mod that
+    // overruns it is a mod bug, and truncating here would hide it as garbled data.
+    public FriendlyByteBuf writeUtf(String value, int maxLength) {
+        return writeUtf(value);
+    }"""),
+("""    public FriendlyByteBuf writeByteArray(byte[] bytes) {
+        throw Unimplemented.forMember("net/minecraft/network/FriendlyByteBuf.writeByteArray:([B)Lnet/minecraft/network/FriendlyByteBuf;");
+    }""",
+"""    // Pumpkin divergence: real body.
+    public FriendlyByteBuf writeByteArray(byte[] bytes) {
+        writeVarInt(bytes.length);
+        return writeBytes(bytes);
+    }"""),
+("""    public FriendlyByteBuf writeBytes(byte[] src) {
+        throw Unimplemented.forMember("net/minecraft/network/FriendlyByteBuf.writeBytes:([B)Lnet/minecraft/network/FriendlyByteBuf;");
+    }""",
+"""    // Pumpkin divergence: real body.
+    public FriendlyByteBuf writeBytes(byte[] src) {
+        pumpkinSink.write(src, 0, src.length);
+        return this;
+    }"""),
+("""    public FriendlyByteBuf writeBytes(byte[] src, int srcIndex, int length) {
+        throw Unimplemented.forMember("net/minecraft/network/FriendlyByteBuf.writeBytes:([BII)Lnet/minecraft/network/FriendlyByteBuf;");
+    }""",
+"""    // Pumpkin divergence: real body.
+    public FriendlyByteBuf writeBytes(byte[] src, int srcIndex, int length) {
+        pumpkinSink.write(src, srcIndex, length);
+        return this;
+    }"""),
+])
+
+
 commit()

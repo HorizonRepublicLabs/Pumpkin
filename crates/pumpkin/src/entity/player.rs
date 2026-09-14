@@ -5545,7 +5545,7 @@ impl Player {
                 return;
             };
             let payload = crate::net::java::neoforge::advanced_open_screen(
-                sync_id,
+                i32::from(sync_id),
                 menu_id,
                 title,
                 extra,

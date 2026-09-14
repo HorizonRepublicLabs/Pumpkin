@@ -95,7 +95,7 @@ public final class PumpkinPlayer extends net.minecraft.world.entity.player.Playe
 
     private String openedMenu;
 
-    /** {@code type|windowId|title} for the menu the interaction opened, or null. */
+    /** {@code type|windowId|extraBase64|title} for the menu opened, or null. */
     public String pumpkinOpenedMenu() {
         return openedMenu;
     }
@@ -113,32 +113,60 @@ public final class PumpkinPlayer extends net.minecraft.world.entity.player.Playe
     @Override
     public java.util.OptionalInt openMenu(net.minecraft.world.MenuProvider provider,
             java.util.function.Consumer<net.minecraft.network.RegistryFriendlyByteBuf> extraData) {
-        // NeoForge's extra-data overload: the buffer feeds the client-side menu ctor,
-        // which Pumpkin never runs -- the server menu is what matters here.
-        return openMenu(provider);
+        // NeoForge's extra-data overload: the buffer feeds the client-side menu
+        // constructor, which reads it back on the other end of
+        // `neoforge:advanced_open_screen`. Mekanism's machines write the block position
+        // here, and a screen that never receives it disconnects the client on a null
+        // buffer -- so the writer runs and its bytes ride along.
+        return pumpkinOpenMenu(provider, extraData);
     }
 
     public java.util.OptionalInt openMenu(net.minecraft.world.MenuProvider provider,
             net.minecraft.core.BlockPos pos) {
-        // The extension overload NeoForge blocks actually call; the position adds
-        // nothing the provider does not already know.
-        return openMenu(provider);
+        // The extension overload, which NeoForge itself defines as writing the position
+        // into the same buffer. Written the same way here so both overloads produce the
+        // bytes the client's menu constructor expects to read.
+        return pumpkinOpenMenu(provider, buffer -> buffer.writeBlockPos(pos));
     }
 
     @Override
     public java.util.OptionalInt openMenu(net.minecraft.world.MenuProvider provider) {
+        return pumpkinOpenMenu(provider, null);
+    }
+
+    private java.util.OptionalInt pumpkinOpenMenu(net.minecraft.world.MenuProvider provider,
+            java.util.function.Consumer<net.minecraft.network.RegistryFriendlyByteBuf> extraData) {
         int windowId = dev.pumpkin.bridge.PumpkinMenusAccess.nextWindowId();
         net.minecraft.world.inventory.AbstractContainerMenu menu =
                 provider.createMenu(windowId, inventory, this);
         if (menu == null) {
             return java.util.OptionalInt.empty();
         }
+        String extra = "";
+        if (extraData != null) {
+            net.minecraft.network.RegistryFriendlyByteBuf buffer =
+                    new net.minecraft.network.RegistryFriendlyByteBuf();
+            try {
+                extraData.accept(buffer);
+            } catch (Throwable failure) {
+                // Half the bytes the screen expects are worse than none: the client would
+                // read past the end of them and drop the connection. Refuse the menu
+                // instead, and say which writer could not be run.
+                System.err.println("A menu's extra data could not be written, so it was not"
+                        + " opened: " + failure);
+                return java.util.OptionalInt.empty();
+            }
+            extra = java.util.Base64.getEncoder().encodeToString(buffer.pumpkinWritten());
+        }
         dev.pumpkin.bridge.PumpkinMenusAccess.register(windowId, menu);
         dev.pumpkin.bridge.PumpkinMenusAccess.bindPlayer(windowId, this);
         String type = dev.pumpkin.bridge.PumpkinMenusAccess.typeName(menu);
         String title = provider.getDisplayName() == null ? ""
                 : provider.getDisplayName().getString();
-        openedMenu = (type == null ? "unknown" : type) + "|" + windowId + "|" + title;
+        // type|windowId|extra|title -- the title is last because it is the one field that
+        // can contain anything.
+        openedMenu = (type == null ? "unknown" : type) + "|" + windowId + "|" + extra + "|"
+                + title;
         return java.util.OptionalInt.of(windowId);
     }
 

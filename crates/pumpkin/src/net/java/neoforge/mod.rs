@@ -80,6 +80,52 @@ const SYNC_CHANNELS: [&str; 4] = [
 const SERVER_CONFIG_NAME: &str = "neoforge-server.toml";
 const SERVER_CONFIG: &str = include_str!("server_config.toml");
 
+/// Config files mods registered, in registration order: `(file name, type)`.
+///
+/// Filled by the JVM plugin loader as mods construct, read once a client is joining.
+static MOD_CONFIGS: std::sync::Mutex<Vec<(String, String)>> = std::sync::Mutex::new(Vec::new());
+
+/// Records a config file a mod registered. See [`mod_config_payloads`].
+pub fn record_mod_config(file_name: &str, config_type: &str) {
+    let mut configs = MOD_CONFIGS
+        .lock()
+        .unwrap_or_else(std::sync::PoisonError::into_inner);
+    if configs
+        .iter()
+        .any(|(name, _)| name.as_str() == file_name)
+    {
+        return;
+    }
+    configs.push((file_name.to_string(), config_type.to_string()));
+}
+
+/// A `neoforge:config_file` payload per server-type config a mod registered, each empty.
+///
+/// Empty is the honest content: Pumpkin reads no config files, so every value on this
+/// server is the default the mod declared, and a value missing from a synced file is
+/// exactly what `ModConfigSpec` answers from its default. What the file achieves is that
+/// the client's copy counts as loaded -- without it the mod throws
+/// `Cannot get config value before config is loaded` while the player joins.
+///
+/// Only `SERVER` configs: those are the ones `NeoForge` itself syncs, and the client owns
+/// its client- and common-type files.
+fn mod_config_payloads() -> Vec<(String, Bytes)> {
+    let configs = MOD_CONFIGS
+        .lock()
+        .unwrap_or_else(std::sync::PoisonError::into_inner);
+    configs
+        .iter()
+        .filter(|(_, config_type)| config_type.eq_ignore_ascii_case("SERVER"))
+        .filter_map(|(name, _)| match payloads::config_file(name, &[]) {
+            Ok(encoded) => Some((name.clone(), encoded)),
+            Err(err) => {
+                warn!("Failed to encode the config file {name}: {err}");
+                None
+            }
+        })
+        .collect()
+}
+
 /// The subset of the `NeoForge` configuration this module needs.
 pub struct NeoForgeSettings {
     /// Whether `NeoForge` support runs at all.
@@ -134,6 +180,22 @@ pub fn queue_config_tasks(connection: &mut PendingConnection, config: &NeoForgeS
             payloads.server_config.clone(),
         ),
     );
+
+    // The mods' own server configs, which NeoForge would have synced from files.
+    let mod_configs = mod_config_payloads();
+    if !mod_configs.is_empty() {
+        debug!("Sending {} mod server config(s)", mod_configs.len());
+    }
+    for (name, payload) in mod_configs {
+        connection.queue_config_task(
+            ConfigStage::BeforeRegistries,
+            ConfigTask::fire_and_forget(
+                format!("neoforge:config_{name}"),
+                CONFIG_FILE_CHANNEL,
+                payload,
+            ),
+        );
+    }
 
     queue_registry_sync(connection, config);
 
@@ -325,13 +387,13 @@ fn sync_payloads() -> Option<&'static SyncPayloads> {
 /// the vanilla way.
 #[must_use]
 pub fn advanced_open_screen(
-    sync_id: u8,
+    window_id: i32,
     menu_id: u16,
     title: &TextComponent,
     extra: &[u8],
     version: &pumpkin_util::version::JavaMinecraftVersion,
 ) -> Bytes {
-    payloads::advanced_open_screen(sync_id, menu_id, title, extra, version)
+    payloads::advanced_open_screen(window_id, menu_id, title, extra, version)
         .inspect_err(|err| warn!("Failed to encode the NeoForge open screen payload: {err}"))
         .unwrap_or_default()
 }

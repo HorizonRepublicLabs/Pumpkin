@@ -1585,19 +1585,59 @@ pub fn handle_menu_close(window_id: i32) -> bool {
     true
 }
 
-/// Opens a mod menu on the client: the screen the mod registered, with its contents.
-///
-/// `spec` is the bridge's `type|windowId|title`. The window id is the Java side's --
-/// clicks will come back carrying it, which is how they find their menu again. The
-/// content follows in a second bridge call because the menu's slots exist only after the
-/// mod's constructor ran, inside the interaction that produced `spec`.
-fn open_jvm_menu(spec: &str, player: &Arc<crate::entity::player::Player>) {
-    use pumpkin_protocol::codec::item_stack_seralizer::ItemStackSerializer;
+/// Tells the client which screen to open: vanilla's packet, or `NeoForge`'s payload
+/// when the menu's own constructor has data waiting for it.
+fn send_menu_open(
+    java: &crate::net::java::JavaClient,
+    window_id: i32,
+    menu_type_id: u16,
+    title: &str,
+    extra: &[u8],
+) {
     use pumpkin_util::text::TextComponent;
 
-    let mut parts = spec.splitn(3, '|');
-    let (Some(type_name), Some(window_id), Some(title)) =
-        (parts.next(), parts.next(), parts.next())
+    let title = TextComponent::text(title.to_string());
+    let serialized = if extra.is_empty() {
+        java.serialize_packet(&pumpkin_protocol::java::client::play::COpenScreen::new(
+            window_id.into(),
+            i32::from(menu_type_id).into(),
+            &title,
+        ))
+    } else {
+        let payload = crate::net::java::neoforge::advanced_open_screen(
+            window_id,
+            menu_type_id,
+            &title,
+            extra,
+            &java.version.load(),
+        );
+        java.serialize_packet(&pumpkin_protocol::java::client::play::CCustomPayload::new(
+            crate::net::java::neoforge::OPEN_SCREEN_CHANNEL,
+            &payload,
+        ))
+    };
+    if let Ok(data) = serialized {
+        java.try_enqueue_packet(data);
+    }
+}
+
+/// Opens a mod menu on the client: the screen the mod registered, with its contents.
+///
+/// `spec` is the bridge's `type|windowId|extraBase64|title`. The window id is the Java
+/// side's -- clicks will come back carrying it, which is how they find their menu again.
+/// `extraBase64` is whatever the mod wrote for its own client-side menu constructor: a
+/// machine writes its block position there, and a screen that receives none of it throws
+/// on a null buffer and takes the connection down, which is why a menu that has extra
+/// data goes out on `NeoForge`'s payload rather than vanilla's packet. The content
+/// follows in a second bridge call because the menu's slots exist only after the mod's
+/// constructor ran, inside the interaction that produced `spec`.
+fn open_jvm_menu(spec: &str, player: &Arc<crate::entity::player::Player>) {
+    use base64::Engine as _;
+    use pumpkin_protocol::codec::item_stack_seralizer::ItemStackSerializer;
+
+    let mut parts = spec.splitn(4, '|');
+    let (Some(type_name), Some(window_id), Some(extra), Some(title)) =
+        (parts.next(), parts.next(), parts.next(), parts.next())
     else {
         return;
     };
@@ -1608,19 +1648,22 @@ fn open_jvm_menu(spec: &str, player: &Arc<crate::entity::player::Player>) {
         tracing::warn!("{type_name}: the mod opened a menu whose type never registered");
         return;
     };
+    let extra = if extra.is_empty() {
+        Vec::new()
+    } else {
+        match base64::engine::general_purpose::STANDARD.decode(extra) {
+            Ok(bytes) => bytes,
+            Err(err) => {
+                tracing::warn!("{type_name}: the menu's extra data did not decode: {err}");
+                return;
+            }
+        }
+    };
 
     let crate::net::ClientPlatform::Java(java) = player.client.as_ref() else {
         return;
     };
-    let title = TextComponent::text(title.to_string());
-    let open = pumpkin_protocol::java::client::play::COpenScreen::new(
-        window_id.into(),
-        i32::from(menu_type_id).into(),
-        &title,
-    );
-    if let Ok(data) = java.serialize_packet(&open) {
-        java.try_enqueue_packet(data);
-    }
+    send_menu_open(java, window_id, menu_type_id, title, &extra);
 
     // Second trip: the slot contents, now that the menu exists.
     let Some(vm) = vm::current() else {

@@ -66,6 +66,16 @@ while time.time() < deadline:
     elif state == "play":
         if pid == 44 and len(body) == 8:
             send(sock, 28, body)
+        if pid == 24:
+            # A mod's menu that carries data for its client-side constructor arrives on
+            # neoforge:advanced_open_screen instead of the vanilla open-screen packet.
+            chan_len, cpos = read_varint_buf(body, 0)
+            channel = body[cpos:cpos + chan_len].decode("utf-8", "replace")
+            cpos += chan_len
+            if channel == "neoforge:advanced_open_screen":
+                wid, cpos = read_varint_buf(body, cpos)
+                mtype, cpos = read_varint_buf(body, cpos)
+                print(f"BOT: OPEN_SCREEN window={wid} menu_type={mtype}", flush=True)
         if pid == 59:
             wid, pos = read_varint_buf(body, 0)
             mtype, pos = read_varint_buf(body, pos)

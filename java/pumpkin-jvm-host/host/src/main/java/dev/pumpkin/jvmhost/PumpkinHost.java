@@ -158,4 +158,18 @@ public final class PumpkinHost {
 
     /** The vanilla furnace burn time of an item in ticks, 0 when it is not fuel. */
     public static native int vanillaBurnTicks(String itemId);
+
+    /**
+     * Records that a mod registered a config file of the given type.
+     *
+     * <p>Pumpkin reads no config files, so this is not about the values: a NeoForge client
+     * that has been told the connection is modded loads its server-type configs only from
+     * what the server sends it, and a mod reading one it never received throws
+     * "Cannot get config value before config is loaded" as the player joins. Knowing the
+     * file names is what lets the server send them.
+     *
+     * @param fileName the name the mod registered, e.g. {@code Mekanism/additions.toml}
+     * @param type     the {@code ModConfig.Type} name, e.g. {@code SERVER}
+     */
+    public static native void registerModConfig(String fileName, String type);
 }

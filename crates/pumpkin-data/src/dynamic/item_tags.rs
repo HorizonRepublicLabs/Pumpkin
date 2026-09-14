@@ -33,6 +33,45 @@ pub fn item_tag_contains(tag: &str, item: &str) -> bool {
     contains(tags, tag, item, &mut visited)
 }
 
+/// Every item a mod tag names, with nested `#tag` references expanded.
+///
+/// Membership answers ingredient matching; this answers "what is in it" -- the recipe
+/// book has to name concrete items to the client, and a tag it cannot expand is a recipe
+/// it must leave out rather than send an empty ingredient (the client refuses those).
+#[must_use]
+pub fn item_tag_members(tag: &str) -> Vec<String> {
+    let guard = TAGS
+        .read()
+        .unwrap_or_else(std::sync::PoisonError::into_inner);
+    let Some(tags) = guard.as_ref() else {
+        return Vec::new();
+    };
+    let mut out = Vec::new();
+    let mut visited = HashSet::new();
+    members(tags, tag, &mut out, &mut visited);
+    out
+}
+
+fn members<'a>(
+    tags: &'a HashMap<String, Vec<String>>,
+    tag: &'a str,
+    out: &mut Vec<String>,
+    visited: &mut HashSet<&'a str>,
+) {
+    if !visited.insert(tag) {
+        return;
+    }
+    let Some(entries) = tags.get(tag) else {
+        return;
+    };
+    for entry in entries {
+        match entry.strip_prefix('#') {
+            Some(nested) => members(tags, nested, out, visited),
+            None => out.push(entry.clone()),
+        }
+    }
+}
+
 fn contains<'a>(
     tags: &'a HashMap<String, Vec<String>>,
     tag: &'a str,
