@@ -425,6 +425,10 @@ impl WorldInfoWriter for AnvilLevelInfo {
         level_data.last_played = since_the_epoch.as_millis() as i64;
         stamp_current_version(&mut level_data);
 
+        // On a server's first boot nothing has made the world folder yet, and every
+        // write below opens a file inside it.
+        std::fs::create_dir_all(level_folder)?;
+
         // ── Write level.dat ───────────────────────────────────────────────────
         let path = level_folder.join(LEVEL_DAT_FILE_NAME);
         let path_new = level_folder.join("level.dat_new");
@@ -1068,5 +1072,26 @@ mod test {
         let loaded_wt = crate::world_info::data_files::read_wandering_trader(temp_dir.path());
         assert_eq!(loaded_wt.spawn_delay, 24000);
         assert_eq!(loaded_wt.spawn_chance, 25);
+    }
+
+    #[test]
+    fn a_world_folder_that_does_not_exist_yet_is_created() {
+        // First boot writes level.dat before anything has made the world folder. The
+        // write used to fail with InfoNotFound and the seed was never persisted, so
+        // every restart generated a different world.
+        let temp_dir = TempDir::new().unwrap();
+        let level_folder = temp_dir.path().join("world");
+        assert!(!level_folder.exists());
+
+        let mut level_data = LEVEL_DAT.data.clone();
+        level_data.world_gen_settings = WorldGenSettings::new(Seed(4242));
+
+        AnvilLevelInfo
+            .write_world_info(&level_data, &level_folder)
+            .expect("writing into a missing world folder should create it");
+
+        assert!(level_folder.join(LEVEL_DAT_FILE_NAME).exists());
+        let reloaded = AnvilLevelInfo.read_world_info(&level_folder).unwrap();
+        assert_eq!(reloaded.world_gen_settings.seed, 4242);
     }
 }
