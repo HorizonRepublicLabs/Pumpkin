@@ -1065,7 +1065,7 @@ fn apply_vanilla_pulls(world: &Arc<crate::world::World>, spec: &str) {
         }
         stack.decrement(count);
         container.set_stack(slot, stack);
-        pumpkin_world::inventory::Inventory::mark_dirty(&*container);
+        pumpkin_inventory::Inventory::mark_dirty(&*container);
     }
 }
 
@@ -1469,7 +1469,7 @@ fn player_inventory_csv(
 
     let mut player_inv = String::new();
     for index in 0..36usize {
-        let stack = pumpkin_world::inventory::Inventory::get_stack(&**inventory, index);
+        let stack = pumpkin_inventory::Inventory::get_stack(&**inventory, index);
         if stack.item_count == 0 {
             continue;
         }
@@ -1518,7 +1518,7 @@ fn apply_menu_click_reply(
             for (index, entry) in spec.split(',').enumerate().take(36) {
                 let stack = parse_stack(entry)
                     .unwrap_or_else(|| pumpkin_data::item_stack::ItemStack::EMPTY.clone());
-                pumpkin_world::inventory::Inventory::set_stack(&**inventory, index, stack.clone());
+                pumpkin_inventory::Inventory::set_stack(&**inventory, index, stack.clone());
                 player.sync_hand_slot(index, stack);
             }
         } else if let Some(spec) = part.strip_prefix("POS=") {
@@ -1735,7 +1735,7 @@ fn play_mod_sound(world: &Arc<crate::world::World>, spec: &str) {
     ) else {
         return;
     };
-    let seed: f64 = rand::random();
+    let seed = rand::random::<i64>();
     let packet = pumpkin_protocol::java::client::play::CSoundEffect::new(
         pumpkin_protocol::IdOr::Value(pumpkin_protocol::SoundEvent {
             sound_name: name,
@@ -1803,7 +1803,7 @@ fn write_mod_data(
         .write()
         .unwrap_or_else(std::sync::PoisonError::into_inner)
         .put_string(MOD_DATA_KEY, blob.to_string());
-    pumpkin_world::inventory::Inventory::mark_dirty(plugin);
+    pumpkin_inventory::Inventory::mark_dirty(plugin);
     // Re-adding broadcasts the entity's client data to the chunk's watchers and refreshes
     // the pending chunk NBT -- how a pedestal's held item reaches a modded client's
     // renderer the moment it changes.
