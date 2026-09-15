@@ -13,6 +13,8 @@ import net.minecraft.world.level.ScheduledTickAccess;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.level.block.state.properties.SlabType;
 import net.minecraft.world.level.material.Fluid;
@@ -24,7 +26,9 @@ import dev.pumpkin.shim.Unimplemented;
 
 public class SlabBlock extends Block implements SimpleWaterloggedBlock {
 
-    public static final EnumProperty<SlabType> TYPE = null;
+    public static final EnumProperty<SlabType> TYPE = BlockStateProperties.SLAB_TYPE;
+
+    public static final BooleanProperty WATERLOGGED = BlockStateProperties.WATERLOGGED;
 
     public MapCodec<? extends SlabBlock> codec() {
         throw Unimplemented.forMember("net/minecraft/world/level/block/SlabBlock.codec:()Lcom/mojang/serialization/MapCodec;");
@@ -41,11 +45,12 @@ public class SlabBlock extends Block implements SimpleWaterloggedBlock {
         throw Unimplemented.forMember("net/minecraft/world/level/block/SlabBlock.useShapeForLightOcclusion:(Lnet/minecraft/world/level/block/state/BlockState;)Z");
     }
 
-    // Pumpkin divergence: declares nothing here. The vanilla declaration needs
-    // property constants this shim does not carry yet; a subclass registering
-    // through this base gets a single state until they exist, rather than a
-    // constructor crash.
+    // Pumpkin divergence: vanilla's declaration, in vanilla's order. A mod slab inherits
+    // its states from here, and the client numbers the same block from the real class, so
+    // declaring fewer states than vanilla shifts the id of every block registered after
+    // this one -- which the client then draws as some other mod's block.
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
+        builder.add(TYPE, WATERLOGGED);
     }
 
     protected VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {

@@ -17,6 +17,12 @@ public class BlockStateProperties {
 
     public static final EnumProperty<BedPart> BED_PART = EnumProperty.create("part", BedPart.class);
 
+    public static final EnumProperty<SlabType> SLAB_TYPE = EnumProperty.create("type", SlabType.class);
+
+    public static final EnumProperty<Half> HALF = EnumProperty.create("half", Half.class);
+
+    public static final EnumProperty<StairsShape> STAIRS_SHAPE = EnumProperty.create("shape", StairsShape.class);
+
     public BlockStateProperties() {
     }
 

@@ -11,6 +11,11 @@ import net.minecraft.world.level.ScheduledTickAccess;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraft.world.level.block.state.properties.BooleanProperty;
+import net.minecraft.world.level.block.state.properties.EnumProperty;
+import net.minecraft.world.level.block.state.properties.Half;
+import net.minecraft.world.level.block.state.properties.StairsShape;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.pathfinder.PathComputationType;
 import net.minecraft.world.phys.shapes.CollisionContext;
@@ -18,6 +23,14 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 import dev.pumpkin.shim.Unimplemented;
 
 public class StairBlock extends Block implements SimpleWaterloggedBlock {
+
+    public static final EnumProperty<Direction> FACING = BlockStateProperties.HORIZONTAL_FACING;
+
+    public static final EnumProperty<Half> HALF = BlockStateProperties.HALF;
+
+    public static final EnumProperty<StairsShape> SHAPE = BlockStateProperties.STAIRS_SHAPE;
+
+    public static final BooleanProperty WATERLOGGED = BlockStateProperties.WATERLOGGED;
 
     public MapCodec<? extends StairBlock> codec() {
         throw Unimplemented.forMember("net/minecraft/world/level/block/StairBlock.codec:()Lcom/mojang/serialization/MapCodec;");
@@ -54,11 +67,11 @@ public class StairBlock extends Block implements SimpleWaterloggedBlock {
         throw Unimplemented.forMember("net/minecraft/world/level/block/StairBlock.mirror:(Lnet/minecraft/world/level/block/state/BlockState;Lnet/minecraft/world/level/block/Mirror;)Lnet/minecraft/world/level/block/state/BlockState;");
     }
 
-    // Pumpkin divergence: declares nothing here. The vanilla declaration needs
-    // property constants this shim does not carry yet; a subclass registering
-    // through this base gets a single state until they exist, rather than a
-    // constructor crash.
+    // Pumpkin divergence: vanilla's declaration, in vanilla's order. A mod stair inherits
+    // its eighty states from here; declaring one instead shifted the id of every block
+    // registered after it, and the client drew some other mod's block in its place.
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
+        builder.add(FACING, HALF, SHAPE, WATERLOGGED);
     }
 
     protected FluidState getFluidState(BlockState state) {
