@@ -3,6 +3,7 @@
 pub mod handles;
 pub mod loot;
 pub mod natives;
+pub mod state_check;
 pub mod vm;
 
 use std::{

@@ -356,7 +356,9 @@ public final class Bootstrap {
      *
      * <p>A NeoForge jar carries its recipes, loot tables and tags as an ordinary datapack
      * under {@code data/}; Pumpkin's datapack loader reads directories, so the tree is
-     * copied out rather than served from the zip. The copy is skipped when the target is
+     * copied out rather than served from the zip. The jar's
+     * {@code assets/<ns>/blockstates/*.json} come out alongside it, for the block state
+     * check. The copy is skipped when the target is
      * newer than the jar, so a server that boots twice does the work once.
      *
      * @param jarPath   the mod jar
@@ -373,7 +375,9 @@ public final class Bootstrap {
         long jarTime = java.nio.file.Files.getLastModifiedTime(jar).toMillis();
         // First line: the jar's mtime, for staleness. Second line: the jar's absolute
         // path, so the datapack loader can skip a pack whose mod has been removed.
-        String stamp = jarTime + "\n" + jar.toAbsolutePath() + "\n";
+        // Third line is the extraction's shape, so widening what is extracted invalidates
+        // markers written by an older server instead of serving a half-populated tree.
+        String stamp = jarTime + "\n" + jar.toAbsolutePath() + "\ndata+blockstates\n";
         if (java.nio.file.Files.exists(marker)
                 && java.nio.file.Files.readString(marker).equals(stamp)) {
             return 0;
@@ -384,7 +388,15 @@ public final class Bootstrap {
             var entries = zip.entries();
             while (entries.hasMoreElements()) {
                 java.util.zip.ZipEntry entry = entries.nextElement();
-                if (entry.isDirectory() || !entry.getName().startsWith("data/")) {
+                // `data/` is the datapack proper. The blockstate models come out too:
+                // they name the property values a block's model tells apart, which is the
+                // one account of a mod block's states that does not come from the shim.
+                String name = entry.getName();
+                boolean wanted = name.startsWith("data/")
+                        || (name.startsWith("assets/")
+                                && name.contains("/blockstates/")
+                                && name.endsWith(".json"));
+                if (entry.isDirectory() || !wanted) {
                     continue;
                 }
                 // Zip entry names are attacker-ish input as far as path handling goes:

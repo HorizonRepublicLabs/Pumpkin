@@ -452,6 +452,14 @@ impl PumpkinServer {
             &self.server.basic_config.get_world_path().join("datapacks"),
         );
 
+        // Now that ids are fixed, say whether any mod block's states disagree with the
+        // model its own jar ships. A disagreement means that block, and every block
+        // registered after it, is numbered differently here than on the client.
+        #[cfg(feature = "jvm-plugins")]
+        crate::plugin::loader::jvm::state_check::report(
+            &self.server.basic_config.get_world_path().join("datapacks"),
+        );
+
         if self.server.advanced_config.plugins.hot_reload {
             if let Err(err) = self.server.plugin_manager.start_watcher(&self.server).await {
                 error!("Failed to start plugin hot-reloading watcher: {err}");
