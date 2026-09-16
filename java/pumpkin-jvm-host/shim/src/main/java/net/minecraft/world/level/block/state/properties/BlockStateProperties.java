@@ -23,6 +23,16 @@ public class BlockStateProperties {
 
     public static final EnumProperty<StairsShape> STAIRS_SHAPE = EnumProperty.create("shape", StairsShape.class);
 
+    public static final BooleanProperty UP = BooleanProperty.create("up");
+
+    public static final EnumProperty<WallSide> NORTH_WALL = EnumProperty.create("north", WallSide.class);
+
+    public static final EnumProperty<WallSide> EAST_WALL = EnumProperty.create("east", WallSide.class);
+
+    public static final EnumProperty<WallSide> SOUTH_WALL = EnumProperty.create("south", WallSide.class);
+
+    public static final EnumProperty<WallSide> WEST_WALL = EnumProperty.create("west", WallSide.class);
+
     public BlockStateProperties() {
     }
 

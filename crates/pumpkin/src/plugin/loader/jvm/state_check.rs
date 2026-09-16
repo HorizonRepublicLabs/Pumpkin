@@ -19,27 +19,67 @@ pub type ModelProperties = BTreeMap<String, BTreeSet<String>>;
 
 /// Reads the properties a blockstate model distinguishes.
 ///
-/// `None` for a multipart model: it selects parts by condition rather than naming a
-/// complete variant per state, so it says nothing about how many states the block has.
+/// Both shapes a model comes in name their properties: a variants model in its keys, a
+/// multipart model in the `when` conditions that choose its parts. `None` only when the
+/// file is neither.
 #[must_use]
 pub fn model_properties(json: &str) -> Option<ModelProperties> {
     let value: serde_json::Value = serde_json::from_str(json).ok()?;
-    let variants = value.get("variants")?.as_object()?;
-
     let mut model = ModelProperties::new();
-    for key in variants.keys() {
-        for pair in key.split(',') {
-            // The one unkeyed variant a property-less block ships splits into nothing.
-            let Some((name, value)) = pair.split_once('=') else {
-                continue;
-            };
-            model
-                .entry(name.to_string())
-                .or_default()
-                .insert(value.to_string());
+
+    if let Some(variants) = value.get("variants").and_then(serde_json::Value::as_object) {
+        for key in variants.keys() {
+            for pair in key.split(',') {
+                // The one unkeyed variant a property-less block ships splits into nothing.
+                let Some((name, value)) = pair.split_once('=') else {
+                    continue;
+                };
+                record(&mut model, name, value);
+            }
+        }
+        return Some(model);
+    }
+
+    if let Some(parts) = value.get("multipart").and_then(serde_json::Value::as_array) {
+        for part in parts {
+            // A part with no condition is drawn for every state and names nothing.
+            if let Some(when) = part.get("when") {
+                record_condition(&mut model, when);
+            }
+        }
+        return Some(model);
+    }
+
+    None
+}
+
+/// Reads one multipart condition, descending through the `OR` and `AND` groupings.
+fn record_condition(model: &mut ModelProperties, when: &serde_json::Value) {
+    let Some(clause) = when.as_object() else {
+        return;
+    };
+    for (name, value) in clause {
+        if name == "OR" || name == "AND" {
+            for nested in value.as_array().into_iter().flatten() {
+                record_condition(model, nested);
+            }
+            continue;
+        }
+        let Some(value) = value.as_str() else {
+            continue;
+        };
+        // A condition may accept any of several values, written `low|tall`.
+        for alternative in value.split('|') {
+            record(model, name, alternative);
         }
     }
-    Some(model)
+}
+
+fn record(model: &mut ModelProperties, name: &str, value: &str) {
+    model
+        .entry(name.to_string())
+        .or_default()
+        .insert(value.to_string());
 }
 
 /// A way a block's model and its registration disagree about the block's states.
@@ -109,8 +149,8 @@ pub fn find_block_model(datapacks: &Path, block_name: &str) -> Option<String> {
 ///
 /// Reports rather than refuses: a disagreement means some block's states are wrong, but
 /// the server still runs, and an operator who cannot start at all is worse off than one
-/// told which block to look at. Blocks whose jar ships no model, or a multipart one, are
-/// counted as unchecked rather than as agreeing.
+/// told which block to look at. Blocks whose jar ships no model at all are counted as
+/// unchecked rather than as agreeing.
 pub fn report(datapacks: &Path) {
     use pumpkin_data::{Block, BlockId};
 
@@ -162,7 +202,7 @@ pub fn report(datapacks: &Path) {
     if checked > 0 || unchecked > 0 {
         tracing::info!(
             "Mod block states: {checked} block(s) checked against their models, \
-             {disagreeing} disagree; {unchecked} had no variants model to check"
+             {disagreeing} disagree; {unchecked} had no model to check"
         );
     }
 }
@@ -297,9 +337,32 @@ mod tests {
     }
 
     #[test]
-    fn a_multipart_model_names_no_variants_to_check() {
-        let json = r#"{"multipart": [{"apply": {"model": "mekanism:block/cable"}}]}"#;
+    fn a_multipart_model_names_its_properties_in_its_conditions() {
+        // A wall draws a part per side per height, and names the property values it
+        // draws in the `when` clauses -- the same account a variants model gives in
+        // its keys.
+        let json = r#"{"multipart": [
+            {"when": {"up": "true"}, "apply": {}},
+            {"when": {"north": "low"}, "apply": {}},
+            {"when": {"north": "tall"}, "apply": {}},
+            {"apply": {"model": "always drawn, names nothing"}}
+        ]}"#;
 
-        assert_eq!(model_properties(json), None);
+        let model = model_properties(json).expect("a multipart model");
+
+        assert_eq!(model["up"], set(["true"]));
+        assert_eq!(model["north"], set(["low", "tall"]));
+    }
+
+    #[test]
+    fn multipart_conditions_nested_under_or_are_read_too() {
+        let json = r#"{"multipart": [
+            {"when": {"OR": [{"east": "low"}, {"west": "tall|low"}]}, "apply": {}}
+        ]}"#;
+
+        let model = model_properties(json).expect("a multipart model");
+
+        assert_eq!(model["east"], set(["low"]));
+        assert_eq!(model["west"], set(["low", "tall"]));
     }
 }

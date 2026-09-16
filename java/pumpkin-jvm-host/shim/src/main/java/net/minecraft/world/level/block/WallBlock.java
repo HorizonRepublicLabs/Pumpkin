@@ -11,6 +11,10 @@ import net.minecraft.world.level.ScheduledTickAccess;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraft.world.level.block.state.properties.BooleanProperty;
+import net.minecraft.world.level.block.state.properties.EnumProperty;
+import net.minecraft.world.level.block.state.properties.WallSide;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.pathfinder.PathComputationType;
 import net.minecraft.world.phys.shapes.CollisionContext;
@@ -18,6 +22,18 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 import dev.pumpkin.shim.Unimplemented;
 
 public class WallBlock extends Block implements SimpleWaterloggedBlock {
+
+    public static final BooleanProperty UP = BlockStateProperties.UP;
+
+    public static final EnumProperty<WallSide> NORTH_WALL = BlockStateProperties.NORTH_WALL;
+
+    public static final EnumProperty<WallSide> EAST_WALL = BlockStateProperties.EAST_WALL;
+
+    public static final EnumProperty<WallSide> SOUTH_WALL = BlockStateProperties.SOUTH_WALL;
+
+    public static final EnumProperty<WallSide> WEST_WALL = BlockStateProperties.WEST_WALL;
+
+    public static final BooleanProperty WATERLOGGED = BlockStateProperties.WATERLOGGED;
 
     public MapCodec<WallBlock> codec() {
         throw Unimplemented.forMember("net/minecraft/world/level/block/WallBlock.codec:()Lcom/mojang/serialization/MapCodec;");
@@ -58,11 +74,12 @@ public class WallBlock extends Block implements SimpleWaterloggedBlock {
         throw Unimplemented.forMember("net/minecraft/world/level/block/WallBlock.propagatesSkylightDown:(Lnet/minecraft/world/level/block/state/BlockState;)Z");
     }
 
-    // Pumpkin divergence: declares nothing here. The vanilla declaration needs
-    // property constants this shim does not carry yet; a subclass registering
-    // through this base gets a single state until they exist, rather than a
-    // constructor crash.
+    // Pumpkin divergence: vanilla's declaration, in vanilla's order -- north, east, west,
+    // south, which is not the order the names suggest and is what numbers the states. A
+    // mod wall inherits its 324 states from here; declaring one instead shifted the id of
+    // every block registered after it.
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
+        builder.add(UP, NORTH_WALL, EAST_WALL, WEST_WALL, SOUTH_WALL, WATERLOGGED);
     }
 
     protected BlockState rotate(BlockState state, Rotation rotation) {
