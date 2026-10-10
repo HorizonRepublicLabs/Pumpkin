@@ -108,6 +108,35 @@ impl gui::HostGui for PluginHostState {
         self.add(gui)
     }
 
+    fn modded(
+        &mut self,
+        screen: gui::ModdedScreen,
+        title: Resource<crate::pumpkin::plugin::text::TextComponent>,
+    ) -> wasmtime::Result<Result<Resource<Gui>, String>> {
+        let title = self.take(title)?;
+
+        let Some(menu_id) = pumpkin_data::dynamic::menu_type_id(&screen.menu_type) else {
+            return Ok(Err(format!(
+                "unknown menu type {}; register it first",
+                screen.menu_type
+            )));
+        };
+
+        // The window type is unused for a modded screen — the client is told which screen to
+        // draw by registry id — but the handler still wants one, so it gets a neutral value.
+        let gui = Arc::new(Mutex::new(PluginGui {
+            modded_menu: Some((menu_id, screen.extra_data)),
+            properties: Arc::new(pumpkin_core::plugin::api::gui::PluginProperties::default()),
+            window_type: pumpkin_data::screen::WindowType::Generic9x3,
+            title,
+            inventory: Arc::new(PluginInventory::new(screen.slots as usize)),
+            allow_grab_items: true,
+            allow_put_items: true,
+        }));
+
+        Ok(Ok(self.add(gui)?))
+    }
+
     async fn get_inventory(
         &mut self,
         res: Resource<Gui>,
@@ -138,6 +167,26 @@ impl gui::HostGui for PluginHostState {
             slots[slot as usize] = item_stack;
         }
         Ok(())
+    }
+
+    async fn set_property(
+        &mut self,
+        res: Resource<Gui>,
+        index: u32,
+        value: i32,
+    ) -> wasmtime::Result<()> {
+        let gui = self.get(&res)?.lock().await;
+        gui.properties.set(index as usize, value);
+        Ok(())
+    }
+
+    async fn get_property(
+        &mut self,
+        res: Resource<Gui>,
+        index: u32,
+    ) -> wasmtime::Result<Option<i32>> {
+        let gui = self.get(&res)?.lock().await;
+        Ok(gui.properties.get(index as usize))
     }
 
     async fn get_item(

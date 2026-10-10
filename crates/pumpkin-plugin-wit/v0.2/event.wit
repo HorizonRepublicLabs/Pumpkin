@@ -271,6 +271,19 @@ interface event {
         cancelled: bool
     }
 
+    /// A block was chosen for a random tick.
+    ///
+    /// Only blocks a plugin registered are reported: a generated one is ticked by the
+    /// server's own code for it. This is where a crop grows, and the only place a
+    /// registered block gets to act on its own.
+    record block-random-tick-event-data {
+        target-world: %world,
+        block: string,
+        state-id: u16,
+        block-pos: block-pos,
+        cancelled: bool
+    }
+
     record block-place-event-data {
         player: player,
         block-placed: string,
@@ -1916,6 +1929,7 @@ interface event {
         block-can-build-event,
         block-grow-event,
         block-place-event,
+        block-random-tick-event,
         bedrock-form-response-event,
         dialog-click-action-event,
         dialog-show-event,
@@ -2192,6 +2206,7 @@ interface event {
         block-can-build-event(block-can-build-event-data),
         block-grow-event(block-grow-event-data),
         block-place-event(block-place-event-data),
+        block-random-tick-event(block-random-tick-event-data),
         dialog-click-action-event(dialog-click-action-event-data),
         dialog-show-event(dialog-show-event-data),
         dialog-clear-event(dialog-clear-event-data),

@@ -71,6 +71,8 @@ world plugin {
     import display;
     /// Provides game rules definitions and queries.
     import game-rules;
+    /// Provides registration of custom blocks, items and entity types.
+    import registry;
     /// Provides game event types.
     import game-events;
     /// Provides potion types.

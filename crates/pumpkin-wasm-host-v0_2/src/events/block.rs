@@ -15,12 +15,13 @@ use crate::{
         BlockExplodeEventData, BlockFadeEventData, BlockFertilizeEventData, BlockFormEventData,
         BlockFromToEventData, BlockGrowEventData, BlockIgniteEventData, BlockMultiPlaceEventData,
         BlockPhysicsEventData, BlockPistonExtendEventData, BlockPistonRetractEventData,
-        BlockPlaceEventData, BlockReceiveGameEventData, BlockRedstoneEventData,
-        BlockShearEntityEventData, BlockSpreadEventData, BrewingStartEventData,
-        CampfireStartEventData, CauldronLevelChangeEventData, CrafterCraftEventData,
-        EntityBlockFormEventData, Event, FluidLevelChangeEventData, InventoryBlockStartEventData,
-        LeavesDecayEventData, MoistureChangeEventData, NotePlayEventData, SculkBloomEventData,
-        SignChangeEventData, SpongeAbsorbEventData, TntPrimeEventData, VaultDisplayItemEventData,
+        BlockPlaceEventData, BlockRandomTickEventData, BlockReceiveGameEventData,
+        BlockRedstoneEventData, BlockShearEntityEventData, BlockSpreadEventData,
+        BrewingStartEventData, CampfireStartEventData, CauldronLevelChangeEventData,
+        CrafterCraftEventData, EntityBlockFormEventData, Event, FluidLevelChangeEventData,
+        InventoryBlockStartEventData, LeavesDecayEventData, MoistureChangeEventData,
+        NotePlayEventData, SculkBloomEventData, SignChangeEventData, SpongeAbsorbEventData,
+        TntPrimeEventData, VaultDisplayItemEventData,
     },
 };
 use pumpkin_core::plugin::block::{
@@ -49,6 +50,7 @@ use pumpkin_core::plugin::block::{
     block_physics::BlockPhysicsEvent,
     block_piston::{BlockPistonExtendEvent, BlockPistonRetractEvent},
     block_place::BlockPlaceEvent,
+    block_random_tick::BlockRandomTickEvent,
     block_receive_game::BlockReceiveGameEvent,
     block_redstone::BlockRedstoneEvent,
     block_shear_entity::BlockShearEntityEvent,
@@ -217,6 +219,35 @@ impl ToFromWasmEvent for BlockGrowEvent {
                 old_state_id: BlockStateId::new_or_air(data.old_state_id),
                 new_block: from_wasm_block_name(&data.new_block),
                 new_state_id: BlockStateId::new_or_air(data.new_state_id),
+                block_pos: from_wasm_block_position(data.block_pos),
+                cancelled: data.cancelled,
+            },
+            _ => panic!("unexpected event type"),
+        }
+    }
+}
+
+impl ToFromWasmEvent for BlockRandomTickEvent {
+    fn to_wasm_event(&self, state: &mut PluginHostState) -> Event {
+        let target_world = state
+            .add(self.world.clone())
+            .expect("failed to add world resource");
+
+        Event::BlockRandomTickEvent(BlockRandomTickEventData {
+            target_world,
+            block: to_wasm_block_name(self.block),
+            state_id: self.state_id.as_u16(),
+            block_pos: to_wasm_block_position(self.block_pos),
+            cancelled: self.cancelled,
+        })
+    }
+
+    fn from_wasm_event(event: Event, state: &mut PluginHostState) -> Self {
+        match event {
+            Event::BlockRandomTickEvent(data) => Self {
+                world: consume_world(state, &data.target_world),
+                block: from_wasm_block_name(&data.block),
+                state_id: BlockStateId::new_or_air(data.state_id),
                 block_pos: from_wasm_block_position(data.block_pos),
                 cancelled: data.cancelled,
             },

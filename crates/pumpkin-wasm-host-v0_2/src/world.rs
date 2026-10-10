@@ -333,6 +333,29 @@ impl WorldHostStateExt for PluginHostState {
         &mut self,
         block_entity: Arc<dyn pumpkin_core::block::entities::BlockEntity>,
     ) -> wasmtime::Result<Option<BlockEntityType>> {
+        // A registered block entity is handed over as a container, unlike every other
+        // variant, which carries a resource of its own kind. Pushing the plain kind here
+        // puts the wrong type at that index, and the first call the plugin makes through
+        // the handle fails to resolve it rather than doing anything.
+        if block_entity
+            .as_any()
+            .downcast_ref::<pumpkin_core::block::entities::plugin::PluginBlockEntity>()
+            .is_some()
+        {
+            let provider = block_entity.clone();
+            let Some(inventory) = block_entity.get_inventory() else {
+                return Ok(None);
+            };
+            let res: Resource<pumpkin::plugin::block_entity::ContainerBlockEntity> =
+                self.add(pumpkin_wasm_host_common::state::ContainerBlockEntity {
+                    provider,
+                    inventory,
+                })?;
+            return Ok(Some(BlockEntityType::PluginBlockEntity(Resource::new_own(
+                res.rep(),
+            ))));
+        }
+
         let mut be = block_entity as _;
         macro_rules! match_be {
             ($( $internal_type:ty => $variant:ident ),* $(,)?) => {
@@ -440,7 +463,7 @@ impl pumpkin::plugin::world::Host for PluginHostState {
         let result = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
             let bsid = BlockStateId::new_or_air(state_id);
             let block = pumpkin_data::Block::from_state_id(bsid);
-            let name = format!("minecraft:{}", block.name);
+            let name = crate::events::namespaced(block.name);
             let properties = block
                 .properties(bsid)
                 .map(|p| {

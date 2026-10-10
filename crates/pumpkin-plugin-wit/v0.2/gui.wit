@@ -5,8 +5,27 @@ interface gui {
     use screens.{screen};
     use inventory.{inventory};
 
+    /// A screen a mod draws itself, rather than one of vanilla's.
+    ///
+    /// The client resolves `menu-type` through the registry sync, so the menu has to have
+    /// been registered. `extra-data` is whatever the mod's own menu constructor reads —
+    /// usually a block position, packed the way Minecraft packs one, so the screen knows
+    /// which machine it is looking at.
+    record modded-screen {
+        /// Namespaced id of a registered menu type, e.g. `mysticalagriculture:reprocessor`.
+        menu-type: string,
+        /// Slots the menu has, matching the mod's own container.
+        slots: u32,
+        /// Extra bytes the menu's constructor reads.
+        extra-data: list<u8>,
+    }
+
     resource gui {
         constructor(%type: screen, title: text-component);
+
+        /// Builds a screen drawn by a mod. Fails if the menu type was never registered.
+        modded: static func(screen: modded-screen, title: text-component) -> result<gui, string>;
+
         /// Returns the underlying inventory handle for this GUI.
         get-inventory: func() -> inventory;
         set-item: func(slot: u32, item: item-stack);
@@ -23,6 +42,16 @@ interface gui {
         
         /// Clears all items from the GUI.
         clear-items: func();
+
+        /// Sets one of the window's data values, which is how a screen shows anything that
+        /// is not an item: progress bars, fuel gauges, and the like.
+        ///
+        /// Their meaning and order belong to whatever draws the screen. A mod's screen
+        /// reads the ones its own container declared, in that container's order.
+        set-property: func(index: u32, value: s32);
+
+        /// Reads back a data value, or nothing if the index was never set.
+        get-property: func(index: u32) -> option<s32>;
 
         /// Sets whether players can grab items out of the inventory.
         set-allow-grab-items: func(allow: bool);

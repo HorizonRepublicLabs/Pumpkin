@@ -1,0 +1,166 @@
+package pumpkin:plugin@0.2.0;
+
+/// Registration of content the server does not ship with.
+///
+/// Every definition starts from a vanilla template and overrides what it needs. Copying is
+/// deliberate: a block carries dozens of fields and a full set of block states, and most
+/// custom content wants "stone, but mine" rather than a definition built from nothing.
+///
+/// # When to call this
+///
+/// Registration is only open while plugins are loading. Call these from `on-load`; the
+/// server freezes its registries once every plugin has loaded, and from that point ids are
+/// fixed for the lifetime of the process and every function here fails. That is what lets
+/// the server hand ids to clients and read them back without synchronising.
+///
+/// The window does not reopen, so a hot-reloaded plugin cannot register content. Registered
+/// content needs a server restart.
+interface registry {
+  /// One property a block's state varies over, e.g. `age` with values `0`..`7`.
+  record block-property {
+    /// Property name, exactly as the mod declares it.
+    name: string,
+    /// Every value the property can take, in the mod's own order.
+    values: list<string>,
+  }
+
+  /// A block to add to the server's registry.
+  /// Something a block yields when it is broken.
+  ///
+  /// A crop drops its essence only when grown, and its seed whatever state it is in, so a
+  /// drop names the states it applies to rather than the block as a whole.
+  record block-drop {
+    /// Namespaced id of the item, e.g. `examplemod:ruby`.
+    item: string,
+    /// Fewest dropped. A drop that can yield nothing has a minimum of zero.
+    min: u8,
+    /// Most dropped. Anything between this and the minimum is equally likely.
+    max: u8,
+    /// Index of the first state this applies to, into the state list the properties
+    /// describe. Left unset it applies to every state.
+    from-state: option<u32>,
+    /// Index of the last state this applies to, inclusive. Left unset it runs to the end.
+    to-state: option<u32>,
+  }
+
+  record block-definition {
+    /// Namespaced id, e.g. `examplemod:ruby_block`. The `minecraft` namespace is reserved.
+    id: string,
+    /// Vanilla block whose definition and block states are copied, e.g. `stone`.
+    template: string,
+    /// Replaces the template's hardness when set.
+    hardness: option<f32>,
+    /// Replaces the template's blast resistance when set.
+    blast-resistance: option<f32>,
+    /// Replaces the template's light emission, 0 to 15, when set.
+    luminance: option<u8>,
+    /// Whether a tool is needed to get anything out of the block, when set.
+    ///
+    /// Left unset the template's rule applies, which is the template's and not the
+    /// block's: a machine standing in for stone is mined like stone.
+    requires-tool: option<bool>,
+    /// The properties the block's states vary over.
+    ///
+    /// The number of states is the product of the value counts, and it has to match the
+    /// client's or the two ends disagree about which state is which. Leave this empty for
+    /// a block with a single state; the template's own states are used only when it is.
+    ///
+    /// Minecraft orders a block's states by treating the properties as digits of a number,
+    /// sorted by name with the first varying slowest. Declare them sorted by name to line
+    /// up with the client.
+    properties: list<block-property>,
+    /// Index of the state the block is placed in, into the state list the properties
+    /// describe. Out-of-range values fall back to the first state.
+    default-state: u32,
+    /// The namespaced id of the item that places this block, if it has one.
+    ///
+    /// Register the item first. Not every block has one — a crop is placed by its seeds —
+    /// and without this nothing can place the block, because the item a template carried
+    /// belongs to the template.
+    item: option<string>,
+    /// What the block yields when broken.
+    ///
+    /// A block with none drops nothing: the template's own drops belong to the template,
+    /// and a registered block that inherited them would drop the wrong item.
+    drops: list<block-drop>,
+    /// The namespaced id of the block entity type placing this block creates, if any.
+    ///
+    /// Register the type first. A block without one has nowhere to keep anything: a
+    /// machine's contents would live only in whatever window happened to be open and go
+    /// when it closed. Leaving this unset inherits the template's, which is what a block
+    /// standing in for a plain material wants.
+    block-entity: option<string>,
+  }
+
+  /// An item to add to the server's registry.
+  record item-definition {
+    /// Namespaced id, e.g. `examplemod:ruby`. The `minecraft` namespace is reserved.
+    id: string,
+    /// Vanilla item whose definition and components are copied, e.g. `diamond`.
+    template: string,
+  }
+
+  /// An entity type to add to the server's registry.
+  record entity-type-definition {
+    /// Namespaced id, e.g. `examplemod:ruby_golem`. The `minecraft` namespace is reserved.
+    id: string,
+    /// Vanilla entity type whose definition is copied, e.g. `allay`.
+    template: string,
+  }
+
+  /// Registers a block and returns the id it was assigned.
+  register-block: func(definition: block-definition) -> result<u32, string>;
+
+  /// Registers an item and returns the id it was assigned.
+  register-item: func(definition: item-definition) -> result<u32, string>;
+
+  /// Registers an entity type and returns the id it was assigned.
+  register-entity-type: func(definition: entity-type-definition) -> result<u32, string>;
+
+  /// Registers a menu type and returns the id it was assigned.
+  ///
+  /// A menu type tells the client which screen to draw when the server opens a window; the
+  /// drawing itself lives in the mod's client half. The window's slots and what a click
+  /// does remain the server's job.
+  ///
+  /// `id` must be namespaced, e.g. `mysticalagriculture:reprocessor`.
+  register-menu-type: func(id: string) -> result<u32, string>;
+
+  /// Registers a block entity type and returns the id it was assigned.
+  ///
+  /// This gets the type an id and a name, which is enough to survive the protocol. It does
+  /// not give it behaviour.
+  register-block-entity-type: func(id: string) -> result<u32, string>;
+
+  /// The protocol phase a network channel is used in.
+  enum channel-protocol {
+    /// In play, after the client has joined the world. Where most mod traffic lives.
+    play,
+    /// During configuration, before the client joins.
+    configuration,
+  }
+
+  /// A modded network channel the server is willing to carry.
+  record network-channel {
+    /// Namespaced channel id, e.g. `mysticalagriculture:update_aoe_offset`.
+    id: string,
+    /// The phase the channel is used in.
+    protocol: channel-protocol,
+    /// The version the mod registered its payloads under. NeoForge compares this against
+    /// the client's, so it must match the mod's `event.registrar("...")` argument exactly.
+    version: string,
+    /// Whether the server listens on this channel, which decides whether it is announced
+    /// to the client on `minecraft:register`.
+    serverbound: bool,
+  }
+
+  /// Declares a channel to negotiate with NeoForge clients.
+  ///
+  /// A mod refuses to join a server that did not negotiate every channel it registered as
+  /// required, so a plugin implementing that mod's server half must declare them all —
+  /// including the ones only the client ever sends on, which the server simply ignores.
+  declare-network-channel: func(channel: network-channel) -> result<_, string>;
+
+  /// Whether registration has closed. True once every plugin has finished loading.
+  is-frozen: func() -> bool;
+}

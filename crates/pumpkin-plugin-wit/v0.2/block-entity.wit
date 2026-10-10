@@ -367,6 +367,9 @@ interface block-entity {
     }
 
     variant block-entity-type {
+        /// A type registered at runtime, which has slots and NBT but no behaviour of its
+        /// own — the plugin that registered it supplies that.
+        plugin-block-entity(container-block-entity),
         command-block-entity(command-block-entity),
         sign-block-entity(sign-block-entity),
         hanging-sign-block-entity(hanging-sign-block-entity),

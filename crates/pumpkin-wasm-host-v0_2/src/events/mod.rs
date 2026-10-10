@@ -1,4 +1,4 @@
-use std::{any::Any, sync::Arc};
+use std::{any::Any, cell::Cell, sync::Arc};
 
 use pumpkin_data::{Block, entity::EntityType};
 use pumpkin_inventory::screen_handler::ClickType;
@@ -19,6 +19,7 @@ use pumpkin_core::{
 use pumpkin_wasm_host_common::{plugin::WasmPlugin, state::PluginHostState};
 
 pub mod block;
+pub mod cancelled;
 pub mod cleanup;
 pub mod dialog;
 pub mod enchantment;
@@ -85,17 +86,33 @@ pub(super) const fn from_wasm_block_position(
     BlockPos::new(position.x, position.y, position.z)
 }
 
+/// The namespaced name a plugin sees for a block.
+///
+/// A generated block is named bare and belongs to `minecraft`. A registered one is named
+/// with the namespace it was registered under, and prefixing that again produced
+/// `minecraft:examplemod:ruby_block` — a name that matches nothing a plugin knows, so a
+/// plugin comparing against its own block quietly never matched.
+pub(crate) fn namespaced(name: &str) -> String {
+    if name.contains(':') {
+        return name.to_string();
+    }
+    format!("minecraft:{name}")
+}
+
 pub(super) fn to_wasm_block_name(block: &'static Block) -> String {
-    format!("minecraft:{}", block.name)
+    namespaced(block.name)
 }
 
 pub(super) fn from_wasm_block_name(block_name: &str) -> &'static Block {
-    Block::from_registry_key(block_name.strip_prefix("minecraft:").unwrap_or(block_name))
+    Block::from_registry_key(block_name)
+        .or_else(|| {
+            Block::from_registry_key(block_name.strip_prefix("minecraft:").unwrap_or(block_name))
+        })
         .unwrap_or(&Block::AIR)
 }
 
 pub(super) fn to_wasm_entity_type(entity_type: &'static EntityType) -> String {
-    format!("minecraft:{}", entity_type.resource_name)
+    namespaced(entity_type.resource_name)
 }
 
 pub(super) fn from_wasm_entity_type(entity_type: &str) -> &'static EntityType {
@@ -232,11 +249,14 @@ trait PendingWasmEvent: Send {
     ) -> Box<dyn Any + Send>;
 }
 
-struct NotifiedEvent<E>(E);
+/// The event, and whether it was already cancelled when it was handed to the guest.
+struct NotifiedEvent<E>(E, Cell<Option<bool>>);
 
 impl<E: ToFromWasmEvent + Send> PendingWasmEvent for NotifiedEvent<E> {
     fn to_wasm(&self, state: &mut PluginHostState) -> WasmEvent {
-        self.0.to_wasm_event(state)
+        let wasm_event = self.0.to_wasm_event(state);
+        self.1.set(cancelled::event_cancelled(&wasm_event));
+        wasm_event
     }
 
     fn from_wasm(
@@ -244,6 +264,15 @@ impl<E: ToFromWasmEvent + Send> PendingWasmEvent for NotifiedEvent<E> {
         returned_event: WasmEvent,
         state: &mut PluginHostState,
     ) -> Box<dyn Any + Send> {
+        // Nothing a handler returns is read back unless it was registered blocking, so a
+        // plugin that cancels here is asking for something that will not happen. Silence
+        // made that look like the server ignoring the cancellation for its own reasons,
+        // rather than the handler being registered wrongly.
+        if cancelled::event_cancelled(&returned_event) == Some(true) && self.1.get() != Some(true) {
+            tracing::warn!(
+                "A non-blocking event handler cancelled an event; register it as blocking or the cancellation is dropped"
+            );
+        }
         cleanup_event(&returned_event, state);
         Box::new(())
     }
@@ -306,7 +335,7 @@ impl WasmPluginEventHandler {
 impl<E: Payload + ToFromWasmEvent + Clone + 'static> EventHandler<E> for WasmPluginEventHandler {
     fn handle<'a>(&'a self, server: &'a Arc<Server>, event: &'a E) -> BoxFuture<'a, ()> {
         Box::pin(async {
-            let pending = Box::new(NotifiedEvent(event.clone()));
+            let pending = Box::new(NotifiedEvent(event.clone(), Cell::new(None)));
             if let Err(error) = self.dispatch(server.clone(), pending).await {
                 tracing::error!(handler_id = self.handler_id, %error, "Wasm event handler failed");
             }
@@ -335,5 +364,23 @@ impl<E: Payload + ToFromWasmEvent + Clone + 'static> EventHandler<E> for WasmPlu
                 }
             }
         })
+    }
+}
+
+#[cfg(test)]
+mod names {
+    use super::namespaced;
+
+    #[test]
+    fn a_generated_name_is_given_the_vanilla_namespace() {
+        assert_eq!(namespaced("wheat"), "minecraft:wheat");
+    }
+
+    #[test]
+    fn a_registered_name_keeps_the_one_it_has() {
+        // Prefixing again produced `minecraft:examplemod:ruby_block`, which matches nothing
+        // a plugin knows — so a plugin comparing against its own block never matched, and
+        // its crops never grew.
+        assert_eq!(namespaced("examplemod:ruby_block"), "examplemod:ruby_block");
     }
 }

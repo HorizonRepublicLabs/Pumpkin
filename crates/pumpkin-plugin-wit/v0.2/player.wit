@@ -992,7 +992,10 @@ interface player {
         respawn: func ();
 
         /// Opens a GUI for the player.
-        open-gui: func (gui-ref: gui);
+        ///
+        /// Borrowed rather than consumed, so a plugin driving a live screen — a machine
+        /// filling its slots as it runs — keeps the handle it needs to keep writing to it.
+        open-gui: func (gui-ref: borrow<gui>);
 
         /// Bans the player with the specified options.
         ban: func (options: ban-player-options);

@@ -40,6 +40,7 @@ pub mod mob;
 pub mod permission;
 pub mod player;
 pub mod recipe;
+pub mod registry;
 pub mod scheduler;
 pub mod scoreboard;
 pub mod server;
