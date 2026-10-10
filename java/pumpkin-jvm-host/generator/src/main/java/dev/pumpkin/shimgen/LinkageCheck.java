@@ -82,7 +82,7 @@ import org.objectweb.asm.Type;
  * mod jars <em>and</em> the fifteen declared game libraries (thirty jars with transitives)
  * handed over through {@code -D}{@value #LIBRARIES_PROPERTY}, because the shim reproduces
  * real vanilla signatures and those signatures name DataFixerUpper, Brigadier, guava and
- * the rest. The real VM that {@code crates/pumpkin/tests/jvm_host.rs} boots has none of
+ * the rest. The real VM that {@code crates/pumpkin-core/tests/jvm_host.rs} boots has none of
  * them: it starts on the {@code shim}, {@code fml} and {@code host} jars alone. So {@code
  * net/minecraft/world/level/block/Block} imports {@code com.mojang.serialization.MapCodec}
  * and declares a member returning it, and the server has no copy of {@code MapCodec}

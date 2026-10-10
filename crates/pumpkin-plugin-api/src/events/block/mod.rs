@@ -48,6 +48,7 @@ pub mod block_physics;
 pub mod block_piston;
 /// Block place event.
 pub mod block_place;
+/// Block random tick event.
 pub mod block_random_tick;
 /// Block receive game event.
 pub mod block_receive_game;

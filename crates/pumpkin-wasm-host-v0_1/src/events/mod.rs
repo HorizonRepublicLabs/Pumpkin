@@ -1,0 +1,386 @@
+use std::{any::Any, cell::Cell, sync::Arc};
+
+use pumpkin_data::{Block, entity::EntityType};
+use pumpkin_inventory::screen_handler::ClickType;
+use pumpkin_protocol::java::server::play::ActionType;
+use pumpkin_util::{
+    GameMode, Hand,
+    math::{position::BlockPos, vector3::Vector3},
+};
+use wasmtime::component::Resource;
+
+use crate::pumpkin;
+use pumpkin_core::{
+    entity::player::Player,
+    plugin::{BoxFuture, EventHandler, Payload},
+    server::Server,
+    world::World,
+};
+use pumpkin_wasm_host_common::{plugin::WasmPlugin, state::PluginHostState};
+
+pub mod block;
+pub mod cancelled;
+pub mod cleanup;
+pub mod dialog;
+pub mod enchantment;
+pub mod entity;
+pub mod hanging;
+pub mod inventory;
+pub mod player;
+pub mod raid;
+pub mod server;
+pub mod vehicle;
+pub mod world;
+
+pub use cleanup::*;
+
+impl pumpkin::plugin::event::Host for PluginHostState {}
+
+pub struct WasmPluginEventHandler {
+    pub handler_id: u32,
+    pub plugin: Arc<WasmPlugin>,
+}
+
+pub trait ToFromWasmEvent {
+    fn to_wasm_event(&self, state: &mut PluginHostState) -> crate::pumpkin::plugin::event::Event;
+
+    fn from_wasm_event(
+        event: crate::pumpkin::plugin::event::Event,
+        state: &mut PluginHostState,
+    ) -> Self;
+
+    fn apply_wasm_event(
+        &mut self,
+        event: crate::pumpkin::plugin::event::Event,
+        state: &mut PluginHostState,
+    ) where
+        Self: Sized,
+    {
+        *self = Self::from_wasm_event(event, state);
+    }
+}
+
+pub(super) const fn to_wasm_position(position: Vector3<f64>) -> pumpkin::plugin::common::Position {
+    (position.x, position.y, position.z)
+}
+
+pub(super) const fn from_wasm_position(
+    position: pumpkin::plugin::common::Position,
+) -> Vector3<f64> {
+    Vector3::new(position.0, position.1, position.2)
+}
+
+pub(super) const fn to_wasm_block_position(
+    position: BlockPos,
+) -> pumpkin::plugin::common::BlockPos {
+    pumpkin::plugin::common::BlockPos {
+        x: position.0.x,
+        y: position.0.y,
+        z: position.0.z,
+    }
+}
+
+pub(super) const fn from_wasm_block_position(
+    position: pumpkin::plugin::common::BlockPos,
+) -> BlockPos {
+    BlockPos::new(position.x, position.y, position.z)
+}
+
+/// The namespaced name a plugin sees for a block.
+///
+/// A generated block is named bare and belongs to `minecraft`. A registered one is named
+/// with the namespace it was registered under, and prefixing that again produced
+/// `minecraft:examplemod:ruby_block` — a name that matches nothing a plugin knows, so a
+/// plugin comparing against its own block quietly never matched.
+pub(crate) fn namespaced(name: &str) -> String {
+    if name.contains(':') {
+        return name.to_string();
+    }
+    format!("minecraft:{name}")
+}
+
+pub(super) fn to_wasm_block_name(block: &'static Block) -> String {
+    namespaced(block.name)
+}
+
+pub(super) fn from_wasm_block_name(block_name: &str) -> &'static Block {
+    Block::from_registry_key(block_name)
+        .or_else(|| {
+            Block::from_registry_key(block_name.strip_prefix("minecraft:").unwrap_or(block_name))
+        })
+        .unwrap_or(&Block::AIR)
+}
+
+pub(super) fn to_wasm_entity_type(entity_type: &'static EntityType) -> String {
+    namespaced(entity_type.resource_name)
+}
+
+pub(super) fn from_wasm_entity_type(entity_type: &str) -> &'static EntityType {
+    EntityType::from_name(
+        entity_type
+            .strip_prefix("minecraft:")
+            .unwrap_or(entity_type),
+    )
+    .unwrap_or(&EntityType::PLAYER)
+}
+
+pub(super) const fn to_wasm_hand(hand: Hand) -> pumpkin::plugin::common::Hand {
+    match hand {
+        Hand::Left => pumpkin::plugin::common::Hand::Left,
+        Hand::Right => pumpkin::plugin::common::Hand::Right,
+    }
+}
+
+pub(super) const fn from_wasm_hand(hand: pumpkin::plugin::common::Hand) -> Hand {
+    match hand {
+        pumpkin::plugin::common::Hand::Left => Hand::Left,
+        pumpkin::plugin::common::Hand::Right => Hand::Right,
+    }
+}
+
+pub(super) const fn to_wasm_entity_interaction_action(
+    action: ActionType,
+) -> pumpkin::plugin::event::EntityInteractionAction {
+    match action {
+        ActionType::Interact => pumpkin::plugin::event::EntityInteractionAction::Interact,
+        ActionType::Attack => pumpkin::plugin::event::EntityInteractionAction::Attack,
+        ActionType::InteractAt => pumpkin::plugin::event::EntityInteractionAction::InteractAt,
+    }
+}
+
+pub(super) const fn from_wasm_entity_interaction_action(
+    action: pumpkin::plugin::event::EntityInteractionAction,
+) -> ActionType {
+    match action {
+        pumpkin::plugin::event::EntityInteractionAction::Interact => ActionType::Interact,
+        pumpkin::plugin::event::EntityInteractionAction::Attack => ActionType::Attack,
+        pumpkin::plugin::event::EntityInteractionAction::InteractAt => ActionType::InteractAt,
+    }
+}
+
+pub(super) const fn to_wasm_game_mode(game_mode: GameMode) -> pumpkin::plugin::common::GameMode {
+    match game_mode {
+        GameMode::Survival => pumpkin::plugin::common::GameMode::Survival,
+        GameMode::Creative => pumpkin::plugin::common::GameMode::Creative,
+        GameMode::Adventure => pumpkin::plugin::common::GameMode::Adventure,
+        GameMode::Spectator => pumpkin::plugin::common::GameMode::Spectator,
+    }
+}
+
+pub(super) const fn from_wasm_game_mode(game_mode: pumpkin::plugin::common::GameMode) -> GameMode {
+    match game_mode {
+        pumpkin::plugin::common::GameMode::Survival => GameMode::Survival,
+        pumpkin::plugin::common::GameMode::Creative => GameMode::Creative,
+        pumpkin::plugin::common::GameMode::Adventure => GameMode::Adventure,
+        pumpkin::plugin::common::GameMode::Spectator => GameMode::Spectator,
+    }
+}
+
+pub(super) const fn to_wasm_click_type(click_type: ClickType) -> pumpkin::plugin::gui::ClickType {
+    match click_type {
+        ClickType::Left => pumpkin::plugin::gui::ClickType::Left,
+        ClickType::Right => pumpkin::plugin::gui::ClickType::Right,
+        ClickType::ShiftLeft => pumpkin::plugin::gui::ClickType::ShiftLeft,
+        ClickType::ShiftRight => pumpkin::plugin::gui::ClickType::ShiftRight,
+        ClickType::Middle => pumpkin::plugin::gui::ClickType::Middle,
+        ClickType::Drop => pumpkin::plugin::gui::ClickType::Drop,
+        ClickType::ControlDrop => pumpkin::plugin::gui::ClickType::ControlDrop,
+        ClickType::DoubleClick => pumpkin::plugin::gui::ClickType::DoubleClick,
+        ClickType::NumberKey(_) => pumpkin::plugin::gui::ClickType::NumberKey,
+        ClickType::Unknown => pumpkin::plugin::gui::ClickType::Unknown,
+    }
+}
+
+pub(super) const fn from_wasm_click_type(click_type: pumpkin::plugin::gui::ClickType) -> ClickType {
+    match click_type {
+        pumpkin::plugin::gui::ClickType::Left => ClickType::Left,
+        pumpkin::plugin::gui::ClickType::Right => ClickType::Right,
+        pumpkin::plugin::gui::ClickType::ShiftLeft => ClickType::ShiftLeft,
+        pumpkin::plugin::gui::ClickType::ShiftRight => ClickType::ShiftRight,
+        pumpkin::plugin::gui::ClickType::Middle => ClickType::Middle,
+        pumpkin::plugin::gui::ClickType::Drop => ClickType::Drop,
+        pumpkin::plugin::gui::ClickType::ControlDrop => ClickType::ControlDrop,
+        pumpkin::plugin::gui::ClickType::DoubleClick => ClickType::DoubleClick,
+        pumpkin::plugin::gui::ClickType::NumberKey => ClickType::NumberKey(0), // Default to 0
+        pumpkin::plugin::gui::ClickType::Unknown => ClickType::Unknown,
+    }
+}
+
+pub(super) fn consume_player(
+    state: &mut PluginHostState,
+    player: &Resource<pumpkin::plugin::player::Player>,
+) -> Arc<Player> {
+    state
+        .resource_table
+        .delete::<Arc<Player>>(Resource::new_own(player.rep()))
+        .expect("invalid player resource handle")
+}
+
+pub(super) fn consume_text_component(
+    state: &mut PluginHostState,
+    text_component: &Resource<pumpkin::plugin::text::TextComponent>,
+) -> pumpkin_util::text::TextComponent {
+    state
+        .resource_table
+        .delete::<pumpkin_util::text::TextComponent>(Resource::new_own(text_component.rep()))
+        .expect("invalid text-component resource handle")
+}
+
+pub(super) fn consume_world(
+    state: &mut PluginHostState,
+    world: &Resource<pumpkin::plugin::world::World>,
+) -> Arc<World> {
+    state
+        .resource_table
+        .delete::<Arc<World>>(Resource::new_own(world.rep()))
+        .expect("invalid world resource handle")
+}
+
+type WasmEvent = crate::pumpkin::plugin::event::Event;
+
+/// An event crossing into a guest handler and back, with its type erased.
+trait PendingWasmEvent: Send {
+    fn to_wasm(&self, state: &mut PluginHostState) -> WasmEvent;
+
+    fn from_wasm(
+        self: Box<Self>,
+        returned_event: WasmEvent,
+        state: &mut PluginHostState,
+    ) -> Box<dyn Any + Send>;
+}
+
+/// The event, and whether it was already cancelled when it was handed to the guest.
+struct NotifiedEvent<E>(E, Cell<Option<bool>>);
+
+impl<E: ToFromWasmEvent + Send> PendingWasmEvent for NotifiedEvent<E> {
+    fn to_wasm(&self, state: &mut PluginHostState) -> WasmEvent {
+        let wasm_event = self.0.to_wasm_event(state);
+        self.1.set(cancelled::event_cancelled(&wasm_event));
+        wasm_event
+    }
+
+    fn from_wasm(
+        self: Box<Self>,
+        returned_event: WasmEvent,
+        state: &mut PluginHostState,
+    ) -> Box<dyn Any + Send> {
+        // Nothing a handler returns is read back unless it was registered blocking, so a
+        // plugin that cancels here is asking for something that will not happen. Silence
+        // made that look like the server ignoring the cancellation for its own reasons,
+        // rather than the handler being registered wrongly.
+        if cancelled::event_cancelled(&returned_event) == Some(true) && self.1.get() != Some(true) {
+            tracing::warn!(
+                "A non-blocking event handler cancelled an event; register it as blocking or the cancellation is dropped"
+            );
+        }
+        cleanup_event(&returned_event, state);
+        Box::new(())
+    }
+}
+
+struct BlockingEvent<E>(E);
+
+impl<E: ToFromWasmEvent + Send + 'static> PendingWasmEvent for BlockingEvent<E> {
+    fn to_wasm(&self, state: &mut PluginHostState) -> WasmEvent {
+        self.0.to_wasm_event(state)
+    }
+
+    fn from_wasm(
+        self: Box<Self>,
+        returned_event: WasmEvent,
+        state: &mut PluginHostState,
+    ) -> Box<dyn Any + Send> {
+        let mut updated_event = self.0;
+        updated_event.apply_wasm_event(returned_event, state);
+        Box::new(updated_event)
+    }
+}
+
+impl WasmPluginEventHandler {
+    // Kept non-generic over the event type so the guest round trip is compiled once, not
+    // once per event (~27% of the pumpkin crate's LLVM IR before this was split out).
+    async fn dispatch(
+        &self,
+        server: Arc<Server>,
+        event: Box<dyn PendingWasmEvent>,
+    ) -> wasmtime::Result<Box<dyn Any + Send>> {
+        let handler_id = self.handler_id;
+        let function = self.plugin.instance::<crate::Plugin>().func_handle_event();
+        self.plugin
+            .store
+            .call_guest(move |mut guest| {
+                Box::pin(async move {
+                    let (wasm_event, server_res) = guest.with(|mut store| {
+                        let wasm_event = event.to_wasm(store.data_mut());
+                        match store.data_mut().add(server) {
+                            Ok(resource) => Ok((wasm_event, resource)),
+                            Err(error) => {
+                                cleanup_event(&wasm_event, store.data_mut());
+                                Err(error)
+                            }
+                        }
+                    })?;
+                    // Lowering transfers these resources to the guest. Only a
+                    // successfully returned event is owned by the host again.
+                    let (returned_event,) = guest
+                        .call(function, (handler_id, server_res, wasm_event))
+                        .await?;
+                    Ok(guest.with(|mut store| event.from_wasm(returned_event, store.data_mut())))
+                })
+            })
+            .await
+    }
+}
+
+impl<E: Payload + ToFromWasmEvent + Clone + 'static> EventHandler<E> for WasmPluginEventHandler {
+    fn handle<'a>(&'a self, server: &'a Arc<Server>, event: &'a E) -> BoxFuture<'a, ()> {
+        Box::pin(async {
+            let pending = Box::new(NotifiedEvent(event.clone(), Cell::new(None)));
+            if let Err(error) = self.dispatch(server.clone(), pending).await {
+                tracing::error!(handler_id = self.handler_id, %error, "Wasm event handler failed");
+            }
+        })
+    }
+
+    fn handle_blocking<'a>(
+        &'a self,
+        server: &'a Arc<Server>,
+        event: &'a mut E,
+    ) -> BoxFuture<'a, ()> {
+        Box::pin(async {
+            let pending = Box::new(BlockingEvent(event.clone()));
+            match self.dispatch(server.clone(), pending).await {
+                Ok(updated_event) => {
+                    if let Ok(updated_event) = updated_event.downcast::<E>() {
+                        *event = *updated_event;
+                    }
+                }
+                Err(error) => {
+                    tracing::error!(
+                        handler_id = self.handler_id,
+                        %error,
+                        "Blocking Wasm event handler failed"
+                    );
+                }
+            }
+        })
+    }
+}
+
+#[cfg(test)]
+mod names {
+    use super::namespaced;
+
+    #[test]
+    fn a_generated_name_is_given_the_vanilla_namespace() {
+        assert_eq!(namespaced("wheat"), "minecraft:wheat");
+    }
+
+    #[test]
+    fn a_registered_name_keeps_the_one_it_has() {
+        // Prefixing again produced `minecraft:examplemod:ruby_block`, which matches nothing
+        // a plugin knows — so a plugin comparing against its own block never matched, and
+        // its crops never grew.
+        assert_eq!(namespaced("examplemod:ruby_block"), "examplemod:ruby_block");
+    }
+}

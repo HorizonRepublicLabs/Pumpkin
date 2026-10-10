@@ -37,6 +37,7 @@ use super::{
 };
 use crate::biome::BiomeSupplier;
 use crate::chunk::format::LightContainer;
+use crate::chunk::palette::BlockPalette;
 use crate::chunk::{ChunkData, ChunkHeightmapType, ChunkLight};
 use crate::chunk_system::{StagedChunkEnum, generation_cache::SurfaceBiomeNeighborhood};
 use crate::generation::height_limit::HeightLimitView;
@@ -131,13 +132,13 @@ pub struct ProtoChunk {
     pub z: i32,
     pub default_block: &'static BlockState,
     biome_mixer_seed: i64,
-    pub(crate) flat_block_map: Box<[BlockStateId]>,
+    pub(crate) flat_block_map: Vec<BlockStateId>,
     pub flat_biome_map: Box<[u8]>,
     pub flat_surface_height_map: [i16; CHUNK_AREA],
     pub flat_ocean_floor_height_map: [i16; CHUNK_AREA],
     pub flat_motion_blocking_height_map: [i16; CHUNK_AREA],
     pub flat_motion_blocking_no_leaves_height_map: [i16; CHUNK_AREA],
-    structure_starts: FxHashMap<StructureKeys, StructureInstance>,
+    pub(crate) structure_starts: FxHashMap<StructureKeys, StructureInstance>,
 
     height: u16,
     bottom_y: i8,
@@ -162,12 +163,16 @@ impl TerrainCache {
     pub fn from_random(random_config: &GlobalRandomConfig) -> Self {
         let random = &random_config.base_random_deriver;
         let terrain_builder = SurfaceTerrainBuilder::new(random);
-        let surface_noise = DoublePerlinNoiseBuilder::get_noise_sampler_for_id(
+        let surface_noise = DoublePerlinNoiseBuilder::get_noise_sampler(
             &random_config.base_random_deriver,
+            random_config.legacy_random_source,
+            random_config.seed,
             &DoublePerlinNoiseParameters::SURFACE,
         );
-        let secondary_noise = DoublePerlinNoiseBuilder::get_noise_sampler_for_id(
+        let secondary_noise = DoublePerlinNoiseBuilder::get_noise_sampler(
             &random_config.base_random_deriver,
+            random_config.legacy_random_source,
+            random_config.seed,
             &DoublePerlinNoiseParameters::SURFACE_SECONDARY,
         );
         Self {
@@ -227,8 +232,7 @@ impl ProtoChunk {
             z,
             default_block,
             biome_mixer_seed,
-            flat_block_map: vec![BlockStateId::AIR; CHUNK_AREA * height as usize]
-                .into_boxed_slice(),
+            flat_block_map: Vec::new(),
             flat_biome_map: vec![
                 Biome::PLAINS.id;
                 biome_coords::from_block(CHUNK_DIM as i32) as usize
@@ -276,6 +280,17 @@ impl ProtoChunk {
         proto_chunk
             .blending_data
             .clone_from(&chunk_data.blending_data);
+
+        // Chunks loaded from disk carry their block entities in the chunk data.
+        // Keep them so the world can create the block entities when the chunk
+        // becomes active, and so saving the chunk again does not drop them.
+        proto_chunk.pending_block_entities = chunk_data
+            .pending_block_entities
+            .lock()
+            .unwrap_or_else(std::sync::PoisonError::into_inner)
+            .values()
+            .cloned()
+            .collect();
 
         let section_data = &chunk_data.section;
         let heightmap_data = chunk_data
@@ -490,14 +505,15 @@ impl ProtoChunk {
     }
 
     #[inline]
-    const fn local_position_to_height_map_index(x: i32, z: i32) -> usize {
+    pub(crate) const fn local_position_to_height_map_index(x: i32, z: i32) -> usize {
         x as usize * CHUNK_DIM as usize + z as usize
     }
 
     #[inline]
-    const fn local_pos_to_block_index(&self, x: i32, y: i32, z: i32) -> usize {
-        self.height() as usize * CHUNK_DIM as usize * x as usize
-            + CHUNK_DIM as usize * y as usize
+    const fn local_pos_to_block_index(x: i32, y: i32, z: i32) -> usize {
+        ((y as usize) >> 4) * BlockPalette::VOLUME
+            + (x as usize) * CHUNK_AREA
+            + ((y as usize) & 15) * CHUNK_DIM as usize
             + z as usize
     }
 
@@ -519,8 +535,11 @@ impl ProtoChunk {
     #[inline]
     #[must_use]
     pub fn get_block_state_raw(&self, x: i32, y: i32, z: i32) -> BlockStateId {
-        let index = self.local_pos_to_block_index(x, y, z);
-        self.flat_block_map[index]
+        debug_assert!((0..i32::from(self.height())).contains(&y));
+        self.flat_block_map
+            .get(Self::local_pos_to_block_index(x, y, z))
+            .copied()
+            .unwrap_or(BlockStateId::AIR)
     }
 
     #[inline]
@@ -561,7 +580,16 @@ impl ProtoChunk {
             }
         }
 
-        let index = self.local_pos_to_block_index(local_x, local_y, local_z);
+        let index = Self::local_pos_to_block_index(local_x, local_y, local_z);
+        if index >= self.flat_block_map.len() {
+            if block_state.id == BlockStateId::AIR {
+                return;
+            }
+            let section_end = ((local_y as usize >> 4) + 1) * BlockPalette::VOLUME;
+            self.flat_block_map
+                .reserve_exact(section_end - self.flat_block_map.len());
+            self.flat_block_map.resize(section_end, BlockStateId::AIR);
+        }
         self.flat_block_map[index] = block_state.id;
     }
 
@@ -721,7 +749,7 @@ impl ProtoChunk {
             generation_shape,
             sampler,
             settings.aquifers_enabled,
-            settings.ore_veins_enabled,
+            false,
             beardifier_structures,
             beardifier_junctions,
             affected_box,
@@ -957,6 +985,8 @@ impl ProtoChunk {
             self.generation_bottom_y(),
             self.generation_height(),
             random,
+            random_config.legacy_random_source,
+            random_config.seed,
             &terrain_cache.terrain_builder,
             &terrain_cache.surface_noise,
             &terrain_cache.secondary_noise,
@@ -967,7 +997,7 @@ impl ProtoChunk {
                 let x = start_x + local_x;
                 let z = start_z + local_z;
 
-                let mut top_block = self.top_block_height_exclusive(local_x, local_z);
+                let top_block = self.top_block_height_exclusive(local_x, local_z);
 
                 let biome_y = if settings.legacy_random_source {
                     0
@@ -984,8 +1014,6 @@ impl ProtoChunk {
                     terrain_cache
                         .terrain_builder
                         .place_badlands_pillar(self, x, z, top_block);
-
-                    top_block = self.top_block_height_exclusive(local_x, local_z);
                 }
 
                 context.init_horizontal(x, z);
@@ -993,7 +1021,7 @@ impl ProtoChunk {
                 let mut stone_depth_above = 0;
                 let mut min = i32::MAX;
                 let mut fluid_height = i32::MIN;
-                for y in (min_y as i32..top_block).rev() {
+                for y in (min_y as i32..=top_block).rev() {
                     let pos = Vector3::new(x, y, z);
                     let state = self.get_block_state(&pos).to_state();
                     if state.is_air() {
@@ -1035,7 +1063,7 @@ impl ProtoChunk {
                     let stone_depth_below = y - min + 1;
                     context.init_vertical(stone_depth_above, stone_depth_below, y, fluid_height);
 
-                    if state.id == self.default_block.id {
+                    if !state.is_air() && !state.is_liquid() {
                         let Some(biome_id) = self.get_terrain_gen_biome_id_from_neighborhood(
                             surface_biomes,
                             context.block_pos_x,
@@ -1560,7 +1588,7 @@ impl ProtoChunk {
 
                         if let Some(start_data) = start_data {
                             if start_data
-                                .get_bounding_box()
+                                .get_adjusted_bounding_box(&entry.structure)
                                 .intersects_raw_xz(start_x, start_z, end_x, end_z)
                             {
                                 references.push((entry.structure, start_data.collector.clone()));
@@ -1690,7 +1718,8 @@ impl GenerationCache for ProtoChunk {
         self.is_air(local_pos)
     }
     fn get_biome_for_terrain_gen(&self, x: i32, y: i32, z: i32) -> &'static Biome {
-        Self::get_biome(self, x, y, z)
+        let biome_pos = self.get_terrain_gen_biome_pos(x, y, z);
+        Self::get_biome(self, biome_pos.x, biome_pos.y, biome_pos.z)
     }
     fn get_blending_data(
         &self,

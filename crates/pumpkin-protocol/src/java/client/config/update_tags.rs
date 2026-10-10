@@ -22,16 +22,6 @@ impl<'a> CUpdateTags<'a> {
     }
 }
 
-fn remap_tag_entry_id(key: RegistryKey, id: u16, version: JavaMinecraftVersion) -> u16 {
-    match key {
-        RegistryKey::Item => pumpkin_data::item_id_remap::remap_item_id_for_version(id, version),
-        RegistryKey::EntityType => {
-            pumpkin_data::entity_id_remap::remap_entity_id_for_version(id, version)
-        }
-        _ => id,
-    }
-}
-
 /// Writes one registry's tags: the generated ones, then any a mod's datapack declared.
 ///
 /// A mod tag's mod-namespaced members are dropped by
@@ -57,21 +47,12 @@ fn write_registry_tags(
         for (name, tag) in vanilla.entries() {
             // This is technically a `ResourceLocation` but same thing
             write.write_string_bounded(name, u16::MAX as usize)?;
-            let remapped_ids: Vec<u16> = tag
-                .1
-                .iter()
-                .map(|&id| remap_tag_entry_id(registry_key, id, version))
-                .collect();
-            write.write_list(&remapped_ids, |p, id| p.write_var_int(&VarInt::from(*id)))?;
+            write.write_list(tag.1, |p, &id| p.write_var_int(&VarInt::from(id)))?;
         }
     }
     for (name, ids) in &mod_tags {
         write.write_string_bounded(name, u16::MAX as usize)?;
-        let remapped_ids: Vec<u16> = ids
-            .iter()
-            .map(|&id| remap_tag_entry_id(registry_key, id, version))
-            .collect();
-        write.write_list(&remapped_ids, |p, id| p.write_var_int(&VarInt::from(*id)))?;
+        write.write_list(ids, |p, &id| p.write_var_int(&VarInt::from(id)))?;
     }
     Ok(())
 }

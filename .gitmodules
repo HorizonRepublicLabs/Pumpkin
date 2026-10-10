@@ -1,4 +1,0 @@
-[submodule "pumpkin-plugin-wit"]
-	path = crates/pumpkin-plugin-wit
-	url = https://github.com/HorizonRepublicLabs/pumpkin-plugin-wit
-	branch = neoforge-registry
