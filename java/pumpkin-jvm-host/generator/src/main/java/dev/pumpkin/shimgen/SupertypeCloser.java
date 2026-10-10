@@ -264,7 +264,7 @@ public final class SupertypeCloser {
      * multiple packages; guessing beyond these rules risks silently binding to the
      * wrong one. A supertype that genuinely cannot be resolved this way should fail
      * loudly downstream (a missing class at {@code :shim:compileJava}) rather than be
-     * silently mis-resolved here.
+     * silently misresolved here.
      *
      * <p>The {@code java.lang} check is placed before the package guess, not after:
      * unlike "does this file's own package contain a class of this name" (which this
@@ -273,7 +273,7 @@ public final class SupertypeCloser {
      * public {@code java.lang} types" is exact, decidable knowledge that needs no
      * lookup at all. A decompiled file also essentially never imports {@code
      * java.lang} explicitly, so without checking it here, first, every unqualified
-     * {@code String} or {@code Object} would be silently mis-resolved into this file's
+     * {@code String} or {@code Object} would be silently misresolved into this file's
      * own package by the guess below it.
      *
      * <p>Package-private, not private: {@link Pruner} faces the exact same

@@ -94,7 +94,7 @@ class ManifestConsistencyTest {
                 "manifest classes with no file in shim/, no hand-written file in fml/, and no entry on the"
                         + " documented resolver-artifact list. Each is a class a mod references and nothing"
                         + " supplies: either hand-write it under fml/src/main/java, or -- if it is a type"
-                        + " variable or a nested type the resolver mis-placed -- add it to RESOLVER_ARTIFACTS"
+                        + " variable or a nested type the resolver misplaced -- add it to RESOLVER_ARTIFACTS"
                         + " with the reason");
     }
 
