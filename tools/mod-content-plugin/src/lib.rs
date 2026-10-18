@@ -2,7 +2,7 @@
 //!
 //! `pumpkin-mod-convert` writes one manifest per mod into this plugin's data folder,
 //! `plugins/data/mod-content/<mod>.json`. On load each is registered in turn: channels,
-//! then items (a block names the item that places it, so items come first), then blocks.
+//! block entity and menu types, then items (a block names the item that places it, so items come first), then blocks.
 //! A bad entry is logged and skipped rather than failing the plugin, so one mod's mistake
 //! does not unregister every other mod.
 
@@ -76,6 +76,23 @@ fn register(manifest: &Value) {
         );
         if let Err(err) = result {
             tracing::warn!("{mod_id}: channel {}: {err}", text(&channel, "id"));
+        }
+    }
+
+    // Before blocks and items, as a block can name its block entity type. Registered so the
+    // registry sync tells a client the types its mod expects exist.
+    for id in list("block_entity_types") {
+        if let Some(id) = id.as_str()
+            && let Err(err) = registry::register_block_entity_type(id)
+        {
+            tracing::warn!("{mod_id}: block entity type {id}: {err}");
+        }
+    }
+    for id in list("menus") {
+        if let Some(id) = id.as_str()
+            && let Err(err) = registry::register_menu_type(id)
+        {
+            tracing::warn!("{mod_id}: menu {id}: {err}");
         }
     }
 

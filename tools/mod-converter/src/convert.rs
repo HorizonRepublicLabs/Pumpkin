@@ -32,11 +32,164 @@ pub struct Conversion {
 ///
 /// # Errors
 /// If the jar has no `neoforge.mods.toml` naming a mod.
-pub fn convert(jar: &Jar) -> Result<Conversion, String> {
+pub fn convert(jar: &Jar, dump: Option<&Value>) -> Result<Conversion, String> {
     let mod_id = mod_id(jar)?;
     let mut report = Vec::new();
     let tags = BlockTags::read(jar);
 
+    let content = match dump {
+        Some(dump) => from_dump(jar, &mod_id, dump, &tags, &mut report),
+        None => from_files(jar, &tags, &mut report),
+    };
+
+    let (datapack, dropped, rewritten) = datapack(jar, &mod_id);
+    if rewritten > 0 {
+        report.push(format!(
+            "{rewritten} recipe(s) of mod crafting variants became plain vanilla crafting"
+        ));
+    }
+    if dropped > 0 {
+        report.push(format!(
+            "{dropped} recipe(s) of mod-defined types left out: their logic is the mod's code"
+        ));
+    }
+
+    Ok(Conversion {
+        manifest: json!({
+            "format": 1,
+            "mod_id": mod_id,
+            "items": content.items,
+            "blocks": content.blocks,
+            "channels": content.channels,
+            "block_entity_types": content.block_entity_types,
+            "menus": content.menus,
+        }),
+        mod_id,
+        datapack,
+        report,
+    })
+}
+
+/// What a mod registers, ready for the manifest.
+struct Content {
+    items: Vec<Value>,
+    blocks: Vec<Value>,
+    channels: Vec<Value>,
+    block_entity_types: Vec<Value>,
+    menus: Vec<Value>,
+}
+
+/// From a registry dump (tools/mod-dumper): what the mod's code actually registered.
+///
+/// Exact where the data files can only guess: which ids exist (a mod ships model templates
+/// that are not blocks or items, and builds some ids in code), the order its block states
+/// are numbered in, and each block's hardness, light and placing item. The vanilla template
+/// a block copies is still chosen by name, as it decides behaviour the dump cannot describe.
+fn from_dump(
+    jar: &Jar,
+    mod_id: &str,
+    dump: &Value,
+    tags: &BlockTags,
+    report: &mut Vec<String>,
+) -> Content {
+    let ours = |id: &str| id.split_once(':').is_some_and(|(ns, _)| ns == mod_id);
+    let entries = |key: &str| -> Vec<(String, Value)> {
+        dump[key]
+            .as_object()
+            .map(|map| {
+                map.iter()
+                    .filter(|(id, _)| ours(id))
+                    .map(|(id, v)| (id.clone(), v.clone()))
+                    .collect()
+            })
+            .unwrap_or_default()
+    };
+    let ids = |key: &str| -> Vec<Value> {
+        dump[key]
+            .as_array()
+            .map(|list| {
+                list.iter()
+                    .filter(|id| id.as_str().is_some_and(ours))
+                    .cloned()
+                    .collect()
+            })
+            .unwrap_or_default()
+    };
+
+    let items = entries("items")
+        .into_iter()
+        .map(|(id, entry)| {
+            let name = id.split_once(':').map_or(id.as_str(), |(_, n)| n);
+            let template = if entry.get("block").is_some() {
+                "stone"
+            } else {
+                item_template(name)
+            };
+            json!({ "id": id, "template": template })
+        })
+        .collect();
+
+    let blocks = entries("blocks")
+        .into_iter()
+        .map(|(id, entry)| {
+            let (ns, name) = id.split_once(':').unwrap_or(("", &id));
+            let properties: Vec<(String, Vec<String>)> = entry["properties"]
+                .as_array()
+                .into_iter()
+                .flatten()
+                .map(|p| {
+                    let values = p["values"].as_array().into_iter().flatten().filter_map(Value::as_str).map(str::to_string).collect();
+                    (p["name"].as_str().unwrap_or_default().to_string(), values)
+                })
+                .collect();
+            let item = entry["item"].as_str().map(str::to_string);
+            let drops = drops(jar, ns, name, &properties, item.as_deref(), report);
+            let mut def = json!({
+                "id": id,
+                "template": block_template(name, &id, tags).0,
+                "properties": properties.iter().map(|(n, v)| json!({ "name": n, "values": v })).collect::<Vec<_>>(),
+                "default_state": entry["default_state"],
+                "hardness": entry["hardness"],
+                "blast_resistance": entry["blast_resistance"],
+                "luminance": entry["luminance"],
+                "requires_tool": entry["requires_tool"],
+                "drops": drops,
+            });
+            if let Some(item) = item {
+                def["item"] = json!(item);
+            }
+            def
+        })
+        .collect();
+
+    let channels = dump["channels"]
+        .as_array()
+        .into_iter()
+        .flatten()
+        .filter(|c| c["id"].as_str().is_some_and(ours))
+        .map(|c| {
+            json!({
+                "id": c["id"],
+                "phase": c["phase"],
+                "version": c["version"],
+                // The server listens unless the mod only ever sends it to clients.
+                "serverbound": c["flow"].as_str() != Some("clientbound"),
+            })
+        })
+        .collect();
+
+    Content {
+        items,
+        blocks,
+        channels,
+        block_entity_types: ids("block_entity_types"),
+        menus: ids("menus"),
+    }
+}
+
+/// From the jar's data files alone, when there is no registry dump: blocks are the
+/// blockstate files, items the item model definitions, channels read from bytecode.
+fn from_files(jar: &Jar, tags: &BlockTags, report: &mut Vec<String>) -> Content {
     let blocks = names(jar, "blockstates");
     let item_names = names(jar, "items");
 
@@ -59,7 +212,7 @@ pub fn convert(jar: &Jar) -> Result<Conversion, String> {
             report.push(format!("{id}: unreadable blockstate, skipped"));
             continue;
         };
-        let (template, uses_template_states) = block_template(name, &id, &tags);
+        let (template, uses_template_states) = block_template(name, &id, tags);
         let properties = if uses_template_states {
             Vec::new()
         } else {
@@ -75,7 +228,7 @@ pub fn convert(jar: &Jar) -> Result<Conversion, String> {
         let item = item_names
             .contains(&(ns.clone(), name.clone()))
             .then(|| id.clone());
-        let drops = drops(jar, ns, name, &properties, item.as_deref(), &mut report);
+        let drops = drops(jar, ns, name, &properties, item.as_deref(), report);
 
         let mut def = json!({
             "id": id,
@@ -109,34 +262,20 @@ pub fn convert(jar: &Jar) -> Result<Conversion, String> {
         .collect();
     let (channels, channel_report) = crate::channels::extract(&classes, &mod_version(jar));
     report.extend(channel_report);
+    let channels = channels
+        .iter()
+        .map(
+            |c| json!({ "id": c.id, "phase": c.phase, "version": c.version, "serverbound": false }),
+        )
+        .collect();
 
-    let (datapack, dropped, rewritten) = datapack(jar, &mod_id);
-    if rewritten > 0 {
-        report.push(format!(
-            "{rewritten} recipe(s) of mod crafting variants became plain vanilla crafting"
-        ));
+    Content {
+        items,
+        blocks: block_defs,
+        channels,
+        block_entity_types: Vec::new(),
+        menus: Vec::new(),
     }
-    if dropped > 0 {
-        report.push(format!(
-            "{dropped} recipe(s) of mod-defined types left out: their logic is the mod's code"
-        ));
-    }
-
-    Ok(Conversion {
-        manifest: json!({
-            "format": 1,
-            "mod_id": mod_id,
-            "items": items,
-            "blocks": block_defs,
-            "channels": channels
-                .iter()
-                .map(|c| json!({ "id": c.id, "phase": c.phase, "version": c.version, "serverbound": false }))
-                .collect::<Vec<_>>(),
-        }),
-        mod_id,
-        datapack,
-        report,
-    })
 }
 
 fn mod_id(jar: &Jar) -> Result<String, String> {
@@ -626,7 +765,7 @@ mod tests {
                 ]}]}]}"#,
             ),
         ]);
-        let c = convert(&jar).unwrap();
+        let c = convert(&jar, None).unwrap();
         assert_eq!(c.mod_id, "ex");
         let block = &c.manifest["blocks"][0];
         assert_eq!(block["template"], "iron_ore");
@@ -663,7 +802,7 @@ mod tests {
                     "conditions":[{"condition":"minecraft:block_state_property","properties":{"age":"7"}}]}]}]}"#,
             ),
         ]);
-        let block = &convert(&jar).unwrap().manifest["blocks"][0];
+        let block = &convert(&jar, None).unwrap().manifest["blocks"][0];
         assert_eq!(block["template"], "wheat");
         assert_eq!(
             block["properties"][0]["values"],
@@ -702,7 +841,7 @@ mod tests {
                 r#"{"variants":{"facing=east,half=top,shape=straight":{}}}"#,
             ),
         ]);
-        let block = &convert(&jar).unwrap().manifest["blocks"][0];
+        let block = &convert(&jar, None).unwrap().manifest["blocks"][0];
         assert_eq!(block["template"], "stone_stairs");
         assert_eq!(block["properties"], json!([]));
     }
@@ -723,7 +862,7 @@ mod tests {
             ),
             ("data/neoforge/data_maps/x.json", "{}"),
         ]);
-        let c = convert(&jar).unwrap();
+        let c = convert(&jar, None).unwrap();
         let paths: Vec<&str> = c.datapack.iter().map(|(p, _)| p.as_str()).collect();
         assert_eq!(
             paths,
@@ -741,5 +880,65 @@ mod tests {
             2,
             "one line for the rewrite, one for the drop"
         );
+    }
+
+    #[test]
+    fn a_dump_decides_what_exists_and_how_states_are_numbered() {
+        let jar = jar(&[
+            TOML,
+            // A template the mod's code points crops at: not a block of its own.
+            (
+                "assets/ex/blockstates/crop_template.json",
+                r#"{"variants":{"age=0":{}}}"#,
+            ),
+            ("assets/ex/items/essence_template.json", "{}"),
+        ]);
+        let dump = json!({
+            "blocks": {
+                "ex:iron_crop": {
+                    "properties": [{ "name": "age", "values": ["0", "1"] }],
+                    "default_state": 0, "hardness": 0.0, "blast_resistance": 0.0,
+                    "luminance": 0, "requires_tool": false, "item": "ex:iron_seeds"
+                },
+                "other:thing": { "properties": [], "default_state": 0 }
+            },
+            "items": { "ex:iron_seeds": { "block": "ex:iron_crop" }, "ex:iron_essence": {} },
+            "block_entity_types": ["ex:machine"],
+            "menus": ["ex:machine"],
+            "channels": [{ "id": "ex:sync", "phase": "play", "version": "3", "flow": "clientbound", "optional": false }]
+        });
+        let m = convert(&jar, Some(&dump)).unwrap().manifest;
+
+        let block_ids: Vec<&str> = m["blocks"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .map(|b| b["id"].as_str().unwrap())
+            .collect();
+        assert_eq!(
+            block_ids,
+            ["ex:iron_crop"],
+            "templates and other mods' blocks are left out"
+        );
+        assert_eq!(m["blocks"][0]["item"], "ex:iron_seeds");
+        assert_eq!(m["blocks"][0]["template"], "wheat");
+        let items: Vec<(&str, &str)> = m["items"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .map(|i| (i["id"].as_str().unwrap(), i["template"].as_str().unwrap()))
+            .collect();
+        assert_eq!(
+            items,
+            [
+                ("ex:iron_essence", "iron_ingot"),
+                ("ex:iron_seeds", "stone")
+            ]
+        );
+        assert_eq!(
+            m["channels"],
+            json!([{ "id": "ex:sync", "phase": "play", "version": "3", "serverbound": false }])
+        );
+        assert_eq!(m["block_entity_types"], json!(["ex:machine"]));
     }
 }

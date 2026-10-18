@@ -1,4 +1,4 @@
-//! `pumpkin-mod-convert <server-dir> <mod.jar>...`
+//! `pumpkin-mod-convert [--registries <registry-dump.json>] <server-dir> <mod.jar>...`
 //!
 //! Converts each jar and installs the result into a Pumpkin server directory:
 //!
@@ -6,6 +6,10 @@
 //! - `<world>/datapacks/mod_<mod>/`, the jar's recipes, loot tables, tags and worldgen.
 //!
 //! The world folder is read from `default_level_name` in `pumpkin.toml`, else `world`.
+//!
+//! `--registries` takes the dump `tools/mod-dumper` writes after running the mods on
+//! `NeoForge`: the exact blocks, items, states and channels they register. Without it the
+//! converter guesses from the jars' data files, which cannot see ids built in code.
 
 // A command-line tool: its output is the point.
 #![allow(clippy::print_stdout, clippy::print_stderr)]
@@ -22,20 +26,41 @@ use std::{
 };
 
 fn main() -> ExitCode {
-    let args: Vec<String> = std::env::args().skip(1).collect();
+    let mut args: Vec<String> = std::env::args().skip(1).collect();
+    let dump = match args.iter().position(|a| a == "--registries") {
+        Some(i) if i + 1 < args.len() => {
+            let path = args.remove(i + 1);
+            args.remove(i);
+            match std::fs::read(&path)
+                .map_err(|e| e.to_string())
+                .and_then(|b| serde_json::from_slice(&b).map_err(|e| e.to_string()))
+            {
+                Ok(dump) => Some(dump),
+                Err(err) => {
+                    eprintln!("{path}: {err}");
+                    return ExitCode::FAILURE;
+                }
+            }
+        }
+        _ => None,
+    };
     let [server, jars @ ..] = args.as_slice() else {
-        eprintln!("usage: pumpkin-mod-convert <server-dir> <mod.jar>...");
+        eprintln!(
+            "usage: pumpkin-mod-convert [--registries <dump.json>] <server-dir> <mod.jar>..."
+        );
         return ExitCode::FAILURE;
     };
     if jars.is_empty() {
-        eprintln!("usage: pumpkin-mod-convert <server-dir> <mod.jar>...");
+        eprintln!(
+            "usage: pumpkin-mod-convert [--registries <dump.json>] <server-dir> <mod.jar>..."
+        );
         return ExitCode::FAILURE;
     }
 
     let server = Path::new(server);
     let mut failed = false;
     for jar in jars {
-        match convert_one(server, Path::new(jar)) {
+        match convert_one(server, Path::new(jar), dump.as_ref()) {
             Ok(summary) => println!("{summary}"),
             Err(err) => {
                 eprintln!("{jar}: {err}");
@@ -50,9 +75,13 @@ fn main() -> ExitCode {
     }
 }
 
-fn convert_one(server: &Path, jar_path: &Path) -> Result<String, String> {
+fn convert_one(
+    server: &Path,
+    jar_path: &Path,
+    dump: Option<&serde_json::Value>,
+) -> Result<String, String> {
     let jar = read_jar(jar_path)?;
-    let c = convert::convert(&jar)?;
+    let c = convert::convert(&jar, dump)?;
 
     let content_dir = server.join("plugins/data/mod-content");
     std::fs::create_dir_all(&content_dir).map_err(|e| e.to_string())?;

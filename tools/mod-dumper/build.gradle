@@ -1,0 +1,37 @@
+// Loads mod jars into a NeoForge data run and writes what they registered to JSON, for
+// pumpkin-mod-convert. A data run needs no world and no EULA, and exits when done.
+//
+//   ./gradlew runData -PmodJars=/abs/A.jar,/abs/B.jar -PdumpOutput=/abs/dir
+plugins {
+    id 'java'
+    id 'net.neoforged.moddev' version '2.0.148'
+}
+
+group = 'dev.pumpkin'
+version = '1'
+
+java.toolchain.languageVersion = JavaLanguageVersion.of(25)
+
+neoForge {
+    version = neo_version
+
+    runs {
+        data {
+            clientData()
+            programArguments.addAll '--mod', 'pumpkin_registry_dump',
+                    '--output', file(findProperty('dumpOutput') ?: 'build/dump').absolutePath
+        }
+    }
+
+    mods {
+        pumpkin_registry_dump {
+            sourceSet sourceSets.main
+        }
+    }
+}
+
+dependencies {
+    // Jars on the run's classpath that carry a neoforge.mods.toml load as mods. A mod's
+    // own dependencies (Cucumber for MysticalAgriculture) have to be passed too.
+    (findProperty('modJars') ?: '').split(',').findAll { it }.each { runtimeOnly files(it) }
+}

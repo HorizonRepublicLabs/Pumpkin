@@ -1,0 +1,8 @@
+modLoader = "javafml"
+loaderVersion = "[1,)"
+license = "GPL-3.0"
+
+[[mods]]
+modId = "pumpkin_registry_dump"
+version = "1"
+displayName = "Pumpkin registry dump"

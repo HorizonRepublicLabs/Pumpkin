@@ -13,9 +13,27 @@ recipe types do nothing.
 cargo build -p mod-content-plugin --target wasm32-wasip2 --release
 cp target/wasm32-wasip2/release/mod_content_plugin.wasm <server>/plugins/
 
-# per mod
-cargo run -p pumpkin-mod-converter -- <server> Cucumber.jar MysticalAgriculture.jar
+# per set of mods: run them once on NeoForge to record what they register (JDK 25)
+tools/mod-dumper/gradlew -p tools/mod-dumper runData \
+    -PmodJars=/abs/Cucumber.jar,/abs/MysticalAgriculture.jar -PdumpOutput=/abs/dump
+cargo run -p pumpkin-mod-converter -- --registries /abs/dump/registry-dump.json \
+    <server> Cucumber.jar MysticalAgriculture.jar
 ```
+
+**Use the registry dump.** A mod's data files can't say what it registers. Mods ship
+model templates that aren't blocks or items (MysticalAgriculture's `essence_gem`), and build
+ids in code (one `<crop>_essence` per crop). A client carrying the mod refuses a server that
+names an id it doesn't have, or misses one it does. `tools/mod-dumper` loads the jars in a
+NeoForge data run (no world, no EULA), and records:
+
+- every block, with its states in the order the client numbers them;
+- each block's hardness, light and placing item;
+- every item;
+- block-entity and menu types;
+- the mods' payload channels, exactly as NeoForge negotiates them.
+
+Pass every jar a mod needs: MysticalAgriculture's dump needs Cucumber too. Without
+`--registries`, the converter falls back to guessing from data files, described below.
 
 (With a shared cargo `target-dir`, the `.wasm` is under that directory instead.)
 
@@ -52,7 +70,8 @@ mod's code, the client draws the wrong state.
 ## Network channels
 
 A NeoForge client refuses a server that doesn't offer every payload its mods registered as
-required. Those are defined in code, so the converter reads them from the jar's bytecode:
+required. With a registry dump they come from NeoForge itself. Without one, the converter
+reads them from the jar's bytecode:
 
 - **Ids:** every `CustomPacketPayload.Type` built from an identifier. That covers ids made with
   `Identifier.fromNamespaceAndPath`, `parse`, or a one-argument helper such as
