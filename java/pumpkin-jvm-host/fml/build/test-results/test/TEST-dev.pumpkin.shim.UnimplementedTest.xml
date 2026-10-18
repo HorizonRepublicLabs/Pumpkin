@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="dev.pumpkin.shim.UnimplementedTest" tests="5" skipped="0" failures="0" errors="0" timestamp="2026-09-15T12:41:23.330Z" hostname="Mac.localdomain" time="0.01">
+  <properties/>
+  <testcase name="carriesTheFullMemberKey()" classname="dev.pumpkin.shim.UnimplementedTest" time="0.008"/>
+  <testcase name="constructingDirectlyDoesNotRecord()" classname="dev.pumpkin.shim.UnimplementedTest" time="0.001"/>
+  <testcase name="hitsAreNotMutableByCallers()" classname="dev.pumpkin.shim.UnimplementedTest" time="0.0"/>
+  <testcase name="isUnchecked()" classname="dev.pumpkin.shim.UnimplementedTest" time="0.001"/>
+  <testcase name="recordsEveryKeyThrownThroughForMember()" classname="dev.pumpkin.shim.UnimplementedTest" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="dev.pumpkin.shimgen.SupertypeCloserTest" tests="6" skipped="0" failures="0" errors="0" timestamp="2026-10-18T14:45:55.844Z" hostname="MacBook-Pro-Bohdan.local" time="0.011">
+  <properties/>
+  <testcase name="pullsInEveryTransitiveSupertype()" classname="dev.pumpkin.shimgen.SupertypeCloserTest" time="0.003"/>
+  <testcase name="supertypesOfResolvesANestedTypesOwnSupertypes()" classname="dev.pumpkin.shimgen.SupertypeCloserTest" time="0.002"/>
+  <testcase name="supertypesOfIsEmptyForAClassWithNoSource()" classname="dev.pumpkin.shimgen.SupertypeCloserTest" time="0.001"/>
+  <testcase name="isAFixpoint()" classname="dev.pumpkin.shimgen.SupertypeCloserTest" time="0.002"/>
+  <testcase name="ignoresClassesWithNoSourceFile()" classname="dev.pumpkin.shimgen.SupertypeCloserTest" time="0.001"/>
+  <testcase name="supertypesOfWalksTransitivelyThroughClassesAndInterfaces()" classname="dev.pumpkin.shimgen.SupertypeCloserTest" time="0.002"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

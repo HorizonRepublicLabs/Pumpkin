@@ -5,8 +5,6 @@ use crate::{
 use std::{any::Any, path::Path, pin::Pin, sync::Arc};
 use thiserror::Error;
 
-#[cfg(feature = "jvm-plugins")]
-pub mod jvm;
 pub mod native;
 
 pub type PluginLoadFuture<'a> = Pin<

@@ -28,7 +28,6 @@ console-subscriber = { workspace = true, optional = true }
 
 [features]
 console-subscriber = ["dep:console-subscriber"]
-jvm-plugins = ["pumpkin-core/jvm-plugins"]
 # On in this fork: its plugin SDK targets the v0.2 API.
 default = ["plugin-v0_2"]
 plugin-v0_2 = ["pumpkin-wasm-host/v0_2"]

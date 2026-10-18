@@ -1,2 +1,0 @@
-rootProject.name = 'pumpkin-jvm-host'
-include 'shim', 'fml', 'host', 'testmod', 'generator'

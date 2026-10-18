@@ -185,44 +185,6 @@ jobs:
           python .github/scripts/ci_packages.py run --
           cargo test --doc --verbose
 
-  jvm_plugins:
-    name: Build and test the JVM mod host
-    runs-on: ubuntu-latest
-    needs: [format, machete, clippy]
-    steps:
-      - uses: actions/checkout@v7
-        with:
-          submodules: recursive
-      - run: rustup update ${{ env.CI_RUST_TOOLCHAIN_VER }} && rustup default ${{ env.CI_RUST_TOOLCHAIN_VER }}
-      - uses: taiki-e/install-action@nextest
-      - uses: Swatinem/rust-cache@v2
-      - uses: actions/setup-java@v4
-        with:
-          distribution: temurin
-          java-version: "25"
-      # `./gradlew build` is the whole of what CI can check here, and that is a
-      # deliberate boundary rather than an omission. It compiles the generated shim and
-      # runs every Java test, including ManifestConsistencyTest (the committed manifest
-      # and the committed source tree still agree, both directions) and
-      # MixinMembersPresentTest (the four members only the mixin scanner can see are
-      # still in the manifest) -- both of which read only files that live in this repo.
-      #
-      # Two gates are local-only and are run by hand:
-      #   * regeneration (`./regen.sh`) needs the decompiled NeoForge tree, and
-      #   * the linkage check (`:generator:linkageCheck`) needs the MysticalAgriculture
-      #     and Cucumber jars, which prove a real mod resolves against the shim.
-      # Both inputs are large third-party checkouts that live beside this repository and
-      # are not vendored. Committing the mod jars to make CI run the linkage check would
-      # put redistributable-licensed binaries in the tree for a check whose result is
-      # already recorded in the task report; the consistency tests above are what stands
-      # in for it on every push.
-      - name: Build and test the JVM host jars (Gradle)
-        working-directory: java/pumpkin-jvm-host
-        run: ./gradlew build
-      - name: Cargo nextest (jvm-plugins feature)
-        # Not scoped to `--test jvm_host`: the feature also gates unit tests inside the
-        # crate, such as the handle table's, and those run nowhere else.
-        run: cargo nextest run --verbose --features jvm-plugins -p pumpkin-core
   test_android:
     name: Test on Android AArch64
     needs: [prepare, format, machete, clippy, check_wit]

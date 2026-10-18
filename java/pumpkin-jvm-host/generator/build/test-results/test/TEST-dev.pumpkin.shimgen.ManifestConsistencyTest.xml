@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="dev.pumpkin.shimgen.ManifestConsistencyTest" tests="3" skipped="0" failures="0" errors="0" timestamp="2026-10-18T14:45:55.477Z" hostname="MacBook-Pro-Bohdan.local" time="0.203">
+  <properties/>
+  <testcase name="everyGeneratedFileIsInTheManifest()" classname="dev.pumpkin.shimgen.ManifestConsistencyTest" time="0.105"/>
+  <testcase name="theManifestIsSortedSoItsDiffIsReviewable()" classname="dev.pumpkin.shimgen.ManifestConsistencyTest" time="0.014"/>
+  <testcase name="everyManifestClassHasAFileOrIsHandWrittenOrIsAResolverArtifact()" classname="dev.pumpkin.shimgen.ManifestConsistencyTest" time="0.084"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

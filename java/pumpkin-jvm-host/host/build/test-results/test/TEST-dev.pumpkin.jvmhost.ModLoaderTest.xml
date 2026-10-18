@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="dev.pumpkin.jvmhost.ModLoaderTest" tests="6" skipped="0" failures="0" errors="0" timestamp="2026-10-18T15:08:41.254Z" hostname="MacBook-Pro-Bohdan.local" time="0.314">
+  <properties/>
+  <testcase name="theModClassIsNotInitializedUntilConstructed()" classname="dev.pumpkin.jvmhost.ModLoaderTest" time="0.018"/>
+  <testcase name="modsConstructAfterWhatTheyOrderAfter()" classname="dev.pumpkin.jvmhost.ModLoaderTest" time="0.004"/>
+  <testcase name="loadingTheModRunsItsRegistrations()" classname="dev.pumpkin.jvmhost.ModLoaderTest" time="0.007"/>
+  <testcase name="everyModIdAndOrderingIsRead(Path)" classname="dev.pumpkin.jvmhost.ModLoaderTest" time="0.188"/>
+  <testcase name="modsShareOneClassLoader(Path)" classname="dev.pumpkin.jvmhost.ModLoaderTest" time="0.094"/>
+  <testcase name="aModIdIsReadFromItsToml()" classname="dev.pumpkin.jvmhost.ModLoaderTest" time="0.001"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[[pumpkin] lib orders after missing, which is not present; ignored
+]]></system-err>
+</testsuite>

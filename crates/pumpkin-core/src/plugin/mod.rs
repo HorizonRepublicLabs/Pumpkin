@@ -39,13 +39,6 @@ pub const PLUGIN_API_VERSION: u32 = 2;
 
 const PLUGIN_DIR: &str = "./plugins";
 
-/// Where NeoForge-shaped mod jars live, following the convention every modded server uses:
-/// jars go in `mods/`, server plugins in `plugins/`. Scanned by the same loop with the same
-/// loaders — the split is for the operator, who should be able to drop a mod where every
-/// other modded server has taught them to.
-#[cfg(feature = "jvm-plugins")]
-const MODS_DIR: &str = "./mods";
-
 /// A trait for handling events dynamically.
 ///
 /// This trait allows for handling events of any type that implements the `Event` trait.
@@ -236,9 +229,8 @@ pub enum ManagerError {
 
 /// What `unload_plugin` actually managed to do.
 ///
-/// Not every loader can truly unload its plugin — the JVM loader's `can_unload()` is
-/// `false`, since a JVM, once started, outlives the server for the rest of the process — so
-/// `unload_plugin` can only deactivate: run `on_unload`, mark it inactive, and leave the
+/// Not every loader can truly unload its plugin — a loader whose `can_unload()` is `false`
+/// leaves its code in the process — so `unload_plugin` can only deactivate: run `on_unload`, mark it inactive, and leave the
 /// loaded code, and anything it registered, right where they were. Callers that report
 /// success to an operator need to say which one happened.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -254,48 +246,6 @@ impl Default for PluginManager {
     fn default() -> Self {
         Self::new(Vec::new())
     }
-}
-
-/// Where the JVM host's jars live, relative to the server's working directory.
-///
-/// The three host jars are not sufficient on their own. The shim compiles against the game
-/// libraries -- slf4j, `DataFixerUpper`, guava and the rest -- without bundling them, so a JVM
-/// booted on shim, fml and host alone loads the shim only until a mod touches a class that
-/// names one, at which point it dies on `NoClassDefFoundError: org/slf4j/LoggerFactory`.
-///
-/// That is a different failure from the one the linkage check rules out. Linkage proves every
-/// reference a mod makes resolves *against the shim*; it says nothing about whether the shim
-/// itself loads on the classpath this server builds. `./gradlew :shim:collectRuntimeLibs`
-/// materialises those libraries into `java/pumpkin-jvm-host/libs`, and every jar found there
-/// joins the classpath. A missing directory is not an error -- a build that has not run the
-/// task yet still starts, and fails later with the message above rather than here.
-#[cfg(feature = "jvm-plugins")]
-fn jvm_host_classpath() -> Vec<PathBuf> {
-    let root = PathBuf::from("java/pumpkin-jvm-host");
-    let mut classpath: Vec<PathBuf> = ["shim", "fml", "host"]
-        .iter()
-        .map(|project| {
-            root.join(project)
-                .join("build/libs")
-                .join(format!("{project}.jar"))
-        })
-        .collect();
-
-    // Sorted, so the classpath is identical between runs on the same tree.
-    if let Ok(entries) = std::fs::read_dir(root.join("libs")) {
-        let mut libs: Vec<PathBuf> = entries
-            .filter_map(Result::ok)
-            .map(|entry| entry.path())
-            .filter(|path| {
-                path.extension()
-                    .is_some_and(|ext| ext.eq_ignore_ascii_case("jar"))
-            })
-            .collect();
-        libs.sort();
-        classpath.extend(libs);
-    }
-
-    classpath
 }
 
 /// Checks whether `path` is allowed to load given `allow_unsigned`.
@@ -340,10 +290,6 @@ impl PluginManager {
     pub fn new(extra_loaders: Vec<Arc<dyn PluginLoader>>) -> Self {
         let mut loaders: Vec<Arc<dyn PluginLoader>> = vec![Arc::new(NativePluginLoader)];
         loaders.extend(extra_loaders);
-        #[cfg(feature = "jvm-plugins")]
-        loaders.push(Arc::new(crate::plugin::loader::jvm::JvmPluginLoader::new(
-            jvm_host_classpath(),
-        )));
         Self {
             plugins: SyncRwLock::new(Vec::new()),
             loaders: RwLock::new(loaders),
@@ -803,18 +749,7 @@ impl PluginManager {
         let mut prepared_plugins = Vec::new();
         let loaders = self.loaders.read().await.clone();
 
-        // `mods/` joins the scan when the JVM host is compiled in. Created eagerly like
-        // `plugins/`, so an operator sees where jars belong without reading anything.
-        #[cfg_attr(not(feature = "jvm-plugins"), allow(unused_mut))]
-        let mut scan_dirs = vec![path.to_path_buf()];
-        #[cfg(feature = "jvm-plugins")]
-        {
-            let mods_dir = Path::new(MODS_DIR);
-            if !mods_dir.exists() {
-                std::fs::create_dir(mods_dir)?;
-            }
-            scan_dirs.push(mods_dir.to_path_buf());
-        };
+        let scan_dirs = vec![path.to_path_buf()];
 
         let mut entries = Vec::new();
         for dir in &scan_dirs {

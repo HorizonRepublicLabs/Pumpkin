@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="net.neoforged.neoforge.network.registration.PayloadRegistrarTest" tests="1" skipped="0" failures="0" errors="0" timestamp="2026-10-18T15:08:56.073Z" hostname="MacBook-Pro-Bohdan.local" time="0.016">
+  <properties/>
+  <testcase name="eachRegistrationIsDeclaredWithItsPhaseVersionAndDirection()" classname="net.neoforged.neoforge.network.registration.PayloadRegistrarTest" time="0.016"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

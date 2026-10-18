@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="dev.pumpkin.shimgen.JarScannerTest" tests="11" skipped="0" failures="0" errors="0" timestamp="2026-10-18T14:45:55.440Z" hostname="MacBook-Pro-Bohdan.local" time="0.035">
+  <properties/>
+  <testcase name="aNestedTypesMembersAreFiledUnderTheNestedTypeNotTheFile()" classname="dev.pumpkin.shimgen.JarScannerTest" time="0.019"/>
+  <testcase name="findsClassLiteralsLoadedViaLdc()" classname="dev.pumpkin.shimgen.JarScannerTest" time="0.002"/>
+  <testcase name="findsAVanillaMemberCalledThroughAModsOwnSubclass()" classname="dev.pumpkin.shimgen.JarScannerTest" time="0.004"/>
+  <testcase name="findsCalledMembersAndTheirOwners()" classname="dev.pumpkin.shimgen.JarScannerTest" time="0.001"/>
+  <testcase name="findsMembersReferencedOnlyByAMethodReference()" classname="dev.pumpkin.shimgen.JarScannerTest" time="0.002"/>
+  <testcase name="findsTypesUsedOnlyInMultiANewArray()" classname="dev.pumpkin.shimgen.JarScannerTest" time="0.001"/>
+  <testcase name="ignoresClassesOutsideMinecraftAndNeoforge()" classname="dev.pumpkin.shimgen.JarScannerTest" time="0.001"/>
+  <testcase name="aClassTouchedOnlyThroughAStaticFieldIsStillRecorded()" classname="dev.pumpkin.shimgen.JarScannerTest" time="0.001"/>
+  <testcase name="findsTypesNamedOnlyInAFieldsGenericSignature()" classname="dev.pumpkin.shimgen.JarScannerTest" time="0.001"/>
+  <testcase name="findsTypesAppearingOnlyInSignatures()" classname="dev.pumpkin.shimgen.JarScannerTest" time="0.001"/>
+  <testcase name="findsTypesNamedOnlyInAMethodsGenericSignature()" classname="dev.pumpkin.shimgen.JarScannerTest" time="0.001"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

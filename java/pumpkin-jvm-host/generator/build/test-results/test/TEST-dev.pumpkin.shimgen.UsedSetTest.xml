@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="dev.pumpkin.shimgen.UsedSetTest" tests="8" skipped="0" failures="0" errors="0" timestamp="2026-10-18T14:45:55.856Z" hostname="MacBook-Pro-Bohdan.local" time="0.003">
+  <properties/>
+  <testcase name="aMemberKeyIsOwnerDotNameColonDescriptor()" classname="dev.pumpkin.shimgen.UsedSetTest" time="0.0"/>
+  <testcase name="theManifestSaysWhoReferencedEachEntry()" classname="dev.pumpkin.shimgen.UsedSetTest" time="0.001"/>
+  <testcase name="aBlankLineIsRejected()" classname="dev.pumpkin.shimgen.UsedSetTest" time="0.001"/>
+  <testcase name="writeToRejectsAReferrerContainingATabOrComma()" classname="dev.pumpkin.shimgen.UsedSetTest" time="0.0"/>
+  <testcase name="aLineWithNoReferrersFieldAtAllIsRejected()" classname="dev.pumpkin.shimgen.UsedSetTest" time="0.001"/>
+  <testcase name="aLineWithNoReferrersIsRejected()" classname="dev.pumpkin.shimgen.UsedSetTest" time="0.0"/>
+  <testcase name="overloadsAreDistinctMembers()" classname="dev.pumpkin.shimgen.UsedSetTest" time="0.0"/>
+  <testcase name="theManifestRoundTripsAndIsSorted()" classname="dev.pumpkin.shimgen.UsedSetTest" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

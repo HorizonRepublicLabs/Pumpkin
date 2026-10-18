@@ -99,9 +99,9 @@ and customizable experience. It prioritizes performance and player enjoyment whi
 
 See our [Quick Start](https://docs.pumpkinmc.org/#quick-start) guide to get Pumpkin running.
 
-To run Pumpkin with NeoForge mods, see
-[java/pumpkin-jvm-host/README.md](java/pumpkin-jvm-host/README.md) — this fork loads mod
-jars by running their code against a generated stand-in for Minecraft and NeoForge.
+To run Pumpkin with NeoForge mods, convert them first: see
+[tools/mod-converter/README.md](tools/mod-converter/README.md). The converter turns a mod
+jar's content — blocks, items, recipes, loot, tags, worldgen — into a plugin and a datapack.
 
 ## Contributions
 

@@ -3,7 +3,6 @@ extend-exclude = [
     "assets/",
     "crates/pumpkin-data/src/generated",
     # Generated from vanilla and NeoForge, typos included
-    "java/pumpkin-jvm-host/shim/",
 ]
 
 [default.extend-words]

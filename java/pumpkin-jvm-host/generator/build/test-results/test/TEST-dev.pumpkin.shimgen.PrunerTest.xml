@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="dev.pumpkin.shimgen.PrunerTest" tests="23" skipped="0" failures="0" errors="0" timestamp="2026-10-18T14:45:55.801Z" hostname="MacBook-Pro-Bohdan.local" time="0.043">
+  <properties/>
+  <testcase name="holderClassesKeepTheStaticMethodsSomethingCalls()" classname="dev.pumpkin.shimgen.PrunerTest" time="0.01"/>
+  <testcase name="nestedTypesArePrunedRecursivelyAndUnusedNestedMembersAreDropped()" classname="dev.pumpkin.shimgen.PrunerTest" time="0.002"/>
+  <testcase name="keptSignaturesReportGenericArgumentsAndThrownTypes()" classname="dev.pumpkin.shimgen.PrunerTest" time="0.002"/>
+  <testcase name="aClassExtendingSomethingUngeneratedKeepsEveryMethod()" classname="dev.pumpkin.shimgen.PrunerTest" time="0.001"/>
+  <testcase name="fallbackKeptMembersReportThemselvesAndAnyMissingSignatureType()" classname="dev.pumpkin.shimgen.PrunerTest" time="0.001"/>
+  <testcase name="recordsKeepTheirComponentsAndLoseTheirBodies()" classname="dev.pumpkin.shimgen.PrunerTest" time="0.002"/>
+  <testcase name="interfaceConstantFieldsKeepACompilableDefaultInitializer()" classname="dev.pumpkin.shimgen.PrunerTest" time="0.002"/>
+  <testcase name="floatFieldsGetAnFSuffixedDefaultLiteral()" classname="dev.pumpkin.shimgen.PrunerTest" time="0.002"/>
+  <testcase name="overrideAnnotationsAreDropped()" classname="dev.pumpkin.shimgen.PrunerTest" time="0.001"/>
+  <testcase name="classesWithInstanceMethodsAreNotHoldersEvenWithOnlyConstantFields()" classname="dev.pumpkin.shimgen.PrunerTest" time="0.001"/>
+  <testcase name="enumsKeepEveryConstantAndLoseEveryBody()" classname="dev.pumpkin.shimgen.PrunerTest" time="0.002"/>
+  <testcase name="aHolderWithNoSurvivingFieldGetsNoStaticInitializer()" classname="dev.pumpkin.shimgen.PrunerTest" time="0.002"/>
+  <testcase name="theSynthesisedNoArgConstructorDoesNotThrow()" classname="dev.pumpkin.shimgen.PrunerTest" time="0.0"/>
+  <testcase name="everyDeclaredConstructorSurvivesRegardlessOfUsage()" classname="dev.pumpkin.shimgen.PrunerTest" time="0.002"/>
+  <testcase name="aHolderWithASurvivingFieldKeepsItsStaticInitializer()" classname="dev.pumpkin.shimgen.PrunerTest" time="0.001"/>
+  <testcase name="holderClassesGetAThrowingStaticInitializer()" classname="dev.pumpkin.shimgen.PrunerTest" time="0.002"/>
+  <testcase name="constructorBodiesDropTheirSuperCallAndEveryClassGetsANoArgConstructor()" classname="dev.pumpkin.shimgen.PrunerTest" time="0.001"/>
+  <testcase name="handleTypesKeepUsedMembersAndThrow()" classname="dev.pumpkin.shimgen.PrunerTest" time="0.001"/>
+  <testcase name="constantOnlyClassesAreNeverValueTypes()" classname="dev.pumpkin.shimgen.PrunerTest" time="0.001"/>
+  <testcase name="charFieldsGetAnEscapedNulDefaultNotARawNulByte()" classname="dev.pumpkin.shimgen.PrunerTest" time="0.001"/>
+  <testcase name="constantOnlyClassesWithAnInstanceMethodAreHandlesNotHolders()" classname="dev.pumpkin.shimgen.PrunerTest" time="0.0"/>
+  <testcase name="commentsAndTheImportsTheyKeepAliveAreStripped()" classname="dev.pumpkin.shimgen.PrunerTest" time="0.002"/>
+  <testcase name="aSynthesisedConstructorTakesTheClassesOwnAccess()" classname="dev.pumpkin.shimgen.PrunerTest" time="0.002"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>
