@@ -230,7 +230,8 @@ fn parse_ore_config(configured: &Value) -> Result<OreFeature, String> {
             kind.unwrap_or("a feature without a type")
         ));
     }
-    let config = configured.get("config").ok_or("ore without config")?;
+    // Up to 26.2 the settings sit under "config"; 26.3 puts them beside "type".
+    let config = configured.get("config").unwrap_or(configured);
     let size = config
         .get("size")
         .and_then(Value::as_i64)
@@ -247,9 +248,15 @@ fn parse_ore_config(configured: &Value) -> Result<OreFeature, String> {
         .and_then(Value::as_array)
         .ok_or("ore without targets")?;
     for target in raw_targets {
-        let state_name = target
-            .pointer("/state/Name")
+        // A block id (26.3), {"id": ...} (26.3, with properties), or {"Name": ...} (older).
+        let state = target.get("state");
+        let state_name = state
             .and_then(Value::as_str)
+            .or_else(|| {
+                state
+                    .and_then(|s| s.get("id").or_else(|| s.get("Name")))
+                    .and_then(Value::as_str)
+            })
             .ok_or("ore target without a state name")?;
         let block = Block::from_name(state_name)
             .ok_or_else(|| format!("{state_name} is not a registered block"))?;
@@ -327,6 +334,25 @@ mod tests {
         assert!(!feature.biome_tag_ids.is_empty());
         // count, in_square, height_range survive; the biome modifier is dropped in
         // favour of the tag gate.
+        assert_eq!(feature.placed.placement.len(), 3);
+    }
+
+    /// 26.3 flattens the settings beside "type" and writes states as block ids.
+    #[test]
+    fn the_26_3_layout_parses_too() {
+        let configured = r#"{
+            "type": "minecraft:ore",
+            "size": 8,
+            "discard_chance_on_air_exposure": 0.0,
+            "targets": [
+                {"state": "minecraft:iron_ore",
+                 "target": {"predicate_type": "minecraft:tag_match", "tag": "minecraft:stone_ore_replaceables"}},
+                {"state": {"id": "minecraft:deepslate_iron_ore"},
+                 "target": {"predicate_type": "minecraft:tag_match", "tag": "minecraft:deepslate_ore_replaceables"}}
+            ]
+        }"#;
+        let feature = parse_dynamic_ore("examplemod:ruby_ore", PLACED, configured, "#is_overworld")
+            .expect("parses");
         assert_eq!(feature.placed.placement.len(), 3);
     }
 

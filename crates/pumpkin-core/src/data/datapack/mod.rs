@@ -1829,12 +1829,14 @@ pub(crate) fn load_dynamic_worldgen(datapacks_dir: &Path) {
                     || (namespace.clone(), configured_ref.clone()),
                     |(a, b)| (a.to_string(), b.to_string()),
                 );
-                let configured_file = data_dir
-                    .join(&configured_ns)
-                    .join("worldgen")
-                    .join("configured_feature")
-                    .join(format!("{configured_path}.json"));
-                let Ok(configured_json) = fs::read_to_string(&configured_file) else {
+                // 26.3 moved configured features to worldgen/feature; older packs still
+                // use worldgen/configured_feature.
+                let worldgen = data_dir.join(&configured_ns).join("worldgen");
+                let configured_json = ["feature", "configured_feature"].iter().find_map(|dir| {
+                    fs::read_to_string(worldgen.join(dir).join(format!("{configured_path}.json")))
+                        .ok()
+                });
+                let Some(configured_json) = configured_json else {
                     if published {
                         warn!("{feature_ref}: its configured feature {configured_ref} is missing");
                     }
