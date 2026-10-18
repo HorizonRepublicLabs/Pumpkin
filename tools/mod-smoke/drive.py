@@ -6,7 +6,7 @@ lines, ready = [], threading.Event()
 def reader():
     for line in proc.stdout:
         lines.append(line.rstrip())
-        if "Loaded mysticalagriculture" in line: ready.set()
+        if "mysticalagriculture: registered" in line: ready.set()
 threading.Thread(target=reader, daemon=True).start()
 if not ready.wait(120):
     proc.kill(); print("SERVER NOT READY"); print("\n".join(lines[-25:])); sys.exit(1)

@@ -1,8 +1,8 @@
-"""Minimal offline-mode MC 26.2 client: login -> config -> play, then watch for the
+"""Minimal offline-mode MC 26.3 client: login -> config -> play, then watch for the
 inventory packet carrying the /give result and report the item id it carries."""
 import socket, struct, sys, threading, time
 
-from smoke_env import PROTO
+from smoke_env import ITEM_BASE_COUNT, PROTO
 HOST, PORT = "127.0.0.1", 25599
 NAME = "PumpkinBot"
 
@@ -78,7 +78,7 @@ while time.time() < deadline:
             state = "config"
             print("BOT: login acknowledged -> config", flush=True)
     elif state == "config":
-        if pid == 14:  # select_known_packs -> echo verbatim
+        if pid == 15:  # select_known_packs -> echo verbatim
             send(sock, 7, body)
             print("BOT: known packs echoed", flush=True)
         elif pid == 3:  # finish_configuration -> ack
@@ -97,7 +97,7 @@ while time.time() < deadline:
                     if count > 0:
                         item_id, pos = read_varint(body, pos)
                         give_seen.append(item_id)
-                        if item_id >= 1537:
+                        if item_id >= ITEM_BASE_COUNT:
                             print(f"BOT: DYNAMIC ITEM {item_id} IN CONTAINER CONTENT", flush=True)
                         # skip component counts: add varint, remove varint, then give up on
                         # the rest of this packet -- components are unbounded
@@ -106,11 +106,9 @@ while time.time() < deadline:
                 break
             except Exception as e:
                 print("BOT: content parse error", e, flush=True)
-        if pid == 4:  # clientbound keep_alive(config)= n/a; play keep_alive id 28? watch both
-            pass
-        if pid == 28:  # keep_alive: echo the i64 so the server keeps us
-            send(sock, 44, body)
-        if pid in (20, 108):  # container_set_slot / set_player_inventory
+        if pid == 45:  # keep_alive: echo the i64 so the server keeps us
+            send(sock, 28, body)
+        if pid in (20, 110):  # container_set_slot / set_player_inventory
             try:
                 if pid == 20:
                     pos = 1  # window id i8
@@ -123,7 +121,7 @@ while time.time() < deadline:
                     item_id, pos = read_varint(body, pos)
                     print(f"BOT: SLOT PACKET pid={pid} count={count} item_id={item_id}", flush=True)
                     give_seen.append(item_id)
-                    if item_id >= 1537:  # Item::BASE_COUNT -- a dynamic, mod-registered id
+                    if item_id >= ITEM_BASE_COUNT:  # a dynamic, mod-registered id
                         print("BOT: DYNAMIC ITEM RECEIVED", flush=True)
                         break
             except Exception as e:
