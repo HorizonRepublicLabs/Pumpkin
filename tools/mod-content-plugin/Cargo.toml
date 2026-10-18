@@ -1,0 +1,18 @@
+[package]
+name = "mod-content-plugin"
+description = "Registers the content of converted NeoForge mods from their manifests"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+pumpkin-plugin-api = { path = "../../crates/pumpkin-plugin-api" }
+serde_json.workspace = true
+tracing.workspace = true
+
+[lints]
+workspace = true

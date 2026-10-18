@@ -26,6 +26,8 @@ members = [
     "crates/pumpkin-world",
     "tools/pumpkin-codegen",
     "tools/pumpkin-fuzzer",
+    "tools/mod-converter",
+    "tools/mod-content-plugin",
 ]
 
 # [workspace.lints.rust]

@@ -1,0 +1,711 @@
+//! Turns a mod jar's content into what Pumpkin needs to serve it.
+//!
+//! A mod is data plus code. The data — block states, item models, tags, loot tables,
+//! recipes, worldgen — says what exists. The code says what it does, and is not converted:
+//! every block becomes a copy of a vanilla template that looks like it should behave the
+//! same way (an ore mines like an ore, a slab places like a slab). The report says, per
+//! block and item, which guesses were made, so an operator can tell which content will
+//! look right but act plain.
+//!
+//! Output is a content manifest the `mod-content` plugin registers from, and a datapack
+//! of the jar's `data/` tree.
+
+use std::collections::{BTreeMap, BTreeSet};
+
+use serde_json::{Value, json};
+
+/// Every file in the jar, by path.
+pub type Jar = BTreeMap<String, Vec<u8>>;
+
+/// What one jar converts to.
+pub struct Conversion {
+    pub mod_id: String,
+    /// The manifest the `mod-content` plugin registers from.
+    pub manifest: Value,
+    /// Datapack files, by path inside the pack.
+    pub datapack: Vec<(String, Vec<u8>)>,
+    /// One line per guess or loss, for the operator.
+    pub report: Vec<String>,
+}
+
+/// Converts one mod jar.
+///
+/// # Errors
+/// If the jar has no `neoforge.mods.toml` naming a mod.
+pub fn convert(jar: &Jar) -> Result<Conversion, String> {
+    let mod_id = mod_id(jar)?;
+    let mut report = Vec::new();
+    let tags = BlockTags::read(jar);
+
+    let blocks = names(jar, "blockstates");
+    let item_names = names(jar, "items");
+
+    let mut items = Vec::new();
+    for (ns, name) in &item_names {
+        // A block's own item places it, so it copies a block item rather than a material.
+        let template = if blocks.contains(&(ns.clone(), name.clone())) {
+            "stone"
+        } else {
+            item_template(name)
+        };
+        items.push(json!({ "id": format!("{ns}:{name}"), "template": template }));
+    }
+
+    let mut block_defs = Vec::new();
+    for (ns, name) in &blocks {
+        let id = format!("{ns}:{name}");
+        let Some(state_json) = read_json(jar, &format!("assets/{ns}/blockstates/{name}.json"))
+        else {
+            report.push(format!("{id}: unreadable blockstate, skipped"));
+            continue;
+        };
+        let (template, uses_template_states) = block_template(name, &id, &tags);
+        let properties = if uses_template_states {
+            Vec::new()
+        } else {
+            properties(&state_json)
+        };
+        for (prop, values) in &properties {
+            if !known_order(prop, values) {
+                report.push(format!(
+                    "{id}: property {prop} {values:?} in blockstate order; check it matches the mod's"
+                ));
+            }
+        }
+        let item = item_names
+            .contains(&(ns.clone(), name.clone()))
+            .then(|| id.clone());
+        let drops = drops(jar, ns, name, &properties, item.as_deref(), &mut report);
+
+        let mut def = json!({
+            "id": id,
+            "template": template,
+            "properties": properties
+                .iter()
+                .map(|(name, values)| json!({ "name": name, "values": values }))
+                .collect::<Vec<_>>(),
+            "default_state": default_state(&properties),
+            "drops": drops,
+        });
+        if let Some(item) = item {
+            def["item"] = json!(item);
+        }
+        if tags.needs_tool.contains(&id) {
+            def["requires_tool"] = json!(true);
+        }
+        block_defs.push(def);
+    }
+
+    let (datapack, dropped, rewritten) = datapack(jar, &mod_id);
+    if rewritten > 0 {
+        report.push(format!(
+            "{rewritten} recipe(s) of mod crafting variants became plain vanilla crafting"
+        ));
+    }
+    if dropped > 0 {
+        report.push(format!(
+            "{dropped} recipe(s) of mod-defined types left out: their logic is the mod's code"
+        ));
+    }
+
+    Ok(Conversion {
+        manifest: json!({
+            "format": 1,
+            "mod_id": mod_id,
+            "items": items,
+            "blocks": block_defs,
+            // Payload channels live in the mod's code. A client carrying a mod whose
+            // payloads are required is refused until they are listed here by hand:
+            // { "id": "mod:packet", "phase": "play", "version": "1", "serverbound": true }
+            "channels": [],
+        }),
+        mod_id,
+        datapack,
+        report,
+    })
+}
+
+fn mod_id(jar: &Jar) -> Result<String, String> {
+    let toml = jar
+        .get("META-INF/neoforge.mods.toml")
+        .ok_or("no META-INF/neoforge.mods.toml: not a NeoForge mod")?;
+    let toml = String::from_utf8_lossy(toml);
+    // The first modId after [[mods]]; a dependency's modId comes later in the file.
+    let mut in_mods = false;
+    for line in toml.lines().map(str::trim) {
+        if line.starts_with("[[") {
+            in_mods = line == "[[mods]]";
+        } else if in_mods && let Some(rest) = line.strip_prefix("modId") {
+            let id = rest
+                .trim_start()
+                .trim_start_matches('=')
+                .trim()
+                .trim_matches('"');
+            if !id.is_empty() {
+                return Ok(id.to_string());
+            }
+        }
+    }
+    Err("neoforge.mods.toml names no modId".into())
+}
+
+/// `(namespace, name)` for every `assets/<ns>/<dir>/<name>.json`, minecraft excluded.
+fn names(jar: &Jar, dir: &str) -> BTreeSet<(String, String)> {
+    jar.keys()
+        .filter_map(|path| {
+            let mut parts = path.split('/');
+            let (Some("assets"), Some(ns), Some(d), Some(file), None) = (
+                parts.next(),
+                parts.next(),
+                parts.next(),
+                parts.next(),
+                parts.next(),
+            ) else {
+                return None;
+            };
+            let name = file.strip_suffix(".json")?;
+            (d == dir && ns != "minecraft").then(|| (ns.to_string(), name.to_string()))
+        })
+        .collect()
+}
+
+fn read_json(jar: &Jar, path: &str) -> Option<Value> {
+    serde_json::from_slice(jar.get(path)?).ok()
+}
+
+/// The vanilla tags a block's template is chosen from.
+#[derive(Default)]
+struct BlockTags {
+    pickaxe: BTreeSet<String>,
+    axe: BTreeSet<String>,
+    shovel: BTreeSet<String>,
+    hoe: BTreeSet<String>,
+    needs_tool: BTreeSet<String>,
+    ores: BTreeSet<String>,
+}
+
+impl BlockTags {
+    fn read(jar: &Jar) -> Self {
+        let set = |paths: &[&str]| {
+            paths
+                .iter()
+                .filter_map(|path| read_json(jar, path))
+                .flat_map(|tag| tag["values"].as_array().cloned().unwrap_or_default())
+                .filter_map(|value| {
+                    // Plain ids or { "id": ..., "required": false }; #tag references skipped.
+                    let id = value.as_str().or_else(|| value["id"].as_str())?;
+                    (!id.starts_with('#')).then(|| id.to_string())
+                })
+                .collect()
+        };
+        let tag = |name: &str| format!("data/minecraft/tags/block/{name}.json");
+        Self {
+            pickaxe: set(&[&tag("mineable/pickaxe")]),
+            axe: set(&[&tag("mineable/axe")]),
+            shovel: set(&[&tag("mineable/shovel")]),
+            hoe: set(&[&tag("mineable/hoe")]),
+            needs_tool: set(&[
+                &tag("needs_stone_tool"),
+                &tag("needs_iron_tool"),
+                &tag("needs_diamond_tool"),
+            ]),
+            ores: set(&["data/c/tags/block/ores.json"]),
+        }
+    }
+}
+
+/// The vanilla block a mod block copies, and whether that block's own states are used.
+///
+/// Shaped blocks — slabs, stairs, walls — vary over properties their blockstate files
+/// often leave out (`waterlogged` changes no model), so their states come from the
+/// vanilla shape, which the mod's block extends and so shares.
+fn block_template(name: &str, id: &str, tags: &BlockTags) -> (&'static str, bool) {
+    const SHAPES: [(&str, &str); 8] = [
+        ("_slab", "stone_slab"),
+        ("_stairs", "stone_stairs"),
+        ("_wall", "cobblestone_wall"),
+        ("_fence_gate", "oak_fence_gate"),
+        ("_fence", "oak_fence"),
+        ("_trapdoor", "oak_trapdoor"),
+        ("_door", "oak_door"),
+        ("_pane", "glass_pane"),
+    ];
+    if let Some((_, template)) = SHAPES.iter().find(|(suffix, _)| name.ends_with(suffix)) {
+        return (template, true);
+    }
+    let template = if name.contains("crop") {
+        "wheat"
+    } else if tags.ores.contains(id) || name.ends_with("_ore") {
+        if name.contains("deepslate") {
+            "deepslate_iron_ore"
+        } else {
+            "iron_ore"
+        }
+    } else if name.contains("glass") {
+        "glass"
+    } else if name.ends_with("_leaves") {
+        "oak_leaves"
+    } else if name.ends_with("_log") || name.ends_with("_wood") {
+        "oak_log"
+    } else if tags.axe.contains(id) {
+        "oak_planks"
+    } else if tags.shovel.contains(id) {
+        "dirt"
+    } else if tags.hoe.contains(id) {
+        "hay_block"
+    } else if tags.pickaxe.contains(id) && name.ends_with("_block") {
+        "iron_block"
+    } else {
+        "stone"
+    };
+    (template, false)
+}
+
+/// The vanilla item a plain mod item copies, by what its name says it is.
+fn item_template(name: &str) -> &'static str {
+    const BY_SUFFIX: [(&str, &str); 13] = [
+        ("_sword", "iron_sword"),
+        ("_pickaxe", "iron_pickaxe"),
+        ("_axe", "iron_axe"),
+        ("_shovel", "iron_shovel"),
+        ("_hoe", "iron_hoe"),
+        ("_helmet", "iron_helmet"),
+        ("_chestplate", "iron_chestplate"),
+        ("_leggings", "iron_leggings"),
+        ("_boots", "iron_boots"),
+        ("_bow", "bow"),
+        ("_seeds", "wheat_seeds"),
+        ("_bucket", "bucket"),
+        ("_shears", "shears"),
+    ];
+    BY_SUFFIX
+        .iter()
+        .find(|(suffix, _)| name.ends_with(suffix))
+        .map_or("iron_ingot", |(_, template)| template)
+}
+
+/// The properties a blockstate file varies over, sorted by name as Minecraft orders them.
+fn properties(state: &Value) -> Vec<(String, Vec<String>)> {
+    let mut seen: BTreeMap<String, Vec<String>> = BTreeMap::new();
+    let mut add = |name: &str, value: &str| {
+        let values = seen.entry(name.to_string()).or_default();
+        if !values.iter().any(|v| v == value) {
+            values.push(value.to_string());
+        }
+    };
+    if let Some(variants) = state["variants"].as_object() {
+        for key in variants.keys() {
+            for pair in key.split(',').filter(|p| !p.is_empty()) {
+                if let Some((name, value)) = pair.split_once('=') {
+                    add(name, value);
+                }
+            }
+        }
+    }
+    for part in state["multipart"].as_array().into_iter().flatten() {
+        walk(&part["when"], &mut add);
+    }
+    seen.into_iter()
+        .map(|(name, values)| {
+            let values = ordered(&name, values);
+            (name, values)
+        })
+        .collect()
+}
+
+/// Collects every `property=value` a multipart `when` clause mentions.
+fn walk(when: &Value, add: &mut dyn FnMut(&str, &str)) {
+    let Some(map) = when.as_object() else {
+        return;
+    };
+    for (key, value) in map {
+        if key == "OR" || key == "AND" {
+            for inner in value.as_array().into_iter().flatten() {
+                walk(inner, add);
+            }
+        } else if let Some(values) = value.as_str() {
+            for v in values.split('|') {
+                add(key, v.trim_start_matches('!'));
+            }
+        } else if let Some(b) = value.as_bool() {
+            add(key, if b { "true" } else { "false" });
+        }
+    }
+}
+
+const DIRECTIONS: [&str; 6] = ["down", "up", "north", "south", "west", "east"];
+
+/// Puts values in the order Minecraft's property types declare them.
+fn ordered(name: &str, mut values: Vec<String>) -> Vec<String> {
+    if values.iter().all(|v| v == "true" || v == "false") {
+        return vec!["true".into(), "false".into()];
+    }
+    if values.iter().all(|v| v.parse::<u32>().is_ok()) {
+        values.sort_by_key(|v| v.parse::<u32>().unwrap_or_default());
+        // A range property lists every step, even ones no model mentions.
+        let (lo, hi) = (
+            values[0].parse::<u32>().unwrap_or(0),
+            values[values.len() - 1].parse::<u32>().unwrap_or(0),
+        );
+        return (lo..=hi).map(|v| v.to_string()).collect();
+    }
+    let order: &[&str] = match name {
+        "facing" | "horizontal_facing" => &DIRECTIONS,
+        "axis" => &["x", "y", "z"],
+        _ => return values,
+    };
+    values.sort_by_key(|v| order.iter().position(|o| o == v).unwrap_or(usize::MAX));
+    values
+}
+
+/// Whether `values` came in an order known to match the mod's, rather than file order.
+fn known_order(name: &str, values: &[String]) -> bool {
+    values.iter().all(|v| v == "true" || v == "false")
+        || values.iter().all(|v| v.parse::<u32>().is_ok())
+        || matches!(name, "facing" | "horizontal_facing" | "axis")
+}
+
+/// The state a block is placed in: off, empty, north and upright, by Minecraft's numbering
+/// (properties as digits, the first varying slowest).
+fn default_state(properties: &[(String, Vec<String>)]) -> u32 {
+    let mut index = 0usize;
+    for (name, values) in properties {
+        let preferred = values
+            .iter()
+            .position(|v| v == "false" || v == "north" || (name == "axis" && v == "y"))
+            .unwrap_or(0);
+        index = index * values.len() + preferred;
+    }
+    u32::try_from(index).unwrap_or(0)
+}
+
+/// What breaking the block yields, read from its loot table.
+///
+/// Silk-touch alternatives, fortune and explosion decay are code-shaped and dropped; what
+/// remains is the plain drop and its count. A drop gated on a single-property state (a crop
+/// at full age) keeps that gate.
+fn drops(
+    jar: &Jar,
+    ns: &str,
+    name: &str,
+    properties: &[(String, Vec<String>)],
+    item: Option<&str>,
+    report: &mut Vec<String>,
+) -> Vec<Value> {
+    let id = format!("{ns}:{name}");
+    let Some(table) = read_json(jar, &format!("data/{ns}/loot_table/blocks/{name}.json")) else {
+        // No table: the block drops itself if it has an item, as a plain block would.
+        return item
+            .map(|item| vec![json!({ "item": item, "min": 1, "max": 1 })])
+            .unwrap_or_default();
+    };
+
+    let mut out = Vec::new();
+    for pool in table["pools"].as_array().into_iter().flatten() {
+        for entry in pool["entries"].as_array().into_iter().flatten() {
+            let candidates: Vec<&Value> = match entry["type"].as_str() {
+                Some("minecraft:alternatives") => entry["children"]
+                    .as_array()
+                    .map(|c| c.iter().collect())
+                    .unwrap_or_default(),
+                _ => vec![entry],
+            };
+            // The first alternative a plain tool would take.
+            let Some(chosen) = candidates.into_iter().find(|c| {
+                c["type"] == "minecraft:item" && !has_condition(c, "minecraft:match_tool")
+            }) else {
+                continue;
+            };
+            let Some(item) = chosen["name"].as_str() else {
+                continue;
+            };
+            let (min, max) = count(chosen);
+            let mut drop = json!({ "item": item, "min": min, "max": max });
+            if let Some(range) = state_gate(chosen, entry, properties) {
+                drop["from_state"] = json!(range);
+                drop["to_state"] = json!(range);
+            } else if has_condition(chosen, "minecraft:block_state_property")
+                || has_condition(entry, "minecraft:block_state_property")
+            {
+                report.push(format!(
+                    "{id}: drop of {item} depends on state; now always drops"
+                ));
+            }
+            out.push(drop);
+        }
+    }
+    out
+}
+
+fn conditions(value: &Value) -> impl Iterator<Item = &Value> {
+    value["conditions"].as_array().into_iter().flatten()
+}
+
+fn has_condition(value: &Value, kind: &str) -> bool {
+    conditions(value).any(|c| c["condition"] == kind)
+}
+
+/// `(min, max)` from a `set_count` function; one when there is none.
+fn count(entry: &Value) -> (u8, u8) {
+    let clamp = |v: &Value| v.as_f64().map_or(1, |f| f.clamp(0.0, 64.0) as u8);
+    for function in entry["functions"].as_array().into_iter().flatten() {
+        if function["function"] == "minecraft:set_count" {
+            let count = &function["count"];
+            if count.is_number() {
+                return (clamp(count), clamp(count));
+            }
+            return (clamp(&count["min"]), clamp(&count["max"]));
+        }
+    }
+    (1, 1)
+}
+
+/// The state index a `block_state_property` condition names, for single-property blocks.
+fn state_gate(chosen: &Value, entry: &Value, properties: &[(String, Vec<String>)]) -> Option<u32> {
+    let [(name, values)] = properties else {
+        return None;
+    };
+    conditions(chosen)
+        .chain(conditions(entry))
+        .filter(|c| c["condition"] == "minecraft:block_state_property")
+        .find_map(|c| {
+            let wanted = c["properties"][name.as_str()].as_str()?;
+            values
+                .iter()
+                .position(|v| v == wanted)
+                .and_then(|i| u32::try_from(i).ok())
+        })
+}
+
+/// What a recipe file becomes in the datapack.
+enum Recipe {
+    /// A vanilla type, kept as is.
+    Keep,
+    /// A mod's variant of vanilla crafting, rewritten to the vanilla type it extends.
+    Rewritten(Vec<u8>),
+    /// A mod-defined type: the mod's code runs it, so it cannot be kept.
+    Drop,
+}
+
+fn recipe(bytes: &[u8]) -> Recipe {
+    let Ok(mut recipe) = serde_json::from_slice::<Value>(bytes) else {
+        return Recipe::Drop;
+    };
+    let Some(kind) = recipe["type"].as_str() else {
+        return Recipe::Drop;
+    };
+    // An id without a namespace is in `minecraft`.
+    let (ns, path) = kind.split_once(':').unwrap_or(("minecraft", kind));
+    if ns == "minecraft" {
+        return Recipe::Keep;
+    }
+    // `cucumber:shaped_transfer_damage` and the like are shaped crafting plus a mod-side
+    // extra; the grid is vanilla's, only the extra is lost.
+    let vanilla = if path.contains("shapeless") && recipe.get("ingredients").is_some() {
+        "minecraft:crafting_shapeless"
+    } else if path.contains("shaped") && recipe.get("pattern").is_some() {
+        "minecraft:crafting_shaped"
+    } else {
+        return Recipe::Drop;
+    };
+    recipe["type"] = json!(vanilla);
+    serde_json::to_vec_pretty(&recipe).map_or(Recipe::Drop, Recipe::Rewritten)
+}
+
+/// The jar's `data/` tree as a datapack: mod-typed recipes left out, mod variants of
+/// crafting rewritten to vanilla's.
+///
+/// Returns the files, how many recipes were left out and how many rewritten.
+fn datapack(jar: &Jar, mod_id: &str) -> (Vec<(String, Vec<u8>)>, usize, usize) {
+    let mut files = Vec::new();
+    let (mut dropped, mut rewritten) = (0, 0);
+    for (path, bytes) in jar {
+        if !path.starts_with("data/") || path.ends_with('/') || path.starts_with("data/neoforge/") {
+            continue;
+        }
+        let is_recipe = path.contains("/recipe/")
+            && std::path::Path::new(path)
+                .extension()
+                .is_some_and(|ext| ext.eq_ignore_ascii_case("json"));
+        let bytes = if is_recipe {
+            match recipe(bytes) {
+                Recipe::Keep => bytes.clone(),
+                Recipe::Rewritten(bytes) => {
+                    rewritten += 1;
+                    bytes
+                }
+                Recipe::Drop => {
+                    dropped += 1;
+                    continue;
+                }
+            }
+        } else {
+            bytes.clone()
+        };
+        files.push((path.clone(), bytes));
+    }
+    let mcmeta = jar.get("pack.mcmeta").cloned().unwrap_or_else(|| {
+        serde_json::to_vec_pretty(&json!({
+            "pack": { "description": format!("{mod_id}, converted for Pumpkin"), "pack_format": 94 }
+        }))
+        .unwrap_or_default()
+    });
+    files.push(("pack.mcmeta".into(), mcmeta));
+    (files, dropped, rewritten)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn jar(files: &[(&str, &str)]) -> Jar {
+        files
+            .iter()
+            .map(|(p, c)| ((*p).to_string(), c.as_bytes().to_vec()))
+            .collect()
+    }
+
+    const TOML: (&str, &str) = (
+        "META-INF/neoforge.mods.toml",
+        "[[mods]]\n  modId=\"ex\"\n[[dependencies.ex]]\n  modId=\"neoforge\"\n",
+    );
+
+    #[test]
+    fn an_ore_becomes_an_iron_ore_that_drops_its_plain_alternative() {
+        let jar = jar(&[
+            TOML,
+            (
+                "assets/ex/blockstates/ruby_ore.json",
+                r#"{"variants":{"":{"model":"x"}}}"#,
+            ),
+            ("assets/ex/items/ruby_ore.json", "{}"),
+            ("assets/ex/items/ruby.json", "{}"),
+            (
+                "data/minecraft/tags/block/needs_iron_tool.json",
+                r#"{"values":["ex:ruby_ore"]}"#,
+            ),
+            (
+                "data/ex/loot_table/blocks/ruby_ore.json",
+                r#"{"pools":[{"entries":[{"type":"minecraft:alternatives","children":[
+                    {"type":"minecraft:item","name":"ex:ruby_ore","conditions":[{"condition":"minecraft:match_tool"}]},
+                    {"type":"minecraft:item","name":"ex:ruby","functions":[{"function":"minecraft:set_count","count":{"min":1.0,"max":3.0}}]}
+                ]}]}]}"#,
+            ),
+        ]);
+        let c = convert(&jar).unwrap();
+        assert_eq!(c.mod_id, "ex");
+        let block = &c.manifest["blocks"][0];
+        assert_eq!(block["template"], "iron_ore");
+        assert_eq!(block["item"], "ex:ruby_ore");
+        assert_eq!(block["requires_tool"], true);
+        assert_eq!(
+            block["drops"],
+            json!([{ "item": "ex:ruby", "min": 1, "max": 3 }])
+        );
+        let items: Vec<&str> = c.manifest["items"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .map(|i| i["template"].as_str().unwrap())
+            .collect();
+        assert_eq!(
+            items,
+            ["iron_ingot", "stone"],
+            "ruby is a material, ruby_ore places its block"
+        );
+    }
+
+    #[test]
+    fn a_crop_keeps_its_ages_and_drops_essence_only_when_grown() {
+        let jar = jar(&[
+            TOML,
+            (
+                "assets/ex/blockstates/ruby_crop.json",
+                r#"{"variants":{"age=0":{},"age=7":{},"age=3":{}}}"#,
+            ),
+            (
+                "data/ex/loot_table/blocks/ruby_crop.json",
+                r#"{"pools":[{"entries":[{"type":"minecraft:item","name":"ex:ruby_essence",
+                    "conditions":[{"condition":"minecraft:block_state_property","properties":{"age":"7"}}]}]}]}"#,
+            ),
+        ]);
+        let block = &convert(&jar).unwrap().manifest["blocks"][0];
+        assert_eq!(block["template"], "wheat");
+        assert_eq!(
+            block["properties"][0]["values"],
+            json!(["0", "1", "2", "3", "4", "5", "6", "7"])
+        );
+        assert_eq!(block["drops"][0]["from_state"], 7);
+        assert_eq!(block["default_state"], 0);
+    }
+
+    #[test]
+    fn states_are_numbered_like_minecraft() {
+        let props = properties(
+            &json!({ "variants": { "lit=true,facing=east": {}, "lit=false,facing=north": {}, "facing=south,lit=true": {}, "facing=west,lit=true": {} } }),
+        );
+        assert_eq!(
+            props[0],
+            (
+                "facing".into(),
+                vec!["north".into(), "south".into(), "west".into(), "east".into()]
+            )
+        );
+        assert_eq!(
+            props[1],
+            ("lit".into(), vec!["true".into(), "false".into()])
+        );
+        // facing=north (0) slowest, lit=false (1): 0 * 2 + 1.
+        assert_eq!(default_state(&props), 1);
+    }
+
+    #[test]
+    fn shaped_blocks_take_their_states_from_the_vanilla_shape() {
+        let jar = jar(&[
+            TOML,
+            (
+                "assets/ex/blockstates/ruby_stairs.json",
+                r#"{"variants":{"facing=east,half=top,shape=straight":{}}}"#,
+            ),
+        ]);
+        let block = &convert(&jar).unwrap().manifest["blocks"][0];
+        assert_eq!(block["template"], "stone_stairs");
+        assert_eq!(block["properties"], json!([]));
+    }
+
+    #[test]
+    fn mod_typed_recipes_stay_out_of_the_datapack() {
+        let jar = jar(&[
+            TOML,
+            (
+                "data/ex/recipe/a.json",
+                r#"{"type":"minecraft:crafting_shaped"}"#,
+            ),
+            ("data/ex/recipe/b.json", r#"{"type":"ex:infusion"}"#),
+            ("data/ex/recipe/c.json", r#"{"type":"crafting_shapeless"}"#),
+            (
+                "data/ex/recipe/d.json",
+                r#"{"type":"ex:shaped_keep_nbt","pattern":["X"]}"#,
+            ),
+            ("data/neoforge/data_maps/x.json", "{}"),
+        ]);
+        let c = convert(&jar).unwrap();
+        let paths: Vec<&str> = c.datapack.iter().map(|(p, _)| p.as_str()).collect();
+        assert_eq!(
+            paths,
+            [
+                "data/ex/recipe/a.json",
+                "data/ex/recipe/c.json",
+                "data/ex/recipe/d.json",
+                "pack.mcmeta"
+            ]
+        );
+        let rewritten: Value = serde_json::from_slice(&c.datapack[2].1).unwrap();
+        assert_eq!(rewritten["type"], "minecraft:crafting_shaped");
+        assert_eq!(
+            c.report.len(),
+            2,
+            "one line for the rewrite, one for the drop"
+        );
+    }
+}

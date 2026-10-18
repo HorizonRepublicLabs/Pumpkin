@@ -2450,6 +2450,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "mod-content-plugin"
+version = "0.2.0+26.3-26.51"
+dependencies = [
+ "pumpkin-plugin-api",
+ "serde_json",
+ "tracing",
+]
+
+[[package]]
 name = "moxcms"
 version = "0.8.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3312,6 +3321,15 @@ dependencies = [
  "proc-macro2",
  "quote",
  "syn 3.0.6",
+]
+
+[[package]]
+name = "pumpkin-mod-converter"
+version = "0.2.0+26.3-26.51"
+dependencies = [
+ "flate2",
+ "serde_json",
+ "zip",
 ]
 
 [[package]]

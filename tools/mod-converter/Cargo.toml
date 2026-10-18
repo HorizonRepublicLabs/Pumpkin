@@ -1,0 +1,23 @@
+[package]
+name = "pumpkin-mod-converter"
+description = "Converts a NeoForge mod jar's content into a Pumpkin content manifest and datapack"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+
+[[bin]]
+name = "pumpkin-mod-convert"
+path = "src/main.rs"
+
+[dependencies]
+serde_json.workspace = true
+zip.workspace = true
+# Unused directly: selects the deflate backend zip's `deflate-flate2` needs.
+flate2.workspace = true
+
+[package.metadata.cargo-machete]
+ignored = ["flate2"]
+
+[lints]
+workspace = true

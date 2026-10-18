@@ -5,6 +5,19 @@ Branch: `master` (fork, 27 commits ahead of `origin/master`, merged with upstrea
 Supersedes the "Order of work" in `2026-08-28-neoforge-mod-hosting-design.md`.
 That spec's "Status: not yet implemented" line is out of date. This document records where things stand.
 
+
+> **Superseded, 2026-10-18 (later the same day).** The JVM mod host was removed from
+> `master`'s line of work; its last state is frozen on the `jvm-host-archive` branch. Mods
+> are now converted instead: `tools/mod-converter` turns a jar's data (blocks, items,
+> recipes, loot, tags, worldgen) into a manifest the `tools/mod-content-plugin` WASM plugin
+> registers from, plus a datapack. Mod code is not converted. See
+> `tools/mod-converter/README.md`.
+>
+> What still applies from this document: §1 (world block-id map) and §4 (channel
+> negotiation and common networking) are in the server and unaffected. §2, §3, §6, §7 and
+> §8 concerned the JVM host and are moot. §9's licensing question is mostly gone with the
+> committed shim.
+
 ## Where it stands
 
 The project has done more than the August spec planned. Mekanism was out of scope there, yet the bridge
