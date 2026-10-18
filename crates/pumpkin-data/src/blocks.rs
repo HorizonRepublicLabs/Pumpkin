@@ -247,6 +247,47 @@ impl Block {
         })
     }
 
+    /// The `(property, value)` names of one of this block's states, generated or registered.
+    #[must_use]
+    pub fn state_values(&self, id: BlockStateId) -> Vec<(&'static str, &'static str)> {
+        self.properties(id).map_or_else(
+            || crate::dynamic::block_state_values(self.id, id).unwrap_or_default(),
+            |props| {
+                props
+                    .to_props()
+                    .into_iter()
+                    .map(|p| (p.key_str(), p.value_str()))
+                    .collect()
+            },
+        )
+    }
+
+    /// The state with the given property values, every other property as in the default
+    /// state: what `stone_stairs[half=top]` names in a command. `None` if a name or value
+    /// does not belong to this block.
+    #[must_use]
+    pub fn state_with(&'static self, values: &[(&str, &str)]) -> Option<BlockStateId> {
+        let defaults = self.state_values(self.default_state.id);
+        let wanted: Vec<(&str, &str)> = defaults
+            .iter()
+            .map(|&(name, default)| {
+                let given = values.iter().find(|(n, _)| *n == name).map(|(_, v)| *v);
+                (name, given.unwrap_or(default))
+            })
+            .collect();
+        if values
+            .iter()
+            .any(|(n, _)| !defaults.iter().any(|(d, _)| d == n))
+        {
+            return None;
+        }
+        self.states.iter().map(|state| state.id).find(|&id| {
+            self.state_values(id)
+                .iter()
+                .all(|pair| wanted.contains(pair))
+        })
+    }
+
     /// Returns whether this block is solid (based on default state)
     #[must_use]
     pub const fn is_solid(&self) -> bool {
