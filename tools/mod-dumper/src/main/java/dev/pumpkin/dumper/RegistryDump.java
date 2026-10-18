@@ -45,6 +45,7 @@ public final class RegistryDump {
             dump.add("menus", ids(BuiltInRegistries.MENU));
             dump.add("entity_types", ids(BuiltInRegistries.ENTITY_TYPE));
             dump.add("channels", channels());
+            dump.add("synced_configs", SyncedConfigs.dump());
             var mysticalAgriculture = MysticalAgricultureData.dump();
             if (mysticalAgriculture != null) {
                 dump.add("mysticalagriculture", mysticalAgriculture);

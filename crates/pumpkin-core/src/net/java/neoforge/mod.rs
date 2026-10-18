@@ -143,7 +143,7 @@ pub fn queue_config_tasks(connection: &mut PendingConnection, config: &NeoForgeS
         ),
     );
 
-    if let Some(server_config) = server_config_payload() {
+    for server_config in server_config_payloads() {
         connection.queue_config_task(
             ConfigStage::BeforeRegistries,
             ConfigTask::fire_and_forget(
@@ -390,16 +390,57 @@ pub fn network_query(config: &NeoForgeSettings) -> Option<Bytes> {
     config.enabled.then(payloads::network_query)
 }
 
-/// `neoforge-synced.toml`, encoded once.
-fn server_config_payload() -> Option<&'static Bytes> {
-    static PAYLOAD: std::sync::OnceLock<Option<Bytes>> = std::sync::OnceLock::new();
-    PAYLOAD
-        .get_or_init(|| {
-            payloads::config_file(SERVER_CONFIG_NAME, SERVER_CONFIG.as_bytes())
-                .inspect_err(|err| warn!("Failed to encode the NeoForge config: {err}"))
-                .ok()
-        })
-        .as_ref()
+/// Where mods' synced configs live, relative to the server's working directory.
+/// `pumpkin-mod-convert` writes them there at their defaults.
+const SYNCED_CONFIG_DIR: &str = "synced-configs";
+
+/// Every synced config a client is sent, encoded once: each file under
+/// [`SYNCED_CONFIG_DIR`], named by its path there (`Mekanism/gear.toml`), and
+/// `neoforge-synced.toml` unless that folder has its own. A NeoForge client loads these
+/// from the server alone and throws on reading one that never arrived.
+// ponytail: read once at first login; edits need a restart, as NeoForge's own reload sync
+// is not mirrored.
+fn server_config_payloads() -> &'static [Bytes] {
+    static PAYLOADS: std::sync::OnceLock<Vec<Bytes>> = std::sync::OnceLock::new();
+    PAYLOADS.get_or_init(|| {
+        let mut files = Vec::new();
+        collect_configs(std::path::Path::new(SYNCED_CONFIG_DIR), "", &mut files);
+        if !files.iter().any(|(name, _)| name == SERVER_CONFIG_NAME) {
+            files.push((
+                SERVER_CONFIG_NAME.to_string(),
+                SERVER_CONFIG.as_bytes().to_vec(),
+            ));
+        }
+        files
+            .iter()
+            .filter_map(|(name, contents)| {
+                payloads::config_file(name, contents)
+                    .inspect_err(|err| warn!("Failed to encode synced config {name}: {err}"))
+                    .ok()
+            })
+            .collect()
+    })
+}
+
+/// Every `.toml` under `dir`, named by its `/`-separated path below the top folder.
+fn collect_configs(dir: &std::path::Path, prefix: &str, out: &mut Vec<(String, Vec<u8>)>) {
+    let Ok(entries) = std::fs::read_dir(dir) else {
+        return;
+    };
+    let mut entries: Vec<_> = entries.filter_map(Result::ok).collect();
+    entries.sort_by_key(std::fs::DirEntry::file_name);
+    for entry in entries {
+        let name = format!("{prefix}{}", entry.file_name().to_string_lossy());
+        let path = entry.path();
+        if path.is_dir() {
+            collect_configs(&path, &format!("{name}/"), out);
+        } else if path.extension().is_some_and(|ext| ext == "toml") {
+            match std::fs::read(&path) {
+                Ok(contents) => out.push((name, contents)),
+                Err(err) => warn!("Failed to read synced config {}: {err}", path.display()),
+            }
+        }
+    }
 }
 
 /// The registry sync payloads, built once.

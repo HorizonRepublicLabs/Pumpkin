@@ -105,6 +105,8 @@ fn convert_one(
         std::fs::write(&target, bytes).map_err(|e| e.to_string())?;
     }
 
+    let configs = write_synced_configs(server, &c.mod_id, dump)?;
+
     let count = |key: &str| c.manifest[key].as_array().map_or(0, Vec::len);
     let mut summary = format!(
         "{}: {} block(s), {} item(s), {} datapack file(s)",
@@ -113,11 +115,50 @@ fn convert_one(
         count("items"),
         c.datapack.len()
     );
+    if configs > 0 {
+        summary.push_str(&format!("\n    {configs} synced config(s) written"));
+    }
     for line in &c.report {
         summary.push_str("\n    ");
         summary.push_str(line);
     }
     Ok(summary)
+}
+
+/// Writes the mod's synced configs, at the defaults the dump recorded, into
+/// `<server>/synced-configs/`, which the server sends to every NeoForge client: a client
+/// throws on reading a synced config that never arrived. A file already there is kept, as
+/// it may have been edited. Returns how many were written.
+fn write_synced_configs(
+    server: &Path,
+    mod_id: &str,
+    dump: Option<&serde_json::Value>,
+) -> Result<usize, String> {
+    let Some(files) = dump.and_then(|d| d["synced_configs"][mod_id].as_object()) else {
+        return Ok(0);
+    };
+    let mut written = 0;
+    for (name, toml) in files {
+        // The name is the client's file name, `Mekanism/gear.toml`; never let it leave the
+        // folder.
+        let relative = Path::new(name);
+        if !relative
+            .components()
+            .all(|c| matches!(c, std::path::Component::Normal(_)))
+        {
+            return Err(format!("synced config {name} is not a relative path"));
+        }
+        let target = server.join("synced-configs").join(relative);
+        if target.exists() {
+            continue;
+        }
+        if let Some(parent) = target.parent() {
+            std::fs::create_dir_all(parent).map_err(|e| e.to_string())?;
+        }
+        std::fs::write(&target, toml.as_str().unwrap_or_default()).map_err(|e| e.to_string())?;
+        written += 1;
+    }
+    Ok(written)
 }
 
 fn read_jar(path: &Path) -> Result<convert::Jar, String> {
