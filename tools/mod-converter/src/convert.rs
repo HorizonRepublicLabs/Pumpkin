@@ -96,6 +96,20 @@ pub fn convert(jar: &Jar) -> Result<Conversion, String> {
         block_defs.push(def);
     }
 
+    // Channels from the bytecode, so a client carrying the mod is not refused. Pumpkin does
+    // not handle mod payloads, so it listens on none of them.
+    let classes: Vec<_> = jar
+        .iter()
+        .filter(|(path, _)| {
+            std::path::Path::new(path)
+                .extension()
+                .is_some_and(|ext| ext.eq_ignore_ascii_case("class"))
+        })
+        .filter_map(|(_, bytes)| crate::classfile::parse(bytes))
+        .collect();
+    let (channels, channel_report) = crate::channels::extract(&classes, &mod_version(jar));
+    report.extend(channel_report);
+
     let (datapack, dropped, rewritten) = datapack(jar, &mod_id);
     if rewritten > 0 {
         report.push(format!(
@@ -114,10 +128,10 @@ pub fn convert(jar: &Jar) -> Result<Conversion, String> {
             "mod_id": mod_id,
             "items": items,
             "blocks": block_defs,
-            // Payload channels live in the mod's code. A client carrying a mod whose
-            // payloads are required is refused until they are listed here by hand:
-            // { "id": "mod:packet", "phase": "play", "version": "1", "serverbound": true }
-            "channels": [],
+            "channels": channels
+                .iter()
+                .map(|c| json!({ "id": c.id, "phase": c.phase, "version": c.version, "serverbound": false }))
+                .collect::<Vec<_>>(),
         }),
         mod_id,
         datapack,
@@ -126,27 +140,47 @@ pub fn convert(jar: &Jar) -> Result<Conversion, String> {
 }
 
 fn mod_id(jar: &Jar) -> Result<String, String> {
-    let toml = jar
-        .get("META-INF/neoforge.mods.toml")
-        .ok_or("no META-INF/neoforge.mods.toml: not a NeoForge mod")?;
-    let toml = String::from_utf8_lossy(toml);
-    // The first modId after [[mods]]; a dependency's modId comes later in the file.
+    if !jar.contains_key("META-INF/neoforge.mods.toml") {
+        return Err("no META-INF/neoforge.mods.toml: not a NeoForge mod".into());
+    }
+    mods_value(jar, "modId").ok_or_else(|| "neoforge.mods.toml names no modId".into())
+}
+
+/// The mod's version: `version` in `neoforge.mods.toml`, or the jar manifest's
+/// `Implementation-Version` when the toml defers to it.
+fn mod_version(jar: &Jar) -> String {
+    match mods_value(jar, "version") {
+        Some(v) if !v.starts_with("${") => v,
+        _ => jar
+            .get("META-INF/MANIFEST.MF")
+            .and_then(|m| {
+                String::from_utf8_lossy(m).lines().find_map(|line| {
+                    line.strip_prefix("Implementation-Version:")
+                        .map(|v| v.trim().to_string())
+                })
+            })
+            .unwrap_or_default(),
+    }
+}
+
+/// The first `key = "value"` under `[[mods]]`; a dependency's keys come later in the file.
+fn mods_value(jar: &Jar, key: &str) -> Option<String> {
+    let toml = String::from_utf8_lossy(jar.get("META-INF/neoforge.mods.toml")?);
     let mut in_mods = false;
     for line in toml.lines().map(str::trim) {
         if line.starts_with("[[") {
             in_mods = line == "[[mods]]";
-        } else if in_mods && let Some(rest) = line.strip_prefix("modId") {
-            let id = rest
-                .trim_start()
-                .trim_start_matches('=')
-                .trim()
-                .trim_matches('"');
-            if !id.is_empty() {
-                return Ok(id.to_string());
+        } else if in_mods
+            && let Some((k, v)) = line.split_once('=')
+            && k.trim() == key
+        {
+            let v = v.trim().trim_matches('"');
+            if !v.is_empty() {
+                return Some(v.to_string());
             }
         }
     }
-    Err("neoforge.mods.toml names no modId".into())
+    None
 }
 
 /// `(namespace, name)` for every `assets/<ns>/<dir>/<name>.json`, minecraft excluded.

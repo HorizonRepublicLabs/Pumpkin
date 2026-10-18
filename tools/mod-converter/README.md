@@ -51,12 +51,26 @@ mod's code, the client draws the wrong state.
 
 ## Network channels
 
-A mod's payload channels are defined in its code, so the manifest's `channels` list is
-empty. A client carrying a mod whose payloads are **required** is refused until they are
-listed by hand:
+A NeoForge client refuses a server that doesn't offer every payload its mods registered as
+required. Those are defined in code, so the converter reads them from the jar's bytecode:
+
+- **Ids:** every `CustomPacketPayload.Type` built from an identifier. That covers ids made with
+  `Identifier.fromNamespaceAndPath`, `parse`, or a one-argument helper such as
+  `Mekanism.rl("…")`.
+- **Phase:** configuration if the type is passed to a `configuration*` registration call,
+  otherwise play.
+- **Version:** the constant passed to `RegisterPayloadHandlersEvent.registrar(…)`. If that's
+  computed in code, the mod's own version is used instead, and the report says so.
+
+Checked against the jars' own registration code: MysticalAgriculture 4 of 4, Mekanism 57
+of 57 (one of them configuration), MekanismGenerators 2.
+
+The server offers these channels as optional. A client carrying the mod gets them, a client
+without it isn't refused because of them, and a type found by mistake can't refuse anyone.
+The manifest's `channels` list can still be edited by hand:
 
 ```json
-"channels": [{ "id": "mekanism:batch_security", "phase": "play", "version": "10.8.0", "serverbound": true }]
+"channels": [{ "id": "mekanism:batch_security", "phase": "play", "version": "10.8.0", "serverbound": false }]
 ```
 
-`version` must be the string the mod passes to `event.registrar(...)`.
+Mod payloads are agreed but not handled: what a mod sends over them is ignored.

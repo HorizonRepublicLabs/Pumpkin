@@ -14,6 +14,8 @@ trace. This probe stands in for that client far enough to see which
     python3 tools/mod-smoke/neoforgeprobe.py [port]
 """
 
+import json
+import os
 import socket
 import struct
 import sys
@@ -123,16 +125,28 @@ BUILTINS = [
 ]
 
 
+# PROBE_MANIFESTS=<dir of converted manifests> makes the probe a client carrying those
+# mods: every channel they list is offered as required, as the mod's own client does.
+MOD_CHANNELS = []
+if os.environ.get("PROBE_MANIFESTS"):
+    for name in sorted(os.listdir(os.environ["PROBE_MANIFESTS"])):
+        if name.endswith(".json"):
+            with open(os.path.join(os.environ["PROBE_MANIFESTS"], name)) as f:
+                for c in json.load(f).get("channels", []):
+                    MOD_CHANNELS.append((4 if c["phase"] == "configuration" else 1, c["id"], c["version"]))
+
+
 def query_answer():
     """ModdedNetworkQueryPayload: phase -> [id, version, optional flow, optional]."""
     out = varint(2)
     for phase in (4, 1):
-        entries = [b for b in BUILTINS if b[0] == phase]
+        entries = [(cid, "1", flow, True) for p, cid, flow in BUILTINS if p == phase]
+        entries += [(cid, ver, None, False) for p, cid, ver in MOD_CHANNELS if p == phase]
         out += varint(phase) + varint(len(entries))
-        for _, cid, flow in entries:
-            out += mcstring(cid) + mcstring("1")
+        for cid, ver, flow, optional in entries:
+            out += mcstring(cid) + mcstring(ver)
             out += (b"\x01" + varint(flow)) if flow is not None else b"\x00"
-            out += b"\x01"  # optional
+            out += b"\x01" if optional else b"\x00"
     return out
 
 

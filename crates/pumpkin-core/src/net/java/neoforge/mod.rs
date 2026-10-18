@@ -15,7 +15,8 @@
 //!
 //! The client does not second-guess the agreed set, so negotiation is the whole of the
 //! compatibility check. What the server offers is `NeoForge`'s own optional built-ins that
-//! Pumpkin implements, plus the channels plugins declared via [`channels::declare`].
+//! Pumpkin implements, plus the channels plugins declared via [`channels::declare`], all
+//! optional: the client must find its required channels here, but need not carry ours.
 //!
 //! # Declaring the connection modded has a cost
 //!
@@ -285,7 +286,7 @@ pub fn setup_failed_payload(
 /// What this server offers in one phase, and whether it listens on each channel.
 ///
 /// `NeoForge`'s own built-ins that Pumpkin implements, optional as `NeoForge` registers
-/// them, then every channel a plugin declared, which are required.
+/// them, then every channel a plugin declared, also optional.
 fn server_channels(
     protocol: ChannelProtocol,
     declared: &[ModdedChannel],
@@ -314,7 +315,10 @@ fn server_channels(
                         id: channel.id.clone(),
                         version: channel.version.clone(),
                         flow: None,
-                        optional: false,
+                        // Offered, not demanded: a client's required channels must all be
+                        // here, but nothing Pumpkin runs needs a client to carry a mod. It
+                        // also means a channel declared by mistake cannot refuse anyone.
+                        optional: true,
                     },
                     channel.serverbound,
                 )
@@ -570,13 +574,12 @@ mod negotiation_tests {
     }
 
     #[test]
-    fn a_declared_channel_is_required_of_the_client() {
+    fn a_declared_channel_is_offered_not_required() {
         let declared = [mod_channel("mekanism:packet")];
-        let Err(Refusal::Incompatible(failures)) = negotiate_against(&answer(&[]), &declared)
-        else {
-            panic!("a client without the mod should be refused");
+        let Ok(agreed) = negotiate_against(&answer(&[]), &declared) else {
+            panic!("a client without the mod is not refused over the server's channels");
         };
-        assert_eq!(failures[0].id, "mekanism:packet");
+        assert!(agreed.is_empty());
 
         let offered = [Component {
             id: "mekanism:packet".into(),
@@ -590,6 +593,13 @@ mod negotiation_tests {
             panic!("a client with the mod should be accepted");
         };
         assert_eq!(agreed, vec![mod_channel("mekanism:packet")]);
+
+        let Err(Refusal::Incompatible(failures)) =
+            negotiate_against(&answer(&[(ChannelProtocol::Play, &offered)]), &[])
+        else {
+            panic!("a client requiring a channel the server lacks is still refused");
+        };
+        assert_eq!(failures[0].id, "mekanism:packet");
     }
 
     #[test]
