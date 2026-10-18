@@ -310,7 +310,7 @@ fn mod_version(jar: &Jar) -> String {
 fn mods_value(jar: &Jar, key: &str) -> Option<String> {
     let toml = String::from_utf8_lossy(jar.get("META-INF/neoforge.mods.toml")?);
     let mut in_mods = false;
-    for line in toml.lines().map(str::trim) {
+    for line in toml.lines().map(strip_comment) {
         if line.starts_with("[[") {
             in_mods = line == "[[mods]]";
         } else if in_mods
@@ -324,6 +324,21 @@ fn mods_value(jar: &Jar, key: &str) -> Option<String> {
         }
     }
     None
+}
+
+/// A TOML line without its trailing `# comment`, trimmed. A `#` inside a quoted string is
+/// kept: `modId = "simulated" #mandatory` gives `modId = "simulated"`.
+fn strip_comment(line: &str) -> &str {
+    let mut quote = None;
+    for (i, c) in line.char_indices() {
+        match (quote, c) {
+            (None, '"' | '\'') => quote = Some(c),
+            (Some(q), _) if c == q => quote = None,
+            (None, '#') => return line[..i].trim(),
+            _ => {}
+        }
+    }
+    line.trim()
 }
 
 /// `(namespace, name)` for every `assets/<ns>/<dir>/<name>.json`, minecraft excluded.
@@ -944,5 +959,16 @@ mod tests {
             json!([{ "id": "ex:sync", "phase": "play", "version": "3", "serverbound": false }])
         );
         assert_eq!(m["block_entity_types"], json!(["ex:machine"]));
+    }
+
+    #[test]
+    fn comments_after_tables_and_values_are_ignored() {
+        let mut jar = Jar::new();
+        jar.insert(
+            "META-INF/neoforge.mods.toml".into(),
+            b"[[mods]] #mandatory\nmodId = \"simulated\" #mandatory\ndisplayName=\"A # B\"\n".to_vec(),
+        );
+        assert_eq!(mods_value(&jar, "modId").as_deref(), Some("simulated"));
+        assert_eq!(mods_value(&jar, "displayName").as_deref(), Some("A # B"));
     }
 }
