@@ -229,7 +229,7 @@ pub(crate) const fn to_wit_bounding_box(
 pub(crate) fn to_wit_block(block: &pumpkin_data::Block) -> WitBlock {
     WitBlock {
         id: block.id.as_u16(),
-        name: block.name.to_string(),
+        name: crate::events::namespaced(block.name),
         hardness: block.hardness,
         blast_resistance: block.blast_resistance,
         map_color: block.map_color,
@@ -269,7 +269,7 @@ pub(crate) fn to_wit_block_state(
     WitBlockState {
         id: state.id.as_u16(),
         block_id: block.id.as_u16(),
-        block_name: block.name.to_string(),
+        block_name: crate::events::namespaced(block.name),
         luminance: state.luminance,
         opacity: state.opacity,
         hardness: state.hardness,
