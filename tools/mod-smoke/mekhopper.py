@@ -1,8 +1,9 @@
 """Three phases: produce an ingot, set the smelter's BOTTOM side to item OUTPUT in
 the saved blob, boot again and watch the vanilla hopper below pull the ingot."""
 import base64, glob, json, re, struct, subprocess, sys, time, zlib, os
+from smoke_env import PUMPKIN_BIN
 
-srv = sys.argv[1]; bot = sys.argv[2]; binary = "/Users/shbodya/.cargo/target/debug/pumpkin"
+srv = sys.argv[1]; bot = sys.argv[2]; binary = PUMPKIN_BIN
 here = os.path.dirname(os.path.abspath(__file__))
 
 print("PHASE1: produce ingot", flush=True)

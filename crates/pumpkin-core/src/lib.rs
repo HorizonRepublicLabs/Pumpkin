@@ -417,12 +417,26 @@ impl PumpkinServer {
         }
     }
 
+    /// Pins the world's saved block ids to names, now that the registry handed out its ids.
+    /// Running on without it could rewrite saved chunks as the wrong blocks, so it is fatal.
+    fn init_world_block_ids(&self) {
+        let root = self.server.basic_config.get_world_path();
+        if let Err(err) = pumpkin_world::chunk::format::world_ids::init(&root) {
+            error!(
+                "Failed to load the world's block id list from {}: {err}",
+                root.display()
+            );
+            std::process::exit(1);
+        }
+    }
+
     pub async fn init_plugins(&self) -> std::time::Duration {
         if !self.server.advanced_config.plugins.enabled {
             info!("Plugin system is disabled in configuration.");
             pumpkin_data::dynamic::freeze();
             self.server.block_registry.freeze_plugin_blocks();
             crate::net::java::neoforge::channels::freeze();
+            self.init_world_block_ids();
             return std::time::Duration::ZERO;
         }
 
@@ -444,6 +458,7 @@ impl PumpkinServer {
         pumpkin_data::dynamic::freeze();
         self.server.block_registry.freeze_plugin_blocks();
         crate::net::java::neoforge::channels::freeze();
+        self.init_world_block_ids();
 
         // Mod worldgen resolves its blocks against the published registries, so the pass
         // during plugin loading found nothing -- the blocks were still staged. Now that

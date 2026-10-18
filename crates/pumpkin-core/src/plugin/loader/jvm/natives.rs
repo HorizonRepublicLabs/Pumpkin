@@ -129,6 +129,11 @@ pub fn bind(env: &mut JNIEnv) -> Result<(), VmError> {
                 sig: "(Ljava/lang/String;Ljava/lang/String;)V".into(),
                 fn_ptr: register_mod_config_native as *mut std::ffi::c_void,
             },
+            NativeMethod {
+                name: "declareNetworkChannel".into(),
+                sig: "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Z)V".into(),
+                fn_ptr: declare_network_channel_native as *mut std::ffi::c_void,
+            },
         ],
     )
     .map_err(|err| VmError::Java(format!("Failed to bind PumpkinHost natives: {err}")))
@@ -727,4 +732,43 @@ extern "system" fn register_mod_config_native<'a>(
         return;
     };
     crate::net::java::neoforge::record_mod_config(&file_name, &config_type);
+}
+
+/// A payload a mod registered, declared as a channel the server negotiates. Without it a
+/// client carrying the mod is refused: the mod's payloads are required on its side.
+extern "system" fn declare_network_channel_native<'a>(
+    mut env: JNIEnv<'a>,
+    _class: JClass<'a>,
+    id: JString<'a>,
+    phase: JString<'a>,
+    version: JString<'a>,
+    serverbound: jboolean,
+) {
+    use crate::net::java::neoforge::{ChannelProtocol, ModdedChannel, channels};
+
+    let Some(id) = read_string(&mut env, &id, "the channel id") else {
+        return;
+    };
+    let Some(phase) = read_string(&mut env, &phase, "the channel phase") else {
+        return;
+    };
+    let Some(version) = read_string(&mut env, &version, "the channel version") else {
+        return;
+    };
+    let protocol = match phase.as_str() {
+        "play" => ChannelProtocol::Play,
+        "configuration" => ChannelProtocol::Configuration,
+        other => {
+            throw(&mut env, &format!("unknown channel phase {other}"));
+            return;
+        }
+    };
+    if let Err(err) = channels::declare(ModdedChannel {
+        id,
+        protocol,
+        version,
+        serverbound: serverbound != 0,
+    }) {
+        throw(&mut env, &err.to_string());
+    }
 }

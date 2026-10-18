@@ -8,7 +8,10 @@ use pumpkin_data::{
 use pumpkin_util::encompassing_bits;
 use tracing::warn;
 
-use super::format::{ChunkSectionBiomes, ChunkSectionBlockStates};
+use super::format::{
+    ChunkSectionBiomes, ChunkSectionBlockStates,
+    world_ids::{is_translating, state_to_runtime, state_to_world},
+};
 
 fn bedrock_palette_bits(palette_len: usize) -> u8 {
     match encompassing_bits(palette_len) {
@@ -955,14 +958,14 @@ impl BlockPalette {
         match self {
             Self::Homogeneous(id) => {
                 out.put_u8(0);
-                out.put_u16(id.as_u16());
+                out.put_u16(state_to_world(id.as_u16()));
             }
             Self::Heterogeneous(data) => match &data.storage {
                 PaletteStorage::Indexed(indices) => {
                     out.put_u8(1);
                     out.put_u16(data.palette.len() as u16);
                     for (&id, &count) in data.palette.iter().zip(&data.counts) {
-                        out.put_u16(id.as_u16());
+                        out.put_u16(state_to_world(id.as_u16()));
                         out.put_u16(count);
                     }
                     out.extend_from_slice(indices.as_flattened().as_flattened());
@@ -970,7 +973,7 @@ impl BlockPalette {
                 PaletteStorage::Dense(cube) => {
                     out.put_u8(2);
                     for &id in cube.as_flattened().as_flattened() {
-                        out.put_u16(id.as_u16());
+                        out.put_u16(state_to_world(id.as_u16()));
                     }
                 }
             },
@@ -992,7 +995,9 @@ impl BlockPalette {
                         "Unexpected EOF reading homogeneous block palette".into(),
                     ));
                 }
-                Ok(Self::Homogeneous(BlockStateId::new_or_air(buf.get_u16())))
+                Ok(Self::Homogeneous(BlockStateId::new_or_air(
+                    state_to_runtime(buf.get_u16()),
+                )))
             }
             1 => {
                 if buf.remaining() < 2 {
@@ -1012,7 +1017,7 @@ impl BlockPalette {
                 let mut counts = Vec::with_capacity(palette_len);
                 let mut count_sum = 0u32;
                 for _ in 0..palette_len {
-                    palette.push(BlockStateId::new_or_air(buf.get_u16()));
+                    palette.push(BlockStateId::new_or_air(state_to_runtime(buf.get_u16())));
                     let c = buf.get_u16();
                     counts.push(c);
                     count_sum += u32::from(c);
@@ -1025,6 +1030,25 @@ impl BlockPalette {
                 let flat = indices.as_flattened_mut().as_flattened_mut();
                 flat.copy_from_slice(&buf[..Self::VOLUME]);
                 buf.advance(Self::VOLUME);
+
+                // Translation can map two saved ids to one block (both removed, say), and a
+                // palette must not list a value twice, so let from_cube build it afresh.
+                if is_translating() {
+                    let mut cube =
+                        Box::new([[[BlockStateId::AIR; Self::SIZE]; Self::SIZE]; Self::SIZE]);
+                    for (slot, &idx) in cube
+                        .as_flattened_mut()
+                        .as_flattened_mut()
+                        .iter_mut()
+                        .zip(&*flat)
+                    {
+                        *slot = palette
+                            .get(idx as usize)
+                            .copied()
+                            .unwrap_or(BlockStateId::AIR);
+                    }
+                    return Ok(Self::from_cube(cube));
+                }
 
                 let max_idx = flat.iter().copied().max().unwrap_or(0) as usize;
                 if count_sum != Self::VOLUME as u32 || max_idx >= palette_len {
@@ -1054,7 +1078,7 @@ impl BlockPalette {
                 let mut cube =
                     Box::new([[[BlockStateId::AIR; Self::SIZE]; Self::SIZE]; Self::SIZE]);
                 for slot in cube.as_flattened_mut().as_flattened_mut() {
-                    *slot = BlockStateId::new_or_air(buf.get_u16());
+                    *slot = BlockStateId::new_or_air(state_to_runtime(buf.get_u16()));
                 }
                 Ok(Self::from_cube(cube))
             }

@@ -87,9 +87,11 @@ pub struct PendingConnection {
     pub config_tasks: ConfigTaskQueue,
     /// Whether mod-loader configuration tasks have already been queued for this connection.
     neoforge_queued: bool,
-    /// Whether the client answered the `NeoForge` channel query, which only a client
-    /// running that mod loader does.
-    pub answered_network_query: bool,
+    /// Whether the common `c:version`/`c:register` exchange has been queued.
+    common_queued: bool,
+    /// The channel set agreed with a `NeoForge` client. Only a client running that mod
+    /// loader answers the query this comes from.
+    pub negotiated_channels: Option<Vec<neoforge::ModdedChannel>>,
     /// Whether the known-packs exchange is waiting for the client to identify itself.
     pub known_packs_deferred: bool,
     /// Whether it has since been sent, so it is not sent twice.
@@ -134,7 +136,8 @@ impl PendingConnection {
             client_channels: HashSet::new(),
             config_tasks: ConfigTaskQueue::new(),
             neoforge_queued: false,
-            answered_network_query: false,
+            common_queued: false,
+            negotiated_channels: None,
             known_packs_deferred: false,
             known_packs_sent: false,
             vine_challenge: None,
@@ -634,10 +637,8 @@ impl PendingConnection {
             match core::str::from_utf8(plugin_message.data) {
                 Ok(brand) => {
                     self.brand = Some(brand.to_string());
-                    // The brand is the earliest reliable sign of a mod loader, and for a
-                    // client carrying required mod payloads it is the only one: it gives up
-                    // before advertising channels — and before the known-packs exchange
-                    // that would otherwise flush the queue, so send what was queued now.
+                    // NeoForge work waits for the query answer, not the brand; this only
+                    // flushes anything already queued ahead of the known-packs exchange.
                     self.try_queue_mod_loader_tasks(server);
                     self.progress_config_tasks(server).await;
                     self.flush_deferred_known_packs(server).await;
@@ -649,13 +650,7 @@ impl PendingConnection {
 
         match plugin_message.channel {
             neoforge::NETWORK_QUERY_CHANNEL => {
-                // Only a NeoForge client answers this, so it settles what the brand only
-                // hints at — and it arrives before the client decides about the server.
-                debug!("Client answered the NeoForge network query");
-                self.answered_network_query = true;
-                self.try_queue_mod_loader_tasks(server);
-                self.progress_config_tasks(server).await;
-                self.flush_deferred_known_packs(server).await;
+                self.answer_network_query(server, plugin_message.data).await;
             }
             REGISTER_CHANNEL => {
                 let channels = parse_channel_list(plugin_message.data);
@@ -664,8 +659,14 @@ impl PendingConnection {
                     channels.len(),
                     channels
                 );
-                self.client_channels.extend(channels);
+                if !self.add_client_channels(channels).await {
+                    return;
+                }
                 self.try_queue_mod_loader_tasks(server);
+            }
+            neoforge::COMMON_VERSION_CHANNEL | neoforge::COMMON_REGISTER_CHANNEL => {
+                self.handle_common_payload(server, plugin_message.channel, plugin_message.data)
+                    .await;
             }
             UNREGISTER_CHANNEL => {
                 for channel in parse_channel_list(plugin_message.data) {
@@ -691,6 +692,93 @@ impl PendingConnection {
         }
     }
 
+    /// Negotiates a `NeoForge` client's answer to the network query, refusing the
+    /// connection with `NeoForge`'s own reasons if no channel set can be agreed.
+    async fn answer_network_query(&mut self, server: &Server, data: &[u8]) {
+        // Only a NeoForge client answers this, with every payload it registered.
+        debug!("Client answered the NeoForge network query");
+        if self.negotiated_channels.is_some() {
+            return;
+        }
+        match neoforge::negotiate_client(data) {
+            Ok(agreed) => self.negotiated_channels = Some(agreed),
+            Err(neoforge::Refusal::Malformed(err)) => {
+                self.kick(TextComponent::text(format!(
+                    "Malformed NeoForge network query: {err}"
+                )))
+                .await;
+                return;
+            }
+            Err(neoforge::Refusal::Incompatible(failures)) => {
+                // The client shows these on the disconnect screen that follows.
+                let version = self.version.load();
+                let reasons = neoforge::setup_failed_payload(&failures, &version);
+                self.send_packet_now(&CPluginMessage::new(
+                    neoforge::SETUP_FAILED_CHANNEL,
+                    &reasons,
+                ))
+                .await;
+                let ids: Vec<&str> = failures.iter().map(|f| f.id.as_str()).collect();
+                self.kick(TextComponent::text(format!(
+                    "Incompatible mod network channels: {}",
+                    ids.join(", ")
+                )))
+                .await;
+                return;
+            }
+        }
+        self.try_queue_mod_loader_tasks(server);
+        self.progress_config_tasks(server).await;
+        self.flush_deferred_known_packs(server).await;
+    }
+
+    /// The client's half of the common exchange: `c:version` must share a version with
+    /// this server, and `c:register` lists the play channels it listens on.
+    async fn handle_common_payload(&mut self, server: &Server, channel: &str, data: &[u8]) {
+        if channel == neoforge::COMMON_VERSION_CHANNEL {
+            let versions = neoforge::payloads::parse_common_version(data).unwrap_or_default();
+            if !versions
+                .iter()
+                .any(|v| neoforge::COMMON_VERSIONS.contains(v))
+            {
+                self.kick(TextComponent::text(format!(
+                    "Unsupported common network version. This server only supports: {:?}",
+                    neoforge::COMMON_VERSIONS
+                )))
+                .await;
+                return;
+            }
+        } else {
+            match neoforge::payloads::parse_common_register(data) {
+                Ok((_phase, channels)) => {
+                    if !self.add_client_channels(channels).await {
+                        return;
+                    }
+                }
+                Err(err) => {
+                    self.kick(TextComponent::text(format!("Malformed c:register: {err}")))
+                        .await;
+                    return;
+                }
+            }
+        }
+        if self.config_tasks.acknowledge(channel).is_some() {
+            self.progress_config_tasks(server).await;
+        }
+    }
+
+    /// Records channels the client announced, refusing a client that announces more than
+    /// `NeoForge` allows. Returns `false` once the client has been kicked.
+    async fn add_client_channels(&mut self, channels: Vec<String>) -> bool {
+        if self.client_channels.len() + channels.len() > neoforge::MAX_CLIENT_CHANNELS {
+            self.kick(TextComponent::text("Too many channels registered"))
+                .await;
+            return false;
+        }
+        self.client_channels.extend(channels);
+        true
+    }
+
     /// Whether the client has announced it can receive payloads on `channel`.
     #[must_use]
     pub fn supports_channel(&self, channel: &str) -> bool {
@@ -705,18 +793,21 @@ impl PendingConnection {
     /// sequence starts, and latches only once work has actually been queued — latching on
     /// the first attempt would lock out a client whose channels arrive a packet later.
     pub(super) fn try_queue_mod_loader_tasks(&mut self, server: &Server) {
-        if self.neoforge_queued || !self.config_tasks.is_pending() {
+        if !self.config_tasks.is_pending() {
             return;
         }
 
         let config = &server.advanced_config.networking.java.neoforge;
-        self.neoforge_queued = neoforge::queue_config_tasks(
-            self,
-            &NeoForgeSettings {
-                enabled: config.enabled,
-                sync_registries: config.sync_registries,
-            },
-        );
+        let settings = NeoForgeSettings {
+            enabled: config.enabled,
+            sync_registries: config.sync_registries,
+        };
+        if !self.neoforge_queued {
+            self.neoforge_queued = neoforge::queue_config_tasks(self, &settings);
+        }
+        if !self.common_queued {
+            self.common_queued = neoforge::queue_common_tasks(self, &settings);
+        }
     }
 
     /// Walks the configuration sequence until it needs something from the client.

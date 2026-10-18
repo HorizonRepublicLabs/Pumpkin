@@ -1,6 +1,7 @@
 """Right-clicks the prepared energized smelter, then moves raw iron into its input slot."""
 import socket, struct, sys, time, threading, os
-HOST, PORT, PROTO = "127.0.0.1", 25599, 776
+from smoke_env import PROTO
+HOST, PORT = "127.0.0.1", 25599
 LOCK = threading.Lock()
 def varint(n):
     out = b""; n &= 0xFFFFFFFF

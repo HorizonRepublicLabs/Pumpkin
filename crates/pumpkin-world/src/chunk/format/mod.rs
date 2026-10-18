@@ -33,6 +33,7 @@ use super::{
 pub mod anvil;
 pub mod linear;
 pub mod pump;
+pub mod world_ids;
 
 impl SingleChunkDataSerializer for ChunkData {
     #[inline]
@@ -844,7 +845,7 @@ impl ChunkData {
             out.put_i32(tick.position.0.z);
             out.put_u8(tick.delay);
             out.put_i8(tick.priority as i32 as i8);
-            out.put_u16(tick.value.id.as_u16());
+            out.put_u16(world_ids::block_to_world(tick.value.id.as_u16()));
         }
 
         let fluid_ticks = self.fluid_ticks.to_vec();
@@ -1040,7 +1041,7 @@ impl ChunkData {
             let priority = i32::from(buf.get_i8());
             let raw_id = buf.get_u16();
             if let Ok(priority) = TickPriority::try_from(priority)
-                && let Some(block_id) = BlockId::new(raw_id)
+                && let Some(block_id) = BlockId::new(world_ids::block_to_runtime(raw_id))
             {
                 block_ticks.push(ScheduledTick {
                     delay,

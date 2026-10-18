@@ -8,7 +8,9 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Enumeration;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.regex.Matcher;
@@ -22,13 +24,24 @@ import net.neoforged.fml.common.Mod;
  * entirely adequate for one mod, and it avoids depending on the loader's data format.
  */
 public final class ModLoader {
-    /** A mod found in a jar: its declared id, and the class annotated {@code @Mod}. */
-    public record ModCandidate(String modId, Class<?> mainClass, URLClassLoader loader,
+    /**
+     * A mod found in a jar: its declared id, and the class annotated {@code @Mod}.
+     *
+     * <p>{@code modIds} is every {@code [[mods]]} entry in the jar, {@code modId} the first.
+     * {@code after} and {@code before} are the mod ids its {@code [[dependencies.*]]} entries
+     * order it after and before.
+     */
+    public record ModCandidate(String modId, List<String> modIds, Set<String> after,
+            Set<String> before, Class<?> mainClass, URLClassLoader loader,
             List<Class<?>> eventBusSubscribers) {
     }
 
-    private static final Pattern MOD_ID =
-            Pattern.compile("^\\s*modId\\s*=\\s*\"([^\"]+)\"\\s*$", Pattern.MULTILINE);
+    // ponytail: line-based, not a TOML parser -- handles the `key = "value"` and
+    // `[[table]]` lines mods.toml uses; inline tables and multi-line strings are not read.
+    // The only TOML library around is night-config core, which has no TOML reader.
+    private static final Pattern TABLE = Pattern.compile("^\\s*\\[\\[\\s*([^\\]]+?)\\s*\\]\\]");
+    private static final Pattern STRING_KEY =
+            Pattern.compile("^\\s*(\\w+)\\s*=\\s*[\"']([^\"']*)[\"']");
 
     private ModLoader() {
     }
@@ -40,25 +53,111 @@ public final class ModLoader {
      * @throws IllegalStateException if the toml or the annotated class is missing
      */
     public static ModCandidate discover(Path jar) throws IOException {
-        String modId;
+        String toml;
         try (JarFile file = new JarFile(jar.toFile())) {
             JarEntry entry = file.getJarEntry("META-INF/neoforge.mods.toml");
             if (entry == null) {
                 throw new IllegalStateException("no META-INF/neoforge.mods.toml in " + jar);
             }
             try (InputStream stream = file.getInputStream(entry)) {
-                String toml = new String(stream.readAllBytes(), StandardCharsets.UTF_8);
-                Matcher matcher = MOD_ID.matcher(toml);
-                if (!matcher.find()) {
-                    throw new IllegalStateException("no modId in " + jar);
-                }
-                modId = matcher.group(1);
+                toml = new String(stream.readAllBytes(), StandardCharsets.UTF_8);
             }
+        }
+
+        // modId means the mod's own id under [[mods]] and the target's id under
+        // [[dependencies.<owner>]]; which one depends on the table the line sits in.
+        List<String> modIds = new ArrayList<>();
+        List<String[]> dependencies = new ArrayList<>(); // {modId, ordering, type}
+        String table = "";
+        for (String line : toml.split("\\R")) {
+            Matcher header = TABLE.matcher(line);
+            if (header.find()) {
+                table = header.group(1);
+                if (table.startsWith("dependencies.")) {
+                    dependencies.add(new String[3]);
+                }
+                continue;
+            }
+            Matcher pair = STRING_KEY.matcher(line);
+            if (!pair.find()) {
+                continue;
+            }
+            String key = pair.group(1);
+            if (table.equals("mods") && key.equals("modId")) {
+                modIds.add(pair.group(2));
+            } else if (table.startsWith("dependencies.") && key.equals("modId")) {
+                dependencies.getLast()[0] = pair.group(2);
+            } else if (table.startsWith("dependencies.") && key.equals("ordering")) {
+                dependencies.getLast()[1] = pair.group(2);
+            } else if (table.startsWith("dependencies.") && key.equals("type")) {
+                dependencies.getLast()[2] = pair.group(2);
+            }
+        }
+        Set<String> after = new LinkedHashSet<>();
+        Set<String> before = new LinkedHashSet<>();
+        for (String[] dependency : dependencies) {
+            // ponytail: an optional AFTER dependency is dropped, so it orders nothing even when
+            // installed. Rust sorts on `after` and refuses a missing one, which is right only
+            // for required dependencies; carry the type through if an optional one matters.
+            if ("AFTER".equals(dependency[1]) && dependency[0] != null
+                    && !"optional".equalsIgnoreCase(dependency[2])) {
+                after.add(dependency[0]);
+            } else if ("BEFORE".equals(dependency[1]) && dependency[0] != null) {
+                before.add(dependency[0]);
+            }
+        }
+        if (modIds.isEmpty()) {
+            throw new IllegalStateException("no modId in " + jar);
         }
 
         URLClassLoader loader = sharedLoader(jar);
         Class<?> main = findAnnotatedClass(jar, loader);
-        return new ModCandidate(modId, main, loader, findEventBusSubscribers(jar, loader));
+        return new ModCandidate(modIds.get(0), List.copyOf(modIds), after, before, main, loader,
+                findEventBusSubscribers(jar, loader));
+    }
+
+    /**
+     * Orders mods for construction: each after the mods it declares {@code ordering =
+     * "AFTER"} on and before those it declares {@code "BEFORE"} on, discovery order
+     * otherwise.
+     *
+     * <p>A dependency on a mod that is not present is logged and ignored, as is a cycle,
+     * whose members keep discovery order.
+     */
+    public static List<ModCandidate> constructionOrder(List<ModCandidate> discovered) {
+        for (ModCandidate mod : discovered) {
+            for (String id : mod.after()) {
+                if (discovered.stream().noneMatch(other -> other.modIds().contains(id))
+                        && !id.equals("minecraft") && !id.equals("neoforge")) {
+                    System.err.println("[pumpkin] " + mod.modId() + " orders after " + id
+                            + ", which is not present; ignored");
+                }
+            }
+        }
+        List<ModCandidate> ordered = new ArrayList<>();
+        List<ModCandidate> pending = new ArrayList<>(discovered);
+        while (!pending.isEmpty()) {
+            ModCandidate next = null;
+            for (ModCandidate mod : pending) {
+                if (pending.stream().noneMatch(other -> other != mod && mustPrecede(other, mod))) {
+                    next = mod;
+                    break;
+                }
+            }
+            if (next == null) {
+                next = pending.get(0);
+                System.err.println("[pumpkin] mod ordering cycle involving " + next.modId()
+                        + "; constructing in discovery order");
+            }
+            pending.remove(next);
+            ordered.add(next);
+        }
+        return ordered;
+    }
+
+    private static boolean mustPrecede(ModCandidate first, ModCandidate second) {
+        return first.modIds().stream().anyMatch(second.after()::contains)
+                || second.modIds().stream().anyMatch(first.before()::contains);
     }
 
     /**
@@ -169,24 +268,32 @@ public final class ModLoader {
      * {@code NoClassDefFoundError} naming a class that is sitting in the next jar along.
      * NeoForge puts every mod on one loader, and so must this.
      *
-     * <p>Jars are added as they are discovered, so a mod can only see those loaded before
-     * it. That is the same ordering constraint {@code ModList.isLoaded} carries and it is
-     * why NeoForge mods do cross-mod work in setup events rather than constructors.
+     * <p>Exactly one loader, grown in place. Rebuilding one per new jar -- what this used
+     * to do -- gave each a parent of the app loader, not the previous loader, so a class
+     * from an earlier jar looked up through the newer loader was defined a second time:
+     * two copies of its statics, and a ClassCastException wherever the copies met.
+     * Pumpkin discovers every jar before constructing any (PluginManager.load_plugins), so
+     * by the time mod code runs the loader already holds every jar.
      */
-    private static final java.util.List<URL> JARS = new java.util.ArrayList<>();
+    private static final SharedLoader SHARED = new SharedLoader();
 
-    private static URLClassLoader shared;
+    private static final class SharedLoader extends URLClassLoader {
+        SharedLoader() {
+            super(new URL[0], ModLoader.class.getClassLoader());
+        }
+
+        // Widened from protected: appending a jar is the whole point of this class.
+        @Override
+        public void addURL(URL url) {
+            super.addURL(url);
+        }
+    }
 
     private static synchronized URLClassLoader sharedLoader(Path jar) throws IOException {
         URL url = jar.toUri().toURL();
-        if (!JARS.contains(url)) {
-            JARS.add(url);
-            // Rebuilt rather than mutated: URLClassLoader has no public way to add a URL, and
-            // classes already loaded stay reachable through the new loader's parent chain
-            // only if that loader is the one asked next -- which it is, since every lookup
-            // goes through here.
-            shared = new URLClassLoader(JARS.toArray(new URL[0]), ModLoader.class.getClassLoader());
+        if (!List.of(SHARED.getURLs()).contains(url)) {
+            SHARED.addURL(url);
         }
-        return shared;
+        return SHARED;
     }
 }

@@ -1,6 +1,7 @@
 """Places a tinkering table and right-clicks it; watches for the mod menu opening."""
 import socket, struct, sys, time, threading, os
-HOST, PORT, PROTO = "127.0.0.1", 25599, 776
+from smoke_env import PROTO
+HOST, PORT = "127.0.0.1", 25599
 LOCK = threading.Lock()
 def varint(n):
     out = b""; n &= 0xFFFFFFFF

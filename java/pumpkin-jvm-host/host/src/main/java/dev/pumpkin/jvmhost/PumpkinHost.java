@@ -172,4 +172,14 @@ public final class PumpkinHost {
      * @param type     the {@code ModConfig.Type} name, e.g. {@code SERVER}
      */
     public static native void registerModConfig(String fileName, String type);
+
+    /**
+     * Declares a payload a mod registered as a channel the server negotiates with
+     * {@code NeoForge} clients.
+     *
+     * @param phase "play" or "configuration"
+     * @param serverbound whether the server listens on it
+     */
+    public static native void declareNetworkChannel(String id, String phase, String version,
+            boolean serverbound);
 }

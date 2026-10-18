@@ -1,8 +1,9 @@
 """Energy across a transmitter: coal into the heat generator, a universal cable
 between it and the smelter, and the ingot proves the network carried the power."""
 import os, subprocess, sys
+from smoke_env import PUMPKIN_BIN
 
-srv = sys.argv[1]; bot = sys.argv[2]; binary = "/Users/shbodya/.cargo/target/debug/pumpkin"
+srv = sys.argv[1]; bot = sys.argv[2]; binary = PUMPKIN_BIN
 here = os.path.dirname(os.path.abspath(__file__))
 
 r = subprocess.run(["python3", os.path.join(here, "mekcabledrive.py"), binary, bot],

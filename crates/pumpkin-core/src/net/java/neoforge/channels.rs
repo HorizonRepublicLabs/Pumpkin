@@ -55,7 +55,7 @@ pub enum ChannelError {
     Frozen,
     /// The id has no namespace.
     InvalidId(String),
-    /// The id was already declared for the same protocol phase.
+    /// The id was already declared for the same protocol phase, under another version.
     Duplicate(String),
 }
 
@@ -79,7 +79,8 @@ static FROZEN: OnceLock<Vec<ModdedChannel>> = OnceLock::new();
 /// # Errors
 ///
 /// Returns [`ChannelError`] if declaration has closed, the id is not namespaced, or the
-/// same id was already declared for that phase.
+/// same id was already declared for that phase under a different version. The same id and
+/// version declared again merges: the channel is serverbound if either said so.
 pub fn declare(channel: ModdedChannel) -> Result<(), ChannelError> {
     if FROZEN.get().is_some() {
         return Err(ChannelError::Frozen);
@@ -94,11 +95,17 @@ pub fn declare(channel: ModdedChannel) -> Result<(), ChannelError> {
         .unwrap_or_else(std::sync::PoisonError::into_inner);
     let staging = guard.get_or_insert_with(Vec::new);
 
-    if staging
-        .iter()
-        .any(|existing| existing.id == channel.id && existing.protocol == channel.protocol)
+    if let Some(existing) = staging
+        .iter_mut()
+        .find(|existing| existing.id == channel.id && existing.protocol == channel.protocol)
     {
-        return Err(ChannelError::Duplicate(channel.id));
+        // A mod registers a two-way payload once per direction; same version means the
+        // same channel, now known to be listened on if either declaration said so.
+        if existing.version != channel.version {
+            return Err(ChannelError::Duplicate(channel.id));
+        }
+        existing.serverbound |= channel.serverbound;
+        return Ok(());
     }
 
     staging.push(channel);
@@ -157,8 +164,19 @@ mod tests {
             declare(channel("examplemod:one", ChannelProtocol::Configuration)).is_ok(),
             "the same id in another phase is a different channel"
         );
+        assert!(
+            declare(ModdedChannel {
+                serverbound: true,
+                ..channel("examplemod:one", ChannelProtocol::Play)
+            })
+            .is_ok(),
+            "the same channel declared for the other direction merges"
+        );
         assert_eq!(
-            declare(channel("examplemod:one", ChannelProtocol::Play)),
+            declare(ModdedChannel {
+                version: "2".to_string(),
+                ..channel("examplemod:one", ChannelProtocol::Play)
+            }),
             Err(ChannelError::Duplicate("examplemod:one".to_string()))
         );
 
@@ -170,6 +188,10 @@ mod tests {
         freeze();
 
         assert_eq!(declared().len(), 2);
+        assert!(
+            declared()[0].serverbound,
+            "merged with the serverbound declaration"
+        );
         assert_eq!(
             declare(channel("examplemod:too_late", ChannelProtocol::Play)),
             Err(ChannelError::Frozen)

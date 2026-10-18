@@ -73,6 +73,21 @@ pub fn discover_mod_id(vm: &'static ModVm, jar: &str) -> Result<String, VmError>
     call_bootstrap_string_method(vm, "discoverModId", jar)
 }
 
+/// The mod ids a jar must be constructed after: its required `AFTER` dependencies.
+///
+/// Backed by `Bootstrap.discoverLoadAfter`. Discovery only, like [`discover_mod_id`].
+///
+/// # Errors
+/// Returns [`VmError::Java`] if the jar or its `neoforge.mods.toml` cannot be read.
+pub fn discover_load_after(vm: &'static ModVm, jar: &str) -> Result<Vec<String>, VmError> {
+    let joined = call_bootstrap_string_method(vm, "discoverLoadAfter", jar)?;
+    Ok(joined
+        .split(',')
+        .filter(|id| !id.is_empty())
+        .map(str::to_owned)
+        .collect())
+}
+
 /// Brings one mod up inside the VM and returns its declared mod id.
 ///
 /// Backed by `Bootstrap.loadAndRegister`, which constructs the mod's `@Mod` class and
@@ -2429,13 +2444,17 @@ impl PluginLoader for JvmPluginLoader {
             // to construct it. See that method's comment for why the split matters.
             let mod_id = discover_mod_id(vm, &jar)
                 .map_err(|err| LoaderError::InitializationFailed(err.to_string()))?;
+            // The plugin manager constructs in dependency order, so a mod declaring
+            // `ordering = "AFTER"` on another runs after it, as under NeoForge.
+            let dependencies = discover_load_after(vm, &jar)
+                .map_err(|err| LoaderError::InitializationFailed(err.to_string()))?;
 
             let metadata = PluginMetadata {
                 name: mod_id.clone(),
                 version: "0.0.0".to_owned(),
                 authors: Vec::new(),
                 description: "A NeoForge mod hosted on the JVM".to_owned(),
-                dependencies: Vec::new(),
+                dependencies,
                 permissions: Vec::new(),
             };
 

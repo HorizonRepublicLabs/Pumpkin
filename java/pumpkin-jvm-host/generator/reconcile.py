@@ -45,6 +45,8 @@ PINNED = {
     "net/minecraft/world/phys/shapes/Shapes.java",
     "net/neoforged/neoforge/common/ModConfigSpec.java",
     "net/neoforged/neoforge/common/extensions/ILevelExtension.java",
+    "net/neoforged/neoforge/network/event/RegisterPayloadHandlersEvent.java",
+    "net/neoforged/neoforge/network/registration/PayloadRegistrar.java",
     "net/neoforged/neoforge/registries/RegistryBuilder.java",
     "net/neoforged/neoforge/transfer/item/ItemResource.java",
     "net/neoforged/neoforge/transfer/transaction/Transaction.java",

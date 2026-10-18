@@ -6,7 +6,8 @@ before it clicks. Argument 1 is the yaw in degrees (0 south, 90 west, 180 north,
 """
 import socket, struct, time, threading, os, sys
 
-HOST, PORT, PROTO = "127.0.0.1", 25599, 776
+from smoke_env import PROTO
+HOST, PORT = "127.0.0.1", 25599
 YAW = float(sys.argv[1]) if len(sys.argv) > 1 else 0.0
 # Where the machine goes: clicked block, its top face.
 TARGET = (5, 149, 0)

@@ -28,6 +28,8 @@ public final class Bootstrap {
      * without a native library bound. Rust calls this once during boot, before loading any mod.
      */
     public static void installDefaultSink() {
+        net.neoforged.neoforge.network.registration.PayloadRegistrar.setSink(
+                PumpkinHost::declareNetworkChannel);
         DeferredRegister.setSink(new DeferredRegister.Sink() {
             @Override
             public int registerBlock(String id, String template) {
@@ -109,6 +111,17 @@ public final class Bootstrap {
      */
     public static String discoverModId(String jarPath) throws java.io.IOException {
         return ModLoader.discover(Path.of(jarPath)).modId();
+    }
+
+    /**
+     * The mods a jar must be constructed after, comma-joined: its required {@code AFTER}
+     * dependencies, minus {@code minecraft} and {@code neoforge}, which are always present.
+     * Rust sorts plugin construction on these.
+     */
+    public static String discoverLoadAfter(String jarPath) throws java.io.IOException {
+        return ModLoader.discover(Path.of(jarPath)).after().stream()
+                .filter(id -> !id.equals("minecraft") && !id.equals("neoforge"))
+                .collect(java.util.stream.Collectors.joining(","));
     }
 
     /**
@@ -248,6 +261,9 @@ public final class Bootstrap {
         // Capabilities register after content: NeoForge fires this once per mod on the
         // mod bus, and the providers land in the bridge's registry for lookups.
         bus.post(new net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent());
+        // A mod's payloads become channels the server negotiates; its client requires
+        // them, so a mod that skipped this would refuse every player carrying it.
+        bus.post(new net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent());
         // The jar's @EventBusSubscriber classes: their static @SubscribeEvent methods
         // go live on the game bus, the same wiring NeoForge does automatically. A class
         // whose handler shapes cannot register is reported, not silently dropped.

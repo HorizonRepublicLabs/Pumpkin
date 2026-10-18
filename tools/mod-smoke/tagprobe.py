@@ -14,7 +14,7 @@ import zlib
 
 HOST = "127.0.0.1"
 PORT = int(sys.argv[1]) if len(sys.argv) > 1 else 25565
-PROTO = 776
+from smoke_env import PROTO
 NAME = "TagProbe"
 UPDATE_TAGS = 13
 

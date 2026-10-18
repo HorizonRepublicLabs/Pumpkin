@@ -2,36 +2,29 @@
 //!
 //! # How a modded connection is established
 //!
-//! `NeoForge` has no handshake of its own. Its server reads the channel list the client
-//! advertises on `minecraft:register` and runs the configuration tasks that client can
-//! handle. Pumpkin does the same where it can, but cannot rely on it: a client carrying a
-//! mod whose payloads were registered as **required** disconnects during configuration
-//! before advertising anything, having concluded it is talking to a vanilla server. So the
-//! trigger here is the client's brand, which arrives first and is enough on its own —
-//! `NeoForge`'s built-in channels exist on every `NeoForge` client by definition.
+//! As `NeoForge`'s own server does it. Every client is sent an empty `neoforge:register`
+//! query before the server's brand. A `NeoForge` client answers with every payload it
+//! registered — and from then on treats the server as modded — while a vanilla client
+//! ignores it. The answer is negotiated against what this server offers ([`negotiate`]):
 //!
-//! Two things then happen, and they are independent:
+//! - **Agreed:** the agreed set goes out on `neoforge:network`, then the configuration
+//!   tasks follow — config files, the frozen registry sync, and the common
+//!   `c:version`/`c:register` exchange.
+//! - **Refused:** the reasons go out on `neoforge:modded_network_setup_failed`, which the
+//!   client shows on its disconnect screen, and the connection is closed.
 //!
-//! 1. **The payload setup is declared**, always. This is what lets a mod's required
-//!    channels negotiate, and so what lets the client join at all. The channels come from
-//!    plugins via [`channels::declare`], because they belong to the mod being implemented,
-//!    not to Pumpkin.
-//! 2. **The registries are synchronised**, when the client's game version matches the one
-//!    Pumpkin's data was generated for. This is what makes ids agree, so that content a
-//!    plugin registered means the same thing on both sides.
-//!
-//! Older clients still get step 1 and so can still join; they just do not get id agreement.
+//! The client does not second-guess the agreed set, so negotiation is the whole of the
+//! compatibility check. What the server offers is `NeoForge`'s own optional built-ins that
+//! Pumpkin implements, plus the channels plugins declared via [`channels::declare`].
 //!
 //! # Declaring the connection modded has a cost
 //!
-//! Sending `neoforge:network` moves the client off the vanilla path. It then narrows its
-//! channel list to what was negotiated — a client that advertised fifteen channels comes
-//! back having kept ten — and a mod that tries to send on a channel outside that set is
-//! refused rather than quietly disabled, which is what an unmodded connection would give
-//! it. So the setup declares only what is actually in use, and the whole feature is off by
-//! default.
+//! Sending `neoforge:network` moves the client off the vanilla path: a mod that tries to
+//! send on a channel outside the agreed set is refused rather than quietly disabled, which
+//! is what an unmodded connection would give it. So the whole feature is off by default.
 
 pub mod channels;
+pub mod negotiate;
 pub mod payloads;
 
 use bytes::Bytes;
@@ -62,6 +55,18 @@ pub const SYNC_COMPLETED_CHANNEL: &str = "neoforge:frozen_registry_sync_complete
 pub const MODDED_NETWORK_CHANNEL: &str = "neoforge:network";
 /// Vanilla channel-registration, used here to announce what the server listens on.
 pub const MINECRAFT_REGISTER_CHANNEL: &str = "minecraft:register";
+/// Carries the reasons negotiation failed, just before the disconnect.
+pub const SETUP_FAILED_CHANNEL: &str = "neoforge:modded_network_setup_failed";
+/// Common networking (shared with Fabric): the versions each side speaks.
+pub const COMMON_VERSION_CHANNEL: &str = "c:version";
+/// Common networking: the play channels each side listens on.
+pub const COMMON_REGISTER_CHANNEL: &str = "c:register";
+
+/// The common-networking versions this server speaks, as `NeoForge` 26.3 does.
+pub const COMMON_VERSIONS: [i32; 1] = [1];
+
+/// Most channels a client may announce, `NeoForge`'s default `maxAdhocChannelLimit`.
+pub const MAX_CLIENT_CHANNELS: usize = 2048;
 
 /// `NeoForge`'s own configuration channels, which every `NeoForge` client has built in.
 const SYNC_CHANNELS: [&str; 4] = [
@@ -133,50 +138,61 @@ pub struct NeoForgeSettings {
 
 /// Queues the `NeoForge` configuration tasks for this connection.
 ///
-/// Returns whether anything was queued. A `false` result means there is nothing to do —
-/// the feature is off, or this is not a `NeoForge` client — and the caller may try again
-/// when it learns more about the client.
+/// Returns whether anything was queued. A `false` result means there is nothing to do yet —
+/// the feature is off, or the client has not answered the network query — and the caller
+/// may try again when it learns more about the client.
 pub fn queue_config_tasks(connection: &mut PendingConnection, config: &NeoForgeSettings) -> bool {
-    if !config.enabled || !is_neoforge_client(connection) {
+    if !config.enabled {
         return false;
     }
-
-    let Some(payloads) = negotiation_payloads() else {
+    let Some(agreed) = connection.negotiated_channels.clone() else {
         return false;
     };
 
+    let setup = match payloads::modded_network_setup(&agreed) {
+        Ok(setup) => setup,
+        Err(err) => {
+            warn!("Failed to encode the NeoForge payload setup: {err}");
+            return false;
+        }
+    };
     debug!(
         "Declaring a modded network with {} channel(s)",
-        payloads.channel_count
+        agreed.len()
     );
 
     // The setup comes first: until the client has it, a modded channel is one the client
-    // may read but not answer on, and a required one is grounds for disconnecting.
+    // may read but not answer on.
     connection.queue_config_task(
         ConfigStage::BeforeRegistries,
-        ConfigTask::fire_and_forget(
-            "neoforge:modded_network",
-            MODDED_NETWORK_CHANNEL,
-            payloads.setup.clone(),
-        ),
+        ConfigTask::fire_and_forget("neoforge:modded_network", MODDED_NETWORK_CHANNEL, setup),
     );
+
+    // `minecraft:register` announces what the *server* listens on.
+    let listening: Vec<&str> = agreed
+        .iter()
+        .filter(|channel| channel.serverbound)
+        .map(|channel| channel.id.as_str())
+        .collect();
     connection.queue_config_task(
         ConfigStage::BeforeRegistries,
         ConfigTask::fire_and_forget(
             "neoforge:register_channels",
             MINECRAFT_REGISTER_CHANNEL,
-            payloads.register.clone(),
+            payloads::channel_registration(&listening),
         ),
     );
 
-    connection.queue_config_task(
-        ConfigStage::BeforeRegistries,
-        ConfigTask::fire_and_forget(
-            "neoforge:server_config",
-            CONFIG_FILE_CHANNEL,
-            payloads.server_config.clone(),
-        ),
-    );
+    if let Some(server_config) = server_config_payload() {
+        connection.queue_config_task(
+            ConfigStage::BeforeRegistries,
+            ConfigTask::fire_and_forget(
+                "neoforge:server_config",
+                CONFIG_FILE_CHANNEL,
+                server_config.clone(),
+            ),
+        );
+    }
 
     // The mods' own server configs, which NeoForge would have synced from files.
     let mod_configs = mod_config_payloads();
@@ -197,6 +213,173 @@ pub fn queue_config_tasks(connection: &mut PendingConnection, config: &NeoForgeS
     queue_registry_sync(connection, config);
 
     true
+}
+
+/// Queues the common `c:version` then `c:register` exchange, as `NeoForge` does after the
+/// registry sync.
+///
+/// Runs for a negotiated `NeoForge` client, and for any client that announced both
+/// channels, which is how a Fabric client says it speaks them. Returns whether it queued.
+pub fn queue_common_tasks(connection: &mut PendingConnection, config: &NeoForgeSettings) -> bool {
+    let speaks_common = connection.negotiated_channels.is_some()
+        || (connection.supports_channel(COMMON_VERSION_CHANNEL)
+            && connection.supports_channel(COMMON_REGISTER_CHANNEL));
+    if !config.enabled || !speaks_common {
+        return false;
+    }
+
+    let listening: Vec<&str> = channels::declared()
+        .iter()
+        .filter(|channel| channel.serverbound && channel.protocol == ChannelProtocol::Play)
+        .map(|channel| channel.id.as_str())
+        .collect();
+    let (Ok(version), Ok(register)) = (
+        payloads::common_version(&COMMON_VERSIONS),
+        payloads::common_register(1, "play", &listening),
+    ) else {
+        warn!("Failed to encode the common networking payloads");
+        return false;
+    };
+
+    // Each waits for the client's own c:version / c:register, which pending.rs checks
+    // before acknowledging.
+    connection.queue_config_task(
+        ConfigStage::AfterRegistries,
+        ConfigTask::awaiting_ack(
+            "c:version",
+            COMMON_VERSION_CHANNEL,
+            version,
+            COMMON_VERSION_CHANNEL,
+        ),
+    );
+    connection.queue_config_task(
+        ConfigStage::AfterRegistries,
+        ConfigTask::awaiting_ack(
+            "c:register",
+            COMMON_REGISTER_CHANNEL,
+            register,
+            COMMON_REGISTER_CHANNEL,
+        ),
+    );
+    true
+}
+
+/// Why a client's network query answer was not accepted.
+pub enum Refusal {
+    /// The answer did not decode.
+    Malformed(String),
+    /// Negotiation failed, for these channels.
+    Incompatible(Vec<negotiate::Failure>),
+}
+
+/// Negotiates a client's `neoforge:register` answer against what this server offers.
+///
+/// # Errors
+/// [`Refusal`] if the answer is malformed or no channel set could be agreed.
+pub fn negotiate_client(answer: &[u8]) -> Result<Vec<ModdedChannel>, Refusal> {
+    negotiate_against(answer, channels::declared())
+}
+
+/// [`negotiate_client`] against an explicit set of declared channels.
+fn negotiate_against(
+    answer: &[u8],
+    declared: &[ModdedChannel],
+) -> Result<Vec<ModdedChannel>, Refusal> {
+    let offered = negotiate::parse_query(answer).map_err(Refusal::Malformed)?;
+    let mut agreed = Vec::new();
+    for protocol in [ChannelProtocol::Configuration, ChannelProtocol::Play] {
+        let server = server_channels(protocol, declared);
+        let server_components: Vec<negotiate::Component> = server
+            .iter()
+            .map(|(component, _)| component.clone())
+            .collect();
+        let client = offered
+            .iter()
+            .find(|(phase, _)| *phase == protocol)
+            .map_or(&[][..], |(_, components)| components.as_slice());
+
+        for component in
+            negotiate::negotiate(&server_components, client).map_err(Refusal::Incompatible)?
+        {
+            let serverbound = server
+                .iter()
+                .any(|(offer, listens)| offer.id == component.id && *listens);
+            agreed.push(ModdedChannel {
+                id: component.id,
+                protocol,
+                version: component.version,
+                serverbound,
+            });
+        }
+    }
+    Ok(agreed)
+}
+
+/// Encodes the reasons for a refusal, as `neoforge:modded_network_setup_failed` carries them.
+#[must_use]
+pub fn setup_failed_payload(
+    failures: &[negotiate::Failure],
+    version: &pumpkin_util::version::JavaMinecraftVersion,
+) -> Bytes {
+    let reasons: Vec<(String, TextComponent)> = failures
+        .iter()
+        .map(|failure| {
+            let args: Vec<TextComponent> = failure
+                .args
+                .iter()
+                .cloned()
+                .map(TextComponent::text)
+                .collect();
+            (
+                failure.id.clone(),
+                TextComponent::translate(failure.key.clone(), args),
+            )
+        })
+        .collect();
+    payloads::setup_failed(&reasons, version)
+        .inspect_err(|err| warn!("Failed to encode the NeoForge setup failure: {err}"))
+        .unwrap_or_default()
+}
+
+/// What this server offers in one phase, and whether it listens on each channel.
+///
+/// `NeoForge`'s own built-ins that Pumpkin implements, optional as `NeoForge` registers
+/// them, then every channel a plugin declared, which are required.
+fn server_channels(
+    protocol: ChannelProtocol,
+    declared: &[ModdedChannel],
+) -> Vec<(negotiate::Component, bool)> {
+    let builtin = |id: &str| negotiate::Component {
+        id: id.to_string(),
+        version: payloads::BUILTIN_CHANNEL_VERSION.to_string(),
+        flow: None,
+        optional: true,
+    };
+    let mut offered: Vec<(negotiate::Component, bool)> = match protocol {
+        ChannelProtocol::Configuration => SYNC_CHANNELS
+            .iter()
+            // The client echoes the completion payload back to us.
+            .map(|id| (builtin(id), *id == SYNC_COMPLETED_CHANNEL))
+            .collect(),
+        ChannelProtocol::Play => vec![(builtin(OPEN_SCREEN_CHANNEL), false)],
+    };
+    offered.extend(
+        declared
+            .iter()
+            .filter(|channel| channel.protocol == protocol)
+            .map(|channel| {
+                (
+                    negotiate::Component {
+                        id: channel.id.clone(),
+                        version: channel.version.clone(),
+                        flow: None,
+                        optional: false,
+                    },
+                    channel.serverbound,
+                )
+            }),
+    );
+    offered
 }
 
 /// Adds the frozen registry sync, if this client can be given Pumpkin's ids.
@@ -254,40 +437,22 @@ fn queue_registry_sync(connection: &mut PendingConnection, config: &NeoForgeSett
     );
 }
 
-/// Whether this connection is worth speaking `NeoForge` to.
-///
-/// The brand is the reliable signal: it arrives at the start of configuration, before a
-/// client with required mod payloads would give up. The channel list is checked too, for
-/// clients that send it first.
-fn is_neoforge_client(connection: &PendingConnection) -> bool {
-    connection.answered_network_query
-        || connection
-            .brand
-            .as_deref()
-            .is_some_and(|brand| brand.contains("neoforge"))
-        || connection.supports_channel(SYNC_START_CHANNEL)
-}
-
-/// The `neoforge:network` and `minecraft:register` payloads, built once.
-struct NegotiationPayloads {
-    query: Bytes,
-    setup: Bytes,
-    register: Bytes,
-    server_config: Bytes,
-    channel_count: usize,
-}
-
-/// The channel list to offer a client, sent before anything else in configuration.
-///
-/// Every client gets this, because there is no way to tell a `NeoForge` client from a
-/// vanilla one before it answers — and a vanilla client harmlessly ignores a channel it
-/// does not know.
+/// The `neoforge:register` query sent to every client when the feature is on.
 #[must_use]
 pub fn network_query(config: &NeoForgeSettings) -> Option<Bytes> {
-    if !config.enabled {
-        return None;
-    }
-    negotiation_payloads().map(|payloads| payloads.query.clone())
+    config.enabled.then(payloads::network_query)
+}
+
+/// `neoforge-server.toml`, encoded once.
+fn server_config_payload() -> Option<&'static Bytes> {
+    static PAYLOAD: std::sync::OnceLock<Option<Bytes>> = std::sync::OnceLock::new();
+    PAYLOAD
+        .get_or_init(|| {
+            payloads::config_file(SERVER_CONFIG_NAME, SERVER_CONFIG.as_bytes())
+                .inspect_err(|err| warn!("Failed to encode the NeoForge config: {err}"))
+                .ok()
+        })
+        .as_ref()
 }
 
 /// The registry sync payloads, built once.
@@ -295,57 +460,6 @@ struct SyncPayloads {
     start: Bytes,
     /// Registry name and its snapshot, in send order.
     snapshots: Vec<(String, Bytes)>,
-}
-
-/// Builds the negotiation payloads on first use.
-///
-/// Channels are fixed once plugins have loaded, so every connection is handed the same
-/// bytes rather than re-encoding them per join.
-fn negotiation_payloads() -> Option<&'static NegotiationPayloads> {
-    static PAYLOADS: std::sync::OnceLock<Option<NegotiationPayloads>> = std::sync::OnceLock::new();
-
-    PAYLOADS
-        .get_or_init(|| {
-            let mut all: Vec<ModdedChannel> = SYNC_CHANNELS
-                .iter()
-                .map(|id| ModdedChannel {
-                    id: (*id).to_string(),
-                    protocol: ChannelProtocol::Configuration,
-                    version: payloads::BUILTIN_CHANNEL_VERSION.to_string(),
-                    // The client echoes the completion payload back to us.
-                    serverbound: *id == SYNC_COMPLETED_CHANNEL,
-                })
-                .collect();
-            all.extend(channels::declared().iter().cloned());
-
-            let query = payloads::network_query(&all)
-                .inspect_err(|err| warn!("Failed to encode the NeoForge network query: {err}"))
-                .ok()?;
-
-            let setup = payloads::modded_network_setup(&all)
-                .inspect_err(|err| warn!("Failed to encode the NeoForge payload setup: {err}"))
-                .ok()?;
-
-            // `minecraft:register` announces what the *server* listens on.
-            let listening: Vec<&str> = all
-                .iter()
-                .filter(|channel| channel.serverbound)
-                .map(|channel| channel.id.as_str())
-                .collect();
-
-            let server_config = payloads::config_file(SERVER_CONFIG_NAME, SERVER_CONFIG.as_bytes())
-                .inspect_err(|err| warn!("Failed to encode the NeoForge config: {err}"))
-                .ok()?;
-
-            Some(NegotiationPayloads {
-                query,
-                setup,
-                server_config,
-                register: payloads::channel_registration(&listening),
-                channel_count: all.len(),
-            })
-        })
-        .as_ref()
 }
 
 /// Builds the registry sync payloads on first use.
@@ -432,5 +546,126 @@ mod open_screen_tests {
             );
         }
         assert!(!OPEN_SCREEN_CHANNEL.is_empty());
+    }
+}
+
+#[cfg(test)]
+mod negotiation_tests {
+    use super::*;
+    use negotiate::{Component, Flow};
+    use pumpkin_protocol::{codec::var_int::VarInt, ser::NetworkWriteExt};
+
+    /// Encodes a client answer the way `NeoForge`'s `ModdedNetworkQueryPayload` does.
+    fn answer(phases: &[(ChannelProtocol, &[Component])]) -> Vec<u8> {
+        let mut buf = Vec::new();
+        buf.write_var_int(&VarInt(phases.len() as i32)).unwrap();
+        for (protocol, components) in phases {
+            buf.write_var_int(&VarInt(protocol.ordinal())).unwrap();
+            buf.write_var_int(&VarInt(components.len() as i32)).unwrap();
+            for c in *components {
+                buf.write_string(&c.id).unwrap();
+                buf.write_string(&c.version).unwrap();
+                buf.write_bool(c.flow.is_some()).unwrap();
+                if let Some(flow) = c.flow {
+                    buf.write_var_int(&VarInt(flow as i32)).unwrap();
+                }
+                buf.write_bool(c.optional).unwrap();
+            }
+        }
+        buf
+    }
+
+    fn neo(id: &str, flow: Flow) -> Component {
+        Component {
+            id: id.into(),
+            version: "1".into(),
+            flow: Some(flow),
+            optional: true,
+        }
+    }
+
+    fn mod_channel(id: &str) -> ModdedChannel {
+        ModdedChannel {
+            id: id.into(),
+            protocol: ChannelProtocol::Play,
+            version: "2".into(),
+            serverbound: true,
+        }
+    }
+
+    /// A stock `NeoForge` client offers dozens of optional built-ins; Pumpkin agrees to
+    /// the ones it implements and drops the rest.
+    #[test]
+    fn a_stock_client_agrees_to_the_built_ins_pumpkin_implements() {
+        let config = [
+            neo(CONFIG_FILE_CHANNEL, Flow::Clientbound),
+            neo(SYNC_COMPLETED_CHANNEL, Flow::Clientbound),
+            neo("neoforge:feature_flags", Flow::Clientbound),
+        ];
+        let play = [
+            neo(OPEN_SCREEN_CHANNEL, Flow::Clientbound),
+            neo("neoforge:aux_light_data", Flow::Clientbound),
+        ];
+        let Ok(agreed) = negotiate_against(
+            &answer(&[
+                (ChannelProtocol::Configuration, &config),
+                (ChannelProtocol::Play, &play),
+            ]),
+            &[],
+        ) else {
+            panic!("a stock client should be accepted");
+        };
+
+        let ids: Vec<&str> = agreed.iter().map(|c| c.id.as_str()).collect();
+        assert_eq!(
+            ids,
+            [
+                SYNC_COMPLETED_CHANNEL,
+                CONFIG_FILE_CHANNEL,
+                OPEN_SCREEN_CHANNEL
+            ]
+        );
+        assert!(agreed[0].serverbound, "the sync completion is echoed back");
+    }
+
+    #[test]
+    fn a_declared_channel_is_required_of_the_client() {
+        let declared = [mod_channel("mekanism:packet")];
+        let Err(Refusal::Incompatible(failures)) = negotiate_against(&answer(&[]), &declared)
+        else {
+            panic!("a client without the mod should be refused");
+        };
+        assert_eq!(failures[0].id, "mekanism:packet");
+
+        let offered = [Component {
+            id: "mekanism:packet".into(),
+            version: "2".into(),
+            flow: Some(Flow::Serverbound),
+            optional: false,
+        }];
+        let Ok(agreed) =
+            negotiate_against(&answer(&[(ChannelProtocol::Play, &offered)]), &declared)
+        else {
+            panic!("a client with the mod should be accepted");
+        };
+        assert_eq!(agreed, vec![mod_channel("mekanism:packet")]);
+    }
+
+    #[test]
+    fn common_payloads_round_trip() {
+        let version = payloads::common_version(&COMMON_VERSIONS).unwrap();
+        assert_eq!(
+            payloads::parse_common_version(&version).unwrap(),
+            COMMON_VERSIONS
+        );
+
+        let register = payloads::common_register(1, "play", &["a:x", "b:y"]).unwrap();
+        assert_eq!(
+            payloads::parse_common_register(&register).unwrap(),
+            (
+                "play".to_string(),
+                vec!["a:x".to_string(), "b:y".to_string()]
+            )
+        );
     }
 }

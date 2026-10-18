@@ -2,8 +2,9 @@
 and hydrogen (pressurized tube line); the transmitter's tank-A side is set to PULL
 in the save, and the contents landing in tank B prove both networks carry."""
 import base64, glob, json, os, re, struct, subprocess, sys, threading, time, zlib
+from smoke_env import PUMPKIN_BIN
 
-srv = sys.argv[1]; binary = "/Users/shbodya/.cargo/target/debug/pumpkin"
+srv = sys.argv[1]; binary = PUMPKIN_BIN
 here = os.path.dirname(os.path.abspath(__file__))
 
 BLOCKS = [

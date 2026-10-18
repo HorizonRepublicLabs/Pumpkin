@@ -25,7 +25,10 @@ use pumpkin_protocol::{
     ser::{NetworkWriteExt, WritingError},
 };
 
-use super::channels::{ChannelProtocol, ModdedChannel};
+use super::{
+    channels::{ChannelProtocol, ModdedChannel},
+    negotiate::{read_len, read_string, read_var_int},
+};
 
 /// Version string `NeoForge` registers its built-in configuration payloads under.
 pub const BUILTIN_CHANNEL_VERSION: &str = "1";
@@ -79,44 +82,77 @@ pub fn modded_network_setup(channels: &[ModdedChannel]) -> Result<Bytes, Writing
     Ok(Bytes::from(buf))
 }
 
-/// Encodes `neoforge:register`: the server's own channels, offered for negotiation.
+/// Encodes `neoforge:register` as the server sends it: an empty query.
 ///
-/// This is the opening move. A `NeoForge` client answers it with its own channel list on
-/// the same channel, and only then is the connection modded as far as it is concerned —
-/// which is why it is sent to every client rather than waiting to learn what one is. A
-/// vanilla client ignores a channel it does not know.
-///
-/// Each entry is the channel id, its version, an optional packet flow and whether it is
-/// optional. The flow is left empty, meaning the channel is usable in both directions.
-pub fn network_query(channels: &[ModdedChannel]) -> Result<Bytes, WritingError> {
-    let mut phases: Vec<(ChannelProtocol, Vec<&ModdedChannel>)> = Vec::new();
-    for channel in channels {
-        match phases
-            .iter_mut()
-            .find(|(phase, _)| *phase == channel.protocol)
-        {
-            Some((_, group)) => group.push(channel),
-            None => phases.push((channel.protocol, vec![channel])),
-        }
-    }
+/// `NeoForge`'s server sends nothing in it either. It only asks: a `NeoForge` client
+/// answers on the same channel with every payload it registered, and that answer is what
+/// [`super::negotiate`] works from. A vanilla client ignores a channel it does not know.
+#[must_use]
+pub const fn network_query() -> Bytes {
+    // An empty map: a zero VarInt.
+    Bytes::from_static(&[0])
+}
 
+/// Encodes `neoforge:modded_network_setup_failed`: each refused channel and why.
+///
+/// The client keeps these and shows them on the disconnect screen that follows.
+pub fn setup_failed(
+    reasons: &[(String, pumpkin_util::text::TextComponent)],
+    version: &pumpkin_util::version::JavaMinecraftVersion,
+) -> Result<Bytes, WritingError> {
     let mut buf = Vec::new();
-    write_len(&mut buf, phases.len())?;
-
-    for (protocol, group) in phases {
-        buf.write_var_int(&VarInt(protocol.ordinal()))?;
-        write_len(&mut buf, group.len())?;
-        for channel in group {
-            buf.write_string(&channel.id)?;
-            buf.write_string(&channel.version)?;
-            // No packet flow: the channel is not restricted to one direction.
-            buf.write_bool(false)?;
-            // Not optional: these are the channels the connection is built around.
-            buf.write_bool(false)?;
-        }
+    write_len(&mut buf, reasons.len())?;
+    for (id, reason) in reasons {
+        buf.write_string(id)?;
+        buf.write_component(reason, version)?;
     }
-
     Ok(Bytes::from(buf))
+}
+
+/// Encodes `c:version`: the common-networking versions this server speaks.
+pub fn common_version(versions: &[i32]) -> Result<Bytes, WritingError> {
+    let mut buf = Vec::new();
+    write_len(&mut buf, versions.len())?;
+    for version in versions {
+        buf.write_var_int(&VarInt(*version))?;
+    }
+    Ok(Bytes::from(buf))
+}
+
+/// Encodes `c:register`: a version, a protocol phase by name, and the channels the sender
+/// listens on in that phase.
+pub fn common_register(
+    version: i32,
+    phase: &str,
+    channels: &[&str],
+) -> Result<Bytes, WritingError> {
+    let mut buf = Vec::new();
+    buf.write_var_int(&VarInt(version))?;
+    buf.write_string(phase)?;
+    write_len(&mut buf, channels.len())?;
+    for channel in channels {
+        buf.write_string(channel)?;
+    }
+    Ok(Bytes::from(buf))
+}
+
+/// Decodes a client's `c:version`.
+pub fn parse_common_version(mut data: &[u8]) -> Result<Vec<i32>, String> {
+    let buf = &mut data;
+    let count = read_len(buf)?;
+    (0..count).map(|_| read_var_int(buf)).collect()
+}
+
+/// Decodes a client's `c:register`: its phase and the channels it listens on there.
+pub fn parse_common_register(mut data: &[u8]) -> Result<(String, Vec<String>), String> {
+    let buf = &mut data;
+    let _version = read_var_int(buf)?;
+    let phase = read_string(buf)?;
+    let count = read_len(buf)?;
+    let channels = (0..count)
+        .map(|_| read_string(buf))
+        .collect::<Result<_, _>>()?;
+    Ok((phase, channels))
 }
 
 /// Encodes `neoforge:advanced_open_screen`.

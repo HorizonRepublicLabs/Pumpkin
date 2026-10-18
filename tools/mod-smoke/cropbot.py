@@ -1,7 +1,8 @@
 """Joins, plants inferium seeds across a farmland patch, then idles while crops tick."""
 import socket, struct, time, threading, os
 
-HOST, PORT, PROTO = "127.0.0.1", 25599, 776
+from smoke_env import PROTO
+HOST, PORT = "127.0.0.1", 25599
 def varint(n):
     out = b""; n &= 0xFFFFFFFF
     while True:

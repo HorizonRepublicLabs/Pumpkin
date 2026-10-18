@@ -2,7 +2,8 @@
 inventory packet carrying the /give result and report the item id it carries."""
 import socket, struct, sys, threading, time
 
-HOST, PORT, PROTO = "127.0.0.1", 25599, 776
+from smoke_env import PROTO
+HOST, PORT = "127.0.0.1", 25599
 NAME = "PumpkinBot"
 
 def varint(n):

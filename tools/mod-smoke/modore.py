@@ -6,11 +6,12 @@ right generation step, and the ore's own block has to come out of the runtime re
 This generates real chunks and looks for the blocks in the saved palettes.
 """
 import glob, os, struct, subprocess, sys, threading, time, zlib
+from smoke_env import PUMPKIN_BIN
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from nbt import nbt_read, compound_get
 
-srv = sys.argv[1]; binary = "/Users/shbodya/.cargo/target/debug/pumpkin"
+srv = sys.argv[1]; binary = PUMPKIN_BIN
 here = os.path.dirname(os.path.abspath(__file__))
 
 ORES = [b"mysticalagriculture:prosperity_ore", b"mysticalagriculture:inferium_ore"]

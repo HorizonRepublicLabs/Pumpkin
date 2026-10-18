@@ -9,11 +9,12 @@ Places the same machine four times, once per cardinal yaw, and reads the facing 
 of the saved chunk palette. Passing means the four placements produced four facings.
 """
 import glob, os, struct, subprocess, sys, threading, time, zlib
+from smoke_env import PUMPKIN_BIN
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from nbt import nbt_read, compound_get
 
-srv = sys.argv[1]; binary = "/Users/shbodya/.cargo/target/debug/pumpkin"
+srv = sys.argv[1]; binary = PUMPKIN_BIN
 here = os.path.dirname(os.path.abspath(__file__))
 
 MACHINE = b"mekanism:energized_smelter"

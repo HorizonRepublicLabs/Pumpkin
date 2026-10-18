@@ -1,6 +1,7 @@
 """Feeds the smelter raw iron and the adjacent heat generator coal, then watches the output."""
 import socket, struct, sys, time, threading, os
-HOST, PORT, PROTO = "127.0.0.1", 25599, 776
+from smoke_env import PROTO
+HOST, PORT = "127.0.0.1", 25599
 LOCK = threading.Lock()
 def varint(n):
     out = b""; n &= 0xFFFFFFFF
