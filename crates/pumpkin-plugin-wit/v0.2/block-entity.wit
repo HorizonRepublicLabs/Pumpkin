@@ -18,6 +18,11 @@ interface block-entity {
         remove-custom-data: func(namespace: string, key: string);
         /// Returns whether this block entity has a namespaced custom data value.
         has-custom-data: func(namespace: string, key: string) -> bool;
+
+        /// Replaces the top-level NBT clients receive for a registered block entity, which
+        /// is what a mod's renderer reads (items shown on a pedestal, say), and sends it to
+        /// the players who can see it. Saved with the block entity. Fails for any other kind.
+        set-client-data: func(data: nbt-tree) -> result<_, string>;
     }
 
     resource container-block-entity {

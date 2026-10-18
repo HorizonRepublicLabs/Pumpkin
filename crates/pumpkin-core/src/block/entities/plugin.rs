@@ -26,6 +26,9 @@ use super::BlockEntity;
 /// machines this exists for. Unused slots cost an empty stack each.
 pub const SLOTS: usize = 27;
 
+/// Where [`PluginBlockEntity::set_client_data`] keeps what clients are sent.
+const CLIENT_DATA_KEY: &str = "pumpkin:client";
+
 pub struct PluginBlockEntity {
     /// The registered type's namespaced name, which is what it is saved under.
     pub id: &'static str,
@@ -51,6 +54,13 @@ impl PluginBlockEntity {
             data: RwLock::new(NbtCompound::new()),
             dirty: AtomicBool::new(false),
         })
+    }
+
+    /// Replaces the top-level NBT a client receives for this entity, which is what a
+    /// mod's renderer reads. The plugin owns its shape; it is saved with the entity.
+    pub fn set_client_data(&self, data: NbtCompound) {
+        write(&self.data).put(CLIENT_DATA_KEY, pumpkin_nbt::tag::NbtTag::Compound(data));
+        self.dirty.store(true, Ordering::Relaxed);
     }
 }
 
@@ -124,12 +134,18 @@ impl BlockEntity for PluginBlockEntity {
         // of the bridge blob into NBT. The blob's field names and stack shape are already
         // vanilla's (see the bridge's ValueIO), so a modded client's loadAdditional finds
         // what it expects.
-        let data = self
-            .data
-            .read()
-            .unwrap_or_else(std::sync::PoisonError::into_inner);
-        let blob = data.get_string(super::plugin_mod_data::MOD_DATA_KEY)?;
-        super::plugin_mod_data::decode_blob_to_nbt(blob)
+        let data = read(&self.data);
+        let mut nbt = data
+            .get_string(super::plugin_mod_data::MOD_DATA_KEY)
+            .and_then(super::plugin_mod_data::decode_blob_to_nbt)
+            .unwrap_or_default();
+        // What a plugin set for clients, at the top level where the mod looks.
+        if let Some(client) = data.get_compound(CLIENT_DATA_KEY) {
+            for (key, value) in client.child_tags.clone() {
+                nbt.put(&key, value);
+            }
+        }
+        (!nbt.child_tags.is_empty()).then_some(nbt)
     }
 
     fn get_position(&self) -> BlockPos {

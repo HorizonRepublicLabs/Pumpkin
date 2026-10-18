@@ -873,6 +873,9 @@ interface %world {
         /// Spawns particles at the specified position.
         spawn-particle: func(particle: particle, pos: position, offset: position, max-speed: f32, count: s32);
 
+        /// Drops an item stack into the world at a block, as a broken block drops its loot.
+        drop-item: async func(pos: block-pos, item: item-stack);
+
         /// Creates an explosion at the specified position.
         create-explosion: async func(pos: position, power: f32, create-fire: bool, interaction: explosion-interaction);
 

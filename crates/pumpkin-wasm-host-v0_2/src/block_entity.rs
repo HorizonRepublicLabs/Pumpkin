@@ -244,6 +244,45 @@ impl HostBlockEntity for PluginHostState {
         Ok(false)
     }
 
+    fn set_client_data(
+        &mut self,
+        res: Resource<BlockEntity>,
+        data: super::common::WitNbtTree,
+    ) -> wasmtime::Result<Result<(), String>> {
+        let entity = self.get(&res)?.clone();
+        let Some(registered) = entity
+            .as_any()
+            .downcast_ref::<pumpkin_core::block::entities::plugin::PluginBlockEntity>(
+        ) else {
+            return Ok(Err(format!(
+                "{} is not a registered block entity",
+                entity.resource_location()
+            )));
+        };
+        let compound = match super::common::from_wit_nbt_tree(&data) {
+            Ok(pumpkin_nbt::tag::NbtTag::Compound(compound)) => compound,
+            Ok(_) => return Ok(Err("client data must be a compound".into())),
+            Err(err) => return Ok(Err(err)),
+        };
+        registered.set_client_data(compound);
+
+        // Sent to whoever sees it now; a player arriving later gets it with the chunk.
+        let pos = entity.get_position();
+        if let Some(server) = &self.server {
+            for world in server.worlds.load().iter() {
+                if world
+                    .block_entities
+                    .get(&pos.chunk_position())
+                    .is_some_and(|m| m.contains_key(&pos))
+                {
+                    world.update_block_entity(&entity);
+                    break;
+                }
+            }
+        }
+        Ok(Ok(()))
+    }
+
     fn drop(&mut self, rep: Resource<BlockEntity>) -> wasmtime::Result<()> {
         self.drop(rep)
     }
