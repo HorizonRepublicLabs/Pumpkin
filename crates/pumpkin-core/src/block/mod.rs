@@ -152,6 +152,16 @@ pub trait BlockBehaviour: Send + Sync {
 
     fn broken(&self, _args: BrokenArgs<'_>) {}
 
+    /// Item ids and counts a block drops in place of a loot table, for blocks that have
+    /// none. Offered to `BlockBreakEvent` handlers, which may replace them.
+    fn declared_drops(
+        &self,
+        _state: pumpkin_data::BlockStateId,
+        _position: &BlockPos,
+    ) -> Option<Vec<(String, u8)>> {
+        None
+    }
+
     fn on_neighbor_update(&self, _args: OnNeighborUpdateArgs<'_>) {}
 
     /// Called if a block state is replaced or it replaces another state

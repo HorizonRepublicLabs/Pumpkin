@@ -10,16 +10,12 @@
 //! declared and acts on it; anything a plugin has not declared keeps the trait's default,
 //! which is what a plain block does.
 
-use std::sync::Arc;
-
 use pumpkin_data::Block;
 use pumpkin_data::BlockStateId;
 use pumpkin_data::item::Item;
-use pumpkin_data::item_stack::ItemStack;
 use pumpkin_util::math::position::BlockPos;
 
-use crate::block::{BlockBehaviour, BrokenArgs, PlayerPlacedArgs, RandomTickArgs};
-use crate::world::World;
+use crate::block::{BlockBehaviour, PlayerPlacedArgs, RandomTickArgs};
 
 /// One thing a block yields when broken, over the states it applies to.
 #[derive(Clone, Debug)]
@@ -80,29 +76,24 @@ impl PluginBlockBehaviour {
             .filter(move |drop| drop.covers(u32::from(offset)))
     }
 
-    /// Drops what the state yields at the position it was broken.
-    fn drop_all(&self, world: &Arc<World>, position: &BlockPos, state_id: BlockStateId) {
-        for drop in self.drops_for(state_id) {
-            // Spread over the drop's range without pulling in a generator: the position and
-            // the state are what vary between one break and the next.
-            let roll = position
-                .0
-                .x
-                .wrapping_mul(31)
-                .wrapping_add(position.0.z.wrapping_mul(7))
-                .wrapping_add(i32::from(state_id.as_u16()))
-                .unsigned_abs() as u8;
-
-            let count = drop.count(roll);
-            if count == 0 {
-                continue;
-            }
-
-            let Some(item) = Item::from_id(drop.item_id) else {
-                continue;
-            };
-            world.drop_stack(position, ItemStack::new(count, item));
-        }
+    /// What the state yields when broken at a position.
+    fn drops_at(&self, position: &BlockPos, state_id: BlockStateId) -> Vec<(String, u8)> {
+        self.drops_for(state_id)
+            .filter_map(|drop| {
+                // Spread over the drop's range without pulling in a generator: the position
+                // and the state are what vary between one break and the next.
+                let roll = position
+                    .0
+                    .x
+                    .wrapping_mul(31)
+                    .wrapping_add(position.0.z.wrapping_mul(7))
+                    .wrapping_add(i32::from(state_id.as_u16()))
+                    .unsigned_abs() as u8;
+                let count = drop.count(roll);
+                let item = Item::from_id(drop.item_id)?;
+                (count > 0).then(|| (item.registry_key.to_string(), count))
+            })
+            .collect()
     }
 }
 
@@ -149,8 +140,14 @@ impl BlockBehaviour for PluginBlockBehaviour {
         server.plugin_manager.fire_blocking(&server, &mut event);
     }
 
-    fn broken(&self, args: BrokenArgs<'_>) {
-        self.drop_all(args.world, args.position, args.state.id);
+    // Dropped by the world's break, which skips them in creative and lets a
+    // `BlockBreakEvent` handler replace them.
+    fn declared_drops(
+        &self,
+        state: BlockStateId,
+        position: &BlockPos,
+    ) -> Option<Vec<(String, u8)>> {
+        Some(self.drops_at(position, state))
     }
 }
 

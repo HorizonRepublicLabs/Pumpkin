@@ -236,12 +236,25 @@ interface event {
         cancelled: bool
     }
 
+    /// An item dropped when a block breaks, named rather than built: what the block drops is
+    /// decided before anything spawns.
+    record dropped-stack {
+        item: string,
+        count: u8,
+    }
+
     record block-break-event-data {
         player: option<player>,
         block: string,
         block-pos: block-pos,
+        /// The state that was broken, which decides most drops: a grown crop gives more.
+        state-id: u16,
         exp: u32,
         should-drop: bool,
+        /// What the block drops in place of its loot table. Arrives holding a registered
+        /// block's declared drops, and unset for any other block; set it to replace them,
+        /// or to an empty list to drop nothing. Ignored when should-drop is false.
+        drops: option<list<dropped-stack>>,
         cancelled: bool
     }
 

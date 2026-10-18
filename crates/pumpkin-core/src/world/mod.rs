@@ -5278,10 +5278,16 @@ impl World {
             cause.cloned(),
             broken_block,
             *position,
+            broken_block_state.id,
             0,
             !flags.contains(BlockFlags::SKIP_DROPS),
         );
         if let Some(server) = self.server.upgrade() {
+            // A registered block's drops are offered to handlers, so one can change them.
+            event.drops = server
+                .block_registry
+                .get_pumpkin_block(broken_block.id)
+                .and_then(|behaviour| behaviour.declared_drops(broken_block_state.id, position));
             server.plugin_manager.fire_blocking(&server, &mut event);
         }
         if event.cancelled {
@@ -5294,7 +5300,18 @@ impl World {
             flags.insert(BlockFlags::SKIP_DROPS);
         }
 
-        if !flags.contains(BlockFlags::SKIP_DROPS) {
+        if !flags.contains(BlockFlags::SKIP_DROPS)
+            && let Some(drops) = event.drops.take()
+        {
+            // The registered block's drops, or what a handler replaced them with.
+            for (item, count) in drops {
+                if let Some(item) = pumpkin_data::item::Item::from_registry_key(
+                    item.strip_prefix("minecraft:").unwrap_or(&item),
+                ) {
+                    self.drop_stack(position, ItemStack::new(count, item));
+                }
+            }
+        } else if !flags.contains(BlockFlags::SKIP_DROPS) {
             let tool = cause.as_ref().and_then(|p| {
                 let item = p.inventory().held_item();
                 if item.is_empty() { None } else { Some(item) }

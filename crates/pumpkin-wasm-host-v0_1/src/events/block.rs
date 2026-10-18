@@ -128,8 +128,11 @@ impl ToFromWasmEvent for BlockBreakEvent {
                 player: data.player.map(|player| consume_player(state, &player)),
                 block: from_wasm_block_name(&data.block),
                 block_position: from_wasm_block_position(data.block_pos),
+                // Not in the v0.1 interface: only read before handlers run.
+                state_id: pumpkin_data::BlockStateId::AIR,
                 exp: data.exp,
                 drop: data.should_drop,
+                drops: None,
                 cancelled: data.cancelled,
             },
             _ => panic!("unexpected event type"),

@@ -18,10 +18,10 @@ use crate::{
         BlockPlaceEventData, BlockRandomTickEventData, BlockReceiveGameEventData,
         BlockRedstoneEventData, BlockShearEntityEventData, BlockSpreadEventData,
         BrewingStartEventData, CampfireStartEventData, CauldronLevelChangeEventData,
-        CrafterCraftEventData, EntityBlockFormEventData, Event, FluidLevelChangeEventData,
-        InventoryBlockStartEventData, LeavesDecayEventData, MoistureChangeEventData,
-        NotePlayEventData, SculkBloomEventData, SignChangeEventData, SpongeAbsorbEventData,
-        TntPrimeEventData, VaultDisplayItemEventData,
+        CrafterCraftEventData, DroppedStack, EntityBlockFormEventData, Event,
+        FluidLevelChangeEventData, InventoryBlockStartEventData, LeavesDecayEventData,
+        MoistureChangeEventData, NotePlayEventData, SculkBloomEventData, SignChangeEventData,
+        SpongeAbsorbEventData, TntPrimeEventData, VaultDisplayItemEventData,
     },
 };
 use pumpkin_core::plugin::block::{
@@ -116,8 +116,18 @@ impl ToFromWasmEvent for BlockBreakEvent {
             player,
             block: to_wasm_block_name(self.block),
             block_pos: to_wasm_block_position(self.block_position),
+            state_id: self.state_id.as_u16(),
             exp: self.exp,
             should_drop: self.drop,
+            drops: self.drops.as_ref().map(|drops| {
+                drops
+                    .iter()
+                    .map(|(item, count)| DroppedStack {
+                        item: item.clone(),
+                        count: *count,
+                    })
+                    .collect()
+            }),
             cancelled: self.cancelled,
         })
     }
@@ -128,8 +138,12 @@ impl ToFromWasmEvent for BlockBreakEvent {
                 player: data.player.map(|player| consume_player(state, &player)),
                 block: from_wasm_block_name(&data.block),
                 block_position: from_wasm_block_position(data.block_pos),
+                state_id: pumpkin_data::BlockStateId::new_or_air(data.state_id),
                 exp: data.exp,
                 drop: data.should_drop,
+                drops: data
+                    .drops
+                    .map(|drops| drops.into_iter().map(|d| (d.item, d.count)).collect()),
                 cancelled: data.cancelled,
             },
             _ => panic!("unexpected event type"),
