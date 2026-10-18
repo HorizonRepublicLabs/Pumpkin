@@ -83,7 +83,9 @@ const SYNC_CHANNELS: [&str; 4] = [
 /// dedicated server has no use for. Without this the client crashes on its first entity
 /// tick: `Level.guardEntityTick` asks the config whether to swallow entity errors, and a
 /// config that was never loaded throws instead of answering.
-const SERVER_CONFIG_NAME: &str = "neoforge-server.toml";
+// `NeoForge` 26.3 renamed the config type from SERVER to SYNCED, and with it the file the
+// client accepts: one named `neoforge-server.toml` is silently ignored.
+const SERVER_CONFIG_NAME: &str = "neoforge-synced.toml";
 const SERVER_CONFIG: &str = include_str!("server_config.toml");
 
 /// The subset of the `NeoForge` configuration this module needs.
@@ -388,7 +390,7 @@ pub fn network_query(config: &NeoForgeSettings) -> Option<Bytes> {
     config.enabled.then(payloads::network_query)
 }
 
-/// `neoforge-server.toml`, encoded once.
+/// `neoforge-synced.toml`, encoded once.
 fn server_config_payload() -> Option<&'static Bytes> {
     static PAYLOAD: std::sync::OnceLock<Option<Bytes>> = std::sync::OnceLock::new();
     PAYLOAD
