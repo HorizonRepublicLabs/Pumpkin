@@ -158,6 +158,10 @@ fn from_dump(
             if let Some(item) = item {
                 def["item"] = json!(item);
             }
+            // Where a machine keeps its contents; without it nothing survives a window closing.
+            if let Some(block_entity) = entry["block_entity"].as_str() {
+                def["block_entity"] = json!(block_entity);
+            }
             def
         })
         .collect();

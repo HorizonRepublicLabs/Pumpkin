@@ -153,7 +153,7 @@ fn block_definition(block: &Value) -> BlockDefinition {
                 to_state: index(&d["to_state"]),
             })
             .collect(),
-        block_entity: None,
+        block_entity: text(&block["block_entity"]),
     }
 }
 

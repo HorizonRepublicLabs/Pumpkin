@@ -45,6 +45,10 @@ public final class RegistryDump {
             dump.add("menus", ids(BuiltInRegistries.MENU));
             dump.add("entity_types", ids(BuiltInRegistries.ENTITY_TYPE));
             dump.add("channels", channels());
+            var mysticalAgriculture = MysticalAgricultureData.dump();
+            if (mysticalAgriculture != null) {
+                dump.add("mysticalagriculture", mysticalAgriculture);
+            }
             // Through the cache: a file written around it is deleted afterwards as stale.
             return DataProvider.saveStable(cache, dump, this.output.getOutputFolder().resolve("registry-dump.json"));
         }
@@ -61,6 +65,15 @@ public final class RegistryDump {
     }
 
     private static JsonObject blocks() {
+        // Which block entity type each block creates: the type lists its blocks, not the reverse.
+        var blockEntities = new java.util.HashMap<Block, Identifier>();
+        for (var type : BuiltInRegistries.BLOCK_ENTITY_TYPE) {
+            var typeId = BuiltInRegistries.BLOCK_ENTITY_TYPE.getKey(type);
+            if (modded(typeId)) {
+                type.getValidBlocks().forEach(valid -> blockEntities.put(valid, typeId));
+            }
+        }
+
         var out = new JsonObject();
         for (var block : BuiltInRegistries.BLOCK) {
             var id = BuiltInRegistries.BLOCK.getKey(block);
@@ -81,6 +94,9 @@ public final class RegistryDump {
             entry.addProperty("luminance", block.defaultBlockState().getLightEmission());
             entry.addProperty("requires_tool", block.defaultBlockState().requiresCorrectToolForDrops());
             entry.addProperty("has_block_entity", block instanceof EntityBlock);
+            if (blockEntities.containsKey(block)) {
+                entry.addProperty("block_entity", blockEntities.get(block).toString());
+            }
             var item = BuiltInRegistries.ITEM.getKey(block.asItem());
             if (modded(item)) {
                 entry.addProperty("item", item.toString());
