@@ -68,7 +68,7 @@
 
 use crate::{
     commands::{COMMAND_HANDLERS, COMMAND_SUGGESTION_HANDLERS},
-    events::EVENT_HANDLERS,
+    events::{BoxFuture, EVENT_HANDLERS},
     logging::WitSubscriber,
     scheduler::TASK_HANDLERS,
     text::TextComponent,
@@ -286,26 +286,26 @@ impl wit::exports::pumpkin::plugin::gametest_callbacks::Guest for Component {
 
 impl wit::Guest for Component {
     /// WIT entry point — delegates to [`Plugin::on_load`].
-    fn on_load(context: Context) -> Result<(), String> {
-        plugin().on_load(context)
+    async fn on_load(context: Context) -> Result<(), String> {
+        plugin().on_load(context).await
     }
 
     /// WIT entry point — delegates to [`Plugin::on_unload`].
-    fn on_unload(context: Context) -> Result<(), String> {
-        plugin().on_unload(context)
+    async fn on_unload(context: Context) -> Result<(), String> {
+        plugin().on_unload(context).await
     }
 
     /// WIT entry point — dispatches an incoming event to the registered handler for `event_id`.
     ///
     /// Returns the event unchanged if no handler is registered for the given id.
-    fn handle_event(event_id: u32, server: Server, event: events::Event) -> events::Event {
+    async fn handle_event(event_id: u32, server: Server, event: events::Event) -> events::Event {
         let handler = EVENT_HANDLERS
             .lock()
             .unwrap_or_else(|e| e.into_inner())
             .get(&event_id)
             .cloned();
         if let Some(handler) = handler {
-            handler.handle_erased(server, event)
+            handler.handle_erased(server, event).await
         } else {
             event
         }
@@ -314,7 +314,7 @@ impl wit::Guest for Component {
     /// WIT entry point — dispatches an incoming command invocation to the registered handler for `command_id`.
     ///
     /// Returns a [`CommandError`](command::CommandError) if no handler is registered for the given id.
-    fn handle_command(
+    async fn handle_command(
         command_id: u32,
         sender: command::CommandSender,
         server: Server,
@@ -325,18 +325,16 @@ impl wit::Guest for Component {
             .unwrap_or_else(|e| e.into_inner())
             .get(&command_id)
             .cloned();
-        handler.map_or_else(
-            || {
-                Err(command::CommandError::CommandFailed(TextComponent::text(
-                    &format!("no handler registered for command id {command_id}"),
-                )))
-            },
-            |handler| handler.handle(sender, server, args),
-        )
+        match handler {
+            Some(handler) => handler.handle_erased(sender, server, args).await,
+            None => Err(command::CommandError::CommandFailed(TextComponent::text(
+                &format!("no handler registered for command id {command_id}"),
+            ))),
+        }
     }
 
     /// WIT entry point — dispatches an incoming command suggestion request to the registered handler.
-    fn handle_command_suggestion(
+    async fn handle_command_suggestion(
         handler_id: u32,
         sender: command::CommandSender,
         server: Server,
@@ -348,7 +346,7 @@ impl wit::Guest for Component {
             .get(&handler_id)
             .cloned();
         if let Some(handler) = handler {
-            handler.suggest(sender, server, request)
+            handler.suggest_erased(sender, server, request).await
         } else {
             command::CommandSuggestions {
                 start: request.start,
@@ -359,17 +357,21 @@ impl wit::Guest for Component {
     }
 
     /// WIT entry point — dispatches a scheduled task invocation to the registered handler for `handler_id`.
-    fn handle_task(handler_id: u32, server: Server) {
+    async fn handle_task(handler_id: u32, server: Server) {
         let handler = TASK_HANDLERS
             .lock()
             .unwrap_or_else(|e| e.into_inner())
             .get(handler_id);
         if let Some(handler) = handler {
-            handler(server);
+            handler(server).await;
         }
     }
 
-    fn handle_ai_goal_can_start(goal_id: u32, server: Server, entity: entity::Entity) -> bool {
+    async fn handle_ai_goal_can_start(
+        goal_id: u32,
+        server: Server,
+        entity: entity::Entity,
+    ) -> bool {
         let goal = crate::ai::AI_GOAL_HANDLERS
             .lock()
             .unwrap_or_else(|e| e.into_inner())
@@ -381,7 +383,7 @@ impl wit::Guest for Component {
         }
     }
 
-    fn handle_ai_goal_should_continue(
+    async fn handle_ai_goal_should_continue(
         goal_id: u32,
         server: Server,
         entity: entity::Entity,
@@ -397,7 +399,7 @@ impl wit::Guest for Component {
         }
     }
 
-    fn handle_ai_goal_start(goal_id: u32, server: Server, entity: entity::Entity) {
+    async fn handle_ai_goal_start(goal_id: u32, server: Server, entity: entity::Entity) {
         let goal = crate::ai::AI_GOAL_HANDLERS
             .lock()
             .unwrap_or_else(|e| e.into_inner())
@@ -407,7 +409,7 @@ impl wit::Guest for Component {
         }
     }
 
-    fn handle_ai_goal_tick(goal_id: u32, server: Server, entity: entity::Entity) {
+    async fn handle_ai_goal_tick(goal_id: u32, server: Server, entity: entity::Entity) {
         let goal = crate::ai::AI_GOAL_HANDLERS
             .lock()
             .unwrap_or_else(|e| e.into_inner())
@@ -417,7 +419,7 @@ impl wit::Guest for Component {
         }
     }
 
-    fn handle_ai_goal_stop(goal_id: u32, server: Server, entity: entity::Entity) {
+    async fn handle_ai_goal_stop(goal_id: u32, server: Server, entity: entity::Entity) {
         let goal = crate::ai::AI_GOAL_HANDLERS
             .lock()
             .unwrap_or_else(|e| e.into_inner())
@@ -427,14 +429,14 @@ impl wit::Guest for Component {
         }
     }
 
-    fn handle_ipc_message(
+    async fn handle_ipc_message(
         sender: wit::PluginId,
         message: wit::IpcMessage,
     ) -> Result<wit::IpcMessage, String> {
-        plugin().handle_ipc_message(sender, message)
+        plugin().handle_ipc_message(sender, message).await
     }
 
-    fn handle_generate_phase(
+    async fn handle_generate_phase(
         generator_id: u32,
         phase: wit::pumpkin::plugin::world::GenerationPhase,
         chunk: wit::pumpkin::plugin::world::ChunkBuffer,
@@ -474,6 +476,8 @@ pub type Result<T, E = String> = core::result::Result<T, E>;
 /// plugin. Implementations that mutate plugin state must use thread-safe interior mutability.
 /// Do not hold a non-reentrant lock across a host API call: that call may synchronously deliver
 /// an event or IPC callback back into the same plugin before the original call returns.
+// The guest is single-threaded, so the futures need no `Send` bound.
+#[allow(async_fn_in_trait)]
 pub trait Plugin: Send + Sync {
     /// Creates a new instance of the plugin.
     ///
@@ -488,19 +492,19 @@ pub trait Plugin: Send + Sync {
     /// Called when the plugin is loaded by the server.
     ///
     /// Use this to register event handlers, commands, and perform any setup work.
-    fn on_load(&self, _context: Context) -> Result<()> {
+    async fn on_load(&self, _context: Context) -> Result<()> {
         Ok(())
     }
 
     /// Called when the plugin is unloaded by the server.
     ///
     /// Use this to clean up any resources acquired during [`on_load`](Plugin::on_load).
-    fn on_unload(&self, _context: Context) -> Result<()> {
+    async fn on_unload(&self, _context: Context) -> Result<()> {
         Ok(())
     }
 
     /// Called when the plugin receives a message from another plugin.
-    fn handle_ipc_message(
+    async fn handle_ipc_message(
         &self,
         _sender: wit::PluginId,
         _message: wit::IpcMessage,
@@ -509,11 +513,45 @@ pub trait Plugin: Send + Sync {
     }
 }
 
+/// [`Plugin`] with its async methods boxed, so the singleton can be stored as a trait object.
+trait ErasedPlugin: Send + Sync {
+    fn metadata(&self) -> PluginMetadata;
+    fn on_load(&self, context: Context) -> BoxFuture<'_, Result<()>>;
+    fn on_unload(&self, context: Context) -> BoxFuture<'_, Result<()>>;
+    fn handle_ipc_message(
+        &self,
+        sender: wit::PluginId,
+        message: wit::IpcMessage,
+    ) -> BoxFuture<'_, Result<wit::IpcMessage, String>>;
+}
+
+impl<P: Plugin> ErasedPlugin for P {
+    fn metadata(&self) -> PluginMetadata {
+        Plugin::metadata(self)
+    }
+
+    fn on_load(&self, context: Context) -> BoxFuture<'_, Result<()>> {
+        Box::pin(Plugin::on_load(self, context))
+    }
+
+    fn on_unload(&self, context: Context) -> BoxFuture<'_, Result<()>> {
+        Box::pin(Plugin::on_unload(self, context))
+    }
+
+    fn handle_ipc_message(
+        &self,
+        sender: wit::PluginId,
+        message: wit::IpcMessage,
+    ) -> BoxFuture<'_, Result<wit::IpcMessage, String>> {
+        Box::pin(Plugin::handle_ipc_message(self, sender, message))
+    }
+}
+
 #[doc(hidden)]
-pub fn register_plugin(build_plugin: fn() -> Box<dyn Plugin>) {
+pub fn register_plugin<P: Plugin + 'static>() {
     let _ = tracing::subscriber::set_global_default(WitSubscriber::new());
     assert!(
-        PLUGIN.set(build_plugin()).is_ok(),
+        PLUGIN.set(Box::new(P::new())).is_ok(),
         "register_plugin must only be called once"
     );
 }
@@ -522,7 +560,7 @@ pub fn register_plugin(build_plugin: fn() -> Box<dyn Plugin>) {
 ///
 /// # Panics
 /// If called before [`register_plugin`] has initialized `PLUGIN`.
-fn plugin() -> &'static dyn Plugin {
+fn plugin() -> &'static dyn ErasedPlugin {
     #[allow(clippy::expect_used)]
     PLUGIN
         .get()
@@ -531,7 +569,7 @@ fn plugin() -> &'static dyn Plugin {
 }
 
 /// The singleton plugin instance, initialised by [`register_plugin`].
-static PLUGIN: OnceLock<Box<dyn Plugin>> = OnceLock::new();
+static PLUGIN: OnceLock<Box<dyn ErasedPlugin>> = OnceLock::new();
 
 /// Registers the provided type as a Pumpkin plugin.
 ///
@@ -547,7 +585,7 @@ macro_rules! register_plugin {
     ($plugin_type:ty) => {
         #[unsafe(export_name = "init-plugin")]
         pub extern "C" fn __init_plugin() {
-            $crate::register_plugin(|| Box::new(<$plugin_type as $crate::Plugin>::new()));
+            $crate::register_plugin::<$plugin_type>();
         }
     };
 }

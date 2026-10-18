@@ -8,11 +8,12 @@
 //! ```rust,ignore
 //! use pumpkin_plugin_api::scheduler::SchedulerExt;
 //!
-//! context.schedule_delayed_task(20, |server| {
+//! context.schedule_delayed_task(20, |server| async move {
 //!     server.log("One second has passed!");
 //! });
 //! ```
 
+use crate::events::BoxFuture;
 use crate::wit::pumpkin::plugin::context::Server;
 use crate::wit::pumpkin::plugin::scheduler;
 use std::collections::BTreeMap;
@@ -22,7 +23,7 @@ use std::sync::{Arc, Mutex};
 ///
 /// Scheduled callbacks can be re-entered, so mutable captured state must use thread-safe
 /// interior mutability.
-pub type TaskHandler = Arc<dyn Fn(Server) + Send + Sync>;
+pub type TaskHandler = Arc<dyn Fn(Server) -> BoxFuture<'static, ()> + Send + Sync>;
 
 pub(crate) struct Task {
     handler: TaskHandler,
@@ -62,9 +63,10 @@ pub trait SchedulerExt {
     /// * `handler`: Closure to execute.
     ///
     /// Returns a unique task ID.
-    fn schedule_delayed_task<F>(&self, delay_ticks: u64, handler: F) -> u32
+    fn schedule_delayed_task<F, Fut>(&self, delay_ticks: u64, handler: F) -> u32
     where
-        F: Fn(Server) + Send + Sync + 'static;
+        F: Fn(Server) -> Fut + Send + Sync + 'static,
+        Fut: Future<Output = ()> + 'static;
 
     /// Schedules a task to be executed repeatedly.
     ///
@@ -73,38 +75,58 @@ pub trait SchedulerExt {
     /// * `handler`: Closure to execute.
     ///
     /// Returns a unique task ID.
-    fn schedule_repeating_task<F>(&self, delay_ticks: u64, period_ticks: u64, handler: F) -> u32
+    fn schedule_repeating_task<F, Fut>(
+        &self,
+        delay_ticks: u64,
+        period_ticks: u64,
+        handler: F,
+    ) -> u32
     where
-        F: Fn(Server) + Send + Sync + 'static;
+        F: Fn(Server) -> Fut + Send + Sync + 'static,
+        Fut: Future<Output = ()> + 'static;
 }
 
 impl SchedulerExt for crate::Context {
-    fn schedule_delayed_task<F>(&self, delay_ticks: u64, handler: F) -> u32
+    fn schedule_delayed_task<F, Fut>(&self, delay_ticks: u64, handler: F) -> u32
     where
-        F: Fn(Server) + Send + Sync + 'static,
+        F: Fn(Server) -> Fut + Send + Sync + 'static,
+        Fut: Future<Output = ()> + 'static,
     {
         schedule_delayed_task(delay_ticks, handler)
     }
 
-    fn schedule_repeating_task<F>(&self, delay_ticks: u64, period_ticks: u64, handler: F) -> u32
+    fn schedule_repeating_task<F, Fut>(
+        &self,
+        delay_ticks: u64,
+        period_ticks: u64,
+        handler: F,
+    ) -> u32
     where
-        F: Fn(Server) + Send + Sync + 'static,
+        F: Fn(Server) -> Fut + Send + Sync + 'static,
+        Fut: Future<Output = ()> + 'static,
     {
         schedule_repeating_task(delay_ticks, period_ticks, handler)
     }
 }
 
 impl SchedulerExt for crate::Server {
-    fn schedule_delayed_task<F>(&self, delay_ticks: u64, handler: F) -> u32
+    fn schedule_delayed_task<F, Fut>(&self, delay_ticks: u64, handler: F) -> u32
     where
-        F: Fn(Self) + Send + Sync + 'static,
+        F: Fn(Self) -> Fut + Send + Sync + 'static,
+        Fut: Future<Output = ()> + 'static,
     {
         schedule_delayed_task(delay_ticks, handler)
     }
 
-    fn schedule_repeating_task<F>(&self, delay_ticks: u64, period_ticks: u64, handler: F) -> u32
+    fn schedule_repeating_task<F, Fut>(
+        &self,
+        delay_ticks: u64,
+        period_ticks: u64,
+        handler: F,
+    ) -> u32
     where
-        F: Fn(Self) + Send + Sync + 'static,
+        F: Fn(Self) -> Fut + Send + Sync + 'static,
+        Fut: Future<Output = ()> + 'static,
     {
         schedule_repeating_task(delay_ticks, period_ticks, handler)
     }
@@ -112,28 +134,38 @@ impl SchedulerExt for crate::Server {
 
 /// Lower-level function to schedule a delayed task.
 /// Prefer using [`SchedulerExt`] for a more ergonomic API.
-pub fn schedule_delayed_task<F>(delay_ticks: u64, handler: F) -> u32
+pub fn schedule_delayed_task<F, Fut>(delay_ticks: u64, handler: F) -> u32
 where
-    F: Fn(Server) + Send + Sync + 'static,
+    F: Fn(Server) -> Fut + Send + Sync + 'static,
+    Fut: Future<Output = ()> + 'static,
 {
     let handler_id = TASK_HANDLERS
         .lock()
         .unwrap_or_else(|e| e.into_inner())
-        .register(Arc::new(handler));
+        .register(boxed(handler));
     scheduler::schedule_delayed_task(handler_id, delay_ticks)
 }
 
 /// Lower-level function to schedule a repeating task.
 /// Prefer using [`SchedulerExt`] for a more ergonomic API.
-pub fn schedule_repeating_task<F>(delay_ticks: u64, period_ticks: u64, handler: F) -> u32
+pub fn schedule_repeating_task<F, Fut>(delay_ticks: u64, period_ticks: u64, handler: F) -> u32
 where
-    F: Fn(Server) + Send + Sync + 'static,
+    F: Fn(Server) -> Fut + Send + Sync + 'static,
+    Fut: Future<Output = ()> + 'static,
 {
     let handler_id = TASK_HANDLERS
         .lock()
         .unwrap_or_else(|e| e.into_inner())
-        .register(Arc::new(handler));
+        .register(boxed(handler));
     scheduler::schedule_repeating_task(handler_id, delay_ticks, period_ticks)
+}
+
+fn boxed<F, Fut>(handler: F) -> TaskHandler
+where
+    F: Fn(Server) -> Fut + Send + Sync + 'static,
+    Fut: Future<Output = ()> + 'static,
+{
+    Arc::new(move |server| Box::pin(handler(server)))
 }
 
 /// Cancels a scheduled task.

@@ -644,7 +644,7 @@ fn column_neighborhood(
                     .map(|p| {
                         p.to_props()
                             .into_iter()
-                            .map(|(name, value)| format!("{name}={value}"))
+                            .map(|p| format!("{}={}", p.key_str(), p.value_str()))
                             .collect::<Vec<_>>()
                             .join(",")
                     })
@@ -717,7 +717,7 @@ fn tick_neighborhood(
             .map(|p| {
                 p.to_props()
                     .into_iter()
-                    .map(|(name, value)| format!("{name}={value}"))
+                    .map(|p| format!("{}={}", p.key_str(), p.value_str()))
                     .collect::<Vec<_>>()
                     .join(",")
             })

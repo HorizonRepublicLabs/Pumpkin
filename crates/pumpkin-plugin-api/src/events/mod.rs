@@ -84,19 +84,22 @@ pub trait FromIntoEvent: Sized {
 pub type EventData<E> = <E as FromIntoEvent>::Data;
 
 /// A type alias for a pinned, boxed, dynamically-dispatched future.
-pub type BoxFuture<'a, T> = Pin<Box<dyn Future<Output = T> + Send + 'a>>;
+///
+/// Not `Send`: the guest is single-threaded and host import futures are not `Send` either.
+pub type BoxFuture<'a, T> = Pin<Box<dyn Future<Output = T> + 'a>>;
 
 /// A handler for a specific event type.
 ///
 /// Implement this trait to process an event. The `handle` method receives the server
 /// handle and the event data, and returns the (potentially modified) event data.
+#[allow(async_fn_in_trait)]
 pub trait EventHandler<E: FromIntoEvent> {
     /// Processes the event and returns the (potentially modified) data.
-    fn handle(&self, server: Server, event: E::Data) -> E::Data;
+    async fn handle(&self, server: Server, event: E::Data) -> E::Data;
 }
 
 pub(crate) trait ErasedEventHandler: Send + Sync {
-    fn handle_erased(&self, server: Server, event: Event) -> Event;
+    fn handle_erased(&self, server: Server, event: Event) -> BoxFuture<'_, Event>;
 }
 
 struct HandlerWrapper<E: FromIntoEvent, H> {
@@ -107,10 +110,11 @@ struct HandlerWrapper<E: FromIntoEvent, H> {
 impl<E: FromIntoEvent + Send + Sync, H: EventHandler<E> + Send + Sync> ErasedEventHandler
     for HandlerWrapper<E, H>
 {
-    fn handle_erased(&self, server: Server, event: Event) -> Event {
-        let data = E::data_from_event(event);
-        let result = self.handler.handle(server, data);
-        E::data_into_event(result)
+    fn handle_erased(&self, server: Server, event: Event) -> BoxFuture<'_, Event> {
+        Box::pin(async move {
+            let data = E::data_from_event(event);
+            E::data_into_event(self.handler.handle(server, data).await)
+        })
     }
 }
 

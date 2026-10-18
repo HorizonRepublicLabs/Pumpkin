@@ -10,14 +10,15 @@ pub use crate::wit::pumpkin::plugin::command::Command;
 use crate::{
     Result, Server,
     command::CommandNode,
+    events::BoxFuture,
     wit::pumpkin::plugin::command::{CommandError, CommandSender, ConsumedArgs},
 };
 
 pub(crate) static NEXT_COMMAND_ID: AtomicU32 = AtomicU32::new(0);
-pub(crate) static COMMAND_HANDLERS: Mutex<BTreeMap<u32, Arc<dyn CommandHandler>>> =
+pub(crate) static COMMAND_HANDLERS: Mutex<BTreeMap<u32, Arc<dyn ErasedCommandHandler>>> =
     Mutex::new(BTreeMap::new());
 pub(crate) static COMMAND_SUGGESTION_HANDLERS: Mutex<
-    BTreeMap<u32, Arc<dyn CommandSuggestionHandler>>,
+    BTreeMap<u32, Arc<dyn ErasedCommandSuggestionHandler>>,
 > = Mutex::new(BTreeMap::new());
 
 /// Handles the execution of a registered command.
@@ -25,6 +26,7 @@ pub(crate) static COMMAND_SUGGESTION_HANDLERS: Mutex<
 /// Implement this trait to define the logic that runs when a command is invoked.
 /// The return value is the exit code passed back to the server; return `Ok(0)` for
 /// success or an [`Err`] variant to report a failure message to the sender.
+#[allow(async_fn_in_trait)]
 pub trait CommandHandler: Send + Sync {
     /// Executes the command.
     ///
@@ -32,12 +34,32 @@ pub trait CommandHandler: Send + Sync {
     /// - `sender` — who invoked the command (player or console).
     /// - `server` — handle to the server.
     /// - `args` — the parsed argument map for this command invocation.
-    fn handle(
+    async fn handle(
         &self,
         sender: CommandSender,
         server: Server,
         args: ConsumedArgs,
     ) -> Result<i32, CommandError>;
+}
+
+pub(crate) trait ErasedCommandHandler: Send + Sync {
+    fn handle_erased(
+        &self,
+        sender: CommandSender,
+        server: Server,
+        args: ConsumedArgs,
+    ) -> BoxFuture<'_, Result<i32, CommandError>>;
+}
+
+impl<H: CommandHandler> ErasedCommandHandler for H {
+    fn handle_erased(
+        &self,
+        sender: CommandSender,
+        server: Server,
+        args: ConsumedArgs,
+    ) -> BoxFuture<'_, Result<i32, CommandError>> {
+        Box::pin(self.handle(sender, server, args))
+    }
 }
 
 /// Handles server-side suggestions for a registered command argument.
@@ -50,7 +72,7 @@ pub trait CommandHandler: Send + Sync {
 /// struct PatternSuggestions;
 ///
 /// impl CommandSuggestionHandler for PatternSuggestions {
-///     fn suggest(
+///     async fn suggest(
 ///         &self,
 ///         _sender: pumpkin_plugin_api::command::CommandSender,
 ///         _server: Server,
@@ -81,6 +103,7 @@ pub trait CommandHandler: Send + Sync {
 ///     }
 /// }
 /// ```
+#[allow(async_fn_in_trait)]
 pub trait CommandSuggestionHandler: Send + Sync {
     /// Computes suggestions for the current command input.
     ///
@@ -88,12 +111,32 @@ pub trait CommandSuggestionHandler: Send + Sync {
     /// the suggestion range. Handlers may return a narrower range when only part
     /// of an argument should be replaced, for example after the last comma in a
     /// weighted block pattern.
-    fn suggest(
+    async fn suggest(
         &self,
         sender: CommandSender,
         server: Server,
         request: SuggestionRequest,
     ) -> CommandSuggestions;
+}
+
+pub(crate) trait ErasedCommandSuggestionHandler: Send + Sync {
+    fn suggest_erased(
+        &self,
+        sender: CommandSender,
+        server: Server,
+        request: SuggestionRequest,
+    ) -> BoxFuture<'_, CommandSuggestions>;
+}
+
+impl<H: CommandSuggestionHandler> ErasedCommandSuggestionHandler for H {
+    fn suggest_erased(
+        &self,
+        sender: CommandSender,
+        server: Server,
+        request: SuggestionRequest,
+    ) -> BoxFuture<'_, CommandSuggestions> {
+        Box::pin(self.suggest(sender, server, request))
+    }
 }
 
 impl Command {
