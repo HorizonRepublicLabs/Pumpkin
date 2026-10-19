@@ -1,8 +1,10 @@
 //! Registers converted mods' blocks, items and channels.
 //!
 //! `pumpkin-mod-convert` writes one manifest per mod into this plugin's data folder,
-//! `plugins/data/mod-content/<mod>.json`. On load each is registered in turn: channels,
-//! block entity and menu types, then items (a block names the item that places it, so items come first), then blocks.
+//! `plugins/data/mod-content/<mod>.json`. On load they are registered a phase at a time,
+//! every mod's channels and block entity and menu types, then every mod's items, then
+//! every mod's blocks: a block names the item that places it and the items it drops, and
+//! those can belong to another mod (Aeronautics' encased shafts drop Create's shaft).
 //! A bad entry is logged and skipped rather than failing the plugin, so one mod's mistake
 //! does not unregister every other mod.
 
@@ -40,27 +42,39 @@ impl Plugin for ModContent {
             .collect();
         // Sorted, so ids come out the same every boot.
         paths.sort();
-        for path in paths {
-            let manifest: Value = match std::fs::read(&path)
-                .map_err(|e| e.to_string())
-                .and_then(|bytes| serde_json::from_slice(&bytes).map_err(|e| e.to_string()))
-            {
-                Ok(manifest) => manifest,
-                Err(err) => {
-                    tracing::error!("{}: {err}", path.display());
-                    continue;
-                }
-            };
-            register(&manifest);
+        let manifests: Vec<Value> = paths
+            .iter()
+            .filter_map(|path| {
+                std::fs::read(path)
+                    .map_err(|e| e.to_string())
+                    .and_then(|bytes| serde_json::from_slice(&bytes).map_err(|e| e.to_string()))
+                    .inspect_err(|err| tracing::error!("{}: {err}", path.display()))
+                    .ok()
+            })
+            .collect();
+        manifests.iter().for_each(register_types);
+        let items: Vec<usize> = manifests.iter().map(register_items).collect();
+        for (manifest, items) in manifests.iter().zip(items) {
+            let blocks = register_blocks(manifest);
+            let mod_id = manifest["mod_id"].as_str().unwrap_or("?");
+            tracing::info!("{mod_id}: registered {blocks} block(s) and {items} item(s)");
         }
         Ok(())
     }
 }
 
-fn register(manifest: &Value) {
+fn list(manifest: &Value, key: &str) -> Vec<Value> {
+    manifest[key].as_array().cloned().unwrap_or_default()
+}
+
+fn text(v: &Value, key: &str) -> String {
+    v[key].as_str().unwrap_or_default().to_string()
+}
+
+/// Channels, block entity types and menu types.
+fn register_types(manifest: &Value) {
     let mod_id = manifest["mod_id"].as_str().unwrap_or("?");
-    let list = |key: &str| manifest[key].as_array().cloned().unwrap_or_default();
-    let text = |v: &Value, key: &str| v[key].as_str().unwrap_or_default().to_string();
+    let list = |key: &str| list(manifest, key);
 
     for channel in list("channels") {
         let protocol = if channel["phase"] == "configuration" {
@@ -95,23 +109,32 @@ fn register(manifest: &Value) {
             tracing::warn!("{mod_id}: menu {id}: {err}");
         }
     }
+}
 
+/// Returns how many items were registered.
+fn register_items(manifest: &Value) -> usize {
+    let mod_id = manifest["mod_id"].as_str().unwrap_or("?");
     let mut items = 0;
-    for item in list("items") {
+    for item in list(manifest, "items") {
         match registry::register_item(&registry::item(text(&item, "id"), text(&item, "template"))) {
             Ok(_) => items += 1,
             Err(err) => tracing::warn!("{mod_id}: item {}: {err}", text(&item, "id")),
         }
     }
+    items
+}
 
+/// Returns how many blocks were registered.
+fn register_blocks(manifest: &Value) -> usize {
+    let mod_id = manifest["mod_id"].as_str().unwrap_or("?");
     let mut blocks = 0;
-    for block in list("blocks") {
+    for block in list(manifest, "blocks") {
         match register_block(&block_definition(&block)) {
             Ok(_) => blocks += 1,
             Err(err) => tracing::warn!("{mod_id}: block {}: {err}", text(&block, "id")),
         }
     }
-    tracing::info!("{mod_id}: registered {blocks} block(s) and {items} item(s)");
+    blocks
 }
 
 fn block_definition(block: &Value) -> BlockDefinition {
