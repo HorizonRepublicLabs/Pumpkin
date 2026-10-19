@@ -966,7 +966,8 @@ mod tests {
         let mut jar = Jar::new();
         jar.insert(
             "META-INF/neoforge.mods.toml".into(),
-            b"[[mods]] #mandatory\nmodId = \"simulated\" #mandatory\ndisplayName=\"A # B\"\n".to_vec(),
+            b"[[mods]] #mandatory\nmodId = \"simulated\" #mandatory\ndisplayName=\"A # B\"\n"
+                .to_vec(),
         );
         assert_eq!(mods_value(&jar, "modId").as_deref(), Some("simulated"));
         assert_eq!(mods_value(&jar, "displayName").as_deref(), Some("A # B"));

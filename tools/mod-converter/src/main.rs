@@ -116,7 +116,8 @@ fn convert_one(
         c.datapack.len()
     );
     if configs > 0 {
-        summary.push_str(&format!("\n    {configs} synced config(s) written"));
+        use std::fmt::Write as _;
+        let _ = write!(summary, "\n    {configs} synced config(s) written");
     }
     for line in &c.report {
         summary.push_str("\n    ");
@@ -126,7 +127,7 @@ fn convert_one(
 }
 
 /// Writes the mod's synced configs, at the defaults the dump recorded, into
-/// `<server>/synced-configs/`, which the server sends to every NeoForge client: a client
+/// `<server>/synced-configs/`, which the server sends to every `NeoForge` client: a client
 /// throws on reading a synced config that never arrived. A file already there is kept, as
 /// it may have been edited. Returns how many were written.
 fn write_synced_configs(
