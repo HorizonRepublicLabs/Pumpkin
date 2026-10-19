@@ -135,6 +135,8 @@ pub struct JavaClient {
     pub packet_limiter: PacketRateLimiter,
     /// Vanilla `suspendFlushingOnServerThread`.
     suspend_flushing: Arc<AtomicBool>,
+    /// Whether the client runs Sable, which changes three vanilla packets' layout.
+    speaks_sable: bool,
 }
 
 impl JavaClient {
@@ -173,6 +175,10 @@ impl JavaClient {
             packet_sequence: AtomicI32::new(-1),
             packet_limiter: pending.packet_limiter,
             suspend_flushing: Arc::new(AtomicBool::new(false)),
+            speaks_sable: pending
+                .negotiated_channels
+                .as_deref()
+                .is_some_and(neoforge::speaks_sable),
         }
     }
 
@@ -405,6 +411,12 @@ impl JavaClient {
         if self.close_token.is_cancelled() {
             return None;
         }
+        let packet_data =
+            if self.speaks_sable && self.connection_state.load() == ConnectionState::Play {
+                neoforge::extend_for_sable(packet_data)
+            } else {
+                packet_data
+            };
         let packet_data = self.translate_outgoing(packet_data)?;
 
         // Reserve first, release again if it does not fit.

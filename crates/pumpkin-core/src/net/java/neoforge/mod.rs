@@ -497,6 +497,35 @@ pub fn advanced_open_screen(
         .unwrap_or_default()
 }
 
+/// Whether the client runs Sable, which reads a byte vanilla never sends after the entity
+/// move and teleport packets. Only a client with the mod agrees on one of its channels.
+pub fn speaks_sable(channels: &[ModdedChannel]) -> bool {
+    channels
+        .iter()
+        .any(|channel| channel.id.starts_with("sable:"))
+}
+
+/// Appends the flag Sable reads after a play packet's vanilla fields: whether the entity is
+/// inside one of its sub-levels. This server has none, so it is always false. Any other
+/// packet is returned as it was. `packet_data` is the packet id followed by its payload.
+pub fn extend_for_sable(packet_data: Bytes) -> Bytes {
+    use pumpkin_data::packet::clientbound::play::{
+        MOVE_ENTITY_POS, MOVE_ENTITY_POS_ROT, TELEPORT_ENTITY,
+    };
+    use pumpkin_protocol::ser::NetworkReadExt;
+
+    let Ok(id) = (&mut &packet_data[..]).get_var_int() else {
+        return packet_data;
+    };
+    if ![MOVE_ENTITY_POS, MOVE_ENTITY_POS_ROT, TELEPORT_ENTITY].contains(&id.0.into()) {
+        return packet_data;
+    }
+    let mut extended = Vec::with_capacity(packet_data.len() + 1);
+    extended.extend_from_slice(&packet_data);
+    extended.push(0);
+    extended.into()
+}
+
 #[cfg(test)]
 mod open_screen_tests {
     use super::OPEN_SCREEN_CHANNEL;
@@ -643,6 +672,17 @@ mod negotiation_tests {
             panic!("a client requiring a channel the server lacks is still refused");
         };
         assert_eq!(failures[0].id, "mekanism:packet");
+    }
+
+    #[test]
+    fn sable_reads_a_flag_after_entity_moves_only() {
+        use pumpkin_data::packet::clientbound::play::{MOVE_ENTITY_POS, SET_TIME};
+        let packet = |id: i32| Bytes::from(vec![u8::try_from(id).unwrap(), 7, 7]);
+        assert_eq!(
+            &extend_for_sable(packet(MOVE_ENTITY_POS.0))[..],
+            &[u8::try_from(MOVE_ENTITY_POS.0).unwrap(), 7, 7, 0]
+        );
+        assert_eq!(extend_for_sable(packet(SET_TIME.0)), packet(SET_TIME.0));
     }
 
     #[test]
