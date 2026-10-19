@@ -13,6 +13,11 @@ pub const DYNAMIC_REGISTRIES: &[(&str, &[&str])] = &[
     ("minecraft:cat_variant", &["cat_variant", "cat_variants"]),
     ("minecraft:frog_variant", &["frog_variant", "frog_variants"]),
     ("minecraft:instrument", &["instrument", "instruments"]),
+    ("minecraft:jukebox_song", &["jukebox_song", "jukebox_songs"]),
+    (
+        "minecraft:painting_variant",
+        &["painting_variant", "painting_variants"],
+    ),
     (
         "minecraft:trim_material",
         &["trim_material", "trim_materials"],
