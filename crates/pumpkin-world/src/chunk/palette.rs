@@ -727,17 +727,17 @@ impl BlockPalette {
     }
 
     #[must_use]
-    pub fn convert_network(&self) -> NetworkSerialization<u16> {
+    pub fn convert_network(&self) -> NetworkSerialization<u32> {
         match self {
             Self::Homogeneous(registry_id) => NetworkSerialization {
                 bits_per_entry: 0,
-                palette: NetworkPalette::Single(registry_id.as_u16()),
+                palette: NetworkPalette::Single(registry_id.as_u32()),
                 packed_data: Box::new([]),
             },
             Self::Heterogeneous(data) => {
                 let raw_bits_per_entry = encompassing_bits(data.counts.len());
                 if raw_bits_per_entry > BLOCK_NETWORK_MAX_MAP_BITS {
-                    let bits_per_entry = BLOCK_NETWORK_MAX_BITS;
+                    let bits_per_entry = block_network_direct_bits();
                     let values_per_i64 = 64 / bits_per_entry;
                     let mut packed_data =
                         Vec::with_capacity(Self::VOLUME.div_ceil(values_per_i64 as usize));
@@ -749,9 +749,9 @@ impl BlockPalette {
                                 let y = (current_idx + i) / (Self::SIZE * Self::SIZE);
                                 let z = ((current_idx + i) / Self::SIZE) % Self::SIZE;
                                 let x = (current_idx + i) % Self::SIZE;
-                                let value = data.get(x, y, z).as_u16();
-                                debug_assert!((1u32 << bits_per_entry) > u32::from(value));
-                                acc |= (value as u64) << (bits_per_entry as u64 * i as u64);
+                                let value = data.get(x, y, z).as_u32();
+                                debug_assert!((1u64 << bits_per_entry) > u64::from(value));
+                                acc |= u64::from(value) << (bits_per_entry as u64 * i as u64);
                             }
                         }
                         packed_data.push(acc as i64);
@@ -770,7 +770,7 @@ impl BlockPalette {
                     NetworkSerialization {
                         bits_per_entry,
                         palette: NetworkPalette::Indirect(
-                            palette.iter().map(|v| v.as_u16()).collect(),
+                            palette.iter().map(|v| v.as_u32()).collect(),
                         ),
                         packed_data: packed,
                     }
@@ -958,14 +958,14 @@ impl BlockPalette {
         match self {
             Self::Homogeneous(id) => {
                 out.put_u8(0);
-                out.put_u16(state_to_world(id.as_u16()));
+                out.put_u32(state_to_world(id.as_u32()));
             }
             Self::Heterogeneous(data) => match &data.storage {
                 PaletteStorage::Indexed(indices) => {
                     out.put_u8(1);
                     out.put_u16(data.palette.len() as u16);
                     for (&id, &count) in data.palette.iter().zip(&data.counts) {
-                        out.put_u16(state_to_world(id.as_u16()));
+                        out.put_u32(state_to_world(id.as_u32()));
                         out.put_u16(count);
                     }
                     out.extend_from_slice(indices.as_flattened().as_flattened());
@@ -973,15 +973,31 @@ impl BlockPalette {
                 PaletteStorage::Dense(cube) => {
                     out.put_u8(2);
                     for &id in cube.as_flattened().as_flattened() {
-                        out.put_u16(state_to_world(id.as_u16()));
+                        out.put_u32(state_to_world(id.as_u32()));
                     }
                 }
             },
         }
     }
 
-    pub(crate) fn read_pump_binary(buf: &mut &[u8]) -> Result<Self, super::ChunkParsingError> {
+    /// `wide` is false for chunks saved before state ids were widened, which stored them in
+    /// two bytes.
+    #[allow(clippy::too_many_lines)]
+    pub(crate) fn read_pump_binary(
+        buf: &mut &[u8],
+        wide: bool,
+    ) -> Result<Self, super::ChunkParsingError> {
         use bytes::Buf;
+
+        let id_len = if wide { 4 } else { 2 };
+        let read_id = |buf: &mut &[u8]| {
+            let raw = if wide {
+                buf.get_u32()
+            } else {
+                u32::from(buf.get_u16())
+            };
+            BlockStateId::new_or_air(state_to_runtime(raw))
+        };
 
         if !buf.has_remaining() {
             return Err(super::ChunkParsingError::ErrorDeserializingChunk(
@@ -990,14 +1006,12 @@ impl BlockPalette {
         }
         match buf.get_u8() {
             0 => {
-                if buf.remaining() < 2 {
+                if buf.remaining() < id_len {
                     return Err(super::ChunkParsingError::ErrorDeserializingChunk(
                         "Unexpected EOF reading homogeneous block palette".into(),
                     ));
                 }
-                Ok(Self::Homogeneous(BlockStateId::new_or_air(
-                    state_to_runtime(buf.get_u16()),
-                )))
+                Ok(Self::Homogeneous(read_id(buf)))
             }
             1 => {
                 if buf.remaining() < 2 {
@@ -1007,7 +1021,7 @@ impl BlockPalette {
                 }
                 let palette_len = buf.get_u16() as usize;
                 if !(1..=256).contains(&palette_len)
-                    || buf.remaining() < palette_len * 4 + Self::VOLUME
+                    || buf.remaining() < palette_len * (id_len + 2) + Self::VOLUME
                 {
                     return Err(super::ChunkParsingError::ErrorDeserializingChunk(
                         "Invalid indexed block palette length".into(),
@@ -1017,7 +1031,7 @@ impl BlockPalette {
                 let mut counts = Vec::with_capacity(palette_len);
                 let mut count_sum = 0u32;
                 for _ in 0..palette_len {
-                    palette.push(BlockStateId::new_or_air(state_to_runtime(buf.get_u16())));
+                    palette.push(read_id(buf));
                     let c = buf.get_u16();
                     counts.push(c);
                     count_sum += u32::from(c);
@@ -1070,7 +1084,7 @@ impl BlockPalette {
                 })))
             }
             2 => {
-                if buf.remaining() < Self::VOLUME * 2 {
+                if buf.remaining() < Self::VOLUME * id_len {
                     return Err(super::ChunkParsingError::ErrorDeserializingChunk(
                         "Unexpected EOF reading dense block palette".into(),
                     ));
@@ -1078,7 +1092,7 @@ impl BlockPalette {
                 let mut cube =
                     Box::new([[[BlockStateId::AIR; Self::SIZE]; Self::SIZE]; Self::SIZE]);
                 for slot in cube.as_flattened_mut().as_flattened_mut() {
-                    *slot = BlockStateId::new_or_air(state_to_runtime(buf.get_u16()));
+                    *slot = read_id(buf);
                 }
                 Ok(Self::from_cube(cube))
             }
@@ -1227,7 +1241,14 @@ pub type BlockPalette = PalettedContainer<BlockStateId, 16>;
 const BLOCK_DISK_MIN_BITS: u8 = 4;
 const BLOCK_NETWORK_MIN_MAP_BITS: u8 = 4;
 const BLOCK_NETWORK_MAX_MAP_BITS: u8 = 8;
+/// The direct palette width vanilla clients get. A registry past 2^16 states needs more,
+/// and a client reads whatever width the packet says.
 pub(crate) const BLOCK_NETWORK_MAX_BITS: u8 = 16;
+
+/// Bits per entry for a section sent with no palette: wide enough for every state.
+fn block_network_direct_bits() -> u8 {
+    BLOCK_NETWORK_MAX_BITS.max(encompassing_bits(BlockStateId::count() as usize))
+}
 
 pub type BiomePalette = PalettedContainer<u8, 4>;
 const BIOME_DISK_MIN_BITS: u8 = 0;
@@ -1240,7 +1261,7 @@ mod tests {
     use super::{BlockPalette, NetworkPalette};
     use pumpkin_data::{Block, BlockStateId};
 
-    fn network_palette_values(palette: NetworkPalette<u16>) -> Option<Box<[u16]>> {
+    fn network_palette_values(palette: NetworkPalette<u32>) -> Option<Box<[u32]>> {
         match palette {
             NetworkPalette::Single(value) => Some(Box::new([value])),
             NetworkPalette::Indirect(values) => Some(values),
@@ -1299,14 +1320,14 @@ mod tests {
     #[test]
     fn bulk_palette_handles_direct_network_palettes() {
         assert_bulk_matches_mutations(|x, y, z| {
-            BlockStateId::new_or_air(((y * 256 + z * 16 + x) % 300) as u16)
+            BlockStateId::new_or_air(((y * 256 + z * 16 + x) % 300) as u32)
         });
     }
 
     #[test]
     fn bedrock_palette_uses_supported_bit_widths() {
         let palette = BlockPalette::from_fn(|x, y, z| {
-            BlockStateId::new(((y * 256 + z * 16 + x) % 65) as u16).unwrap()
+            BlockStateId::new(((y * 256 + z * 16 + x) % 65) as u32).unwrap()
         });
         let network = palette.convert_be_network();
 
@@ -1337,5 +1358,33 @@ mod tests {
                 .count(),
             1
         );
+    }
+
+    #[test]
+    fn pump_binary_round_trips_and_reads_two_byte_ids() {
+        // Dense (more than 256 values), indexed and homogeneous sections.
+        for palette in [
+            BlockPalette::from_fn(|x, y, z| {
+                BlockStateId::new_or_air(((y * 256 + z * 16 + x) % 300) as u32)
+            }),
+            BlockPalette::from_fn(|x, _, _| BlockStateId::new_or_air(x as u32)),
+            BlockPalette::from_fn(|_, _, _| Block::STONE.default_state.id),
+        ] {
+            let mut out = Vec::new();
+            palette.write_pump_binary(&mut out);
+            let read = BlockPalette::read_pump_binary(&mut out.as_slice(), true).unwrap();
+            for (x, y, z) in
+                (0..16).flat_map(|y| (0..16).flat_map(move |z| (0..16).map(move |x| (x, y, z))))
+            {
+                assert_eq!(read.get(x, y, z), palette.get(x, y, z));
+            }
+        }
+
+        // A homogeneous section as version 1 wrote it: mode, then a two-byte id.
+        let stone = Block::STONE.default_state.id;
+        let mut v1 = vec![0u8];
+        v1.extend_from_slice(&(stone.as_u32() as u16).to_be_bytes());
+        let read = BlockPalette::read_pump_binary(&mut v1.as_slice(), false).unwrap();
+        assert_eq!(read.get(3, 4, 5), stone);
     }
 }

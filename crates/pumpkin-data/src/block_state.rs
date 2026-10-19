@@ -41,7 +41,7 @@ pub struct BlockState {
 /// Every [`BlockStateId`] is guaranteed to correspond to a valid [`BlockState`].
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
 #[repr(transparent)]
-pub struct BlockStateId(u16);
+pub struct BlockStateId(u32);
 
 #[derive(Clone, Debug, PartialEq, Eq)]
 #[repr(u8)]
@@ -285,25 +285,25 @@ impl BlockState {
 
 impl BlockStateId {
     // depends on generated impl:
-    // pub(crate) const STATE_COUNT: u16;
+    // pub(crate) const STATE_COUNT: u32;
 
     /// The number of block states generated at build time. Ids below this are always valid
     /// and resolve without consulting the runtime registry.
-    pub const BASE_COUNT: u16 = Self::STATE_COUNT;
+    pub const BASE_COUNT: u32 = Self::STATE_COUNT;
 
     // SAFETY: There must never be a BlockStateId where self.0 >= crate::dynamic::state_count()
 
     /// The total count of all block states, generated and registered.
     #[inline]
     #[must_use]
-    pub fn count() -> u16 {
+    pub fn count() -> u32 {
         crate::dynamic::state_count()
     }
 
     /// Builds an id known at compile time to name a generated state.
     #[inline]
     #[must_use]
-    pub const fn new_base(inner: u16) -> Option<Self> {
+    pub const fn new_base(inner: u32) -> Option<Self> {
         if inner < Self::BASE_COUNT {
             return Some(Self(inner));
         }
@@ -314,13 +314,13 @@ impl BlockStateId {
     ///
     /// Only the runtime registry may call this, and only with an id it has just assigned.
     #[inline]
-    pub(crate) const fn from_raw(inner: u16) -> Self {
+    pub(crate) const fn from_raw(inner: u32) -> Self {
         Self(inner)
     }
 
     #[inline]
     #[must_use]
-    pub fn new(inner: u16) -> Option<Self> {
+    pub fn new(inner: u32) -> Option<Self> {
         if inner < Self::count() {
             return Some(Self(inner));
         }
@@ -329,7 +329,7 @@ impl BlockStateId {
 
     #[inline]
     #[must_use]
-    pub fn new_or_air(inner: u16) -> Self {
+    pub fn new_or_air(inner: u32) -> Self {
         if inner < Self::count() {
             return Self(inner);
         }
@@ -338,8 +338,15 @@ impl BlockStateId {
 
     #[inline(always)]
     #[must_use]
-    pub const fn as_u16(self) -> u16 {
+    pub const fn as_u32(self) -> u32 {
         self.0
+    }
+
+    /// The id as the protocol's signed integer. Registration keeps ids within `i32`.
+    #[inline(always)]
+    #[must_use]
+    pub const fn as_i32(self) -> i32 {
+        self.0 as i32
     }
 
     #[inline]

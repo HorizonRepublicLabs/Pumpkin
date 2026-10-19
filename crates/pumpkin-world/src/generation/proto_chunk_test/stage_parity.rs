@@ -332,7 +332,7 @@ pub fn compute_section_checksum(chunk: &ProtoChunk, section_index: usize) -> u64
         for z in 0..16 {
             for x in 0..16 {
                 let actual = chunk.get_block_state_raw(x, y + section_bottom_y, z);
-                hash ^= actual.as_u16() as u64;
+                hash ^= actual.as_u32() as u64;
                 hash = hash.wrapping_mul(FNV_PRIME);
             }
         }
@@ -385,11 +385,10 @@ fn compute_chunk_stage_hashes(chunk: &ProtoChunk) -> (String, Vec<String>) {
         for y in 0..16 {
             for z in 0..16 {
                 for x in 0..16 {
-                    let state_id = chunk.get_block_state_raw(x, base_y + y, z).as_u16();
+                    let state_id = chunk.get_block_state_raw(x, base_y + y, z).as_u32();
                     sec_hash = (sec_hash ^ (state_id as u64)).wrapping_mul(fnv_prime);
 
-                    let state_u32 = state_id as u32;
-                    hasher.update(state_u32.to_be_bytes());
+                    hasher.update(state_id.to_be_bytes());
                 }
             }
         }

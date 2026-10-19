@@ -87,7 +87,7 @@ pub fn base_block_count() -> u16 {
 
 /// The number of generated block states. Dynamic state ids start here.
 #[must_use]
-pub fn base_state_count() -> u16 {
+pub fn base_state_count() -> u32 {
     BlockStateId::BASE_COUNT
 }
 
@@ -100,9 +100,9 @@ pub fn block_count() -> u16 {
 
 /// Total block states, generated plus registered.
 #[must_use]
-pub fn state_count() -> u16 {
+pub fn state_count() -> u32 {
     let extra = FROZEN.get().map_or(0, |frozen| frozen.states.len());
-    BlockStateId::BASE_COUNT.saturating_add(extra as u16)
+    BlockStateId::BASE_COUNT.saturating_add(extra as u32)
 }
 
 /// Adds a block to the registry and returns the id it was given.
@@ -153,14 +153,15 @@ pub fn register_block(registration: BlockRegistration) -> Result<Registered, Reg
     let first_state = BlockStateId::BASE_COUNT as usize + staging.states.len();
     let last_state = first_state
         .checked_add(states.len() - 1)
-        .filter(|last| u16::try_from(*last).is_ok())
+        // Within i32, which is how the protocol carries a state id.
+        .filter(|last| i32::try_from(*last).is_ok())
         .ok_or_else(|| RegistryError::OutOfIds(name.clone()))?;
     debug_assert!(last_state >= first_state);
 
     for (offset, state) in states.iter_mut().enumerate() {
         // `first_state + offset <= last_state`, which was just range-checked.
         #[allow(clippy::cast_possible_truncation)]
-        let id = (first_state + offset) as u16;
+        let id = (first_state + offset) as u32;
         state.id = BlockStateId::from_raw(id);
     }
 
@@ -195,7 +196,7 @@ pub fn register_block(registration: BlockRegistration) -> Result<Registered, Reg
         // Handed back rather than looked up, because nothing can look it up yet: every
         // accessor reads the published registry, and publishing happens once every plugin
         // has loaded. A caller that asked for it here would silently be told zero.
-        first_state: BlockStateId::from_raw(first_state as u16),
+        first_state: BlockStateId::from_raw(first_state as u32),
     })
 }
 
@@ -259,7 +260,7 @@ pub fn block_from_id(id: BlockId) -> Option<&'static Block> {
 #[inline(never)]
 #[must_use]
 pub fn state_from_id(id: BlockStateId) -> Option<&'static BlockState> {
-    let index = usize::from(id.as_u16()).checked_sub(usize::from(BlockStateId::BASE_COUNT))?;
+    let index = (id.as_u32() as usize).checked_sub(BlockStateId::BASE_COUNT as usize)?;
     FROZEN.get()?.states.get(index).copied()
 }
 
@@ -285,7 +286,7 @@ pub fn state_has_random_ticks(id: BlockStateId) -> bool {
 #[inline(never)]
 #[must_use]
 pub fn block_id_from_state_id(id: BlockStateId) -> Option<BlockId> {
-    let index = usize::from(id.as_u16()).checked_sub(usize::from(BlockStateId::BASE_COUNT))?;
+    let index = (id.as_u32() as usize).checked_sub(BlockStateId::BASE_COUNT as usize)?;
     FROZEN.get()?.state_owners.get(index).copied()
 }
 

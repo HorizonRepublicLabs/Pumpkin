@@ -52,21 +52,21 @@ fn count_dump_mismatches(chunk: &ProtoChunk, expected_data: &[u16], test_name: &
             for z in 0..16usize {
                 let expected = expected_data[(x * dumped_height + local_y) * 16 + z];
                 let actual = chunk.get_block_state_raw(x as i32, local_y as i32, z as i32);
-                if actual.as_u16() == expected {
+                if actual.as_u32() == u32::from(expected) {
                     continue;
                 }
                 if mismatches < 10 {
                     let y = local_y as i32 + min_y;
                     let act_block = pumpkin_data::BlockState::from_id(actual).id.to_block().name;
                     let exp_block = pumpkin_data::BlockState::from_id(
-                        pumpkin_data::BlockStateId::new(expected).unwrap(),
+                        pumpkin_data::BlockStateId::new(u32::from(expected)).unwrap(),
                     )
                     .id
                     .to_block()
                     .name;
                     println!(
                         "[{test_name}] Mismatch at local ({x}, {y}, {z}): got {act_block} ({}), expected {exp_block} ({expected})",
-                        actual.as_u16()
+                        actual.as_u32()
                     );
                 }
                 mismatches += 1;

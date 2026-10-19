@@ -110,7 +110,7 @@ pub struct BlockSpec {
 #[derive(Debug)]
 pub struct RegisteredBlockSpec {
     pub block_id: BlockId,
-    pub first_state: u16,
+    pub first_state: u32,
     pub drops: Vec<crate::plugin::api::block_behaviour::BlockDrop>,
 }
 
@@ -218,7 +218,7 @@ pub fn register_block_spec(spec: &BlockSpec) -> Result<RegisteredBlockSpec, Stri
 
     Ok(RegisteredBlockSpec {
         block_id: registered.block_id,
-        first_state: registered.first_state.as_u16(),
+        first_state: registered.first_state.as_u32(),
         drops,
     })
 }

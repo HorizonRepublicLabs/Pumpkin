@@ -1,3 +1,4 @@
+use crate::common::WitStateId;
 use pumpkin_data::block_properties::NoteblockInstrument as InternalNoteblockInstrument;
 use pumpkin_data::block_state::PistonBehavior;
 use pumpkin_data::{BlockDirection as InternalBlockDirection, BlockId, BlockStateId};
@@ -151,7 +152,7 @@ async fn set_block_state_with_store(
     state: u16,
     update_flags: WitBlockFlags,
 ) -> wasmtime::Result<()> {
-    let Some(state_id) = BlockStateId::new(state) else {
+    let Some(state_id) = BlockStateId::new(state.into()) else {
         return Err(wasmtime::Error::msg("Invalid BlockStateId"));
     };
     let internal_pos = BlockPos::new(pos.x, pos.y, pos.z);
@@ -231,8 +232,8 @@ pub(crate) fn to_wit_block(block: &pumpkin_data::Block) -> WitBlock {
         velocity_multiplier: block.velocity_multiplier,
         jump_velocity_multiplier: block.jump_velocity_multiplier,
         item_id: block.item_id,
-        default_state_id: block.default_state.id.as_u16(),
-        state_ids: block.states.iter().map(|s| s.id.as_u16()).collect(),
+        default_state_id: block.default_state.id.to_wit(),
+        state_ids: block.states.iter().map(|s| s.id.to_wit()).collect(),
         is_solid: block.is_solid(),
         is_air: block.is_air(),
         is_flammable: block.flammable.is_some(),
@@ -261,7 +262,7 @@ pub(crate) fn to_wit_block_state(
         .unwrap_or_default();
 
     WitBlockState {
-        id: state.id.as_u16(),
+        id: state.id.to_wit(),
         block_id: block.id.as_u16(),
         block_name: block.name.to_string(),
         luminance: state.luminance,
@@ -440,7 +441,7 @@ impl pumpkin::plugin::world::Host for PluginHostState {
         };
 
         if properties.is_empty() {
-            return Ok(Some(block.default_state.id.as_u16()));
+            return Ok(Some(block.default_state.id.to_wit()));
         }
 
         let props: Vec<pumpkin_data::Property> = properties
@@ -451,7 +452,7 @@ impl pumpkin::plugin::world::Host for PluginHostState {
         // so catch panics to avoid crashing on schematics from other MC versions.
         let result = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
             let block_props = block.from_properties(&props);
-            block_props.to_state_id(block).as_u16()
+            block_props.to_state_id(block).to_wit()
         }));
         Ok(result.ok())
     }
@@ -461,7 +462,7 @@ impl pumpkin::plugin::world::Host for PluginHostState {
         state_id: u16,
     ) -> wasmtime::Result<Option<WitBlockStateInfo>> {
         let result = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
-            let bsid = BlockStateId::new_or_air(state_id);
+            let bsid = BlockStateId::new_or_air(state_id.into());
             let block = pumpkin_data::Block::from_state_id(bsid);
             let name = crate::events::namespaced(block.name);
             let properties = block
@@ -542,11 +543,11 @@ impl pumpkin::plugin::world::Host for PluginHostState {
             return Ok(Vec::new());
         };
         let block_ref = pumpkin_data::Block::from_id(id);
-        Ok(block_ref.states.iter().map(|s| s.id.as_u16()).collect())
+        Ok(block_ref.states.iter().map(|s| s.id.to_wit()).collect())
     }
 
     fn get_block_properties(&mut self, state_id: u16) -> wasmtime::Result<Vec<(String, String)>> {
-        let bsid = BlockStateId::new_or_air(state_id);
+        let bsid = BlockStateId::new_or_air(state_id.into());
         let block = pumpkin_data::Block::from_state_id(bsid);
         let props = block
             .properties(bsid)
@@ -561,12 +562,12 @@ impl pumpkin::plugin::world::Host for PluginHostState {
     }
 
     fn get_block_from_state_id(&mut self, state_id: u16) -> wasmtime::Result<Option<WitBlock>> {
-        let bsid = BlockStateId::new(state_id);
+        let bsid = BlockStateId::new(state_id.into());
         Ok(bsid.map(|id| to_wit_block(pumpkin_data::Block::from_state_id(id))))
     }
 
     fn get_block_from_state(&mut self, state: WitBlockState) -> wasmtime::Result<WitBlock> {
-        let bsid = BlockStateId::new_or_air(state.id);
+        let bsid = BlockStateId::new_or_air(state.id.into());
         Ok(to_wit_block(pumpkin_data::Block::from_state_id(bsid)))
     }
 
@@ -588,7 +589,7 @@ impl pumpkin::plugin::world::Host for PluginHostState {
     }
 
     fn get_block_state_by_id(&mut self, state_id: u16) -> wasmtime::Result<Option<WitBlockState>> {
-        let bsid = BlockStateId::new(state_id);
+        let bsid = BlockStateId::new(state_id.into());
         Ok(bsid.map(|id| {
             let state = pumpkin_data::BlockState::from_id(id);
             to_wit_block_state(state, None)
@@ -661,7 +662,7 @@ impl pumpkin::plugin::world::HostWorld for PluginHostState {
     ) -> wasmtime::Result<u16> {
         let world_ref = self.get(&world)?;
         let internal_pos = BlockPos::new(pos.x, pos.y, pos.z);
-        Ok(world_ref.get_block_state_id(&internal_pos).as_u16())
+        Ok(world_ref.get_block_state_id(&internal_pos).to_wit())
     }
 
     fn get_block_state(
@@ -1282,7 +1283,7 @@ impl pumpkin::plugin::world::HostWorldWithStore<PluginHostState> for HasSelf<Plu
         let default_state_id = pumpkin_data::Block::from_id(block_id)
             .default_state
             .id
-            .as_u16();
+            .to_wit();
         set_block_state_with_store(host, world, pos, default_state_id, update_flags).await
     }
 
@@ -1296,7 +1297,7 @@ impl pumpkin::plugin::world::HostWorldWithStore<PluginHostState> for HasSelf<Plu
         let Some(id) = BlockId::new(block_id) else {
             return Err(wasmtime::Error::msg("Invalid BlockId"));
         };
-        let default_state_id = pumpkin_data::Block::from_id(id).default_state.id.as_u16();
+        let default_state_id = pumpkin_data::Block::from_id(id).default_state.id.to_wit();
         set_block_state_with_store(host, world, pos, default_state_id, update_flags).await
     }
 
@@ -1310,7 +1311,7 @@ impl pumpkin::plugin::world::HostWorldWithStore<PluginHostState> for HasSelf<Plu
         let Some(block) = pumpkin_data::Block::from_name(&name) else {
             return Ok(false);
         };
-        let default_state_id = block.default_state.id.as_u16();
+        let default_state_id = block.default_state.id.to_wit();
         set_block_state_with_store(host, world, pos, default_state_id, update_flags).await?;
         Ok(true)
     }
@@ -1359,7 +1360,7 @@ impl pumpkin::plugin::world::HostChunk for PluginHostState {
             .section
             .get_block_absolute_y(pos.x as usize, pos.y, pos.z as usize)
             .unwrap_or(BlockStateId::AIR)
-            .as_u16())
+            .to_wit())
     }
 
     fn get_block_state(
@@ -1409,7 +1410,7 @@ impl pumpkin::plugin::world::HostChunk for PluginHostState {
         let default_state_id = pumpkin_data::Block::from_id(block_id)
             .default_state
             .id
-            .as_u16();
+            .to_wit();
         self.set_block_state(chunk, pos, default_state_id)
     }
 
@@ -1422,7 +1423,7 @@ impl pumpkin::plugin::world::HostChunk for PluginHostState {
         let Some(id) = BlockId::new(block_id) else {
             return Err(wasmtime::Error::msg("Invalid BlockId"));
         };
-        let default_state_id = pumpkin_data::Block::from_id(id).default_state.id.as_u16();
+        let default_state_id = pumpkin_data::Block::from_id(id).default_state.id.to_wit();
         self.set_block_state(chunk, pos, default_state_id)
     }
 
@@ -1438,7 +1439,7 @@ impl pumpkin::plugin::world::HostChunk for PluginHostState {
             return Err(wasmtime::Error::msg("Chunk unloaded"));
         };
 
-        let Some(state) = BlockStateId::new(state) else {
+        let Some(state) = BlockStateId::new(state.into()) else {
             return Err(wasmtime::Error::msg("Invalid BlockStateId"));
         };
 
@@ -1937,7 +1938,7 @@ impl pumpkin::plugin::world::HostChunkBuffer for PluginHostState {
                 .lock()
                 .unwrap_or_else(std::sync::PoisonError::into_inner);
             let block_state = pumpkin_data::BlockState::from_id(
-                pumpkin_data::BlockStateId::new(state_id)
+                pumpkin_data::BlockStateId::new(state_id.into())
                     .unwrap_or(pumpkin_data::BlockStateId::AIR),
             );
             proto.set_block_state(world_x, y, world_z, block_state);
@@ -1962,7 +1963,7 @@ impl pumpkin::plugin::world::HostChunkBuffer for PluginHostState {
             if local_y >= 0 && local_y < proto.height() as i32 {
                 Ok(proto
                     .get_block_state_raw(x as i32, local_y, z as i32)
-                    .as_u16())
+                    .to_wit())
             } else {
                 Ok(0)
             }
@@ -1981,7 +1982,8 @@ impl pumpkin::plugin::world::HostChunkBuffer for PluginHostState {
         let start_x = pumpkin_world::generation::positions::chunk_pos::start_block_x(res.x);
         let start_z = pumpkin_world::generation::positions::chunk_pos::start_block_z(res.z);
         let block_state = pumpkin_data::BlockState::from_id(
-            pumpkin_data::BlockStateId::new(state_id).unwrap_or(pumpkin_data::BlockStateId::AIR),
+            pumpkin_data::BlockStateId::new(state_id.into())
+                .unwrap_or(pumpkin_data::BlockStateId::AIR),
         );
         let mut proto = res
             .proto_chunk
@@ -2011,7 +2013,7 @@ impl pumpkin::plugin::world::HostChunkBuffer for PluginHostState {
             let world_z =
                 pumpkin_world::generation::positions::chunk_pos::start_block_z(res.z) + z as i32;
             let block_state = pumpkin_data::BlockState::from_id(
-                pumpkin_data::BlockStateId::new(state_id)
+                pumpkin_data::BlockStateId::new(state_id.into())
                     .unwrap_or(pumpkin_data::BlockStateId::AIR),
             );
             let mut proto = res
@@ -2040,7 +2042,8 @@ impl pumpkin::plugin::world::HostChunkBuffer for PluginHostState {
         let start_x = pumpkin_world::generation::positions::chunk_pos::start_block_x(res.x);
         let start_z = pumpkin_world::generation::positions::chunk_pos::start_block_z(res.z);
         let block_state = pumpkin_data::BlockState::from_id(
-            pumpkin_data::BlockStateId::new(state_id).unwrap_or(pumpkin_data::BlockStateId::AIR),
+            pumpkin_data::BlockStateId::new(state_id.into())
+                .unwrap_or(pumpkin_data::BlockStateId::AIR),
         );
         let mut proto = res
             .proto_chunk

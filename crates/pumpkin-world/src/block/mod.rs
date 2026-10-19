@@ -71,7 +71,7 @@ mod test {
     fn proper_network_bits_per_entry() {
         let addressable = 1u32 << BLOCK_NETWORK_MAX_BITS;
         assert!(
-            u32::from(BlockStateId::BASE_COUNT) <= addressable,
+            BlockStateId::BASE_COUNT <= addressable,
             "We need to update our constants! {} states do not fit in {BLOCK_NETWORK_MAX_BITS} bits",
             BlockStateId::BASE_COUNT
         );

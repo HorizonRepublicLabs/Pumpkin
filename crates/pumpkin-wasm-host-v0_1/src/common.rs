@@ -8,6 +8,18 @@ use pumpkin_wasm_host_common::state::PluginHostState;
 
 impl pumpkin::plugin::common::Host for PluginHostState {}
 
+/// v0.1 carries block state ids as `u16`. A state past that range reads as air there;
+/// plugins that need one use v0.2.
+pub trait WitStateId {
+    fn to_wit(self) -> u16;
+}
+
+impl WitStateId for pumpkin_data::BlockStateId {
+    fn to_wit(self) -> u16 {
+        u16::try_from(self.as_u32()).unwrap_or(0)
+    }
+}
+
 pub fn push_wit_nbt_tag(tag: NbtTag, tags: &mut Vec<WitNbtTag>) -> u32 {
     let index = tags.len() as u32;
     tags.push(WitNbtTag::Byte(0));

@@ -229,7 +229,7 @@ interface event {
 
     record block-redstone-event-data {
         target-world: %world,
-        state-id: u16,
+        state-id: u32,
         block-pos: block-pos,
         old-current: s32,
         new-current: s32,
@@ -248,7 +248,7 @@ interface event {
         block: string,
         block-pos: block-pos,
         /// The state that was broken, which decides most drops: a grown crop gives more.
-        state-id: u16,
+        state-id: u32,
         exp: u32,
         should-drop: bool,
         /// What the block drops in place of its loot table. Arrives holding a registered
@@ -277,9 +277,9 @@ interface event {
     record block-grow-event-data {
         target-world: %world,
         old-block: string,
-        old-state-id: u16,
+        old-state-id: u32,
         new-block: string,
-        new-state-id: u16,
+        new-state-id: u32,
         block-pos: block-pos,
         cancelled: bool
     }
@@ -292,7 +292,7 @@ interface event {
     record block-random-tick-event-data {
         target-world: %world,
         block: string,
-        state-id: u16,
+        state-id: u32,
         block-pos: block-pos,
         cancelled: bool
     }
@@ -1473,14 +1473,14 @@ interface event {
         block-pos: block-pos,
         target-world: %world,
         player: option<player>,
-        changed-blocks: list<tuple<block-pos, u16>>,
+        changed-blocks: list<tuple<block-pos, u32>>,
         cancelled: bool
     }
 
     record block-multi-place-event-data {
         player: player,
         target-world: %world,
-        placed-blocks: list<tuple<block-pos, u16>>,
+        placed-blocks: list<tuple<block-pos, u32>>,
         cancelled: bool
     }
 
@@ -1504,7 +1504,7 @@ interface event {
         source-pos: block-pos,
         target-pos: block-pos,
         target-world: %world,
-        new-state-id: u16,
+        new-state-id: u32,
         cancelled: bool
     }
 
@@ -1545,14 +1545,14 @@ interface event {
         entity-id: s32,
         block-pos: block-pos,
         target-world: %world,
-        new-state-id: u16,
+        new-state-id: u32,
         cancelled: bool
     }
 
     record fluid-level-change-event-data {
         block-pos: block-pos,
         target-world: %world,
-        new-state-id: u16,
+        new-state-id: u32,
         cancelled: bool
     }
 

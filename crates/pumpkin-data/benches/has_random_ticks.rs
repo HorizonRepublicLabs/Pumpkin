@@ -11,7 +11,7 @@ use std::hint::black_box;
 use criterion::{Criterion, criterion_group, criterion_main};
 use pumpkin_data::{BlockStateId, block_properties::has_random_ticks};
 
-const MAX_ID: u16 = 30000;
+const MAX_ID: u32 = 30000;
 
 #[inline(never)]
 fn run_all<F: Fn(BlockStateId) -> bool>(f: F) -> u32 {
@@ -52,7 +52,7 @@ criterion_main!(benches);
 
 pub fn has_random_ticks_matches(state_id: BlockStateId) -> bool {
     matches!(
-        state_id.as_u16(),
+        state_id.as_u32(),
         8 | 9
             | 29
             | 30

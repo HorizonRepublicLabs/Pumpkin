@@ -259,7 +259,7 @@ mod tests {
             register_block(sample("examplemod:ruby_block", 2)).expect("registration succeeds");
         let id = registered.block_id;
         assert_eq!(
-            registered.first_state.as_u16(),
+            registered.first_state.as_u32(),
             base_states,
             "registration hands back the id its states start at"
         );
@@ -396,7 +396,17 @@ mod tests {
             "generated names are unnamespaced, so they can never collide"
         );
 
+        // Enough states to carry ids past the old 16-bit ceiling.
+        let huge =
+            register_block(sample("examplemod:huge", 40_000)).expect("registration succeeds");
+
         freeze();
+
+        let last = Block::from_id(huge.block_id).states.last().unwrap().id;
+        assert!(last.as_u32() > u32::from(u16::MAX), "ids run past u16");
+        assert_eq!(BlockStateId::new(last.as_u32()), Some(last));
+        assert_eq!(BlockState::from_id(last).id, last);
+        assert_eq!(BlockId::from_state_id(last), huge.block_id);
 
         let block = Block::from_name("examplemod:ruby_block").expect("registered block resolves");
         assert_eq!(block.id, id);
@@ -409,7 +419,7 @@ mod tests {
         assert_eq!(block.states.len(), 2);
         for (offset, state) in block.states.iter().enumerate() {
             let state_id = state.id;
-            assert_eq!(state_id.as_u16(), base_states + offset as u16);
+            assert_eq!(state_id.as_u32(), base_states + offset as u32);
             assert_eq!(BlockState::from_id(state_id).id, state_id);
             assert_eq!(BlockId::from_state_id(state_id), id);
             assert_eq!(Block::from_state_id(state_id).id, id);
@@ -420,11 +430,12 @@ mod tests {
             "a block registered without properties has none"
         );
 
-        // Two blocks were registered: the two-state one above and an eight-state machine.
-        assert_eq!(BlockId::count(), base_blocks + 2);
-        assert_eq!(BlockStateId::count(), base_states + 2 + 8);
-        assert!(BlockId::new(base_blocks + 1).is_some());
-        assert!(BlockId::new(base_blocks + 2).is_none());
+        // Three blocks were registered: the two-state one above, an eight-state machine and
+        // the huge one.
+        assert_eq!(BlockId::count(), base_blocks + 3);
+        assert_eq!(BlockStateId::count(), base_states + 2 + 8 + 40_000);
+        assert!(BlockId::new(base_blocks + 2).is_some());
+        assert!(BlockId::new(base_blocks + 3).is_none());
 
         // Generated content resolves exactly as before.
         assert_eq!(

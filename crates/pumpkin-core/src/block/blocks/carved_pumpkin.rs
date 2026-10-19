@@ -72,7 +72,7 @@ fn spawn_golem(world: &Arc<World>, pattern: GolemPattern) {
         world.sync_world_event(
             WorldEvent::ParticlesDestroyBlock,
             pos,
-            pattern.body.default_state.id.as_u16().into(),
+            pattern.body.default_state.id.as_i32(),
         );
     }
 

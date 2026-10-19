@@ -1,3 +1,4 @@
+use crate::common::WitStateId;
 use std::sync::Arc;
 use wasmtime::component::{Access, HasSelf, Resource};
 
@@ -664,9 +665,7 @@ impl HostMob for PluginHostState {
             any.downcast_ref::<pumpkin_core::entity::mob::enderman::EndermanEntity>()
         {
             return Ok(WitMobData::Enderman(WitEndermanData {
-                carried_block_state: enderman
-                    .get_carried_block()
-                    .map(pumpkin_data::BlockStateId::as_u16),
+                carried_block_state: enderman.get_carried_block().map(|id| id.to_wit()),
                 is_screaming: enderman.is_creepy(),
                 is_staring: enderman.is_creepy(),
             }));
@@ -807,7 +806,7 @@ impl HostMob for PluginHostState {
                     enderman.set_carried_block(
                         enderman_data
                             .carried_block_state
-                            .and_then(pumpkin_data::BlockStateId::new),
+                            .and_then(|id| pumpkin_data::BlockStateId::new(id.into())),
                     );
                     enderman.set_creepy(enderman_data.is_screaming || enderman_data.is_staring);
                     return Ok(true);

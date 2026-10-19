@@ -145,7 +145,7 @@ impl EntityBase for TNTEntity {
         );
         self.entity.set_synced_data(
             pumpkin_data::tracked_data::tnt::BLOCK_STATE_ID,
-            VarInt(i32::from(Block::TNT.default_state.id.as_u16())),
+            VarInt(Block::TNT.default_state.id.as_i32()),
         );
     }
 

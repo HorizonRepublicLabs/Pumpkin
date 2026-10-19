@@ -16,7 +16,7 @@ use criterion::{Criterion, criterion_group, criterion_main};
 use pumpkin_data::{Block, BlockId, BlockState, BlockStateId, entity::EntityType, item::Item};
 
 const BLOCK_COUNT: u16 = 1196;
-const STATE_COUNT: u16 = 32366;
+const STATE_COUNT: u32 = 32366;
 const ITEM_COUNT: u16 = 1537;
 const ENTITY_TYPE_COUNT: u16 = 158;
 

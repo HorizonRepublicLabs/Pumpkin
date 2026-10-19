@@ -23,13 +23,13 @@ const HEADER: &str = "# pumpkin block ids v1";
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
 struct Entry {
     name: String,
-    state_count: u16,
+    state_count: u32,
 }
 
 #[derive(Debug)]
 struct Translation {
-    state_to_world: Box<[u16]>,
-    state_to_runtime: Box<[u16]>,
+    state_to_world: Box<[u32]>,
+    state_to_runtime: Box<[u32]>,
     block_to_world: Box<[u16]>,
     block_to_runtime: Box<[u16]>,
 }
@@ -80,25 +80,25 @@ pub(crate) fn is_translating() -> bool {
     active().is_some()
 }
 
-pub(crate) fn state_to_world(id: u16) -> u16 {
-    active().map_or(id, |t| lookup(&t.state_to_world, id))
+pub(crate) fn state_to_world(id: u32) -> u32 {
+    active().map_or(id, |t| lookup(&t.state_to_world, id as usize))
 }
 
-pub(crate) fn state_to_runtime(id: u16) -> u16 {
-    active().map_or(id, |t| lookup(&t.state_to_runtime, id))
+pub(crate) fn state_to_runtime(id: u32) -> u32 {
+    active().map_or(id, |t| lookup(&t.state_to_runtime, id as usize))
 }
 
 pub(crate) fn block_to_world(id: u16) -> u16 {
-    active().map_or(id, |t| lookup(&t.block_to_world, id))
+    active().map_or(id, |t| lookup(&t.block_to_world, id as usize))
 }
 
 pub(crate) fn block_to_runtime(id: u16) -> u16 {
-    active().map_or(id, |t| lookup(&t.block_to_runtime, id))
+    active().map_or(id, |t| lookup(&t.block_to_runtime, id as usize))
 }
 
 /// Out-of-range ids become air, as `new_or_air` already treats them.
-fn lookup(table: &[u16], id: u16) -> u16 {
-    table.get(id as usize).copied().unwrap_or(0)
+fn lookup<T: Copy + Default>(table: &[T], id: usize) -> T {
+    table.get(id).copied().unwrap_or_default()
 }
 
 fn runtime_entries() -> Vec<Entry> {
@@ -108,7 +108,7 @@ fn runtime_entries() -> Vec<Entry> {
             let block = Block::from_id(id);
             Entry {
                 name: block.name.to_string(),
-                state_count: block.states.len() as u16,
+                state_count: block.states.len() as u32,
             }
         })
         .collect()
@@ -120,15 +120,12 @@ fn build(world: &[Entry], runtime: &[Entry]) -> io::Result<Option<Translation>> 
         return Ok(None);
     }
 
-    let firsts = |entries: &[Entry]| -> io::Result<Vec<u16>> {
+    let firsts = |entries: &[Entry]| -> io::Result<Vec<u32>> {
         let mut out = Vec::with_capacity(entries.len());
         let mut next = 0u32;
         for e in entries {
-            out.push(u16::try_from(next).map_err(|_| too_many())?);
-            next += u32::from(e.state_count);
-        }
-        if next > u32::from(u16::MAX) + 1 {
-            return Err(too_many());
+            out.push(next);
+            next = next.checked_add(e.state_count).ok_or_else(too_many)?;
         }
         Ok(out)
     };
@@ -146,7 +143,7 @@ fn build(world: &[Entry], runtime: &[Entry]) -> io::Result<Option<Translation>> 
         world.iter().enumerate().map(|(i, e)| (e, i)).collect();
 
     let state_total = |entries: &[Entry]| entries.iter().map(|e| e.state_count as usize).sum();
-    let mut state_to_runtime = vec![0u16; state_total(world)];
+    let mut state_to_runtime = vec![0u32; state_total(world)];
     let mut block_to_runtime = vec![0u16; world.len()];
     for (wi, entry) in world.iter().enumerate() {
         let Some(&ri) = runtime_by_name.get(entry.name.as_str()) else {
@@ -167,7 +164,7 @@ fn build(world: &[Entry], runtime: &[Entry]) -> io::Result<Option<Translation>> 
         let default = Block::from_id(BlockId::new(ri as u16).unwrap_or(BlockId::AIR))
             .default_state
             .id
-            .as_u16();
+            .as_u32();
         block_to_runtime[wi] = ri as u16;
         for offset in 0..entry.state_count {
             state_to_runtime[(world_first[wi] + offset) as usize] = if offset < current.state_count
@@ -179,7 +176,7 @@ fn build(world: &[Entry], runtime: &[Entry]) -> io::Result<Option<Translation>> 
         }
     }
 
-    let mut state_to_world = vec![0u16; state_total(runtime)];
+    let mut state_to_world = vec![0u32; state_total(runtime)];
     let mut block_to_world = vec![0u16; runtime.len()];
     for (ri, entry) in runtime.iter().enumerate() {
         // `init` appended every runtime entry, so the lookup cannot miss.
@@ -199,7 +196,7 @@ fn build(world: &[Entry], runtime: &[Entry]) -> io::Result<Option<Translation>> 
 }
 
 fn too_many() -> io::Error {
-    io::Error::other("world block id list no longer fits in 16-bit state ids")
+    io::Error::other("world block id list no longer fits in 32-bit state ids")
 }
 
 fn parse(text: &str) -> io::Result<Vec<Entry>> {
@@ -236,7 +233,7 @@ fn write(path: &Path, entries: &[Entry]) -> io::Result<()> {
 mod tests {
     use super::*;
 
-    fn e(name: &str, state_count: u16) -> Entry {
+    fn e(name: &str, state_count: u32) -> Entry {
         Entry {
             name: name.to_string(),
             state_count,
@@ -260,10 +257,21 @@ mod tests {
         // runtime:      air 0 | b:y 1..=3 | a:x 4..=5
         assert_eq!(&*t.state_to_runtime, &[0, 4, 5, 1, 2, 3]);
         assert_eq!(&*t.block_to_runtime, &[0, 2, 1]);
-        for runtime_state in 0..6u16 {
+        for runtime_state in 0..6u32 {
             let w = t.state_to_world[runtime_state as usize];
             assert_eq!(t.state_to_runtime[w as usize], runtime_state);
         }
+    }
+
+    #[test]
+    fn ids_past_sixteen_bits_translate() {
+        let world = vec![e("air", 1), e("a:x", 70_000), e("b:y", 2)];
+        let runtime = vec![e("air", 1), e("b:y", 2), e("a:x", 70_000)];
+        let t = build(&world, &runtime).unwrap().unwrap();
+        // b:y was saved after a:x's 70,000 states and now sits right after air.
+        assert_eq!(t.state_to_runtime[70_001], 1);
+        assert_eq!(t.state_to_world[1], 70_001);
+        assert_eq!(t.state_to_runtime[70_000], 70_002);
     }
 
     #[test]

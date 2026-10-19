@@ -43,9 +43,7 @@ impl FallingEntity {
 
         let position = position.0.to_f64().add_raw(0.5, 0.0, 0.5);
         let entity = Entity::new(world.clone(), position, &EntityType::FALLING_BLOCK);
-        entity
-            .data
-            .store(i32::from(block_state.as_u16()), Ordering::Relaxed);
+        entity.data.store(block_state.as_i32(), Ordering::Relaxed);
         let entity = Arc::new(Self::new(entity, block_state));
         world.spawn_entity_non_save(entity);
     }
@@ -98,7 +96,7 @@ impl EntityBase for FallingEntity {
                     let placed = world.get_block_state_id(&landing_pos);
                     world.send_to_tracking_players_editioned(
                         entity,
-                        &CBlockUpdate::new(landing_pos, i32::from(placed.as_u16()).into()),
+                        &CBlockUpdate::new(landing_pos, placed.as_i32().into()),
                         &CUpdateBlock::new(landing_pos, BlockState::to_be_network_id(placed)),
                     );
                 } else if world.level_info.load().game_rules.entity_drops

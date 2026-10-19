@@ -113,27 +113,27 @@ fn extract_u16_array(tag: &pumpkin_nbt::tag::NbtTag) -> Option<Box<[BlockStateId
     match tag {
         pumpkin_nbt::tag::NbtTag::IntArray(arr) => Some(
             arr.iter()
-                .map(|&x| BlockStateId::new_or_air(x as u16))
+                .map(|&x| BlockStateId::new_or_air(x as u32))
                 .collect(),
         ),
         pumpkin_nbt::tag::NbtTag::ByteArray(arr) => Some(
             arr.iter()
-                .map(|&x| BlockStateId::new_or_air(x as u16))
+                .map(|&x| BlockStateId::new_or_air(x as u32))
                 .collect(),
         ),
         pumpkin_nbt::tag::NbtTag::LongArray(arr) => Some(
             arr.iter()
-                .map(|&x| BlockStateId::new_or_air(x as u16))
+                .map(|&x| BlockStateId::new_or_air(x as u32))
                 .collect(),
         ),
         pumpkin_nbt::tag::NbtTag::List(list) => {
             let ids: Box<[BlockStateId]> = list
                 .iter()
                 .map(|t| match t {
-                    pumpkin_nbt::tag::NbtTag::Int(x) => BlockStateId::new_or_air(*x as u16),
-                    pumpkin_nbt::tag::NbtTag::Short(x) => BlockStateId::new_or_air(*x as u16),
-                    pumpkin_nbt::tag::NbtTag::Byte(x) => BlockStateId::new_or_air(*x as u16),
-                    pumpkin_nbt::tag::NbtTag::Long(x) => BlockStateId::new_or_air(*x as u16),
+                    pumpkin_nbt::tag::NbtTag::Int(x) => BlockStateId::new_or_air(*x as u32),
+                    pumpkin_nbt::tag::NbtTag::Short(x) => BlockStateId::new_or_air(*x as u32),
+                    pumpkin_nbt::tag::NbtTag::Byte(x) => BlockStateId::new_or_air(*x as u32),
+                    pumpkin_nbt::tag::NbtTag::Long(x) => BlockStateId::new_or_air(*x as u32),
                     pumpkin_nbt::tag::NbtTag::Compound(compound) => {
                         if let Ok(entry) =
                             crate::generation::structure::template::PaletteEntry::from_nbt_compound(
@@ -712,7 +712,8 @@ impl ChunkData {
 
     #[allow(clippy::too_many_lines)]
     pub fn internal_to_pump_bytes(&self) -> Bytes {
-        const PUMP_CHUNK_VERSION: u8 = 1;
+        // 2: block state ids take four bytes, not two.
+        const PUMP_CHUNK_VERSION: u8 = 2;
 
         let is_light_correct = self.light_populated.load(Ordering::Relaxed);
         let block_entities_nbt = {
@@ -893,7 +894,7 @@ impl ChunkData {
 
         let mut buf = &chunk_data[4..];
         let version = buf.get_u8();
-        if version != 1 {
+        if !(1..=2).contains(&version) {
             return Err(ChunkParsingError::ErrorDeserializingChunk(format!(
                 "Unsupported pump chunk version {version}"
             )));
@@ -969,7 +970,7 @@ impl ChunkData {
         let mut sky_lights = Vec::with_capacity(section_count);
 
         for _ in 0..section_count {
-            block_palettes.push(BlockPalette::read_pump_binary(&mut buf)?);
+            block_palettes.push(BlockPalette::read_pump_binary(&mut buf, version >= 2)?);
             biome_palettes.push(BiomePalette::read_pump_binary(&mut buf)?);
 
             if !buf.has_remaining() {

@@ -422,8 +422,8 @@ pub fn with_properties_of(
 
     // Fallback: use relative state index
     let offset = from_state_id
-        .as_u16()
-        .saturating_sub(from_block.default_state.id.as_u16()) as usize;
+        .as_u32()
+        .saturating_sub(from_block.default_state.id.as_u32()) as usize;
     to_block
         .states
         .get(offset)

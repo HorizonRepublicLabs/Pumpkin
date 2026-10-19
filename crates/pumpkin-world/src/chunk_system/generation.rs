@@ -342,7 +342,7 @@ mod tests {
                 for z in -4400..=-4393 {
                     let state =
                         chunk.get_block_state(&pumpkin_util::math::vector3::Vector3::new(x, y, z));
-                    hash ^= u64::from(state.as_u16());
+                    hash ^= u64::from(state.as_u32());
                     hash = hash.wrapping_mul(0x100000001b3);
                     non_air += usize::from(!state.to_state().is_air());
                 }

@@ -101,7 +101,7 @@ impl Goal for EatGrassGoal {
                         world.sync_world_event(
                             WorldEvent::ParticlesDestroyBlock,
                             below_pos,
-                            i32::from(Block::GRASS_BLOCK.default_state.id.as_u16()),
+                            Block::GRASS_BLOCK.default_state.id.as_i32(),
                         );
                         world.set_block_state(
                             &below_pos,

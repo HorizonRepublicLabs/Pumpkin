@@ -133,10 +133,10 @@ impl LightningBoltEntity {
                 let first_block = first_block_id.to_block();
                 let offset = struck_state
                     .id
-                    .as_u16()
-                    .saturating_sub(struck_block.default_state.id.as_u16());
+                    .as_u32()
+                    .saturating_sub(struck_block.default_state.id.as_u32());
                 let new_state_id =
-                    BlockStateId::new(first_block.default_state.id.as_u16() + offset)
+                    BlockStateId::new(first_block.default_state.id.as_u32() + offset)
                         .unwrap_or(first_block.default_state.id);
                 world.set_block_state(&strike_pos, new_state_id, BlockFlags::NOTIFY_ALL);
             }
@@ -178,9 +178,9 @@ impl LightningBoltEntity {
                 let prev_block = prev_block_id.to_block();
                 let offset = state
                     .id
-                    .as_u16()
-                    .saturating_sub(block.default_state.id.as_u16());
-                let new_state_id = BlockStateId::new(prev_block.default_state.id.as_u16() + offset)
+                    .as_u32()
+                    .saturating_sub(block.default_state.id.as_u32());
+                let new_state_id = BlockStateId::new(prev_block.default_state.id.as_u32() + offset)
                     .unwrap_or(prev_block.default_state.id);
                 world.set_block_state(&candidate, new_state_id, BlockFlags::NOTIFY_ALL);
                 world.sync_world_event(WorldEvent::ParticlesElectricSpark, candidate, -1);

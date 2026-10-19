@@ -58,22 +58,20 @@ impl BlockDrop {
 pub struct PluginBlockBehaviour {
     /// The state id the block's own states start at, so a state can be turned back into an
     /// offset into what the registration declared.
-    first_state: u16,
+    first_state: u32,
     drops: Vec<BlockDrop>,
 }
 
 impl PluginBlockBehaviour {
     #[must_use]
-    pub const fn new(first_state: u16, drops: Vec<BlockDrop>) -> Self {
+    pub const fn new(first_state: u32, drops: Vec<BlockDrop>) -> Self {
         Self { first_state, drops }
     }
 
     /// The drops that apply to a state.
     fn drops_for(&self, state_id: BlockStateId) -> impl Iterator<Item = &BlockDrop> {
-        let offset = state_id.as_u16().saturating_sub(self.first_state);
-        self.drops
-            .iter()
-            .filter(move |drop| drop.covers(u32::from(offset)))
+        let offset = state_id.as_u32().saturating_sub(self.first_state);
+        self.drops.iter().filter(move |drop| drop.covers(offset))
     }
 
     /// What the state yields when broken at a position.
@@ -87,7 +85,7 @@ impl PluginBlockBehaviour {
                     .x
                     .wrapping_mul(31)
                     .wrapping_add(position.0.z.wrapping_mul(7))
-                    .wrapping_add(i32::from(state_id.as_u16()))
+                    .wrapping_add(state_id.as_i32())
                     .unsigned_abs() as u8;
                 let count = drop.count(roll);
                 let item = Item::from_id(drop.item_id)?;
