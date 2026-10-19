@@ -25,6 +25,7 @@ use serde_json::Value;
 use crate::generation::height_provider::HeightProvider;
 use crate::generation::height_provider::UniformHeightProvider;
 use crate::generation::rule::RuleTest;
+use crate::generation::rule::block_match::BlockMatchRuleTest;
 use crate::generation::rule::tag_match::TagMatchRuleTest;
 
 use super::configured_features::ConfiguredFeature;
@@ -278,6 +279,15 @@ fn parse_ore_config(configured: &Value) -> Result<OreFeature, String> {
                     .ok_or_else(|| format!("unknown block tag {tag_name}"))?;
                 RuleTest::TagMatch(TagMatchRuleTest { tag: (values, ids) })
             }
+            Some("block_match") => {
+                let name = predicate
+                    .get("block")
+                    .and_then(Value::as_str)
+                    .ok_or("block_match without a block")?;
+                let block = Block::from_name(name)
+                    .ok_or_else(|| format!("{name} is not a registered block"))?;
+                RuleTest::BlockMatch(BlockMatchRuleTest { block: block.id })
+            }
             Some("always_true") => RuleTest::AlwaysTrue,
             other => return Err(format!("unsupported ore rule {other:?}")),
         };
@@ -348,7 +358,9 @@ mod tests {
                 {"state": "minecraft:iron_ore",
                  "target": {"predicate_type": "minecraft:tag_match", "tag": "minecraft:stone_ore_replaceables"}},
                 {"state": {"id": "minecraft:deepslate_iron_ore"},
-                 "target": {"predicate_type": "minecraft:tag_match", "tag": "minecraft:deepslate_ore_replaceables"}}
+                 "target": {"predicate_type": "minecraft:tag_match", "tag": "minecraft:deepslate_ore_replaceables"}},
+                {"state": "minecraft:nether_quartz_ore",
+                 "target": {"predicate_type": "minecraft:block_match", "block": "minecraft:netherrack"}}
             ]
         }"#;
         let feature = parse_dynamic_ore("examplemod:ruby_ore", PLACED, configured, "#is_overworld")
