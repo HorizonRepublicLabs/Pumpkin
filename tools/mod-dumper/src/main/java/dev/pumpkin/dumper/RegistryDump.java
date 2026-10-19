@@ -17,7 +17,10 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.EntityBlock;
 import net.minecraft.world.level.block.state.properties.Property;
 import net.neoforged.bus.api.IEventBus;
+import net.neoforged.fml.ModLoader;
+import net.neoforged.fml.ModWorkManager;
 import net.neoforged.fml.common.Mod;
+import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.neoforged.neoforge.data.event.GatherDataEvent;
 import net.neoforged.neoforge.network.registration.NetworkRegistry;
 import net.neoforged.neoforge.network.registration.PayloadRegistration;
@@ -145,6 +148,14 @@ public final class RegistryDump {
     @SuppressWarnings("unchecked")
     private static JsonArray channels() {
         var out = new JsonArray();
+        // A data run skips common setup, and some mods only register their payloads there
+        // (Catnip and Ponder), so run it first, as a real boot does before the network locks.
+        try {
+            ModLoader.dispatchParallelEvent("Common setup", ModWorkManager.syncExecutor(), ModWorkManager.parallelExecutor(), () -> {}, FMLCommonSetupEvent::new);
+        } catch (RuntimeException e) {
+            // A mod whose setup needs a running game; the others' payloads are still in.
+            System.err.println("Pumpkin registry dump: common setup failed for some mods: " + e);
+        }
         try {
             NetworkRegistry.setup();
             Field field = NetworkRegistry.class.getDeclaredField("PAYLOAD_REGISTRATIONS");
